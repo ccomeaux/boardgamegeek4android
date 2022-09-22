@@ -13,6 +13,7 @@ import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
+import java.text.DecimalFormat
 import java.util.*
 
 class PersonStatsFragment : Fragment() {
@@ -81,7 +82,7 @@ class PersonStatsFragment : Fragment() {
 
     private fun showData(stats: PersonStatsEntity) {
         if (stats.averageRating > 0.0) {
-            binding.averageRating.text = stats.averageRating.asRating(context)
+            binding.averageRating.text = stats.averageRating.asBoundedRating(context, DecimalFormat("#0.0"), defaultResId = R.string.unrated)
             binding.averageRating.setTextViewBackground(stats.averageRating.toColor(BggColors.ratingColors))
             binding.averageRatingGroup.isVisible = true
         } else {

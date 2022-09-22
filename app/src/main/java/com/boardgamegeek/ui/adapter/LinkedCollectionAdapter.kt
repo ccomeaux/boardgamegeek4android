@@ -49,14 +49,8 @@ class LinkedCollectionAdapter :
                 binding.yearView.text = entity.year.asYear(itemView.context)
                 binding.thumbnailView.loadThumbnailInList(entity.thumbnailUrl)
                 binding.favoriteView.isVisible = entity.isFavorite
-                val personalRating = entity.personalRating.asPersonalRating(itemView.context, 0)
-                if (personalRating.isNotBlank()) {
-                    binding.ratingView.text = personalRating
-                    binding.ratingView.setTextViewBackground(entity.personalRating.toColor(BggColors.ratingColors))
-                    binding.ratingView.isVisible = true
-                } else {
-                    binding.ratingView.isVisible = false
-                }
+                binding.ratingView.text = entity.personalRating.asPersonalRating(itemView.context)
+                binding.ratingView.setTextViewBackground(entity.personalRating.toColor(BggColors.ratingColors))
                 itemView.setOnClickListener {
                     GameActivity.start(
                         itemView.context,

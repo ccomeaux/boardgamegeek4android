@@ -2,6 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import androidx.annotation.StringRes
+import com.boardgamegeek.R
 import com.boardgamegeek.extensions.DoubleIntervalDelegate
 import com.boardgamegeek.extensions.andLess
 import com.boardgamegeek.extensions.andMore
@@ -45,7 +46,7 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
         }
     }
 
-    private fun formatRating(rating: Double) = rating.asPersonalRating(context)
+    private fun formatRating(rating: Double) = rating.asPersonalRating(context, R.string.unrated)
 
     fun filter(rating: Double): Boolean {
         return when {

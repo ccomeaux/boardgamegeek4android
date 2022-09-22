@@ -996,7 +996,7 @@ class LogPlayActivity : AppCompatActivity() {
                     players.getOrNull(position)?.let { player ->
                         val fragment = LogPlayPlayerRatingNumberPadDialogFragment.newInstance(
                             position,
-                            player.rating.asBoundedRating(this@LogPlayActivity),
+                            player.rating.asPersonalRating(this@LogPlayActivity, 0),
                             player.color,
                             player.fullDescription
                         )

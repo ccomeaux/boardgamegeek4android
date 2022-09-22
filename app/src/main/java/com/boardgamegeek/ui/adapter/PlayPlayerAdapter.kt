@@ -98,7 +98,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
                     binding.ratingView.isVisible = false
                     binding.ratingButton.isVisible = false
                 } else {
-                    binding.ratingView.setTextOrHide(player.rating.asScore(itemView.context, format = ratingFormat))
+                    binding.ratingView.setTextOrHide(player.rating.asBoundedRating(itemView.context, format = ratingFormat))
                     binding.ratingButton.isVisible = true
                 }
 

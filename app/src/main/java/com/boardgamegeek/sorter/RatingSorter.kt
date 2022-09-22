@@ -4,7 +4,6 @@ import android.content.Context
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asBoundedRating
-import com.boardgamegeek.extensions.asScore
 import java.text.DecimalFormat
 
 abstract class RatingSorter(context: Context) : CollectionSorter(context) {
@@ -14,8 +13,8 @@ abstract class RatingSorter(context: Context) : CollectionSorter(context) {
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         val rating = getRating(item)
-        return if (rating == 0.0) defaultValue else rating.asScore(context, R.string.unrated_abbr, DecimalFormat("#0.#"))
+        return if (rating == 0.0) defaultValue else rating.asBoundedRating(context, DecimalFormat("#0.0"), R.string.unrated_abbr)
     }
 
-    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asBoundedRating(context, R.string.unrated_abbr)
+    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asBoundedRating(context, displayFormat, R.string.unrated_abbr)
 }

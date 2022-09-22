@@ -6,8 +6,11 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asBoundedRating
 import com.boardgamegeek.extensions.firstChar
+import java.text.DecimalFormat
 
 class CollectionNameSorter(context: Context) : CollectionSorter(context) {
+    private val displayFormat = DecimalFormat("0.00")
+
     public override val ascendingSortTypeResId: Int
         @StringRes
         get() = R.string.collection_sort_type_collection_name
@@ -30,5 +33,5 @@ class CollectionNameSorter(context: Context) : CollectionSorter(context) {
 
     override fun getRating(item: CollectionItemEntity): Double = item.averageRating
 
-    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asBoundedRating(context, R.string.unrated_abbr)
+    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asBoundedRating(context, displayFormat, R.string.unrated_abbr)
 }

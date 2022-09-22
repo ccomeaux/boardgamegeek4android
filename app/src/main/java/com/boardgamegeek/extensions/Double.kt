@@ -13,17 +13,13 @@ import kotlin.math.ln
 import kotlin.math.roundToInt
 import kotlin.reflect.KProperty
 
-fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
-    return asScore(context, defaultResId, DecimalFormat("#0.#"))
+fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated_abbr): String {
+    return asBoundedRating(context, DecimalFormat("#0.#"), defaultResId)
 }
 
-fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
-    return asScore(context, defaultResId, DecimalFormat("#0.0"))
-}
-
-fun Double.asBoundedRating(context: Context?, @StringRes defaultResId: Int = 0): String {
+fun Double.asBoundedRating(context: Context?, format: DecimalFormat, @StringRes defaultResId: Int = 0): String {
     return when {
-        this in 1.0..10.0 -> return asScore(context, defaultResId, DecimalFormat("0.#"))
+        this in 1.0..10.0 -> return asScore(context, defaultResId, format)
         defaultResId != 0 && context != null -> context.getString(defaultResId)
         else -> ""
     }

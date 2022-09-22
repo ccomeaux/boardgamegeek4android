@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.adapter
 
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -30,13 +31,15 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCo
     inner class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowCommentBinding.bind(itemView)
 
-        fun bind(comment: GameCommentEntity?) {
-            binding.usernameView.text = comment?.username.orEmpty()
-            binding.ratingView.text = comment?.rating?.asPersonalRating(itemView.context).orEmpty()
-            binding.ratingView.setTextViewBackground(
-                (comment?.rating ?: 0.0).toColor(BggColors.ratingColors)
-            )
-            binding.commentView.setTextOrHide(comment?.comment)
+        fun bind(entity: GameCommentEntity?) {
+            if (entity != null) {
+                binding.usernameView.text = entity.username
+                binding.ratingView.text = entity.rating.asPersonalRating(itemView.context)
+                binding.ratingView.setTextViewBackground(entity.rating.toColor(BggColors.ratingColors))
+                binding.commentView.setTextOrHide(entity.comment)
+                binding.root.isVisible = true
+            } else
+                binding.root.isVisible = false
         }
     }
 }

@@ -28,5 +28,5 @@ class MyRatingSorter(context: Context) : RatingSorter(context) {
 
     override fun getRating(item: CollectionItemEntity) = item.rating
 
-    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asPersonalRating(context, R.string.unrated_abbr)
+    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asPersonalRating(context)
 }

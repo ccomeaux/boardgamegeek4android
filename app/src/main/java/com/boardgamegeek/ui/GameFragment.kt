@@ -13,13 +13,13 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameBinding
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.GamePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameRanksDialogFragment
 import com.boardgamegeek.ui.dialog.GameSuggestedPlayerCountPollDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
+import java.text.DecimalFormat
 
 class GameFragment : Fragment() {
     private var _binding: FragmentGameBinding? = null
@@ -109,7 +109,7 @@ class GameFragment : Fragment() {
         binding.ranksInclude.rankView.text = game.overallRank.asRank(requireContext(), game.subtype?.code.orEmpty())
         binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
 
-        binding.ratingsInclude.ratingView.text = game.rating.asRating(context)
+        binding.ratingsInclude.ratingView.text = game.rating.asBoundedRating(context, DecimalFormat("#0.0"), R.string.unrated)
         binding.ratingsInclude.ratingView.setTextViewBackground(game.rating.toColor(BggColors.ratingColors))
         val numberOfRatings = requireContext().getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings)
         val numberOfComments = requireContext().getQuantityText(R.plurals.comments_suffix, game.numberOfComments, game.numberOfComments)
