@@ -44,6 +44,8 @@ def gitBranchName = { ->
 }
 
 android {
+    namespace 'com.boardgamegeek'
+
     compileSdkVersion 32
 
     buildFeatures {
