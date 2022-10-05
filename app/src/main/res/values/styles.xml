@@ -176,17 +176,6 @@
 
 	<!-- Drawer -->
 
-	<style name="DrawerIcon">
-		<item name="android:layout_width">32dp</item>
-		<item name="android:layout_height">32dp</item>
-		<item name="android:layout_marginBottom">8dp</item>
-		<item name="android:layout_marginLeft">0dp</item>
-		<item name="android:layout_marginRight">24dp</item>
-		<item name="android:layout_marginTop">8dp</item>
-		<item name="android:gravity">left|center_vertical</item>
-		<item name="android:scaleType">center</item>
-	</style>
-
 	<style name="DrawerHeaderImage">
 		<item name="android:height">@dimen/drawer_header_image_size</item>
 		<item name="android:width">@dimen/drawer_header_image_size</item>
