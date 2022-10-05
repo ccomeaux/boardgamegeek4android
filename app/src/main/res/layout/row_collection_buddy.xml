@@ -12,12 +12,12 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.RowTitle"
-		tools:text="Title"/>
+		tools:text="Puerto Rico"/>
 
 	<TextView
 		android:id="@+id/yearView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
-		tools:text="Detail"/>
+		android:textAppearance="@style/TextAppearance.RowDetail.Bold.Secondary"
+		tools:text="2002"/>
 </LinearLayout>

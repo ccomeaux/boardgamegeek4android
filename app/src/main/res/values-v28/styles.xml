@@ -5,8 +5,7 @@
 		<item name="android:textFontWeight">500</item>
 	</style>
 
-	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Caption">
-		<item name="android:textColor">@color/primary_text</item>
+	<style name="TextAppearance.RowDetail.Bold">
 		<item name="fontWeight">600</item>
 		<item name="android:textFontWeight">600</item>
 	</style>

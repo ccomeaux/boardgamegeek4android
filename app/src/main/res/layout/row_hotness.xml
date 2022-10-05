@@ -54,7 +54,7 @@
 		style="@style/TextWithImage.Secondary"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+		android:textAppearance="@style/TextAppearance.RowDetail.Bold.Secondary"
 		app:layout_constraintBottom_toBottomOf="@id/thumbnailView"
 		app:layout_constraintStart_toStartOf="@id/nameView"
 		app:layout_constraintTop_toBottomOf="@id/nameView"
