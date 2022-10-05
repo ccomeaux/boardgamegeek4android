@@ -10,6 +10,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowCommentBinding
 import com.boardgamegeek.entities.GameCommentEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.util.XmlApiMarkupConverter
 
 class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCommentsPagedListAdapter.CommentViewHolder>(diffCallback) {
     companion object {
@@ -30,13 +31,14 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCo
 
     inner class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowCommentBinding.bind(itemView)
+        private val markupConverter = XmlApiMarkupConverter(itemView.context)
 
         fun bind(entity: GameCommentEntity?) {
             if (entity != null) {
                 binding.usernameView.text = entity.username
                 binding.ratingView.text = entity.rating.asPersonalRating(itemView.context)
                 binding.ratingView.setTextViewBackground(entity.rating.toColor(BggColors.ratingColors))
-                binding.commentView.setTextOrHide(entity.comment)
+                binding.commentView.setTextMaybeHtml(markupConverter.toHtml(entity.comment))
                 binding.root.isVisible = true
             } else
                 binding.root.isVisible = false
