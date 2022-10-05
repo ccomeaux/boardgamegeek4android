@@ -89,6 +89,9 @@ fun Int.asPlayCount(context: Context): Triple<Int, String, Int> {
     return Triple(pc.first, if (pc.second == 0) "" else context.getString(pc.second), Color.parseColor(pc.third))
 }
 
+/**
+ * Assumes that both end points are positive/non-zero.
+ */
 fun Pair<Int, Int>.asRange(errorText: String = "?"): String {
     return when {
         first == 0 && second == 0 -> errorText
@@ -136,61 +139,6 @@ fun Int.asMinutes(context: Context): String {
  */
 fun Int.hoursAgo(): Long {
     return System.currentTimeMillis() - (this * DateUtils.HOUR_IN_MILLIS)
-}
-
-
-/**
- * Format a list of integers as a range.
- * E.g. [1,3,4,5] would return "1, 3 - 5"
- * Assumes list is already sorted
- */
-fun Collection<Int>?.asRange(comma: String = ", ", dash: String = " - ", max: Int = Int.MAX_VALUE): String {
-    when {
-        this == null -> return ""
-        isEmpty() -> return ""
-        size == 1 -> return this.first().toString()
-        else -> {
-            val invalid = -1
-            var first = invalid
-            var last = invalid
-            val sb = StringBuilder()
-            for (i in indices) {
-                val current = this.elementAt(i)
-                when {
-                    current == max -> {
-                        if (sb.isNotEmpty()) sb.append(comma)
-                        sb.append(first).append("+")
-                        first = invalid
-                        last = invalid
-                    }
-                    first == invalid -> first = current
-                    current - 1 == this.elementAt(i - 1) -> last = current
-                    last != invalid -> {
-                        if (sb.isNotEmpty()) sb.append(comma)
-                        sb.append(first).append(dash).append(last)
-                        first = invalid
-                        last = invalid
-                    }
-                    else -> {
-                        if (sb.isNotEmpty()) sb.append(comma)
-                        sb.append(first)
-                        first = current
-                        last = invalid
-                    }
-                }
-            }
-            if (first != invalid) {
-                if (last != invalid) {
-                    if (sb.isNotEmpty()) sb.append(comma)
-                    sb.append(first).append(dash).append(last)
-                } else {
-                    if (sb.isNotEmpty()) sb.append(comma)
-                    sb.append(first)
-                }
-            }
-            return sb.toString()
-        }
-    }
 }
 
 fun Int.asHttpErrorMessage(context: Context): String {

@@ -46,6 +46,7 @@ class GamePlaysFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.constraintLayout.layoutTransition.setAnimateParentHierarchy(false)
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         binding.swipeRefresh.setBggColors()
 
@@ -129,9 +130,9 @@ class GamePlaysFragment : Fragment() {
                 }
                 binding.inProgressPlaysList.addView(row)
             }
-            binding.inProgressPlaysContainer.isVisible = true
+            binding.inProgressPlaysViews.isVisible = true
         } else {
-            binding.inProgressPlaysContainer.isVisible = false
+            binding.inProgressPlaysViews.isVisible = false
         }
     }
 
@@ -143,14 +144,14 @@ class GamePlaysFragment : Fragment() {
             binding.lastPlayContainer.setOnClickListener {
                 PlayActivity.start(requireContext(), lastPlay.internalId)
             }
-            binding.lastPlayContainer.isVisible = true
+            binding.lastPlayViews.isVisible = true
         } else {
-            binding.lastPlayContainer.isVisible = false
+            binding.lastPlayViews.isVisible = false
         }
     }
 
     private fun bindStats(plays: List<PlayEntity>) {
-        binding.playStatsContainer.isVisible = plays.isNotEmpty()
+        binding.playStatsViews.isVisible = plays.isNotEmpty()
         binding.playStatsContainer.setOnClickListener {
             if (gameId != BggContract.INVALID_ID)
                 GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)

@@ -1,27 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="0dp"
-	android:layout_height="match_parent"
-	android:layout_weight="1"
-	android:orientation="horizontal"
+	style="@style/GameRow"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
 	tools:ignore="UseCompoundDrawables"
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
 		android:id="@+id/yearIcon"
 		style="@style/Icon"
-		android:contentDescription="@string/published_prefix"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:contentDescription="@string/year_published"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/yearView"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
 		app:srcCompat="@drawable/ic_baseline_calendar_today_24" />
 
 	<TextView
 		android:id="@+id/yearView"
-		android:layout_width="wrap_content"
-		android:layout_height="match_parent"
-		android:gravity="center_vertical"
-		android:textAppearance="@style/Text.Primary"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Primary"
 		android:textStyle="bold"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/yearIcon"
+		app:layout_constraintTop_toTopOf="parent"
 		tools:text="1996" />
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 

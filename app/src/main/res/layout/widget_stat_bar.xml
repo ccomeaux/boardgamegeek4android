@@ -29,6 +29,6 @@
 		android:layout_height="wrap_content"
 		android:layout_gravity="center"
 		android:gravity="center_horizontal"
-		android:textAppearance="@style/Text.Secondary.Inverse"
+		android:textAppearance="@style/TextAppearance.Secondary.Inverse"
 		tools:text="Average 7.5"/>
 </merge>

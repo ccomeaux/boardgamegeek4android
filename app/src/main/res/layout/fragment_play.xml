@@ -69,7 +69,7 @@
 
 				<TextView
 					android:id="@+id/gameNameView"
-					style="@style/Text.Title.Overlay"
+					android:textAppearance="@style/TextAppearance.Title.Overlay"
 					android:layout_width="0dp"
 					android:layout_height="0dp"
 					android:background="#5000"
@@ -90,7 +90,7 @@
 					android:layout_marginRight="@dimen/material_margin_horizontal"
 					android:gravity="right"
 					android:text="@string/on"
-					android:textAppearance="@style/Text.Secondary"
+					android:textAppearance="@style/TextAppearance.Secondary"
 					app:layout_constraintBaseline_toBaselineOf="@id/dateView"
 					app:layout_constraintEnd_toEndOf="@id/guidelineData"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart" />
@@ -101,7 +101,7 @@
 					android:layout_height="@dimen/play_detail_row_height"
 					android:layout_marginTop="@dimen/padding_half"
 					android:gravity="left|center_vertical"
-					android:textAppearance="@style/Text.Big"
+					android:textAppearance="@style/TextAppearance.Big"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/thumbnailView"
 					tools:text="January 1, 2015" />
@@ -122,7 +122,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/play_detail_row_height"
 					android:gravity="left|center_vertical"
-					android:textAppearance="@style/Text.Big"
+					android:textAppearance="@style/TextAppearance.Big"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/dateView"
 					tools:text="Game Store" />
@@ -143,17 +143,17 @@
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/play_detail_row_height"
 					android:gravity="left|center_vertical"
-					android:textAppearance="@style/Text.Big"
+					android:textAppearance="@style/TextAppearance.Big"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/locationView"
-					tools:text="1 hrs 26 mins"/>
+					tools:text="1 hrs 26 mins" />
 
 				<Chronometer
 					android:id="@+id/timerView"
 					android:layout_width="0dp"
 					android:layout_height="@dimen/play_detail_row_height"
 					android:gravity="center_vertical"
-					android:textAppearance="@style/Text.Big"
+					android:textAppearance="@style/TextAppearance.Big"
 					app:layout_constraintEnd_toStartOf="@id/timerEndButton"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/locationView" />
@@ -175,7 +175,7 @@
 					android:layout_width="wrap_content"
 					android:layout_height="@dimen/view_row_height"
 					android:gravity="left|center_vertical"
-					android:textAppearance="@style/Text.Big"
+					android:textAppearance="@style/TextAppearance.Big"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/lengthView"
 					tools:text="2 times" />
@@ -186,7 +186,7 @@
 					android:layout_height="@dimen/play_detail_row_height"
 					android:gravity="left|center_vertical"
 					android:text="@string/incomplete"
-					android:textAppearance="@style/Text.Big"
+					android:textAppearance="@style/TextAppearance.Big"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/quantityView" />
 
@@ -196,15 +196,16 @@
 					android:layout_height="@dimen/play_detail_row_height"
 					android:gravity="left|center_vertical"
 					android:text="@string/noWinStats"
-					android:textAppearance="@style/Text.Big"
+					android:textAppearance="@style/TextAppearance.Big"
 					app:layout_constraintStart_toStartOf="@id/guidelineData"
 					app:layout_constraintTop_toBottomOf="@id/incompleteView" />
 
 				<TextView
 					android:id="@+id/commentsLabel"
-					style="@style/Text.Header.Underline"
+					style="@style/TextAppearance.Title.Accent"
 					android:layout_width="0dp"
 					android:layout_height="@dimen/play_detail_row_height"
+					android:background="@drawable/underline"
 					android:gravity="bottom"
 					android:text="@string/comments"
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
@@ -215,7 +216,7 @@
 					android:id="@+id/commentsView"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
-					android:textAppearance="@style/Text"
+					android:textAppearance="@style/TextAppearance.Body"
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/commentsLabel"
@@ -223,9 +224,10 @@
 
 				<TextView
 					android:id="@+id/playersLabel"
-					style="@style/Text.Header.Underline"
+					style="@style/TextAppearance.Title.Accent"
 					android:layout_width="0dp"
 					android:layout_height="@dimen/play_detail_row_height"
+					android:background="@drawable/underline"
 					android:gravity="bottom"
 					android:text="@string/title_players"
 					app:layout_constraintEnd_toEndOf="@id/guidelineEnd"
@@ -249,7 +251,7 @@
 					android:id="@+id/pendingTimestampView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:textAppearance="@style/Text.Footnote2"
+					android:textAppearance="@style/TextAppearance.Caption.Secondary"
 					app:format="@string/saved_prefix"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/playersView"
@@ -259,7 +261,7 @@
 					android:id="@+id/dirtyTimestampView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:textAppearance="@style/Text.Footnote2"
+					android:textAppearance="@style/TextAppearance.Caption.Secondary"
 					app:format="@string/saved_prefix"
 					app:hideWhenEmpty="true"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
@@ -270,7 +272,7 @@
 					android:id="@+id/playIdView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:textAppearance="@style/Text.Footnote2"
+					android:textAppearance="@style/TextAppearance.Caption.Secondary"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
 					app:layout_constraintTop_toBottomOf="@id/dirtyTimestampView"
 					tools:text="Play ID: 123456789" />
@@ -279,7 +281,7 @@
 					android:id="@+id/syncTimestampView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:textAppearance="@style/Text.Footnote2"
+					android:textAppearance="@style/TextAppearance.Caption.Secondary"
 					app:format="@string/synced_prefix"
 					app:hideWhenEmpty="true"
 					app:layout_constraintStart_toStartOf="@id/guidelineStart"
@@ -289,7 +291,6 @@
 
 			<TextView
 				android:id="@+id/emptyView"
-				style="@style/Text"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
 				android:gravity="center"
@@ -297,6 +298,7 @@
 				android:paddingTop="@dimen/material_margin_vertical"
 				android:paddingRight="@dimen/material_margin_horizontal"
 				android:paddingBottom="@dimen/material_margin_vertical"
+				android:textAppearance="@style/TextAppearance.Empty"
 				android:visibility="gone"
 				tools:visibility="visible" />
 		</FrameLayout>

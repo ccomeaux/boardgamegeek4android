@@ -42,7 +42,7 @@
 			android:layout_height="wrap_content"
 			android:ellipsize="marquee"
 			android:singleLine="true"
-			android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
+			android:textAppearance="@style/TextAppearance.RowDetail"
 			tools:text="at Home for 3.5 hours"/>
 
 		<TextView
@@ -51,7 +51,7 @@
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:maxLines="1"
-			android:textAppearance="@style/TextAppearance.RowDetail"
+			android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
 			tools:text="That was a fun time. A REAL fun time."/>
 	</LinearLayout>
 </FrameLayout>

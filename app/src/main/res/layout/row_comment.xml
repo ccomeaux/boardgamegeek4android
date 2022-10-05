@@ -22,13 +22,13 @@
 
 	<TextView
 		android:id="@+id/ratingView"
-		style="@style/RatingSmall.Regular"
+		style="@style/RatingSmall"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="end|center_vertical"
 		android:gravity="center"
 		android:minWidth="56dp"
-		android:textAppearance="@style/TextAppearance.RowDetail"
+		android:textAppearance="@style/TextAppearance.RowDetail.Bold"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintRight_toRightOf="parent"
 		app:layout_constraintTop_toTopOf="parent"

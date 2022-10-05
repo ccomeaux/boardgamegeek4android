@@ -14,6 +14,7 @@
 		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_marginEnd="@dimen/padding_extra"
 		android:labelFor="@+id/autocompleteView"
 		android:minWidth="100dp"
 		app:layout_constraintBaseline_toBaselineOf="@+id/with"
@@ -32,10 +33,10 @@
 
 	<TextView
 		android:id="@+id/with"
-		style="@style/Text.Dialog"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/with"
+		android:textAppearance="@style/TextAppearance.Dialog"
 		app:layout_constraintBottom_toBottomOf="@id/autocompleteViewLayout"
 		app:layout_constraintEnd_toStartOf="@+id/playerCountDisplay"
 		app:layout_constraintHorizontal_chainStyle="packed"
@@ -44,29 +45,28 @@
 
 	<TextView
 		android:id="@+id/playerCountDisplay"
-		style="@style/Text.DialogHeader"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="@dimen/padding_half"
 		android:gravity="center_horizontal"
 		android:minWidth="24dp"
+		android:textAppearance="@style/TextAppearance.Dialog.Header"
 		app:layout_constraintBaseline_toBaselineOf="@+id/with"
 		app:layout_constraintEnd_toStartOf="@id/players"
 		app:layout_constraintHorizontal_chainStyle="packed"
 		app:layout_constraintStart_toEndOf="@id/with"
-		app:layout_constraintTop_toTopOf="@id/autocompleteViewLayout"
-		tools:text="10" />
+		tools:text="3" />
 
 	<TextView
 		android:id="@+id/players"
-		style="@style/Text.Dialog"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/players"
+		android:textAppearance="@style/TextAppearance.Dialog"
 		app:layout_constraintBaseline_toBaselineOf="@+id/with"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_chainStyle="packed"
-		app:layout_constraintStart_toEndOf="@id/playerCountDisplay"
-		app:layout_constraintTop_toTopOf="@id/autocompleteViewLayout" />
+		app:layout_constraintStart_toEndOf="@id/playerCountDisplay" />
 
 	<com.google.android.material.slider.Slider
 		android:id="@+id/rangeBar"

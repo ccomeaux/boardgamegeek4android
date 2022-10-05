@@ -20,8 +20,9 @@
 
 			<TextView
 				android:id="@+id/scoreHeaderView"
-				style="@style/Text.Header.Card"
+				style="@style/CardTitle"
 				android:layout_width="0dp"
+				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:text="@string/title_scores" />
 
@@ -53,7 +54,8 @@
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_low"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text" />
+				android:textAppearance="@style/TextAppearance.Basic"
+				tools:text="3" />
 
 			<android.widget.Space
 				android:layout_width="0dp"
@@ -68,7 +70,8 @@
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_average"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text" />
+				android:textAppearance="@style/TextAppearance.Basic"
+				tools:text="42" />
 
 			<android.widget.Space
 				android:layout_width="0dp"
@@ -83,7 +86,8 @@
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_average_win"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text" />
+				android:textAppearance="@style/TextAppearance.Basic"
+				tools:text="63" />
 
 			<android.widget.Space
 				android:layout_width="0dp"
@@ -99,7 +103,8 @@
 				android:drawablePadding="@dimen/padding_standard"
 				android:drawableTint="@color/score_high"
 				android:gravity="center_vertical"
-				android:textAppearance="@style/Text" />
+				android:textAppearance="@style/TextAppearance.Basic"
+				tools:text="101" />
 		</LinearLayout>
 
 		<com.boardgamegeek.ui.widget.ScoreGraphView

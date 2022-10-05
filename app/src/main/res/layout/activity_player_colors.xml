@@ -51,7 +51,7 @@
 				android:layout_height="wrap_content"
 				android:gravity="center"
 				android:text="@string/empty_player_colors"
-				android:textAppearance="@style/Text.Big" />
+				android:textAppearance="@style/TextAppearance.Big" />
 
 			<Button
 				android:id="@+id/emptyButton"

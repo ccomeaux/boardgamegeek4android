@@ -1,46 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/ratingContainer"
-	style="@style/CardRow.Clickable"
-	android:layout_width="0dp"
+	style="@style/GameRow.Clickable"
+	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:layout_weight="1"
-	android:orientation="horizontal"
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
 		android:id="@+id/ratingIcon"
 		style="@style/Icon"
-		android:contentDescription="@string/rating"
-		android:src="@drawable/ic_baseline_star_rate_24" />
-
-	<LinearLayout
-		style="@style/CardRowContent"
-		android:layout_width="match_parent"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
-		android:orientation="vertical">
+		android:contentDescription="@string/rating"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/ratingVotesView"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/ic_baseline_star_rate_24" />
 
-		<TextView
-			android:id="@+id/ratingView"
-			style="@style/RatingSmall"
-			android:layout_width="64dp"
-			android:layout_height="wrap_content"
-			android:gravity="center"
-			android:textAppearance="@style/Text.Primary"
-			android:textStyle="bold"
-			tools:background="#088"
-			tools:text="7.43" />
+	<TextView
+		android:id="@+id/ratingView"
+		style="@style/RatingLarge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Primary"
+		android:textStyle="bold"
+		app:layout_constraintBottom_toTopOf="@+id/ratingVotesView"
+		app:layout_constraintStart_toStartOf="@id/ratingVotesView"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:background="#088"
+		tools:text="7.43" />
 
-		<TextView
-			android:id="@+id/ratingVotesView"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:paddingTop="@dimen/padding_half"
-			android:textAppearance="@style/Text.Secondary.Small"
-			tools:text="42,000 ratings &amp; 39,123 comments" />
-	</LinearLayout>
-</LinearLayout>
+	<TextView
+		android:id="@+id/ratingVotesView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:maxLines="1"
+		android:textAppearance="@style/TextAppearance.Secondary.Small"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@id/ratingIcon"
+		app:layout_constraintTop_toBottomOf="@id/ratingView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="42,000 ratings &amp; 39,123 comments" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 

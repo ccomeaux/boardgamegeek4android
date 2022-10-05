@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowForumBinding
-import com.boardgamegeek.databinding.RowForumHeaderBinding
+import com.boardgamegeek.databinding.RowHeaderBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.ui.ForumActivity
 import java.text.NumberFormat
@@ -32,7 +32,7 @@ class ForumsRecyclerViewAdapter(
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             ITEM_VIEW_TYPE_FORUM -> ForumViewHolder.ForumItemViewHolder(inflater.inflate(R.layout.row_forum, parent, false))
-            ITEM_VIEW_TYPE_HEADER -> ForumViewHolder.HeaderViewHolder(inflater.inflate(R.layout.row_forum_header, parent, false))
+            ITEM_VIEW_TYPE_HEADER -> ForumViewHolder.HeaderViewHolder(inflater.inflate(R.layout.row_header, parent, false))
             else -> ForumViewHolder.HeaderViewHolder(inflater.inflate(R.layout.row_header, parent, false))
         }
     }
@@ -72,7 +72,7 @@ class ForumsRecyclerViewAdapter(
         }
 
         class HeaderViewHolder(itemView: View) : ForumViewHolder(itemView) {
-            private val binding = RowForumHeaderBinding.bind(itemView)
+            private val binding = RowHeaderBinding.bind(itemView)
 
             fun bind(forum: ForumEntity?) {
                 binding.headerView.text = forum?.title

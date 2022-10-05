@@ -4,7 +4,7 @@
 	android:id="@+id/scrollContainer"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:paddingHorizontal="@dimen/activity_horizontal_margin"
+	android:paddingHorizontal="@dimen/material_margin_horizontal"
 	android:paddingTop="@dimen/material_margin_vertical"
 	android:paddingBottom="@dimen/material_margin_vertical">
 
@@ -15,7 +15,7 @@
 		android:orientation="vertical">
 
 		<TextView
-			style="@style/Text.Header.Section.Dialog"
+			style="@style/DialogSectionHeader"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/collection_filter_personal" />
@@ -54,7 +54,7 @@
 		</com.google.android.material.chip.ChipGroup>
 
 		<TextView
-			style="@style/Text.Header.Section.Dialog"
+			style="@style/DialogSectionHeader"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/collection_filter_stats" />
@@ -115,7 +115,7 @@
 		</com.google.android.material.chip.ChipGroup>
 
 		<TextView
-			style="@style/Text.Header.Section.Dialog"
+			style="@style/DialogSectionHeader"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/collection_filter_community" />
@@ -167,7 +167,7 @@
 		</com.google.android.material.chip.ChipGroup>
 
 		<TextView
-			style="@style/Text.Header.Section.Dialog"
+			style="@style/DialogSectionHeader"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/collection_sort_local" />

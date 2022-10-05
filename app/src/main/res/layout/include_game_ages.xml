@@ -1,53 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/playerAgeContainer"
-	style="@style/CardRow.Clickable"
-	android:layout_width="0dp"
-	android:layout_height="match_parent"
-	android:layout_weight="1"
-	android:orientation="horizontal"
+	style="@style/GameRow.Clickable"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
 	tools:showIn="@layout/fragment_game">
 
 	<ImageView
 		android:id="@+id/playerAgeIcon"
 		style="@style/Icon"
-		android:contentDescription="@string/player_ages"
-		app:srcCompat="@drawable/ic_baseline_supervisor_account_24" />
-
-	<LinearLayout
-		style="@style/CardRowContent"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
-		android:orientation="vertical">
+		android:contentDescription="@string/player_ages"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/playerAgeView"
+		app:layout_constraintTop_toTopOf="parent"
+		app:srcCompat="@drawable/ic_baseline_supervisor_account_24" />
 
-		<TextView
-			android:id="@+id/playerAgeView"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textAppearance="@style/Text.Primary"
-			tools:text="Ages 13+" />
+	<TextView
+		android:id="@+id/playerAgeView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Primary"
+		app:layout_constraintBottom_toTopOf="@id/playerAgePollView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/playerAgeIcon"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="Ages 13+" />
 
-		<TextView
-			android:id="@+id/playerAgePollView"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:textAppearance="@style/Text.Secondary"
-			android:visibility="gone"
-			tools:text="Community: 12+"
-			tools:visibility="visible" />
+	<TextView
+		android:id="@+id/playerAgePollView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:maxLines="1"
+		android:textAppearance="@style/TextAppearance.Secondary"
+		android:visibility="gone"
+		app:layout_constraintBottom_toTopOf="@id/playerAgeVotesView"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="@id/playerAgeView"
+		app:layout_constraintTop_toBottomOf="@+id/playerAgeView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="Community: 12+"
+		tools:visibility="visible" />
 
-		<TextView
-			android:id="@+id/playerAgeVotesView"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:maxLines="1"
-			android:textAppearance="@style/Text.Secondary.Small"
-			android:visibility="gone"
-			tools:text="42,000 votes"
-			tools:visibility="visible" />
-	</LinearLayout>
-</LinearLayout>
+	<TextView
+		android:id="@+id/playerAgeVotesView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:maxLines="1"
+		android:textAppearance="@style/TextAppearance.Secondary.Small"
+		android:visibility="gone"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="@id/playerAgeView"
+		app:layout_constraintTop_toBottomOf="@+id/playerAgePollView"
+		app:layout_constraintVertical_chainStyle="packed"
+		tools:text="42,000 votes"
+		tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

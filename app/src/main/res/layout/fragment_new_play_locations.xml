@@ -33,14 +33,16 @@
 
 	<ImageView
 		android:id="@+id/next"
-		android:layout_width="68dp"
+		android:layout_width="36dp"
 		android:layout_height="48dp"
 		android:background="?attr/selectableItemBackgroundBorderless"
 		android:contentDescription="@string/next"
 		android:foregroundGravity="center"
-		android:paddingHorizontal="@dimen/activity_horizontal_margin"
+		android:layout_marginStart="@dimen/padding_extra"
+		android:layout_marginEnd="@dimen/material_margin_horizontal"
 		android:src="@drawable/ic_baseline_check_circle_24"
 		app:layout_constraintBottom_toBottomOf="@id/filterView"
+		app:layout_constraintStart_toEndOf="@id/filterView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="@id/filterView"
 		app:tint="@color/medium_blue" />

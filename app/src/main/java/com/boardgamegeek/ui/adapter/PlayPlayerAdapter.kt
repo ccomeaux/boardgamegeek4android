@@ -39,7 +39,6 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
 
     inner class PlayerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowPlayPlayerBinding.bind(itemView)
-        private val ratingFormat = DecimalFormat("0.0######")
 
         fun bind(player: PlayPlayerEntity?) {
             val nameTypeface = binding.nameView.typeface
@@ -98,7 +97,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
                     binding.ratingView.isVisible = false
                     binding.ratingButton.isVisible = false
                 } else {
-                    binding.ratingView.setTextOrHide(player.rating.asBoundedRating(itemView.context, format = ratingFormat))
+                    binding.ratingView.setTextOrHide(player.rating.asPersonalRating(itemView.context))
                     binding.ratingButton.isVisible = true
                 }
 
