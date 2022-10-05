@@ -9,7 +9,7 @@ Coming Soon...
  * Correct collection section header when sorting with mixed case
  * Added Huber Heat play stat
  * Click on your username in the nav drawer to link to your BGG profile
- * Improve UI in some input forms
+ * Refreshed UI
 
 Version 6.8.2
 -------------
