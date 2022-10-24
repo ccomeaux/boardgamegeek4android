@@ -94,8 +94,8 @@ class GameDetailRow @JvmOverloads constructor(
                             ProducerType.ARTIST -> PersonActivity.startForArtist(context, id, name)
                             ProducerType.DESIGNER -> PersonActivity.startForDesigner(context, id, name)
                             ProducerType.PUBLISHER -> PersonActivity.startForPublisher(context, id, name)
-                            ProducerType.EXPANSIONS,
-                            ProducerType.BASE_GAMES -> {
+                            ProducerType.EXPANSION,
+                            ProducerType.BASE_GAME -> {
                                 GameActivity.start(context, id, name)
                             }
                             else -> GameDetailActivity.start(context, label, gameId, gameName, type)

@@ -49,10 +49,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         DESIGNER(1),
         ARTIST(2),
         PUBLISHER(3),
-        CATEGORIES(4),
-        MECHANICS(5),
-        EXPANSIONS(6),
-        BASE_GAMES(7);
+        CATEGORY(4),
+        MECHANIC(5),
+        EXPANSION(6),
+        BASE_GAME(7);
 
         companion object {
             private val map = values().associateBy(ProducerType::value)
@@ -231,10 +231,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             ProducerType.DESIGNER -> designers
             ProducerType.ARTIST -> artists
             ProducerType.PUBLISHER -> publishers
-            ProducerType.CATEGORIES -> categories
-            ProducerType.MECHANICS -> mechanics
-            ProducerType.EXPANSIONS -> expansions
-            ProducerType.BASE_GAMES -> baseGames
+            ProducerType.CATEGORY -> categories
+            ProducerType.MECHANIC -> mechanics
+            ProducerType.EXPANSION -> expansions
+            ProducerType.BASE_GAME -> baseGames
             else -> liveData { emit(null) }
         }
     }

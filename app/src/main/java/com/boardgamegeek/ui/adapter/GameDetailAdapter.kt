@@ -51,8 +51,8 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
                 binding.nameView.text = entity.name
                 binding.descriptionView.setTextOrHide(entity.description)
                 when (type) {
-                    GameViewModel.ProducerType.EXPANSIONS,
-                    GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, entity.id, entity.name) }
+                    GameViewModel.ProducerType.EXPANSION,
+                    GameViewModel.ProducerType.BASE_GAME -> itemView.setOnClickListener { GameActivity.start(itemView.context, entity.id, entity.name) }
                     GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { PersonActivity.startForPublisher(itemView.context, entity.id, entity.name) }
                     GameViewModel.ProducerType.ARTIST -> itemView.setOnClickListener { PersonActivity.startForArtist(itemView.context, entity.id, entity.name) }
                     GameViewModel.ProducerType.DESIGNER -> itemView.setOnClickListener { PersonActivity.startForDesigner(itemView.context, entity.id, entity.name) }
