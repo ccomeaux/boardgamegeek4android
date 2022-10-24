@@ -45,16 +45,17 @@
 
 			<TextView
 				android:id="@+id/playCountIcon"
-				android:layout_width="@dimen/color_circle_diameter"
+				android:layout_width="0dp"
 				android:layout_height="match_parent"
-				android:layout_marginLeft="@dimen/material_margin_horizontal"
 				android:fontFamily="sans-serif-condensed"
 				android:gravity="center"
 				android:textAppearance="@style/TextAppearance.Primary"
+				android:textSize="12sp"
 				android:textStyle="bold"
-				app:layout_constraintBottom_toBottomOf="@id/playCountContainer"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="@id/playCountContainer"
+				app:layout_constraintBottom_toBottomOf="@id/playCountBackground"
+				app:layout_constraintStart_toStartOf="@id/playCountBackground"
+				app:layout_constraintEnd_toEndOf="@+id/playCountBackground"
+				app:layout_constraintTop_toTopOf="@id/playCountBackground"
 				tools:text="5+" />
 
 			<TextView
