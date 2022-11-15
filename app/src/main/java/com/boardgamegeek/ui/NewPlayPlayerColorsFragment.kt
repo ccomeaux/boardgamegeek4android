@@ -127,11 +127,8 @@ class NewPlayPlayerColorsFragment : Fragment() {
                             binding.removeTeamView.isInvisible = true
                         }
                     }
-                    if (useColorPicker) {
-                        binding.colorPickerButton.setImageResource(R.drawable.ic_baseline_color_lens_24)
-                    } else {
-                        binding.colorPickerButton.setImageResource(R.drawable.ic_baseline_group_24)
-                    }
+
+                    binding.colorPickerButton.setImageResource(if (useColorPicker) R.drawable.ic_baseline_color_lens_24 else R.drawable.ic_baseline_group_24)
 
                     val favoriteColor = player.favoriteColorsForGame.firstOrNull().orEmpty()
                     val favoriteColorRgb = favoriteColor.asColorRgb()
