@@ -10,7 +10,7 @@ fun CompanyItem.mapToEntity(): CompanyEntity {
             id = this.id.toIntOrNull() ?: BggContract.INVALID_ID,
             name = this.name,
             sortName = if (this.nameType == "primary") this.name.sortName(this.sortindex) else this.name,
-            description = this.description,
+            description = this.description.orEmpty(),
             imageUrl = this.image,
             thumbnailUrl = this.thumbnail,
     )

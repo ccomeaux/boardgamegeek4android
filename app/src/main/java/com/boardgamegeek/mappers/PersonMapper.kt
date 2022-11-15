@@ -7,7 +7,7 @@ fun Person.mapToEntity(id: Int): PersonEntity {
     return PersonEntity(
             id = id,
             name = this.name,
-            description = this.description,
+            description = this.description.orEmpty(),
             updatedTimestamp = 0L,
     )
 }
