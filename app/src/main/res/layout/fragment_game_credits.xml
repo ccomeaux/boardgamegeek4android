@@ -12,113 +12,12 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<androidx.constraintlayout.widget.ConstraintLayout
-			android:id="@+id/dataContainer"
+		<LinearLayout
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:animateLayoutChanges="true"
-			android:paddingBottom="@dimen/fab_buffer">
-
-			<TextView
-				android:id="@+id/emptyMessage"
-				style="@style/EmptyMessage"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:padding="@dimen/material_margin_horizontal"
-				android:text="@string/empty_game"
-				android:visibility="gone"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				tools:visibility="visible" />
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/designersInfoRow"
-				style="@style/GameRow.Clickable"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:minHeight="@dimen/card_row_height"
-				app:icon_res="@drawable/ic_baseline_edit_24"
-				app:label="@string/designers"
-				app:layout_constraintBottom_toTopOf="@id/artistsInfoRow"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				app:layout_constraintVertical_chainStyle="packed"
-				app:query_token="@integer/query_token_designers" />
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/artistsInfoRow"
-				style="@style/GameRow.Clickable"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				app:icon_res="@drawable/ic_baseline_brush_24"
-				app:label="@string/artists"
-				app:layout_constraintBottom_toTopOf="@id/publishersInfoRow"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/designersInfoRow"
-				app:layout_constraintVertical_chainStyle="packed"
-				app:query_token="@integer/query_token_artists" />
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/publishersInfoRow"
-				style="@style/GameRow.Clickable"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				app:icon_res="@drawable/ic_baseline_import_contacts_24"
-				app:label="@string/publishers"
-				app:layout_constraintBottom_toTopOf="@id/categoriesInfoRow"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/artistsInfoRow"
-				app:layout_constraintVertical_chainStyle="packed"
-				app:query_token="@integer/query_token_publishers" />
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/categoriesInfoRow"
-				style="@style/GameRow.Clickable"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				app:icon_res="@drawable/ic_baseline_category_24"
-				app:label="@string/categories"
-				app:layout_constraintBottom_toTopOf="@id/mechanicsInfoRow"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/publishersInfoRow"
-				app:query_token="@integer/query_token_categories" />
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/mechanicsInfoRow"
-				style="@style/GameRow.Clickable"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				app:icon_res="@drawable/ic_baseline_settings_24"
-				app:label="@string/mechanics"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@+id/categoriesInfoRow"
-				app:query_token="@integer/query_token_mechanics" />
-
-			<androidx.constraintlayout.widget.Barrier
-				android:id="@+id/barrier"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:visibility="gone"
-				app:barrierDirection="bottom"
-				app:constraint_referenced_ids="emptyMessage,mechanicsInfoRow"
-				tools:visibility="visible" />
-
-			<include
-				android:id="@+id/footer"
-				layout="@layout/include_game_footer"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginHorizontal="@dimen/material_margin_horizontal"
-				android:layout_marginTop="@dimen/padding_extra"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/barrier" />
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			android:paddingHorizontal="@dimen/material_margin_horizontal"
+			android:paddingVertical="@dimen/material_margin_vertical">
 
 			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
 				android:id="@+id/progress"
@@ -128,12 +27,103 @@
 				android:layout_gravity="center"
 				android:layout_marginVertical="80dp"
 				android:gravity="center"
-				android:padding="@dimen/material_margin_horizontal"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="parent" />
+				android:padding="@dimen/material_margin_horizontal" />
 
-		</androidx.constraintlayout.widget.ConstraintLayout>
+			<TextView
+				android:id="@+id/emptyMessage"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/empty_game"
+				android:textAppearance="@style/TextAppearance.Empty"
+				android:visibility="gone"
+				tools:visibility="visible" />
+
+			<TextView
+				android:id="@+id/designerHeaderView"
+				style="@style/DialogSectionHeader"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/designers" />
+
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/designersChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" />
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:background="@color/list_divider" />
+
+			<TextView
+				android:id="@+id/artistsHeaderView"
+				style="@style/DialogSectionHeader"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/artists" />
+
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/artistsChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" />
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:background="@color/list_divider" />
+
+			<TextView
+				android:id="@+id/publishersHeaderView"
+				style="@style/DialogSectionHeader"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/publishers" />
+
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/publishersChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" />
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:background="@color/list_divider" />
+
+			<TextView
+				android:id="@+id/categoriesHeaderView"
+				style="@style/DialogSectionHeader"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/categories" />
+
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/categoriesChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" />
+
+			<View
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:background="@color/list_divider" />
+
+			<TextView
+				android:id="@+id/mechanicsHeaderView"
+				style="@style/DialogSectionHeader"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/mechanics" />
+
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/mechanicsChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content" />
+
+			<include
+				android:id="@+id/footer"
+				layout="@layout/include_game_footer"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/padding_extra" />
+		</LinearLayout>
 	</androidx.core.widget.NestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

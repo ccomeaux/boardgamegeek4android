@@ -151,6 +151,7 @@ class GameDao(private val context: BggApplication) {
 
     enum class PollType(val code: String) {
         LANGUAGE_DEPENDENCE("language_dependence"),
+
         @Suppress("SpellCheckingInspection")
         SUGGESTED_PLAYER_AGE("suggested_playerage"),
     }
@@ -208,6 +209,7 @@ class GameDao(private val context: BggApplication) {
             arrayOf(
                 Designers.Columns.DESIGNER_ID,
                 Designers.Columns.DESIGNER_NAME,
+                Designers.Columns.DESIGNER_THUMBNAIL_URL,
             )
         )
     }
@@ -219,6 +221,7 @@ class GameDao(private val context: BggApplication) {
             arrayOf(
                 Artists.Columns.ARTIST_ID,
                 Artists.Columns.ARTIST_NAME,
+                Artists.Columns.ARTIST_THUMBNAIL_URL,
             )
         )
     }
@@ -230,6 +233,7 @@ class GameDao(private val context: BggApplication) {
             arrayOf(
                 Publishers.Columns.PUBLISHER_ID,
                 Publishers.Columns.PUBLISHER_NAME,
+                Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
             )
         )
     }
@@ -259,9 +263,11 @@ class GameDao(private val context: BggApplication) {
     private suspend fun loadDetails(gameId: Int, uri: Uri, projection: Array<String>): List<GameDetailEntity> = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
             context.contentResolver.loadList(uri, projection) {
+                val url = if (projection.size > 2) it.getString(2).orEmpty() else ""
                 GameDetailEntity(
                     it.getInt(0),
                     it.getString(1),
+                    thumbnailUrl = url,
                 )
             }
         } else emptyList()
