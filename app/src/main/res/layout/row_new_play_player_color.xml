@@ -35,12 +35,13 @@
 
 	<TextView
 		android:id="@+id/nameView"
-		android:layout_width="wrap_content"
+		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="16dp"
 		android:layout_marginLeft="16dp"
 		android:textAppearance="@style/TextAppearance.RowTitle"
 		app:layout_constraintBottom_toTopOf="@+id/usernameView"
+		app:layout_constraintEnd_toStartOf="@id/favoriteColorView3"
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toEndOf="@+id/colorView"
 		app:layout_constraintTop_toTopOf="parent"
@@ -74,7 +75,35 @@
 		tools:text="Yetis" />
 
 	<ImageView
-		android:id="@+id/favoriteColorView"
+		android:id="@+id/favoriteColorView3"
+		android:layout_width="16dp"
+		android:layout_height="16dp"
+		android:layout_marginEnd="@dimen/padding_extra"
+		android:layout_marginRight="@dimen/padding_extra"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:scaleType="fitXY"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/favoriteColorView2"
+		app:layout_constraintStart_toEndOf="@id/nameView"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:background="#f00" />
+
+	<ImageView
+		android:id="@+id/favoriteColorView2"
+		android:layout_width="24dp"
+		android:layout_height="24dp"
+		android:layout_marginEnd="@dimen/padding_extra"
+		android:layout_marginRight="@dimen/padding_extra"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:scaleType="fitXY"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/favoriteColorView1"
+		app:layout_constraintStart_toEndOf="@id/favoriteColorView3"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:background="#00f" />
+
+	<ImageView
+		android:id="@+id/favoriteColorView1"
 		android:layout_width="@dimen/color_circle_diameter"
 		android:layout_height="@dimen/color_circle_diameter"
 		android:layout_marginEnd="@dimen/padding_extra"
@@ -83,9 +112,9 @@
 		android:scaleType="fitXY"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toStartOf="@+id/colorPickerButton"
-		app:layout_constraintRight_toLeftOf="@+id/colorPickerButton"
+		app:layout_constraintStart_toEndOf="@id/favoriteColorView2"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:background="#00f" />
+		tools:background="#0f0" />
 
 	<ImageView
 		android:id="@+id/colorPickerButton"
@@ -96,7 +125,8 @@
 		android:scaleType="centerInside"
 		android:src="@drawable/ic_baseline_color_lens_24"
 		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintRight_toRightOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@id/favoriteColorView1"
 		app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

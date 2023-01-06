@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -105,7 +106,9 @@ class NewPlayPlayerColorsFragment : Fragment() {
                     binding.usernameView.setTextOrHide(player.username)
 
                     if (player.color.isBlank()) {
-                        binding.colorView.isInvisible = true
+                        binding.colorView.setColorViewValue(Color.TRANSPARENT)
+                        binding.colorView.isVisible = true
+
                         binding.teamView.isVisible = false
                         binding.removeTeamView.isInvisible = true
                     } else {
@@ -130,17 +133,9 @@ class NewPlayPlayerColorsFragment : Fragment() {
 
                     binding.colorPickerButton.setImageResource(if (useColorPicker) R.drawable.ic_baseline_color_lens_24 else R.drawable.ic_baseline_group_24)
 
-                    val favoriteColor = player.favoriteColorsForGame.firstOrNull().orEmpty()
-                    val favoriteColorRgb = favoriteColor.asColorRgb()
-                    if (player.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
-                        binding.favoriteColorView.setColorViewValue(favoriteColorRgb)
-                        binding.favoriteColorView.setOnClickListener {
-                            viewModel.addColorToPlayer(bindingAdapterPosition, favoriteColor)
-                        }
-                        binding.favoriteColorView.isVisible = true
-                    } else {
-                        binding.favoriteColorView.isVisible = false
-                    }
+                    bindFavoriteColor(player, binding.favoriteColorView1, 0)
+                    bindFavoriteColor(player, binding.favoriteColorView2, 1)
+                    bindFavoriteColor(player, binding.favoriteColorView3, 2)
 
                     binding.colorPickerButton.setOnClickListener {
                         pickTeamOrColor(player)
@@ -148,6 +143,20 @@ class NewPlayPlayerColorsFragment : Fragment() {
                     itemView.setOnClickListener {
                         pickTeamOrColor(player)
                     }
+                }
+            }
+
+            private fun bindFavoriteColor(player: NewPlayPlayerEntity, imageView: ImageView, index: Int) {
+                val favoriteColor = player.favoriteColorsForGame.getOrNull(index).orEmpty()
+                val favoriteColorRgb = favoriteColor.asColorRgb()
+                if (player.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
+                    imageView.setColorViewValue(favoriteColorRgb)
+                    imageView.setOnClickListener {
+                        viewModel.addColorToPlayer(bindingAdapterPosition, favoriteColor)
+                    }
+                    imageView.isVisible = true
+                } else {
+                    imageView.isVisible = false
                 }
             }
 
