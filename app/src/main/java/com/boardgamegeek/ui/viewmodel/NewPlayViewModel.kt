@@ -197,7 +197,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private fun filterLocations(list: List<LocationEntity>?, filter: String): List<LocationEntity> {
         val newList = (list?.filter { it.name.isNotBlank() }.orEmpty()).toMutableList()
         if (isLastPlayRecent()) {
-            newList.find { it.name == prefs.getLastPlayLocation() }?.let {
+            newList.find { it.name == prefs[KEY_LAST_PLAY_LOCATION, ""] }?.let {
                 newList.remove(it)
                 newList.add(0, it)
             }
@@ -402,7 +402,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         val self = allPlayers?.find { it.username == prefs[AccountPreferences.KEY_USERNAME, ""] }
         self?.let { newList.add(it) }
         //  2. last played at this location
-        if (isLastPlayRecent() && location.value == prefs.getLastPlayLocation()) {
+        if (isLastPlayRecent() && location.value == prefs[KEY_LAST_PLAY_LOCATION, ""]) {
             val lastPlayers = prefs.getLastPlayPlayerEntities()
             lastPlayers.forEach { lastPlayer ->
                 allPlayers?.find { it == lastPlayer && !newList.contains(it) }?.let {

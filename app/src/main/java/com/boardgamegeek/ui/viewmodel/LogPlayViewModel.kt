@@ -463,7 +463,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             ) {
                 prefs[KEY_LAST_PLAY_TIME] = now
                 prefs[KEY_LAST_PLAY_LOCATION] = play.location
-                players.value?.let { p -> prefs.putLastPlayPlayerEntities(p) }
+                prefs.putLastPlayPlayerEntities(players.value)
             }
             save(play)
             if (internalIdToDelete != INVALID_ID.toLong()) {

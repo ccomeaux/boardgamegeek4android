@@ -63,13 +63,13 @@ class PlayRepository(val application: BggApplication) {
             ) {
                 null
             } else {
-                var returnedPlay: PlayEntity? = null
+                var returnedPlay: PlayEntity?
                 do {
                     val result = bggService.playsByGame(username, gameId, page++)
                     val plays = result.plays.mapToEntity(timestamp)
                     saveFromSync(plays, timestamp)
                     Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
-                    if (returnedPlay == null) returnedPlay = plays.find { it.playId == playId }
+                    returnedPlay = plays.find { it.playId == playId }
                 } while (result.hasMorePages() && returnedPlay == null)
                 returnedPlay
             }
@@ -425,8 +425,8 @@ class PlayRepository(val application: BggApplication) {
         val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
         val isToday = play.dateInMillis.isToday() || endTime.isToday()
         if (!play.isSynced && isUpdating && isToday) {
-            prefs.putLastPlayTime(System.currentTimeMillis())
-            prefs.putLastPlayLocation(play.location)
+            prefs[KEY_LAST_PLAY_TIME] = System.currentTimeMillis()
+            prefs[KEY_LAST_PLAY_LOCATION] = play.location
             prefs.putLastPlayPlayerEntities(play.players)
         }
 
