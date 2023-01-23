@@ -46,7 +46,7 @@ def gitBranchName = { ->
 android {
     namespace 'com.boardgamegeek'
 
-    compileSdkVersion 32
+    compileSdkVersion 33
 
     buildFeatures {
         viewBinding true
@@ -57,7 +57,7 @@ android {
         applicationId "com.boardgamegeek"
 
         minSdkVersion 19
-        targetSdkVersion 32
+        targetSdkVersion 33
         multiDexEnabled true
 
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
