@@ -13,7 +13,6 @@ import com.boardgamegeek.databinding.RowPlayPlayerBinding
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.BuddyActivity
-import java.text.DecimalFormat
 
 class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolder>() {
     init {
@@ -65,7 +64,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
                         itemView.context.resources.getString(R.string.title_player)
                     else
                         itemView.context.resources.getString(R.string.generic_player, player.seat)
-                    binding.nameView.setText(
+                    binding.nameView.setTextWithStyle(
                         name,
                         nameTypeface,
                         player.isNew,
@@ -74,11 +73,11 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
                     )
                     binding.usernameView.isVisible = false
                 } else if (player.name.isBlank()) {
-                    binding.nameView.setText(player.username, nameTypeface, player.isNew, player.isWin, nameColor)
+                    binding.nameView.setTextWithStyle(player.username, nameTypeface, player.isNew, player.isWin, nameColor)
                     binding.usernameView.isVisible = false
                 } else {
-                    binding.nameView.setText(player.name, nameTypeface, player.isNew, player.isWin, nameColor)
-                    binding.usernameView.setText(player.username, usernameTypeface, player.isNew, player.isWin, nameColor)
+                    binding.nameView.setTextWithStyle(player.name, nameTypeface, player.isNew, player.isWin, nameColor)
+                    binding.usernameView.setTextWithStyle(player.username, usernameTypeface, player.isNew, player.isWin, nameColor)
                 }
 
                 // score
@@ -87,7 +86,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
                 } else {
                     player.score
                 }
-                binding.scoreView.setText(scoreDescription, scoreTypeface, false, player.isWin, nameColor)
+                binding.scoreView.setTextWithStyle(scoreDescription, scoreTypeface, false, player.isWin, nameColor)
                 binding.scoreButton.setColorFilter(ContextCompat.getColor(itemView.context, R.color.button_under_text), PorterDuff.Mode.SRC_IN)
                 binding.scoreButton.isVisible = player.score.isNotEmpty()
 
