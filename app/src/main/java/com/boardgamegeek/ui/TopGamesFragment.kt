@@ -43,7 +43,7 @@ class TopGamesFragment : Fragment() {
                         if (it.data.isNullOrEmpty()) {
                             displayEmpty(getString(R.string.empty_top_games))
                         } else {
-                            adapter.results = it.data.orEmpty()
+                            adapter.results = it.data
                             binding.recyclerView.isVisible = true
                             binding.emptyView.isVisible = false
                         }
