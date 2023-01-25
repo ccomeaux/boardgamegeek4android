@@ -24,7 +24,8 @@
 		android:animateLayoutChanges="true"
 		android:orientation="horizontal"
 		android:paddingTop="@dimen/padding_half"
-		android:paddingBottom="@dimen/padding_half">
+		android:paddingBottom="@dimen/padding_half"
+		tools:ignore="UnusedAttribute">
 
 		<View
 			android:id="@+id/bestSegment"
