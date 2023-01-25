@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.dialog
 
 import android.app.Dialog
 import android.content.res.ColorStateList
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -74,7 +75,9 @@ class CollectionSortDialogFragment : DialogFragment() {
         )
         chip.chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
         chip.isChipIconVisible = true
-        binding.scrollContainer.scrollToDescendant(chip)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            binding.scrollContainer.scrollToDescendant(chip)
+        }
     }
 
     override fun onDestroyView() {
