@@ -81,7 +81,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     val gameColors = gameId.switchMap { gameId ->
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId))
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId).filter { it.isNotBlank() })
         }
     }
 
