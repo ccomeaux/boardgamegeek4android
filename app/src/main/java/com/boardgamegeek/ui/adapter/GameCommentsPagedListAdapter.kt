@@ -39,6 +39,7 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCo
                 binding.ratingView.text = entity.rating.asPersonalRating(itemView.context)
                 binding.ratingView.setTextViewBackground(entity.rating.toColor(BggColors.ratingColors))
                 binding.commentView.setTextMaybeHtml(markupConverter.toHtml(entity.comment))
+                binding.commentView.isVisible = binding.commentView.text.isNotBlank()
                 binding.root.isVisible = true
             } else
                 binding.root.isVisible = false
