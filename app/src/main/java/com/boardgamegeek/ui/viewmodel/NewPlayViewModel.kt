@@ -508,7 +508,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 PlayPlayerEntity(
                     player.name,
                     player.username,
-                    (playerSortMap.value.orEmpty())[player.id].toString(),
+                    (playerSortMap.value.orEmpty())[player.id]?.toString().orEmpty(),
                     color = (playerColorMap.value.orEmpty())[player.id].orEmpty(),
                     isNew = (playerIsNewMap.value.orEmpty())[player.id] ?: false,
                     isWin = (playerWinMap.value.orEmpty())[player.id] ?: false,
