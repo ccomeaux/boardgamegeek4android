@@ -102,7 +102,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                     response.hasAuthError() -> {
                         syncResult.stats.numAuthExceptions++
                         Authenticator.clearPassword(context)
-                        // TODO break
+                        return
                     }
                     response.hasInvalidIdError() -> {
                         syncResult.stats.numConflictDetectedExceptions++
@@ -177,7 +177,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
                         response.hasAuthError() -> {
                             syncResult.stats.numAuthExceptions++
                             Authenticator.clearPassword(context)
-                            // break TODO
+                            return
                         }
                         else -> {
                             syncResult.stats.numIoExceptions++

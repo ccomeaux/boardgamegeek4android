@@ -6,4 +6,8 @@ data class TopGameEntity(
     val rank: Int,
     val yearPublished: Int,
     val thumbnailUrl: String,
-)
+) {
+    companion object {
+        const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
+    }
+}

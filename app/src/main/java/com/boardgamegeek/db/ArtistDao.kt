@@ -20,14 +20,13 @@ class ArtistDao(private val context: BggApplication) {
     }
 
     suspend fun loadArtists(sortBy: SortType): List<PersonEntity> = withContext(Dispatchers.IO) {
-        val results = mutableListOf<PersonEntity>()
         val sortByName = Artists.Columns.ARTIST_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
             SortType.ITEM_COUNT -> Artists.Columns.ITEM_COUNT.descending().plus(", $sortByName")
             SortType.WHITMORE_SCORE -> Artists.Columns.WHITMORE_SCORE.descending().plus(", $sortByName")
         }
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             Artists.CONTENT_URI,
             arrayOf(
                 Artists.Columns.ARTIST_ID,
@@ -41,28 +40,23 @@ class ArtistDao(private val context: BggApplication) {
                 Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP,
             ),
             sortOrder = sortOrder
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += PersonEntity(
-                        id = it.getInt(0),
-                        name = it.getStringOrNull(1).orEmpty(),
-                        description = it.getStringOrNull(2).orEmpty(),
-                        updatedTimestamp = it.getLongOrNull(3) ?: 0L,
-                        thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                        heroImageUrl = it.getStringOrNull(5).orEmpty(),
-                        itemCount = it.getIntOrNull(6) ?: 0,
-                        whitmoreScore = it.getIntOrNull(7) ?: 0,
-                        statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            PersonEntity(
+                id = it.getInt(0),
+                name = it.getStringOrNull(1).orEmpty(),
+                description = it.getStringOrNull(2).orEmpty(),
+                updatedTimestamp = it.getLongOrNull(3) ?: 0L,
+                thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                heroImageUrl = it.getStringOrNull(5).orEmpty(),
+                itemCount = it.getIntOrNull(6) ?: 0,
+                whitmoreScore = it.getIntOrNull(7) ?: 0,
+                statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
+            )
         }
-        results
     }
 
     suspend fun loadArtist(id: Int): PersonEntity? = withContext(Dispatchers.IO) {
-        context.contentResolver.load(
+        context.contentResolver.loadEntity(
             Artists.buildArtistUri(id),
             arrayOf(
                 Artists.Columns.ARTIST_ID,
@@ -76,21 +70,19 @@ class ArtistDao(private val context: BggApplication) {
                 Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP,
                 Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP,
             )
-        )?.use {
-            if (it.moveToFirst()) {
-                PersonEntity(
-                    id = it.getInt(0),
-                    name = it.getStringOrNull(1).orEmpty(),
-                    description = it.getStringOrNull(2).orEmpty(),
-                    updatedTimestamp = it.getLongOrNull(3) ?: 0L,
-                    whitmoreScore = it.getIntOrNull(4) ?: 0,
-                    thumbnailUrl = it.getStringOrNull(5).orEmpty(),
-                    imageUrl = it.getStringOrNull(6).orEmpty(),
-                    heroImageUrl = it.getStringOrNull(7).orEmpty(),
-                    statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
-                    imagesUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
-                )
-            } else null
+        ) {
+            PersonEntity(
+                id = it.getInt(0),
+                name = it.getStringOrNull(1).orEmpty(),
+                description = it.getStringOrNull(2).orEmpty(),
+                updatedTimestamp = it.getLongOrNull(3) ?: 0L,
+                whitmoreScore = it.getIntOrNull(4) ?: 0,
+                thumbnailUrl = it.getStringOrNull(5).orEmpty(),
+                imageUrl = it.getStringOrNull(6).orEmpty(),
+                heroImageUrl = it.getStringOrNull(7).orEmpty(),
+                statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
+                imagesUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
+            )
         }
     }
 

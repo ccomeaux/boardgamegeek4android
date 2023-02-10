@@ -5,6 +5,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.collection.arrayMapOf
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.preference.Preference
@@ -53,10 +54,9 @@ class SettingsActivity : DrawerActivity() {
     override val navigationItemId = R.id.settings
 
     internal fun replaceFragment(key: String) {
-        val args = Bundle()
-        args.putString(KEY_SETTINGS_FRAGMENT, key)
-        val fragment = PrefFragment()
-        fragment.arguments = args
+        val fragment = PrefFragment().apply {
+            arguments = bundleOf(KEY_SETTINGS_FRAGMENT to key)
+        }
         supportFragmentManager.beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commitAllowingStateLoss()
     }
 

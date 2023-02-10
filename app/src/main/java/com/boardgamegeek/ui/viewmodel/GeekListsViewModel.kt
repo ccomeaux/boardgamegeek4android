@@ -3,10 +3,10 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.liveData
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.GeekListsResponse
 import com.boardgamegeek.livedata.GeekListsPagingSource
@@ -16,13 +16,13 @@ import com.google.firebase.analytics.ktx.logEvent
 
 class GeekListsViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = GeekListRepository()
-    private val _sort = MutableLiveData<String>()
+    private val _sort = MutableLiveData<BggService.GeekListSort>()
 
     fun setSort(sort: SortType) {
         val sortString = when (sort) {
-            SortType.HOT -> BggService.GEEK_LIST_SORT_HOT
-            SortType.RECENT -> BggService.GEEK_LIST_SORT_RECENT
-            SortType.ACTIVE -> BggService.GEEK_LIST_SORT_ACTIVE
+            SortType.HOT -> BggService.GeekListSort.HOT
+            SortType.RECENT -> BggService.GeekListSort.RECENT
+            SortType.ACTIVE -> BggService.GeekListSort.ACTIVE
         }
         if (_sort.value != sortString) {
             _sort.value = sortString
@@ -43,7 +43,7 @@ class GeekListsViewModel(application: Application) : AndroidViewModel(applicatio
             )
         ) {
             GeekListsPagingSource(sort, repository)
-        }.flow.asLiveData()
+        }.liveData
     }
 
     enum class SortType {

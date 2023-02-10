@@ -3,12 +3,9 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import android.content.ContentProviderOperation
-import android.content.ContentValues
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.annotation.StringRes
-import androidx.core.content.contentValuesOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,13 +14,11 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.export.Constants
 import com.boardgamegeek.export.model.*
-import com.boardgamegeek.extensions.applyBatch
-import com.boardgamegeek.extensions.rowExists
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.ProgressData
 import com.boardgamegeek.livedata.ProgressLiveData
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToExportable
-import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -185,32 +180,9 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                 uri,
                 Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION,
                 _collectionViewProgress,
-                { reader ->
-                    gson.fromJson(reader, CollectionView::class.java)
-                },
-                { item: CollectionView, _ ->
-                    // TODO move this to DAO
-                    val contentResolver = getApplication<BggApplication>().contentResolver
-                    val values = contentValuesOf(
-                        CollectionViews.Columns.NAME to item.name,
-                        CollectionViews.Columns.STARRED to item.starred,
-                        CollectionViews.Columns.SORT_TYPE to item.sortType,
-                    )
-                    val insertedUri = contentResolver.insert(CollectionViews.CONTENT_URI, values)
-                    val viewId = CollectionViews.getViewId(insertedUri)
-                    val filterUri = CollectionViews.buildViewFilterUri(viewId.toLong())
-                    val batch = arrayListOf<ContentProviderOperation>()
-                    for (filter in item.filters) {
-                        val builder = ContentProviderOperation.newInsert(filterUri)
-                            .withValue(CollectionViewFilters.Columns.TYPE, filter.type)
-                            .withValue(CollectionViewFilters.Columns.DATA, filter.data)
-                        batch.add(builder.build())
-                    }
-                    contentResolver.applyBatch(batch)
-                },
-                {
-                    getApplication<BggApplication>().contentResolver.delete(CollectionViews.CONTENT_URI, null, null)
-                },
+                { reader -> gson.fromJson(reader, CollectionView::class.java) },
+                { item: CollectionView, _ -> collectionViewRepository.insertView(item.mapToEntity()) },
+                { collectionViewRepository.delete() },
             )
         }
     }
@@ -221,23 +193,8 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                 uri,
                 Constants.TYPE_GAMES_DESCRIPTION,
                 _gameProgress,
-                { reader ->
-                    gson.fromJson(reader, Game::class.java)
-                },
-                { item: Game, _ ->
-                    val contentResolver = getApplication<BggApplication>().contentResolver
-                    if (contentResolver.rowExists(Games.buildGameUri(item.id))) {
-                        val gameColorsUri = Games.buildColorsUri(item.id)
-                        contentResolver.delete(gameColorsUri, null, null)
-                        val values = mutableListOf<ContentValues>()
-                        item.colors.filter { it.color.isNotBlank() }.forEach { color ->
-                            values.add(contentValuesOf(GameColors.Columns.COLOR to color.color))
-                        }
-                        if (values.isNotEmpty()) {
-                            contentResolver.bulkInsert(gameColorsUri, values.toTypedArray())
-                        }
-                    }
-                },
+                { reader -> gson.fromJson(reader, Game::class.java) },
+                { item: Game, _ -> gameRepository.updateColors(item.id, item.colors.map { it.color }) },
             )
         }
     }
@@ -248,27 +205,8 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
                 uri,
                 Constants.TYPE_USERS_DESCRIPTION,
                 _userProgress,
-                { reader: JsonReader ->
-                    gson.fromJson(reader, User::class.java)
-                },
-                { item: User, _: Int ->
-                    val contentResolver = getApplication<BggApplication>().contentResolver
-                    if (contentResolver.rowExists(Buddies.buildBuddyUri(item.name))) {
-                        val batch = arrayListOf<ContentProviderOperation>()
-                        item.colors.filter { it.color.isNotBlank() }.forEach { color ->
-                            val builder = if (contentResolver.rowExists(PlayerColors.buildUserUri(item.name, color.sort))) {
-                                ContentProviderOperation
-                                    .newUpdate(PlayerColors.buildUserUri(item.name, color.sort))
-                            } else {
-                                ContentProviderOperation
-                                    .newInsert(PlayerColors.buildUserUri(item.name))
-                                    .withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, color.sort)
-                            }
-                            batch.add(builder.withValue(PlayerColors.Columns.PLAYER_COLOR, color.color).build())
-                        }
-                        contentResolver.applyBatch(batch)
-                    }
-                },
+                { reader: JsonReader -> gson.fromJson(reader, User::class.java) },
+                { item: User, _ -> userRepository.updateColors(item.name, item.colors.map { it.sort to it.color }) },
             )
         }
     }
@@ -296,8 +234,8 @@ class DataPortViewModel(application: Application) : AndroidViewModel(application
         typeDescription: String,
         progress: ProgressLiveData,
         parseItem: (reader: JsonReader) -> T,
-        importRecord: (item: T, version: Int) -> Unit,
-        initializeImport: () -> Unit = {},
+        importRecord: suspend (item: T, version: Int) -> Unit,
+        initializeImport: suspend () -> Unit = {},
     ) = withContext(Dispatchers.IO) {
         val items: MutableList<T> = mutableListOf()
         var version = 0

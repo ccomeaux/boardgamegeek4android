@@ -7,17 +7,23 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.asPastDaySpan
 
 class LastViewedSorter(context: Context) : CollectionSorter(context) {
-    @StringRes
-    override val descriptionResId = R.string.collection_sort_last_viewed
+    override val ascendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_last_viewed_asc
 
-    @StringRes
-    public override val typeResId = R.string.collection_sort_type_last_viewed
+    override val descendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_last_viewed
 
-    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.lastViewedDate }
+    override val descriptionResId: Int
+        @StringRes
+        get() = R.string.collection_sort_last_viewed
 
-    override fun getHeaderText(item: CollectionItemEntity): String {
-        return item.lastViewedDate.asPastDaySpan(context).toString()
-    }
+    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.lastViewedDate }
+
+    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.lastViewedDate }
+
+    override fun getHeaderText(item: CollectionItemEntity) = item.lastViewedDate.asPastDaySpan(context).toString()
 
     override fun getDisplayInfo(item: CollectionItemEntity) = ""
 

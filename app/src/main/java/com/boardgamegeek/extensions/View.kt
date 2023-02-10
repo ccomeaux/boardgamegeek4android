@@ -30,6 +30,7 @@ import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.view.ViewCompat
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import com.boardgamegeek.R
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
@@ -77,17 +78,19 @@ fun View.fadeOut(visibility: Int = GONE, animate: Boolean = true) {
 }
 
 fun View.slideUpIn() {
+    if (this.isVisible) return
     val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_up)
     this.startAnimation(animation)
-    this.visibility = VISIBLE
+    this.isVisible = true
 }
 
 fun View.slideDownOut() {
+    if (!this.isVisible) return
     val animation = AnimationUtils.loadAnimation(this.context, R.anim.slide_down)
     animation.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationStart(animation: Animation) {}
         override fun onAnimationEnd(animation: Animation) {
-            visibility = GONE
+            isVisible = false
         }
 
         override fun onAnimationRepeat(animation: Animation) {}

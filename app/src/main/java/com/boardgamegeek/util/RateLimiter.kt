@@ -29,8 +29,9 @@ class RateLimiter<in KEY>(timeout: Int, timeUnit: TimeUnit) {
     private val timeout = timeUnit.toMillis(timeout.toLong())
 
     @Synchronized
-    fun shouldProcess(key: KEY, now: Long = SystemClock.uptimeMillis()): Boolean {
+    fun shouldProcess(key: KEY): Boolean {
         val lastFetched = timestamps[key]
+        val now = SystemClock.uptimeMillis()
         return if ((lastFetched == null) || (now - lastFetched > timeout)) {
             timestamps[key] = now
             true

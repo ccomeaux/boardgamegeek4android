@@ -72,8 +72,7 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
         if (initialize) {
             ContentResolver.setIsSyncable(account, authority, 1)
             ContentResolver.setSyncAutomatically(account, authority, true)
-            val b = Bundle()
-            ContentResolver.addPeriodicSync(account, authority, b, (24 * 60 * 60).toLong()) // 24 hours
+            ContentResolver.addPeriodicSync(account, authority, Bundle(), (24 * 60 * 60).toLong()) // 24 hours
         }
         if (!shouldContinueSync()) {
             finishSync()

@@ -3,6 +3,7 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.view.*
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -12,7 +13,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentThreadBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.get
+import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.set
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ThreadViewModel
@@ -31,15 +34,10 @@ class ThreadFragment : Fragment() {
     private var currentAdapterPosition = 0
     private var latestArticleId: Int = INVALID_ARTICLE_ID
 
-    val viewModel by activityViewModels<ThreadViewModel>()
+    private val viewModel by activityViewModels<ThreadViewModel>()
 
     private val adapter: ThreadRecyclerViewAdapter by lazy {
         ThreadRecyclerViewAdapter(forumId, forumTitle, objectId, objectName, objectType)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
     }
 
     @Suppress("RedundantNullableReturnType")
@@ -58,6 +56,27 @@ class ThreadFragment : Fragment() {
             objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
             objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
         }
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.thread, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(R.id.menu_scroll_last)?.isVisible = latestArticleId != INVALID_ARTICLE_ID && adapter.itemCount > 0
+                menu.findItem(R.id.menu_scroll_bottom)?.isVisible = adapter.itemCount > 0
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.menu_scroll_last -> scrollToLatestArticle()
+                    R.id.menu_scroll_bottom -> scrollToBottom()
+                    else -> return false
+
+                }
+                return true
+            }
+        })
 
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
@@ -120,26 +139,6 @@ class ThreadFragment : Fragment() {
 
     private fun getThreadKey(threadId: Int): String {
         return "THREAD-$threadId"
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.thread, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.menu_scroll_last)?.isVisible = latestArticleId != INVALID_ARTICLE_ID && adapter.itemCount > 0
-        menu.findItem(R.id.menu_scroll_bottom)?.isVisible = adapter.itemCount > 0
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_scroll_last -> scrollToLatestArticle()
-            R.id.menu_scroll_bottom -> scrollToBottom()
-            else -> return super.onOptionsItemSelected(item)
-        }
-        return true
     }
 
     private fun scrollToLatestArticle() {

@@ -86,7 +86,7 @@ class TimestampView @JvmOverloads constructor(
             if (hideWhenEmpty) visibility = View.GONE
             text = defaultMessage
         } else {
-            if (hideWhenEmpty) visibility = View.VISIBLE
+            visibility = View.VISIBLE
             val formattedTimestamp = timestamp.formatTimestamp(context, includeTime, isForumTimeStamp)
             text = if (format.isNotEmpty()) {
                 @Suppress("DEPRECATION")

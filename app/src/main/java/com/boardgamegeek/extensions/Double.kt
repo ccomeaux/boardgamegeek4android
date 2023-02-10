@@ -13,17 +13,14 @@ import kotlin.math.ln
 import kotlin.math.roundToInt
 import kotlin.reflect.KProperty
 
-fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
-    return asScore(context, defaultResId, DecimalFormat("#0.#"))
+fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated_abbr): String {
+    return asBoundedRating(context, DecimalFormat("#0.#"), defaultResId)
 }
 
-fun Double.asRating(context: Context?, @StringRes defaultResId: Int = R.string.unrated): String {
-    return asScore(context, defaultResId, DecimalFormat("#0.0"))
-}
-
-fun Double.asBoundedRating(context: Context): String {
-    return when (this) {
-        in 1.0..10.0 -> return asScore(context, 0, DecimalFormat("0.#"))
+fun Double.asBoundedRating(context: Context?, format: DecimalFormat, @StringRes defaultResId: Int = 0): String {
+    return when {
+        this in 1.0..10.0 -> return asScore(context, defaultResId, format)
+        defaultResId != 0 && context != null -> context.getString(defaultResId)
         else -> ""
     }
 }
@@ -48,12 +45,12 @@ fun Double.toDescription(context: Context, @ArrayRes arrayResId: Int, @StringRes
 }
 
 @ColorInt
-fun Double.toColor(colors: List<Int>): Int {
-    return if (this < 1 || this > colors.size) Color.TRANSPARENT
+fun Double.toColor(colors: List<Int>, defaultColor: Int = Color.TRANSPARENT): Int {
+    return if (this < 1 || this > colors.size) defaultColor
     else {
         val index = this.toInt()
-        val low = colors.getOrNull(index - 1) ?: Color.TRANSPARENT
-        val high = colors.getOrNull(index) ?: Color.TRANSPARENT
+        val low = colors.getOrNull(index - 1) ?: defaultColor
+        val high = colors.getOrNull(index) ?: defaultColor
         low.blendWith(high, index + 1 - this)
     }
 }

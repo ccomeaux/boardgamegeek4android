@@ -42,7 +42,7 @@ class GameDescriptionFragment : Fragment() {
             it?.let {
                 binding.swipeRefresh.isRefreshing = it.status == Status.REFRESHING
                 when {
-                    it.status == Status.ERROR && it.data == null -> showError(it.message)
+                    it.status == Status.ERROR -> showError(it.message)
                     it.data == null -> showError(getString(R.string.empty_game))
                     else -> showData(it.data)
                 }
@@ -60,7 +60,6 @@ class GameDescriptionFragment : Fragment() {
         if (message?.isNotBlank() == true) {
             binding.emptyMessage.text = message
             binding.emptyMessage.isVisible = true
-            binding.gameDescription.isVisible = false
         }
     }
 

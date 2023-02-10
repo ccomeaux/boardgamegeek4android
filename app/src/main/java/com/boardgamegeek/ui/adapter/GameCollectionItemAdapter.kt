@@ -80,7 +80,7 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
             binding.privateComment.setTextMaybeHtml(markupConverter.toHtml(item.privateComment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)
             binding.privateComment.isVisible = item.privateComment.isNotBlank()
 
-            if (item.collectionId != BggContract.INVALID_ID) {
+            if (item.internalId != BggContract.INVALID_ID.toLong()) {
                 itemView.setOnClickListener {
                     GameCollectionItemActivity.start(
                         itemView.context,

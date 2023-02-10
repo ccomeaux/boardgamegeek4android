@@ -13,7 +13,7 @@
 		android:id="@+id/unRankedView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/Text.Subtitle"
+		android:textAppearance="@style/TextAppearance.Subtitle"
 		android:visibility="gone"
 		tools:text="Un-ranked Game"
 		tools:visibility="visible" />
@@ -38,13 +38,13 @@
 		android:id="@+id/votesView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/Text.Secondary"
+		android:textAppearance="@style/TextAppearance.Secondary"
 		tools:text="1,234 votes" />
 
 	<TextView
 		android:id="@+id/standardDeviationView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textAppearance="@style/Text.Secondary"
+		android:textAppearance="@style/TextAppearance.Secondary"
 		tools:text="Std Dev: 0.123" />
 </LinearLayout>

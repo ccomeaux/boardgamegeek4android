@@ -1,3 +1,5 @@
+@file:Suppress("SpellCheckingInspection")
+
 package com.boardgamegeek.ui.widget
 
 import android.annotation.SuppressLint

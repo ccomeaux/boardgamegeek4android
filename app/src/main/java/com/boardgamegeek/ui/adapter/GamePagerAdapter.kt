@@ -9,12 +9,12 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlin.properties.Delegates
 
 class GamePagerAdapter(private val activity: FragmentActivity, private val gameId: Int, var gameName: String) : FragmentStateAdapter(activity) {
     var currentPosition = 0
@@ -37,6 +37,15 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private val viewModel by lazy { ViewModelProvider(activity)[GameViewModel::class.java] }
     private val prefs by lazy { activity.preferences() }
 
+    private fun <T> tabUpdatingDelegate(initialValue: T) =
+        Delegates.observable(initialValue) { _, old, new ->
+            if (old != new) updateTabs()
+        }
+
+    private var isSignedIn by tabUpdatingDelegate(false)
+    private var shouldShowCollection by tabUpdatingDelegate(false)
+    private var shouldShowPlays by tabUpdatingDelegate(false)
+
     private inner class Tab(
         @field:StringRes val titleResId: Int,
         @field:DrawableRes var imageResId: Int = INVALID_RES_ID,
@@ -44,6 +53,30 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     )
 
     init {
+        viewModel.username.observe(activity) {
+            it?.let { isSignedIn = it.isNotBlank() }
+        }
+        viewModel.syncCollectionPreference.observe(activity) {
+            it?.let { shouldShowCollection = it.isNotEmpty() }
+        }
+        viewModel.syncPlaysPreference.observe(activity) {
+            it?.let { shouldShowPlays = it }
+        }
+        viewModel.game.observe(activity) { resource ->
+            resource.data?.let { entity ->
+                gameName = entity.name
+                imageUrl = entity.imageUrl
+                thumbnailUrl = entity.thumbnailUrl
+                heroImageUrl = entity.heroImageUrl
+                arePlayersCustomSorted = entity.customPlayerSort
+                iconColor = entity.iconColor
+                isFavorite = entity.isFavorite
+                updateFavIcon(isFavorite)
+                fab.colorize(iconColor)
+                fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }
+                displayFab(false)
+            }
+        }
         updateTabs()
     }
 
@@ -68,31 +101,22 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     override fun getItemCount(): Int = tabs.size
 
     private fun updateTabs() {
-        tabs.clear()
-        tabs += Tab(R.string.title_info, R.drawable.ic_baseline_event_available_24) { logPlay() }
-        tabs += Tab(R.string.title_credits, R.drawable.ic_baseline_favorite_border_24) { viewModel.updateFavorite(!isFavorite) }
-        tabs += Tab(R.string.title_descr, R.drawable.ic_baseline_favorite_border_24) { viewModel.updateFavorite(!isFavorite) }
-        if (shouldShowCollection())
-            tabs += Tab(R.string.title_my_games, R.drawable.ic_baseline_add_24) { activity.showAndSurvive(CollectionStatusDialogFragment()) }
-        if (shouldShowPlays())
-            tabs += Tab(R.string.title_plays, R.drawable.ic_baseline_event_available_24) { logPlay() }
-        tabs += Tab(R.string.title_forums)
-        tabs += Tab(R.string.links)
+        val newTabs = arrayListOf<Tab>()
+        newTabs += Tab(R.string.title_info, R.drawable.ic_baseline_event_available_24) { logPlay() }
+        newTabs += Tab(R.string.title_credits, R.drawable.ic_baseline_favorite_border_24) { viewModel.updateFavorite(!isFavorite) }
+        newTabs += Tab(R.string.title_descr, R.drawable.ic_baseline_favorite_border_24) { viewModel.updateFavorite(!isFavorite) }
+        if (isSignedIn && shouldShowCollection)
+            newTabs += Tab(R.string.title_my_games, R.drawable.ic_baseline_add_24) { activity.showAndSurvive(CollectionStatusDialogFragment()) }
+        if (isSignedIn && shouldShowPlays)
+            newTabs += Tab(R.string.title_plays, R.drawable.ic_baseline_event_available_24) { logPlay() }
+        newTabs += Tab(R.string.title_forums)
+        newTabs += Tab(R.string.links)
 
-        viewModel.game.observe(activity) { resource ->
-            resource.data?.let { entity ->
-                gameName = entity.name
-                imageUrl = entity.imageUrl
-                thumbnailUrl = entity.thumbnailUrl
-                heroImageUrl = entity.heroImageUrl
-                arePlayersCustomSorted = entity.customPlayerSort
-                iconColor = entity.iconColor
-                isFavorite = entity.isFavorite
-                updateFavIcon(isFavorite)
-                fab.colorize(iconColor)
-                fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }
-                displayFab(false)
-            }
+        if (newTabs != tabs) {
+            tabs.clear()
+            tabs.addAll(newTabs)
+            @Suppress("NotifyDataSetChanged")
+            notifyDataSetChanged()
         }
     }
 
@@ -142,11 +166,6 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
         }
         fab.setTag(R.id.res_id, resId)
     }
-
-    // TODO observe these from the view model
-    private fun shouldShowPlays() = Authenticator.isSignedIn(activity) && prefs[PREFERENCES_KEY_SYNC_PLAYS, false] == true
-
-    private fun shouldShowCollection() = Authenticator.isSignedIn(activity) && prefs.isCollectionSetToSync()
 
     companion object {
         const val INVALID_RES_ID = 0

@@ -11,7 +11,7 @@
 		android:id="@+id/chipGroup"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/padding_extra"
+		android:layout_marginHorizontal="@dimen/padding_extra"
 		android:minHeight="48dp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"

@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -38,7 +39,8 @@ class PlayFragment : Fragment() {
         super.onCreate(savedInstanceState)
         firebaseAnalytics = Firebase.analytics
         hasBeenNotified = savedInstanceState?.getBoolean(KEY_HAS_BEEN_NOTIFIED) ?: false
-        setHasOptionsMenu(true)
+
+        addMenuProvider()
     }
 
     @Suppress("RedundantNullableReturnType")
@@ -199,134 +201,151 @@ class PlayFragment : Fragment() {
         outState.putBoolean(KEY_HAS_BEEN_NOTIFIED, hasBeenNotified)
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.play, menu)
-    }
+    private fun addMenuProvider() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.play, menu)
+            }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.menu_discard)?.isVisible = (play?.playId ?: INVALID_ID) != INVALID_ID && (play?.dirtyTimestamp ?: 0L) > 0
-        menu.findItem(R.id.menu_edit)?.isVisible = play != null
-        menu.findItem(R.id.menu_send)?.isVisible = (play?.dirtyTimestamp ?: 0L) > 0
-        menu.findItem(R.id.menu_delete)?.isVisible = play != null
-        menu.findItem(R.id.menu_rematch)?.isVisible = play != null
-        menu.findItem(R.id.menu_change_game)?.isVisible = play != null
-        menu.findItem(R.id.menu_share)?.isVisible = play != null
-    }
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(R.id.menu_discard)?.isVisible = (play?.playId ?: INVALID_ID) != INVALID_ID && (play?.dirtyTimestamp ?: 0L) > 0L
+                menu.findItem(R.id.menu_edit)?.isVisible = play != null
+                menu.findItem(R.id.menu_send)?.isVisible = (play?.dirtyTimestamp ?: 0L) > 0L
+                menu.findItem(R.id.menu_delete)?.isVisible = play != null
+                menu.findItem(R.id.menu_rematch)?.isVisible = play != null
+                menu.findItem(R.id.menu_change_game)?.isVisible = play != null
+                menu.findItem(R.id.menu_share)?.isVisible = play != null
+            }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_discard -> {
-                requireActivity().createDiscardDialog(R.string.play, isNew = true, finishActivity = false) {
-                    logDataManipulationAction("Discard")
-                    viewModel.discard()
-                }.show()
-                return true
-            }
-            R.id.menu_edit -> {
-                play?.let {
-                    logDataManipulationAction("Edit")
-                    LogPlayActivity.editPlay(requireContext(), it.internalId, it.gameId, it.gameName, it.thumbnailUrl, it.imageUrl, it.heroImageUrl)
-                    return true
-                }
-            }
-            R.id.menu_send -> {
-                logDataManipulationAction("Send")
-                viewModel.send()
-                return true
-            }
-            R.id.menu_delete -> {
-                requireContext().createThemedBuilder()
-                    .setMessage(R.string.are_you_sure_delete_play)
-                    .setPositiveButton(R.string.delete) { _, _ ->
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.menu_discard -> {
+                        requireActivity().createDiscardDialog(R.string.play, isNew = true, finishActivity = false) {
+                            logDataManipulationAction("Discard")
+                            viewModel.discard()
+                        }.show()
+                        return true
+                    }
+                    R.id.menu_edit -> {
                         play?.let {
-                            if (it.hasStarted()) requireContext().cancelNotification(TAG_PLAY_TIMER, it.internalId)
-                            logDataManipulationAction("Delete")
-                            viewModel.delete()
-                            requireActivity().finish() // don't want to show an empty screen upon return
+                            logDataManipulationAction("Edit")
+                            LogPlayActivity.editPlay(
+                                requireContext(),
+                                it.internalId,
+                                it.gameId,
+                                it.gameName,
+                                it.thumbnailUrl,
+                                it.imageUrl,
+                                it.heroImageUrl
+                            )
+                            return true
                         }
                     }
-                    .setNegativeButton(R.string.cancel, null)
-                    .setCancelable(true)
-                    .show()
-                return true
-            }
-            R.id.menu_rematch -> {
-                play?.let {
-                    logDataManipulationAction("Rematch")
-                    LogPlayActivity.rematch(
-                        requireContext(),
-                        it.internalId,
-                        it.gameId,
-                        it.gameName,
-                        it.thumbnailUrl,
-                        it.imageUrl,
-                        it.heroImageUrl,
-                        it.arePlayersCustomSorted()
-                    )
-                    requireActivity().finish() // don't want to show the "old" play upon return
-                    return true
-                }
-            }
-            R.id.menu_change_game -> {
-                play?.let {
-                    logDataManipulationAction("ChangeGame")
-                    CollectionActivity.startForGameChange(requireContext(), it.internalId)
-                    requireActivity().finish() // don't want to show the "old" play upon return
-                }
-                return true
-            }
-            R.id.menu_share -> {
-                play?.let {
-                    val subject = getString(R.string.play_description_game_segment, it.gameName) + getString(
-                        R.string.play_description_date_segment,
-                        it.dateInMillis.asDate(requireContext())
-                    )
-                    val sb = StringBuilder()
-                    sb.append(getString(R.string.play_description_game_segment, it.gameName))
-                    if (it.dateInMillis != PlayEntity.UNKNOWN_DATE) sb.append(
-                        getString(
-                            R.string.play_description_date_segment,
-                            it.dateInMillis.asDate(requireContext(), includeWeekDay = true)
-                        )
-                    )
-                    if (it.quantity > 1) sb.append(resources.getQuantityString(R.plurals.play_description_quantity_segment, it.quantity, it.quantity))
-                    if (it.location.isNotBlank()) sb.append(getString(R.string.play_description_location_segment, it.location))
-                    if (it.length > 0) sb.append(getString(R.string.play_description_length_segment, it.length.asTime()))
-                    if (it.players.isNotEmpty()) {
-                        sb.append(" ").append(getString(R.string.with))
-                        if (it.arePlayersCustomSorted()) {
-                            for (player in it.players) {
-                                sb.append("\n").append(describePlayer(player))
-                            }
-                        } else {
-                            for (i in it.players.indices) {
-                                it.getPlayerAtSeat(i + 1)?.let { player ->
-                                    sb.append("\n").append(describePlayer(player))
+                    R.id.menu_send -> {
+                        logDataManipulationAction("Send")
+                        viewModel.send()
+                        return true
+                    }
+                    R.id.menu_delete -> {
+                        requireContext().createThemedBuilder()
+                            .setMessage(R.string.are_you_sure_delete_play)
+                            .setPositiveButton(R.string.delete) { _, _ ->
+                                play?.let {
+                                    if (it.hasStarted()) requireContext().cancelNotification(TAG_PLAY_TIMER, it.internalId)
+                                    logDataManipulationAction("Delete")
+                                    viewModel.delete()
+                                    requireActivity().finish() // don't want to show an empty screen upon return
                                 }
                             }
+                            .setNegativeButton(R.string.cancel, null)
+                            .setCancelable(true)
+                            .show()
+                        return true
+                    }
+                    R.id.menu_rematch -> {
+                        play?.let {
+                            logDataManipulationAction("Rematch")
+                            LogPlayActivity.rematch(
+                                requireContext(),
+                                it.internalId,
+                                it.gameId,
+                                it.gameName,
+                                it.thumbnailUrl,
+                                it.imageUrl,
+                                it.heroImageUrl,
+                                it.arePlayersCustomSorted()
+                            )
+                            requireActivity().finish() // don't want to show the "old" play upon return
+                            return true
                         }
                     }
-                    if (it.comments.isNotBlank()) {
-                        sb.append("\n\n").append(it.comments)
+                    R.id.menu_change_game -> {
+                        play?.let {
+                            logDataManipulationAction("ChangeGame")
+                            CollectionActivity.startForGameChange(requireContext(), it.internalId)
+                            requireActivity().finish() // don't want to show the "old" play upon return
+                        }
+                        return true
                     }
-                    if (it.playId > 0) {
-                        sb.append("\n\n").append(getString(R.string.play_description_play_url_segment, it.playId.toString()).trim())
-                    } else {
-                        sb.append("\n\n").append(getString(R.string.play_description_game_url_segment, it.gameId.toString()).trim())
+                    R.id.menu_share -> {
+                        play?.let {
+                            val subject = getString(R.string.play_description_game_segment, it.gameName) + getString(
+                                R.string.play_description_date_segment,
+                                it.dateInMillis.asDate(requireContext())
+                            )
+                            val sb = StringBuilder()
+                            sb.append(getString(R.string.play_description_game_segment, it.gameName))
+                            if (it.dateInMillis != PlayEntity.UNKNOWN_DATE) sb.append(
+                                getString(
+                                    R.string.play_description_date_segment,
+                                    it.dateInMillis.asDate(requireContext(), includeWeekDay = true)
+                                )
+                            )
+                            if (it.quantity > 1) sb.append(
+                                resources.getQuantityString(
+                                    R.plurals.play_description_quantity_segment,
+                                    it.quantity,
+                                    it.quantity
+                                )
+                            )
+                            if (it.location.isNotBlank()) sb.append(getString(R.string.play_description_location_segment, it.location))
+                            if (it.length > 0) sb.append(getString(R.string.play_description_length_segment, it.length.asTime()))
+                            if (it.players.isNotEmpty()) {
+                                sb.append(" ").append(getString(R.string.with))
+                                if (it.arePlayersCustomSorted()) {
+                                    for (player in it.players) {
+                                        sb.append("\n").append(describePlayer(player))
+                                    }
+                                } else {
+                                    for (i in it.players.indices) {
+                                        it.getPlayerAtSeat(i + 1)?.let { player ->
+                                            sb.append("\n").append(describePlayer(player))
+                                        }
+                                    }
+                                }
+                            }
+                            if (it.comments.isNotBlank()) {
+                                sb.append("\n\n").append(it.comments)
+                            }
+                            if (it.playId > 0) {
+                                sb.append("\n\n").append(getString(R.string.play_description_play_url_segment, it.playId.toString()).trim())
+                            } else {
+                                sb.append("\n\n").append(getString(R.string.play_description_game_url_segment, it.gameId.toString()).trim())
+                            }
+                            val text = sb.toString()
+                            requireActivity().share(subject, text, R.string.share_play_title)
+                            firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
+                                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Play")
+                                param(FirebaseAnalytics.Param.ITEM_ID, it.playId.toString())
+                                param(FirebaseAnalytics.Param.ITEM_NAME, subject)
+                            }
+                            return true
+                        }
                     }
-                    val text = sb.toString()
-                    requireActivity().share(subject, text, R.string.share_play_title)
-                    firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
-                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "Play")
-                        param(FirebaseAnalytics.Param.ITEM_ID, it.playId.toString())
-                        param(FirebaseAnalytics.Param.ITEM_NAME, subject)
-                    }
-                    return true
                 }
+                return false
             }
-        }
-        return super.onOptionsItemSelected(item)
+        })
     }
 
     private fun describePlayer(player: PlayPlayerEntity): String {

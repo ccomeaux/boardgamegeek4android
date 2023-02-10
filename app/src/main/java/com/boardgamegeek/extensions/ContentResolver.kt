@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
+import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.provider.BggContract
 import timber.log.Timber
@@ -16,9 +17,44 @@ inline fun ContentResolver.load(
     projection: Array<String>? = null,
     selection: String? = null,
     selectionArgs: Array<String>? = null,
-    sortOrder: String? = null
+    sortOrder: String? = null,
 ): Cursor? {
     return this.query(uri, projection, selection, selectionArgs, sortOrder)
+}
+
+suspend fun <T> ContentResolver.loadEntity(
+    uri: Uri,
+    projection: Array<String>? = null,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null,
+    populateEntity: suspend (cursor: Cursor) -> T?,
+): T? {
+    this.query(uri, projection, selection, selectionArgs, sortOrder)?.use {
+        return if (it.moveToFirst()) {
+            populateEntity(it)
+        } else null
+    }
+    return null
+}
+
+suspend fun <T> ContentResolver.loadList(
+    uri: Uri,
+    projection: Array<String>? = null,
+    selection: String? = null,
+    selectionArgs: Array<String>? = null,
+    sortOrder: String? = null,
+    populateEntity: suspend (cursor: Cursor) -> T?,
+): List<T> {
+    val list = mutableListOf<T>()
+    this.query(uri, projection, selection, selectionArgs, sortOrder)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            do {
+                populateEntity(cursor)?.let { list += it }
+            } while (cursor.moveToNext())
+        }
+    }
+    return list
 }
 
 fun ContentResolver.applyBatch(batch: ArrayList<ContentProviderOperation>?, debugMessage: String = ""): Array<ContentProviderResult> {
@@ -80,12 +116,13 @@ fun ContentResolver.queryInts(
     columnName: String,
     selection: String? = null,
     selectionArgs: Array<String>? = null,
-    sortOrder: String? = null
+    sortOrder: String? = null,
+    valueIfNull: Int = 0,
 ): List<Int> {
     val list = arrayListOf<Int>()
     query(uri, arrayOf(columnName), selection, selectionArgs, sortOrder)?.use {
         while (it.moveToNext()) {
-            list.add(it.getInt(0))
+            list.add(it.getIntOrNull(0) ?: valueIfNull)
         }
     }
     return list

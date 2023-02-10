@@ -10,8 +10,9 @@ import java.util.*
 abstract class CollectionDateSorter(context: Context) : CollectionSorter(context) {
     private val headerDateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
 
-    @StringRes
-    protected open val defaultValueResId = R.string.text_unknown
+    protected open val defaultValueResId: Int
+        @StringRes
+        get() = R.string.text_unknown
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         val time =  getTimestamp(item)

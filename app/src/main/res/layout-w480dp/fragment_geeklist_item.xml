@@ -25,12 +25,11 @@
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
 				android:minWidth="48dp"
-				android:textAppearance="@style/Text.Headline"
+				android:textAppearance="@style/TextAppearance.Headline"
 				tools:text="1" />
 
 			<TextView
 				android:id="@+id/geekListTitleView"
-				style="@style/Text.Primary"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_gravity="center_vertical"
@@ -38,6 +37,7 @@
 				android:gravity="center_vertical"
 				android:maxLines="2"
 				android:minHeight="40dp"
+				android:textAppearance="@style/TextAppearance.Subtitle"
 				tools:text="This is a GeekList title" />
 		</LinearLayout>
 

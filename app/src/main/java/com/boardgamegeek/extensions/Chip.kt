@@ -11,27 +11,32 @@ import com.squareup.picasso.Transformation
 import kotlin.math.min
 
 
-fun Chip.loadIcon(imageUrl: String?, @DrawableRes errorResId: Int) {
-    Picasso.with(context)
-            .load(imageUrl.ensureHttpsScheme())
+fun Chip.loadIcon(imageUrl: String?, @DrawableRes errorResId: Int = 0) {
+    val creator = Picasso.with(context)
+        .load(imageUrl.ensureHttpsScheme())
+        .resize(chipIconSize.toInt(), chipIconSize.toInt())
+        .centerCrop()
+        .transform(CircleTransform())
+    if (errorResId > 0) {
+        creator
             .error(errorResId)
             .placeholder(errorResId)
-            .resize(chipIconSize.toInt(), chipIconSize.toInt())
-            .centerCrop()
-            .transform(CircleTransform())
-            .into(object : Target {
-                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                    this@loadIcon.setChipIconResource(errorResId)
-                }
+    }
+    creator.into(object : Target {
+        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+            if (errorResId > 0)
+                this@loadIcon.setChipIconResource(errorResId)
+        }
 
-                override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                    this@loadIcon.chipIcon = BitmapDrawable(resources, bitmap)
-                }
+        override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+            this@loadIcon.chipIcon = BitmapDrawable(resources, bitmap)
+        }
 
-                override fun onBitmapFailed(errorDrawable: Drawable?) {
-                    this@loadIcon.setChipIconResource(errorResId)
-                }
-            })
+        override fun onBitmapFailed(errorDrawable: Drawable?) {
+            if (errorResId > 0)
+                this@loadIcon.setChipIconResource(errorResId)
+        }
+    })
 }
 
 class CircleTransform : Transformation {

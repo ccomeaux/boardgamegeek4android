@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -21,11 +22,6 @@ class GameCreditsFragment : Fragment() {
     private var _binding: FragmentGameCreditsBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -47,20 +43,21 @@ class GameCreditsFragment : Fragment() {
         }
 
         viewModel.game.observe(viewLifecycleOwner) {
-            binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
-            when {
-                it == null -> showError(getString(R.string.empty_game))
-                it.status == Status.ERROR && it.data == null -> showError(it.message)
-                it.data == null -> showError(getString(R.string.empty_game))
-                else -> onGameContentChanged(it.data)
-            }
-            binding.progress.hide()
+            it?.let {
+                binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it.status == Status.REFRESHING }
+                when {
+                    it.status == Status.ERROR -> showError(it.message)
+                    it.data == null -> showError(getString(R.string.empty_game))
+                    else -> onGameContentChanged(it.data)
+                }
+                binding.progress.hide()
 
-            viewModel.designers.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.designersInfoRow) }
-            viewModel.artists.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.artistsInfoRow) }
-            viewModel.publishers.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.publishersInfoRow) }
-            viewModel.categories.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.categoriesInfoRow) }
-            viewModel.mechanics.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.mechanicsInfoRow) }
+                viewModel.designers.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.designersInfoRow) }
+                viewModel.artists.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.artistsInfoRow) }
+                viewModel.publishers.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.publishersInfoRow) }
+                viewModel.categories.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.categoriesInfoRow) }
+                viewModel.mechanics.observe(viewLifecycleOwner) { gameDetails -> onListQueryComplete(gameDetails, binding.mechanicsInfoRow) }
+            }
         }
     }
 
@@ -68,7 +65,6 @@ class GameCreditsFragment : Fragment() {
         if (message?.isNotBlank() == true) {
             binding.emptyMessage.text = message
             binding.emptyMessage.isVisible = true
-            binding.dataContainer.isVisible = false
         }
     }
 
@@ -85,7 +81,6 @@ class GameCreditsFragment : Fragment() {
         binding.footer.lastModifiedView.timestamp = game.updated
 
         binding.emptyMessage.isVisible = false
-        binding.dataContainer.isVisible = true
     }
 
     private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow) {
@@ -94,5 +89,6 @@ class GameCreditsFragment : Fragment() {
             viewModel.game.value?.data?.name.orEmpty(),
             list
         )
+        view.isGone = list.isNullOrEmpty()
     }
 }

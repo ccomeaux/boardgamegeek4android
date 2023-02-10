@@ -16,7 +16,6 @@ import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -26,8 +25,6 @@ import com.boardgamegeek.provider.BggContract.Companion.PATH_DESIGNERS
 import com.boardgamegeek.provider.BggContract.Companion.PATH_EXPANSIONS
 import com.boardgamegeek.provider.BggContract.Companion.PATH_MECHANICS
 import com.boardgamegeek.provider.BggContract.Companion.PATH_PUBLISHERS
-import com.boardgamegeek.provider.BggContract.Companion.POLL_TYPE_LANGUAGE_DEPENDENCE
-import com.boardgamegeek.provider.BggContract.Companion.POLL_TYPE_SUGGESTED_PLAYER_AGE
 import com.boardgamegeek.provider.BggDatabase.*
 import com.boardgamegeek.util.DataUtils
 import kotlinx.coroutines.Dispatchers
@@ -39,98 +36,97 @@ class GameDao(private val context: BggApplication) {
 
     suspend fun load(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
-            val projection = arrayOf(
-                Games.Columns.GAME_ID,
-                Games.Columns.GAME_NAME,
-                Games.Columns.DESCRIPTION,
-                Games.Columns.SUBTYPE,
-                Games.Columns.THUMBNAIL_URL,
-                Games.Columns.IMAGE_URL, // 5
-                Games.Columns.YEAR_PUBLISHED,
-                Games.Columns.MIN_PLAYERS,
-                Games.Columns.MAX_PLAYERS,
-                Games.Columns.PLAYING_TIME,
-                Games.Columns.MIN_PLAYING_TIME, // 10
-                Games.Columns.MAX_PLAYING_TIME,
-                Games.Columns.MINIMUM_AGE,
-                Games.Columns.HERO_IMAGE_URL,
-                Games.Columns.STATS_AVERAGE,
-                Games.Columns.STATS_USERS_RATED, // 15
-                Games.Columns.STATS_NUMBER_COMMENTS,
-                Games.Columns.UPDATED,
-                Games.Columns.UPDATED_PLAYS,
-                Games.Columns.GAME_RANK,
-                Games.Columns.STATS_STANDARD_DEVIATION, // 20
-                Games.Columns.STATS_BAYES_AVERAGE,
-                Games.Columns.STATS_AVERAGE_WEIGHT,
-                Games.Columns.STATS_NUMBER_WEIGHTS,
-                Games.Columns.STATS_NUMBER_OWNED,
-                Games.Columns.STATS_NUMBER_TRADING, // 25
-                Games.Columns.STATS_NUMBER_WANTING,
-                Games.Columns.STATS_NUMBER_WISHING,
-                Games.Columns.CUSTOM_PLAYER_SORT,
-                Games.Columns.STARRED,
-                Games.Columns.POLLS_COUNT, // 30
-                Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                Games.Columns.ICON_COLOR,
-                Games.Columns.DARK_COLOR,
-                Games.Columns.WINS_COLOR,
-                Games.Columns.WINNABLE_PLAYS_COLOR, // 35
-                Games.Columns.ALL_PLAYS_COLOR,
-                Games.Columns.GAME_SORT_NAME,
-            )
-            context.contentResolver.load(Games.buildGameUri(gameId), projection)?.use {
-                if (it.moveToFirst()) {
-                    GameEntity(
-                        id = it.getInt(0),
-                        name = it.getStringOrNull(1).orEmpty(),
-                        description = it.getStringOrNull(2).orEmpty(),
-                        subtype = it.getStringOrNull(3).orEmpty(),
-                        thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                        imageUrl = it.getStringOrNull(5).orEmpty(),
-                        yearPublished = it.getIntOrNull(6) ?: GameEntity.YEAR_UNKNOWN,
-                        minPlayers = it.getIntOrNull(7) ?: 0,
-                        maxPlayers = it.getIntOrNull(8) ?: 0,
-                        playingTime = it.getIntOrNull(9) ?: 0,
-                        minPlayingTime = it.getIntOrNull(10) ?: 0,
-                        maxPlayingTime = it.getIntOrNull(11) ?: 0,
-                        minimumAge = it.getIntOrNull(12) ?: 0,
-                        heroImageUrl = it.getStringOrNull(13).orEmpty(),
-                        rating = it.getDoubleOrNull(14) ?: 0.0,
-                        numberOfRatings = it.getIntOrNull(15) ?: 0,
-                        numberOfComments = it.getIntOrNull(16) ?: 0,
-                        overallRank = it.getIntOrNull(19) ?: GameRankEntity.RANK_UNKNOWN,
-                        standardDeviation = it.getDoubleOrNull(20) ?: 0.0,
-                        bayesAverage = it.getDoubleOrNull(21) ?: 0.0,
-                        averageWeight = it.getDoubleOrNull(22) ?: 0.0,
-                        numberOfUsersWeighting = it.getIntOrNull(23) ?: 0,
-                        numberOfUsersOwned = it.getIntOrNull(24) ?: 0,
-                        numberOfUsersTrading = it.getIntOrNull(25) ?: 0,
-                        numberOfUsersWanting = it.getIntOrNull(26) ?: 0,
-                        numberOfUsersWishListing = it.getIntOrNull(27) ?: 0,
-                        updated = it.getLongOrNull(17) ?: 0L,
-                        updatedPlays = it.getLongOrNull(18) ?: 0L,
-                        customPlayerSort = it.getBoolean(28),
-                        isFavorite = it.getBoolean(29),
-                        pollVoteTotal = it.getIntOrNull(30) ?: 0,
-                        suggestedPlayerCountPollVoteTotal = it.getIntOrNull(31) ?: 0,
-                        iconColor = it.getIntOrNull(32) ?: Color.TRANSPARENT,
-                        darkColor = it.getIntOrNull(33) ?: Color.TRANSPARENT,
-                        winsColor = it.getIntOrNull(34) ?: Color.TRANSPARENT,
-                        winnablePlaysColor = it.getIntOrNull(35) ?: Color.TRANSPARENT,
-                        allPlaysColor = it.getIntOrNull(36) ?: Color.TRANSPARENT,
-                        sortName = it.getStringOrNull(37).orEmpty(),
-                    )
-                } else null
+            context.contentResolver.loadEntity(
+                Games.buildGameUri(gameId),
+                arrayOf(
+                    Games.Columns.GAME_ID,
+                    Games.Columns.GAME_NAME,
+                    Games.Columns.DESCRIPTION,
+                    Games.Columns.SUBTYPE,
+                    Games.Columns.THUMBNAIL_URL,
+                    Games.Columns.IMAGE_URL, // 5
+                    Games.Columns.YEAR_PUBLISHED,
+                    Games.Columns.MIN_PLAYERS,
+                    Games.Columns.MAX_PLAYERS,
+                    Games.Columns.PLAYING_TIME,
+                    Games.Columns.MIN_PLAYING_TIME, // 10
+                    Games.Columns.MAX_PLAYING_TIME,
+                    Games.Columns.MINIMUM_AGE,
+                    Games.Columns.HERO_IMAGE_URL,
+                    Games.Columns.STATS_AVERAGE,
+                    Games.Columns.STATS_USERS_RATED, // 15
+                    Games.Columns.STATS_NUMBER_COMMENTS,
+                    Games.Columns.UPDATED,
+                    Games.Columns.UPDATED_PLAYS,
+                    Games.Columns.GAME_RANK,
+                    Games.Columns.STATS_STANDARD_DEVIATION, // 20
+                    Games.Columns.STATS_BAYES_AVERAGE,
+                    Games.Columns.STATS_AVERAGE_WEIGHT,
+                    Games.Columns.STATS_NUMBER_WEIGHTS,
+                    Games.Columns.STATS_NUMBER_OWNED,
+                    Games.Columns.STATS_NUMBER_TRADING, // 25
+                    Games.Columns.STATS_NUMBER_WANTING,
+                    Games.Columns.STATS_NUMBER_WISHING,
+                    Games.Columns.CUSTOM_PLAYER_SORT,
+                    Games.Columns.STARRED,
+                    Games.Columns.POLLS_COUNT, // 30
+                    Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                    Games.Columns.ICON_COLOR,
+                    Games.Columns.DARK_COLOR,
+                    Games.Columns.WINS_COLOR,
+                    Games.Columns.WINNABLE_PLAYS_COLOR, // 35
+                    Games.Columns.ALL_PLAYS_COLOR,
+                    Games.Columns.GAME_SORT_NAME,
+                )
+            ) {
+                GameEntity(
+                    id = it.getInt(0),
+                    name = it.getStringOrNull(1).orEmpty(),
+                    description = it.getStringOrNull(2).orEmpty(),
+                    subtype = it.getStringOrNull(3).toSubtype(),
+                    thumbnailUrl = it.getStringOrNull(4).orEmpty(),
+                    imageUrl = it.getStringOrNull(5).orEmpty(),
+                    yearPublished = it.getIntOrNull(6) ?: GameEntity.YEAR_UNKNOWN,
+                    minPlayers = it.getIntOrNull(7) ?: 0,
+                    maxPlayers = it.getIntOrNull(8) ?: 0,
+                    playingTime = it.getIntOrNull(9) ?: 0,
+                    minPlayingTime = it.getIntOrNull(10) ?: 0,
+                    maxPlayingTime = it.getIntOrNull(11) ?: 0,
+                    minimumAge = it.getIntOrNull(12) ?: 0,
+                    heroImageUrl = it.getStringOrNull(13).orEmpty(),
+                    rating = it.getDoubleOrNull(14) ?: 0.0,
+                    numberOfRatings = it.getIntOrNull(15) ?: 0,
+                    numberOfComments = it.getIntOrNull(16) ?: 0,
+                    overallRank = it.getIntOrNull(19) ?: GameRankEntity.RANK_UNKNOWN,
+                    standardDeviation = it.getDoubleOrNull(20) ?: 0.0,
+                    bayesAverage = it.getDoubleOrNull(21) ?: 0.0,
+                    averageWeight = it.getDoubleOrNull(22) ?: 0.0,
+                    numberOfUsersWeighting = it.getIntOrNull(23) ?: 0,
+                    numberOfUsersOwned = it.getIntOrNull(24) ?: 0,
+                    numberOfUsersTrading = it.getIntOrNull(25) ?: 0,
+                    numberOfUsersWanting = it.getIntOrNull(26) ?: 0,
+                    numberOfUsersWishListing = it.getIntOrNull(27) ?: 0,
+                    updated = it.getLongOrNull(17) ?: 0L,
+                    updatedPlays = it.getLongOrNull(18) ?: 0L,
+                    customPlayerSort = it.getBoolean(28),
+                    isFavorite = it.getBoolean(29),
+                    pollVoteTotal = it.getIntOrNull(30) ?: 0,
+                    suggestedPlayerCountPollVoteTotal = it.getIntOrNull(31) ?: 0,
+                    iconColor = it.getIntOrNull(32) ?: Color.TRANSPARENT,
+                    darkColor = it.getIntOrNull(33) ?: Color.TRANSPARENT,
+                    winsColor = it.getIntOrNull(34) ?: Color.TRANSPARENT,
+                    winnablePlaysColor = it.getIntOrNull(35) ?: Color.TRANSPARENT,
+                    allPlaysColor = it.getIntOrNull(36) ?: Color.TRANSPARENT,
+                    sortName = it.getStringOrNull(37).orEmpty(),
+                )
             }
         } else null
     }
 
     suspend fun loadRanks(gameId: Int): List<GameRankEntity> = withContext(Dispatchers.IO) {
-        val ranks = arrayListOf<GameRankEntity>()
         if (gameId != INVALID_ID) {
             val uri = Games.buildRanksUri(gameId)
-            context.contentResolver.load(
+            context.contentResolver.loadList(
                 uri,
                 arrayOf(
                     GameRanks.Columns.GAME_RANK_ID,
@@ -140,47 +136,40 @@ class GameDao(private val context: BggApplication) {
                     GameRanks.Columns.GAME_RANK_VALUE,
                     GameRanks.Columns.GAME_RANK_BAYES_AVERAGE,
                 )
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        ranks += GameRankEntity(
-                            id = it.getIntOrNull(0) ?: INVALID_ID,
-                            type = it.getStringOrNull(1).orEmpty(),
-                            name = it.getStringOrNull(2).orEmpty(),
-                            friendlyName = it.getStringOrNull(3).orEmpty(),
-                            value = it.getIntOrNull(4) ?: GameRankEntity.RANK_UNKNOWN,
-                            bayesAverage = it.getDoubleOrNull(5) ?: 0.0,
-                        )
-                    } while (it.moveToNext())
-                }
+            ) {
+                GameRankEntity(
+                    id = it.getIntOrNull(0) ?: INVALID_ID,
+                    type = it.getStringOrNull(1).orEmpty(),
+                    name = it.getStringOrNull(2).orEmpty(),
+                    friendlyName = it.getStringOrNull(3).orEmpty(),
+                    value = it.getIntOrNull(4) ?: GameRankEntity.RANK_UNKNOWN,
+                    bayesAverage = it.getDoubleOrNull(5) ?: 0.0,
+                )
             }
-        }
-        ranks
+        } else emptyList()
     }
 
-    suspend fun loadPoll(gameId: Int, pollType: String): GamePollEntity? = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID && pollType in arrayOf(
-                POLL_TYPE_SUGGESTED_PLAYER_AGE,
-                POLL_TYPE_LANGUAGE_DEPENDENCE,
-            )
-        ) {
-            val uri = Games.buildPollResultsResultUri(gameId, pollType)
-            val results = arrayListOf<GamePollResultEntity>()
-            val projection = arrayOf(
-                GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL,
-                GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE,
-                GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES,
-            )
-            context.contentResolver.load(uri, projection)?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += GamePollResultEntity(
-                            level = it.getIntOrNull(0) ?: 0,
-                            value = it.getStringOrNull(1).orEmpty(),
-                            numberOfVotes = it.getIntOrNull(2) ?: 0,
-                        )
-                    } while (it.moveToNext())
-                }
+    enum class PollType(val code: String) {
+        LANGUAGE_DEPENDENCE("language_dependence"),
+        @Suppress("SpellCheckingInspection")
+        SUGGESTED_PLAYER_AGE("suggested_playerage"),
+    }
+
+    suspend fun loadPoll(gameId: Int, pollType: PollType): GamePollEntity? = withContext(Dispatchers.IO) {
+        if (gameId != INVALID_ID) {
+            val results = context.contentResolver.loadList(
+                Games.buildPollResultsResultUri(gameId, pollType.code),
+                arrayOf(
+                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL,
+                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE,
+                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES,
+                )
+            ) {
+                GamePollResultEntity(
+                    level = it.getIntOrNull(0) ?: 0,
+                    value = it.getStringOrNull(1).orEmpty(),
+                    numberOfVotes = it.getIntOrNull(2) ?: 0,
+                )
             }
             GamePollEntity(results)
         } else null
@@ -188,154 +177,101 @@ class GameDao(private val context: BggApplication) {
 
     suspend fun loadPlayerPoll(gameId: Int): GamePlayerPollEntity? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
-            val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
-            val results = arrayListOf<GamePlayerPollResultsEntity>()
-            val projection = arrayOf(
-                Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT,
-                GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT,
-                GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT,
-                GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT,
-                GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION, // TODO why is this not loading into the entity
-            )
-            context.contentResolver.load(uri, projection)?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += GamePlayerPollResultsEntity(
-                            totalVotes = it.getIntOrNull(0) ?: 0,
-                            playerCount = it.getStringOrNull(1).orEmpty(),
-                            bestVoteCount = it.getIntOrNull(2) ?: 0,
-                            recommendedVoteCount = it.getIntOrNull(3) ?: 0,
-                            notRecommendedVoteCount = it.getIntOrNull(4) ?: 0,
-                        )
-                    } while (it.moveToNext())
-                }
+            val results = context.contentResolver.loadList(
+                Games.buildSuggestedPlayerCountPollResultsUri(gameId),
+                arrayOf(
+                    Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                    GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT,
+                    GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT,
+                    GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT,
+                    GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT,
+                    GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION,
+                )
+            ) {
+                GamePlayerPollResultsEntity(
+                    totalVotes = it.getIntOrNull(0) ?: 0,
+                    playerCount = it.getStringOrNull(1).orEmpty(),
+                    bestVoteCount = it.getIntOrNull(2) ?: 0,
+                    recommendedVoteCount = it.getIntOrNull(3) ?: 0,
+                    notRecommendedVoteCount = it.getIntOrNull(4) ?: 0,
+                    recommendation = it.getIntOrNull(5) ?: GamePlayerPollResultsEntity.UNKNOWN,
+                )
             }
             GamePlayerPollEntity(results)
         } else null
     }
 
     suspend fun loadDesigners(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<GameDetailEntity>()
-        if (gameId != INVALID_ID) {
-            context.contentResolver.load(
-                Games.buildDesignersUri(gameId),
-                arrayOf(
-                    Designers.Columns.DESIGNER_ID,
-                    Designers.Columns.DESIGNER_NAME,
-                )
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += GameDetailEntity(
-                            it.getInt(0),
-                            it.getString(1),
-                        )
-                    } while (it.moveToNext())
-                }
-            }
-        }
-        results
+        loadDetails(
+            gameId,
+            Games.buildDesignersUri(gameId),
+            arrayOf(
+                Designers.Columns.DESIGNER_ID,
+                Designers.Columns.DESIGNER_NAME,
+            )
+        )
     }
 
     suspend fun loadArtists(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<GameDetailEntity>()
-        if (gameId != INVALID_ID) {
-            context.contentResolver.load(
-                Games.buildArtistsUri(gameId),
-                arrayOf(
-                    Artists.Columns.ARTIST_ID,
-                    Artists.Columns.ARTIST_NAME,
-                )
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += GameDetailEntity(
-                            it.getInt(0),
-                            it.getString(1),
-                        )
-                    } while (it.moveToNext())
-                }
-            }
-        }
-        results
+        loadDetails(
+            gameId,
+            Games.buildArtistsUri(gameId),
+            arrayOf(
+                Artists.Columns.ARTIST_ID,
+                Artists.Columns.ARTIST_NAME,
+            )
+        )
     }
 
     suspend fun loadPublishers(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<GameDetailEntity>()
-        if (gameId != INVALID_ID) {
-            context.contentResolver.load(
-                Games.buildPublishersUri(gameId),
-                arrayOf(
-                    Publishers.Columns.PUBLISHER_ID,
-                    Publishers.Columns.PUBLISHER_NAME,
-                )
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += GameDetailEntity(
-                            it.getInt(0),
-                            it.getString(1),
-                        )
-                    } while (it.moveToNext())
-                }
-            }
-        }
-        results
+        loadDetails(
+            gameId,
+            Games.buildPublishersUri(gameId),
+            arrayOf(
+                Publishers.Columns.PUBLISHER_ID,
+                Publishers.Columns.PUBLISHER_NAME,
+            )
+        )
     }
 
     suspend fun loadCategories(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<GameDetailEntity>()
-        if (gameId != INVALID_ID) {
-            context.contentResolver.load(
-                Games.buildCategoriesUri(gameId),
-                arrayOf(
-                    Categories.Columns.CATEGORY_ID,
-                    Categories.Columns.CATEGORY_NAME,
-                ),
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += GameDetailEntity(
-                            it.getInt(0),
-                            it.getString(1),
-                        )
-                    } while (it.moveToNext())
-                }
-            }
-        }
-        results
+        loadDetails(
+            gameId,
+            Games.buildCategoriesUri(gameId),
+            arrayOf(
+                Categories.Columns.CATEGORY_ID,
+                Categories.Columns.CATEGORY_NAME,
+            )
+        )
     }
 
     suspend fun loadMechanics(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        val results = arrayListOf<GameDetailEntity>()
+        loadDetails(
+            gameId,
+            Games.buildMechanicsUri(gameId),
+            arrayOf(
+                Mechanics.Columns.MECHANIC_ID,
+                Mechanics.Columns.MECHANIC_NAME,
+            )
+        )
+    }
+
+    private suspend fun loadDetails(gameId: Int, uri: Uri, projection: Array<String>): List<GameDetailEntity> = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
-            context.contentResolver.load(
-                Games.buildMechanicsUri(gameId),
-                arrayOf(
-                    Mechanics.Columns.MECHANIC_ID,
-                    Mechanics.Columns.MECHANIC_NAME,
-                ),
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += GameDetailEntity(
-                            it.getInt(0),
-                            it.getString(1)
-                        )
-                    } while (it.moveToNext())
-                }
+            context.contentResolver.loadList(uri, projection) {
+                GameDetailEntity(
+                    it.getInt(0),
+                    it.getString(1),
+                )
             }
-        }
-        results
+        } else emptyList()
     }
 
     suspend fun loadExpansions(gameId: Int, inbound: Boolean = false): List<GameExpansionsEntity> =
         withContext(Dispatchers.IO) {
             val results = arrayListOf<GameExpansionsEntity>()
             if (gameId != INVALID_ID) {
-                val briefResults = arrayListOf<GameExpansionsEntity>()
-                context.contentResolver.load(
+                val briefResults = context.contentResolver.loadList(
                     Games.buildExpansionsUri(gameId),
                     arrayOf(
                         GamesExpansions.Columns.EXPANSION_ID,
@@ -343,18 +279,14 @@ class GameDao(private val context: BggApplication) {
                     ),
                     selection = "${GamesExpansions.Columns.INBOUND}=?",
                     selectionArgs = arrayOf(if (inbound) "1" else "0")
-                )?.use {
-                    if (it.moveToFirst()) {
-                        do {
-                            briefResults += GameExpansionsEntity(
-                                it.getInt(0),
-                                it.getString(1),
-                            )
-                        } while (it.moveToNext())
-                    }
+                ) {
+                    GameExpansionsEntity(
+                        it.getInt(0),
+                        it.getString(1),
+                    )
                 }
                 for (result in briefResults) {
-                    context.contentResolver.load(
+                    val resultsWithCollectionInfo = context.contentResolver.loadList(
                         Collection.CONTENT_URI,
                         projection = arrayOf(
                             Collection.Columns.STATUS_OWN,
@@ -372,28 +304,26 @@ class GameDao(private val context: BggApplication) {
                         ),
                         selection = "collection.${Collection.Columns.GAME_ID}=?",
                         selectionArgs = arrayOf(result.id.toString())
-                    )?.use {
-                        if (it.moveToFirst()) {
-                            do {
-                                results += result.copy(
-                                    own = it.getBoolean(0),
-                                    previouslyOwned = it.getBoolean(1),
-                                    preOrdered = it.getBoolean(2),
-                                    forTrade = it.getBoolean(3),
-                                    wantInTrade = it.getBoolean(4),
-                                    wantToPlay = it.getBoolean(5),
-                                    wantToBuy = it.getBoolean(6),
-                                    wishList = it.getBoolean(7),
-                                    wishListPriority = it.getIntOrNull(8) ?: GameExpansionsEntity.WISHLIST_PRIORITY_UNKNOWN,
-                                    numberOfPlays = it.getIntOrNull(9) ?: 0,
-                                    rating = it.getDoubleOrNull(10) ?: 0.0,
-                                    comment = it.getStringOrNull(11).orEmpty(),
-                                )
-                            } while (it.moveToNext())
-                        } else {
-                            results += result
-                        }
+                    ) {
+                        result.copy(
+                            own = it.getBoolean(0),
+                            previouslyOwned = it.getBoolean(1),
+                            preOrdered = it.getBoolean(2),
+                            forTrade = it.getBoolean(3),
+                            wantInTrade = it.getBoolean(4),
+                            wantToPlay = it.getBoolean(5),
+                            wantToBuy = it.getBoolean(6),
+                            wishList = it.getBoolean(7),
+                            wishListPriority = it.getIntOrNull(8) ?: GameExpansionsEntity.WISHLIST_PRIORITY_UNKNOWN,
+                            numberOfPlays = it.getIntOrNull(9) ?: 0,
+                            rating = it.getDoubleOrNull(10) ?: 0.0,
+                            comment = it.getStringOrNull(11).orEmpty(),
+                        )
                     }
+                    if (resultsWithCollectionInfo.isEmpty())
+                        results += result
+                    else
+                        results += resultsWithCollectionInfo
                 }
             }
             results
@@ -404,35 +334,28 @@ class GameDao(private val context: BggApplication) {
     }
 
     suspend fun loadPlayColors(): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
-        val colors = mutableListOf<Pair<Int, String>>()
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             GameColors.CONTENT_URI,
             arrayOf(GameColors.Columns.GAME_ID, GameColors.Columns.COLOR),
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    colors += (it.getIntOrNull(0) ?: INVALID_ID) to it.getStringOrNull(1).orEmpty()
-                } while (it.moveToNext())
-            }
+        ) {
+            (it.getIntOrNull(0) ?: INVALID_ID) to it.getStringOrNull(1).orEmpty()
         }
-        colors
     }
 
-    suspend fun loadPlayInfo(
+    suspend fun loadGamesForPlayStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
     ): List<GameForPlayStatEntity> = withContext(Dispatchers.IO) {
-        val results = mutableListOf<GameForPlayStatEntity>()
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             Games.CONTENT_PLAYS_URI,
             arrayOf(
-                Plays.Columns.SUM_QUANTITY,
-                Plays.Columns.ITEM_NAME,
+                Games.Columns.GAME_ID,
+                Games.Columns.GAME_NAME,
                 Games.Columns.GAME_RANK,
-                Games.Columns.GAME_ID
+                Plays.Columns.SUM_QUANTITY,
             ),
-            selection = arrayListOf<String>().apply {
+            selection = mutableListOf<String>().apply {
                 add(Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull())
                 if (!includeIncompletePlays) {
                     add(Plays.Columns.INCOMPLETE.whereZeroOrNull())
@@ -443,29 +366,24 @@ class GameDao(private val context: BggApplication) {
                     add(Games.Columns.SUBTYPE.whereNotEqualsOrNull())
                 }
             }.joinTo(" AND ").toString(),
-            selectionArgs = arrayListOf<String>().apply {
+            selectionArgs = mutableListOf<String>().apply {
                 if (!includeExpansions && !includeAccessories) {
-                    add(BggService.THING_SUBTYPE_BOARDGAME)
+                    add(GameEntity.Subtype.BOARDGAME.code)
                 } else if (!includeExpansions) {
-                    add(BggService.THING_SUBTYPE_BOARDGAME_EXPANSION)
+                    add(GameEntity.Subtype.BOARDGAME_EXPANSION.code)
                 } else if (!includeAccessories) {
-                    add(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY)
+                    add(GameEntity.Subtype.BOARDGAME_ACCESSORY.code)
                 }
             }.toTypedArray(),
             sortOrder = "${Plays.Columns.SUM_QUANTITY} DESC, ${Games.Columns.GAME_SORT_NAME} ASC"
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += GameForPlayStatEntity(
-                        it.getIntOrNull(3) ?: INVALID_ID,
-                        it.getStringOrNull(1).orEmpty(),
-                        it.getIntOrNull(0) ?: 0,
-                        it.getIntOrNull(2) ?: 0,
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            GameForPlayStatEntity(
+                id = it.getIntOrNull(0) ?: INVALID_ID,
+                name = it.getStringOrNull(1).orEmpty(),
+                playCount = it.getIntOrNull(3) ?: 0,
+                bggRank = it.getIntOrNull(2) ?: GameRankEntity.RANK_UNKNOWN,
+            )
         }
-        results
     }
 
     suspend fun delete(gameId: Int): Int = withContext(Dispatchers.IO) {
@@ -554,21 +472,6 @@ class GameDao(private val context: BggApplication) {
         }
     }
 
-    suspend fun upsert(gameId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
-        val resolver = context.contentResolver
-        val uri = Games.buildGameUri(gameId)
-        if (resolver.rowExists(uri)) {
-            val count = resolver.update(uri, values, null, null)
-            Timber.d("Updated %,d game rows at %s", count, uri)
-            count
-        } else {
-            values.put(Games.Columns.GAME_ID, gameId)
-            val insertedUri = resolver.insert(Artists.CONTENT_URI, values)
-            Timber.d("Inserted game at %s", insertedUri)
-            1
-        }
-    }
-
     suspend fun resetPlaySync(): Int = withContext(Dispatchers.IO) {
         context.contentResolver.update(Games.CONTENT_URI, contentValuesOf(Games.Columns.UPDATED_PLAYS to 0), null, null)
     }
@@ -583,7 +486,7 @@ class GameDao(private val context: BggApplication) {
             Games.Columns.THUMBNAIL_URL to game.thumbnailUrl,
             Games.Columns.IMAGE_URL to game.imageUrl,
             Games.Columns.DESCRIPTION to game.description,
-            Games.Columns.SUBTYPE to game.subtype,
+            Games.Columns.SUBTYPE to game.subtype?.code.orEmpty(),
             Games.Columns.YEAR_PUBLISHED to game.yearPublished,
             Games.Columns.MIN_PLAYERS to game.minPlayers,
             Games.Columns.MAX_PLAYERS to game.maxPlayers,
@@ -623,11 +526,10 @@ class GameDao(private val context: BggApplication) {
     }
 
     private suspend fun shouldClearHeroImageUrl(game: GameEntity): Boolean = withContext(Dispatchers.IO) {
-        val cursor = resolver.query(Games.buildGameUri(game.id), arrayOf(Games.Columns.IMAGE_URL, Games.Columns.THUMBNAIL_URL), null, null, null)
-        cursor?.use { c ->
-            if (c.moveToFirst()) {
-                val imageUrl = c.getStringOrNull(0).orEmpty()
-                val thumbnailUrl = c.getStringOrNull(1).orEmpty()
+        resolver.load(Games.buildGameUri(game.id), arrayOf(Games.Columns.IMAGE_URL, Games.Columns.THUMBNAIL_URL))?.use {
+            if (it.moveToFirst()) {
+                val imageUrl = it.getStringOrNull(0).orEmpty()
+                val thumbnailUrl = it.getStringOrNull(1).orEmpty()
                 imageUrl != game.imageUrl || thumbnailUrl != game.thumbnailUrl
             } else false
         } ?: false
@@ -635,7 +537,8 @@ class GameDao(private val context: BggApplication) {
 
     private suspend fun createPollsBatch(game: GameEntity): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
-        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.Columns.POLL_NAME).filterNot { it.isBlank() }.toMutableList()
+        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.Columns.POLL_NAME)
+            .filterNot { it.isBlank() }.toMutableList()
         for (poll in game.polls) {
             val values = contentValuesOf(
                 GamePolls.Columns.POLL_TITLE to poll.title,
@@ -816,5 +719,16 @@ class GameDao(private val context: BggApplication) {
         }
         // remove unused associations
         return existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, uriPath, it)).build() }
+    }
+
+    suspend fun updateColors(gameId: Int, colors: List<String>) = withContext(Dispatchers.IO) {
+        if (resolver.rowExists(Games.buildGameUri(gameId))) {
+            val gameColorsUri = Games.buildColorsUri(gameId)
+            resolver.delete(gameColorsUri, null, null)
+            val values = colors.filter { it.isNotBlank() }.map { contentValuesOf(GameColors.Columns.COLOR to it) }
+            if (values.isNotEmpty()) {
+                resolver.bulkInsert(gameColorsUri, values.toTypedArray())
+            }
+        }
     }
 }

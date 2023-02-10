@@ -31,39 +31,29 @@ class CollectionDao(private val context: BggApplication) {
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
-    suspend fun load(collectionId: Int): CollectionItemEntity? = withContext(Dispatchers.IO) {
-        resolver.load(
-            Collection.CONTENT_URI,
-            projection(),
-            "collection.${Collection.Columns.COLLECTION_ID}=?",
-            arrayOf(collectionId.toString())
-        )?.use {
-            if (it.moveToFirst()) {
+    suspend fun load(internalId: Long): CollectionItemEntity? = withContext(Dispatchers.IO) {
+        if (internalId != INVALID_ID.toLong()) {
+            resolver.loadEntity(
+                Collection.buildUri(internalId),
+                projection(),
+            ) {
                 entityFromCursor(it)
-            } else null
-        }
+            }
+        } else null
     }
 
-    fun load(includeDeletedItems: Boolean = false): List<CollectionItemEntity> {
-        val uri = Collection.CONTENT_URI
-        val list = arrayListOf<CollectionItemEntity>()
-        resolver.load(uri, projection())?.use {
-            if (it.moveToFirst()) {
-                do {
-                    val item = entityFromCursor(it)
-                    if (includeDeletedItems || item.deleteTimestamp == 0L)
-                        list += item
-                } while (it.moveToNext())
-            }
+    suspend fun load(includeDeletedItems: Boolean = false): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
+        resolver.loadList(Collection.CONTENT_URI, projection()) {
+            val item = entityFromCursor(it)
+            if (includeDeletedItems || item.deleteTimestamp == 0L) item else null
         }
-        return list
     }
 
     private fun entityFromCursor(cursor: Cursor): CollectionItemEntity {
         return CollectionItemEntity(
             internalId = cursor.getLong(COLUMN_ID),
             gameId = cursor.getInt(COLUMN_GAME_ID),
-            collectionId = cursor.getInt(COLUMN_COLLECTION_ID),
+            collectionId = cursor.getIntOrNull(COLUMN_COLLECTION_ID) ?: INVALID_ID,
             collectionName = cursor.getStringOrNull(COLUMN_COLLECTION_NAME).orEmpty(),
             sortName = cursor.getStringOrNull(COLUMN_COLLECTION_SORT_NAME).orEmpty(),
             gameName = cursor.getStringOrNull(COLUMN_GAME_NAME).orEmpty(),
@@ -120,7 +110,7 @@ class CollectionDao(private val context: BggApplication) {
             lastPlayDate = cursor.getString(COLUMN_MAX_DATE).orEmpty().toMillis(playDateFormat),
             minPlayerCount = cursor.getIntOrNull(COLUMN_MIN_PLAYERS) ?: 0,
             maxPlayerCount = cursor.getIntOrNull(COLUMN_MAX_PLAYERS) ?: 0,
-            subType = cursor.getString(COLUMN_SUBTYPE).orEmpty(),
+            subtype = cursor.getString(COLUMN_SUBTYPE).toSubtype(),
             bestPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_BEST).orEmpty(),
             recommendedPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_RECOMMENDED).orEmpty(),
         )
@@ -128,7 +118,6 @@ class CollectionDao(private val context: BggApplication) {
 
     suspend fun loadByGame(gameId: Int, includeDeletedItems: Boolean = false): List<CollectionItemEntity> =
         withContext(Dispatchers.IO) {
-            val list = mutableListOf<CollectionItemEntity>()
             if (gameId != INVALID_ID) {
                 val uri = Collection.CONTENT_URI
                 val projection = arrayOf(
@@ -184,71 +173,65 @@ class CollectionDao(private val context: BggApplication) {
                     Games.Columns.PLAYING_TIME,
                     Games.Columns.CUSTOM_PLAYER_SORT, // 50
                 )
-                resolver.load(
+                resolver.loadList(
                     uri,
                     projection,
                     "collection.${Collection.Columns.GAME_ID}=?",
                     arrayOf(gameId.toString())
-                )?.use {
-                    if (it.moveToFirst()) {
-                        do {
-                            val item = CollectionItemEntity(
-                                internalId = it.getLong(0),
-                                gameId = it.getInt(1),
-                                collectionId = it.getIntOrNull(2) ?: INVALID_ID,
-                                collectionName = it.getStringOrNull(3).orEmpty(),
-                                sortName = it.getStringOrNull(4).orEmpty(),
-                                gameName = it.getStringOrNull(5).orEmpty(),
-                                gameYearPublished = it.getIntOrNull(6) ?: CollectionItemEntity.YEAR_UNKNOWN,
-                                collectionYearPublished = it.getIntOrNull(7) ?: CollectionItemEntity.YEAR_UNKNOWN,
-                                imageUrl = it.getStringOrNull(11).orEmpty().ifBlank { it.getStringOrNull(8) }.orEmpty(),
-                                thumbnailUrl = it.getStringOrNull(12).orEmpty().ifBlank { it.getStringOrNull(9) }.orEmpty(),
-                                heroImageUrl = it.getStringOrNull(13).orEmpty().ifBlank { it.getStringOrNull(10) }.orEmpty(),
-                                comment = it.getStringOrNull(14).orEmpty(),
-                                numberOfPlays = it.getIntOrNull(15) ?: 0,
-                                rating = it.getDoubleOrNull(16) ?: 0.0,
-                                own = it.getBoolean(17),
-                                previouslyOwned = it.getBoolean(18),
-                                forTrade = it.getBoolean(19),
-                                wantInTrade = it.getBoolean(2),
-                                wantToBuy = it.getBoolean(21),
-                                wishList = it.getBoolean(22),
-                                wantToPlay = it.getBoolean(23),
-                                preOrdered = it.getBoolean(24),
-                                wishListPriority = it.getIntOrNull(25) ?: CollectionItemEntity.WISHLIST_PRIORITY_UNKNOWN,
-                                syncTimestamp = it.getLongOrNull(26) ?: 0L,
-                                deleteTimestamp = it.getLongOrNull(27) ?: 0L,
-                                dirtyTimestamp = it.getLongOrNull(28) ?: 0L,
-                                statusDirtyTimestamp = it.getLongOrNull(29) ?: 0L,
-                                ratingDirtyTimestamp = it.getLongOrNull(30) ?: 0L,
-                                commentDirtyTimestamp = it.getLongOrNull(31) ?: 0L,
-                                privateInfoDirtyTimestamp = it.getLongOrNull(32) ?: 0L,
-                                wishListDirtyTimestamp = it.getLongOrNull(33) ?: 0L,
-                                tradeConditionDirtyTimestamp = it.getLongOrNull(34) ?: 0L,
-                                hasPartsDirtyTimestamp = it.getLongOrNull(35) ?: 0L,
-                                wantPartsDirtyTimestamp = it.getLongOrNull(36) ?: 0L,
-                                pricePaid = it.getDoubleOrNull(37) ?: 0.0,
-                                pricePaidCurrency = it.getStringOrNull(38).orEmpty(),
-                                currentValue = it.getDoubleOrNull(39) ?: 0.0,
-                                currentValueCurrency = it.getStringOrNull(40).orEmpty(),
-                                quantity = it.getIntOrNull(41) ?: 0,
-                                acquiredFrom = it.getStringOrNull(42).orEmpty(),
-                                acquisitionDate = it.getStringOrNull(43).toMillis(playDateFormat),
-                                inventoryLocation = it.getStringOrNull(44).orEmpty(),
-                                privateComment = it.getStringOrNull(45).orEmpty(),
-                                winsColor = it.getIntOrNull(46) ?: Color.TRANSPARENT,
-                                winnablePlaysColor = it.getIntOrNull(47) ?: Color.TRANSPARENT,
-                                allPlaysColor = it.getIntOrNull(48) ?: Color.TRANSPARENT,
-                                playingTime = it.getIntOrNull(49) ?: 0,
-                                arePlayersCustomSorted = it.getBoolean(50),
-                            )
-                            if (includeDeletedItems || item.deleteTimestamp == 0L)
-                                list += item
-                        } while (it.moveToNext())
-                    }
+                ) {
+                    val item = CollectionItemEntity(
+                        internalId = it.getLong(0),
+                        gameId = it.getInt(1),
+                        collectionId = it.getIntOrNull(2) ?: INVALID_ID,
+                        collectionName = it.getStringOrNull(3).orEmpty(),
+                        sortName = it.getStringOrNull(4).orEmpty(),
+                        gameName = it.getStringOrNull(5).orEmpty(),
+                        gameYearPublished = it.getIntOrNull(6) ?: CollectionItemEntity.YEAR_UNKNOWN,
+                        collectionYearPublished = it.getIntOrNull(7) ?: CollectionItemEntity.YEAR_UNKNOWN,
+                        imageUrl = it.getStringOrNull(11).orEmpty().ifBlank { it.getStringOrNull(8) }.orEmpty(),
+                        thumbnailUrl = it.getStringOrNull(12).orEmpty().ifBlank { it.getStringOrNull(9) }.orEmpty(),
+                        heroImageUrl = it.getStringOrNull(13).orEmpty().ifBlank { it.getStringOrNull(10) }.orEmpty(),
+                        comment = it.getStringOrNull(14).orEmpty(),
+                        numberOfPlays = it.getIntOrNull(15) ?: 0,
+                        rating = it.getDoubleOrNull(16) ?: 0.0,
+                        own = it.getBoolean(17),
+                        previouslyOwned = it.getBoolean(18),
+                        forTrade = it.getBoolean(19),
+                        wantInTrade = it.getBoolean(2),
+                        wantToBuy = it.getBoolean(21),
+                        wishList = it.getBoolean(22),
+                        wantToPlay = it.getBoolean(23),
+                        preOrdered = it.getBoolean(24),
+                        wishListPriority = it.getIntOrNull(25) ?: CollectionItemEntity.WISHLIST_PRIORITY_UNKNOWN,
+                        syncTimestamp = it.getLongOrNull(26) ?: 0L,
+                        deleteTimestamp = it.getLongOrNull(27) ?: 0L,
+                        dirtyTimestamp = it.getLongOrNull(28) ?: 0L,
+                        statusDirtyTimestamp = it.getLongOrNull(29) ?: 0L,
+                        ratingDirtyTimestamp = it.getLongOrNull(30) ?: 0L,
+                        commentDirtyTimestamp = it.getLongOrNull(31) ?: 0L,
+                        privateInfoDirtyTimestamp = it.getLongOrNull(32) ?: 0L,
+                        wishListDirtyTimestamp = it.getLongOrNull(33) ?: 0L,
+                        tradeConditionDirtyTimestamp = it.getLongOrNull(34) ?: 0L,
+                        hasPartsDirtyTimestamp = it.getLongOrNull(35) ?: 0L,
+                        wantPartsDirtyTimestamp = it.getLongOrNull(36) ?: 0L,
+                        pricePaid = it.getDoubleOrNull(37) ?: 0.0,
+                        pricePaidCurrency = it.getStringOrNull(38).orEmpty(),
+                        currentValue = it.getDoubleOrNull(39) ?: 0.0,
+                        currentValueCurrency = it.getStringOrNull(40).orEmpty(),
+                        quantity = it.getIntOrNull(41) ?: 0,
+                        acquiredFrom = it.getStringOrNull(42).orEmpty(),
+                        acquisitionDate = it.getStringOrNull(43).toMillis(playDateFormat),
+                        inventoryLocation = it.getStringOrNull(44).orEmpty(),
+                        privateComment = it.getStringOrNull(45).orEmpty(),
+                        winsColor = it.getIntOrNull(46) ?: Color.TRANSPARENT,
+                        winnablePlaysColor = it.getIntOrNull(47) ?: Color.TRANSPARENT,
+                        allPlaysColor = it.getIntOrNull(48) ?: Color.TRANSPARENT,
+                        playingTime = it.getIntOrNull(49) ?: 0,
+                        arePlayersCustomSorted = it.getBoolean(50),
+                    )
+                    if (includeDeletedItems || item.deleteTimestamp == 0L) item else null
                 }
-            }
-            list
+            } else emptyList()
         }
 
     enum class SortType {
@@ -257,8 +240,6 @@ class CollectionDao(private val context: BggApplication) {
 
     suspend fun loadLinkedCollection(uri: Uri, sortBy: SortType = SortType.RATING): List<BriefGameEntity> =
         withContext(Dispatchers.IO) {
-            val list = arrayListOf<BriefGameEntity>()
-
             val selection = prefs.getSyncStatusesOrDefault().map {
                 when (it) {
                     COLLECTION_STATUS_OWN -> Collection.Columns.STATUS_OWN.isTrue()
@@ -285,7 +266,7 @@ class CollectionDao(private val context: BggApplication) {
                     .plus(", ${Games.Columns.STARRED}").descending()
                     .plus(", $sortByName")
             }
-            context.contentResolver.load(
+            context.contentResolver.loadList(
                 uri,
                 arrayOf(
                     BaseColumns._ID,
@@ -305,43 +286,27 @@ class CollectionDao(private val context: BggApplication) {
                 selection,
                 emptyArray(),
                 sortOrder
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        list += BriefGameEntity(
-                            it.getLong(0),
-                            it.getInt(1),
-                            it.getStringOrNull(2).orEmpty(),
-                            it.getStringOrNull(3).orEmpty(),
-                            it.getIntOrNull(4) ?: BriefGameEntity.YEAR_UNKNOWN,
-                            it.getIntOrNull(5) ?: BriefGameEntity.YEAR_UNKNOWN,
-                            it.getStringOrNull(6).orEmpty(),
-                            it.getStringOrNull(7).orEmpty(),
-                            it.getStringOrNull(8).orEmpty(),
-                            it.getDoubleOrNull(9) ?: 0.0,
-                            it.getBoolean(10),
-                            it.getStringOrNull(11).orEmpty(),
-                            it.getIntOrNull(12) ?: 0
-                        )
-                    } while (it.moveToNext())
-                }
+            ) {
+                BriefGameEntity(
+                    it.getLong(0),
+                    it.getInt(1),
+                    it.getStringOrNull(2).orEmpty(),
+                    it.getStringOrNull(3).orEmpty(),
+                    it.getIntOrNull(4) ?: BriefGameEntity.YEAR_UNKNOWN,
+                    it.getIntOrNull(5) ?: BriefGameEntity.YEAR_UNKNOWN,
+                    it.getStringOrNull(6).orEmpty(),
+                    it.getStringOrNull(7).orEmpty(),
+                    it.getStringOrNull(8).orEmpty(),
+                    it.getDoubleOrNull(9) ?: 0.0,
+                    it.getBoolean(10),
+                    it.getStringOrNull(11).toSubtype(),
+                    it.getIntOrNull(12) ?: 0
+                )
             }
-            list
         }
 
     suspend fun loadAcquiredFrom(): List<String> = withContext(Dispatchers.IO) {
-        val list = mutableListOf<String>()
-        resolver.load(
-            Collection.buildAcquiredFromUri(),
-            arrayOf(Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM)
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    list += it.getStringOrNull(0).orEmpty()
-                } while (it.moveToNext())
-            }
-        }
-        list
+        resolver.queryStrings(Collection.buildAcquiredFromUri(), Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM).filterNot { it.isBlank() }
     }
 
     suspend fun loadInventoryLocation(): List<String> = withContext(Dispatchers.IO) {
@@ -361,20 +326,22 @@ class CollectionDao(private val context: BggApplication) {
      * @param protectedCollectionIds list of collection IDs not to delete.
      * @return the number or rows deleted.
      */
-    fun delete(gameId: Int, protectedCollectionIds: List<Int>): Int {
+    fun delete(gameId: Int, protectedCollectionIds: List<Int> = emptyList()): Int {
         // determine the collection IDs that are no longer in the collection
         val collectionIdsToDelete = resolver.queryInts(
             Collection.CONTENT_URI,
             Collection.Columns.COLLECTION_ID,
             "collection.${Collection.Columns.GAME_ID}=?",
-            arrayOf(gameId.toString())
-        )
-            .toMutableList()
+            arrayOf(gameId.toString()),
+            valueIfNull = INVALID_ID,
+        ).toMutableList()
         collectionIdsToDelete.removeAll(protectedCollectionIds.toSet())
-        // remove them
-        if (collectionIdsToDelete.size > 0) {
+        collectionIdsToDelete.removeAll(setOf(INVALID_ID))
+        // delete them
+        var numberOfDeletedRows = 0
+        if (collectionIdsToDelete.isNotEmpty()) {
             for (collectionId in collectionIdsToDelete) {
-                resolver.delete(
+                numberOfDeletedRows += resolver.delete(
                     Collection.CONTENT_URI,
                     "${Collection.Columns.COLLECTION_ID}=?",
                     arrayOf(collectionId.toString())
@@ -382,7 +349,7 @@ class CollectionDao(private val context: BggApplication) {
             }
         }
 
-        return collectionIdsToDelete.size
+        return numberOfDeletedRows
     }
 
     suspend fun saveItem(

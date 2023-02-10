@@ -3,6 +3,7 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.view.*
 import androidx.annotation.StringRes
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -32,7 +33,31 @@ class PersonCollectionFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
-        setHasOptionsMenu(true)
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.linked_collection, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(
+                    when (sortType) {
+                        CollectionSort.NAME -> R.id.menu_sort_name
+                        CollectionSort.RATING -> R.id.menu_sort_rating
+                    }
+                )?.isChecked = true
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                viewModel.sort(
+                    when (menuItem.itemId) {
+                        R.id.menu_sort_name -> CollectionSort.NAME
+                        R.id.menu_sort_rating -> CollectionSort.RATING
+                        else -> return false
+                    }
+                )
+                return true
+            }
+        })
 
         setEmptyMessage(R.string.title_person)
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
@@ -63,31 +88,6 @@ class PersonCollectionFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.linked_collection, menu)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        menu.findItem(
-            when (sortType) {
-                CollectionSort.NAME -> R.id.menu_sort_name
-                CollectionSort.RATING -> R.id.menu_sort_rating
-            }
-        )?.isChecked = true
-        super.onPrepareOptionsMenu(menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        viewModel.sort(
-            when (item.itemId) {
-                R.id.menu_sort_name -> CollectionSort.NAME
-                R.id.menu_sort_rating -> CollectionSort.RATING
-                else -> return super.onOptionsItemSelected(item)
-            }
-        )
-        return true
     }
 
     private fun setEmptyMessage(@StringRes resId: Int) {

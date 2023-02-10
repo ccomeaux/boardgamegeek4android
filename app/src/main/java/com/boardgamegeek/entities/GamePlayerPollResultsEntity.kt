@@ -6,22 +6,20 @@ data class GamePlayerPollResultsEntity(
     val bestVoteCount: Int = 0,
     val recommendedVoteCount: Int = 0,
     val notRecommendedVoteCount: Int = 0,
-    private val recommendation: Int = UNKNOWN
+    private val recommendation: Int = UNKNOWN,
 ) {
     val calculatedRecommendation by lazy {
-        if (recommendation == UNKNOWN) {
-            val halfTotalVoteCount = ((bestVoteCount + recommendedVoteCount + notRecommendedVoteCount) / 2) + 1
-            when {
-                halfTotalVoteCount == 0 -> UNKNOWN
-                bestVoteCount >= halfTotalVoteCount -> BEST
-                bestVoteCount + recommendedVoteCount >= halfTotalVoteCount -> RECOMMENDED
-                notRecommendedVoteCount >= halfTotalVoteCount -> NOT_RECOMMENDED
-                else -> UNKNOWN
-            }
-        } else {
-            recommendation
+        val halfTotalVoteCount = ((bestVoteCount + recommendedVoteCount + notRecommendedVoteCount) / 2) + 1
+        when {
+            halfTotalVoteCount == 0 -> UNKNOWN
+            bestVoteCount >= halfTotalVoteCount -> BEST
+            bestVoteCount + recommendedVoteCount >= halfTotalVoteCount -> RECOMMENDED
+            notRecommendedVoteCount >= halfTotalVoteCount -> NOT_RECOMMENDED
+            else -> UNKNOWN
         }
     }
+
+    val playerNumber = playerCount.trimEnd('+').toIntOrNull() ?: Int.MAX_VALUE
 
     companion object {
         const val BEST = 2

@@ -239,11 +239,11 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
             val filters: MutableList<CollectionFilterer> = mutableListOf()
             loadedFilters.forEach { lf ->
                 if (!addedTypes.contains(lf.type) && !removedFilterTypes.contains(lf.type))
-                    filters.add(lf)
+                    filters += lf
             }
             addedFilters.forEach { af ->
                 if (!removedFilterTypes.contains(af.type))
-                    filters.add(af)
+                    filters += af
             }
             _effectiveFilters.postValue(filters)
         }
@@ -275,7 +275,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_WISHLIST) && it.wishList) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_PLAY) && it.wantToPlay) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_PREORDERED) && it.preOrdered) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED) && it.numberOfPlays > 1) ||
+                            (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED) && it.numberOfPlays > 0) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED) && it.rating > 0.0) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_COMMENTED) && it.comment.isNotBlank()) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
@@ -286,7 +286,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                 list = list.filter { f.filter(it) }.asSequence()
             }
             val sorter = collectionSorterFactory.create(sortType)
-            _items.postValue(sorter?.sort(list.toList()) ?: list.toList())
+            _items.postValue(sorter?.first?.sort(list.toList(), sorter.second) ?: list.toList())
         }
     }
 

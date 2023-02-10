@@ -3,7 +3,6 @@ package com.boardgamegeek.service
 import android.accounts.Account
 import android.content.SyncResult
 import android.text.format.DateUtils
-import androidx.collection.ArrayMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
@@ -25,7 +24,8 @@ import java.util.concurrent.TimeUnit
  * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local
  * database that weren't synced.
  */
-class SyncCollectionComplete(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) : SyncTask(application, service, syncResult) {
+class SyncCollectionComplete(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) :
+    SyncTask(application, service, syncResult) {
     private val statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
     private val statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
 
@@ -79,11 +79,11 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                 }
 
                 val excludedStatuses = (0 until i).map { statuses[it] }
-                syncByStatus("", status, *excludedStatuses.toTypedArray())
+                syncByStatus(null, status, *excludedStatuses.toTypedArray())
 
                 if (wasSleepInterrupted(5, TimeUnit.SECONDS)) return
 
-                syncByStatus(BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY, status, *excludedStatuses.toTypedArray())
+                syncByStatus(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status, *excludedStatuses.toTypedArray())
             }
 
             if (isCancelled) {
@@ -98,7 +98,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         }
     }
 
-    private fun syncByStatus(subtype: String = "", status: String, vararg excludedStatuses: String) {
+    private fun syncByStatus(subtype: BggService.ThingSubtype? = null, status: String, vararg excludedStatuses: String) {
         val statusDescription = getStatusDescription(status)
         val subtypeDescription = getSubtypeDescription(subtype)
 
@@ -116,11 +116,12 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
         updateProgressNotification(context.getString(R.string.sync_notification_collection_downloading, statusDescription, subtypeDescription))
 
-        val options = ArrayMap<String, String>()
-        if (subtype.isNotEmpty()) options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = subtype
-        options[BggService.COLLECTION_QUERY_KEY_STATS] = "1"
-        options[BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE] = "1"
-        options[status] = "1"
+        val options = mutableMapOf(
+            BggService.COLLECTION_QUERY_KEY_STATS to "1",
+            BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+            status to "1",
+        )
+        subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
         for (excludedStatus in excludedStatuses) options[excludedStatus] = "0"
 
         val dao = CollectionDao(application)
@@ -165,13 +166,15 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         return status
     }
 
-    private fun getSubtypeDescription(subtype: String): String {
-        return context.getString(when (subtype) {
-            BggService.THING_SUBTYPE_BOARDGAME -> R.string.games
-            BggService.THING_SUBTYPE_BOARDGAME_EXPANSION -> R.string.expansions
-            BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY -> R.string.accessories
-            else -> R.string.items
-        })
+    private fun getSubtypeDescription(subtype: BggService.ThingSubtype?): String {
+        return context.getString(
+            when (subtype) {
+                BggService.ThingSubtype.BOARDGAME -> R.string.games
+                BggService.ThingSubtype.BOARDGAME_EXPANSION -> R.string.expansions
+                BggService.ThingSubtype.BOARDGAME_ACCESSORY -> R.string.accessories
+                else -> R.string.items
+            }
+        )
     }
 
     private fun deleteUnusedItems() {
@@ -179,9 +182,10 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         val formattedDateTime = DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
         Timber.i("Deleting collection items not updated since $formattedDateTime")
         val count = context.contentResolver.delete(
-                Collection.CONTENT_URI,
-                "${Collection.Columns.UPDATED_LIST}<?",
-                arrayOf(timestamp.toString()))
+            Collection.CONTENT_URI,
+            "${Collection.Columns.UPDATED_LIST}<?",
+            arrayOf(timestamp.toString())
+        )
         Timber.i("Deleted $count old collection items")
         // TODO: delete thumbnail images associated with this list (both collection and game)
     }

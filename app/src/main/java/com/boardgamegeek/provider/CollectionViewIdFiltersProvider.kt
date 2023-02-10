@@ -35,7 +35,7 @@ class CollectionViewIdFiltersProvider : BaseProvider() {
         val filterId = CollectionViews.getViewId(uri).toLong()
         values.put(CollectionViewFilters.Columns.VIEW_ID, filterId)
         val rowId = db.insertOrThrow(Tables.COLLECTION_VIEW_FILTERS, null, values)
-        return CollectionViews.buildViewFilterUri(filterId, rowId)
+        return CollectionViewFilters.buildViewFilterUri(filterId, rowId)
     }
 
     private fun buildSelection(uri: Uri, table: String, idColumnName: String): SelectionBuilder {

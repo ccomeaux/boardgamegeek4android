@@ -10,13 +10,13 @@ import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayPlayerIsNewBinding
 import com.boardgamegeek.databinding.RowNewPlayPlayerIsNewBinding
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import kotlin.properties.Delegates
 
@@ -56,27 +56,12 @@ class NewPlayPlayerIsNewFragment : Fragment() {
         (activity as? AppCompatActivity)?.supportActionBar?.setSubtitle(R.string.title_new_players)
     }
 
-    private class Diff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
-        override fun getOldListSize() = oldList.size
-
-        override fun getNewListSize() = newList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].id == newList[newItemPosition].id
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].isNew == newList[newItemPosition].isNew
-        }
-    }
-
-    private class PlayersAdapter(private val viewModel: NewPlayViewModel)
-        : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
-
+    private class PlayersAdapter(private val viewModel: NewPlayViewModel) : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(),
+        AutoUpdatableAdapter {
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            val diffCallback = Diff(oldValue, newValue)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
-            diffResult.dispatchUpdatesTo(this)
+            autoNotify(oldValue, newValue) { old, new ->
+                old.id == new.id
+            }
         }
 
         init {
@@ -101,8 +86,7 @@ class NewPlayPlayerIsNewFragment : Fragment() {
             val binding = RowNewPlayPlayerIsNewBinding.bind(itemView)
 
             fun bind(position: Int) {
-                val entity = players.getOrNull(position)
-                entity?.let { player ->
+                players.getOrNull(position)?.let { player ->
                     binding.nameView.text = player.name
                     binding.usernameView.setTextOrHide(player.username)
 

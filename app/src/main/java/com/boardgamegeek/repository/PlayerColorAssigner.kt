@@ -3,41 +3,38 @@ package com.boardgamegeek.repository
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerColorEntity
-import com.boardgamegeek.extensions.queryStrings
-import com.boardgamegeek.provider.BggContract.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class PlayerColorAssigner(private val application: BggApplication, private val gameId: Int, private val players: List<PlayPlayerEntity>) {
+class PlayerColorAssigner(application: BggApplication, private val gameId: Int, private val players: List<PlayPlayerEntity>) {
     private val colorsAvailable = mutableListOf<String>()
     private val playersNeedingColor = mutableListOf<PlayerColorChoices>()
     private val results = mutableListOf<PlayerResult>()
     private var round = 0
-    private val repository = PlayRepository(application)
+    private val playRepository = PlayRepository(application)
+    private val gameRepository = GameRepository(application)
 
     suspend fun execute(): List<PlayerResult> = withContext(Dispatchers.Default) {
         // set up
         colorsAvailable.clear()
-        val gameColors = (application.contentResolver?.queryStrings(Games.buildColorsUri(gameId), GameColors.Columns.COLOR).orEmpty())
-        val takenColors = players.filter { it.color.isNotEmpty() }.map { it.color }
-        colorsAvailable.addAll(gameColors - takenColors.toSet())
+        colorsAvailable += gameRepository.getPlayColors(gameId) - players.map { it.color }.filter { it.isNotBlank() }.toSet()
 
         playersNeedingColor.clear()
-        players.filter { it.color.isBlank() && it.username.isNotBlank() }.distinctBy { it.username }.forEach { player ->
-            playersNeedingColor.add(PlayerColorChoices(player.username, PlayerType.USER))
-        }
-        players.filter { it.color.isBlank() && it.username.isBlank() && it.name.isNotBlank() }.distinctBy { it.name }.forEach { player ->
-            playersNeedingColor.add(PlayerColorChoices(player.name, PlayerType.NON_USER))
-        }
-
-        playersNeedingColor.forEach { player ->
-            val colors = when (player.type) {
-                PlayerType.USER -> repository.loadUserColors(player.name)
-                PlayerType.NON_USER -> repository.loadPlayerColors(player.name)
+        playersNeedingColor += players.filter { it.color.isBlank() && it.username.isNotBlank() }.distinctBy { it.username }
+            .map { player ->
+                PlayerColorChoices(
+                    player.username,
+                    PlayerType.USER,
+                    playRepository.loadUserColors(player.name).filter { colorsAvailable.contains(it.description) })
             }
-            player.setColors(colors.filter { colorsAvailable.contains(it.description) })
-        }
+        playersNeedingColor += players.filter { it.color.isBlank() && it.username.isBlank() && it.name.isNotBlank() }.distinctBy { it.name }
+            .map { player ->
+                PlayerColorChoices(
+                    player.name,
+                    PlayerType.NON_USER,
+                    playRepository.loadPlayerColors(player.name).filter { colorsAvailable.contains(it.description) })
+            }
 
         // process
         round = 1
@@ -80,11 +77,11 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
         val players = getPlayersWithTopChoice(colorToAssign)
         return when {
             players.isEmpty() -> {
-                Timber.i("No players want %s as their top choice", colorToAssign)
+                Timber.d("No players want %s as their top choice", colorToAssign)
                 null
             }
             players.size > 1 -> {
-                Timber.i("Multiple players want %s as their top choice", colorToAssign)
+                Timber.d("Multiple players want %s as their top choice", colorToAssign)
                 null
             }
             else -> players.first()
@@ -95,14 +92,10 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
         val playerChoiceScores = mutableListOf<Pair<PlayerColorChoices, Double>>()
         for (color in colorsAvailable) {
             val playersWithTopChoice = getPlayersWithTopChoice(color)
-            if (playersWithTopChoice.size > 1) {
-                for (player in playersWithTopChoice) {
-                    val preference = player.calculateCurrentPreferenceFor(color)
-                    playerChoiceScores.add(player to preference)
-                    Timber.d("%s wants %s most (%,.2f)", player.playerName, color, preference)
-                }
+            if (playersWithTopChoice.isEmpty()) {
+                Timber.d("Nobody wants %s", color)
             } else {
-                Timber.d("Not enough players want %s", color)
+                playerChoiceScores += playersWithTopChoice.map { it to it.calculateCurrentPreferenceFor(color) }
             }
         }
         if (playerChoiceScores.isEmpty()) {
@@ -120,7 +113,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
     }
 
     private fun getPlayersWithTopChoice(colorToAssign: String): List<PlayerColorChoices> {
-        return playersNeedingColor.filter { it.isTopChoice(colorToAssign) }
+        return playersNeedingColor.filter { it.topChoice?.description == colorToAssign }
     }
 
     /**
@@ -140,12 +133,12 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
         override fun toString() = "$color to $name ($type) ($reason in round $round)"
     }
 
-    private inner class PlayerColorChoices(val name: String, val type: PlayerType) {
-        private val colors = mutableListOf<PlayerColorEntity>()
-
-        fun isTopChoice(color: String): Boolean {
-            return topChoice?.description == color
-        }
+    private inner class PlayerColorChoices(
+        val name: String,
+        val type: PlayerType,
+        initialColors: List<PlayerColorEntity>,
+    ) {
+        private val colors: MutableList<PlayerColorEntity> = initialColors.toMutableList()
 
         /**
          * Gets the player's top remaining color choice, or `null` if they have no choices left.
@@ -153,14 +146,7 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
         val topChoice: PlayerColorEntity?
             get() = colors.minByOrNull { it.sortOrder }
 
-        fun setColors(colorChoice: List<PlayerColorEntity>) {
-            colors.clear()
-            colors.addAll(colorChoice)
-        }
-
-        fun removeChoice(color: String): Boolean {
-            return colors.removeAll { it.description == color }
-        }
+        fun removeChoice(color: String) = colors.removeAll { it.description == color }
 
         fun calculateCurrentPreferenceFor(color: String): Double {
             return when (colors.size) {
@@ -173,9 +159,6 @@ class PlayerColorAssigner(private val application: BggApplication, private val g
                 }
             }
         }
-
-        val playerName: String
-            get() = "$name ($type)"
 
         override fun toString(): String {
             return "$name ($type)" + if (colors.size > 0) {

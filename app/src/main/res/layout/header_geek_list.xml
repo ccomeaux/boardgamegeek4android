@@ -13,17 +13,17 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:paddingBottom="@dimen/padding_standard"
-		app:drawableLeftCompat="@drawable/ic_outline_account_circle_18"
+		app:drawableStartCompat="@drawable/ic_outline_account_circle_18"
 		tools:text="ccomeaux" />
 
 	<TextView
 		android:id="@+id/descriptionView"
-		style="@style/Text"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:ellipsize="end"
 		android:maxLines="@integer/geek_list_header_lines"
 		android:paddingBottom="@dimen/padding_standard"
+		android:textAppearance="@style/TextAppearance.Body"
 		android:visibility="gone"
 		tools:text="@tools:sample/lorem/random"
 		tools:visibility="visible" />

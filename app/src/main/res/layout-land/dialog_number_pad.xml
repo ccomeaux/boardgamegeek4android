@@ -19,7 +19,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
-			android:textAppearance="@style/Text.Title"
+			android:textAppearance="@style/TextAppearance.Title"
 			tools:text="Score" />
 
 		<TextView
@@ -27,7 +27,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="1"
-			android:textAppearance="@style/Text.Subtitle"
+			android:textAppearance="@style/TextAppearance.Subtitle"
 			android:visibility="gone"
 			tools:text="Chris (ccomeaux)"
 			tools:visibility="visible" />
@@ -60,7 +60,7 @@
 			android:fontFamily="sans-serif-light"
 			android:gravity="center"
 			android:lines="1"
-			android:textAppearance="@style/Text.Readout"
+			android:textAppearance="@style/TextAppearance.Readout"
 			tools:text="1234" />
 
 		<ImageView

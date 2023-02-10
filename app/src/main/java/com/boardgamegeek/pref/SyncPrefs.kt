@@ -8,6 +8,7 @@ import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.remove
 import com.boardgamegeek.extensions.set
+import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_BUDDIES
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_PARTIAL
@@ -73,12 +74,12 @@ fun SharedPreferences.setCurrentCollectionSyncTimestamp(timestamp: Long = System
     this["${TIMESTAMP_COLLECTION_COMPLETE}-CURRENT"] = timestamp
 }
 
-fun SharedPreferences.getCompleteCollectionSyncTimestamp(subtype: String, status: String): Long {
-    return this["${TIMESTAMP_COLLECTION_COMPLETE}.$subtype.$status", 0L] ?: 0L
+fun SharedPreferences.getCompleteCollectionSyncTimestamp(subtype: BggService.ThingSubtype?, status: String): Long {
+    return this["${TIMESTAMP_COLLECTION_COMPLETE}.${subtype?.code.orEmpty()}.$status", 0L] ?: 0L
 }
 
-fun SharedPreferences.setCompleteCollectionSyncTimestamp(subtype: String, status: String, timestamp: Long = System.currentTimeMillis()) {
-    this["${TIMESTAMP_COLLECTION_COMPLETE}.$subtype.$status"] = timestamp
+fun SharedPreferences.setCompleteCollectionSyncTimestamp(subtype: BggService.ThingSubtype?, status: String, timestamp: Long = System.currentTimeMillis()) {
+    this["${TIMESTAMP_COLLECTION_COMPLETE}.${subtype?.code.orEmpty()}.$status"] = timestamp
 }
 
 fun SharedPreferences.getPartialCollectionSyncLastCompletedAt() = this[TIMESTAMP_COLLECTION_PARTIAL, 0L] ?: 0L
@@ -87,13 +88,13 @@ fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(timestamp: Long = 
     this[TIMESTAMP_COLLECTION_PARTIAL] = timestamp
 }
 
-fun SharedPreferences.getPartialCollectionSyncLastCompletedAt(subtype: String): Long {
+fun SharedPreferences.getPartialCollectionSyncLastCompletedAt(subtype: BggService.ThingSubtype?): Long {
     val ts = this.getPartialCollectionSyncLastCompletedAt()
-    return this["${TIMESTAMP_COLLECTION_PARTIAL}.$subtype", ts] ?: ts
+    return this["${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.code.orEmpty()}", ts] ?: ts
 }
 
-fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(subtype: String, timestamp: Long = System.currentTimeMillis()) {
-    this["${TIMESTAMP_COLLECTION_PARTIAL}.$subtype"] = timestamp
+fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(subtype: BggService.ThingSubtype?, timestamp: Long = System.currentTimeMillis()) {
+    this["${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.code.orEmpty()}"] = timestamp
 }
 
 fun SharedPreferences.requestPartialSync() {

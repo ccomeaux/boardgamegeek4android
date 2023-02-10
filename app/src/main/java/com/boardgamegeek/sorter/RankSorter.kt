@@ -11,13 +11,21 @@ class RankSorter(context: Context) : CollectionSorter(context) {
     private val defaultHeaderText = context.resources.getString(R.string.unranked)
     private val defaultText = context.resources.getString(R.string.text_not_available)
 
-    @StringRes
-    public override val typeResId = R.string.collection_sort_type_rank
+    override val ascendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_rank
 
-    @StringRes
-    override val descriptionResId = R.string.collection_sort_rank
+    override val descendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_rank_desc
 
-    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.rank }
+    override val descriptionResId: Int
+        @StringRes
+        get() = R.string.collection_sort_rank
+
+    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.rank }
+
+    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.rank }
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         return (0 until ranks.size())

@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.UserEntity
@@ -26,6 +27,7 @@ import timber.log.Timber
 
 class UserRepository(val application: BggApplication) {
     private val userDao = UserDao(application)
+    private val imageDao = ImageDao(application)
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
 
@@ -81,6 +83,12 @@ class UserRepository(val application: BggApplication) {
         upsertedCount to deletedCount
     }
 
+    suspend fun validateUsername(username: String): Boolean = withContext(Dispatchers.IO) {
+        val response = Adapter.createForXml().user(username)
+        val user = response.mapToEntity()
+        user.userName == username
+    }
+
     suspend fun updateNickName(username: String, nickName: String) {
         if (username.isNotBlank()) {
             userDao.upsert(contentValuesOf(Buddies.Columns.PLAY_NICKNAME to nickName), username)
@@ -98,13 +106,15 @@ class UserRepository(val application: BggApplication) {
     suspend fun deleteUsers(): Int {
         syncPrefs.clearBuddyListTimestamps()
         val count = userDao.deleteUsers()
+        imageDao.deleteAvatars()
         Timber.i("Removed %d users", count)
         return count
     }
 
     suspend fun resetUsers() {
         deleteUsers()
-        //TODO remove buddy colors
         SyncService.sync(application, SyncService.FLAG_SYNC_BUDDIES)
     }
+
+    suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = userDao.updateColors(username, colors)
 }

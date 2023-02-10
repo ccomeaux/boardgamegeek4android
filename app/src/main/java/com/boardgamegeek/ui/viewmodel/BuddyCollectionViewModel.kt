@@ -5,6 +5,8 @@ import androidx.lifecycle.*
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.repository.UserRepository
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 
 class BuddyCollectionViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepository = UserRepository(getApplication())
@@ -17,6 +19,10 @@ class BuddyCollectionViewModel(application: Application) : AndroidViewModel(appl
     }
 
     fun setStatus(status: String) {
+        FirebaseAnalytics.getInstance(getApplication()).logEvent("Filter") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyCollection")
+            param("filterType", status)
+        }
         if (usernameAndStatus.value?.second != status) usernameAndStatus.value =
             (usernameAndStatus.value?.first.orEmpty()) to status
     }

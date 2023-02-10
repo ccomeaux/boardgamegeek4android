@@ -6,6 +6,8 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.SearchResultEntity
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.SearchRepository
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import kotlinx.coroutines.launch
 
 class SearchViewModel(application: Application) : AndroidViewModel(application) {
@@ -17,10 +19,18 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
     private val playRepository = PlayRepository(getApplication())
 
     fun search(query: String) {
+        FirebaseAnalytics.getInstance(getApplication()).logEvent(FirebaseAnalytics.Event.SEARCH) {
+            param(FirebaseAnalytics.Param.SEARCH_TERM, query)
+            param("exact", true.toString())
+        }
         if (_query.value?.first != query) _query.value = (query to true)
     }
 
     fun searchInexact(query: String) {
+        FirebaseAnalytics.getInstance(getApplication()).logEvent(FirebaseAnalytics.Event.SEARCH) {
+            param(FirebaseAnalytics.Param.SEARCH_TERM, query)
+            param("exact", false.toString())
+        }
         if (_query.value?.first != query || _query.value?.second != false) _query.value = query to false
     }
 

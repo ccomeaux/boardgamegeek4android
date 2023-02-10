@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.content.res.ColorStateList
 import android.graphics.*
 import android.os.Bundle
 import android.text.format.DateUtils
@@ -19,18 +18,19 @@ import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.ViewCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.view.postDelayed
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityLogplayBinding
-import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.databinding.RowLogplayPlayerBinding
 import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
@@ -40,7 +40,6 @@ import com.boardgamegeek.ui.dialog.LogPlayPlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.dialog.LogPlayPlayerRatingNumberPadDialogFragment
 import com.boardgamegeek.ui.dialog.LogPlayPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
-import com.boardgamegeek.ui.widget.PlayerRow
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
@@ -48,13 +47,14 @@ import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.text.DecimalFormat
 import kotlin.math.abs
 
 class LogPlayActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogplayBinding
     private val viewModel by viewModels<LogPlayViewModel>()
     private val firebaseAnalytics: FirebaseAnalytics by lazy { Firebase.analytics }
-    private val playAdapter: PlayAdapter by lazy { PlayAdapter() }
+    private val playerAdapter: PlayerAdapter by lazy { PlayerAdapter() }
     private val locationAdapter: LocationAdapter by lazy { LocationAdapter(this) }
 
     private var internalId = INVALID_ID.toLong()
@@ -66,9 +66,7 @@ class LogPlayActivity : AppCompatActivity() {
     private var thumbnailUrl: String = ""
     private var imageUrl: String = ""
     private var heroImageUrl: String = ""
-    private var shouldCustomSortPlayers = false
 
-    private var play: PlayEntity? = null
     private var lastRemovedPlayer: PlayPlayerEntity? = null
     private val gameColors = ArrayList<String>()
     private val availablePlayers = mutableListOf<PlayerEntity>()
@@ -89,12 +87,11 @@ class LogPlayActivity : AppCompatActivity() {
     private var shouldDeletePlayOnActivityCancel = false
     private var isLaunchingActivity = false
     private var shouldSaveOnPause = true
-    private var showNotification = false
 
     private var dateInMillis: Long? = null
+    private var location: String = ""
     private var startTime: Long = 0L
     private var length: Int = 0
-    private var playersHaveColors = false
     private var playersHaveStartingPositions = false
     private var playerCount = 0
     private var playerDescriptions = listOf<String>()
@@ -133,17 +130,14 @@ class LogPlayActivity : AppCompatActivity() {
         binding.timerButton.setOnClickListener {
             if (length == 0) {
                 viewModel.startTimer()
-                showNotification = true
             } else {
                 this@LogPlayActivity.createThemedBuilder()
                     .setMessage(R.string.are_you_sure_timer_reset)
                     .setPositiveButton(R.string.continue_) { _, _ ->
                         viewModel.resumeTimer()
-                        showNotification = true
                     }
                     .setNegativeButton(R.string.reset) { _, _ ->
                         viewModel.startTimer()
-                        showNotification = true
                     }
                     .setCancelable(true)
                     .show()
@@ -155,7 +149,7 @@ class LogPlayActivity : AppCompatActivity() {
             cancelPlayingNotification()
             binding.lengthView.apply {
                 this.selectAll()
-                this.focusWithKeyboard()
+                this.requestFocusAndKeyboard()
             }
         }
 
@@ -168,7 +162,7 @@ class LogPlayActivity : AppCompatActivity() {
         binding.noWinStatsView.setOnCheckedChangeListener { _, isChecked -> viewModel.updateNoWinStats(isChecked) }
 
         binding.assignColorsButton.setOnClickListener {
-            if (playersHaveColors) {
+            if (usedColors.isNotEmpty()) {
                 val builder = AlertDialog.Builder(this@LogPlayActivity)
                     .setTitle(R.string.title_clear_colors)
                     .setMessage(R.string.msg_clear_colors)
@@ -182,11 +176,11 @@ class LogPlayActivity : AppCompatActivity() {
         }
         binding.playerSortButton.setOnClickListener {
             val popup = PopupMenu(this@LogPlayActivity, it)
-            popup.inflate(if (!shouldCustomSortPlayers && playerCount > 1) R.menu.log_play_player_sort else R.menu.log_play_player_sort_short)
+            popup.inflate(if (!playerAdapter.shouldCustomSortPlayers && playerCount > 1) R.menu.log_play_player_sort else R.menu.log_play_player_sort_short)
             popup.setOnMenuItemClickListener { item: MenuItem ->
                 when (item.itemId) {
                     R.id.menu_custom_player_order -> {
-                        if (shouldCustomSortPlayers) {
+                        if (playerAdapter.shouldCustomSortPlayers) {
                             logPlayerOrder("NotCustom")
                             if (playersHaveStartingPositions) {
                                 this@LogPlayActivity.createConfirmationDialog(
@@ -228,7 +222,7 @@ class LogPlayActivity : AppCompatActivity() {
                     }
                     R.id.menu_random_start_player -> {
                         logPlayerOrder("RandomStarter")
-                        viewModel.pickRandomStartPlayer()
+                        viewModel.randomizeStartPlayer()
                         return@setOnMenuItemClickListener true
                     }
                     R.id.menu_random_player_order -> {
@@ -240,14 +234,6 @@ class LogPlayActivity : AppCompatActivity() {
                 false
             }
             popup.show()
-        }
-
-        binding.addPlayerButton.setOnClickListener {
-            if (preferences()[LOG_EDIT_PLAYER_PROMPTED, false] == true) {
-                addPlayers(preferences()[LOG_EDIT_PLAYER, false] ?: false)
-            } else {
-                promptToEditPlayers()
-            }
         }
     }
 
@@ -297,22 +283,9 @@ class LogPlayActivity : AppCompatActivity() {
                     fabColor = color
                     binding.fab.colorize(color)
                     binding.fab.post { binding.fab.show() }
-                    ViewCompat.setBackgroundTintList(binding.addPlayerButton, ColorStateList.valueOf(color))
                 }
             })
         }
-    }
-
-    private fun bindDate(play: PlayEntity) {
-        binding.dateButton.text = DateUtils.formatDateTime(
-            this, play.dateInMillis,
-            DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
-        )
-    }
-
-    private fun bindLocation(play: PlayEntity) {
-        binding.locationView.setTextKeepState(play.location)
-        binding.locationFrame.isVisible = play.location.isNotEmpty() || isUserShowingLocation || preferences().showLogPlayLocation()
     }
 
     private fun bindLength() {
@@ -323,46 +296,41 @@ class LogPlayActivity : AppCompatActivity() {
                 binding.timerGroup.isVisible = true
             }
             length > 0 -> {
+                binding.timerGroup.isVisible = false
                 binding.lengthView.setTextKeepState(length.toString())
                 binding.lengthGroup.isVisible = true
-                binding.timerGroup.isVisible = false
             }
             else -> {
-                binding.lengthView.setText("")
-                binding.lengthGroup.isVisible = isUserShowingLength || preferences().showLogPlayLength()
                 binding.timerGroup.isVisible = false
+                binding.lengthView.setText("")
+                if (isUserShowingLength || preferences().showLogPlayLength())
+                    binding.lengthGroup.isVisible = true
             }
         }
-        binding.timerButton.isEnabled = (dateInMillis ?: 0 + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
+        binding.timerButton.isEnabled = ((dateInMillis ?: 0) + (length * DateUtils.MINUTE_IN_MILLIS)).isToday()
     }
 
-    private fun bindQuantity(play: PlayEntity) {
-        binding.quantityView.setTextKeepState(play.quantity.toString())
-        binding.quantityFrame.isVisible = play.quantity != 1 || isUserShowingQuantity || preferences().showLogPlayQuantity()
-    }
+    private fun bindIncomplete(isIncomplete: Boolean) =
+        binding.incompleteView.apply {
+            isChecked = isIncomplete
+            if (isIncomplete || isUserShowingIncomplete || preferences().showLogPlayIncomplete())
+                isVisible = true
+        }
 
-    private fun bindIncomplete(play: PlayEntity) {
-        binding.incompleteView.isChecked = play.incomplete
-        binding.incompleteView.isVisible = play.incomplete || isUserShowingIncomplete || preferences().showLogPlayIncomplete()
-    }
+    private fun bindNoWinStats(doNotCountWinStats: Boolean) =
+        binding.noWinStatsView.apply {
+            isChecked = doNotCountWinStats
+            if (doNotCountWinStats || isUserShowingNoWinStats || preferences().showLogPlayNoWinStats())
+                isVisible = true
+        }
 
-    private fun bindNoWinStats(play: PlayEntity) {
-        binding.noWinStatsView.isChecked = play.noWinStats
-        binding.noWinStatsView.isVisible = play.noWinStats || isUserShowingNoWinStats || preferences().showLogPlayNoWinStats()
-    }
-
-    private fun bindComments(play: PlayEntity) {
-        binding.commentsView.setTextKeepState(play.comments)
-        binding.commentsFrame.isVisible = play.comments.isNotEmpty() || isUserShowingComments || preferences().showLogPlayComments()
-    }
-
-    private fun bindPlayerHeader(playerCount: Int) {
+    private fun bindPlayerHeader() {
         val showPlayers = isUserShowingPlayers || preferences().showLogPlayPlayerList() || playerCount != 0
         binding.playerHeader.isVisible = showPlayers
-        binding.playersLabel.text = if (playerCount <= 0) getString(R.string.title_players) else getString(R.string.title_players_with_count, playerCount)
+        binding.playersLabel.text =
+            if (playerCount <= 0) getString(R.string.title_players) else getString(R.string.title_players_with_count, playerCount)
         binding.assignColorsButton.isEnabled = playerCount > 0
         binding.recyclerView.isVisible = showPlayers
-        binding.addPlayerFrame.isVisible = showPlayers
     }
 
     public override fun onCreate(savedInstanceState: Bundle?) {
@@ -395,7 +363,7 @@ class LogPlayActivity : AppCompatActivity() {
         binding.fab.setOnClickListener { addField() }
 
         binding.recyclerView.setHasFixedSize(false)
-        binding.recyclerView.adapter = playAdapter
+        binding.recyclerView.adapter = playerAdapter
 
         swipePaint.color = ContextCompat.getColor(this@LogPlayActivity, R.color.delete)
         itemTouchHelper = ItemTouchHelper(
@@ -412,7 +380,7 @@ class LogPlayActivity : AppCompatActivity() {
                     actionState: Int,
                     isCurrentlyActive: Boolean
                 ) {
-                    if (viewHolder is PlayAdapter.PlayerViewHolder && actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    if (viewHolder is PlayerAdapter.PlayerViewHolder && actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
                         val itemView = viewHolder.itemView
 
                         // fade and slide item
@@ -464,7 +432,7 @@ class LogPlayActivity : AppCompatActivity() {
                 }
 
                 override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-                    lastRemovedPlayer = playAdapter.getPlayer(viewHolder.bindingAdapterPosition)
+                    lastRemovedPlayer = playerAdapter.getPlayer(viewHolder.bindingAdapterPosition)
                     lastRemovedPlayer?.let { player ->
                         binding.coordinatorLayout.indefiniteSnackbar(
                             getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
@@ -481,23 +449,23 @@ class LogPlayActivity : AppCompatActivity() {
                     viewHolder: RecyclerView.ViewHolder,
                     target: RecyclerView.ViewHolder
                 ): Boolean {
-                    if (target !is PlayAdapter.PlayerViewHolder) return false
+                    if (target !is PlayerAdapter.PlayerViewHolder) return false
                     viewModel.reorderPlayers(viewHolder.bindingAdapterPosition + 1, target.bindingAdapterPosition + 1)
                     return true
                 }
 
                 override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-                    (viewHolder as? PlayAdapter.PlayerViewHolder)?.onItemClear()
+                    (viewHolder as? PlayerAdapter.PlayerViewHolder)?.onItemClear()
                     super.clearView(recyclerView, viewHolder)
                 }
 
                 override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                    if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) (viewHolder as? PlayAdapter.PlayerViewHolder)?.onItemDragging()
+                    if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) (viewHolder as? PlayerAdapter.PlayerViewHolder)?.onItemDragging()
                     super.onSelectedChanged(viewHolder, actionState)
                 }
 
                 override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-                    return if (shouldCustomSortPlayers) makeMovementFlags(
+                    return if (playerAdapter.shouldCustomSortPlayers) makeMovementFlags(
                         0,
                         getSwipeDirs(recyclerView, viewHolder)
                     ) else super.getMovementFlags(recyclerView, viewHolder)
@@ -518,7 +486,7 @@ class LogPlayActivity : AppCompatActivity() {
         thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
-        shouldCustomSortPlayers = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
+        playerAdapter.shouldCustomSortPlayers = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
 
         FirebaseAnalytics.getInstance(this).logEvent("DataManipulation") {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, "Play")
@@ -541,18 +509,22 @@ class LogPlayActivity : AppCompatActivity() {
             isUserShowingNoWinStats = it.getBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS)
             isUserShowingComments = it.getBoolean(KEY_IS_USER_SHOWING_COMMENTS)
             isUserShowingPlayers = it.getBoolean(KEY_IS_USER_SHOWING_PLAYERS)
-            shouldCustomSortPlayers = it.getBoolean(KEY_CUSTOM_PLAYER_SORT)
+            playerAdapter.shouldCustomSortPlayers = it.getBoolean(KEY_CUSTOM_PLAYER_SORT)
         }
 
         shouldDeletePlayOnActivityCancel = if (internalId == INVALID_ID.toLong()) true else (isRequestingRematch || isChangingGame)
 
+        bindHeader()
         wireUi()
         if (isRequestingToEndPlay) {
             cancelPlayingNotification()
         }
 
+        viewModel.isLoading.observe(this) {
+            it?.let { binding.progressView.isVisible = it }
+        }
         viewModel.customPlayerSort.observe(this) {
-            it?.let { shouldCustomSortPlayers = it }
+            it?.let { playerAdapter.shouldCustomSortPlayers = it }
         }
 
         viewModel.colors.observe(this) {
@@ -570,44 +542,74 @@ class LogPlayActivity : AppCompatActivity() {
             availablePlayers.clear()
             availablePlayers.addAll(it)
         }
-        viewModel.internalId.observe(this) { internalId = it }
-        viewModel.play.observe(this) {
-            this.play = it
-            dateInMillis = it.dateInMillis
-            length = it.length
-            startTime = it.startTime
-            playersHaveColors = it.players.any { player -> player.color.isNotBlank() }
-            playersHaveStartingPositions = it.players.any { player -> player.startingPosition.isNotBlank() }
-            playerCount = it.players.size
-            playerDescriptions = it.players.mapIndexed { i, p ->
-                p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
-            }
-            usedColors = it.players.map { p -> p.color }
-
-            bindHeader()
-            bindDate(it)
-            bindLocation(it)
-            bindLength()
-            bindQuantity(it)
-            bindIncomplete(it)
-            bindNoWinStats(it)
-            bindComments(it)
-            bindPlayerHeader(it.players.size)
-            playAdapter.submit(it.players)
-            binding.progressView.hide()
-
-            if (showNotification && internalId != INVALID_ID.toLong()) {
-                showNotification = false
-                this.launchPlayingNotification(
-                    internalId,
-                    it.gameName,
-                    it.location,
-                    it.players.size,
-                    it.startTime,
-                    thumbnailUrl,
-                    imageUrl,
-                    heroImageUrl
+        viewModel.internalId.observe(this) {
+            internalId = it
+            updateNotification()
+        }
+        viewModel.dateInMillis.observe(this) {
+            it?.let {
+                dateInMillis = it
+                binding.dateButton.text = DateUtils.formatDateTime(
+                    this,
+                    it,
+                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
                 )
+            }
+        }
+        viewModel.location.observe(this) {
+            it?.let {
+                location = it
+                binding.locationView.setTextKeepState(it)
+                if (it.isNotEmpty() || isUserShowingLocation || preferences().showLogPlayLocation())
+                    binding.locationFrame.isVisible = true
+                updateNotification()
+            }
+        }
+        viewModel.length.observe(this) {
+            it?.let {
+                length = it
+                bindLength()
+            }
+        }
+        viewModel.startTime.observe(this) {
+            it?.let {
+                startTime = it
+                bindLength()
+                updateNotification()
+            }
+        }
+        viewModel.quantity.observe(this) {
+            it?.let {
+                binding.quantityView.setTextKeepState(it.toString())
+                if (it != 1 || isUserShowingQuantity || preferences().showLogPlayQuantity())
+                    binding.quantityFrame.isVisible = true
+            }
+        }
+        viewModel.incomplete.observe(this) {
+            it?.let { bindIncomplete(it) }
+        }
+        viewModel.doNotCountWinStats.observe(this) {
+            it?.let { bindNoWinStats(it) }
+        }
+        viewModel.comments.observe(this) {
+            it?.let { comments ->
+                binding.commentsView.setTextKeepState(comments)
+                if (comments.isNotEmpty() || isUserShowingComments || preferences().showLogPlayComments())
+                    binding.commentsFrame.isVisible = true
+            }
+        }
+        viewModel.players.observe(this) {
+            it?.let {
+                playersHaveStartingPositions = it.any { player -> player.startingPosition.isNotBlank() }
+                playerCount = it.size
+                playerDescriptions = it.mapIndexed { i, p ->
+                    p.description.ifEmpty { String.format(resources.getString(R.string.generic_player), i + 1) }
+                }
+                usedColors = it.map { p -> p.color }
+
+                bindPlayerHeader()
+                playerAdapter.submit(it)
+                updateNotification()
             }
         }
         viewModel.loadPlay(
@@ -619,7 +621,7 @@ class LogPlayActivity : AppCompatActivity() {
             isChangingGame,
         )
 
-        binding.fab.postDelayed({ binding.fab.show() }, 2000)
+        binding.fab.postDelayed({ binding.fab.show() }, 2_000)
     }
 
     override fun onResume() {
@@ -637,11 +639,12 @@ class LogPlayActivity : AppCompatActivity() {
         outState.putBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS, isUserShowingNoWinStats)
         outState.putBoolean(KEY_IS_USER_SHOWING_COMMENTS, isUserShowingComments)
         outState.putBoolean(KEY_IS_USER_SHOWING_PLAYERS, isUserShowingPlayers)
-        outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, shouldCustomSortPlayers)
+        outState.putBoolean(KEY_CUSTOM_PLAYER_SORT, playerAdapter.shouldCustomSortPlayers)
     }
 
     override fun onPause() {
         super.onPause()
+        updateNotification()
         if (shouldSaveOnPause && !isLaunchingActivity) {
             saveDraft()
         }
@@ -681,6 +684,21 @@ class LogPlayActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateNotification() {
+        if (internalId != INVALID_ID.toLong()) {
+            this.launchPlayingNotification(
+                internalId,
+                gameName,
+                location,
+                playerCount,
+                startTime,
+                thumbnailUrl,
+                imageUrl,
+                heroImageUrl
+            )
+        }
+    }
+
     private fun addField() {
         val array = createAddFieldArray()
         if (array.isEmpty()) return
@@ -691,34 +709,44 @@ class LogPlayActivity : AppCompatActivity() {
                     resources.getString(R.string.location) -> {
                         isUserShowingLocation = true
                         binding.locationFrame.isVisible = true
-                        binding.locationView.requestFocus()
+                        binding.locationView.requestFocusAndKeyboard()
+                        binding.locationView.showDropDown()
                     }
                     resources.getString(R.string.length) -> {
                         isUserShowingLength = true
                         binding.lengthGroup.isVisible = true
-                        binding.lengthView.requestFocus()
+                        binding.lengthView.requestFocusAndKeyboard()
                     }
                     resources.getString(R.string.quantity) -> {
                         isUserShowingQuantity = true
                         binding.quantityFrame.isVisible = true
-                        binding.quantityView.requestFocus()
+                        binding.quantityView.setAndSelectExistingText("1")
+                        binding.quantityView.requestFocusAndKeyboard()
+                        viewModel.updateQuantity(1)
                     }
                     resources.getString(R.string.incomplete) -> {
                         isUserShowingIncomplete = true
+                        bindIncomplete(true).requestFocus()
                         viewModel.updateIncomplete(true)
                     }
                     resources.getString(R.string.noWinStats) -> {
                         isUserShowingNoWinStats = true
+                        bindNoWinStats(true).requestFocus()
                         viewModel.updateNoWinStats(true)
                     }
                     resources.getString(R.string.comments) -> {
                         isUserShowingComments = true
                         binding.commentsFrame.isVisible = true
-                        binding.commentsView.requestFocus()
+                        binding.commentsView.requestFocusAndKeyboard()
                     }
                     resources.getString(R.string.title_players) -> {
                         isUserShowingPlayers = true
-                        bindPlayerHeader(playerCount)
+                        bindPlayerHeader()
+                        if (preferences()[LOG_EDIT_PLAYER_PROMPTED, false] == true) {
+                            addPlayers(preferences()[LOG_EDIT_PLAYER, false] ?: false)
+                        } else {
+                            promptToEditPlayers()
+                        }
                     }
                 }
                 firebaseAnalytics.logEvent("AddField") {
@@ -732,12 +760,12 @@ class LogPlayActivity : AppCompatActivity() {
     private fun createAddFieldArray(): Array<CharSequence> {
         val list = mutableListOf<CharSequence>()
         if (!binding.locationFrame.isVisible) list.add(getString(R.string.location))
-        if (!binding.lengthFrame.isVisible || !binding.timer.isVisible) list.add(getString(R.string.length))
+        if (!binding.lengthFrame.isVisible && !binding.timer.isVisible) list.add(getString(R.string.length))
         if (!binding.quantityFrame.isVisible) list.add(getString(R.string.quantity))
         if (!binding.incompleteView.isVisible) list.add(getString(R.string.incomplete))
         if (!binding.noWinStatsView.isVisible) list.add(getString(R.string.noWinStats))
         if (!binding.commentsFrame.isVisible) list.add(getString(R.string.comments))
-        if (!binding.playerHeader.isVisible) list.add(getString(R.string.title_players))
+        list.add(getString(R.string.title_players))
         return list.toTypedArray()
     }
 
@@ -779,12 +807,12 @@ class LogPlayActivity : AppCompatActivity() {
 
     private fun editPlayer(position: Int) {
         isLaunchingActivity = true
-        val player = playAdapter.getPlayer(position)
+        val player = playerAdapter.getPlayer(position)
         if (player != null) {
             val input = createLaunchInput(player.seat)
             editPlayerLauncher.launch(input to (position to player))
         } else {
-            Timber.w("TODO")
+            Timber.w("Attempting to edit a null player at position $position")
         }
     }
 
@@ -797,17 +825,50 @@ class LogPlayActivity : AppCompatActivity() {
         isRequestingToEndPlay = isRequestingToEndPlay,
         fabColor = fabColor,
         usedColors = usedColors,
-        autoPosition = if (!shouldCustomSortPlayers) autoPosition else LogPlayerActivity.INVALID_POSITION,
+        autoPosition = if (!playerAdapter.shouldCustomSortPlayers) autoPosition else LogPlayerActivity.INVALID_POSITION,
     )
 
     private fun cancelPlayingNotification() {
         cancelNotification(TAG_PLAY_TIMER, internalId)
     }
 
-    inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.PlayerViewHolder>() {
+    class PlayerCallback : ListUpdateCallback {
+        private var adapter: RecyclerView.Adapter<*>? = null
+        var firstInsert = -1
+
+        fun bind(adapter: RecyclerView.Adapter<*>) {
+            this.adapter = adapter
+        }
+
+        override fun onChanged(position: Int, count: Int, payload: Any?) {
+            adapter?.notifyItemRangeChanged(position, count, payload)
+        }
+
+        override fun onInserted(position: Int, count: Int) {
+            if (firstInsert == -1 || firstInsert > position) firstInsert = position
+            adapter?.notifyItemRangeInserted(position, count)
+        }
+
+        override fun onMoved(fromPosition: Int, toPosition: Int) {
+            adapter?.notifyItemMoved(fromPosition, toPosition)
+        }
+
+        override fun onRemoved(position: Int, count: Int) {
+            adapter?.notifyItemRangeRemoved(position, count)
+        }
+    }
+
+    inner class PlayerAdapter : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
         var isDragging = false
 
         private var players = emptyList<PlayPlayerEntity>()
+        private val callback = PlayerCallback()
+        var shouldCustomSortPlayers = false
+            @SuppressLint("NotifyDataSetChanged")
+            set(value) {
+                field = value
+                notifyDataSetChanged()
+            }
 
         private inner class Diff(private val oldList: List<PlayPlayerEntity>, private val newList: List<PlayPlayerEntity>) :
             DiffUtil.Callback() {
@@ -816,7 +877,8 @@ class LogPlayActivity : AppCompatActivity() {
             override fun getNewListSize() = newList.size
 
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return oldList[oldItemPosition].uiId == newList[newItemPosition].uiId
+                return oldList[oldItemPosition].uiId == newList[newItemPosition].uiId &&
+                        oldList[oldItemPosition].startingPosition == newList[newItemPosition].startingPosition
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
@@ -832,12 +894,18 @@ class LogPlayActivity : AppCompatActivity() {
             val oldPlayers = this.players
             this.players = players
             val diffResult = DiffUtil.calculateDiff(Diff(oldPlayers, this.players))
-            diffResult.dispatchUpdatesTo(this)
-            // TODO: smooth scroll to the "newest" player
+            diffResult.dispatchUpdatesTo(callback)
+            if (callback.firstInsert >= 0) {
+                // if a player was inserted, scroll down to show it
+                binding.nestedScrollView.postDelayed(500L) {
+                    binding.nestedScrollView.fullScroll(View.FOCUS_DOWN)
+                }
+            }
         }
 
         init {
             setHasStableIds(true)
+            callback.bind(this)
         }
 
         override fun getItemCount(): Int {
@@ -849,7 +917,7 @@ class LogPlayActivity : AppCompatActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlayerViewHolder {
-            return PlayerViewHolder(this@LogPlayActivity)
+            return PlayerViewHolder(parent.inflate(R.layout.row_logplay_player))
         }
 
         override fun onBindViewHolder(holder: PlayerViewHolder, position: Int) {
@@ -860,12 +928,18 @@ class LogPlayActivity : AppCompatActivity() {
             return players.getOrNull(position)
         }
 
-        inner class PlayerViewHolder(context: Context) : RecyclerView.ViewHolder(PlayerRow(context)) {
-            private val row: PlayerRow = itemView as PlayerRow
+        inner class PlayerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            private val binding = RowLogplayPlayerBinding.bind(itemView)
+            private val ratingFormat = DecimalFormat("0.0######")
 
-            init {
-                row.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            }
+            private val nameTypeface: Typeface
+                get() = binding.nameView.typeface
+            private val nameColor: Int
+                get() = binding.nameView.textColors.defaultColor
+            private val usernameTypeface: Typeface
+                get() = binding.usernameView.typeface
+            private val scoreTypeface: Typeface
+                get() = binding.scoreView.typeface
 
             fun onItemDragging() {
                 isDragging = true
@@ -880,12 +954,95 @@ class LogPlayActivity : AppCompatActivity() {
 
             @SuppressLint("ClickableViewAccessibility")
             fun bind(position: Int) {
-                row.setAutoSort(!shouldCustomSortPlayers)
-                row.setPlayer(getPlayer(position))
-                row.setNameListener { editPlayer(position) }
-                row.setOnMoreListener {
+                binding.dragHandle.isVisible = !shouldCustomSortPlayers
+
+                val player = getPlayer(position) ?: PlayPlayerEntity()
+
+                binding.seatView.text = player.startingPosition
+                if (player.name.isEmpty() && player.username.isEmpty()) {
+                    val name = if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN)
+                        resources.getString(R.string.title_player)
+                    else
+                        resources.getString(R.string.generic_player, player.seat)
+                    binding.nameView.setTextWithStyle(name, nameTypeface, player.isNew, player.isWin, nameColor)
+                    binding.usernameView.isVisible = false
+                } else if (player.name.isEmpty()) {
+                    binding.nameView.setTextWithStyle(player.username, nameTypeface, player.isNew, player.isWin)
+                    binding.usernameView.isVisible = false
+                } else {
+                    binding.nameView.setTextWithStyle(player.name, nameTypeface, player.isNew, player.isWin)
+                    binding.usernameView.setTextWithStyle(player.username, usernameTypeface, player.isNew, player.isWin)
+                }
+                binding.nameView.setSelectableBackgroundBorderless()
+                binding.nameContainer.setOnClickListener { editPlayer(position) }
+
+                // score
+                val scoreDescription = player.numericScore?.let { it.asScore(itemView.context) } ?: player.score
+                binding.scoreView.setTextWithStyle(scoreDescription, scoreTypeface, false, player.isWin, nameColor)
+                binding.scoreButton.setColorFilter(ContextCompat.getColor(itemView.context, R.color.button_under_text), PorterDuff.Mode.SRC_IN)
+                binding.scoreButton.setOnClickListener {
                     players.getOrNull(position)?.let { player ->
-                        PopupMenu(this@LogPlayActivity, row.getMoreButton()).apply {
+                        val fragment = LogPlayPlayerScoreNumberPadDialogFragment.newInstance(
+                            position,
+                            player.score,
+                            player.color,
+                            player.fullDescription
+                        )
+                        fragment.show(this@LogPlayActivity.supportFragmentManager, "score_dialog")
+                    }
+                }
+
+                // rating
+                binding.ratingButton.setColorFilter(ContextCompat.getColor(itemView.context, R.color.button_under_text), PorterDuff.Mode.SRC_IN)
+                if (player.rating == 0.0) {
+                    binding.ratingView.isVisible = false
+                } else {
+                    binding.ratingView.setTextOrHide(player.rating.asBoundedRating(itemView.context, format = ratingFormat))
+                }
+                binding.ratingButton.setOnClickListener {
+                    players.getOrNull(position)?.let { player ->
+                        val fragment = LogPlayPlayerRatingNumberPadDialogFragment.newInstance(
+                            position,
+                            player.rating.asPersonalRating(this@LogPlayActivity, 0),
+                            player.color,
+                            player.fullDescription
+                        )
+                        fragment.show(this@LogPlayActivity.supportFragmentManager, "rating_dialog")
+                    }
+                }
+
+                // team/color
+                val color = player.color.asColorRgb()
+                binding.colorView.setColorViewValue(color)
+                binding.teamColorView.setTextOrHide(player.color)
+                binding.teamColorView.isVisible = color == Color.TRANSPARENT && player.color.isNotBlank()
+                binding.colorView.setOnClickListener {
+                    players.getOrNull(position)?.let { player ->
+                        val usedColors = players.filter { it != player }.map { it.color } as ArrayList<String>
+                        LogPlayPlayerColorPickerDialogFragment.launch(
+                            this@LogPlayActivity,
+                            player.fullDescription,
+                            gameColors,
+                            player.color,
+                            usedColors,
+                            bindingAdapterPosition,
+                        )
+                    }
+                }
+
+                // starting position, team/color
+                if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN) {
+                    binding.seatView.isVisible = false
+                    binding.startingPositionView.setTextOrHide(player.startingPosition)
+                } else {
+                    binding.seatView.setTextColor(color.getTextColor())
+                    binding.seatView.setTextOrHide(player.startingPosition)
+                    binding.startingPositionView.isVisible = false
+                }
+
+                binding.moreButton.setOnClickListener {
+                    players.getOrNull(position)?.let { player ->
+                        PopupMenu(this@LogPlayActivity, binding.moreButton).apply {
                             inflate(R.menu.log_play_player)
                             menu.findItem(R.id.win)?.isChecked = player.isWin
                             menu.findItem(R.id.new_)?.isChecked = player.isNew
@@ -906,46 +1063,12 @@ class LogPlayActivity : AppCompatActivity() {
                         }
                     }
                 }
-                row.getDragHandle().setOnTouchListener { _: View?, event: MotionEvent ->
+
+                binding.dragHandle.setOnTouchListener { _: View?, event: MotionEvent ->
                     if (event.action == MotionEvent.ACTION_DOWN) {
                         itemTouchHelper?.startDrag(this@PlayerViewHolder)
                         true
                     } else false
-                }
-                row.setOnColorListener {
-                    players.getOrNull(position)?.let { player ->
-                        val usedColors = players.filter { it != player }.map { it.color } as ArrayList<String>
-                        LogPlayPlayerColorPickerDialogFragment.launch(
-                            this@LogPlayActivity,
-                            player.fullDescription,
-                            gameColors,
-                            player.color,
-                            usedColors,
-                            bindingAdapterPosition
-                        )
-                    }
-                }
-                row.setOnRatingListener {
-                    players.getOrNull(position)?.let { player ->
-                        val fragment = LogPlayPlayerRatingNumberPadDialogFragment.newInstance(
-                            position,
-                            player.rating.asBoundedRating(this@LogPlayActivity), // TODO does this work for other locales?
-                            player.color,
-                            player.fullDescription
-                        )
-                        fragment.show(this@LogPlayActivity.supportFragmentManager, "rating_dialog")
-                    }
-                }
-                row.setOnScoreListener {
-                    players.getOrNull(position)?.let { player ->
-                        val fragment = LogPlayPlayerScoreNumberPadDialogFragment.newInstance(
-                            position,
-                            player.score,
-                            player.color,
-                            player.fullDescription
-                        )
-                        fragment.show(this@LogPlayActivity.supportFragmentManager, "score_dialog")
-                    }
                 }
             }
         }

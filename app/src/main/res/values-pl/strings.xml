@@ -344,10 +344,6 @@
 	<string name="collection_sort_last_viewed">Ostatnio oglądana</string>
 	<string name="collection_sort_last_modified">Ostatnio zmodyfikowane</string>
 	<string name="collection_sort_my_rating">Moja ocena</string>
-	<string name="collection_sort_play_count_asc">Najrzadziej grane</string>
-	<string name="collection_sort_play_count_desc">Najczęściej grane</string>
-	<string name="collection_sort_play_date_max">Grane ostatnio</string>
-	<string name="collection_sort_play_date_min">Grane najdawniej</string>
 	<string name="collection_sort_play_time">Czas rozgrywki</string>
 	<string name="collection_sort_rank">Ranking</string>
 	<string name="collection_sort_suggested_age">Sugerowany minimalny wiek</string>
@@ -385,13 +381,6 @@
 	<string name="menu_sort_first_name">Imię</string>
 	<string name="menu_sort_last_name">Nazwisko</string>
 	<string name="undo">Cofnij</string>
-	<string name="newest">Najnowsze</string>
-	<string name="oldest">Najstarsze</string>
-	<string name="shortest">Najkrótsze</string>
-	<string name="longest">Najdłuższe</string>
-	<string name="youngest">Najmłodsze</string>
-	<string name="heaviest">Najtrudniejsze</string>
-	<string name="lightest">Najłatwiejsze</string>
 	<string name="year_negative">%s p.n.e.</string>
 	<string name="menu_play_time">Czas rozgrywki</string>
 	<string name="menu_play_count">Liczba rozgrywek</string>
@@ -655,7 +644,7 @@
 	<string name="error_incorrect_password">Nieprawidłowe hasło</string>
 	<string name="error_account_list_zero">Nie mozna dodać konta. Upewnij się, że w sekcji Konta w ustawieniach swojego urządzenia nie istnieje żadne inne konto BoardGameGeek.</string>
 	<string name="error_account_list_multiple">Nie dopuszcza się wielokrotnych konta typu %s.</string>
-	<string name="error_account_name_mismatch">Istniejące konto dla %s nie pasuje do podanego konta dla %s.</string>
+	<string name="error_account_name_mismatch">Istniejące konto dla %1$s nie pasuje do podanego konta dla %2$s.</string>
 	<string name="error_account_set_auth_token_security_exception">O-o! Nie nie jest błąd, który chcieliśmy zobaczyć. Jeśli masz zainstalowaną aplikację ScorePal, to wiedz, że aplikacje te przeszkadzają sobie w logowaniu się. Pracujemy nad tym.</string>
 	<string name="error_field_required">Pole wymagane</string>
 	<string name="information">Informacja</string>

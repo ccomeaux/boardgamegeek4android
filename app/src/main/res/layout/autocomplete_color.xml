@@ -8,12 +8,13 @@
 
 	<TextView
 		android:id="@+id/color_name"
-		style="@style/Text"
 		android:layout_width="0dp"
 		android:layout_height="match_parent"
 		android:layout_weight="1"
 		android:gravity="center_vertical"
-		android:padding="@dimen/padding_standard" />
+		android:padding="@dimen/padding_standard"
+		android:textAppearance="@style/TextAppearance.Primary"
+		tools:text="Orange" />
 
 	<FrameLayout
 		android:layout_width="@dimen/dropdown_item_min_height"
@@ -25,6 +26,7 @@
 			android:layout_height="@dimen/color_circle_diameter"
 			android:layout_gravity="center"
 			android:scaleType="fitXY"
+			tools:background="#00f"
 			tools:ignore="ContentDescription" />
 	</FrameLayout>
 

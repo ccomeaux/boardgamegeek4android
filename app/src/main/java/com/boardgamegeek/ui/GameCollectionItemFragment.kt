@@ -6,6 +6,7 @@ import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.os.bundleOf
+import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -15,12 +16,9 @@ import com.boardgamegeek.databinding.FragmentGameCollectionItemBinding
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.ui.dialog.EditCollectionTextDialogFragment
-import com.boardgamegeek.ui.dialog.PrivateInfoDialogFragment
+import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
-import com.boardgamegeek.ui.widget.TextEditorView
 
 class GameCollectionItemFragment : Fragment() {
     private var _binding: FragmentGameCollectionItemBinding? = null
@@ -34,7 +32,6 @@ class GameCollectionItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
         gameId = arguments?.getInt(KEY_GAME_ID, INVALID_ID) ?: INVALID_ID
         collectionId = arguments?.getInt(KEY_COLLECTION_ID, INVALID_ID) ?: INVALID_ID
     }
@@ -47,6 +44,28 @@ class GameCollectionItemFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.game_collection_fragment, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                menu.findItem(R.id.menu_discard).isVisible = !isInEditMode && isDirty
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.menu_discard -> {
+                        requireActivity().createDiscardDialog(R.string.collection_item, R.string.keep, isNew = false, finishActivity = false) {
+                            viewModel.reset()
+                        }.show()
+                    }
+                    else -> return false
+                }
+                return true
+            }
+        })
 
         listOf(
             binding.wantToBuyView,
@@ -79,22 +98,22 @@ class GameCollectionItemFragment : Fragment() {
         }
         binding.wishlistPriorityView.adapter = WishlistPriorityAdapter(requireContext())
         binding.commentView.setOnClickListener {
-            onTextEditorClick(binding.commentView, Collection.Columns.COMMENT, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+            EditCollectionCommentDialogFragment.show(parentFragmentManager, binding.commentView.contentText)
         }
         binding.privateInfoCommentView.setOnClickListener {
-            onTextEditorClick(binding.privateInfoCommentView, Collection.Columns.PRIVATE_INFO_COMMENT, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+            EditCollectionPrivateCommentDialogFragment.show(parentFragmentManager, binding.privateInfoCommentView.contentText)
         }
         binding.wishlistCommentView.setOnClickListener {
-            onTextEditorClick(binding.wishlistCommentView, Collection.Columns.WISHLIST_COMMENT, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+            EditCollectionWishlistCommentDialogFragment.show(parentFragmentManager, binding.wishlistCommentView.contentText)
         }
         binding.conditionView.setOnClickListener {
-            onTextEditorClick(binding.conditionView, Collection.Columns.CONDITION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+            EditCollectionConditionDialogFragment.show(parentFragmentManager, binding.conditionView.contentText)
         }
         binding.wantPartsView.setOnClickListener {
-            onTextEditorClick(binding.wantPartsView, Collection.Columns.WANTPARTS_LIST, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+            EditCollectionWantPartsDialogFragment.show(parentFragmentManager, binding.wantPartsView.contentText)
         }
         binding.hasPartsView.setOnClickListener {
-            onTextEditorClick(binding.hasPartsView, Collection.Columns.HASPARTS_LIST, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+            EditCollectionHasPartsDialogFragment.show(parentFragmentManager, binding.hasPartsView.contentText)
         }
         binding.privateInfoEditContainer.setOnClickListener {
             val privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance(
@@ -165,28 +184,6 @@ class GameCollectionItemFragment : Fragment() {
         binding.mainContainer.isVisible = false
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.game_collection_fragment, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        menu.findItem(R.id.menu_discard).isVisible = !isInEditMode && isDirty
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_discard -> {
-                requireActivity().createDiscardDialog(R.string.collection_item, R.string.keep, isNew = false, finishActivity = false) {
-                    viewModel.reset()
-                }.show()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     private fun bindVisibility() {
         // show edit containers only when in edit mode
         listOf(
@@ -233,18 +230,6 @@ class GameCollectionItemFragment : Fragment() {
         }
         val wishlistPriority = if (binding.wishlistView.isChecked) binding.wishlistPriorityView.selectedItemPosition + 1 else 0
         viewModel.updateStatuses(statuses, wishlistPriority)
-    }
-
-    private fun onTextEditorClick(view: TextEditorView, textColumn: String, timestampColumn: String) {
-        // TODO refactor to use view model, not direct data access
-        showAndSurvive(
-            EditCollectionTextDialogFragment.newInstance(
-                view.headerText,
-                view.contentText,
-                textColumn,
-                timestampColumn
-            )
-        )
     }
 
     private fun updateUi(item: CollectionItemEntity) {
@@ -337,7 +322,12 @@ class GameCollectionItemFragment : Fragment() {
             else -> item.lastModifiedDate
         }
         binding.updatedView.timestamp = item.syncTimestamp
-        binding.idView.text = item.collectionId.toString()
+        if (item.collectionId != INVALID_ID) {
+            binding.idView.text = item.collectionId.toString()
+            binding.idView.isVisible = true
+        } else {
+            binding.idView.isVisible = false
+        }
     }
 
     private fun getStatusDescription(item: CollectionItemEntity): String {

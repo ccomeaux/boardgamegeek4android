@@ -6,11 +6,24 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import java.text.DecimalFormat
 
-abstract class AverageWeightSorter(context: Context) : CollectionSorter(context) {
+class AverageWeightSorter(context: Context) : CollectionSorter(context) {
     private val defaultValue = context.getString(R.string.text_unknown)
 
-    @StringRes
-    override val descriptionResId = R.string.collection_sort_average_weight
+    override val ascendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_average_weight_asc
+
+    override val descendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_average_weight_desc
+
+    override val descriptionResId: Int
+        @StringRes
+        get() = R.string.collection_sort_average_weight
+
+    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.averageWeight }
+
+    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.averageWeight }
 
     override fun getHeaderText(item: CollectionItemEntity): String {
         val averageWeight = item.averageWeight

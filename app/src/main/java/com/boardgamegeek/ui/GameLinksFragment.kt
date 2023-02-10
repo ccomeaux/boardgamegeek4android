@@ -9,7 +9,6 @@ import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.databinding.FragmentGameLinksBinding
-import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -18,6 +17,7 @@ class GameLinksFragment : Fragment() {
     private var _binding: FragmentGameLinksBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
+
     @ColorInt
     private var iconColor = Color.TRANSPARENT
 
@@ -31,8 +31,7 @@ class GameLinksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.game.observe(viewLifecycleOwner) {
-            it?.let { (status, game, _) ->
-                if (status != Status.SUCCESS || game == null) return@observe
+            it?.data?.let { game ->
                 if (game.id != BggContract.INVALID_ID) {
                     binding.geekbuddyAnalysisLink.setOnClickListener { context.linkToBgg("geekbuddy/analyze/thing", game.id) }
                     binding.bggLink.setOnClickListener { context.linkBgg(game.id) }

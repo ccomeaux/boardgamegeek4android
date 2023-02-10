@@ -20,5 +20,5 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.RowDetail.Secondary"
-		tools:text="Text 1"/>
+		tools:text="3 plays"/>
 </LinearLayout>

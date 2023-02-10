@@ -7,7 +7,7 @@ import com.boardgamegeek.entities.CategoryEntity
 import com.boardgamegeek.extensions.ascending
 import com.boardgamegeek.extensions.collateNoCase
 import com.boardgamegeek.extensions.descending
-import com.boardgamegeek.extensions.load
+import com.boardgamegeek.extensions.loadList
 import com.boardgamegeek.provider.BggContract.Categories
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -20,13 +20,12 @@ class CategoryDao(private val context: BggApplication) {
     }
 
     suspend fun loadCategories(sortBy: SortType): List<CategoryEntity> = withContext(Dispatchers.IO) {
-        val results = mutableListOf<CategoryEntity>()
         val sortByName = Categories.Columns.CATEGORY_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
             SortType.ITEM_COUNT -> Categories.Columns.ITEM_COUNT.descending().plus(", $sortByName")
         }
-        context.contentResolver.load(
+        context.contentResolver.loadList(
             Categories.CONTENT_URI,
             arrayOf(
                 Categories.Columns.CATEGORY_ID,
@@ -34,18 +33,13 @@ class CategoryDao(private val context: BggApplication) {
                 Categories.Columns.ITEM_COUNT
             ),
             sortOrder = sortOrder
-        )?.use {
-            if (it.moveToFirst()) {
-                do {
-                    results += CategoryEntity(
-                        it.getInt(0),
-                        it.getStringOrNull(1).orEmpty(),
-                        it.getIntOrNull(2) ?: 0,
-                    )
-                } while (it.moveToNext())
-            }
+        ) {
+            CategoryEntity(
+                it.getInt(0),
+                it.getStringOrNull(1).orEmpty(),
+                it.getIntOrNull(2) ?: 0,
+            )
         }
-        results
     }
 
     suspend fun loadCollection(categoryId: Int, sortBy: CollectionDao.SortType) =

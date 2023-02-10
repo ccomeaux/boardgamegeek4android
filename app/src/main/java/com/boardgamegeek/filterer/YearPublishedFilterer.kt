@@ -28,38 +28,35 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
     override fun deflate() = "$min$DELIMITER$max"
 
     override fun chipText(): String {
+        val year = describeRange("-")
         return when {
-            min == lowerBound && max == upperBound -> ""
-            min == lowerBound -> max.toString().andLess()
-            max == upperBound -> min.toString().andMore()
-            min == max -> max.toString()
-            else -> "$min-$max"
+            min == lowerBound && max == upperBound -> return ""
+            min == lowerBound -> year.andLess()
+            max == upperBound -> year.andMore()
+            else -> year
         }
     }
 
     override fun description(): String {
-        @StringRes val prepositionResId: Int
-        val year: String
-        when {
+        val year: String = describeRange()
+        @StringRes val prepositionResId: Int = when {
             min == lowerBound && max == upperBound -> return ""
-            min == lowerBound -> {
-                prepositionResId = R.string.before
-                year = max.toString()
-            }
-            max == upperBound -> {
-                prepositionResId = R.string.after
-                year = min.toString()
-            }
-            min == max -> {
-                prepositionResId = R.string.`in`
-                year = max.toString()
-            }
-            else -> {
-                prepositionResId = R.string.`in`
-                year = "$min - $max"
-            }
+            min == lowerBound -> R.string.before
+            max == upperBound -> R.string.after
+            min == max -> R.string.`in`
+            else -> R.string.`in`
         }
         return context.getString(R.string.published_prefix, context.getString(prepositionResId), year)
+    }
+
+    fun describeRange(rangeSeparator: String = " - "): String {
+        return when {
+            min == lowerBound && max == upperBound -> return ""
+            min == lowerBound -> max.toString()
+            max == upperBound -> min.toString()
+            min == max -> max.toString()
+            else -> "$min$rangeSeparator$max"
+        }
     }
 
     override fun filter(item: CollectionItemEntity): Boolean {

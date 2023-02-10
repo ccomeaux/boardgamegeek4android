@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import android.content.ContentProviderOperation
 import android.content.ContentValues
 import android.net.Uri
 import android.provider.BaseColumns
@@ -10,10 +11,8 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.BriefBuddyEntity
 import com.boardgamegeek.entities.UserEntity
-import com.boardgamegeek.extensions.load
-import com.boardgamegeek.extensions.queryInt
-import com.boardgamegeek.extensions.queryLong
-import com.boardgamegeek.extensions.queryString
+import com.boardgamegeek.extensions.*
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Avatars
 import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.provider.BggContract.Companion.COLLATE_NOCASE
@@ -29,7 +28,7 @@ class UserDao(private val context: BggApplication) {
     }
 
     suspend fun loadUser(username: String): UserEntity? = withContext(Dispatchers.IO) {
-        context.contentResolver.load(
+        context.contentResolver.loadEntity(
             Buddies.buildBuddyUri(username),
             arrayOf(
                 BaseColumns._ID,
@@ -41,31 +40,28 @@ class UserDao(private val context: BggApplication) {
                 Buddies.Columns.PLAY_NICKNAME,
                 Buddies.Columns.UPDATED,
             )
-        )?.use {
-            if (it.moveToFirst()) {
-                UserEntity(
-                    internalId = it.getLong(0),
-                    id = it.getInt(1),
-                    userName = it.getStringOrNull(2).orEmpty(),
-                    firstName = it.getStringOrNull(3).orEmpty(),
-                    lastName = it.getStringOrNull(4).orEmpty(),
-                    avatarUrlRaw = it.getStringOrNull(5).orEmpty(),
-                    playNickname = it.getStringOrNull(6).orEmpty(),
-                    updatedTimestamp = it.getLongOrNull(7) ?: 0L
-                )
-            } else null
+        ) {
+            UserEntity(
+                internalId = it.getLong(0),
+                id = it.getInt(1),
+                userName = it.getStringOrNull(2).orEmpty(),
+                firstName = it.getStringOrNull(3).orEmpty(),
+                lastName = it.getStringOrNull(4).orEmpty(),
+                avatarUrlRaw = it.getStringOrNull(5).orEmpty(),
+                playNickname = it.getStringOrNull(6).orEmpty(),
+                updatedTimestamp = it.getLongOrNull(7) ?: 0L
+            )
         }
     }
 
     suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME, buddiesOnly: Boolean = true): List<UserEntity> =
         withContext(Dispatchers.IO) {
-            val results = arrayListOf<UserEntity>()
             val sortOrder = when (sortBy) {
                 UsersSortBy.USERNAME -> Buddies.Columns.BUDDY_NAME
                 UsersSortBy.FIRST_NAME -> Buddies.Columns.BUDDY_FIRSTNAME
                 UsersSortBy.LAST_NAME -> Buddies.Columns.BUDDY_LASTNAME
             }.plus(" $COLLATE_NOCASE ASC")
-            context.contentResolver.load(
+            context.contentResolver.loadList(
                 Buddies.CONTENT_URI,
                 arrayOf(
                     BaseColumns._ID,
@@ -77,32 +73,21 @@ class UserDao(private val context: BggApplication) {
                     Buddies.Columns.PLAY_NICKNAME,
                     Buddies.Columns.UPDATED
                 ),
-                if (buddiesOnly)
-                    "${Buddies.Columns.BUDDY_ID}!=? AND ${Buddies.Columns.BUDDY_FLAG}=1"
-                else
-                    null,
-                if (buddiesOnly)
-                    arrayOf(Authenticator.getUserId(context))
-                else
-                    null,
+                if (buddiesOnly) "${Buddies.Columns.BUDDY_ID}!=? AND ${Buddies.Columns.BUDDY_FLAG}=1" else null,
+                if (buddiesOnly) arrayOf(Authenticator.getUserId(context)) else null,
                 sortOrder
-            )?.use {
-                if (it.moveToFirst()) {
-                    do {
-                        results += UserEntity(
-                            internalId = it.getLong(0),
-                            id = it.getInt(1),
-                            userName = it.getStringOrNull(2).orEmpty(),
-                            firstName = it.getStringOrNull(3).orEmpty(),
-                            lastName = it.getStringOrNull(4).orEmpty(),
-                            avatarUrlRaw = it.getStringOrNull(5).orEmpty(),
-                            playNickname = it.getStringOrNull(6).orEmpty(),
-                            updatedTimestamp = it.getLongOrNull(7) ?: 0L,
-                        )
-                    } while (it.moveToNext())
-                }
+            ) {
+                UserEntity(
+                    internalId = it.getLong(0),
+                    id = it.getInt(1),
+                    userName = it.getStringOrNull(2).orEmpty(),
+                    firstName = it.getStringOrNull(3).orEmpty(),
+                    lastName = it.getStringOrNull(4).orEmpty(),
+                    avatarUrlRaw = it.getStringOrNull(5).orEmpty(),
+                    playNickname = it.getStringOrNull(6).orEmpty(),
+                    updatedTimestamp = it.getLongOrNull(7) ?: 0L,
+                )
             }
-            results
         }
 
     suspend fun saveUser(user: UserEntity, updateTime: Long = System.currentTimeMillis()): UserEntity =
@@ -183,5 +168,23 @@ class UserDao(private val context: BggApplication) {
             "${Buddies.Columns.UPDATED_LIST}<?",
             arrayOf(updateTimestamp.toString())
         )
+    }
+
+    suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = withContext(Dispatchers.IO) {
+        if (context.contentResolver.rowExists(Buddies.buildBuddyUri(username))) {
+            val batch = arrayListOf<ContentProviderOperation>()
+            colors.filter { it.second.isNotBlank() }.forEach { (sort, color) ->
+                val builder = if (context.contentResolver.rowExists(BggContract.PlayerColors.buildUserUri(username, sort))) {
+                    ContentProviderOperation
+                        .newUpdate(BggContract.PlayerColors.buildUserUri(username, sort))
+                } else {
+                    ContentProviderOperation
+                        .newInsert(BggContract.PlayerColors.buildUserUri(username))
+                        .withValue(BggContract.PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, sort)
+                }
+                batch.add(builder.withValue(BggContract.PlayerColors.Columns.PLAYER_COLOR, color).build())
+            }
+            context.contentResolver.applyBatch(batch)
+        }
     }
 }

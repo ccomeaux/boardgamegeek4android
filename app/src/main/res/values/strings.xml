@@ -57,6 +57,9 @@
 	<string name="range">Range</string>
 	<string name="single_value">Single value</string>
 	<string name="none">None</string>
+	<string name="today">Today</string>
+	<string name="yesterday">Yesterday</string>
+	<string name="earlier">Earlier…</string>
 	<string name="include_missing_values">Include games with missing values</string>
 	<string name="filter_description_player_number">Only games that support this <b>entire range</b> of players will be shown. <i>Exact</i> means that only games that support that many players exactly will be shown (e.g. 2 player only games).</string>
 	<string name="filter_description_include_missing_play_time">If you <b>include games with missing values</b>, the filter will show games with an unknown play time.</string>
@@ -303,6 +306,7 @@
 	<string name="empty_linked_collection">No games for this %s.</string>
 	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
+	<string name="title_date">Date</string>
 	<string name="title_dates">Dates</string>
 	<string name="title_play_time">Play Time</string>
 	<string name="title_advanced">Advanced</string>
@@ -365,10 +369,8 @@
 	<string name="collection_sort_last_viewed">Last Viewed</string>
 	<string name="collection_sort_last_modified">Last Modified</string>
 	<string name="collection_sort_my_rating">My Rating</string>
-	<string name="collection_sort_play_count_asc">Least Played</string>
-	<string name="collection_sort_play_count_desc">Most Played</string>
-	<string name="collection_sort_play_date_max">Most Recently Played</string>
-	<string name="collection_sort_play_date_min">Least Recently Played</string>
+	<string name="collection_sort_play_count">Play Count</string>
+	<string name="collection_sort_play_date">Last Played</string>
 	<string name="collection_sort_play_time">Play Time</string>
 	<string name="collection_sort_rank">Rank</string>
 	<string name="collection_sort_suggested_age">Suggested Minimum Age</string>
@@ -406,15 +408,8 @@
 	<string name="menu_sort_first_name">First name</string>
 	<string name="menu_sort_last_name">Last name</string>
 	<string name="undo">Undo</string>
-	<string name="newest">Newest</string>
-	<string name="oldest">Oldest</string>
-	<string name="shortest">Shortest</string>
-	<string name="longest">Longest</string>
-	<string name="youngest">Youngest</string>
-	<string name="heaviest">Heaviest</string>
-	<string name="lightest">Lightest</string>
-	<string name="year_positive">%s</string>
-	<string name="year_zero">\?</string>
+	<string name="year_positive" translatable="false">%s</string>
+	<string name="year_zero" translatable="false">\?</string>
 	<string name="year_negative">%s BC</string>
 	<string name="menu_play_time">Playing Time</string>
 	<string name="menu_play_count">Play Count</string>
@@ -710,7 +705,7 @@
 	<string name="error_incorrect_password">This password is incorrect</string>
 	<string name="error_account_list_zero">Account couldn\'t be added. Please check the Accounts section of your device\'s settings to ensure there is no BoardGameGeek account listed already.</string>
 	<string name="error_account_list_multiple">Multiple accounts of type %s are not allowed.</string>
-	<string name="error_account_name_mismatch">The existing account for %s doesn\'t match the one requested for %s.</string>
+	<string name="error_account_name_mismatch">The existing account for %1$s doesn\'t match the one requested for %2$s.</string>
 	<string name="error_account_set_auth_token_security_exception">Uh-oh! This isn\'t an error we expect to see. If you have ScorePal installed, there\'s a known problem that one prevents the other from signing in. We\'re working to resolve the issue.</string>
 	<string name="error_field_required">This field is required</string>
 	<string name="information">Information</string>
@@ -721,6 +716,9 @@
 	<string name="h_index">H-Index</string>
 	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23</string>
 	<string name="ampersand">%1$s &amp; %2$s</string>
+	<string name="validate">Validate</string>
+	<string name="not_found">Not Found</string>
+	<string name="valid">Valid</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

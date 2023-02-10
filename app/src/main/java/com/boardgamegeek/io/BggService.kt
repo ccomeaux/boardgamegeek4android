@@ -1,8 +1,9 @@
-@file:Suppress("SpellCheckingInspection")
+@file:Suppress("SpellCheckingInspection", "unused")
 
 package com.boardgamegeek.io
 
 import com.boardgamegeek.io.model.*
+import com.google.gson.annotations.SerializedName
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -34,13 +35,23 @@ interface BggService {
     suspend fun thingWithRatings(@Query("id") gameId: Int, @Query("page") page: Int): ThingResponse
 
     @GET("/xmlapi2/plays")
-    suspend fun playsByDate(@Query("username") username: String?, @Query("mindate") minDate: String?, @Query("maxdate") maxDate: String?, @Query("page") page: Int): PlaysResponse
+    suspend fun playsByDate(
+        @Query("username") username: String?,
+        @Query("mindate") minDate: String?,
+        @Query("maxdate") maxDate: String?,
+        @Query("page") page: Int
+    ): PlaysResponse
 
     @GET("/xmlapi2/plays")
     suspend fun playsByGame(@Query("username") username: String?, @Query("id") gameId: Int, @Query("page") page: Int): PlaysResponse
 
     @GET("/xmlapi2/plays")
-    suspend fun plays(@Query("username") username: String?, @Query("mindate") minDate: String?, @Query("maxdate") maxDate: String?, @Query("page") page: Int): PlaysResponse
+    suspend fun plays(
+        @Query("username") username: String?,
+        @Query("mindate") minDate: String?,
+        @Query("maxdate") maxDate: String?,
+        @Query("page") page: Int
+    ): PlaysResponse
 
     @GET("/xmlapi2/user")
     suspend fun user(@Query("name") name: String?): User
@@ -49,7 +60,7 @@ interface BggService {
     suspend fun user(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): User
 
     @GET("/xmlapi/{type}/{id}")
-    suspend fun person(@Path("type") type: String?, @Path("id") id: Int): Person
+    suspend fun person(@Path("type") type: PersonType?, @Path("id") id: Int): Person
 
     @GET("/xmlapi2/person")
     suspend fun person(@Query("id") id: Int): PersonResponse
@@ -58,13 +69,13 @@ interface BggService {
     suspend fun company(@Query("id") id: Int): CompanyResponse
 
     @GET("/xmlapi2/search")
-    suspend fun search(@Query("query") query: String?, @Query("type") type: String?, @Query("exact") exact: Int): SearchResponse
+    suspend fun search(@Query("query") query: String?, @Query("type") type: SearchType?, @Query("exact") exact: Int): SearchResponse
 
     @GET("/xmlapi2/hot")
-    suspend fun getHotness(@Query("type") type: String?): HotnessResponse
+    suspend fun getHotness(@Query("type") type: HotnessType?): HotnessResponse
 
     @GET("/xmlapi2/forumlist")
-    suspend fun forumList(@Query("type") type: String?, @Query("id") id: Int): ForumListResponse
+    suspend fun forumList(@Query("type") type: ForumType?, @Query("id") id: Int): ForumListResponse
 
     @GET("/xmlapi2/forum")
     suspend fun forum(@Query("id") id: Int, @Query("page") page: Int): ForumResponse
@@ -73,16 +84,18 @@ interface BggService {
     suspend fun thread(@Query("id") id: Int): ThreadResponse
 
     @GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&tradelists=0&version=v5")
-    suspend fun geekLists(@Query("sort") sort: String?, @Query("showcount") pageSize: Int, @Query("pageid") page: Int): GeekListsResponse
+    suspend fun geekLists(@Query("sort") sort: GeekListSort?, @Query("showcount") pageSize: Int, @Query("pageid") page: Int): GeekListsResponse
 
     @GET("/xmlapi/geeklist/{id}")
     suspend fun geekList(@Path("id") id: Int, @Query("comments") comments: Int): GeekListResponse
 
-    companion object {
-        const val THING_SUBTYPE_BOARDGAME = "boardgame"
-        const val THING_SUBTYPE_BOARDGAME_EXPANSION = "boardgameexpansion"
-        const val THING_SUBTYPE_BOARDGAME_ACCESSORY = "boardgameaccessory"
+    enum class ThingSubtype(val code: String) {
+        BOARDGAME("boardgame"),
+        BOARDGAME_EXPANSION("boardgameexpansion"),
+        BOARDGAME_ACCESSORY("boardgameaccessory"),
+    }
 
+    companion object {
         const val RANK_TYPE_SUBTYPE = "subtype"
         const val RANK_TYPE_FAMILY = "family"
 
@@ -102,33 +115,79 @@ interface BggService {
         const val COLLECTION_QUERY_KEY_BRIEF = "brief"
         const val COLLECTION_QUERY_KEY_SUBTYPE = "subtype"
         const val COLLECTION_QUERY_STATUS_PLAYED = "played"
+        const val COLLECTION_QUERY_KEY_COLLECTION_ID = "collid"
 
         // val COLLECTION_QUERY_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val COLLECTION_QUERY_DATE_TIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    }
 
-        const val PERSON_TYPE_ARTIST = "boardgameartist"
-        const val PERSON_TYPE_DESIGNER = "boardgamedesigner"
+    enum class PersonType {
+        @SerializedName("boardgameartist")
+        ARTIST,
 
-        const val SEARCH_TYPE_BOARD_GAME = "boardgame"
-        // const val SEARCH_TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion"
-        // const val SEARCH_TYPE_RPG = "rpg"
-        // const val SEARCH_TYPE_RPG_ITEM = "rpgitem"
-        // const val SEARCH_TYPE_VIDEO_GAME = "videogame"
-        // other search types: boardgameartist, boardgamedesigner, boardgamepublisher
+        @SerializedName("boardgamedesigner")
+        DESIGNER,
+    }
 
-        const val HOTNESS_TYPE_BOARDGAME = "boardgame"
+    enum class SearchType {
+        @SerializedName("boardgame")
+        BOARDGAME,
+    }
 
-        const val FORUM_TYPE_REGION = "region"
-        const val FORUM_TYPE_THING = "thing"
-        const val FORUM_TYPE_PERSON = "person"
-        const val FORUM_TYPE_COMPANY = "company"
+    enum class HotnessType {
+        @SerializedName("boardgame")
+        BOARDGAME,
 
-        const val FORUM_REGION_BOARDGAME = 1
-        // const val FORUM_REGION_RPG = 2
-        // const val FORUM_REGION_VIDEOGAME = 3
+        @SerializedName("boardgameexpansion")
+        BOARD_GAME_EXPANSION,
 
-        const val GEEK_LIST_SORT_HOT = "hot"
-        const val GEEK_LIST_SORT_RECENT = "recent"
-        const val GEEK_LIST_SORT_ACTIVE = "active"
+        @SerializedName("rpg")
+        RPG,
+
+        @SerializedName("rpgitem")
+        RPG_ITEM,
+
+        @SerializedName("videogame")
+        VIDEO_GAME,
+
+        @SerializedName("boardgameartist")
+        BOARDGAME_ARTIST,
+
+        @SerializedName("boardgamedesigner")
+        BOARDGAME_DESIGNER,
+
+        @SerializedName("boardgamepublisher")
+        BOARDGAME_PUBLISHER,
+    }
+
+    enum class GeekListSort {
+        @SerializedName("hot")
+        HOT,
+
+        @SerializedName("recent")
+        RECENT,
+
+        @SerializedName("active")
+        ACTIVE,
+    }
+
+    enum class ForumType {
+        @SerializedName("region")
+        REGION,
+
+        @SerializedName("thing")
+        THING,
+
+        @SerializedName("person")
+        PERSON,
+
+        @SerializedName("company")
+        COMPANY,
+    }
+
+    enum class ForumRegion(val id: Int) {
+        BOARDGAME(1),
+        RPG(2),
+        VIDEOGAME(3),
     }
 }

@@ -42,13 +42,13 @@
 						android:id="@+id/emptyMessageView"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:textAppearance="@style/Text.Empty" />
+						android:textAppearance="@style/TextAppearance.Empty" />
 
 					<TextView
 						android:id="@+id/descriptionView"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:textAppearance="@style/Text.Body"
+						android:textAppearance="@style/TextAppearance.Body"
 						android:visibility="gone"
 						tools:text="@tools:sample/lorem/random"
 						tools:visibility="visible" />
@@ -66,19 +66,19 @@
 
 					<com.boardgamegeek.ui.widget.TimestampView
 						android:id="@+id/lastUpdated"
-						style="@style/Text.Footnote2"
 						android:layout_width="0dp"
 						android:layout_height="wrap_content"
 						android:layout_weight="1"
+						android:textAppearance="@style/TextAppearance.Caption.Secondary"
 						app:emptyMessage="@string/needs_updating"
 						app:format="@string/synced_prefix"
 						tools:text="Yesterday" />
 
 					<TextView
 						android:id="@+id/idView"
-						style="@style/Text.Footnote2"
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"
+						android:textAppearance="@style/TextAppearance.Caption.Secondary"
 						tools:text="13" />
 				</LinearLayout>
 			</LinearLayout>

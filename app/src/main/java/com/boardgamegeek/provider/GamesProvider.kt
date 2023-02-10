@@ -1,11 +1,10 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.FRAGMENT_PLAYS
 import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
-import com.boardgamegeek.provider.BggContract.Companion.QUERY_KEY_GROUP_BY
+import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.provider.BggContract.Plays
 import com.boardgamegeek.provider.BggDatabase.Tables
 
 class GamesProvider : BasicProvider() {
@@ -24,7 +23,6 @@ class GamesProvider : BasicProvider() {
         if (FRAGMENT_PLAYS == uri.fragment) {
             builder
                 .table(Tables.GAMES_JOIN_PLAYS)
-                .mapIfNull(Games.Columns.GAME_RANK, GameRankEntity.RANK_UNKNOWN.toString()) // TODO move upstream or is this even necessary?
                 .mapAsSum(Plays.Columns.SUM_QUANTITY, Plays.Columns.QUANTITY, Tables.PLAYS)
                 .mapAsMax(Plays.Columns.MAX_DATE, Plays.Columns.DATE)
         } else {
@@ -32,13 +30,8 @@ class GamesProvider : BasicProvider() {
                 .table(Tables.GAMES_JOIN_COLLECTION)
                 .mapToTable(Games.Columns.GAME_ID, Tables.GAMES)
         }
-        builder.mapToTable(Games.Columns.UPDATED, Tables.GAMES)
-        val groupBy = uri.getQueryParameter(QUERY_KEY_GROUP_BY).orEmpty()
-        if (groupBy.isNotEmpty()) {
-            builder.groupBy(groupBy)
-        } else {
-            builder.groupBy(Games.Columns.GAME_ID)
-        }
         return builder
+            .mapToTable(Games.Columns.UPDATED, Tables.GAMES)
+            .groupBy(Games.Columns.GAME_ID)
     }
 }

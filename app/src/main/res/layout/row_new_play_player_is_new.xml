@@ -23,12 +23,11 @@
 
 	<TextView
 		android:id="@+id/seatView"
-		style="@style/Text.Huge"
 		android:layout_width="@dimen/color_circle_diameter"
 		android:layout_height="@dimen/color_circle_diameter"
 		android:layout_gravity="center"
-		android:fontFamily="sans-serif-condensed"
 		android:gravity="center"
+		android:textAppearance="@style/TextAppearance.Huge"
 		android:visibility="invisible"
 		app:layout_constraintLeft_toLeftOf="@id/colorView"
 		app:layout_constraintTop_toTopOf="@id/colorView"

@@ -25,7 +25,7 @@
 		android:layout_height="wrap_content"
 		android:padding="@dimen/material_margin_horizontal"
 		android:text="@string/invalid_collection_status"
-		android:textAppearance="@style/Text.Empty"
+		android:textAppearance="@style/TextAppearance.Empty"
 		android:visibility="gone"
 		tools:visibility="visible" />
 
@@ -58,7 +58,7 @@
 					android:background="?attr/selectableItemBackground"
 					android:maxLines="2"
 					android:minHeight="32dp"
-					android:textAppearance="@style/Text.Title"
+					android:textAppearance="@style/TextAppearance.Title"
 					tools:text="Own" />
 
 				<LinearLayout
@@ -70,7 +70,7 @@
 
 					<CheckBox
 						android:id="@+id/ownView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="own"
@@ -78,7 +78,7 @@
 
 					<CheckBox
 						android:id="@+id/preorderedView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="preordered"
@@ -86,7 +86,7 @@
 
 					<CheckBox
 						android:id="@+id/previouslyOwnedView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="previously_owned"
@@ -94,7 +94,7 @@
 
 					<CheckBox
 						android:id="@+id/wantToBuyView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="want_to_buy"
@@ -102,7 +102,7 @@
 
 					<CheckBox
 						android:id="@+id/wantToPlayView"
-						style="@style/EditCheckbox.Card"
+						style="@style/CardCheckbox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:tag="want_to_play"
@@ -149,8 +149,9 @@
 
 			<TextView
 				android:id="@+id/wishlistHeader"
-				style="@style/Text.Header.Card"
+				style="@style/CardTitle"
 				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:tag="header"
 				android:text="@string/wishlist"
 				android:textStyle="bold" />
@@ -161,7 +162,7 @@
 				android:layout_height="wrap_content"
 				android:gravity="center_vertical"
 				android:minHeight="32dp"
-				android:textAppearance="@style/Text.Title"
+				android:textAppearance="@style/TextAppearance.Title"
 				tools:text="Love to have" />
 
 			<LinearLayout
@@ -175,7 +176,7 @@
 
 				<CheckBox
 					android:id="@+id/wishlistView"
-					style="@style/EditCheckbox.Card"
+					style="@style/CardCheckbox"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:tag="wishlist"
@@ -186,7 +187,7 @@
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
-					android:theme="@style/EditSpinner.Card" />
+					android:theme="@style/CardSpinner" />
 			</LinearLayout>
 
 			<com.boardgamegeek.ui.widget.TextEditorView
@@ -213,8 +214,9 @@
 
 			<TextView
 				android:id="@+id/privateInfoHeader"
-				style="@style/Text.Header.Card"
+				style="@style/CardTitle"
 				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:tag="header"
 				android:text="@string/private_info"
 				android:textStyle="bold" />
@@ -223,7 +225,7 @@
 				android:id="@+id/viewPrivateInfoView"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:textAppearance="@style/Text"
+				android:textAppearance="@style/TextAppearance.Body"
 				tools:text="Acquired on Jan 1, 1999" />
 
 			<com.boardgamegeek.ui.widget.ForegroundLinearLayout
@@ -239,7 +241,7 @@
 
 				<TextView
 					android:id="@+id/privateInfoHintView"
-					style="@style/Text.Header.Card"
+					style="@style/CardTitle"
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
@@ -250,7 +252,7 @@
 					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
-					android:textAppearance="@style/Text"
+					android:textAppearance="@style/TextAppearance.Body"
 					tools:text="Acquired on Jan 1, 1999" />
 
 				<ImageView
@@ -284,8 +286,9 @@
 
 			<TextView
 				android:id="@+id/tradeHeader"
-				style="@style/Text.Header.Card"
+				style="@style/CardTitle"
 				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
 				android:tag="header"
 				android:text="@string/title_trade"
 				android:textStyle="bold" />
@@ -295,7 +298,7 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:maxLines="1"
-				android:textAppearance="@style/Text.Title"
+				android:textAppearance="@style/TextAppearance.Title"
 				tools:text="For Trade" />
 
 			<LinearLayout
@@ -308,7 +311,7 @@
 
 				<CheckBox
 					android:id="@+id/wantInTradeView"
-					style="@style/EditCheckbox.Card"
+					style="@style/CardCheckbox"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:tag="want"
@@ -316,7 +319,7 @@
 
 				<CheckBox
 					android:id="@+id/forTradeView"
-					style="@style/EditCheckbox.Card"
+					style="@style/CardCheckbox"
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
 					android:tag="for_trade"
@@ -355,7 +358,7 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:textAppearance="@style/Text.Footnote"
+			android:textAppearance="@style/TextAppearance.Caption.Primary"
 			app:format="@string/last_modified_prefix"
 			app:hideWhenEmpty="true"
 			tools:text="Last modified Yesterday" />
@@ -365,7 +368,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:paddingLeft="@dimen/padding_standard"
-			android:textAppearance="@style/Text.Footnote2"
+			android:textAppearance="@style/TextAppearance.Caption.Secondary"
 			tools:text="123456" />
 	</LinearLayout>
 
@@ -376,7 +379,7 @@
 		android:paddingLeft="@dimen/material_margin_horizontal"
 		android:paddingRight="@dimen/material_margin_horizontal"
 		android:paddingBottom="@dimen/fab_buffer"
-		android:textAppearance="@style/Text.Footnote"
+		android:textAppearance="@style/TextAppearance.Caption.Primary"
 		app:emptyMessage="@string/needs_updating"
 		app:format="@string/synced_prefix"
 		tools:text="Synced: 3 days ago" />

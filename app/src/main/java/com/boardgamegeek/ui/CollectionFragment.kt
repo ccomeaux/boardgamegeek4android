@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
@@ -50,7 +51,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     private val binding get() = _binding!!
     private var viewId = CollectionView.DEFAULT_DEFAULT_ID
     private var viewName = ""
-    private var sorter: CollectionSorter? = null
+    private var sorter: Pair<CollectionSorter, Boolean>? = null
     private val filters = mutableListOf<CollectionFilterer>()
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = 0
@@ -68,7 +69,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         firebaseAnalytics = Firebase.analytics
         isCreatingShortcut = arguments?.getBoolean(KEY_IS_CREATING_SHORTCUT) ?: false
         changingGamePlayId = arguments?.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong()) ?: BggContract.INVALID_ID.toLong()
-        setHasOptionsMenu(true)
     }
 
     @Suppress("RedundantNullableReturnType")
@@ -131,20 +131,15 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         }
         viewModel.effectiveSortType.observe(viewLifecycleOwner) { sortType: Int ->
             sorter = collectionSorterFactory.create(sortType)
-            binding.sortDescriptionView.text =
-                if (sorter == null) "" else requireActivity().getString(R.string.by_prefix, sorter?.description.orEmpty())
-            val hasFiltersApplied = filters.size > 0
-            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT } ?: false
-            binding.footerToolbar.menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
+            bindSortAndFilterButtons()
         }
         viewModel.effectiveFilters.observe(viewLifecycleOwner) { filterList ->
-            filters.clear()
-            filterList?.let { filters.addAll(filterList) }
-            setEmptyText()
-            bindFilterButtons()
-            val hasFiltersApplied = filters.size > 0
-            val hasSortApplied = sorter?.let { it.type != CollectionSorterFactory.TYPE_DEFAULT } ?: false
-            binding.footerToolbar.menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
+            filterList?.let {
+                filters.clear()
+                filters.addAll(it)
+                setEmptyText()
+                bindSortAndFilterButtons()
+            }
         }
         viewModel.items.observe(viewLifecycleOwner) {
             it?.let { showData(it) }
@@ -201,13 +196,12 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_sort -> {
-                CollectionSortDialogFragment.newInstance(sorter?.type ?: CollectionSorterFactory.TYPE_DEFAULT)
+                CollectionSortDialogFragment.newInstance(sorter?.first?.getType(sorter?.second ?: false) ?: CollectionSorterFactory.TYPE_DEFAULT)
                     .show(this@CollectionFragment.parentFragmentManager, "collection_sort")
                 return@OnMenuItemClickListener true
             }
             R.id.menu_collection_filter -> {
-                CollectionFilterDialogFragment.newInstance(filters.map { it.type })
-                    .show(this@CollectionFragment.parentFragmentManager, "collection_filter")
+                CollectionFilterDialogFragment().show(this@CollectionFragment.parentFragmentManager, "collection_filter")
                 return@OnMenuItemClickListener true
             }
         }
@@ -270,25 +264,74 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         binding.emptyButton.isVisible = false
     }
 
-    private fun bindFilterButtons() {
-        binding.chipGroup.removeAllViews()
-        for (filter in filters) {
-            if (filter.isValid) {
-                binding.chipGroup.addView(Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter).apply {
-                    layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    text = filter.chipText()
-                    if (filter.iconResourceId != CollectionFilterer.INVALID_ICON) {
-                        chipIcon = AppCompatResources.getDrawable(requireContext(), filter.iconResourceId)
-                        chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
+    @Suppress("SameParameterValue")
+    private fun findOrCreateSortChip(sortTag: String): Chip {
+        return binding.chipGroup.findViewWithTag(sortTag) ?: Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Choice).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            tag = sortTag
+            binding.chipGroup.addView(this)
+        }
+    }
+
+    private fun findOrCreateFilterChip(filterType: Int): Chip {
+        return binding.chipGroup.findViewWithTag(filterType.toString()) ?: Chip(
+            requireContext(),
+            null,
+            R.style.Widget_MaterialComponents_Chip_Filter
+        ).apply {
+            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            tag = filterType.toString()
+            binding.chipGroup.addView(this)
+        }
+    }
+
+    private fun bindSortAndFilterButtons() {
+        val sortTag = "SORT"
+
+        sorter?.let {
+            findOrCreateSortChip(sortTag).apply {
+                if (it.first.getType(it.second) != CollectionSorterFactory.TYPE_DEFAULT) {
+                    text = it.first.description
+                    chipIcon = AppCompatResources.getDrawable(
+                        requireContext(),
+                        if (it.second) R.drawable.ic_baseline_arrow_downward_24 else R.drawable.ic_baseline_arrow_upward_24
+                    )
+                    chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
+                    setOnClickListener { _ ->
+                        collectionSorterFactory.reverse(it.first.getType(it.second))?.let { reversedSortType ->
+                            viewModel.setSort(reversedSortType)
+                        }
                     }
-                    setOnClickListener { launchFilterDialog(filter.type) }
-                    setOnLongClickListener {
-                        viewModel.removeFilter(filter.type)
-                        true
-                    }
-                })
+                } else binding.chipGroup.removeView(this)
             }
         }
+
+        val existingTags = binding.chipGroup.children.map { it.tag.toString() }.toList()
+
+        for (filter in filters.filter { it.isValid }) {
+            findOrCreateFilterChip(filter.type).apply {
+                text = filter.chipText()
+                if (filter.iconResourceId != CollectionFilterer.INVALID_ICON) {
+                    chipIcon = AppCompatResources.getDrawable(requireContext(), filter.iconResourceId)
+                    chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
+                    isChipIconVisible = true
+                } else isChipIconVisible = false
+                setOnClickListener { launchFilterDialog(filter.type) }
+                setOnLongClickListener {
+                    viewModel.removeFilter(filter.type)
+                    true
+                }
+            }
+        }
+
+        val usedTags = filters.filter { it.isValid }.map { it.type.toString() } + sortTag
+        val tagsToRemove = existingTags - usedTags.toSet()
+        tagsToRemove.forEach { tag ->
+            binding.chipGroup.findViewWithTag<Chip>(tag)?.let { chip ->
+                binding.chipGroup.removeView(chip)
+            }
+        }
+
         val show = binding.chipGroup.childCount > 0
         if (show) {
             binding.chipGroupScrollView.slideUpIn()
@@ -298,12 +341,16 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         binding.swipeRefreshLayout.updatePadding(
             bottom = if (show) resources.getDimensionPixelSize(R.dimen.chip_group_height) else 0
         )
+
+        val hasFiltersApplied = filters.size > 0
+        val hasSortApplied = sorter?.let { it.first.getType(it.second) != CollectionSorterFactory.TYPE_DEFAULT } ?: false
+        binding.footerToolbar.menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
     }
 
-    fun launchFilterDialog(filterType: Int): Boolean {
+    private fun launchFilterDialog(filterType: Int): Boolean {
         val dialog = CollectionFilterDialogFactory().create(requireContext(), filterType)
         return if (dialog != null) {
-            dialog.createDialog(requireActivity(), filters.firstOrNull { it.type == filterType })
+            dialog.createDialog(requireActivity(), filters.find { it.type == filterType })
             true
         } else {
             Timber.w("Couldn't find a filter dialog of type %s", filterType)
@@ -371,19 +418,30 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
             fun bindView(item: CollectionItemEntity?, position: Int) {
                 if (item == null) return
+                binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
                 binding.nameView.text = item.collectionName
                 binding.yearView.text = item.yearPublished.asYear(context)
-                binding.timestampView.timestamp = sorter?.getTimestamp(item) ?: 0L
                 binding.favoriteView.isVisible = item.isFavorite
-                val ratingText = sorter?.getRatingText(item).orEmpty()
-                binding.ratingView.setTextOrHide(ratingText)
-                if (ratingText.isNotEmpty()) {
-                    sorter?.getRating(item)?.let { binding.ratingView.setTextViewBackground(it.toColor(BggColors.ratingColors)) }
+
+                val timestamp = sorter?.first?.getTimestamp(item) ?: 0L
+                val ratingText = sorter?.first?.getRatingText(item).orEmpty()
+                if (timestamp > 0L) {
+                    binding.timestampView.isVisible = true
+                    binding.timestampView.timestamp = timestamp
+                    binding.ratingView.isVisible = false
+                    binding.infoView.isVisible = false
+                } else if (ratingText.isNotEmpty()) {
+                    val rating = sorter?.first?.getRating(item) ?: 0.0
+                    binding.timestampView.isVisible = false
+                    binding.ratingView.setTextOrHide(ratingText)
+                    binding.ratingView.setTextViewBackground(rating.toColor(BggColors.ratingColors))
                     binding.infoView.isVisible = false
                 } else {
-                    binding.infoView.setTextOrHide(sorter?.getDisplayInfo(item))
+                    binding.timestampView.isVisible = false
+                    binding.ratingView.isVisible = false
+                    binding.infoView.setTextOrHide(sorter?.first?.getDisplayInfo(item))
                 }
-                binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
+
                 itemView.isActivated = selectedItems[position, false]
                 itemView.setOnClickListener {
                     when {
@@ -434,7 +492,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
         override fun getSectionHeader(position: Int): CharSequence {
             val item = items.getOrNull(position) ?: return "-"
-            return sorter?.getHeaderText(item) ?: return "-"
+            return sorter?.first?.getHeaderText(item) ?: return "-"
         }
     }
 
@@ -450,6 +508,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         menu.findItem(R.id.menu_log_play_form)?.isVisible = count == 1
         menu.findItem(R.id.menu_log_play_wizard)?.isVisible = count == 1
         menu.findItem(R.id.menu_link)?.isVisible = count == 1
+        // TODO: disable Navigation Drawer open/close when the ActionBar is enabled
         return true
     }
 
@@ -502,14 +561,21 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         return true
     }
 
-    private fun createViewDescription(sort: CollectionSorter?, filters: List<CollectionFilterer>): String {
+    private fun createViewDescription(sort: Pair<CollectionSorter, Boolean>?, filters: List<CollectionFilterer>): String {
         val text = StringBuilder()
         if (filters.isNotEmpty()) {
             text.append(getString(R.string.filtered_by))
             filters.map { "\n\u2022 ${it.description()}" }.forEach { text.append(it) }
         }
         text.append("\n\n")
-        sort?.let { if (it.type != CollectionSorterFactory.TYPE_DEFAULT) text.append(getString(R.string.sort_description, it.description)) }
+        sort?.let {
+            if (it.first.getType(it.second) != CollectionSorterFactory.TYPE_DEFAULT) text.append(
+                getString(
+                    R.string.sort_description,
+                    it.first.description
+                )
+            )
+        }
         return text.trim().toString()
     }
 

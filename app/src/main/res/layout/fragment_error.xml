@@ -13,5 +13,5 @@
 		android:paddingRight="@dimen/material_margin_horizontal"
 		android:paddingTop="@dimen/padding_standard"
 		android:text="@string/msg_fragment_error"
-		android:textAppearance="@style/Text.Empty" />
+		android:textAppearance="@style/TextAppearance.Empty" />
 </ScrollView>

@@ -32,7 +32,6 @@
 
 		<TextView
 			android:id="@+id/emptyTextView"
-			style="@style/Text.Empty"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center"
@@ -41,6 +40,7 @@
 			android:paddingRight="@dimen/material_margin_horizontal"
 			android:paddingBottom="@dimen/material_margin_vertical"
 			android:text="@string/empty_categories"
+			android:textAppearance="@style/TextAppearance.Empty"
 			android:visibility="gone" />
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

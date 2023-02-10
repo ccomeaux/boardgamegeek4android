@@ -55,7 +55,7 @@ class GameDetailRow @JvmOverloads constructor(
 
         descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         gravity = Gravity.CENTER_VERTICAL
-        minimumHeight = resources.getDimensionPixelSize(R.dimen.game_detail_row_height)
+        minimumHeight = resources.getDimensionPixelSize(R.dimen.game_row_height)
         orientation = HORIZONTAL
 
         context.withStyledAttributes(attrs, R.styleable.GameDetailRow, defStyleAttr, defStyleRes) {
@@ -94,8 +94,8 @@ class GameDetailRow @JvmOverloads constructor(
                             ProducerType.ARTIST -> PersonActivity.startForArtist(context, id, name)
                             ProducerType.DESIGNER -> PersonActivity.startForDesigner(context, id, name)
                             ProducerType.PUBLISHER -> PersonActivity.startForPublisher(context, id, name)
-                            ProducerType.EXPANSIONS,
-                            ProducerType.BASE_GAMES -> {
+                            ProducerType.EXPANSION,
+                            ProducerType.BASE_GAME -> {
                                 GameActivity.start(context, id, name)
                             }
                             else -> GameDetailActivity.start(context, label, gameId, gameName, type)

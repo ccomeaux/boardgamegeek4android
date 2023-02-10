@@ -8,11 +8,7 @@ import java.util.*
 fun @receiver:ColorInt Int.darkenColor(): Int {
     return if (this == Color.TRANSPARENT) {
         Color.argb(127, 127, 127, 127)
-    } else Color.rgb(
-        Color.red(this) * 192 / 256,
-        Color.green(this) * 192 / 256,
-        Color.blue(this) * 192 / 256
-    )
+    } else blendWith(Color.BLACK, 0.5)
 }
 
 @ColorInt
@@ -29,7 +25,7 @@ fun @receiver:ColorInt Int.getTextColor(): Int {
  * http://en.wikipedia.org/wiki/HSV_color_space%23Lightness
  */
 fun @receiver:ColorInt Int.isColorDark(): Boolean {
-    return (30 * Color.red(this) + 59 * Color.green(this) + 11 * Color.blue(this)) / 100 <= 130
+    return (299 * Color.red(this) + 587 * Color.green(this) + 114 * Color.blue(this)) / 1000f < 128
 }
 
 fun Int.blendWith(color: Int, ratio: Double): Int {

@@ -41,7 +41,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/empty_comments"
-				android:textAppearance="@style/Text.Big" />
+				android:textAppearance="@style/TextAppearance.Big" />
 		</LinearLayout>
 	</androidx.core.widget.NestedScrollView>
 

@@ -1,192 +1,228 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	tools:context=".ui.GameActivity"
 	tools:ignore="ContentDescription">
 
-	<LinearLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:orientation="vertical"
-		android:paddingLeft="@dimen/material_margin_horizontal"
-		android:paddingTop="@dimen/padding_standard"
-		android:paddingRight="@dimen/material_margin_horizontal"
-		android:paddingBottom="@dimen/padding_standard">
+		android:paddingVertical="@dimen/padding_standard"
+		app:layout_optimizationLevel="none">
 
-		<LinearLayout
+		<ImageView
+			android:id="@+id/geekbuddyAnalysisLinkIcon"
+			style="@style/Icon"
+			android:layout_marginLeft="@dimen/material_margin_horizontal"
+			android:src="@drawable/ic_baseline_person_24"
+			app:layout_constraintEnd_toStartOf="@+id/geekbuddyAnalysisLinkText"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent" />
+
+		<TextView
+			android:id="@+id/geekbuddyAnalysisLinkText"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:text="@string/link_geekbuddy_analysis"
+			android:textAppearance="@style/TextAppearance.Primary"
+			app:layout_constraintBottom_toBottomOf="@id/geekbuddyAnalysisLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@id/geekbuddyAnalysisLinkIcon"
+			app:layout_constraintTop_toTopOf="@id/geekbuddyAnalysisLinkIcon" />
+
+		<View
 			android:id="@+id/geekbuddyAnalysisLink"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="?attr/selectableItemBackground"
 			android:descendantFocusability="blocksDescendants"
 			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
-			android:orientation="horizontal">
+			android:minHeight="@dimen/game_row_height"
+			app:layout_constraintBottom_toBottomOf="@id/geekbuddyAnalysisLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@id/geekbuddyAnalysisLinkIcon" />
 
-			<ImageView
-				android:id="@+id/geekbuddyAnalysisLinkIcon"
-				style="@style/Icon"
-				android:src="@drawable/ic_baseline_person_24" />
+		<ImageView
+			android:id="@+id/bggLinkIcon"
+			style="@style/Icon"
+			android:layout_marginLeft="@dimen/material_margin_horizontal"
+			android:src="@drawable/ic_baseline_open_in_browser_24"
+			app:layout_constraintEnd_toStartOf="@+id/bggLinkText"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/geekbuddyAnalysisLink" />
 
-			<TextView
-				style="@style/Text"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:text="@string/link_geekbuddy_analysis" />
-		</LinearLayout>
+		<TextView
+			android:id="@+id/bggLinkText"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:text="@string/link_bgg"
+			android:textAppearance="@style/TextAppearance.Primary"
+			app:layout_constraintBottom_toBottomOf="@id/bggLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@id/bggLinkIcon"
+			app:layout_constraintTop_toTopOf="@id/bggLinkIcon" />
 
-		<LinearLayout
+		<View
 			android:id="@+id/bggLink"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="?attr/selectableItemBackground"
-			android:descendantFocusability="blocksDescendants"
+			android:minHeight="@dimen/game_row_height"
+			app:layout_constraintBottom_toBottomOf="@id/bggLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@id/bggLinkIcon" />
+
+		<ImageView
+			android:id="@+id/bgPricesLinkIcon"
+			style="@style/Icon"
+			android:layout_marginLeft="@dimen/material_margin_horizontal"
+			android:src="@drawable/ic_baseline_local_atm_24"
+			app:layout_constraintEnd_toStartOf="@id/bgPricesLinkText"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/bggLink" />
+
+		<TextView
+			android:id="@+id/bgPricesLinkText"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
 			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
-			android:orientation="horizontal">
+			android:maxLines="1"
+			android:text="@string/link_bg_prices"
+			android:textAppearance="@style/TextAppearance.Primary"
+			app:layout_constraintBottom_toBottomOf="@id/bgPricesLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@id/bgPricesLinkIcon"
+			app:layout_constraintTop_toTopOf="@id/bgPricesLinkIcon" />
 
-			<ImageView
-				android:id="@+id/bggLinkIcon"
-				style="@style/Icon"
-				android:src="@drawable/ic_baseline_open_in_browser_24" />
-
-			<TextView
-				style="@style/Text"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:text="@string/link_bgg" />
-		</LinearLayout>
-
-		<RelativeLayout
+		<View
+			android:id="@+id/bgPricesLink"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center_vertical">
+			android:background="?attr/selectableItemBackground"
+			android:minHeight="@dimen/game_row_height"
+			app:layout_constraintBottom_toBottomOf="@id/bgPricesLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@id/bgPricesLinkIcon" />
 
-			<ImageView
-				android:id="@+id/bgPricesLinkIcon"
-				style="@style/Icon"
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentStart="true"
-				android:layout_alignParentTop="true"
-				android:src="@drawable/ic_baseline_local_atm_24" />
+		<TextView
+			android:id="@+id/bgPricesUkLink"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:background="?attr/selectableItemBackground"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:minHeight="@dimen/game_row_height"
+			android:paddingStart="@dimen/material_indent_horizontal"
+			android:text="@string/link_bg_prices_uk"
+			android:textAppearance="@style/TextAppearance.Primary"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/bgPricesLink" />
 
-			<TextView
-				android:id="@+id/bgPricesLink"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentTop="true"
-				android:layout_toEndOf="@id/bgPricesLinkIcon"
-				android:layout_toRightOf="@id/bgPricesLinkIcon"
-				android:background="?attr/selectableItemBackground"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_bg_prices"
-				android:textAppearance="@style/Text" />
+		<ImageView
+			android:id="@+id/amazonLinkIcon"
+			style="@style/Icon"
+			android:layout_marginLeft="@dimen/material_margin_horizontal"
+			android:src="@drawable/ic_action_amazon"
+			app:layout_constraintEnd_toStartOf="@id/amazonLinkText"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/bgPricesUkLink" />
 
-			<TextView
-				android:id="@+id/bgPricesUkLink"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_below="@id/bgPricesLink"
-				android:layout_toEndOf="@id/bgPricesLinkIcon"
-				android:layout_toRightOf="@id/bgPricesLinkIcon"
-				android:background="?attr/selectableItemBackground"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_bg_prices_uk"
-				android:textAppearance="@style/Text" />
-		</RelativeLayout>
+		<TextView
+			android:id="@+id/amazonLinkText"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:text="@string/link_amazon"
+			android:textAppearance="@style/TextAppearance.Primary"
+			app:layout_constraintBottom_toBottomOf="@id/amazonLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@id/amazonLinkIcon"
+			app:layout_constraintTop_toTopOf="@id/amazonLinkIcon" />
 
-		<RelativeLayout
+		<View
+			android:id="@+id/amazonLink"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center_vertical">
+			android:background="?attr/selectableItemBackground"
+			android:minHeight="@dimen/game_row_height"
+			app:layout_constraintBottom_toBottomOf="@id/amazonLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@id/amazonLinkIcon" />
 
-			<ImageView
-				android:id="@+id/amazonLinkIcon"
-				style="@style/Icon"
-				android:layout_alignParentLeft="true"
-				android:layout_alignParentStart="true"
-				android:layout_alignParentTop="true"
-				android:src="@drawable/ic_action_amazon" />
+		<TextView
+			android:id="@+id/amazonUkLink"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:background="?attr/selectableItemBackground"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:minHeight="@dimen/game_row_height"
+			android:paddingStart="@dimen/material_indent_horizontal"
+			android:text="@string/link_amazon_uk"
+			android:textAppearance="@style/TextAppearance.Primary"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/amazonLink" />
 
-			<TextView
-				android:id="@+id/amazonLink"
-				style="@style/Text"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_alignParentTop="true"
-				android:layout_toEndOf="@id/amazonLinkIcon"
-				android:layout_toRightOf="@id/amazonLinkIcon"
-				android:background="?attr/selectableItemBackground"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon" />
+		<TextView
+			android:id="@+id/amazonDeLink"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:background="?attr/selectableItemBackground"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:minHeight="@dimen/game_row_height"
+			android:paddingStart="@dimen/material_indent_horizontal"
+			android:text="@string/link_amazon_de"
+			android:textAppearance="@style/TextAppearance.Primary"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/amazonUkLink" />
 
-			<TextView
-				android:id="@+id/amazonUkLink"
-				style="@style/Text"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_below="@+id/amazonLink"
-				android:layout_toEndOf="@id/amazonLinkIcon"
-				android:layout_toRightOf="@id/amazonLinkIcon"
-				android:background="?attr/selectableItemBackground"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon_uk" />
+		<ImageView
+			android:id="@+id/ebayLinkIcon"
+			style="@style/Icon"
+			android:layout_marginLeft="@dimen/material_margin_horizontal"
+			android:src="@drawable/ic_baseline_gavel_24"
+			app:layout_constraintEnd_toStartOf="@id/ebayLinkText"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/amazonDeLink" />
 
-			<TextView
-				android:id="@+id/amazonDeLink"
-				style="@style/Text"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_below="@+id/amazonUkLink"
-				android:layout_toEndOf="@id/amazonLinkIcon"
-				android:layout_toRightOf="@id/amazonLinkIcon"
-				android:background="?attr/selectableItemBackground"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:minHeight="@dimen/edit_row_height"
-				android:text="@string/link_amazon_de" />
-		</RelativeLayout>
+		<TextView
+			android:id="@+id/ebayLinkText"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:gravity="center_vertical"
+			android:maxLines="1"
+			android:text="@string/link_ebay"
+			android:textAppearance="@style/TextAppearance.Primary"
+			app:layout_constraintBottom_toBottomOf="@id/ebayLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@id/ebayLinkIcon"
+			app:layout_constraintTop_toTopOf="@id/ebayLinkIcon" />
 
-		<LinearLayout
+		<View
 			android:id="@+id/ebayLink"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:background="?attr/selectableItemBackground"
-			android:descendantFocusability="blocksDescendants"
-			android:gravity="center_vertical"
-			android:minHeight="@dimen/edit_row_height"
-			android:orientation="horizontal">
-
-			<ImageView
-				android:id="@+id/ebayLinkIcon"
-				style="@style/Icon"
-				android:src="@drawable/ic_baseline_gavel_24" />
-
-			<TextView
-				style="@style/Text"
-				android:layout_width="0dp"
-				android:layout_height="match_parent"
-				android:layout_weight="1"
-				android:gravity="center_vertical"
-				android:maxLines="1"
-				android:text="@string/link_ebay" />
-		</LinearLayout>
-	</LinearLayout>
+			android:minHeight="@dimen/game_row_height"
+			app:layout_constraintBottom_toBottomOf="@id/ebayLinkIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@id/ebayLinkIcon" />
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

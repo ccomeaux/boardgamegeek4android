@@ -1,13 +1,17 @@
 package com.boardgamegeek.ui.dialog
 
 import android.app.Dialog
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.RadioButton
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
@@ -17,6 +21,8 @@ import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import timber.log.Timber
@@ -24,8 +30,9 @@ import timber.log.Timber
 class CollectionSortDialogFragment : DialogFragment() {
     private var _binding: DialogCollectionSortBinding? = null
     private val binding get() = _binding!!
-
+    private var selectedType: Int = CollectionSorterFactory.TYPE_DEFAULT
     private val viewModel by activityViewModels<CollectionViewViewModel>()
+    private val factory by lazy { CollectionSorterFactory(requireContext()) }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogCollectionSortBinding.inflate(layoutInflater)
@@ -38,27 +45,34 @@ class CollectionSortDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val selectedType = arguments?.getInt(KEY_SORT_TYPE) ?: CollectionSorterFactory.TYPE_DEFAULT
+        selectedType = arguments?.getInt(KEY_SORT_TYPE) ?: CollectionSorterFactory.TYPE_DEFAULT
 
         if (requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS, false] != true) {
-            hideRadioButtonIfNotSelected(binding.playDateMaxRadioButton, selectedType)
-            hideRadioButtonIfNotSelected(binding.playDateMinRadioButton, selectedType)
+            if (findChipByType(selectedType, binding.container) !== binding.playDate) {
+                binding.playDate.isVisible = false
+            }
         }
 
-        createNames()
-        val radioButton = findRadioButtonByType(selectedType)
-        radioButton?.isChecked = true
-        binding.scrollContainer.requestChildFocus(radioButton, radioButton)
-        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
-            val sortType = getTypeFromView(group.findViewById(checkedId))
-            Timber.d("Sort by $sortType")
-            viewModel.setSort(sortType)
-            FirebaseAnalytics.getInstance(requireContext()).logEvent("Sort") {
-                param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
-                param("SortBy", sortType.toString())
-            }
-            dismiss()
+        createNames(binding.container)
+
+        findChipByType(selectedType, binding.container)?.let {
+            selectChip(it, factory.create(selectedType)?.second ?: false)
         }
+
+        wireUp(binding.container)
+    }
+
+    private fun selectChip(chip: Chip, direction: Boolean) {
+        chip.isChecked = true
+        chip.chipIcon = AppCompatResources.getDrawable(
+            requireContext(), if (direction)
+                R.drawable.ic_baseline_arrow_downward_24
+            else
+                R.drawable.ic_baseline_arrow_upward_24
+        )
+        chip.chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
+        chip.isChipIconVisible = true
+        binding.scrollContainer.scrollToDescendant(chip)
     }
 
     override fun onDestroyView() {
@@ -66,39 +80,69 @@ class CollectionSortDialogFragment : DialogFragment() {
         _binding = null
     }
 
-    private fun hideRadioButtonIfNotSelected(radioButton: RadioButton, selectedType: Int) {
-        if (findRadioButtonByType(selectedType) !== radioButton) {
-            radioButton.visibility = View.GONE
+    private fun createNames(view: View) {
+        if (view is ChipGroup)
+            view.children.filterIsInstance<Chip>().forEach {
+                val sortType = getSortTypeFromView(it)
+                val sorter = factory.create(sortType)?.first
+                it.text = sorter?.description.orEmpty()
+            }
+        else if (view is ViewGroup)
+            view.children.forEach { createNames(it) }
+    }
+
+    private fun wireUp(view: View) {
+        if (view is ChipGroup)
+            view.setOnCheckedStateChangeListener { group, checkedIds ->
+                val checkedId = checkedIds.firstOrNull() ?: View.NO_ID
+                val sortType = if (checkedId != View.NO_ID) {
+                    getSortTypeFromView(group.findViewById(checkedId))
+                } else {
+                    factory.reverse(selectedType)
+                } ?: CollectionSorterFactory.TYPE_DEFAULT
+                Timber.d("Sort by $sortType")
+                viewModel.setSort(sortType)
+                FirebaseAnalytics.getInstance(requireContext()).logEvent("Sort") {
+                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
+                    param("SortBy", sortType.toString())
+                }
+                dismiss()
+            }
+        else if (view is ViewGroup)
+            view.children.forEach { wireUp(it) }
+    }
+
+    private fun findChipByType(type: Int, view: View): Chip? {
+        return when (view) {
+            is ChipGroup -> {
+                val chip = view.children.filterIsInstance<Chip>().find {
+                    getSortTypeFromView(it) == type
+                }
+                if (chip == null) {
+                    val reversedType = factory.reverse(type)
+                    view.children.filterIsInstance<Chip>().find {
+                        getSortTypeFromView(it) == reversedType
+                    }
+                } else chip
+            }
+            is ViewGroup -> {
+                view.children.forEach {
+                    val chip = findChipByType(type, it)
+                    if (chip != null) return chip
+                }
+                null
+            }
+            else -> null
         }
     }
 
-    private fun createNames() {
-        val factory = CollectionSorterFactory(requireContext())
-
-        binding.radioGroup.children.filterIsInstance<RadioButton>().forEach {
-            val sortType = getTypeFromView(it)
-            val sorter = factory.create(sortType)
-            it.text = sorter?.description.orEmpty()
-        }
-    }
-
-    private fun findRadioButtonByType(type: Int): RadioButton? {
-        return binding.radioGroup.children.filterIsInstance<RadioButton>().find {
-            getTypeFromView(it) == type
-        }
-    }
-
-    private fun getTypeFromView(view: View): Int {
-        return view.tag.toString().toIntOrNull() ?: CollectionSorterFactory.TYPE_UNKNOWN
-    }
+    private fun getSortTypeFromView(view: View) = view.tag?.toString()?.toIntOrNull() ?: CollectionSorterFactory.TYPE_UNKNOWN
 
     companion object {
         private const val KEY_SORT_TYPE = "sort_type"
 
         fun newInstance(sortType: Int) = CollectionSortDialogFragment().apply {
-            arguments = Bundle().apply {
-                putInt(KEY_SORT_TYPE, sortType)
-            }
+            arguments = bundleOf(KEY_SORT_TYPE to sortType)
         }
     }
 }

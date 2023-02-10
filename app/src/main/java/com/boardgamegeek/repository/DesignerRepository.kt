@@ -29,7 +29,7 @@ class DesignerRepository(val application: BggApplication) {
     suspend fun delete() = dao.delete()
 
     suspend fun refreshDesigner(designerId: Int): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().person(BggService.PERSON_TYPE_DESIGNER, designerId)
+        val response = Adapter.createForXml().person(BggService.PersonType.DESIGNER, designerId)
         val missingDesignerMessage = "This page does not exist. You can edit this page to create it."
         dao.upsert(
             designerId, contentValuesOf(
@@ -67,26 +67,25 @@ class DesignerRepository(val application: BggApplication) {
         val maxProgress = sortedList.size
         sortedList.forEachIndexed { i, data ->
             progress.postValue(i to maxProgress)
-            val collection = dao.loadCollection(data.id)
-            val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
-            updateWhitmoreScore(data.id, statsEntity.whitmoreScore, data.whitmoreScore)
+            calculateStats(data.id, data.whitmoreScore)
         }
         prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS] = System.currentTimeMillis()
         progress.postValue(0 to 0)
     }
 
-    suspend fun calculateStats(designerId: Int): PersonStatsEntity = withContext(Dispatchers.Default) {
+    suspend fun calculateStats(designerId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
         val collection = dao.loadCollection(designerId)
-        val linkedCollection = PersonStatsEntity.fromLinkedCollection(collection, application)
-        updateWhitmoreScore(designerId, linkedCollection.whitmoreScore)
-        linkedCollection
+        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
+        updateWhitmoreScore(designerId, statsEntity.whitmoreScore, whitmoreScore)
+        statsEntity
     }
 
     private suspend fun updateWhitmoreScore(id: Int, newScore: Int, oldScore: Int = -1) = withContext(Dispatchers.IO) {
         val realOldScore = if (oldScore == -1) dao.loadDesigner(id)?.whitmoreScore ?: 0 else oldScore
         if (newScore != realOldScore) {
             dao.upsert(
-                id, contentValuesOf(
+                id,
+                contentValuesOf(
                     Designers.Columns.WHITMORE_SCORE to newScore,
                     Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
                 )

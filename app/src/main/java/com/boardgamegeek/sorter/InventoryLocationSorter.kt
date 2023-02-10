@@ -8,15 +8,21 @@ import com.boardgamegeek.entities.CollectionItemEntity
 class InventoryLocationSorter(context: Context) : CollectionSorter(context) {
     private val nowhere = context.getString(R.string.nowhere_in_angle_brackets)
 
-    @StringRes
-    public override val typeResId = R.string.collection_sort_type_inventory_location
+    override val ascendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_inventory_location
 
-    @StringRes
-    override val descriptionResId = R.string.collection_sort_inventory_location
+    override val descendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_inventory_location_desc
 
-    override fun sort(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
-        return items.sortedBy { it.inventoryLocation }
-    }
+    override val descriptionResId: Int
+        @StringRes
+        get() = R.string.collection_sort_inventory_location
+
+    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.inventoryLocation }
+
+    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.inventoryLocation }
 
     override fun getHeaderText(item: CollectionItemEntity) = item.inventoryLocation.ifBlank { nowhere }
 }

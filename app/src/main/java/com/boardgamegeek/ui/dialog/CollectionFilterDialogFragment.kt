@@ -1,41 +1,37 @@
 package com.boardgamegeek.ui.dialog
 
 import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogCollectionFilterBinding
+import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
+import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import timber.log.Timber
 
 class CollectionFilterDialogFragment : DialogFragment() {
     private var _binding: DialogCollectionFilterBinding? = null
     private val binding get() = _binding!!
-    private var listener: Listener? = null
-
-    interface Listener {
-        fun onFilterSelected(filterType: Int)
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        listener = context as Listener?
-        if (listener == null) throw ClassCastException("$context must implement Listener")
-    }
+    private val filters = mutableListOf<CollectionFilterer>()
+    private val viewModel by activityViewModels<CollectionViewViewModel>()
+    private val factory by lazy { CollectionFiltererFactory(requireContext()) }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogCollectionFilterBinding.inflate(layoutInflater)
-
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
             .setView(binding.root)
-            .setTitle(R.string.title_filter).create()
+            .setTitle(R.string.title_filter)
+            .create()
     }
 
     @Suppress("RedundantNullableReturnType")
@@ -44,25 +40,42 @@ class CollectionFilterDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        for (filterType in arguments?.getIntegerArrayList(KEY_FILTER_TYPES) ?: arrayListOf<Int>()) {
-            binding.statusContainer.children
-                .filterIsInstance<CheckBox>()
-                .find { filterType == getTypeFromViewTag(it) }
-                ?.let {
-                    it.isChecked = true
-                }
+        viewModel.effectiveFilters.observe(viewLifecycleOwner) {
+            filters.clear()
+            it?.let { filters.addAll(it) }
+            bindUi()
         }
+    }
 
-        binding.statusContainer.children.filterIsInstance<CheckBox>().forEach {
-            it.setOnClickListener { view ->
-                val type = getTypeFromViewTag(view)
-                if (type != CollectionFiltererFactory.TYPE_UNKNOWN) {
-                    Timber.d("Filter by %s", type)
-                    listener?.onFilterSelected(type)
-                } else {
-                    Timber.w("Invalid filter type selected: %s", type)
+    private fun bindUi() {
+        binding.container.children.filterIsInstance<ChipGroup>().forEach {
+            it.children.filterIsInstance<Chip>().forEach { chip ->
+                val type = getTypeFromViewTag(chip)
+                if (filters.map { filter -> filter.type }.contains(type)) {
+                    chip.isChecked = true
+                    chip.isCloseIconVisible = true
                 }
-                dismiss()
+
+                factory.create(type)?.let { filter ->
+                    chip.checkedIcon = ContextCompat.getDrawable(requireContext(), filter.iconResourceId)
+                }
+
+                chip.setOnClickListener {
+                    if (type != CollectionFiltererFactory.TYPE_UNKNOWN) {
+                        Timber.d("Filter by %s", type)
+                        CollectionFilterDialogFactory().create(requireContext(), type)?.let { dialog ->
+                            dialog.createDialog(requireActivity(), filters.find { filter -> filter.type == type })
+                        } ?: Timber.w("Couldn't find a filter dialog of type %s", type)
+                    } else {
+                        Timber.w("Invalid filter type selected: %s", type)
+                    }
+                    dismiss()
+                }
+
+                chip.setOnCloseIconClickListener {
+                    viewModel.removeFilter(type)
+                    dismiss()
+                }
             }
         }
     }
@@ -72,16 +85,5 @@ class CollectionFilterDialogFragment : DialogFragment() {
         _binding = null
     }
 
-    private fun getTypeFromViewTag(it: View) =
-        it.tag.toString().toIntOrNull() ?: CollectionFiltererFactory.TYPE_UNKNOWN
-
-    companion object {
-        private const val KEY_FILTER_TYPES = "filter_types"
-
-        fun newInstance(filterTypes: List<Int>) = CollectionFilterDialogFragment().apply {
-            arguments = Bundle().apply {
-                putIntegerArrayList(KEY_FILTER_TYPES, ArrayList(filterTypes))
-            }
-        }
-    }
+    private fun getTypeFromViewTag(it: View) = it.tag?.toString()?.toIntOrNull() ?: CollectionFiltererFactory.TYPE_UNKNOWN
 }

@@ -4,7 +4,7 @@
 	tools:gravity="center_vertical"
 	tools:layout_height="wrap_content"
 	tools:layout_width="match_parent"
-	tools:minHeight="@dimen/game_detail_row_height"
+	tools:minHeight="@dimen/game_row_height"
 	tools:orientation="horizontal"
 	tools:parentTag="android.widget.LinearLayout">
 
@@ -23,19 +23,19 @@
 
 		<TextView
 			android:id="@+id/dataView"
-			style="@style/Text"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:maxLines="2"
+			android:textAppearance="@style/TextAppearance.Primary"
 			tools:text="Wolfgang Kramer &amp; Richard Ulrich" />
 
 		<TextView
 			android:id="@+id/descriptionView"
-			style="@style/Text.Secondary"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:ellipsize="end"
 			android:maxLines="1"
+			android:textAppearance="@style/TextAppearance.Secondary"
 			android:visibility="gone"
 			tools:text="Owned &amp; Want to Play" />
 	</LinearLayout>

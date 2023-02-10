@@ -84,7 +84,7 @@ class SyncCollectionUnupdated(
                         break
                     }
 
-                    options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.THING_SUBTYPE_BOARDGAME_ACCESSORY
+                    options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.ThingSubtype.BOARDGAME_ACCESSORY.code
                     val accessoryCount = requestAndPersist(account.name, dao, options)
 
                     if (accessoryCount < 0) {

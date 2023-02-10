@@ -13,7 +13,6 @@ import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
@@ -41,7 +40,7 @@ class GameRepository(val application: BggApplication) {
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
         val response = Adapter.createGeekdoApi().image(game.thumbnailUrl.getImageId())
         val url = response.images.medium.url
-        dao.upsert(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to url))
+        dao.update(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to url))
         game.copy(heroImageUrl = url)
     }
 
@@ -57,9 +56,9 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId)
 
-    suspend fun getLanguagePoll(gameId: Int) = dao.loadPoll(gameId, BggContract.POLL_TYPE_LANGUAGE_DEPENDENCE)
+    suspend fun getLanguagePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.LANGUAGE_DEPENDENCE)
 
-    suspend fun getAgePoll(gameId: Int) = dao.loadPoll(gameId, BggContract.POLL_TYPE_SUGGESTED_PLAYER_AGE)
+    suspend fun getAgePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.SUGGESTED_PLAYER_AGE)
 
     suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId)
 
@@ -77,7 +76,7 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
-    suspend fun refreshPlays(gameId: Int) = withContext(Dispatchers.IO) {
+    suspend fun refreshPlays(gameId: Int) = withContext(Dispatchers.Default) {
         if (gameId != INVALID_ID || username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             var page = 1
@@ -154,6 +153,8 @@ class GameRepository(val application: BggApplication) {
             Timber.d(numberOfRowsModified.toString())
         }
     }
+
+    suspend fun updateColors(gameId: Int, colors: List<String>) = dao.updateColors(gameId, colors)
 
     suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
         if (gameId != INVALID_ID) {

@@ -11,13 +11,13 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayPlayerColorsBinding
 import com.boardgamegeek.databinding.RowNewPlayPlayerColorBinding
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.dialog.NewPlayPlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.dialog.TeamPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
@@ -64,24 +64,8 @@ class NewPlayPlayerColorsFragment : Fragment() {
         _binding = null
     }
 
-    private class Diff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
-        override fun getOldListSize() = oldList.size
-
-        override fun getNewListSize() = newList.size
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldList[oldItemPosition].id == newList[newItemPosition].id
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val o = oldList[oldItemPosition]
-            val n = newList[newItemPosition]
-            return o.id == n.id && o.color == n.color && o.favoriteColors == n.favoriteColors
-        }
-    }
-
     private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel) :
-        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
+        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
 
         var useColorPicker = true
         private var featuredColors = emptyList<String>()
@@ -97,9 +81,9 @@ class NewPlayPlayerColorsFragment : Fragment() {
         }
 
         var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            val diffCallback = Diff(oldValue, newValue)
-            val diffResult = DiffUtil.calculateDiff(diffCallback)
-            diffResult.dispatchUpdatesTo(this)
+            autoNotify(oldValue, newValue) { old, new ->
+                old.id == new.id
+            }
         }
 
         override fun getItemCount() = players.size
@@ -143,13 +127,10 @@ class NewPlayPlayerColorsFragment : Fragment() {
                             binding.removeTeamView.isInvisible = true
                         }
                     }
-                    if (useColorPicker) {
-                        binding.colorPickerButton.setImageResource(R.drawable.ic_baseline_color_lens_24)
-                    } else {
-                        binding.colorPickerButton.setImageResource(R.drawable.ic_baseline_group_24)
-                    }
 
-                    val favoriteColor = player.favoriteColors.firstOrNull() ?: ""
+                    binding.colorPickerButton.setImageResource(if (useColorPicker) R.drawable.ic_baseline_color_lens_24 else R.drawable.ic_baseline_group_24)
+
+                    val favoriteColor = player.favoriteColorsForGame.firstOrNull().orEmpty()
                     val favoriteColorRgb = favoriteColor.asColorRgb()
                     if (player.color.isBlank() && favoriteColorRgb != Color.TRANSPARENT) {
                         binding.favoriteColorView.setColorViewValue(favoriteColorRgb)

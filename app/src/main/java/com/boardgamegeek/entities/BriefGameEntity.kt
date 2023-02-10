@@ -12,7 +12,7 @@ data class BriefGameEntity(
     val gameHeroImageUrl: String,
     val personalRating: Double = 0.0,
     val isFavorite: Boolean = false,
-    val subtype: String = "boardgame",
+    val subtype: GameEntity.Subtype? = GameEntity.Subtype.BOARDGAME,
     val playCount: Int = 0,
 ) {
     val name = collectionName.ifBlank { gameName }

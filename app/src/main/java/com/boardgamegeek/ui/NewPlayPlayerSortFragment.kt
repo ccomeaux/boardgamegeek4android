@@ -109,9 +109,7 @@ class NewPlayPlayerSortFragment : Fragment() {
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val o = oldList[oldItemPosition]
-            val n = newList[newItemPosition]
-            return o.id == n.id && o.sortOrder == n.sortOrder
+            return oldList[oldItemPosition] == newList[newItemPosition]
         }
     }
 
@@ -125,9 +123,7 @@ class NewPlayPlayerSortFragment : Fragment() {
         }
 
         override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            val o = oldList[oldItemPosition]
-            val n = newList[newItemPosition]
-            return o.id == n.id
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
         }
     }
 

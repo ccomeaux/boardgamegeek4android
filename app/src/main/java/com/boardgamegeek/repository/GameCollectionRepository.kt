@@ -1,11 +1,13 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
@@ -21,21 +23,24 @@ class GameCollectionRepository(val application: BggApplication) {
     private val dao = CollectionDao(application)
     private val gameDao = GameDao(application)
     private val username: String? by lazy { application.preferences()[AccountPreferences.KEY_USERNAME, ""] }
+    private val prefs: SharedPreferences by lazy { application.preferences() }
 
-    suspend fun loadCollectionItem(collectionId: Int) = dao.load(collectionId)
+    suspend fun loadCollectionItem(internalId: Long) = dao.load(internalId)
 
-    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int): CollectionItemEntity? =
+    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: GameEntity.Subtype?): CollectionItemEntity? =
         withContext(Dispatchers.IO) {
-            if (gameId != INVALID_ID && !username.isNullOrBlank()) {
+            if ((gameId != INVALID_ID || collectionId != INVALID_ID) && !username.isNullOrBlank()) {
                 val timestamp = System.currentTimeMillis()
-                val response = Adapter.createForXmlWithAuth(application).collectionC(
-                    username, mapOf(
-                        BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                        BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                        BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
-                        //BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType TODO determine if needed
-                    )
+                val options = mutableMapOf(
+                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
                 )
+                options += if (collectionId != INVALID_ID)
+                    BggService.COLLECTION_QUERY_KEY_COLLECTION_ID to collectionId.toString()
+                else
+                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString()
+                options.addSubtype(subtype)
+                val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
 
                 val collectionIds = mutableListOf<Int>()
                 var entity: CollectionItemEntity? = null
@@ -47,13 +52,7 @@ class GameCollectionRepository(val application: BggApplication) {
                         entity = item.copy(internalId = internalId, syncTimestamp = timestamp)
                     }
                 }
-                Timber.i(
-                    "Synced %,d collection item(s) for game '%s'", response.items?.size ?: 0, gameId
-                )
-
-                val deleteCount = dao.delete(gameId, collectionIds)
-                Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
-
+                Timber.i("Synced %,d collection item(s) for game '%s'", response.items?.size ?: 0, gameId)
                 entity
             } else null
         }
@@ -67,36 +66,61 @@ class GameCollectionRepository(val application: BggApplication) {
 
     suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId)
 
-    suspend fun refreshCollectionItems(
-        gameId: Int,
-        subType: String = BggService.THING_SUBTYPE_BOARDGAME
-    ): List<CollectionItemEntity>? = withContext(Dispatchers.IO) {
+    suspend fun refreshCollectionItems(gameId: Int, subtype: GameEntity.Subtype? = null): List<CollectionItemEntity>? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             val list = mutableListOf<CollectionItemEntity>()
-            // TODO This doesn't sync only-played games (the played flag needs to be set explicitly)
-            val response = Adapter.createForXmlWithAuth(application).collectionC(
-                username, mapOf(
-                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
-                    BggService.COLLECTION_QUERY_KEY_SUBTYPE to subType
-                )
-            )
             val collectionIds = arrayListOf<Int>()
+
+            val options = mutableMapOf(
+                BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+            )
+            options.addSubtype(subtype)
+            val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
             response.items?.forEach { collectionItem ->
                 val (item, game) = collectionItem.mapToEntities()
                 val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
                 list += item.copy(internalId = internalId, syncTimestamp = timestamp)
                 collectionIds += collectionId
             }
-            Timber.i("Synced %,d collection item(s) for game '%s'", response.items?.size ?: 0, gameId)
+
+            val statuses = prefs.getSyncStatusesOrDefault()
+            if ((response.items == null || response.items.isNotEmpty()) && statuses.contains(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
+                val playedOptions = mutableMapOf(
+                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+                    BggService.COLLECTION_QUERY_STATUS_PLAYED to "1",
+                )
+                playedOptions.addSubtype(subtype)
+                val playedResponse = Adapter.createForXmlWithAuth(application).collectionC(username, playedOptions)
+                playedResponse.items?.forEach { collectionItem ->
+                    val (item, game) = collectionItem.mapToEntities()
+                    val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
+                    list += item.copy(internalId = internalId, syncTimestamp = timestamp)
+                    collectionIds += collectionId
+                }
+            }
+
+            Timber.i("Synced %,d collection item(s) for game '%s'", list.size, gameId)
 
             val deleteCount = dao.delete(gameId, collectionIds)
             Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
 
             list
         } else null
+    }
+
+    private fun MutableMap<String, String>.addSubtype(subtype: GameEntity.Subtype?) {
+        subtype?.let {
+            this += BggService.COLLECTION_QUERY_KEY_SUBTYPE to when (it) {
+                GameEntity.Subtype.BOARDGAME -> BggService.ThingSubtype.BOARDGAME
+                GameEntity.Subtype.BOARDGAME_EXPANSION -> BggService.ThingSubtype.BOARDGAME_EXPANSION
+                GameEntity.Subtype.BOARDGAME_ACCESSORY -> BggService.ThingSubtype.BOARDGAME_ACCESSORY
+            }.code
+        }
     }
 
     suspend fun loadAcquiredFrom() = dao.loadAcquiredFrom()
@@ -217,7 +241,25 @@ class GameCollectionRepository(val application: BggApplication) {
         } else 0
     }
 
-    suspend fun updateText(internalId: Long, text: String, textColumn: String, timestampColumn: String): Int =
+    suspend fun updateComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.COMMENT, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+
+    suspend fun updatePrivateComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.PRIVATE_INFO_COMMENT, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+
+    suspend fun updateWishlistComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.WISHLIST_COMMENT, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+
+    suspend fun updateCondition(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.CONDITION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+
+    suspend fun updateHasParts(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.HASPARTS_LIST, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+
+    suspend fun updateWantParts(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.WANTPARTS_LIST, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+
+    private suspend fun updateText(internalId: Long, text: String, textColumn: String, timestampColumn: String): Int =
         withContext(Dispatchers.IO) {
             if (internalId != INVALID_ID.toLong()) {
                 val values = contentValuesOf(

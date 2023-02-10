@@ -32,6 +32,10 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
     val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
 
+    private val _isUsernameValid = MutableLiveData<Event<Boolean>>()
+    val isUsernameValid: LiveData<Event<Boolean>>
+        get() = _isUsernameValid
+
     fun setUsername(name: String?) {
         if (_userTypeAndName.value?.first != name) _userTypeAndName.value = (name to TYPE_USER)
     }
@@ -111,29 +115,24 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
                     refresh()
 
                     if (updatePlays) {
-                        if (nickName.isBlank()) {
-                            // TODO default to user full name instead
+                        val newNickName = nickName.ifBlank { buddy.value?.data?.fullName }
+                        if (newNickName.isNullOrBlank()) {
                             setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_missing_nickname))
                         } else {
-                            val count = playRepository.updatePlaysWithNickName(username, nickName)
+                            val count = playRepository.updatePlaysWithNickName(username, newNickName)
                             setUpdateMessage(
                                 getApplication<BggApplication>().resources.getQuantityString(
                                     R.plurals.msg_updated_plays_buddy_nickname,
                                     count,
                                     count,
                                     username,
-                                    nickName
+                                    newNickName
                                 )
                             )
                             SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
                         }
                     } else {
-                        setUpdateMessage(
-                            getApplication<BggApplication>().getString(
-                                R.string.msg_updated_nickname,
-                                nickName
-                            )
-                        )
+                        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName))
                     }
                     firebaseAnalytics.logEvent("DataManipulation") {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyNickname")
@@ -161,6 +160,16 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 )
                 setPlayerName(newName)
+            }
+        }
+    }
+
+    fun validateUsername(username: String) {
+        viewModelScope.launch {
+            if (username.isBlank())
+                _isUsernameValid.value = Event(false)
+            else {
+                _isUsernameValid.value = Event(userRepository.validateUsername(username))
             }
         }
     }

@@ -7,13 +7,21 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import java.text.DecimalFormat
 
 class GeekRatingSorter(context: Context) : RatingSorter(context) {
-    @StringRes
-    public override val typeResId = R.string.collection_sort_type_geek_rating
+    override val ascendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_geek_rating_asc
 
-    @StringRes
-    override val descriptionResId = R.string.collection_sort_geek_rating
+    override val descendingSortTypeResId: Int
+        @StringRes
+        get() = R.string.collection_sort_type_geek_rating
 
-    override fun sort(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.geekRating }
+    override val descriptionResId: Int
+        @StringRes
+        get() = R.string.collection_sort_geek_rating
+
+    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.geekRating }
+
+    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.geekRating }
 
     override val displayFormat = DecimalFormat("0.000")
 

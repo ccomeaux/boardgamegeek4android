@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.boardgamegeek.io
 
 import android.content.Context
@@ -20,7 +22,6 @@ object Adapter {
 
     fun createForXml(): BggService = createBuilderWithoutConverterFactory(null)
         .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
-        //.addCallAdapterFactory(CoroutineCallAdapterFactory())
         .build()
         .create(BggService::class.java)
 
@@ -36,6 +37,7 @@ object Adapter {
 
     private fun createBuilderWithoutConverterFactory(context: Context?) = Retrofit.Builder()
         .baseUrl("https://boardgamegeek.com/")
+        .addConverterFactory(EnumConverterFactory())
         .client(
             if (context == null) {
                 getHttpClient(true)

@@ -7,7 +7,7 @@ data class GameEntity(
     val id: Int = BggContract.INVALID_ID,
     val name: String = "",
     val sortName: String = "",
-    val subtype: String = "",
+    val subtype: Subtype? = null,
     val thumbnailUrl: String = "",
     val imageUrl: String = "",
     val heroImageUrl: String = "",
@@ -82,6 +82,12 @@ data class GameEntity(
         }
 
     override fun toString() = "$id: $name"
+
+    enum class Subtype(val code: String) {
+        BOARDGAME("boardgame"),
+        BOARDGAME_EXPANSION("boardgameexpansion"),
+        BOARDGAME_ACCESSORY("boardgameaccessory"),
+    }
 
     companion object {
         const val YEAR_UNKNOWN = 0

@@ -29,7 +29,7 @@
 		android:contentDescription="@string/remove"
 		android:src="@drawable/ic_baseline_remove_circle_outline_24"
 		android:visibility="invisible"
-		app:layout_constraintLeft_toLeftOf="@id/colorView"
+		app:layout_constraintStart_toStartOf="@id/colorView"
 		app:layout_constraintTop_toTopOf="@id/colorView"
 		tools:visibility="visible" />
 

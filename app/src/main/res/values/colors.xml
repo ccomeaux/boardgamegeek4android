@@ -39,5 +39,8 @@
 	<color name="delete">#f00</color>
 	<color name="edit">#080</color>
 
+	<color name="valid">#00a550</color>
+	<color name="invalid">#ed1C24</color>
+
 	<color name="fast_scroll_track">#eee</color>
 </resources>

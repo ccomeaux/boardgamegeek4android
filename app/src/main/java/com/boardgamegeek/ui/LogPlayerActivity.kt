@@ -186,7 +186,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             }
             til.setEndIconDrawable(R.drawable.ic_baseline_keyboard_24)
         }
-        editText.focusWithKeyboard()
+        editText.requestFocusAndKeyboard()
     }
 
     private fun bindUi() {
@@ -331,8 +331,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     )
 
     class AddPlayerContract : ActivityResultContract<LaunchInput, PlayPlayerEntity?>() {
-        override fun createIntent(context: Context, input: LaunchInput?): Intent {
-            if (input == null) throw IllegalArgumentException("input can't be null")
+        override fun createIntent(context: Context, input: LaunchInput): Intent {
             return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.gameId)
                 putExtra(KEY_GAME_NAME, input.gameName)
@@ -356,9 +355,8 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     }
 
     class EditPlayerContract : ActivityResultContract<Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>, Pair<Int, PlayPlayerEntity?>>() {
-        override fun createIntent(context: Context, input: Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>?): Intent {
-            if (input == null) throw IllegalArgumentException("input can't be null")
-            return Intent(context, LogPlayerActivity::class.java).apply {
+        override fun createIntent(context: Context, input: Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>): Intent {
+             return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.first.gameId)
                 putExtra(KEY_GAME_NAME, input.first.gameName)
                 putExtra(KEY_IMAGE_URL, input.first.imageUrl)
