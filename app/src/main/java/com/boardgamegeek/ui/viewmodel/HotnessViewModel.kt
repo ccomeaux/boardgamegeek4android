@@ -9,10 +9,15 @@ import com.boardgamegeek.entities.HotGameEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.repository.HotnessRepository
 import com.boardgamegeek.repository.PlayRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class HotnessViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = HotnessRepository(getApplication())
+@HiltViewModel
+class HotnessViewModel @Inject constructor(
+    application: Application,
+    private val repository: HotnessRepository,
+) : AndroidViewModel(application) {
     private val playRepository = PlayRepository(getApplication())
 
     val hotness: LiveData<RefreshableResource<List<HotGameEntity>>> = liveData {

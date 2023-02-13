@@ -8,6 +8,11 @@ buildscript {
     }
 }
 
+plugins {
+    id 'com.google.dagger.hilt.android'
+    id 'kotlin-kapt'
+}
+
 def versionMajor = 6
 def versionMinor = 8
 def versionPatch = 2
@@ -119,6 +124,9 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
+    implementation "com.google.dagger:hilt-android:2.44"
+    kapt "com.google.dagger:hilt-compiler:2.44"
+
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
 
     implementation 'androidx.core:core-ktx:1.9.0'
@@ -190,6 +198,10 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.15.2'
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.9.1"
+}
+
+kapt {
+    correctErrorTypes true
 }
 
 apply plugin: 'com.google.gms.google-services'
