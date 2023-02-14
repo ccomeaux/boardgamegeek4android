@@ -5,6 +5,7 @@ package com.boardgamegeek.di
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.EnumConverterFactory
 import com.boardgamegeek.repository.HotnessRepository
+import com.boardgamegeek.repository.SearchRepository
 import com.boardgamegeek.repository.TopGameRepository
 import dagger.Module
 import dagger.Provides
@@ -30,6 +31,10 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideHotnessRepository(api: BggService) = HotnessRepository(api)
+
+    @Provides
+    @Singleton
+    fun provideSearchRepository(api: BggService) = SearchRepository(api)
 
     @Provides
     @Singleton
