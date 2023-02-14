@@ -7,8 +7,14 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ForumsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class ForumsViewModel @Inject constructor(
+    application: Application,
+    private val repository: ForumRepository,
+) : AndroidViewModel(application) {
     private enum class ForumType {
         GAME,
         REGION,
@@ -17,8 +23,6 @@ class ForumsViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     private val _id = MutableLiveData<Pair<ForumType, Int>>()
-
-    private val repository = ForumRepository(application)
 
     fun setRegion() {
         if (_id.value?.first != ForumType.REGION) _id.value = (ForumType.REGION to BggService.ForumRegion.BOARDGAME.id)

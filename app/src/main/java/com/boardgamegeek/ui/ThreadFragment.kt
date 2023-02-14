@@ -20,8 +20,10 @@ import com.boardgamegeek.extensions.set
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ThreadViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.abs
 
+@AndroidEntryPoint
 class ThreadFragment : Fragment() {
     private var _binding: FragmentThreadBinding? = null
     private val binding get() = _binding!!

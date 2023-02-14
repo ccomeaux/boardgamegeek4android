@@ -26,8 +26,10 @@ import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""

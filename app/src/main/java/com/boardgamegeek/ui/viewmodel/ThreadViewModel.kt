@@ -6,9 +6,14 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.ThreadArticlesEntity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ThreadViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = ForumRepository(application)
+@HiltViewModel
+class ThreadViewModel @Inject constructor(
+    application: Application,
+    private val repository: ForumRepository,
+) : AndroidViewModel(application) {
     private val _threadId = MutableLiveData<Int>()
 
     fun setThreadId(id: Int) {

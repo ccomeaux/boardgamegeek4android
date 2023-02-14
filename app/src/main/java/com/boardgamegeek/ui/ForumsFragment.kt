@@ -17,7 +17,9 @@ import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ForumsFragment : Fragment() {
     private var _binding: FragmentForumsBinding? = null
     private val binding get() = _binding!!

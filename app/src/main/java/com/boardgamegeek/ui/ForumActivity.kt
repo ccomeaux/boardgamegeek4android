@@ -19,7 +19,9 @@ import com.boardgamegeek.ui.PersonActivity.Companion.startUpForDesigner
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForPublisher
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ForumActivity : SimpleSinglePaneActivity() {
     private var forumId = BggContract.INVALID_ID
     private var forumTitle = ""

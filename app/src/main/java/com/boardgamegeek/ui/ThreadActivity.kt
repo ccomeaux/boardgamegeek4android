@@ -11,7 +11,9 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ThreadActivity : SimpleSinglePaneActivity() {
     private var threadId = BggContract.INVALID_ID
     private var threadSubject = ""

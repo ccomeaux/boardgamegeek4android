@@ -1,17 +1,19 @@
 package com.boardgamegeek.repository
 
-import android.app.Application
+import android.content.Context
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.ForumThreadsEntity
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.util.ForumXmlApiMarkupConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class ForumRepository(application: Application) {
+class ForumRepository(
+    application: Context,
+    private val api: BggService,
+) {
     private val converter: ForumXmlApiMarkupConverter = ForumXmlApiMarkupConverter(application.getString(R.string.spoiler))
 
     suspend fun loadForGame(gameId: Int): List<ForumEntity> = loadForums(BggService.ForumType.THING, gameId)
@@ -24,17 +26,17 @@ class ForumRepository(application: Application) {
         loadForums(BggService.ForumType.REGION, region.id)
 
     private suspend fun loadForums(type: BggService.ForumType, id: Int): List<ForumEntity> = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().forumList(type, id)
+        val response = api.forumList(type, id)
         response.mapToEntity()
     }
 
     suspend fun loadForum(forumId: Int, page: Int = 1): ForumThreadsEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().forum(forumId, page)
+        val response = api.forum(forumId, page)
         response.mapToEntity()
     }
 
     suspend fun loadThread(threadId: Int) = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().thread(threadId)
+        val response = api.thread(threadId)
         response.mapToEntity(converter)
     }
 }

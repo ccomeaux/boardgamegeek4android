@@ -2,14 +2,14 @@
 
 package com.boardgamegeek.di
 
+import android.content.Context
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.EnumConverterFactory
-import com.boardgamegeek.repository.HotnessRepository
-import com.boardgamegeek.repository.SearchRepository
-import com.boardgamegeek.repository.TopGameRepository
+import com.boardgamegeek.repository.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
@@ -27,6 +27,10 @@ object NetworkModule {
         .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
         .build()
         .create(BggService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideForumRepository(@ApplicationContext applicationContext: Context, api: BggService) = ForumRepository(applicationContext, api)
 
     @Provides
     @Singleton

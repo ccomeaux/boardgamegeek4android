@@ -18,8 +18,10 @@ import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.ForumViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class ForumFragment : Fragment() {
     private var _binding: FragmentForumBinding? = null
     private val binding get() = _binding!!

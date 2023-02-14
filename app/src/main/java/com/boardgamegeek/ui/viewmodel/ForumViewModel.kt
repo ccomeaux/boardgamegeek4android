@@ -12,9 +12,14 @@ import androidx.paging.liveData
 import com.boardgamegeek.io.model.ForumResponse
 import com.boardgamegeek.livedata.ForumPagingSource
 import com.boardgamegeek.repository.ForumRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class ForumViewModel(application: Application) : AndroidViewModel(application) {
-    val repository = ForumRepository(application)
+@HiltViewModel
+class ForumViewModel @Inject constructor(
+    application: Application,
+    private val repository: ForumRepository
+) : AndroidViewModel(application) {
     private val _forumId = MutableLiveData<Int>()
 
     fun setForumId(id: Int) {
