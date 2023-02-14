@@ -30,11 +30,23 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideForumRepository(@ApplicationContext applicationContext: Context, api: BggService) = ForumRepository(applicationContext, api)
+    fun provideArtistRepository(@ApplicationContext context: Context, api: BggService) = ArtistRepository(context, api)
+
+    @Provides
+    @Singleton
+    fun provideDesignerRepository(@ApplicationContext context: Context, api: BggService) = DesignerRepository(context, api)
+
+    @Provides
+    @Singleton
+    fun provideForumRepository(@ApplicationContext context: Context, api: BggService) = ForumRepository(context, api)
 
     @Provides
     @Singleton
     fun provideHotnessRepository(api: BggService) = HotnessRepository(api)
+
+    @Provides
+    @Singleton
+    fun providePublisherRepository(@ApplicationContext context: Context, api: BggService) = PublisherRepository(context, api)
 
     @Provides
     @Singleton

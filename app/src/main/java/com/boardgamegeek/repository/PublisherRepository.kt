@@ -1,23 +1,27 @@
 package com.boardgamegeek.repository
 
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.MutableLiveData
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Publishers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class PublisherRepository(val application: BggApplication) {
-    private val dao = PublisherDao(application)
-    private val prefs: SharedPreferences by lazy { application.preferences() }
+class PublisherRepository(
+    val context: Context,
+    private val api: BggService,
+) {
+    private val dao = PublisherDao(context)
+    private val prefs: SharedPreferences by lazy { context.preferences() }
 
     suspend fun loadPublishers(sortBy: PublisherDao.SortType) = dao.loadPublishers(sortBy)
 
@@ -28,7 +32,7 @@ class PublisherRepository(val application: BggApplication) {
     suspend fun delete() = dao.delete()
 
     suspend fun refreshPublisher(publisherId: Int): CompanyEntity? = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().company(publisherId)
+        val response = api.company(publisherId)
         response.items.firstOrNull()?.mapToEntity()?.let {
             dao.upsert(
                 publisherId, contentValuesOf(
@@ -65,7 +69,7 @@ class PublisherRepository(val application: BggApplication) {
 
     suspend fun calculateStats(publisherId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
         val collection = dao.loadCollection(publisherId)
-        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
+        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
         updateWhitmoreScore(publisherId, statsEntity.whitmoreScore, whitmoreScore)
         statsEntity
     }

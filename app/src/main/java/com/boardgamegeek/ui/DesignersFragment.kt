@@ -17,8 +17,10 @@ import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.DesignersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class DesignersFragment : Fragment() {
     private var _binding: FragmentDesignersBinding? = null
     private val binding get() = _binding!!

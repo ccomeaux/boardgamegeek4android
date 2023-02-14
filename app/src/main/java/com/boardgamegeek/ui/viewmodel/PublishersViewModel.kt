@@ -7,15 +7,20 @@ import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
-class PublishersViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PublishersViewModel @Inject constructor(
+    application: Application,
+    private val publisherRepository: PublisherRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val publisherRepository = PublisherRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private val _sort = MutableLiveData<PublishersSort>()

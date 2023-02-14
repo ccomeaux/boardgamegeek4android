@@ -12,9 +12,17 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
 import com.boardgamegeek.repository.PublisherRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class PersonViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PersonViewModel @Inject constructor(
+    application: Application,
+    private val artistRepository: ArtistRepository,
+    private val designerRepository: DesignerRepository,
+    private val publisherRepository: PublisherRepository,
+) : AndroidViewModel(application) {
     data class Person(
         val type: PersonType,
         val id: Int,
@@ -30,10 +38,6 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
     enum class CollectionSort {
         NAME, RATING
     }
-
-    private val artistRepository = ArtistRepository(getApplication())
-    private val designerRepository = DesignerRepository(getApplication())
-    private val publisherRepository = PublisherRepository(getApplication())
 
     private val _person = MutableLiveData<Person>()
     val person: LiveData<Person>

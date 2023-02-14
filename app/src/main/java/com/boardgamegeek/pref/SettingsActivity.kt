@@ -18,7 +18,9 @@ import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SettingsActivity : DrawerActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +64,7 @@ class SettingsActivity : DrawerActivity() {
         supportFragmentManager.beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commitAllowingStateLoss()
     }
 
+    @AndroidEntryPoint
     class PrefFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()

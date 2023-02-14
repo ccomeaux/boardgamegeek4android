@@ -7,15 +7,20 @@ import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
-class DesignersViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class DesignersViewModel @Inject constructor(
+    application: Application,
+    designerRepository: DesignerRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val designerRepository = DesignerRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private val _sort = MutableLiveData<DesignersSort>()

@@ -13,8 +13,10 @@ import com.boardgamegeek.ui.adapter.LinkedCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.boardgamegeek.ui.viewmodel.PersonViewModel.CollectionSort
 import com.boardgamegeek.ui.viewmodel.PersonViewModel.PersonType
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class PersonCollectionFragment : Fragment() {
     private var _binding: FragmentLinkedCollectionBinding? = null
     private val binding get() = _binding!!

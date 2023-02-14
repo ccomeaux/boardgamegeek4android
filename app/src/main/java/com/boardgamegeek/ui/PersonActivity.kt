@@ -13,8 +13,10 @@ import com.boardgamegeek.ui.adapter.PersonPagerAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class PersonActivity : HeroTabActivity() {
     enum class PersonType {
         ARTIST,

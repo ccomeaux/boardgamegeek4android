@@ -1,10 +1,10 @@
 package com.boardgamegeek.db
 
 import android.content.ContentValues
+import android.content.Context
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Artists
@@ -12,7 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class ArtistDao(private val context: BggApplication) {
+class ArtistDao(private val context: Context) {
     private val collectionDao = CollectionDao(context)
 
     enum class SortType {

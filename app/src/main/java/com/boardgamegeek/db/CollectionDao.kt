@@ -2,6 +2,7 @@ package com.boardgamegeek.db
 
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.content.Context
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.graphics.Color
@@ -11,7 +12,6 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
@@ -26,7 +26,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CollectionDao(private val context: BggApplication) {
+class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
