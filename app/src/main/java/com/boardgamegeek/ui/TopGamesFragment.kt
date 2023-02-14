@@ -12,7 +12,9 @@ import com.boardgamegeek.databinding.FragmentTopGamesBinding
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.ui.adapter.TopGamesAdapter
 import com.boardgamegeek.ui.viewmodel.TopGamesViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class TopGamesFragment : Fragment() {
     private var _binding: FragmentTopGamesBinding? = null
     private val binding get() = _binding!!
