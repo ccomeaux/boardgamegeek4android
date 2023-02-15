@@ -1,7 +1,7 @@
 package com.boardgamegeek.repository
 
+import android.content.Context
 import android.content.SharedPreferences
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.*
@@ -16,11 +16,11 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
 
-class CollectionItemRepository(val application: BggApplication) {
-    private val dao = CollectionDao(application)
-    private val prefs: SharedPreferences by lazy { application.preferences() }
+class CollectionItemRepository(val context: Context) {
+    private val dao = CollectionDao(context)
+    private val prefs: SharedPreferences by lazy { context.preferences() }
     private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
     private val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
 
     suspend fun load(): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
@@ -44,7 +44,7 @@ class CollectionItemRepository(val application: BggApplication) {
 
     suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
         syncPrefs.clearCollection()
-        SyncService.sync(application, SyncService.FLAG_SYNC_COLLECTION)
+        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
     }
 
     private suspend fun refreshSubtype(subtype: BggService.ThingSubtype?, timestamp: Long = System.currentTimeMillis()) {

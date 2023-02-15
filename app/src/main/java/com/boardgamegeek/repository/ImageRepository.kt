@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.annotation.WorkerThread
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.provider.BggContract.Companion.PATH_THUMBNAILS
@@ -16,21 +15,21 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-class ImageRepository(val application: BggApplication) {
-    private val imageDao = ImageDao(application)
+class ImageRepository(val context: Context) {
+    private val imageDao = ImageDao(context)
 
     /** Get a bitmap for the given URL, either from disk or from the network. */
     @WorkerThread
     fun fetchThumbnail(thumbnailUrl: String?): Bitmap? {
         if (thumbnailUrl == null) return null
-        if (application.applicationContext == null) return null
+        if (context.applicationContext == null) return null
         if (thumbnailUrl.isBlank()) return null
-        val file = getThumbnailFile(application.applicationContext, thumbnailUrl)
+        val file = getThumbnailFile(context.applicationContext, thumbnailUrl)
         val bitmap: Bitmap? = if (file?.exists() == true) {
             BitmapFactory.decodeFile(file.absolutePath)
         } else {
             try {
-                Picasso.with(application.applicationContext)
+                Picasso.with(context.applicationContext)
                     .load(thumbnailUrl)
                     .resizeDimen(R.dimen.shortcut_icon_size, R.dimen.shortcut_icon_size)
                     .centerCrop()

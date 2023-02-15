@@ -1,7 +1,7 @@
 package com.boardgamegeek.repository
 
+import android.content.Context
 import androidx.core.content.contentValuesOf
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
@@ -19,18 +19,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class GameRepository(val application: BggApplication) {
-    private val dao = GameDao(application)
-    private val playDao = PlayDao(application)
-    private val bggService = Adapter.createForXml()
-    private val playRepository = PlayRepository(application)
-    private val username: String? by lazy { application.preferences()[AccountPreferences.KEY_USERNAME, ""] }
+class GameRepository(val context: Context) {
+    private val dao = GameDao(context)
+    private val playDao = PlayDao(context)
+    private val api = Adapter.createForXml()
+    private val playRepository = PlayRepository(context)
+    private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)
 
     suspend fun refreshGame(gameId: Int) = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val response = bggService.thing2(gameId, 1)
+        val response = api.thing2(gameId, 1)
         response.games.firstOrNull()?.let { game ->
             dao.save(game.mapToEntity(), timestamp)
             Timber.i("Synced game '$gameId'")
@@ -45,12 +45,12 @@ class GameRepository(val application: BggApplication) {
     }
 
     suspend fun loadComments(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().thingWithComments(gameId, page)
+        val response = api.thingWithComments(gameId, page)
         response.games.firstOrNull()?.mapToRatingEntities()
     }
 
     suspend fun loadRatings(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().thingWithRatings(gameId, page)
+        val response = api.thingWithRatings(gameId, page)
         response.games.firstOrNull()?.mapToRatingEntities()
     }
 
@@ -81,7 +81,7 @@ class GameRepository(val application: BggApplication) {
             val timestamp = System.currentTimeMillis()
             var page = 1
             do {
-                val response = bggService.playsByGame(username, gameId, page++)
+                val response = api.playsByGame(username, gameId, page++)
                 val playsPage = response.plays.mapToEntity(timestamp)
                 playRepository.saveFromSync(playsPage, timestamp)
             } while (response.hasMorePages())
@@ -95,7 +95,7 @@ class GameRepository(val application: BggApplication) {
 
     suspend fun refreshPartialPlays(gameId: Int) = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val response = bggService.playsByGame(username, gameId, 1)
+        val response = api.playsByGame(username, gameId, 1)
         val plays = response.plays.mapToEntity(timestamp)
         playRepository.saveFromSync(plays, timestamp)
         playRepository.calculatePlayStats()

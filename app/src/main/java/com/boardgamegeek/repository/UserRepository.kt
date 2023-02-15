@@ -1,8 +1,8 @@
 package com.boardgamegeek.repository
 
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.db.UserDao
@@ -25,18 +25,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class UserRepository(val application: BggApplication) {
-    private val userDao = UserDao(application)
-    private val imageDao = ImageDao(application)
-    private val prefs: SharedPreferences by lazy { application.preferences() }
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
+class UserRepository(val context: Context) {
+    private val userDao = UserDao(context)
+    private val imageDao = ImageDao(context)
+    private val prefs: SharedPreferences by lazy { context.preferences() }
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
+    private val api = Adapter.createForXml()
 
     suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
         userDao.loadUser(username)
     }
 
     suspend fun refresh(username: String): UserEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().user(username)
+        val response = api.user(username)
         val user = response.mapToEntity()
         userDao.saveUser(user)
     }
@@ -44,7 +45,7 @@ class UserRepository(val application: BggApplication) {
     suspend fun refreshCollection(username: String, status: String): List<CollectionItemEntity> =
         withContext(Dispatchers.IO) {
             val items = mutableListOf<CollectionItemEntity>()
-            val response = Adapter.createForXml().collectionC(
+            val response = api.collectionC(
                 username, mapOf(
                     status to "1",
                     BggService.COLLECTION_QUERY_KEY_BRIEF to "1"
@@ -65,10 +66,10 @@ class UserRepository(val application: BggApplication) {
     }
 
     suspend fun refreshBuddies(timestamp: Long): Pair<Int, Int> = withContext(Dispatchers.IO) {
-        val accountName = Authenticator.getAccount(application)?.name
+        val accountName = Authenticator.getAccount(context)?.name
         if (accountName.isNullOrBlank()) return@withContext 0 to 0
 
-        val response = Adapter.createForXml().user(accountName, 1, 1)
+        val response = api.user(accountName, 1, 1)
         val upsertedCount = response.buddies?.buddies?.size ?: 0
         response.buddies?.buddies.orEmpty()
             .map { it.mapToEntity(timestamp) }
@@ -84,7 +85,7 @@ class UserRepository(val application: BggApplication) {
     }
 
     suspend fun validateUsername(username: String): Boolean = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().user(username)
+        val response = api.user(username)
         val user = response.mapToEntity()
         user.userName == username
     }
@@ -96,7 +97,7 @@ class UserRepository(val application: BggApplication) {
     }
 
     fun updateSelf(user: UserEntity?) {
-        Authenticator.putUserId(application, user?.id ?: INVALID_ID)
+        Authenticator.putUserId(context, user?.id ?: INVALID_ID)
         if (!user?.userName.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.userName.hashCode().toString())
         prefs[AccountPreferences.KEY_USERNAME] = user?.userName.orEmpty()
         prefs[AccountPreferences.KEY_FULL_NAME] = user?.fullName.orEmpty()
@@ -113,7 +114,7 @@ class UserRepository(val application: BggApplication) {
 
     suspend fun resetUsers() {
         deleteUsers()
-        SyncService.sync(application, SyncService.FLAG_SYNC_BUDDIES)
+        SyncService.sync(context, SyncService.FLAG_SYNC_BUDDIES)
     }
 
     suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = userDao.updateColors(username, colors)

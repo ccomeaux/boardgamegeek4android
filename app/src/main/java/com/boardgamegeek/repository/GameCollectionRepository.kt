@@ -1,9 +1,9 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.CollectionItemEntity
@@ -19,11 +19,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class GameCollectionRepository(val application: BggApplication) {
-    private val dao = CollectionDao(application)
-    private val gameDao = GameDao(application)
-    private val username: String? by lazy { application.preferences()[AccountPreferences.KEY_USERNAME, ""] }
-    private val prefs: SharedPreferences by lazy { application.preferences() }
+class GameCollectionRepository(val context: Context) {
+    private val dao = CollectionDao(context)
+    private val gameDao = GameDao(context)
+    private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
+    private val prefs: SharedPreferences by lazy { context.preferences() }
 
     suspend fun loadCollectionItem(internalId: Long) = dao.load(internalId)
 
@@ -40,7 +40,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 else
                     BggService.COLLECTION_QUERY_KEY_ID to gameId.toString()
                 options.addSubtype(subtype)
-                val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
+                val response = Adapter.createForXmlWithAuth(context).collectionC(username, options)
 
                 val collectionIds = mutableListOf<Int>()
                 var entity: CollectionItemEntity? = null
@@ -78,7 +78,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
             )
             options.addSubtype(subtype)
-            val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
+            val response = Adapter.createForXmlWithAuth(context).collectionC(username, options)
             response.items?.forEach { collectionItem ->
                 val (item, game) = collectionItem.mapToEntities()
                 val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
@@ -95,7 +95,7 @@ class GameCollectionRepository(val application: BggApplication) {
                     BggService.COLLECTION_QUERY_STATUS_PLAYED to "1",
                 )
                 playedOptions.addSubtype(subtype)
-                val playedResponse = Adapter.createForXmlWithAuth(application).collectionC(username, playedOptions)
+                val playedResponse = Adapter.createForXmlWithAuth(context).collectionC(username, playedOptions)
                 playedResponse.items?.forEach { collectionItem ->
                     val (item, game) = collectionItem.mapToEntities()
                     val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
@@ -164,7 +164,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
             } else {
                 Timber.d("Collection item added for game %s (%s) (internal ID = %s)", gameName, gameId, internalId)
-                SyncService.sync(application, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
             }
         }
     }

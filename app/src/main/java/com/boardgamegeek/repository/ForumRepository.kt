@@ -11,10 +11,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ForumRepository(
-    application: Context,
+    context: Context,
     private val api: BggService,
 ) {
-    private val converter: ForumXmlApiMarkupConverter = ForumXmlApiMarkupConverter(application.getString(R.string.spoiler))
+    private val converter: ForumXmlApiMarkupConverter = ForumXmlApiMarkupConverter(context.getString(R.string.spoiler))
 
     suspend fun loadForGame(gameId: Int): List<ForumEntity> = loadForums(BggService.ForumType.THING, gameId)
 

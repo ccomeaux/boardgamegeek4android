@@ -1,7 +1,7 @@
 package com.boardgamegeek.repository
 
+import android.content.Context
 import androidx.core.content.pm.ShortcutManagerCompat
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
 import com.boardgamegeek.entities.CollectionViewEntity
@@ -11,12 +11,12 @@ import com.boardgamegeek.ui.CollectionActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class CollectionViewRepository(val application: BggApplication) {
-    private val dao = CollectionViewDao(application)
+class CollectionViewRepository(val context: Context) {
+    private val dao = CollectionViewDao(context)
 
     private val defaultView = CollectionViewEntity(
         id = CollectionView.DEFAULT_DEFAULT_ID,
-        name = application.getString(R.string.title_collection),
+        name = context.getString(R.string.title_collection),
         sortType = CollectionSorterFactory.TYPE_DEFAULT
     )
 
@@ -44,12 +44,12 @@ class CollectionViewRepository(val application: BggApplication) {
     suspend fun updateShortcuts(viewId: Long) = withContext(Dispatchers.Default) {
         if (viewId > 0) {
             dao.updateShortcutCount(viewId)
-            ShortcutManagerCompat.reportShortcutUsed(application, CollectionActivity.createShortcutName(viewId))
+            ShortcutManagerCompat.reportShortcutUsed(context, CollectionActivity.createShortcutName(viewId))
             val shortcuts = dao.loadShortcuts()
                 .filter { it.name.isNotBlank() }
                 .take(SHORTCUT_COUNT)
-                .map { entity -> CollectionActivity.createShortcutInfo(application, entity.viewId, entity.name) }
-            ShortcutManagerCompat.setDynamicShortcuts(application, shortcuts)
+                .map { entity -> CollectionActivity.createShortcutInfo(context, entity.viewId, entity.name) }
+            ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
         }
     }
 

@@ -8,7 +8,6 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
@@ -30,14 +29,14 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.math.min
 
-class PlayRepository(val application: BggApplication) {
-    private val playDao = PlayDao(application)
-    private val gameDao = GameDao(application)
-    private val collectionDao = CollectionDao(application)
-    private val prefs: SharedPreferences by lazy { application.preferences() }
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
+class PlayRepository(val context: Context) {
+    private val playDao = PlayDao(context)
+    private val gameDao = GameDao(context)
+    private val collectionDao = CollectionDao(context)
+    private val prefs: SharedPreferences by lazy { context.preferences() }
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
     private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
-    private val bggService = Adapter.createForXml()
+    private val api = Adapter.createForXml()
 
     enum class SortBy(val daoSortBy: PlayDao.PlaysSortBy) {
         DATE(PlayDao.PlaysSortBy.DATE),
@@ -65,7 +64,7 @@ class PlayRepository(val application: BggApplication) {
             } else {
                 var returnedPlay: PlayEntity?
                 do {
-                    val result = bggService.playsByGame(username, gameId, page++)
+                    val result = api.playsByGame(username, gameId, page++)
                     val plays = result.plays.mapToEntity(timestamp)
                     saveFromSync(plays, timestamp)
                     Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
@@ -102,7 +101,7 @@ class PlayRepository(val application: BggApplication) {
         val minDate = if (newestTimestamp == 0L) null else newestTimestamp.asDateForApi()
         var page = 1
         do {
-            val response = bggService.plays(username, minDate, null, page++)
+            val response = api.plays(username, minDate, null, page++)
             val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
             saveFromSync(plays, syncInitiatedTimestamp)
 
@@ -132,7 +131,7 @@ class PlayRepository(val application: BggApplication) {
             page = 1
             val maxDate = if (oldestTimestamp == Long.MAX_VALUE) null else oldestTimestamp.asDateForApi()
             do {
-                val response = bggService.plays(username, null, maxDate, page++)
+                val response = api.plays(username, null, maxDate, page++)
                 val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
                 saveFromSync(plays, syncInitiatedTimestamp)
 
@@ -173,7 +172,7 @@ class PlayRepository(val application: BggApplication) {
             val date = timeInMillis.asDateForApi()
             var page = 1
             do {
-                val response = bggService.playsByDate(username, date, date, page++)
+                val response = api.playsByDate(username, date, date, page++)
                 val playsPage = response.plays.mapToEntity(timestamp)
                 saveFromSync(playsPage, timestamp)
                 plays += playsPage
@@ -269,7 +268,7 @@ class PlayRepository(val application: BggApplication) {
             updateTimestamp = System.currentTimeMillis()
         )
         playDao.upsert(playEntity)
-        SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }
 
     suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
@@ -361,7 +360,7 @@ class PlayRepository(val application: BggApplication) {
         val batch = arrayListOf<ContentProviderOperation>()
         batch += playDao.createDirtyPlaysForUserAndNickNameOperations(username, nickName)
         batch += playDao.createNickNameUpdateOperation(username, nickName)
-        application.contentResolver.applyBatch(batch) // is this better for DAO?
+        context.contentResolver.applyBatch(batch) // is this better for DAO?
         count
     }
 
@@ -371,7 +370,7 @@ class PlayRepository(val application: BggApplication) {
         batch += playDao.createRenameUpdateOperation(oldName, newName)
         batch += playDao.createCopyPlayerColorsOperations(oldName, newName)
         batch += playDao.createDeletePlayerColorsOperation(oldName)
-        application.contentResolver.applyBatch(batch)// is this better for DAO?
+        context.contentResolver.applyBatch(batch)// is this better for DAO?
     }
 
     data class RenameLocationResults(val oldLocationName: String, val newLocationName: String, val count: Int)
@@ -404,7 +403,7 @@ class PlayRepository(val application: BggApplication) {
                 ).build()
         )
 
-        val results = application.contentResolver.applyBatch(batch)
+        val results = context.contentResolver.applyBatch(batch)
         RenameLocationResults(oldLocationName, newLocationName, results.sumOf { it.count ?: 0 })
     }
 
@@ -414,7 +413,7 @@ class PlayRepository(val application: BggApplication) {
         batch += playDao.createAddUsernameOperation(playerName, username)
         batch += playDao.createCopyPlayerColorsToUserOperations(playerName, username)
         batch += playDao.createDeletePlayerColorsOperation(playerName)
-        application.contentResolver.applyBatch(batch)
+        context.contentResolver.applyBatch(batch)
     }
 
     suspend fun save(play: PlayEntity, internalId: Long = play.internalId): Long {
@@ -438,7 +437,7 @@ class PlayRepository(val application: BggApplication) {
         syncPrefs.clearPlaysTimestamps()
         val count = playDao.updateAllPlays(contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0))
         Timber.i("Cleared the hashcode from %,d plays.", count)
-        SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS)
+        SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS)
     }
 
     suspend fun deletePlays() {
@@ -465,7 +464,7 @@ class PlayRepository(val application: BggApplication) {
 
     fun updateGameHIndex(hIndex: HIndexEntity) {
         updateHIndex(
-            application,
+            context,
             hIndex,
             PlayStats.KEY_GAME_H_INDEX,
             R.string.game,
@@ -475,7 +474,7 @@ class PlayRepository(val application: BggApplication) {
 
     fun updatePlayerHIndex(hIndex: HIndexEntity) {
         updateHIndex(
-            application,
+            context,
             hIndex,
             PlayStats.KEY_PLAYER_H_INDEX,
             R.string.player,
