@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import android.content.Context
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.BggApplication
@@ -12,7 +13,7 @@ import com.boardgamegeek.provider.BggContract.Categories
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class CategoryDao(private val context: BggApplication) {
+class CategoryDao(private val context: Context) {
     private val collectionDao = CollectionDao(context)
 
     enum class SortType {

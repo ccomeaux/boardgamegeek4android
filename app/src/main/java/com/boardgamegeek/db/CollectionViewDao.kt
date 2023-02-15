@@ -1,12 +1,12 @@
 package com.boardgamegeek.db
 
+import android.content.Context
 import android.net.Uri
 import android.provider.BaseColumns
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
 import com.boardgamegeek.entities.CollectionViewShortcutEntity
@@ -20,7 +20,7 @@ import com.boardgamegeek.sorter.CollectionSorterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class CollectionViewDao(private val context: BggApplication) {
+class CollectionViewDao(private val context: Context) {
     /**
      * Load all collection views from the database.
      */

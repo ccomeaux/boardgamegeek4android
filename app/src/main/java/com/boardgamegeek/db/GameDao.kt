@@ -4,6 +4,7 @@ import android.content.ContentProviderOperation
 import android.content.ContentProviderOperation.Builder
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.provider.BaseColumns
@@ -31,7 +32,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class GameDao(private val context: BggApplication) {
+class GameDao(private val context: Context) {
     private val resolver: ContentResolver = context.contentResolver
 
     suspend fun load(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
@@ -151,6 +152,7 @@ class GameDao(private val context: BggApplication) {
 
     enum class PollType(val code: String) {
         LANGUAGE_DEPENDENCE("language_dependence"),
+
         @Suppress("SpellCheckingInspection")
         SUGGESTED_PLAYER_AGE("suggested_playerage"),
     }

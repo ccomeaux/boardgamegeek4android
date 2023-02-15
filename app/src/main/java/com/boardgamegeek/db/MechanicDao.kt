@@ -1,8 +1,8 @@
 package com.boardgamegeek.db
 
+import android.content.Context
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.extensions.ascending
 import com.boardgamegeek.extensions.collateNoCase
@@ -12,7 +12,7 @@ import com.boardgamegeek.provider.BggContract.Mechanics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class MechanicDao(private val context: BggApplication) {
+class MechanicDao(private val context: Context) {
     private val collectionDao = CollectionDao(context)
 
     enum class SortType {
