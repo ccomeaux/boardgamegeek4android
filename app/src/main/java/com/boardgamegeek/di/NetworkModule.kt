@@ -42,6 +42,10 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideGeekListRepository(api: BggService) = GeekListRepository(api)
+
+    @Provides
+    @Singleton
     fun provideHotnessRepository(api: BggService) = HotnessRepository(api)
 
     @Provides

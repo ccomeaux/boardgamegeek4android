@@ -7,14 +7,14 @@ import com.boardgamegeek.mappers.mapToEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class GeekListRepository {
+class GeekListRepository(private val api: BggService) {
     suspend fun getGeekLists(sort: BggService.GeekListSort?, page: Int) = withContext(Dispatchers.IO) {
         val response = Adapter.createForJson().geekLists(sort, GeekListsResponse.PAGE_SIZE, page)
         response.mapToEntity()
     }
 
     suspend fun getGeekList(geekListId: Int) = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().geekList(geekListId, 1)
+        val response = api.geekList(geekListId, 1)
         response.mapToEntity()
     }
 }

@@ -12,7 +12,9 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GeekListDescriptionFragment : Fragment() {
     private var _binding: FragmentGeeklistDescriptionBinding? = null
     private val binding get() = _binding!!

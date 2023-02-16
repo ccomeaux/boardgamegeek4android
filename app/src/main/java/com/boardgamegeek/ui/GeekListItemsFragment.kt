@@ -21,9 +21,11 @@ import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class GeekListItemsFragment : Fragment() {
     private var _binding: FragmentGeeklistItemsBinding? = null
     private val binding get() = _binding!!
@@ -54,7 +56,7 @@ class GeekListItemsFragment : Fragment() {
                             binding.recyclerView.isVisible = false
                         } else {
                             adapter.geekList = data
-                            adapter.geekListItems = geekListItems.orEmpty()
+                            adapter.geekListItems = geekListItems
                             binding.recyclerView.isVisible = true
                             binding.progressView.hide()
                         }

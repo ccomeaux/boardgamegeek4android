@@ -15,7 +15,9 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GeekListActivity : TabActivity() {
     private var geekListId = BggContract.INVALID_ID
     private var geekListTitle: String = ""

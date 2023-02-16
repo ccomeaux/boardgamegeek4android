@@ -15,8 +15,10 @@ import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.ui.adapter.GeekListsPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListsViewModel
 import com.boardgamegeek.ui.viewmodel.GeekListsViewModel.SortType
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class GeekListsFragment : Fragment() {
     private var _binding: FragmentGeeklistsBinding? = null
     private val binding get() = _binding!!

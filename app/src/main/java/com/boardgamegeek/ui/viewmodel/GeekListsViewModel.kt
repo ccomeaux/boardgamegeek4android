@@ -13,9 +13,14 @@ import com.boardgamegeek.livedata.GeekListsPagingSource
 import com.boardgamegeek.repository.GeekListRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class GeekListsViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = GeekListRepository()
+@HiltViewModel
+class GeekListsViewModel @Inject constructor(
+    application: Application,
+    private val repository: GeekListRepository,
+) : AndroidViewModel(application) {
     private val _sort = MutableLiveData<BggService.GeekListSort>()
 
     fun setSort(sort: SortType) {
