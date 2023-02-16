@@ -15,7 +15,9 @@ import com.boardgamegeek.databinding.DialogEditNicknameBinding
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class UpdateBuddyNicknameDialogFragment : DialogFragment() {
     private var _binding: DialogEditNicknameBinding? = null
     private val binding get() = _binding!!

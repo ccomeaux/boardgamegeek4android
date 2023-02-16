@@ -29,8 +29,10 @@ import com.boardgamegeek.ui.viewmodel.LogPlayerViewModel
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFragment.Listener {
     private lateinit var binding: ActivityLogplayerBinding
     private lateinit var firebaseAnalytics: FirebaseAnalytics

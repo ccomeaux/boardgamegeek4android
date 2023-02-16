@@ -9,11 +9,16 @@ import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class LogPlayerViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class LogPlayerViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository,
+) : AndroidViewModel(application) {
     private val gameRepository = GameRepository(getApplication())
     private val playRepository = PlayRepository(getApplication())
-    private val userRepository = UserRepository(getApplication())
 
     private val _gameId = MutableLiveData<Int>()
 

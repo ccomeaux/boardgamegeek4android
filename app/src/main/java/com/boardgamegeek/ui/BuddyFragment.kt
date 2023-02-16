@@ -16,7 +16,9 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.RenamePlayerDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class BuddyFragment : Fragment() {
     private var _binding: FragmentBuddyBinding? = null
     private val binding get() = _binding!!

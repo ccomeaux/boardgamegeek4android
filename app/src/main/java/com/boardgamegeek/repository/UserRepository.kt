@@ -11,7 +11,6 @@ import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.set
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.mappers.mapToEntity
@@ -25,12 +24,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class UserRepository(val context: Context) {
+class UserRepository(
+    val context: Context,
+    private val api: BggService,
+) {
     private val userDao = UserDao(context)
     private val imageDao = ImageDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
-    private val api = Adapter.createForXml()
 
     suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
         userDao.loadUser(username)

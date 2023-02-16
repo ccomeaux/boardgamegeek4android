@@ -9,12 +9,19 @@ import androidx.core.os.bundleOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.repository.UserRepository
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SyncService : Service() {
+    @Inject lateinit var userRepository: UserRepository
+
     override fun onCreate() {
+        super.onCreate()
         synchronized(SYNC_ADAPTER_LOCK) {
             if (syncAdapter == null) {
-                syncAdapter = SyncAdapter((application as BggApplication))
+                syncAdapter = SyncAdapter((application as BggApplication), userRepository)
             }
         }
     }
@@ -44,8 +51,8 @@ class SyncService : Service() {
         fun sync(context: Context?, syncType: Int) {
             Authenticator.getAccount(context)?.let { account ->
                 val extras = bundleOf(
-                        ContentResolver.SYNC_EXTRAS_MANUAL to true,
-                        EXTRA_SYNC_TYPE to syncType
+                    ContentResolver.SYNC_EXTRAS_MANUAL to true,
+                    EXTRA_SYNC_TYPE to syncType
                 )
                 ContentResolver.requestSync(account, BggContract.CONTENT_AUTHORITY, extras)
             }

@@ -10,8 +10,10 @@ import com.boardgamegeek.ui.BuddyActivity.Companion.startUp
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class BuddyCollectionActivity : SimpleSinglePaneActivity() {
     private var buddyName = ""
     val viewModel by viewModels<BuddyCollectionViewModel>()

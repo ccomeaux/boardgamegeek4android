@@ -16,6 +16,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.setCurrentTimestamp
+import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -25,7 +26,10 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.*
 
-class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
+class SyncAdapter(
+    private val application: BggApplication,
+    private val userRepository: UserRepository,
+) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
     private var currentTask: SyncTask? = null
     private var isCancelled = false
     private val cancelReceiver = CancelReceiver()
@@ -236,9 +240,9 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
             tasks.add(SyncPlays(application, service, syncResult, account))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
-            tasks.add(SyncBuddiesList(application, service, syncResult))
-            tasks.add(SyncBuddiesDetailOldest(application, service, syncResult))
-            tasks.add(SyncBuddiesDetailUnupdated(application, service, syncResult))
+            tasks.add(SyncBuddiesList(application, service, syncResult, userRepository))
+            tasks.add(SyncBuddiesDetailOldest(application, service, syncResult, userRepository))
+            tasks.add(SyncBuddiesDetailUnupdated(application, service, syncResult, userRepository))
         }
         return tasks
     }

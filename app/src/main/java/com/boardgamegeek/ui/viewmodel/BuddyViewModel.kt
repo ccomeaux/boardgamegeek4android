@@ -14,12 +14,17 @@ import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
-class BuddyViewModel(application: Application) : AndroidViewModel(application) {
-    private val userRepository = UserRepository(getApplication())
+@HiltViewModel
+class BuddyViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository,
+) : AndroidViewModel(application) {
     private val playRepository = PlayRepository(getApplication())
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private val isRefreshing = AtomicBoolean()

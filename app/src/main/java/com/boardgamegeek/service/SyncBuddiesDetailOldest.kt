@@ -7,12 +7,14 @@ import com.boardgamegeek.extensions.queryCount
 import com.boardgamegeek.extensions.queryStrings
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Buddies
+import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.util.RemoteConfig
 
 /**
  * Syncs a few buddies that haven't been updated in the longer while.
  */
-class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncBuddiesDetail(application, service, syncResult) {
+class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, syncResult: SyncResult, repository: UserRepository) :
+    SyncBuddiesDetail(application, service, syncResult, repository) {
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 
@@ -30,9 +32,9 @@ class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, 
         // attempt to sync all buddies every "days" days but no more than "max" at a time
         val limit = (count / days).coerceIn(1, max)
         return context.contentResolver.queryStrings(
-                Buddies.CONTENT_URI,
-                Buddies.Columns.BUDDY_NAME,
-                sortOrder = "${Buddies.Columns.UPDATED} LIMIT $limit"
+            Buddies.CONTENT_URI,
+            Buddies.Columns.BUDDY_NAME,
+            sortOrder = "${Buddies.Columns.UPDATED} LIMIT $limit"
         )
     }
 }

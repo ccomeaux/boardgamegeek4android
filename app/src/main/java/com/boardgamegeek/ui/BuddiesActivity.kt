@@ -9,7 +9,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel.SortType
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class BuddiesActivity : TopLevelSinglePaneActivity() {
     private var numberOfBuddies = -1
     private var sortBy = SortType.USERNAME

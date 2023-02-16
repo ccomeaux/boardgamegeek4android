@@ -4,7 +4,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<BuddyViewModel>()
 

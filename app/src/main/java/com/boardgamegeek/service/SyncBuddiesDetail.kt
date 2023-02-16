@@ -12,9 +12,8 @@ import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
 
-abstract class SyncBuddiesDetail(application: BggApplication, service: BggService, syncResult: SyncResult) :
+abstract class SyncBuddiesDetail(application: BggApplication, service: BggService, syncResult: SyncResult, private val repository: UserRepository) :
     SyncTask(application, service, syncResult) {
-    private val repository = UserRepository(application)
 
     /**
      * Returns a log message to use for debugging purposes.

@@ -19,10 +19,8 @@ import java.util.concurrent.TimeUnit
 /**
  * Syncs the list of buddies. Only runs every few days.
  */
-class SyncBuddiesList(application: BggApplication, service: BggService, syncResult: SyncResult) :
+class SyncBuddiesList(application: BggApplication, service: BggService, syncResult: SyncResult, private val repository: UserRepository) :
     SyncTask(application, service, syncResult) {
-
-    private val repository = UserRepository(application)
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 

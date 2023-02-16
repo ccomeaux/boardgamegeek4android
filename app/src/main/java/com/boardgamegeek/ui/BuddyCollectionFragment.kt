@@ -13,7 +13,9 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.ui.adapter.BuddyCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class BuddyCollectionFragment : Fragment() {
     private var _binding: FragmentBuddyCollectionBinding? = null
     private val binding get() = _binding!!

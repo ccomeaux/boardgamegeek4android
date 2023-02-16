@@ -22,10 +22,12 @@ import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.google.android.material.navigation.NavigationView
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
  */
+@AndroidEntryPoint
 abstract class DrawerActivity : BaseActivity() {
     private lateinit var binding: ActivityDrawerBaseBinding
     lateinit var drawerLayout: DrawerLayout

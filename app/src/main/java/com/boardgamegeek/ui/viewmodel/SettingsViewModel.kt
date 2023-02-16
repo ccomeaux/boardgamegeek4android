@@ -14,6 +14,7 @@ class SettingsViewModel @Inject constructor(
     private val artistRepository: ArtistRepository,
     private val designerRepository: DesignerRepository,
     private val publisherRepository: PublisherRepository,
+    private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
     private val categoryRepository = CategoryRepository(getApplication())
     private val collectionItemRepository = CollectionItemRepository(getApplication())
@@ -22,7 +23,6 @@ class SettingsViewModel @Inject constructor(
     private val imageRepository = ImageRepository(getApplication())
     private val mechanicRepository = MechanicRepository(getApplication())
     private val playRepository = PlayRepository(getApplication())
-    private val userRepository = UserRepository(getApplication())
 
     fun clearAllData() {
         viewModelScope.launch {

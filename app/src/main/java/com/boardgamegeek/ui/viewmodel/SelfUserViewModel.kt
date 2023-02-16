@@ -7,10 +7,15 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class SelfUserViewModel(application: Application) : AndroidViewModel(application) {
-    private val userRepository = UserRepository(getApplication())
+@HiltViewModel
+class SelfUserViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository,
+) : AndroidViewModel(application) {
     private val username = MutableLiveData<String?>()
 
     init {

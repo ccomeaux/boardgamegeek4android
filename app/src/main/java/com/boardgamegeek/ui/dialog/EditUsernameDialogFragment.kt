@@ -21,7 +21,9 @@ import com.boardgamegeek.databinding.DialogEditUsernameBinding
 import com.boardgamegeek.extensions.getTextColor
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class EditUsernameDialogFragment : DialogFragment() {
     private var _binding: DialogEditUsernameBinding? = null
     private val binding get() = _binding!!
@@ -87,7 +89,7 @@ class EditUsernameDialogFragment : DialogFragment() {
         _binding = null
     }
 
-    fun getUsername() = binding.editText.text?.toString().orEmpty().trim()
+    private fun getUsername() = binding.editText.text?.toString().orEmpty().trim()
 
     private fun bindButton() {
         when (isValid) {

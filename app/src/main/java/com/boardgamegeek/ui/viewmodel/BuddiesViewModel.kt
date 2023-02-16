@@ -16,15 +16,20 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
-class BuddiesViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class BuddiesViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         FIRST_NAME, LAST_NAME, USERNAME
     }
 
-    private val userRepository = UserRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
     private var isRefreshing = AtomicBoolean()
