@@ -9,20 +9,18 @@ import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.livedata.CommentsPagingSource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
-import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class GameCommentsViewModel @Inject constructor(
     application: Application,
-    playRepository: PlayRepository,
+    private val gameRepository: GameRepository,
 ) : AndroidViewModel(application) {
     enum class SortType {
         RATING, USER
     }
 
-    private val repository = GameRepository(getApplication(), playRepository)
     private val _id = MutableLiveData<Pair<Int, SortType>>()
 
     val sort: LiveData<SortType> = Transformations.map(_id) {
@@ -47,7 +45,7 @@ class GameCommentsViewModel @Inject constructor(
                 enablePlaceholders = true,
             )
         ) {
-            CommentsPagingSource(it.first, sortByRating, repository)
+            CommentsPagingSource(it.first, sortByRating, gameRepository)
         }.liveData
     }
 }

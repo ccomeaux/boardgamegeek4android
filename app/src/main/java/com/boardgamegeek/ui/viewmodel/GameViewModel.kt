@@ -28,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class GameViewModel @Inject constructor(
     application: Application,
+    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     private val isGameRefreshing = AtomicBoolean()
@@ -66,7 +67,6 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    private val gameRepository = GameRepository(getApplication(), playRepository)
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
     private val imageRepository = ImageRepository(getApplication())
 

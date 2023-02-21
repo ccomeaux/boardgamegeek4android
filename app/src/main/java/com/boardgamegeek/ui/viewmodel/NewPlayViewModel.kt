@@ -18,9 +18,9 @@ import javax.inject.Inject
 @HiltViewModel
 class NewPlayViewModel @Inject constructor(
     application: Application,
+    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val gameRepository = GameRepository(getApplication(), playRepository)
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private var gameId = MutableLiveData<Int>()

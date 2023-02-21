@@ -12,9 +12,8 @@ import javax.inject.Inject
 @HiltViewModel
 class GameColorsViewModel @Inject constructor(
     application: Application,
-    playRepository: PlayRepository,
+    private val gameRepository: GameRepository,
 ) : AndroidViewModel(application) {
-    private val gameRepository = GameRepository(getApplication(), playRepository)
     private val _gameId = MutableLiveData<Int>()
 
     fun setGameId(gameId: Int) {

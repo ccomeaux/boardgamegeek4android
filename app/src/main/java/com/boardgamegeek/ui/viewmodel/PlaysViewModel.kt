@@ -23,11 +23,11 @@ import javax.inject.Inject
 @HiltViewModel
 class PlaysViewModel @Inject constructor(
     application: Application,
+    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     private val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
     private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
-    private val gameRepository = GameRepository(getApplication(), playRepository)
 
     private data class PlayInfo(
         val mode: Mode,

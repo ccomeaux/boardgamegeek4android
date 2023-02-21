@@ -27,9 +27,9 @@ import javax.inject.Inject
 @HiltViewModel
 class LogPlayViewModel @Inject constructor(
     application: Application,
+    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val gameRepository = GameRepository(getApplication(), playRepository)
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private var originalPlay: PlayEntity? = null
@@ -403,9 +403,9 @@ class LogPlayViewModel @Inject constructor(
             viewModelScope.launch(Dispatchers.Default) {
                 val existingPlayers = if (clearExisting) it.map { it.copy(color = "") } else it
                 val results = PlayerColorAssigner(
-                    getApplication(),
                     _game.value?.first ?: INVALID_ID,
                     existingPlayers,
+                    gameRepository,
                     playRepository,
                 ).execute()
                 val newPlayers = mutableListOf<PlayPlayerEntity>()

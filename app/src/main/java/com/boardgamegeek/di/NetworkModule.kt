@@ -42,6 +42,11 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideGameRepository(@ApplicationContext context: Context, api: BggService, playRepository: PlayRepository) =
+        GameRepository(context, api, playRepository)
+
+    @Provides
+    @Singleton
     fun provideGeekListRepository(api: BggService) = GeekListRepository(api)
 
     @Provides

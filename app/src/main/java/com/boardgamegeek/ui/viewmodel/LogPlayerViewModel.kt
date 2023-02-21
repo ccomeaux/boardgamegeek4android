@@ -15,11 +15,10 @@ import javax.inject.Inject
 @HiltViewModel
 class LogPlayerViewModel @Inject constructor(
     application: Application,
+    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
-    private val gameRepository = GameRepository(getApplication(), playRepository)
-
     private val _gameId = MutableLiveData<Int>()
 
     fun setGameId(gameId: Int) {

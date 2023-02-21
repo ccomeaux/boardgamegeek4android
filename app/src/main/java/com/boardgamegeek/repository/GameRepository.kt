@@ -11,6 +11,7 @@ import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -22,11 +23,11 @@ import javax.inject.Inject
 
 class GameRepository @Inject constructor(
     val context: Context,
+    private val api: BggService,
     private val playRepository: PlayRepository,
 ) {
     private val dao = GameDao(context)
     private val playDao = PlayDao(context)
-    private val api = Adapter.createForXml()
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)
