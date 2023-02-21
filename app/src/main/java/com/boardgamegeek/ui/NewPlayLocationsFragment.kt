@@ -18,8 +18,10 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class NewPlayLocationsFragment : Fragment() {
     private var _binding: FragmentNewPlayLocationsBinding? = null
     private val binding get() = _binding!!

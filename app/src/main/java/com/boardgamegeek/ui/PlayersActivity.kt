@@ -14,7 +14,9 @@ import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PlayersActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<PlayersViewModel>()
 

@@ -16,15 +16,20 @@ import com.boardgamegeek.repository.PlayerColorAssigner
 import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.util.*
+import javax.inject.Inject
 
-class LogPlayViewModel(application: Application) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
-    private val gameRepository = GameRepository(getApplication())
+@HiltViewModel
+class LogPlayViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
+    private val gameRepository = GameRepository(getApplication(), playRepository)
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private var originalPlay: PlayEntity? = null
@@ -397,7 +402,12 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         players.value?.let {
             viewModelScope.launch(Dispatchers.Default) {
                 val existingPlayers = if (clearExisting) it.map { it.copy(color = "") } else it
-                val results = PlayerColorAssigner(getApplication(), _game.value?.first ?: INVALID_ID, existingPlayers).execute()
+                val results = PlayerColorAssigner(
+                    getApplication(),
+                    _game.value?.first ?: INVALID_ID,
+                    existingPlayers,
+                    playRepository,
+                ).execute()
                 val newPlayers = mutableListOf<PlayPlayerEntity>()
                 existingPlayers.forEach { ppe ->
                     val result = if (ppe.username.isEmpty()) {

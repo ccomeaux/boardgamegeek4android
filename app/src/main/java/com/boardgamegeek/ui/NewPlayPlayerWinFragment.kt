@@ -22,8 +22,10 @@ import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.NewPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class NewPlayPlayerWinFragment : Fragment() {
     private var _binding: FragmentNewPlayPlayerWinBinding? = null
     private val binding get() = _binding!!

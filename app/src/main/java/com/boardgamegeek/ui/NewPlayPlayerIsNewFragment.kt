@@ -18,8 +18,10 @@ import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class NewPlayPlayerIsNewFragment : Fragment() {
     private var _binding: FragmentNewPlayPlayerIsNewBinding? = null
     private val binding get() = _binding!!

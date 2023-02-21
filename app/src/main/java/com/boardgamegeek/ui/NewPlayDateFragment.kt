@@ -12,8 +12,10 @@ import com.boardgamegeek.databinding.FragmentNewPlayDateBinding
 import com.boardgamegeek.extensions.fromLocalToUtc
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class NewPlayDateFragment : Fragment() {
     private var _binding: FragmentNewPlayDateBinding? = null
     private val binding get() = _binding!!

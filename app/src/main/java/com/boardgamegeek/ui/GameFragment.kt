@@ -19,8 +19,10 @@ import com.boardgamegeek.ui.dialog.GameRanksDialogFragment
 import com.boardgamegeek.ui.dialog.GameSuggestedPlayerCountPollDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 
+@AndroidEntryPoint
 class GameFragment : Fragment() {
     private var _binding: FragmentGameBinding? = null
     private val binding get() = _binding!!

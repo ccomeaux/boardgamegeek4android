@@ -17,8 +17,10 @@ import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class CollectionFilterDialogFragment : DialogFragment() {
     private var _binding: DialogCollectionFilterBinding? = null
     private val binding get() = _binding!!

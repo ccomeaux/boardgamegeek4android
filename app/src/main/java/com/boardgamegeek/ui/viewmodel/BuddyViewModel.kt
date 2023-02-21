@@ -24,8 +24,8 @@ import javax.inject.Inject
 class BuddyViewModel @Inject constructor(
     application: Application,
     private val userRepository: UserRepository,
+    private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private val isRefreshing = AtomicBoolean()
 

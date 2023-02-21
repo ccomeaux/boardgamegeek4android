@@ -9,19 +9,27 @@ import androidx.core.os.bundleOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class SyncService : Service() {
-    @Inject lateinit var userRepository: UserRepository
+    @Inject
+    lateinit var playRepository: PlayRepository
+    @Inject
+    lateinit var userRepository: UserRepository
 
     override fun onCreate() {
         super.onCreate()
         synchronized(SYNC_ADAPTER_LOCK) {
             if (syncAdapter == null) {
-                syncAdapter = SyncAdapter((application as BggApplication), userRepository)
+                syncAdapter = SyncAdapter(
+                    (application as BggApplication),
+                    playRepository,
+                    userRepository,
+                )
             }
         }
     }

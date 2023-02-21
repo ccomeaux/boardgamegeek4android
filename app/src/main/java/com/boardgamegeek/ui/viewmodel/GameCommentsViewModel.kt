@@ -9,13 +9,20 @@ import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.livedata.CommentsPagingSource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
+import com.boardgamegeek.repository.PlayRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class GameCommentsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class GameCommentsViewModel @Inject constructor(
+    application: Application,
+    playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         RATING, USER
     }
 
-    private val repository = GameRepository(getApplication())
+    private val repository = GameRepository(getApplication(), playRepository)
     private val _id = MutableLiveData<Pair<Int, SortType>>()
 
     val sort: LiveData<SortType> = Transformations.map(_id) {

@@ -17,7 +17,9 @@ import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameCreditsFragment : Fragment() {
     private var _binding: FragmentGameCreditsBinding? = null
     private val binding get() = _binding!!

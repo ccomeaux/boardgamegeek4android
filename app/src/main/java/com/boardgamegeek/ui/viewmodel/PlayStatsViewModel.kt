@@ -15,9 +15,14 @@ import com.boardgamegeek.extensions.isStatusSetToSync
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.repository.PlayRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class PlayStatsViewModel(application: Application) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
+@HiltViewModel
+class PlayStatsViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val prefs: SharedPreferences by lazy { application.preferences() }
     val includeIncomplete = LiveSharedPreference<Boolean>(application, LOG_PLAY_STATS_INCOMPLETE)
     val includeExpansions = LiveSharedPreference<Boolean>(application, LOG_PLAY_STATS_EXPANSIONS)

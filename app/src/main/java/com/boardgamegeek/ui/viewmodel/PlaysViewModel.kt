@@ -14,15 +14,20 @@ import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RateLimiter
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class PlaysViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PlaysViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
     private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
-    private val playRepository = PlayRepository(getApplication())
-    private val gameRepository = GameRepository(getApplication())
+    private val gameRepository = GameRepository(getApplication(), playRepository)
 
     private data class PlayInfo(
         val mode: Mode,
@@ -186,7 +191,7 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
     fun delete(plays: List<PlayEntity>) {
         viewModelScope.launch {
             plays.forEach {
-              playRepository.markAsDeleted(it.internalId)
+                playRepository.markAsDeleted(it.internalId)
             }
             SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         }

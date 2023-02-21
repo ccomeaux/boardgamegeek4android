@@ -6,7 +6,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     private val viewModel by activityViewModels<PlayerColorsViewModel>()
 

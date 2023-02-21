@@ -18,7 +18,9 @@ import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PlayersFragment : Fragment() {
     private var _binding: FragmentPlayersBinding? = null
     private val binding get() = _binding!!

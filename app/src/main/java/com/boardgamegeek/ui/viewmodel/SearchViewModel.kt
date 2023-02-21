@@ -16,12 +16,11 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     application: Application,
     private val repository: SearchRepository,
+    private val playRepository: PlayRepository
 ) : AndroidViewModel(application) {
     private val _query = MutableLiveData<Pair<String, Boolean>>()
     val query: LiveData<Pair<String, Boolean>>
         get() = _query
-
-    private val playRepository = PlayRepository(getApplication())
 
     fun search(query: String) {
         FirebaseAnalytics.getInstance(getApplication()).logEvent(FirebaseAnalytics.Event.SEARCH) {

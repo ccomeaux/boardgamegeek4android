@@ -27,9 +27,11 @@ import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.text.DecimalFormat
 
+@AndroidEntryPoint
 class GamePollDialogFragment : DialogFragment() {
     private var pollType = UNKNOWN
     private var snackBar: Snackbar? = null

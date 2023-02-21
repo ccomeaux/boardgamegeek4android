@@ -16,6 +16,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.setCurrentTimestamp
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.RemoteConfig
@@ -28,6 +29,7 @@ import java.util.*
 
 class SyncAdapter(
     private val application: BggApplication,
+    private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
 ) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
     private var currentTask: SyncTask? = null
@@ -234,10 +236,10 @@ class SyncAdapter(
             tasks.add(SyncGamesUnupdated(application, service, syncResult))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-            tasks.add(SyncPlaysUpload(application, service, syncResult))
+            tasks.add(SyncPlaysUpload(application, service, syncResult, playRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-            tasks.add(SyncPlays(application, service, syncResult, account))
+            tasks.add(SyncPlays(application, service, syncResult, account, playRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
             tasks.add(SyncBuddiesList(application, service, syncResult, userRepository))

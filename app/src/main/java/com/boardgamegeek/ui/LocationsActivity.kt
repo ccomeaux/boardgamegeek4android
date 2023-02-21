@@ -11,7 +11,9 @@ import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class LocationsActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<LocationsViewModel>()
 

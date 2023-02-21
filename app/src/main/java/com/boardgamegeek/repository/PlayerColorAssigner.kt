@@ -7,13 +7,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class PlayerColorAssigner(application: BggApplication, private val gameId: Int, private val players: List<PlayPlayerEntity>) {
+class PlayerColorAssigner(
+    application: BggApplication,
+    private val gameId: Int,
+    private val players: List<PlayPlayerEntity>,
+    private val playRepository: PlayRepository,
+) {
     private val colorsAvailable = mutableListOf<String>()
     private val playersNeedingColor = mutableListOf<PlayerColorChoices>()
     private val results = mutableListOf<PlayerResult>()
     private var round = 0
-    private val playRepository = PlayRepository(application)
-    private val gameRepository = GameRepository(application)
+    private val gameRepository = GameRepository(application, playRepository)
 
     suspend fun execute(): List<PlayerResult> = withContext(Dispatchers.Default) {
         // set up

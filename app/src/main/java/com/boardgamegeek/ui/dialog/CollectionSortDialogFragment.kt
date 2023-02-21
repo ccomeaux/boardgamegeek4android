@@ -25,8 +25,10 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class CollectionSortDialogFragment : DialogFragment() {
     private var _binding: DialogCollectionSortBinding? = null
     private val binding get() = _binding!!

@@ -17,10 +17,15 @@ import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 import com.boardgamegeek.repository.PlayRepository
 
-class SyncPlays(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) :
+class SyncPlays(
+    application: BggApplication,
+    service: BggService,
+    syncResult: SyncResult,
+    private val account: Account,
+    private val playRepository: PlayRepository,
+) :
     SyncTask(application, service, syncResult) {
     private var startTime: Long = 0
-    private val playRepository = PlayRepository(application)
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD
 

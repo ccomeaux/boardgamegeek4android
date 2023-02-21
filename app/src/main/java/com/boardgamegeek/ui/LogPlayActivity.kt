@@ -46,11 +46,13 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.DecimalFormat
 import kotlin.math.abs
 
+@AndroidEntryPoint
 class LogPlayActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLogplayBinding
     private val viewModel by viewModels<LogPlayViewModel>()

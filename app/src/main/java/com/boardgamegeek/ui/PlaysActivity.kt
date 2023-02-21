@@ -17,8 +17,10 @@ import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetListener {
     private val viewModel by viewModels<PlaysViewModel>()
     private var snackbar: Snackbar? = null

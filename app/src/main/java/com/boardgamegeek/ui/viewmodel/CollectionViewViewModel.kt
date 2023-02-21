@@ -21,16 +21,21 @@ import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionActivity
 import com.google.firebase.analytics.FirebaseAnalytics
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class CollectionViewViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private val viewRepository = CollectionViewRepository(getApplication())
     private val itemRepository = CollectionItemRepository(getApplication())
-    private val playRepository = PlayRepository(getApplication())
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
     val defaultViewId

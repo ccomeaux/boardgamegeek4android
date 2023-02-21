@@ -18,7 +18,9 @@ import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SaveViewDialogFragment : DialogFragment() {
     private var _binding: DialogSaveViewBinding? = null
     private val binding get() = _binding!!

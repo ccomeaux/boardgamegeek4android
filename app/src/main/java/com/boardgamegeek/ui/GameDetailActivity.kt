@@ -13,7 +13,9 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameDetailActivity : SimpleSinglePaneActivity() {
     private var title: String = ""
     private var gameId: Int = BggContract.INVALID_ID

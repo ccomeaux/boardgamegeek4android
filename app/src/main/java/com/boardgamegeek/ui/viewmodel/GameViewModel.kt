@@ -17,13 +17,19 @@ import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.RemoteConfig
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class GameViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val isGameRefreshing = AtomicBoolean()
     private val areItemsRefreshing = AtomicBoolean()
     private val arePlaysRefreshing = AtomicBoolean()
@@ -60,9 +66,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val gameRepository = GameRepository(getApplication())
+    private val gameRepository = GameRepository(getApplication(), playRepository)
     private val gameCollectionRepository = GameCollectionRepository(getApplication())
-    private val playRepository = PlayRepository(getApplication())
     private val imageRepository = ImageRepository(getApplication())
 
     fun setId(gameId: Int) {

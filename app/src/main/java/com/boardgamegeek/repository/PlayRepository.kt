@@ -14,7 +14,7 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
@@ -29,14 +29,16 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.math.min
 
-class PlayRepository(val context: Context) {
+class PlayRepository(
+    val context: Context,
+    private val api: BggService,
+) {
     private val playDao = PlayDao(context)
     private val gameDao = GameDao(context)
     private val collectionDao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
     private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
-    private val api = Adapter.createForXml()
 
     enum class SortBy(val daoSortBy: PlayDao.PlaysSortBy) {
         DATE(PlayDao.PlaysSortBy.DATE),

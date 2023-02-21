@@ -43,9 +43,11 @@ import com.google.android.material.chip.Chip
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.text.NumberFormat
 
+@AndroidEntryPoint
 class CollectionFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!

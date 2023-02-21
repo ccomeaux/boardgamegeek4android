@@ -9,7 +9,9 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PlayActivity : SimpleSinglePaneActivity() {
     private var internalId = BggContract.INVALID_ID.toLong()
     private val viewModel by viewModels<PlayViewModel>()

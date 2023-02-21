@@ -9,13 +9,18 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
-    private val gameRepository = GameRepository(getApplication())
+@HiltViewModel
+class NewPlayViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
+    private val gameRepository = GameRepository(getApplication(), playRepository)
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private var gameId = MutableLiveData<Int>()

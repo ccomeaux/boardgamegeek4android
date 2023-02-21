@@ -9,13 +9,17 @@ import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.PlayRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class PlayersViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PlayersViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         NAME, PLAY_COUNT, WIN_COUNT
     }
-
-    private val playRepository = PlayRepository(getApplication())
 
     private val _sort = MutableLiveData<PlayersSort>()
     val sort: LiveData<PlayersSort>

@@ -19,7 +19,9 @@ import com.boardgamegeek.extensions.setViewBackground
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.PlayerNumberRow
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameSuggestedPlayerCountPollDialogFragment : DialogFragment() {
     private var _binding: FragmentPollSuggestedPlayerCountBinding? = null
     private val binding get() = _binding!!

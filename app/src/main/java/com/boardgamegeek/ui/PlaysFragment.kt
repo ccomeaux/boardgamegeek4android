@@ -23,10 +23,12 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.XmlApiMarkupConverter
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 open class PlaysFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentPlaysBinding? = null
     private val binding get() = _binding!!

@@ -15,8 +15,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCommentsBinding
 import com.boardgamegeek.ui.adapter.GameCommentsPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.GameCommentsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class CommentsFragment : Fragment() {
     private var _binding: FragmentCommentsBinding? = null
     private val binding get() = _binding!!

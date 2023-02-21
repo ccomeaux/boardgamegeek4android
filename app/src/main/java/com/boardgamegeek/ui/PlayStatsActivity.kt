@@ -3,10 +3,11 @@ package com.boardgamegeek.ui
 import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PlayStatsActivity : SimpleSinglePaneActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

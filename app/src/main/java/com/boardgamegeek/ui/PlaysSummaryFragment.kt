@@ -15,7 +15,9 @@ import com.boardgamegeek.databinding.FragmentPlaysSummaryBinding
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PlaysSummaryFragment : Fragment() {
     private var _binding: FragmentPlaysSummaryBinding? = null
     private val binding get() = _binding!!

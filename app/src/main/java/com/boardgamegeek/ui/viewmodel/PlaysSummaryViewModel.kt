@@ -10,11 +10,16 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RateLimiter
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
+@HiltViewModel
+class PlaysSummaryViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
     private val syncTimestamp = MutableLiveData<Long>()
     private val h = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX)

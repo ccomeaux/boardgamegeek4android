@@ -38,6 +38,7 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -48,6 +49,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 
+@AndroidEntryPoint
 class GamePlayStatsFragment : Fragment() {
     private var _binding: FragmentGamePlayStatsBinding? = null
     private val binding get() = _binding!!

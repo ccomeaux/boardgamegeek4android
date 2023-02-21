@@ -25,9 +25,13 @@ import okhttp3.FormBody
 import okhttp3.Request.Builder
 import java.util.concurrent.TimeUnit
 
-class SyncPlaysUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
+class SyncPlaysUpload(
+    application: BggApplication,
+    service: BggService,
+    syncResult: SyncResult,
+    private val repository: PlayRepository,
+) : SyncUploadTask(application, service, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
-    private val repository = PlayRepository(application)
     private var currentPlay = PlayForNotification()
     private val gameIds = mutableSetOf<Int>()
 

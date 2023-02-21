@@ -13,8 +13,10 @@ import com.boardgamegeek.databinding.DialogGameRanksBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameRankRow
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class GameRanksDialogFragment : DialogFragment() {
     private var _binding: DialogGameRanksBinding? = null
     private val binding get() = _binding!!

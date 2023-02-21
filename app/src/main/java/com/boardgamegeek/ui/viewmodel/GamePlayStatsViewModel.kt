@@ -8,12 +8,17 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.RemoteConfig
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
-class GamePlayStatsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class GamePlayStatsViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val gameRepository = GameCollectionRepository(getApplication())
-    private val playRepository = PlayRepository(getApplication())
     private val areItemsRefreshing = AtomicBoolean()
     private val refreshItemsMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
 

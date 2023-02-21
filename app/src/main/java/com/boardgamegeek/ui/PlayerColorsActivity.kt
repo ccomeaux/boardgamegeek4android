@@ -23,12 +23,14 @@ import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class PlayerColorsActivity : BaseActivity() {
     private lateinit var binding: ActivityPlayerColorsBinding
     private var buddyName: String? = null

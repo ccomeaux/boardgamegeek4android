@@ -21,7 +21,9 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GamePlaysFragment : Fragment() {
     private var _binding: FragmentGamePlaysBinding? = null
     private val binding get() = _binding!!

@@ -11,7 +11,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogGameUsersBinding
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameUsersDialogFragment : DialogFragment() {
     private var _binding: DialogGameUsersBinding? = null
     private val binding get() = _binding!!

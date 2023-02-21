@@ -18,12 +18,15 @@ import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
-class GameRepository(val context: Context) {
+class GameRepository @Inject constructor(
+    val context: Context,
+    private val playRepository: PlayRepository,
+) {
     private val dao = GameDao(context)
     private val playDao = PlayDao(context)
     private val api = Adapter.createForXml()
-    private val playRepository = PlayRepository(context)
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)

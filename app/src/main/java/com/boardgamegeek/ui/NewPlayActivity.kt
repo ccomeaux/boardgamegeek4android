@@ -21,7 +21,9 @@ import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class NewPlayActivity : AppCompatActivity() {
     private lateinit var binding: ActivityNewPlayBinding
     private var startTime = 0L

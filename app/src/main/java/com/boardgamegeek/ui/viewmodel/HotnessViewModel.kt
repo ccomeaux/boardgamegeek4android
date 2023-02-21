@@ -16,14 +16,14 @@ import javax.inject.Inject
 @HiltViewModel
 class HotnessViewModel @Inject constructor(
     application: Application,
-    private val repository: HotnessRepository,
+    private val hotnessRepository: HotnessRepository,
+    private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
 
     val hotness: LiveData<RefreshableResource<List<HotGameEntity>>> = liveData {
         try {
             emit(RefreshableResource.refreshing(latestValue?.data))
-            val games = repository.getHotness()
+            val games = hotnessRepository.getHotness()
             emit(RefreshableResource.success(games))
         } catch (e: Exception) {
             emit(RefreshableResource.error(e, application))

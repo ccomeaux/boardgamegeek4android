@@ -11,7 +11,9 @@ import com.boardgamegeek.databinding.FragmentGameDetailsBinding
 import com.boardgamegeek.ui.adapter.GameDetailAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameDetailFragment : Fragment() {
     private var _binding: FragmentGameDetailsBinding? = null
     private val binding get() = _binding!!
