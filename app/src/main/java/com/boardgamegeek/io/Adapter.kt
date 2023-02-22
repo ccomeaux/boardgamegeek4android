@@ -30,11 +30,6 @@ object Adapter {
         .build()
         .create(BggService::class.java)
 
-    fun createForJson(): BggService = createBuilderWithoutConverterFactory(null)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(BggService::class.java)
-
     private fun createBuilderWithoutConverterFactory(context: Context?) = Retrofit.Builder()
         .baseUrl("https://boardgamegeek.com/")
         .addConverterFactory(EnumConverterFactory())

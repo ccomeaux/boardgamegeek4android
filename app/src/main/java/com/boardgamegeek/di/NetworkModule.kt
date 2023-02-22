@@ -3,30 +3,65 @@
 package com.boardgamegeek.di
 
 import android.content.Context
-import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.EnumConverterFactory
+import com.boardgamegeek.BuildConfig
+import com.boardgamegeek.io.*
 import com.boardgamegeek.repository.*
+import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+    private const val HTTP_REQUEST_TIMEOUT_SEC = 15L
 
     @Provides
     @Singleton
-    fun providesBggService(): BggService = Retrofit.Builder()
+    fun provideHttpClient(): OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .addInterceptor(UserAgentInterceptor(null))
+        .addInterceptor(RetryInterceptor(true))
+        .addLoggingInterceptor()
+        .build()
+
+    private fun OkHttpClient.Builder.addLoggingInterceptor() = apply {
+        if (BuildConfig.DEBUG) {
+            addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
+            addNetworkInterceptor(StethoInterceptor())
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideBggService(httpClient: OkHttpClient): BggService = Retrofit.Builder()
         .baseUrl("https://boardgamegeek.com/")
         .addConverterFactory(EnumConverterFactory())
         .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
+        .client(httpClient)
         .build()
         .create(BggService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideBggAjaxApi(httpClient: OkHttpClient): BggAjaxApi = Retrofit.Builder()
+        .baseUrl("https://boardgamegeek.com/")
+        .addConverterFactory(EnumConverterFactory())
+        .addConverterFactory(GsonConverterFactory.create())
+        .client(httpClient)
+        .build()
+        .create(BggAjaxApi::class.java)
 
     @Provides
     @Singleton
@@ -47,7 +82,7 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideGeekListRepository(api: BggService) = GeekListRepository(api)
+    fun provideGeekListRepository(api: BggService, ajaxApi: BggAjaxApi) = GeekListRepository(api, ajaxApi)
 
     @Provides
     @Singleton

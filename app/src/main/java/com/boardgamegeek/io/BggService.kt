@@ -83,9 +83,6 @@ interface BggService {
     @GET("/xmlapi2/thread")
     suspend fun thread(@Query("id") id: Int): ThreadResponse
 
-    @GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&tradelists=0&version=v5")
-    suspend fun geekLists(@Query("sort") sort: GeekListSort?, @Query("showcount") pageSize: Int, @Query("pageid") page: Int): GeekListsResponse
-
     @GET("/xmlapi/geeklist/{id}")
     suspend fun geekList(@Path("id") id: Int, @Query("comments") comments: Int): GeekListResponse
 
@@ -158,17 +155,6 @@ interface BggService {
 
         @SerializedName("boardgamepublisher")
         BOARDGAME_PUBLISHER,
-    }
-
-    enum class GeekListSort {
-        @SerializedName("hot")
-        HOT,
-
-        @SerializedName("recent")
-        RECENT,
-
-        @SerializedName("active")
-        ACTIVE,
     }
 
     enum class ForumType {
