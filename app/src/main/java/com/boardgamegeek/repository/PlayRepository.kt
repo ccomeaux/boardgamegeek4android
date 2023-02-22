@@ -76,6 +76,30 @@ class PlayRepository(
             }
         }
 
+    suspend fun refreshPlaysForGame(gameId: Int) = withContext(Dispatchers.Default) {
+        if (gameId != INVALID_ID || username.isNullOrBlank()) {
+            val timestamp = System.currentTimeMillis()
+            var page = 1
+            do {
+                val response = api.playsByGame(username, gameId, page++)
+                val playsPage = response.plays.mapToEntity(timestamp)
+                saveFromSync(playsPage, timestamp)
+            } while (response.hasMorePages())
+
+            playDao.deleteUnupdatedPlays(gameId, timestamp)
+            gameDao.update(gameId, contentValuesOf(Games.Columns.UPDATED_PLAYS to System.currentTimeMillis()))
+            calculatePlayStats()
+        }
+    }
+
+    suspend fun refreshPartialPlaysForGame(gameId: Int) = withContext(Dispatchers.IO) {
+        val timestamp = System.currentTimeMillis()
+        val response = api.playsByGame(username, gameId, 1)
+        val plays = response.plays.mapToEntity(timestamp)
+        saveFromSync(plays, timestamp)
+        calculatePlayStats()
+    }
+
     suspend fun getPlays(sortBy: SortBy = SortBy.DATE) = playDao.loadPlays(sortBy.daoSortBy)
 
     suspend fun getPendingPlays() = playDao.loadPendingPlays()

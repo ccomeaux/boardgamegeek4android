@@ -24,11 +24,9 @@ import javax.inject.Inject
 class GameRepository @Inject constructor(
     val context: Context,
     private val api: BggService,
-    private val playRepository: PlayRepository,
 ) {
     private val dao = GameDao(context)
     private val playDao = PlayDao(context)
-    private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)
 
@@ -79,31 +77,6 @@ class GameRepository @Inject constructor(
     suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId)
 
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
-
-    suspend fun refreshPlays(gameId: Int) = withContext(Dispatchers.Default) {
-        if (gameId != INVALID_ID || username.isNullOrBlank()) {
-            val timestamp = System.currentTimeMillis()
-            var page = 1
-            do {
-                val response = api.playsByGame(username, gameId, page++)
-                val playsPage = response.plays.mapToEntity(timestamp)
-                playRepository.saveFromSync(playsPage, timestamp)
-            } while (response.hasMorePages())
-
-            playDao.deleteUnupdatedPlays(gameId, timestamp)
-            dao.update(gameId, contentValuesOf(Games.Columns.UPDATED_PLAYS to System.currentTimeMillis()))
-
-            playRepository.calculatePlayStats()
-        }
-    }
-
-    suspend fun refreshPartialPlays(gameId: Int) = withContext(Dispatchers.IO) {
-        val timestamp = System.currentTimeMillis()
-        val response = api.playsByGame(username, gameId, 1)
-        val plays = response.plays.mapToEntity(timestamp)
-        playRepository.saveFromSync(plays, timestamp)
-        playRepository.calculatePlayStats()
-    }
 
     suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId)
 

@@ -291,11 +291,11 @@ class GameViewModel @Inject constructor(
                         val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
                         val rPlays = when {
                             lastUpdated.isOlderThan(playsFullMinutes, TimeUnit.MINUTES) -> {
-                                gameRepository.refreshPlays(gameId)
+                                playRepository.refreshPlaysForGame(gameId)
                                 gameRepository.getPlays(gameId)
                             }
                             lastUpdated.isOlderThan(playsPartialMinutes, TimeUnit.MINUTES) -> {
-                                gameRepository.refreshPartialPlays(gameId)
+                                playRepository.refreshPartialPlaysForGame(gameId)
                                 gameRepository.getPlays(gameId)
                             }
                             else -> plays

@@ -81,7 +81,7 @@ class PlaysViewModel @Inject constructor(
                     emit(RefreshableResource.refreshing(list))
                     SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
                     when (it.mode) {
-                        Mode.GAME -> gameRepository.refreshPlays(it.id)
+                        Mode.GAME -> playRepository.refreshPlaysForGame(it.id)
                         else -> playRepository.refreshPlays()
                     }
                     loadPlays(it)
