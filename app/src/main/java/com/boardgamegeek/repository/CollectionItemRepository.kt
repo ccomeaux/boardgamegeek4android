@@ -58,7 +58,7 @@ class CollectionItemRepository(val context: Context) {
                 BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
             )
             subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
-            val response = Adapter.createForXml().collectionC(username, options)
+            val response = Adapter.createForXmlWithAuth(context).collectionC(username, options)
 
             var count = 0
             response.items?.forEach {

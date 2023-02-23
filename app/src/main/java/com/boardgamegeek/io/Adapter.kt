@@ -20,19 +20,10 @@ object Adapter {
             .create(GeekdoApi::class.java)
     }
 
-    fun createForXml(): BggService = createBuilderWithoutConverterFactory(null)
-        .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
-        .build()
-        .create(BggService::class.java)
-
-    fun createForXmlWithAuth(context: Context?): BggService = createBuilderWithoutConverterFactory(context)
-        .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
-        .build()
-        .create(BggService::class.java)
-
-    private fun createBuilderWithoutConverterFactory(context: Context?) = Retrofit.Builder()
+    fun createForXmlWithAuth(context: Context?): BggService = Retrofit.Builder()
         .baseUrl("https://boardgamegeek.com/")
         .addConverterFactory(EnumConverterFactory())
+        .addConverterFactory(SimpleXmlConverterFactory.createNonStrict())
         .client(
             if (context == null) {
                 getHttpClient(true)
@@ -40,4 +31,6 @@ object Adapter {
                 getHttpClientWithAuth(context)
             }
         )
+        .build()
+        .create(BggService::class.java)
 }
