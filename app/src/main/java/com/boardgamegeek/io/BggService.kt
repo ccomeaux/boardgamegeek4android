@@ -20,13 +20,10 @@ interface BggService {
     suspend fun collectionC(@Query("username") username: String?, @QueryMap options: Map<String, String>): CollectionResponse
 
     @GET("/xmlapi2/thing")
-    fun thing(@Query("id") gameId: Int, @Query("stats") stats: Int): Call<ThingResponse>
+    suspend fun thing(@Query("id") gameId: Int, @Query("stats") stats: Int): ThingResponse
 
     @GET("/xmlapi2/thing")
-    suspend fun thing2(@Query("id") gameId: Int, @Query("stats") stats: Int): ThingResponse
-
-    @GET("/xmlapi2/thing")
-    fun thing(@Query("id") gameIds: String?, @Query("stats") stats: Int): Call<ThingResponse>
+    suspend fun things(@Query("id") gameIds: String?, @Query("stats") stats: Int): ThingResponse
 
     @GET("/xmlapi2/thing?comments=1")
     suspend fun thingWithComments(@Query("id") gameId: Int, @Query("page") page: Int): ThingResponse

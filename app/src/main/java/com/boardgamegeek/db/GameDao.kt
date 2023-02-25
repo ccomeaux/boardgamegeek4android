@@ -14,7 +14,6 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
@@ -201,6 +200,36 @@ class GameDao(private val context: Context) {
             }
             GamePlayerPollEntity(results)
         } else null
+    }
+
+    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
+        val games = mutableListOf<Pair<Int, String>>()
+        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
+        context.contentResolver.loadList(
+            Games.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            "${Tables.GAMES}.${Games.Columns.UPDATED}".whereNotZeroOrNull(),
+            null,
+            "${Tables.GAMES}.${Games.Columns.UPDATED_LIST}$limit"
+        ) {
+            games += it.getInt(0) to it.getString(1)
+        }
+        games
+    }
+
+    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
+        val games = mutableListOf<Pair<Int, String>>()
+        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
+        context.contentResolver.loadList(
+            Games.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            "${Tables.GAMES}.${Games.Columns.UPDATED}".whereZeroOrNull(),
+            null,
+            "${Tables.GAMES}.${Games.Columns.UPDATED_LIST}$limit",
+        ) {
+            games += it.getInt(0) to it.getString(1)
+        }
+        games
     }
 
     suspend fun loadDesigners(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {

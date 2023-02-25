@@ -6,10 +6,7 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.extensions.AccountPreferences
-import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.getImageId
-import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
@@ -30,12 +27,26 @@ class GameRepository @Inject constructor(
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)
 
+    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0) = dao.loadOldestUpdatedGames(gamesPerFetch)
+
+    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0) = dao.loadUnupdatedGames(gamesPerFetch)
+
     suspend fun refreshGame(gameId: Int) = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val response = api.thing2(gameId, 1)
+        val response = api.thing(gameId, 1)
         response.games.firstOrNull()?.let { game ->
             dao.save(game.mapToEntity(), timestamp)
             Timber.i("Synced game '$gameId'")
+        }
+    }
+
+    suspend fun saveGame(entity: GameEntity, timestamp: Long) = withContext(Dispatchers.IO) {
+        if (entity.name.isBlank()) {
+            dao.delete(entity.id)
+            Timber.i("Deleted game '${entity.id}' while attempting to save")
+        } else {
+            dao.save(entity, timestamp)
+            Timber.i("Saved game '${entity.id}'")
         }
     }
 
