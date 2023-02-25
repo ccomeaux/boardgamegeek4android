@@ -31,6 +31,8 @@ class GameRepository @Inject constructor(
 
     suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0) = dao.loadUnupdatedGames(gamesPerFetch)
 
+    suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean) = dao.loadDeletableGames(hoursAgo, includeUnplayedGames)
+
     suspend fun refreshGame(gameId: Int) = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = api.thing(gameId, 1)
@@ -149,6 +151,8 @@ class GameRepository @Inject constructor(
             dao.update(gameId, contentValuesOf(Games.Columns.STARRED to if (isFavorite) 1 else 0))
         }
     }
+
+    suspend fun delete(gameId: Int) = dao.delete(gameId)
 
     suspend fun delete() = dao.delete()
 }

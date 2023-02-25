@@ -223,7 +223,7 @@ class SyncAdapter(
         account: Account
     ): List<SyncTask> {
         val service = Adapter.createForXmlWithAuth(application)
-        val tasks: MutableList<SyncTask> = ArrayList()
+        val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
             tasks.add(SyncCollectionUpload(application, service, syncResult))
         }
@@ -233,7 +233,7 @@ class SyncAdapter(
             tasks.add(SyncCollectionUnupdated(application, service, syncResult, account))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
-            tasks.add(SyncGamesRemove(application, service, syncResult))
+            tasks.add(SyncGamesRemove(application, service, syncResult, gameRepository))
             tasks.add(SyncGamesOldest(application, service, syncResult, gameRepository))
             tasks.add(SyncGamesUnupdated(application, service, syncResult, gameRepository))
         }
