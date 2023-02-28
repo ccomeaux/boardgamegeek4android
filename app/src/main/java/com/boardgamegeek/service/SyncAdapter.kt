@@ -87,7 +87,7 @@ class SyncAdapter(
             return
         }
         toggleCancelReceiver(true)
-        val tasks = createTasks(application, type, uploadOnly, syncResult, account)
+        val tasks = createTasks(application, type, uploadOnly, syncResult)
         for (i in tasks.indices) {
             if (isCancelled) {
                 Timber.i("Cancelling all sync tasks")
@@ -220,7 +220,6 @@ class SyncAdapter(
         typeList: Int,
         uploadOnly: Boolean,
         syncResult: SyncResult,
-        account: Account
     ): List<SyncTask> {
         val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
@@ -240,7 +239,7 @@ class SyncAdapter(
             tasks.add(SyncPlaysUpload(application, syncResult, playRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-            tasks.add(SyncPlays(application, syncResult, account, playRepository))
+            tasks.add(SyncPlays(application, syncResult, playRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
             tasks.add(SyncBuddiesList(application, syncResult, userRepository))

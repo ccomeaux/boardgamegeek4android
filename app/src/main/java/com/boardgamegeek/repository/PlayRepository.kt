@@ -189,26 +189,31 @@ class PlayRepository(
     suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) =
         playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
 
-    suspend fun refreshPlays(timeInMillis: Long) = withContext(Dispatchers.IO) {
+    suspend fun refreshPlaysForDate(timeInMillis: Long) = withContext(Dispatchers.IO) {
         if (timeInMillis <= 0L && !username.isNullOrBlank()) {
             emptyList()
         } else {
             val plays = mutableListOf<PlayEntity>()
             val timestamp = System.currentTimeMillis()
-            val date = timeInMillis.asDateForApi()
             var page = 1
             do {
-                val response = api.playsByDate(username, date, date, page++)
-                val playsPage = response.plays.mapToEntity(timestamp)
+                val (playsPage, shouldContinue) = downloadPlays(timeInMillis, timeInMillis, page++)
                 saveFromSync(playsPage, timestamp)
                 plays += playsPage
                 Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page)
-            } while (response.hasMorePages())
+            } while (shouldContinue)
 
             calculatePlayStats()
 
             plays
         }
+    }
+
+    suspend fun downloadPlays(fromDate: Long, toDate: Long, page:Int, timestamp: Long = System.currentTimeMillis()) = withContext(Dispatchers.IO) {
+        val from = if (fromDate > 0L) fromDate.asDateForApi() else null
+        val to = if (toDate > 0L) toDate.asDateForApi() else null
+        val response = api.plays(username, from, to, page)
+        response.plays.mapToEntity(timestamp) to response.hasMorePages()
     }
 
     suspend fun loadForStats(

@@ -169,7 +169,7 @@ class PlaysViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 _syncingStatus.postValue(true)
-                playRepository.refreshPlays(timeInMillis)
+                playRepository.refreshPlaysForDate(timeInMillis)
                 refresh()
             } catch (e: Exception) {
                 _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
