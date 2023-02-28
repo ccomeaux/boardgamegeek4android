@@ -15,7 +15,9 @@ import com.boardgamegeek.databinding.DialogEditTextBinding
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 abstract class EditCollectionTextDialogFragment : DialogFragment() {
     private var _binding: DialogEditTextBinding? = null
     private val binding get() = _binding!!

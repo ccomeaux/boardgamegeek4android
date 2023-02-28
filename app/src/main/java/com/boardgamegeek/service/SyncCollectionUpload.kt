@@ -31,15 +31,17 @@ import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class SyncCollectionUpload(application: BggApplication, syncResult: SyncResult) :
-    SyncUploadTask(application, syncResult) {
+class SyncCollectionUpload(
+    application: BggApplication,
+    syncResult: SyncResult,
+    private val gameCollectionRepository: GameCollectionRepository,
+) : SyncUploadTask(application, syncResult) {
     private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
     private val uploadTasks: List<CollectionUploadTask>
     private var currentGameId: Int = 0
     private var currentGameName: String = ""
     private var currentGameHeroImageUrl: String = ""
     private var currentGameThumbnailUrl: String = ""
-    private val repository = GameCollectionRepository(application)
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_UPLOAD
 
@@ -221,7 +223,7 @@ class SyncCollectionUpload(application: BggApplication, syncResult: SyncResult) 
         addTask.appendContentValues(contentValues)
         context.contentResolver.update(Collection.buildUri(item.internalId), contentValues, null, null)
         runBlocking {
-            repository.refreshCollectionItems(item.gameId)
+            gameCollectionRepository.refreshCollectionItems(item.gameId)
         }
         notifySuccess(item, item.gameId * -1, R.string.sync_notification_collection_added)
     }

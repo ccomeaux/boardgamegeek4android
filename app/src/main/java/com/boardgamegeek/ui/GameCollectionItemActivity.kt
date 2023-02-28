@@ -19,7 +19,9 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameCollectionItemActivity : HeroActivity() {
     private var internalId = BggContract.INVALID_ID.toLong()
     private var gameId = BggContract.INVALID_ID

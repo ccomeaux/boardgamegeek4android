@@ -19,7 +19,9 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameCollectionItemFragment : Fragment() {
     private var _binding: FragmentGameCollectionItemBinding? = null
     private val binding get() = _binding!!

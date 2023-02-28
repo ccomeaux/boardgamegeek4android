@@ -12,12 +12,17 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.util.RemoteConfig
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
 
-class GameCollectionItemViewModel(application: Application) : AndroidViewModel(application) {
-    private val gameCollectionRepository = GameCollectionRepository(getApplication())
+@HiltViewModel
+class GameCollectionItemViewModel @Inject constructor(
+    application: Application,
+    private val gameCollectionRepository: GameCollectionRepository,
+) : AndroidViewModel(application) {
     private val isItemRefreshing = AtomicBoolean()
     private val isImageRefreshing = AtomicBoolean()
     private val forceRefresh = AtomicBoolean()

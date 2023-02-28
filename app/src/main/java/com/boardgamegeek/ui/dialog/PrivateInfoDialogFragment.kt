@@ -21,8 +21,10 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 
+@AndroidEntryPoint
 class PrivateInfoDialogFragment : DialogFragment() {
     private var _binding: DialogPrivateInfoBinding? = null
     private val binding get() = _binding!!

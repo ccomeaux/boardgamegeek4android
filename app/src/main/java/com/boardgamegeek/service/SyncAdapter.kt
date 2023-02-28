@@ -15,10 +15,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.setCurrentTimestamp
-import com.boardgamegeek.repository.CollectionItemRepository
-import com.boardgamegeek.repository.GameRepository
-import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.repository.UserRepository
+import com.boardgamegeek.repository.*
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -31,6 +28,7 @@ class SyncAdapter(
     private val application: BggApplication,
     private val collectionItemRepository: CollectionItemRepository,
     private val gameRepository: GameRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
 ) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
@@ -223,7 +221,7 @@ class SyncAdapter(
     ): List<SyncTask> {
         val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-            tasks.add(SyncCollectionUpload(application, syncResult))
+            tasks.add(SyncCollectionUpload(application, syncResult, gameCollectionRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
             tasks.add(SyncCollectionComplete(application, syncResult, collectionItemRepository))

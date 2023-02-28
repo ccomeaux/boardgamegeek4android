@@ -9,10 +9,7 @@ import androidx.core.os.bundleOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.repository.CollectionItemRepository
-import com.boardgamegeek.repository.GameRepository
-import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.repository.UserRepository
+import com.boardgamegeek.repository.*
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -20,6 +17,7 @@ import javax.inject.Inject
 class SyncService : Service() {
     @Inject lateinit var collectionItemRepository: CollectionItemRepository
     @Inject lateinit var gameRepository: GameRepository
+    @Inject lateinit var gameCollectionRepository: GameCollectionRepository
     @Inject lateinit var playRepository: PlayRepository
     @Inject lateinit var userRepository: UserRepository
 
@@ -31,6 +29,7 @@ class SyncService : Service() {
                     (application as BggApplication),
                     collectionItemRepository,
                     gameRepository,
+                    gameCollectionRepository,
                     playRepository,
                     userRepository,
                 )

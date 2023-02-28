@@ -17,12 +17,12 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideCollectionItemRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService) =
-        CollectionItemRepository(context, api)
+    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = ArtistRepository(context, api)
 
     @Provides
     @Singleton
-    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = ArtistRepository(context, api)
+    fun provideCollectionItemRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService) =
+        CollectionItemRepository(context, api)
 
     @Provides
     @Singleton
@@ -35,6 +35,11 @@ object AppModule {
     @Provides
     @Singleton
     fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = GameRepository(context, api)
+
+    @Provides
+    @Singleton
+    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService) =
+        GameCollectionRepository(context, api)
 
     @Provides
     @Singleton

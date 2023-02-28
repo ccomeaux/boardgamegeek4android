@@ -16,9 +16,9 @@ import javax.inject.Inject
 @HiltViewModel
 class GamePlayStatsViewModel @Inject constructor(
     application: Application,
+    private val gameRepository: GameCollectionRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val gameRepository = GameCollectionRepository(getApplication())
     private val areItemsRefreshing = AtomicBoolean()
     private val refreshItemsMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
 

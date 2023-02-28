@@ -19,7 +19,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class GameCollectionRepository(val context: Context) {
+class GameCollectionRepository(
+    val context: Context,
+    private val api: BggService,
+) {
     private val dao = CollectionDao(context)
     private val gameDao = GameDao(context)
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
@@ -40,7 +43,7 @@ class GameCollectionRepository(val context: Context) {
                 else
                     BggService.COLLECTION_QUERY_KEY_ID to gameId.toString()
                 options.addSubtype(subtype)
-                val response = Adapter.createForXmlWithAuth(context).collection(username, options)
+                val response = api.collection(username, options)
 
                 val collectionIds = mutableListOf<Int>()
                 var entity: CollectionItemEntity? = null
@@ -78,7 +81,7 @@ class GameCollectionRepository(val context: Context) {
                 BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
             )
             options.addSubtype(subtype)
-            val response = Adapter.createForXmlWithAuth(context).collection(username, options)
+            val response = api.collection(username, options)
             response.items?.forEach { collectionItem ->
                 val (item, game) = collectionItem.mapToEntities()
                 val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
@@ -95,7 +98,7 @@ class GameCollectionRepository(val context: Context) {
                     BggService.COLLECTION_QUERY_STATUS_PLAYED to "1",
                 )
                 playedOptions.addSubtype(subtype)
-                val playedResponse = Adapter.createForXmlWithAuth(context).collection(username, playedOptions)
+                val playedResponse = api.collection(username, playedOptions)
                 playedResponse.items?.forEach { collectionItem ->
                     val (item, game) = collectionItem.mapToEntities()
                     val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
