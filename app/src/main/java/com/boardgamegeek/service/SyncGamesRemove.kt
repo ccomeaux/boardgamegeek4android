@@ -7,7 +7,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.COLLECTION_STATUS_PLAYED
 import com.boardgamegeek.extensions.hoursAgo
 import com.boardgamegeek.extensions.isStatusSetToSync
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
@@ -16,8 +15,8 @@ import timber.log.Timber
 /**
  * Removes games that aren't in the collection and haven't been viewed in 72 hours.
  */
-class SyncGamesRemove(application: BggApplication, service: BggService, syncResult: SyncResult, private val gameRepository: GameRepository) :
-    SyncTask(application, service, syncResult) {
+class SyncGamesRemove(application: BggApplication, syncResult: SyncResult, private val gameRepository: GameRepository) :
+    SyncTask(application, syncResult) {
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
 
     override val notificationSummaryMessageId = R.string.sync_notification_collection_missing

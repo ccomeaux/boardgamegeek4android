@@ -6,7 +6,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
 import com.boardgamegeek.repository.UserRepository
@@ -19,8 +18,8 @@ import java.util.concurrent.TimeUnit
 /**
  * Syncs the list of buddies. Only runs every few days.
  */
-class SyncBuddiesList(application: BggApplication, service: BggService, syncResult: SyncResult, private val repository: UserRepository) :
-    SyncTask(application, service, syncResult) {
+class SyncBuddiesList(application: BggApplication, syncResult: SyncResult, private val repository: UserRepository) :
+    SyncTask(application, syncResult) {
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 

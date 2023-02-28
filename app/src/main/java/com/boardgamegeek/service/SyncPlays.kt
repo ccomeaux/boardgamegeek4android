@@ -6,7 +6,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
@@ -19,12 +19,13 @@ import com.boardgamegeek.repository.PlayRepository
 
 class SyncPlays(
     application: BggApplication,
-    service: BggService,
     syncResult: SyncResult,
     private val account: Account,
     private val playRepository: PlayRepository,
 ) :
-    SyncTask(application, service, syncResult) {
+    SyncTask(application, syncResult) {
+    private val service = Adapter.createForXmlWithAuth(application)
+
     private var startTime: Long = 0
 
     override val syncType = SyncService.FLAG_SYNC_PLAYS_DOWNLOAD

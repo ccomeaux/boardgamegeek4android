@@ -19,7 +19,6 @@ import com.boardgamegeek.extensions.NotificationTags
 import com.boardgamegeek.extensions.getBoolean
 import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.whereNullOrBlank
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
@@ -32,8 +31,8 @@ import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-class SyncCollectionUpload(application: BggApplication, service: BggService, syncResult: SyncResult) :
-    SyncUploadTask(application, service, syncResult) {
+class SyncCollectionUpload(application: BggApplication, syncResult: SyncResult) :
+    SyncUploadTask(application, syncResult) {
     private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
     private val uploadTasks: List<CollectionUploadTask>
     private var currentGameId: Int = 0

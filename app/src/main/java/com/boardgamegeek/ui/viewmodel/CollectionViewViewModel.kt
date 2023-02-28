@@ -31,11 +31,11 @@ import javax.inject.Inject
 @HiltViewModel
 class CollectionViewViewModel @Inject constructor(
     application: Application,
+    private val itemRepository: CollectionItemRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private val viewRepository = CollectionViewRepository(getApplication())
-    private val itemRepository = CollectionItemRepository(getApplication())
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
     val defaultViewId

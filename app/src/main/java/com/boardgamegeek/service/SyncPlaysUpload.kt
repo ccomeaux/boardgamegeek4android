@@ -11,7 +11,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.repository.PlayRepository
@@ -27,10 +26,9 @@ import java.util.concurrent.TimeUnit
 
 class SyncPlaysUpload(
     application: BggApplication,
-    service: BggService,
     syncResult: SyncResult,
     private val repository: PlayRepository,
-) : SyncUploadTask(application, service, syncResult) {
+) : SyncUploadTask(application, syncResult) {
     private val httpClient = HttpUtils.getHttpClientWithAuth(context)
     private var currentPlay = PlayForNotification()
     private val gameIds = mutableSetOf<Int>()

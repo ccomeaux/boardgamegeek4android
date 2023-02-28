@@ -305,6 +305,21 @@ class CollectionDao(private val context: Context) {
             }
         }
 
+    suspend fun loadUnupdatedItems(gamesPerFetch: Int = 0) = withContext(Dispatchers.IO) {
+        val games = mutableMapOf<Int, String>()
+        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
+        context.contentResolver.loadList(
+            Collection.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            "collection.${Collection.Columns.UPDATED}".whereZeroOrNull(),
+            null,
+            "collection.${Collection.Columns.UPDATED_LIST} ASC$limit"
+        ) {
+            games[it.getInt(0)] = it.getString(1)
+        }
+        games.toMap()
+    }
+
     suspend fun loadAcquiredFrom(): List<String> = withContext(Dispatchers.IO) {
         resolver.queryStrings(Collection.buildAcquiredFromUri(), Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM).filterNot { it.isBlank() }
     }

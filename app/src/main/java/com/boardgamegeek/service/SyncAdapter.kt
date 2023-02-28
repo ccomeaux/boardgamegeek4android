@@ -13,9 +13,9 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.setCurrentTimestamp
+import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
@@ -26,10 +26,10 @@ import okhttp3.Request
 import timber.log.Timber
 import java.io.IOException
 import java.net.SocketTimeoutException
-import java.util.*
 
 class SyncAdapter(
     private val application: BggApplication,
+    private val collectionItemRepository: CollectionItemRepository,
     private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
@@ -68,7 +68,7 @@ class SyncAdapter(
         val manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false)
         val initialize = extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, false)
         val type = extras.getInt(SyncService.EXTRA_SYNC_TYPE, SyncService.FLAG_SYNC_ALL)
-        Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type)
+        Timber.i("Beginning sync for account ${account.name}, uploadOnly=$uploadOnly manualSync=$manualSync initialize=$initialize, type=$type")
 
         FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_TYPES, type)
 
@@ -222,31 +222,30 @@ class SyncAdapter(
         syncResult: SyncResult,
         account: Account
     ): List<SyncTask> {
-        val service = Adapter.createForXmlWithAuth(application)
         val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-            tasks.add(SyncCollectionUpload(application, service, syncResult))
+            tasks.add(SyncCollectionUpload(application, syncResult))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
-            tasks.add(SyncCollectionComplete(application, service, syncResult, account))
-            tasks.add(SyncCollectionModifiedSince(application, service, syncResult, account))
-            tasks.add(SyncCollectionUnupdated(application, service, syncResult, account))
+            tasks.add(SyncCollectionComplete(application, syncResult, collectionItemRepository))
+            tasks.add(SyncCollectionModifiedSince(application, syncResult, collectionItemRepository))
+            tasks.add(SyncCollectionUnupdated(application, syncResult, collectionItemRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
-            tasks.add(SyncGamesRemove(application, service, syncResult, gameRepository))
-            tasks.add(SyncGamesOldest(application, service, syncResult, gameRepository))
-            tasks.add(SyncGamesUnupdated(application, service, syncResult, gameRepository))
+            tasks.add(SyncGamesRemove(application, syncResult, gameRepository))
+            tasks.add(SyncGamesOldest(application, syncResult, gameRepository))
+            tasks.add(SyncGamesUnupdated(application, syncResult, gameRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-            tasks.add(SyncPlaysUpload(application, service, syncResult, playRepository))
+            tasks.add(SyncPlaysUpload(application, syncResult, playRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-            tasks.add(SyncPlays(application, service, syncResult, account, playRepository))
+            tasks.add(SyncPlays(application, syncResult, account, playRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
-            tasks.add(SyncBuddiesList(application, service, syncResult, userRepository))
-            tasks.add(SyncBuddiesDetailOldest(application, service, syncResult, userRepository))
-            tasks.add(SyncBuddiesDetailUnupdated(application, service, syncResult, userRepository))
+            tasks.add(SyncBuddiesList(application, syncResult, userRepository))
+            tasks.add(SyncBuddiesDetailOldest(application, syncResult, userRepository))
+            tasks.add(SyncBuddiesDetailUnupdated(application, syncResult, userRepository))
         }
         return tasks
     }

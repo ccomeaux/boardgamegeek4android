@@ -46,7 +46,7 @@ class UserRepository(
     suspend fun refreshCollection(username: String, status: String): List<CollectionItemEntity> =
         withContext(Dispatchers.IO) {
             val items = mutableListOf<CollectionItemEntity>()
-            val response = api.collectionC(
+            val response = api.collection(
                 username, mapOf(
                     status to "1",
                     BggService.COLLECTION_QUERY_KEY_BRIEF to "1"

@@ -1,31 +1,30 @@
 package com.boardgamegeek.service
 
-import android.accounts.Account
 import android.content.SyncResult
 import android.text.format.DateUtils
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.extensions.getSyncStatusesOrDefault
-import com.boardgamegeek.extensions.isCollectionSetToSync
-import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract.Collection
+import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
+import retrofit2.HttpException
 import timber.log.Timber
-import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 /**
  * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local
  * database that weren't synced.
  */
-class SyncCollectionComplete(application: BggApplication, service: BggService, syncResult: SyncResult, private val account: Account) :
-    SyncTask(application, service, syncResult) {
+class SyncCollectionComplete(
+    application: BggApplication,
+    syncResult: SyncResult,
+    private  val collectionItemRepository: CollectionItemRepository,
+) :
+    SyncTask(application, syncResult) {
     private val statusEntries = context.resources.getStringArray(R.array.pref_sync_status_entries)
     private val statusValues = context.resources.getStringArray(R.array.pref_sync_status_values)
 
@@ -46,23 +45,25 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
     override val notificationSummaryMessageId = R.string.sync_notification_collection_full
 
     override fun execute() {
-        Timber.i("Syncing complete collection")
+        Timber.i("Starting to sync complete collection")
         try {
             if (isCancelled) {
-                Timber.i("Complete collection sync task cancelled")
+                Timber.i("Complete collection sync task cancelled, aborting")
                 return
             }
 
             if (!prefs.isCollectionSetToSync()) {
-                Timber.i("Collection sync not set in preferences")
+                Timber.i("Collection sync not set in preferences, aborting")
                 return
             }
 
             if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
                 val lastCompleteSync = syncPrefs.getLastCompleteCollectionTimestamp()
                 if (lastCompleteSync > 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays, TimeUnit.DAYS)) {
-                    Timber.i("Not currently syncing and it's been less than $fetchIntervalInDays days since we synced completely")
+                    Timber.i("Not currently syncing but it's been less than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.asDateTime(context)}], aborting")
                     return
+                } else {
+                    Timber.i("Not currently syncing and it's been more than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.asDateTime(context)}], continuing")
                 }
                 syncPrefs.setCurrentCollectionSyncTimestamp()
             }
@@ -72,7 +73,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
                 val status = statuses[i]
                 if (i > 0) {
                     if (isCancelled) {
-                        Timber.i("Complete collection sync task cancelled before syncing $status")
+                        Timber.i("Complete collection sync task cancelled before syncing $status, aborting")
                         return
                     }
                     if (wasSleepInterrupted(5, TimeUnit.SECONDS)) return
@@ -87,20 +88,21 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
             }
 
             if (isCancelled) {
-                Timber.i("Complete collection sync task cancelled before item deletion")
+                Timber.i("Complete collection sync task cancelled before item deletion, aborting")
                 return
             }
 
             deleteUnusedItems()
             updateTimestamps()
-        } finally {
-            Timber.i("Complete collection sync task completed")
+            Timber.i("Complete collection sync task completed successfully")
+        } catch (e: Exception) {
+            Timber.i("Complete collection sync task ended with exception:\n$e")
         }
     }
 
     private fun syncByStatus(subtype: BggService.ThingSubtype? = null, status: String, vararg excludedStatuses: String) {
         val statusDescription = getStatusDescription(status)
-        val subtypeDescription = getSubtypeDescription(subtype)
+        val subtypeDescription = subtype.getDescription(context)
 
         if (isCancelled) {
             Timber.i("Complete collection sync task cancelled before status $statusDescription, subtype $subtypeDescription")
@@ -114,7 +116,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
         Timber.i("Syncing $statusDescription collection $subtypeDescription while excluding statuses [${excludedStatuses.formatList()}]")
 
-        updateProgressNotification(context.getString(R.string.sync_notification_collection_downloading, statusDescription, subtypeDescription))
+        updateProgressNotification(context.getString(R.string.sync_notification_collection_syncing, statusDescription, subtypeDescription))
 
         val options = mutableMapOf(
             BggService.COLLECTION_QUERY_KEY_STATS to "1",
@@ -124,34 +126,17 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
         subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
         for (excludedStatus in excludedStatuses) options[excludedStatus] = "0"
 
-        val dao = CollectionDao(application)
-        val call = service.collection(account.name, options)
         try {
             val timestamp = System.currentTimeMillis()
-            val response = call.execute()
-            if (response.code() == 200) {
-                val items = response.body()?.items
-                if (items != null && items.size > 0) {
-                    updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
-                    for (item in items) {
-                        val (collectionItem, game) = item.mapToEntities()
-                        runBlocking {
-                            dao.saveItem(collectionItem, game, timestamp)
-                        }
-                    }
-                    syncPrefs.setCompleteCollectionSyncTimestamp(subtype, status, timestamp)
-                    syncResult.stats.numUpdates += items.size.toLong()
-                    Timber.i("Saved ${items.size} $statusDescription collection $subtypeDescription")
-                } else {
-                    Timber.i("No $statusDescription collection $subtypeDescription found")
-                }
+            val count = runBlocking { collectionItemRepository.refresh(options, timestamp) }
+            syncResult.stats.numUpdates += count.toLong()
+            Timber.i("Saved $count $statusDescription collection $subtypeDescription")
+        } catch (e: Exception) {
+            if (e is HttpException) {
+                showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, subtypeDescription), e.code())
             } else {
-                showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, subtypeDescription), response.code())
-                syncResult.stats.numIoExceptions++
-                cancel()
+                showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, subtypeDescription), e)
             }
-        } catch (e: IOException) {
-            showError(context.getString(R.string.sync_notification_collection_detail, statusDescription, subtypeDescription), e)
             syncResult.stats.numIoExceptions++
             cancel()
         }
@@ -164,17 +149,6 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
             }
         }
         return status
-    }
-
-    private fun getSubtypeDescription(subtype: BggService.ThingSubtype?): String {
-        return context.getString(
-            when (subtype) {
-                BggService.ThingSubtype.BOARDGAME -> R.string.games
-                BggService.ThingSubtype.BOARDGAME_EXPANSION -> R.string.expansions
-                BggService.ThingSubtype.BOARDGAME_ACCESSORY -> R.string.accessories
-                else -> R.string.items
-            }
-        )
     }
 
     private fun deleteUnusedItems() {

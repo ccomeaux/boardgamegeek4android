@@ -5,15 +5,14 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
 import com.boardgamegeek.extensions.get
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
 
-abstract class SyncBuddiesDetail(application: BggApplication, service: BggService, syncResult: SyncResult, private val repository: UserRepository) :
-    SyncTask(application, service, syncResult) {
+abstract class SyncBuddiesDetail(application: BggApplication, syncResult: SyncResult, private val repository: UserRepository) :
+    SyncTask(application, syncResult) {
 
     /**
      * Returns a log message to use for debugging purposes.

@@ -10,12 +10,11 @@ import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.util.LargeIconLoader
 import com.boardgamegeek.util.LargeIconLoader.Callback
 import timber.log.Timber
 
-abstract class SyncUploadTask(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncTask(application, service, syncResult) {
+abstract class SyncUploadTask(application: BggApplication, syncResult: SyncResult) : SyncTask(application, syncResult) {
     private val notificationMessages = ArrayList<CharSequence>()
 
     @get:StringRes

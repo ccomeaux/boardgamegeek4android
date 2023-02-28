@@ -4,7 +4,6 @@ package com.boardgamegeek.io
 
 import com.boardgamegeek.io.model.*
 import com.google.gson.annotations.SerializedName
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -14,10 +13,7 @@ import java.util.*
 
 interface BggService {
     @GET("/xmlapi2/collection")
-    fun collection(@Query("username") username: String?, @QueryMap options: Map<String, String>): Call<CollectionResponse>
-
-    @GET("/xmlapi2/collection")
-    suspend fun collectionC(@Query("username") username: String?, @QueryMap options: Map<String, String>): CollectionResponse
+    suspend fun collection(@Query("username") username: String?, @QueryMap options: Map<String, String>): CollectionResponse
 
     @GET("/xmlapi2/thing")
     suspend fun thing(@Query("id") gameId: Int, @Query("stats") stats: Int): ThingResponse

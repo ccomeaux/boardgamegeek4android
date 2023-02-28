@@ -4,7 +4,7 @@ import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.util.RemoteConfig
@@ -15,10 +15,9 @@ import java.io.IOException
 
 abstract class SyncGames(
     application: BggApplication,
-    service: BggService,
     syncResult: SyncResult,
     private val gameRepository: GameRepository,
-) : SyncTask(application, service, syncResult) {
+) : SyncTask(application, syncResult) {
 
     private val fetchPauseMillis = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS)
     protected val gamesPerFetch = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_PER_FETCH)
@@ -27,6 +26,8 @@ abstract class SyncGames(
     protected abstract suspend fun getGames(): List<Pair<Int, String>>
     protected abstract val introLogMessage: String
     protected abstract val exitLogMessage: String
+
+    private val service = Adapter.createForXmlWithAuth(application)
 
     override fun execute() {
         Timber.i(introLogMessage)

@@ -11,13 +11,12 @@ import androidx.core.app.NotificationCompat.BigTextStyle
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.SyncPrefs
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
-abstract class SyncTask(protected val application: BggApplication, protected val service: BggService, protected val syncResult: SyncResult) {
+abstract class SyncTask(protected val application: BggApplication, protected val syncResult: SyncResult) {
     protected val context = application.applicationContext!!
     protected val prefs: SharedPreferences by lazy { context.preferences() }
     protected val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }

@@ -5,7 +5,6 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.queryCount
 import com.boardgamegeek.extensions.queryStrings
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.util.RemoteConfig
@@ -13,8 +12,8 @@ import com.boardgamegeek.util.RemoteConfig
 /**
  * Syncs a few buddies that haven't been updated in the longer while.
  */
-class SyncBuddiesDetailOldest(application: BggApplication, service: BggService, syncResult: SyncResult, repository: UserRepository) :
-    SyncBuddiesDetail(application, service, syncResult, repository) {
+class SyncBuddiesDetailOldest(application: BggApplication, syncResult: SyncResult, repository: UserRepository) :
+    SyncBuddiesDetail(application, syncResult, repository) {
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 
