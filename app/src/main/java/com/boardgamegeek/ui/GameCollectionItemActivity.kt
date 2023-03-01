@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.palette.graphics.Palette
@@ -37,6 +38,26 @@ class GameCollectionItemActivity : HeroActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (isInEditMode) {
+                if (isItemUpdated) {
+                    this@GameCollectionItemActivity.createDiscardDialog(
+                        R.string.collection_item,
+                        R.string.keep,
+                        isNew = false,
+                        finishActivity = false
+                    ) {
+                        viewModel.reset()
+                        viewModel.toggleEditMode()
+                    }.show()
+                } else {
+                    viewModel.toggleEditMode()
+                }
+            } else {
+                finish()
+            }
+        }
 
         safelySetTitle()
         changeImage()
@@ -92,26 +113,6 @@ class GameCollectionItemActivity : HeroActivity() {
         collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, CollectionItemEntity.YEAR_UNKNOWN)
     }
 
-    override fun onBackPressed() {
-        if (isInEditMode) {
-            if (isItemUpdated) {
-                this@GameCollectionItemActivity.createDiscardDialog(
-                    R.string.collection_item,
-                    R.string.keep,
-                    isNew = false,
-                    finishActivity = false
-                ) {
-                    viewModel.reset()
-                    viewModel.toggleEditMode()
-                }.show()
-            } else {
-                viewModel.toggleEditMode()
-            }
-        } else {
-            super.onBackPressed()
-        }
-    }
-
     override fun onCreatePane(): Fragment {
         return GameCollectionItemFragment.newInstance(gameId, collectionId)
     }
@@ -126,9 +127,7 @@ class GameCollectionItemActivity : HeroActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                if (gameId == BggContract.INVALID_ID) {
-                    onBackPressed()
-                } else {
+                if (gameId != BggContract.INVALID_ID) {
                     GameActivity.startUp(this, gameId, gameName, thumbnailUrl, heroImageUrl)
                 }
                 finish()

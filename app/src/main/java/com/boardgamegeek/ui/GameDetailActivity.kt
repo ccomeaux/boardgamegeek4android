@@ -55,7 +55,7 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
         when (item.itemId) {
             android.R.id.home -> {
                 when (gameId) {
-                    BggContract.INVALID_ID -> onBackPressed()
+                    BggContract.INVALID_ID -> finish()
                     else -> GameActivity.startUp(this, gameId, gameName)
                 }
                 finish()

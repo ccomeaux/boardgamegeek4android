@@ -54,9 +54,8 @@ class GeekListItemActivity : HeroTabActivity() {
             android.R.id.home -> {
                 if (geekListId != BggContract.INVALID_ID) {
                     GeekListActivity.startUp(this, geekListId, geekListTitle)
-                    finish()
                 }
-                else onBackPressed()
+                finish()
                 true
             }
             R.id.menu_view -> {

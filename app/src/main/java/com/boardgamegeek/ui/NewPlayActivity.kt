@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
@@ -32,6 +33,13 @@ class NewPlayActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (binding.pager.currentItem > 0)
+                viewModel.previousPage()
+            else
+                if (!maybeDiscard()) finish()
+        }
 
         val gameId = intent.getIntExtra(KEY_GAME_ID, INVALID_ID)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
@@ -145,13 +153,6 @@ class NewPlayActivity : AppCompatActivity() {
             }
             else -> super.onOptionsItemSelected(item)
         }
-    }
-
-    override fun onBackPressed() {
-        if (binding.pager.currentItem > 0)
-            viewModel.previousPage()
-        else
-            if (!maybeDiscard()) super.onBackPressed()
     }
 
     private fun maybeDiscard(): Boolean {

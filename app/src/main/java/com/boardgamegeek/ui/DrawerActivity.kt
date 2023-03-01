@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.Group
@@ -54,6 +55,14 @@ abstract class DrawerActivity : BaseActivity() {
 
         setSupportActionBar(toolbar)
 
+        onBackPressedDispatcher.addCallback(this) {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                finish() // TODO - register and deregister?
+            }
+        }
+
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         drawerLayout.setStatusBarBackgroundColor(ContextCompat.getColor(this, R.color.primary_dark))
 
@@ -90,14 +99,6 @@ abstract class DrawerActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         navigationView.setCheckedItem(navigationItemId)
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private fun selectItem(menuItemId: Int) {

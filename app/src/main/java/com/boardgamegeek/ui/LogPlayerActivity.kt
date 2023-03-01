@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -61,6 +62,10 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         setContentView(binding.root)
 
         firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
+        onBackPressedDispatcher.addCallback(this) {
+            cancel()
+        }
 
         binding.nameView.setOnItemClickListener { _, view, _, _ ->
             binding.usernameView.setText(view.tag as String)
@@ -164,10 +169,6 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         outState.putBoolean(KEY_USER_HAS_SHOWN_RATING, userHasShownRating)
         outState.putBoolean(KEY_USER_HAS_SHOWN_NEW, userHasShownNew)
         outState.putBoolean(KEY_USER_HAS_SHOWN_WIN, userHasShownWin)
-    }
-
-    override fun onBackPressed() {
-        cancel()
     }
 
     override fun onColorSelected(description: String, color: Int, requestCode: Int) {
@@ -355,7 +356,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
     class EditPlayerContract : ActivityResultContract<Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>, Pair<Int, PlayPlayerEntity?>>() {
         override fun createIntent(context: Context, input: Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>): Intent {
-             return Intent(context, LogPlayerActivity::class.java).apply {
+            return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.first.gameId)
                 putExtra(KEY_GAME_NAME, input.first.gameName)
                 putExtra(KEY_IMAGE_URL, input.first.imageUrl)

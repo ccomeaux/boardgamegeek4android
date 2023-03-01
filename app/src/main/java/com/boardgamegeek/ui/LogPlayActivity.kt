@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupMenu
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
 import androidx.appcompat.app.AlertDialog
@@ -339,6 +340,13 @@ class LogPlayActivity : AppCompatActivity() {
         binding = ActivityLogplayBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        onBackPressedDispatcher.addCallback(this) {
+            saveDraft()
+            toast(R.string.msg_saving_draft)
+            setResult(RESULT_OK)
+            finish()
+        }
+
         setDoneCancelActionBarView { v: View ->
             when (v.id) {
                 R.id.menu_done -> {
@@ -648,13 +656,6 @@ class LogPlayActivity : AppCompatActivity() {
         if (shouldSaveOnPause && !isLaunchingActivity) {
             saveDraft()
         }
-    }
-
-    override fun onBackPressed() {
-        saveDraft()
-        toast(R.string.msg_saving_draft)
-        setResult(RESULT_OK)
-        finish()
     }
 
     private fun saveDraft() {
