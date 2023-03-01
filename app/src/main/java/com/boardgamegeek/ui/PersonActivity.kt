@@ -38,7 +38,7 @@ class PersonActivity : HeroTabActivity() {
 
         id = intent.getIntExtra(KEY_PERSON_ID, BggContract.INVALID_ID)
         name = intent.getStringExtra(KEY_PERSON_NAME).orEmpty()
-        personType = (intent.getSerializableExtra(KEY_PERSON_TYPE) as PersonType?) ?: PersonType.DESIGNER
+        personType = intent.getSerializableCompat(KEY_PERSON_TYPE) ?: PersonType.DESIGNER
         emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
 
         initializeViewPager()

@@ -48,7 +48,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
-        objectType = intent.getSerializableExtra(KEY_OBJECT_TYPE) as ForumEntity.ForumType
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
     }
 
     override fun onCreatePane(intent: Intent): Fragment {

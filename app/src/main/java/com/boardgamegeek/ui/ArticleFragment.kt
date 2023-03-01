@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentArticleBinding
 import com.boardgamegeek.entities.ArticleEntity
+import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.extensions.toFormattedString
 
@@ -24,7 +25,7 @@ class ArticleFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val article = arguments?.getParcelable(KEY_ARTICLE) ?: ArticleEntity()
+        val article = arguments?.getParcelableCompat(KEY_ARTICLE) ?: ArticleEntity()
 
         binding.usernameView.text = article.username
         binding.postDateView.timestamp = article.postTicks

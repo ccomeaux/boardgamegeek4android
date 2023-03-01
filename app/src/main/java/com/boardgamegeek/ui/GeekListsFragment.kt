@@ -11,6 +11,7 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGeeklistsBinding
+import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.ui.adapter.GeekListsPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListsViewModel
 import com.boardgamegeek.ui.viewmodel.GeekListsViewModel.SortType
@@ -25,7 +26,7 @@ class GeekListsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sortType = savedInstanceState?.getSerializable(KEY_SORT_TYPE) as? SortType ?: SortType.HOT
+        sortType = savedInstanceState?.getSerializableCompat(KEY_SORT_TYPE) ?: SortType.HOT
     }
 
     @Suppress("RedundantNullableReturnType")

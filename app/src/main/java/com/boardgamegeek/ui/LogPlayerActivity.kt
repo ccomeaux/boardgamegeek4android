@@ -123,11 +123,11 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         binding.fab.colorize(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)))
         if (savedInstanceState == null) {
             position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
-            player = intent.getParcelableExtra(KEY_PLAYER) ?: PlayPlayerEntity()
+            player = intent.getParcelableCompat(KEY_PLAYER) ?: PlayPlayerEntity()
             if (hasAutoPosition()) player = player.copy(startingPosition = autoPosition.toString())
             originalPlayer = player.copy()
         } else {
-            player = savedInstanceState.getParcelable(KEY_PLAYER) ?: PlayPlayerEntity()
+            player = savedInstanceState.getParcelableCompat(KEY_PLAYER) ?: PlayPlayerEntity()
             userHasShownTeamColor = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_TEAM_COLOR)
             userHasShownPosition = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_POSITION)
             userHasShownScore = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_SCORE)
@@ -348,8 +348,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
         override fun parseResult(resultCode: Int, intent: Intent?): PlayPlayerEntity? {
             return if (resultCode == RESULT_OK) {
-                val player = intent?.getParcelableExtra(KEY_PLAYER) as? PlayPlayerEntity
-                player
+                intent?.getParcelableCompat(KEY_PLAYER) as? PlayPlayerEntity
             } else null
         }
     }
@@ -375,7 +374,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         override fun parseResult(resultCode: Int, intent: Intent?): Pair<Int, PlayPlayerEntity?> {
             return if (resultCode == RESULT_OK) {
                 val position = intent?.getIntExtra(KEY_POSITION, INVALID_POSITION) ?: INVALID_POSITION
-                val player = intent?.getParcelableExtra(KEY_PLAYER) as? PlayPlayerEntity
+                val player = intent?.getParcelableCompat(KEY_PLAYER) as? PlayPlayerEntity
                 position to player
             } else INVALID_POSITION to null
         }

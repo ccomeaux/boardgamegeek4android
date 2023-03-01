@@ -10,6 +10,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.extensions.link
+import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
@@ -31,7 +32,7 @@ class GeekListItemActivity : HeroTabActivity() {
         geekListTitle = intent.getStringExtra(KEY_TITLE).orEmpty()
         geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID)
         order = intent.getIntExtra(KEY_ORDER, 0)
-        geekListItemEntity = intent.getParcelableExtra(KEY_ITEM) ?: GeekListItemEntity()
+        geekListItemEntity = intent.getParcelableCompat(KEY_ITEM) ?: GeekListItemEntity()
 
         initializeViewPager()
 

@@ -9,6 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.databinding.FragmentGeeklistItemBinding
 import com.boardgamegeek.entities.GeekListItemEntity
+import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.util.XmlApiMarkupConverter
 
@@ -24,7 +25,7 @@ class GeekListItemFragment : Fragment() {
         arguments?.let {
             order = it.getInt(KEY_ORDER, 0)
             geekListTitle = it.getString(KEY_TITLE).orEmpty()
-            glItem = it.getParcelable(KEY_ITEM) ?: GeekListItemEntity()
+            glItem = it.getParcelableCompat(KEY_ITEM) ?: GeekListItemEntity()
         }
     }
 

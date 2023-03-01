@@ -15,6 +15,7 @@ import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.extensions.set
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ThreadRecyclerViewAdapter
@@ -54,7 +55,7 @@ class ThreadFragment : Fragment() {
             forumTitle = it.getString(KEY_FORUM_TITLE).orEmpty()
             objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
             objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
-            objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
+            objectType = it.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
         }
 
         requireActivity().addMenuProvider(object : MenuProvider {

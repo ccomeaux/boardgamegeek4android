@@ -13,6 +13,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentForumsBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
+import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
@@ -39,7 +40,7 @@ class ForumsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
-            forumType = it.getSerializable(KEY_TYPE) as? ForumEntity.ForumType? ?: ForumEntity.ForumType.REGION
+            forumType = it.getSerializableCompat(KEY_TYPE) ?: ForumEntity.ForumType.REGION
             objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
             objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
         }

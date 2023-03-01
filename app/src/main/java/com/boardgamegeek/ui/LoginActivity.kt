@@ -37,7 +37,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        accountAuthenticatorResponse = intent.getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
+        accountAuthenticatorResponse = intent.getParcelableCompat(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
         accountAuthenticatorResponse?.onRequestContinued()
 
         binding = ActivityLoginBinding.inflate(layoutInflater)

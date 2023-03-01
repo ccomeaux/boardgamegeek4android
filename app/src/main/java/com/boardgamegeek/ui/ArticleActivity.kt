@@ -8,9 +8,7 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.ArticleEntity
 import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.extensions.link
-import com.boardgamegeek.extensions.share
-import com.boardgamegeek.extensions.startActivity
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -58,8 +56,8 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
-        objectType = intent.getSerializableExtra(KEY_OBJECT_TYPE) as ForumEntity.ForumType
-        article = intent.getParcelableExtra(KEY_ARTICLE) ?: ArticleEntity()
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
+        article = intent.getParcelableCompat(KEY_ARTICLE) ?: ArticleEntity()
     }
 
     override fun onCreatePane(intent: Intent): Fragment {

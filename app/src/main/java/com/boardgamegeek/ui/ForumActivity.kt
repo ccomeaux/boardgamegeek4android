@@ -9,6 +9,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.extensions.clearTop
 import com.boardgamegeek.extensions.intentFor
+import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.ForumsActivity.Companion.startUp
@@ -47,7 +48,7 @@ class ForumActivity : SimpleSinglePaneActivity() {
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
-        objectType = intent.getSerializableExtra(KEY_OBJECT_TYPE) as ForumEntity.ForumType
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
     }
 

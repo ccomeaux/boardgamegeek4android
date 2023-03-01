@@ -8,6 +8,7 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
@@ -28,7 +29,7 @@ class PlayersActivity : SimpleSinglePaneActivity() {
             }
         }
 
-        viewModel.sort(intent.extras?.get(KEY_SORT_TYPE) as? PlayersViewModel.SortType ?: PlayersViewModel.SortType.NAME)
+        viewModel.sort(intent.extras?.getSerializableCompat(KEY_SORT_TYPE) ?: PlayersViewModel.SortType.NAME)
         viewModel.players.observe(this) {
             playerCount = it?.size ?: 0
             invalidateOptionsMenu()
