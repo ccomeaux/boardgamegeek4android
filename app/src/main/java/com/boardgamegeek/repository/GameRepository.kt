@@ -33,23 +33,19 @@ class GameRepository @Inject constructor(
 
     suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean) = dao.loadDeletableGames(hoursAgo, includeUnplayedGames)
 
-    suspend fun refreshGame(gameId: Int) = withContext(Dispatchers.IO) {
+    suspend fun refreshGame(vararg gameId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val response = api.thing(gameId, 1)
-        response.games.firstOrNull()?.let { game ->
-            dao.save(game.mapToEntity(), timestamp)
-            Timber.i("Synced game '$gameId'")
-        }
-    }
-
-    suspend fun saveGame(entity: GameEntity, timestamp: Long) = withContext(Dispatchers.IO) {
-        if (entity.name.isBlank()) {
-            dao.delete(entity.id)
-            Timber.i("Deleted game '${entity.id}' while attempting to save")
+        val response = if (gameId.size == 1) {
+            api.thing(gameId.first(), 1)
         } else {
-            dao.save(entity, timestamp)
-            Timber.i("Saved game '${entity.id}'")
+            api.things(gameId.joinToString(), 1)
         }
+        for (game in response.games) {
+            val gameEntity = game.mapToEntity()
+            dao.save(gameEntity, timestamp)
+            Timber.i("Synced game ${gameEntity.name} [${gameEntity.id}]")
+        }
+        response.games.size
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {

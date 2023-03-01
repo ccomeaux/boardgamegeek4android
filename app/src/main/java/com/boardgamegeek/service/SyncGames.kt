@@ -4,8 +4,6 @@ import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.io.Adapter
-import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
@@ -27,8 +25,6 @@ abstract class SyncGames(
     protected abstract val introLogMessage: String
     protected abstract val exitLogMessage: String
 
-    private val service = Adapter.createForXmlWithAuth(application)
-
     override fun execute() {
         Timber.i(introLogMessage)
         try {
@@ -41,30 +37,22 @@ abstract class SyncGames(
                 numberOfFetches++
                 val gameList = runBlocking { getGames() }
                 if (gameList.isNotEmpty()) {
-                    val gamesDescription = gameList.map { "[${it.first}] ${it.second}" }.formatList()
-                    Timber.i("...found ${gameList.size} games to update [$gamesDescription]")
-                    var detail =
-                        context.resources.getQuantityString(R.plurals.sync_notification_games, gameList.size, gameList.size, gamesDescription)
+                    val gamesDescription = gameList.map { "${it.second} [${it.first}]" }.formatList()
+                    Timber.i("Found ${gameList.size} games to update [$gamesDescription]")
+                    var detail = context.resources.getQuantityString(R.plurals.sync_notification_games, gameList.size, gameList.size, gamesDescription)
                     if (numberOfFetches > 1) {
                         detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches)
                     }
                     updateProgressNotification(detail)
 
-                    val gameIds = gameList.map { it.first }.joinToString(",")
+                    val gameIds = gameList.map { it.first }
                     try {
-                        val timestamp = System.currentTimeMillis()
-                        val response = runBlocking { service.things(gameIds, 1) }
-                        val games = response.games.orEmpty()
-                        if (games.isNotEmpty()) {
-                            runBlocking {
-                                for (game in games) {
-                                    gameRepository.saveGame(game.mapToEntity(), timestamp)
-                                }
-                            }
-                            syncResult.stats.numUpdates += games.size.toLong()
-                            Timber.i("...saved %,d games", games.size)
-                        } else {
-                            Timber.i("...no games returned")
+                        val c = runBlocking { gameRepository.refreshGame(*gameIds.toIntArray()) }
+                        syncResult.stats.numUpdates += c
+                        if (c > 0) {
+                            Timber.i("Saved %,d records for games=[$gamesDescription]", c)
+                        }else{
+                            Timber.i("No games saved; aborting")
                             break
                         }
                     } catch (e: IOException) {
@@ -101,24 +89,20 @@ abstract class SyncGames(
                     break
                 }
             } while (numberOfFetches < maxFetchCount)
-        } finally {
-            Timber.i("...complete!")
+            Timber.i("Syncing games completed successfully")
+        } catch (e: Exception) {
+            Timber.i("Syncing games ended with exception:\n$e")
         }
     }
 
     private fun syncGame(id: Int, gameName: String): Boolean {
         var detail = ""
         try {
-            val timestamp = System.currentTimeMillis()
+            detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
             runBlocking {
-                val response = service.thing(id, 1)
-                val games = response.games.orEmpty()
-                detail = context.resources.getQuantityString(R.plurals.sync_notification_games, 1, 1, gameName)
-                for (game in games) {
-                    gameRepository.saveGame(game.mapToEntity(), timestamp)
-                }
-                syncResult.stats.numUpdates += games.size.toLong()
-                Timber.i("...saved %,d games", games.size)
+                val count = gameRepository.refreshGame(id)
+                syncResult.stats.numUpdates += count
+                Timber.i("Saved %,d records for game ID=[$id]", count)
             }
         } catch (e: IOException) {
             showError(detail, e)

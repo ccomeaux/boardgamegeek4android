@@ -11,8 +11,8 @@ import com.boardgamegeek.repository.GameRepository
 class SyncGamesOldest(application: BggApplication, syncResult: SyncResult, private val gameRepository: GameRepository) :
     SyncGames(application, syncResult, gameRepository) {
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
-    override val introLogMessage = "Syncing $gamesPerFetch oldest games in the collection..."
-    override val exitLogMessage = "...found no old games to update (this should only happen with empty collections)"
+    override val introLogMessage = "Syncing $gamesPerFetch oldest games in the collection"
+    override val exitLogMessage = "Found no old games to update (this should only happen with empty collections); ending"
     override val notificationSummaryMessageId = R.string.sync_notification_games_oldest
     override suspend fun getGames() = gameRepository.loadOldestUpdatedGames(gamesPerFetch)
 }

@@ -24,7 +24,7 @@ class SyncGamesRemove(application: BggApplication, syncResult: SyncResult, priva
     private val lastViewedAgeInHours = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_DELETE_VIEW_HOURS)
 
     override fun execute() {
-        Timber.i("Removing games not in the collection...")
+        Timber.i("Removing games not in the collection")
         try {
             val hoursAgo = lastViewedAgeInHours.hoursAgo()
             val date = DateUtils.formatDateTime(context, hoursAgo, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_SHOW_TIME)

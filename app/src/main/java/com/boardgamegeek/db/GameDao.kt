@@ -473,9 +473,9 @@ class GameDao(private val context: Context) {
 
     suspend fun save(game: GameEntity, updateTime: Long) = withContext(Dispatchers.IO) {
         if (game.name.isBlank()) {
-            Timber.w("Missing name from game ID=%s", game.id)
+            Timber.w("Missing name from game ID=${game.id}")
         } else {
-            Timber.i("Saving game %s (%s)", game.name, game.id)
+            Timber.i("Saving game ${game.name} [${game.id}]")
 
             val batch = arrayListOf<ContentProviderOperation>()
 
@@ -511,19 +511,11 @@ class GameDao(private val context: Context) {
             batch += createAssociationBatch(game.id, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
 
             resolver.applyBatch(batch, "Game ${game.id}")
+            val dateTime = DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
             if (internalId == INVALID_ID.toLong()) {
-                Timber.i(
-                    "Inserted game ID '%s' at %s",
-                    game.id,
-                    DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-                )
+                Timber.i("Inserted game ${game.name} [${game.id}] at $dateTime")
             } else {
-                Timber.i(
-                    "Updated game ID '%s' (%s) at %s",
-                    game.id,
-                    internalId,
-                    DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-                )
+                Timber.i("Updated game ${game.name} [${game.id}] (${internalId}) at $dateTime")
             }
         }
     }

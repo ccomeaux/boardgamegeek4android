@@ -13,8 +13,8 @@ class SyncGamesUnupdated(application: BggApplication, syncResult: SyncResult, pr
     SyncGames(application, syncResult, gameRepository) {
     override val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED)
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
-    override val introLogMessage = "Syncing $gamesPerFetch unupdated games in the collection..."
-    override val exitLogMessage = "...no more unupdated games"
+    override val introLogMessage = "Syncing $gamesPerFetch unupdated games in the collection"
+    override val exitLogMessage = "No more unupdated games; ending"
     override val notificationSummaryMessageId = R.string.sync_notification_games_unupdated
     override suspend fun getGames() = gameRepository.loadUnupdatedGames(gamesPerFetch)
 }
