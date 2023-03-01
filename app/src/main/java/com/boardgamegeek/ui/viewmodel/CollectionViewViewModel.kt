@@ -285,10 +285,10 @@ class CollectionViewViewModel @Inject constructor(
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_COMMENTED) && it.comment.isNotBlank()) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_PARTS) && it.wantPartsList.isNotBlank())
-                }.asSequence()
+                }
             }
             filters.forEach { f ->
-                list = list.filter { f.filter(it) }.asSequence()
+                list = list.filter { f.filter(it) }
             }
             val sorter = collectionSorterFactory.create(sortType)
             _items.postValue(sorter?.first?.sort(list.toList(), sorter.second) ?: list.toList())
