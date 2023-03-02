@@ -9,7 +9,10 @@ import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.provider.BggContract.Companion.PATH_THUMBNAILS
 import com.boardgamegeek.util.FileUtils
+import com.boardgamegeek.util.RemoteConfig
 import com.squareup.picasso.Picasso
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.BufferedOutputStream
 import java.io.File
@@ -52,6 +55,30 @@ class ImageRepository(
             }
         }
         return bitmap
+    }
+
+    /***
+     * Based on the image ID, returns a list of URLs that could be a valid thumbnail image, in order of validity.
+     */
+    suspend fun getThumbnailUrl(imageId: Int): List<String> = withContext(Dispatchers.IO) {
+        val list = imageId.createImageUrls().toMutableList()
+        if (imageId > 0 && RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
+            try {
+                val response = geekdoApi.image(imageId)
+                list.add(0, response.images.small.url)
+            } catch (e: Exception) {
+                Timber.w(e, "Couldn't resolve image ID $imageId")
+            }
+        }
+        Timber.d(list.toString())
+        list.toList()
+    }
+
+    private fun Int.createImageUrls(): List<String> {
+        return if (this > 0) {
+            val imageUrlPrefix = "https://cf.geekdo-images.com/images/pic"
+            listOf("$imageUrlPrefix$this.jpg", "$imageUrlPrefix$this.png")
+        } else emptyList()
     }
 
     suspend fun delete() {

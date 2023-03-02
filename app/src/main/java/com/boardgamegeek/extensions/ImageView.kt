@@ -198,25 +198,7 @@ fun ImageView.loadThumbnailInList(imageUrl: String?, @DrawableRes errorResId: In
         .into(this)
 }
 
-suspend fun ImageView.loadThumbnail(imageId: Int) {
-    if (imageId <= 0) {
-        Timber.i("Not attempting to fetch invalid image ID of 0 or negative [%s].", imageId)
-        return
-    }
-    RemoteConfig.fetch()
-    if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-        try {
-            val response = Adapter.createGeekdoApi().image(imageId)
-            loadThumbnails(response.images.small.url, *imageId.createImageUrls().toTypedArray())
-        } catch (e: Exception) {
-            loadThumbnails(*imageId.createImageUrls().toTypedArray())
-        }
-    } else {
-        loadThumbnails(*imageId.createImageUrls().toTypedArray())
-    }
-}
-
-private fun ImageView.loadThumbnails(vararg urls: String) {
+fun ImageView.loadThumbnails(vararg urls: String) {
     safelyLoadThumbnail(LinkedList(urls.toList()))
 }
 

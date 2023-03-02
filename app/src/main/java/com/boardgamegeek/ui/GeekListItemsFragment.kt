@@ -17,7 +17,7 @@ import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnail
+import com.boardgamegeek.extensions.loadThumbnails
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
@@ -53,7 +53,7 @@ class GeekListItemsFragment : Fragment() {
                     setError(message)
                 else {
                     val geekListItems = data?.items
-                    if (geekListItems == null || geekListItems.isEmpty()) {
+                    if (geekListItems.isNullOrEmpty()) {
                         setError(getString(R.string.empty_geeklist))
                         binding.recyclerView.isVisible = false
                     } else {
@@ -109,8 +109,12 @@ class GeekListItemsFragment : Fragment() {
             fun bind(entity: GeekListItemEntity?, order: Int) {
                 entity?.let { item ->
                     binding.orderView.text = order.toString()
-                    lifecycleScope.launch {
-                        binding.thumbnailView.loadThumbnail(item.imageId)
+                    item.thumbnailUrls?.let {
+                        if (it.isNotEmpty()) {
+                            lifecycleScope.launch {
+                                binding.thumbnailView.loadThumbnails(*it.toTypedArray())
+                            }
+                        }
                     }
                     binding.itemNameView.text = item.objectName
                     binding.usernameView.text = item.username
