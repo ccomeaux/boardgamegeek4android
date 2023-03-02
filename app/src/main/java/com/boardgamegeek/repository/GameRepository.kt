@@ -7,8 +7,8 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.getImageId
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -21,6 +21,7 @@ import javax.inject.Inject
 class GameRepository @Inject constructor(
     val context: Context,
     private val api: BggService,
+    private val geekdoApi: GeekdoApi,
 ) {
     private val dao = GameDao(context)
     private val playDao = PlayDao(context)
@@ -49,7 +50,7 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image(game.thumbnailUrl.getImageId())
+        val response = geekdoApi.image(game.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.update(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to url))
         game.copy(heroImageUrl = url)

@@ -6,6 +6,7 @@ import android.content.Context
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.io.*
 import com.boardgamegeek.repository.*
+import com.boardgamegeek.util.HttpUtils
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
@@ -89,4 +90,13 @@ object NetworkModule {
         .client(httpClient)
         .build()
         .create(BggAjaxApi::class.java)
+
+    @Provides
+    @Singleton
+    fun provideGeekdoApi(@Named("noAuth") httpClient: OkHttpClient): GeekdoApi = Retrofit.Builder()
+        .client(httpClient)
+        .baseUrl("https://api.geekdo.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(GeekdoApi::class.java)
 }

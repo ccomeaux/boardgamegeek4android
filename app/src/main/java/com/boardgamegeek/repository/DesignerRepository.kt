@@ -9,8 +9,8 @@ import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Designers
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 class DesignerRepository(
     val context: Context,
     private val api: BggService,
+    private val geekdoApi: GeekdoApi,
 ) {
     private val dao = DesignerDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
@@ -59,7 +60,7 @@ class DesignerRepository(
     }
 
     suspend fun refreshHeroImage(designer: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image(designer.thumbnailUrl.getImageId())
+        val response = geekdoApi.image(designer.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.upsert(designer.id, contentValuesOf(Designers.Columns.DESIGNER_HERO_IMAGE_URL to url))
         designer.copy(heroImageUrl = url)

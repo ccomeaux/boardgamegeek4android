@@ -9,8 +9,8 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Artists
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 class ArtistRepository(
     val context: Context,
     private val api: BggService,
+    private val geekdoApi: GeekdoApi,
 ) {
     private val dao = ArtistDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
@@ -61,7 +62,7 @@ class ArtistRepository(
     }
 
     suspend fun refreshHeroImage(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image(artist.thumbnailUrl.getImageId())
+        val response = geekdoApi.image(artist.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.upsert(artist.id, contentValuesOf(Artists.Columns.ARTIST_HERO_IMAGE_URL to url))
         artist.copy(heroImageUrl = url)

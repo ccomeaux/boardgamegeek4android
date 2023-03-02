@@ -9,8 +9,8 @@ import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Publishers
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +19,7 @@ import kotlinx.coroutines.withContext
 class PublisherRepository(
     val context: Context,
     private val api: BggService,
+    private val geekdoApi: GeekdoApi,
 ) {
     private val dao = PublisherDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
@@ -49,7 +50,7 @@ class PublisherRepository(
     }
 
     suspend fun refreshImages(publisher: CompanyEntity): CompanyEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image(publisher.thumbnailUrl.getImageId())
+        val response = geekdoApi.image(publisher.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.upsert(publisher.id, contentValuesOf(Publishers.Columns.PUBLISHER_HERO_IMAGE_URL to url))
         publisher.copy(heroImageUrl = url)

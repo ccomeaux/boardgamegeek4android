@@ -11,6 +11,7 @@ import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -22,6 +23,7 @@ import timber.log.Timber
 class GameCollectionRepository(
     val context: Context,
     private val api: BggService,
+    private val geekdoApi: GeekdoApi,
 ) {
     private val dao = CollectionDao(context)
     private val gameDao = GameDao(context)
@@ -61,7 +63,7 @@ class GameCollectionRepository(
         }
 
     suspend fun refreshHeroImage(item: CollectionItemEntity): CollectionItemEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image(item.thumbnailUrl.getImageId())
+        val response = geekdoApi.image(item.thumbnailUrl.getImageId())
         val url = response.images.medium.url
         dao.update(item.internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to url))
         item.copy(heroImageUrl = url)

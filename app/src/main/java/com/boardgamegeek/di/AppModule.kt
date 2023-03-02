@@ -3,6 +3,7 @@ package com.boardgamegeek.di
 import android.content.Context
 import com.boardgamegeek.io.BggAjaxApi
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.repository.*
 import dagger.Module
 import dagger.Provides
@@ -17,7 +18,8 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = ArtistRepository(context, api)
+    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, geekdoApi: GeekdoApi) =
+        ArtistRepository(context, api, geekdoApi)
 
     @Provides
     @Singleton
@@ -26,7 +28,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = DesignerRepository(context, api)
+    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, geekdoApi: GeekdoApi) =
+        DesignerRepository(context, api, geekdoApi)
 
     @Provides
     @Singleton
@@ -34,12 +37,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = GameRepository(context, api)
+    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, geekdoApi: GeekdoApi) =
+        GameRepository(context, api, geekdoApi)
 
     @Provides
     @Singleton
-    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService) =
-        GameCollectionRepository(context, api)
+    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, geekdoApi: GeekdoApi) =
+        GameCollectionRepository(context, api, geekdoApi)
 
     @Provides
     @Singleton
@@ -55,7 +59,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = PublisherRepository(context, api)
+    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, geekdoApi: GeekdoApi) =
+        PublisherRepository(context, api, geekdoApi)
 
     @Provides
     @Singleton
