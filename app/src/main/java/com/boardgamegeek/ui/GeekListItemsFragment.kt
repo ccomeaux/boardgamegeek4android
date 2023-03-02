@@ -46,20 +46,21 @@ class GeekListItemsFragment : Fragment() {
 
         viewModel.geekList.observe(viewLifecycleOwner) {
             it?.let { (status, data, message) ->
-                when (status) {
-                    Status.REFRESHING -> binding.progressView.show()
-                    Status.ERROR -> setError(message)
-                    Status.SUCCESS -> {
-                        val geekListItems = data?.items
-                        if (geekListItems == null || geekListItems.isEmpty()) {
-                            setError(getString(R.string.empty_geeklist))
-                            binding.recyclerView.isVisible = false
-                        } else {
-                            adapter.geekList = data
-                            adapter.geekListItems = geekListItems
-                            binding.recyclerView.isVisible = true
-                            binding.progressView.hide()
-                        }
+                if (status == Status.REFRESHING)
+                    binding.progressView.show()
+                else binding.progressView.hide()
+                if (status == Status.ERROR)
+                    setError(message)
+                else {
+                    val geekListItems = data?.items
+                    if (geekListItems == null || geekListItems.isEmpty()) {
+                        setError(getString(R.string.empty_geeklist))
+                        binding.recyclerView.isVisible = false
+                    } else {
+                        setError(null)
+                        adapter.geekList = data
+                        adapter.geekListItems = geekListItems
+                        binding.recyclerView.isVisible = true
                     }
                 }
             }
@@ -73,8 +74,7 @@ class GeekListItemsFragment : Fragment() {
 
     private fun setError(message: String?) {
         binding.emptyView.text = message
-        binding.emptyView.isVisible = true
-        binding.progressView.hide()
+        binding.emptyView.isVisible = !message.isNullOrBlank()
     }
 
     class GeekListRecyclerViewAdapter(val lifecycleScope: LifecycleCoroutineScope) :

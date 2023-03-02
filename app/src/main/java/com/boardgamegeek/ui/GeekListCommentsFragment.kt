@@ -33,19 +33,15 @@ class GeekListCommentsFragment : Fragment() {
 
         viewModel.geekList.observe(viewLifecycleOwner) {
             it?.let { (status, data, _) ->
-                when (status) {
-                    Status.REFRESHING -> binding.progressView.show()
-                    Status.ERROR -> {
-                        binding.emptyView.isVisible = true
-                        binding.recyclerView.isVisible = false
-                        binding.progressView.hide()
-                    }
-                    Status.SUCCESS -> {
-                        adapter.comments = data?.comments.orEmpty()
-                        binding.emptyView.isVisible = adapter.comments.isEmpty()
-                        binding.recyclerView.isVisible = adapter.comments.isNotEmpty()
-                        binding.progressView.hide()
-                    }
+                if (status == Status.REFRESHING) binding.progressView.show()
+                else binding.progressView.hide()
+                if (status == Status.ERROR) {
+                    binding.emptyView.isVisible = true
+                    binding.recyclerView.isVisible = false
+                } else {
+                    adapter.comments = data?.comments.orEmpty()
+                    binding.emptyView.isVisible = adapter.comments.isEmpty()
+                    binding.recyclerView.isVisible = adapter.comments.isNotEmpty()
                 }
             }
         }
