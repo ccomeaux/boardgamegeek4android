@@ -6,6 +6,7 @@ import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GeekListRepository
+import com.boardgamegeek.repository.ImageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -13,6 +14,7 @@ import javax.inject.Inject
 class GeekListViewModel @Inject constructor(
     application: Application,
     private val repository: GeekListRepository,
+    private val imageRepository: ImageRepository,
 ) : AndroidViewModel(application) {
     private val _geekListId = MutableLiveData<Int>()
 

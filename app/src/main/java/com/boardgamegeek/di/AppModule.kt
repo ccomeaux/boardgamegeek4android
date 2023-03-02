@@ -55,6 +55,10 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideImageRepository(@ApplicationContext context: Context, geekdoApi: GeekdoApi) = ImageRepository(context, geekdoApi)
+
+    @Provides
+    @Singleton
     fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = PlayRepository(context, api)
 
     @Provides
