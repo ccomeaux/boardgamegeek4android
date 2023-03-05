@@ -50,6 +50,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.DecimalFormat
+import java.util.LinkedList
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -270,10 +271,10 @@ class LogPlayActivity : AppCompatActivity() {
 
     private fun bindHeader() {
         binding.headerView.text = gameName
-        lifecycleScope.launch {
-            binding.thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl, object : ImageLoadCallback {
+        binding.thumbnailView.safelyLoadImage(
+            LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }),
+            object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
-                    // no image for Andor?
                     binding.headerView.setBackgroundResource(R.color.black_overlay_light)
                     updateColors(palette.getIconSwatch().rgb)
                 }
@@ -287,8 +288,8 @@ class LogPlayActivity : AppCompatActivity() {
                     binding.fab.colorize(color)
                     binding.fab.post { binding.fab.show() }
                 }
-            })
-        }
+            }
+        )
     }
 
     private fun bindLength() {

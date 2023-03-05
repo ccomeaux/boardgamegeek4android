@@ -44,7 +44,7 @@ class GeekListItemActivity : HeroTabActivity() {
                 param(FirebaseAnalytics.Param.ITEM_NAME, geekListItemEntity.objectName)
             }
         }
-        loadToolbarImage(geekListItemEntity.imageId)
+        geekListItemEntity.heroImageUrls?.let { loadToolbarImage(it) }
     }
 
     override val optionsMenuId = R.menu.view
@@ -64,8 +64,7 @@ class GeekListItemActivity : HeroTabActivity() {
                         start(this, geekListItemEntity.objectId, geekListItemEntity.objectName)
                         true
                     }
-                }
-                else {
+                } else {
                     if (geekListItemEntity.objectUrl.isBlank()) false else {
                         link(geekListItemEntity.objectUrl)
                         true

@@ -25,6 +25,7 @@ import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.util.LinkedList
 
 @AndroidEntryPoint
 class PlayFragment : Fragment() {
@@ -112,15 +113,16 @@ class PlayFragment : Fragment() {
     }
 
     private fun showData(play: PlayEntity) {
-        lifecycleScope.launch {
-            binding.thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageLoadCallback {
+        binding.thumbnailView.safelyLoadImage(
+            LinkedList(play.heroImageUrls),
+            object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     if (isAdded) binding.gameNameView.setBackgroundResource(R.color.black_overlay_light)
                 }
 
                 override fun onFailedImageLoad() {}
-            })
-        }
+            },
+        )
 
         binding.gameNameView.text = play.gameName
         binding.dateView.text = play.dateForDisplay(requireContext())

@@ -42,6 +42,8 @@ data class PlayEntity(
         rawDate.toMillis(FORMAT, UNKNOWN_DATE)
     }
 
+    val heroImageUrls = listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }
+
     fun dateForDisplay(context: Context): CharSequence {
         return dateInMillis.asPastDaySpan(context, includeWeekDay = true)
     }

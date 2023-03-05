@@ -31,6 +31,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.util.LinkedList
 
 @AndroidEntryPoint
 class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFragment.Listener {
@@ -146,9 +147,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         this.usedColors = if (usedColors == null) arrayListOf() else ArrayList(listOf(*usedColors))
         this.usedColors?.remove(player.color)
 
-        lifecycleScope.launch {
-            binding.thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
-        }
+        binding.thumbnailView.safelyLoadImage(LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }))
 
         bindUi()
         binding.nameView.setAdapter(playerNameAdapter)

@@ -67,11 +67,7 @@ class PersonActivity : HeroTabActivity() {
             }
             it?.data?.let { person ->
                 safelySetTitle(person.name)
-                if (person.heroImageUrl.isNotBlank()) {
-                    loadToolbarImage(person.heroImageUrl)
-                } else if (person.thumbnailUrl.isNotBlank()) {
-                    loadToolbarImage(person.thumbnailUrl)
-                }
+                loadToolbarImage(person.heroImageUrls)
             }
         }
 

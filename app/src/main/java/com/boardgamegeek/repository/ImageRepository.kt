@@ -57,28 +57,37 @@ class ImageRepository(
         return bitmap
     }
 
+    enum class ImageType {
+        THUMBNAIL,
+        HERO,
+    }
+
     /***
-     * Based on the image ID, returns a list of URLs that could be a valid thumbnail image, in order of validity.
+     * Based on the image ID, returns a list of URLs that could be a valid thumbnail or hero image, in order of validity.
      */
-    suspend fun getThumbnailUrl(imageId: Int): List<String> = withContext(Dispatchers.IO) {
-        val list = imageId.createImageUrls().toMutableList()
+    suspend fun getImageUrls(imageId: Int, imageType: ImageType): List<String> = withContext(Dispatchers.IO) {
+        val list = if (imageId > 0) {
+            val imageUrlPrefix = "https://cf.geekdo-images.com/images/pic"
+            mutableListOf("$imageUrlPrefix$this.jpg", "$imageUrlPrefix$this.png")
+        } else emptyList<String>().toMutableList()
+
         if (imageId > 0 && RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
             try {
                 val response = geekdoApi.image(imageId)
-                list.add(0, response.images.small.url)
+                when (imageType) {
+                    ImageType.THUMBNAIL -> list.add(0, response.images.small.url)
+                    ImageType.HERO -> {
+                        // TODO find better options for images
+                        list.add(0, response.images.medium.url)
+                        list.add(1, response.images.small.url)
+                    }
+                }
             } catch (e: Exception) {
                 Timber.w(e, "Couldn't resolve image ID $imageId")
             }
         }
         Timber.d(list.toString())
         list.toList()
-    }
-
-    private fun Int.createImageUrls(): List<String> {
-        return if (this > 0) {
-            val imageUrlPrefix = "https://cf.geekdo-images.com/images/pic"
-            listOf("$imageUrlPrefix$this.jpg", "$imageUrlPrefix$this.png")
-        } else emptyList()
     }
 
     suspend fun delete() {

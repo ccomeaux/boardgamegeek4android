@@ -22,6 +22,7 @@ data class GeekListItemEntity(
     val editDateTime: Long = 0L,
     val comments: List<GeekListCommentEntity> = emptyList(),
     var thumbnailUrls: List<String>? = null,
+    var heroImageUrls: List<String>? = null,
 ) : Parcelable {
     @IgnoredOnParcel
     val isBoardGame: Boolean = "thing" == objectType

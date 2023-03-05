@@ -22,7 +22,6 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 @AndroidEntryPoint
@@ -30,7 +29,7 @@ class GeekListItemsFragment : Fragment() {
     private var _binding: FragmentGeeklistItemsBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GeekListViewModel>()
-    private val adapter: GeekListRecyclerViewAdapter by lazy { GeekListRecyclerViewAdapter(lifecycleScope) }
+    private val adapter: GeekListRecyclerViewAdapter by lazy { GeekListRecyclerViewAdapter() }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -77,7 +76,7 @@ class GeekListItemsFragment : Fragment() {
         binding.emptyView.isVisible = !message.isNullOrBlank()
     }
 
-    class GeekListRecyclerViewAdapter(val lifecycleScope: LifecycleCoroutineScope) :
+    class GeekListRecyclerViewAdapter() :
         RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
         var geekListItems: List<GeekListItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
@@ -109,13 +108,7 @@ class GeekListItemsFragment : Fragment() {
             fun bind(entity: GeekListItemEntity?, order: Int) {
                 entity?.let { item ->
                     binding.orderView.text = order.toString()
-                    item.thumbnailUrls?.let {
-                        if (it.isNotEmpty()) {
-                            lifecycleScope.launch {
-                                binding.thumbnailView.loadThumbnails(*it.toTypedArray())
-                            }
-                        }
-                    }
+                    binding.thumbnailView.loadThumbnails(*item.thumbnailUrls.orEmpty().toTypedArray())
                     binding.itemNameView.text = item.objectName
                     binding.usernameView.text = item.username
                     binding.usernameView.isVisible = item.username != geekList?.username

@@ -32,9 +32,11 @@ class GeekListViewModel @Inject constructor(
                     val geekList = repository.getGeekList(id)
                     // TODO only fetch URLs if the UI needs to display the image
                     emit(RefreshableResource.refreshing(geekList))
-                    geekList.items.forEach {
+                    geekList.items.forEach { // TODO if imageID == 0, then use the object's image
                         if (it.thumbnailUrls == null)
-                            it.thumbnailUrls = imageRepository.getThumbnailUrl(it.imageId)
+                            it.thumbnailUrls = imageRepository.getImageUrls(it.imageId, ImageRepository.ImageType.THUMBNAIL)
+                        if (it.heroImageUrls == null)
+                            it.heroImageUrls = imageRepository.getImageUrls(it.imageId, ImageRepository.ImageType.HERO)
                     }
                     emit(RefreshableResource.success(geekList))
                 } catch (e: Exception) {
