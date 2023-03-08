@@ -18,8 +18,8 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, geekdoApi: GeekdoApi) =
-        ArtistRepository(context, api, geekdoApi)
+    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository) =
+        ArtistRepository(context, api, imageRepository)
 
     @Provides
     @Singleton
@@ -28,8 +28,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, geekdoApi: GeekdoApi) =
-        DesignerRepository(context, api, geekdoApi)
+    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository) =
+        DesignerRepository(context, api, imageRepository)
 
     @Provides
     @Singleton
@@ -37,8 +37,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, geekdoApi: GeekdoApi) =
-        GameRepository(context, api, geekdoApi)
+    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository) =
+        GameRepository(context, api, imageRepository)
 
     @Provides
     @Singleton
@@ -63,8 +63,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, geekdoApi: GeekdoApi) =
-        PublisherRepository(context, api, geekdoApi)
+    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository) =
+        PublisherRepository(context, api, imageRepository)
 
     @Provides
     @Singleton

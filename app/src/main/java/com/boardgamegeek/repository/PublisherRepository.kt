@@ -12,6 +12,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Publishers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +20,7 @@ import kotlinx.coroutines.withContext
 class PublisherRepository(
     val context: Context,
     private val api: BggService,
-    private val geekdoApi: GeekdoApi,
+    private val imageRepository: ImageRepository,
 ) {
     private val dao = PublisherDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
@@ -50,10 +51,12 @@ class PublisherRepository(
     }
 
     suspend fun refreshImages(publisher: CompanyEntity): CompanyEntity = withContext(Dispatchers.IO) {
-        val response = geekdoApi.image(publisher.thumbnailUrl.getImageId())
-        val url = response.images.medium.url
-        dao.upsert(publisher.id, contentValuesOf(Publishers.Columns.PUBLISHER_HERO_IMAGE_URL to url))
-        publisher.copy(heroImageUrl = url)
+        val urlMap = imageRepository.getImageUrls(publisher.thumbnailUrl.getImageId())
+        val urls = urlMap[ImageRepository.ImageType.HERO]
+        if (urls?.isNotEmpty() == true) {
+            dao.upsert(publisher.id, contentValuesOf(Publishers.Columns.PUBLISHER_HERO_IMAGE_URL to urls.first()))
+            publisher.copy(heroImageUrl = urls.first())
+        } else publisher
     }
 
     suspend fun calculateWhitmoreScores(publishers: List<CompanyEntity>, progress: MutableLiveData<Pair<Int, Int>>) =

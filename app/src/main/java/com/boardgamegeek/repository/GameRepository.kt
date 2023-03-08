@@ -11,6 +11,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +22,7 @@ import javax.inject.Inject
 class GameRepository @Inject constructor(
     val context: Context,
     private val api: BggService,
-    private val geekdoApi: GeekdoApi,
+    private val imageRepository: ImageRepository,
 ) {
     private val dao = GameDao(context)
     private val playDao = PlayDao(context)
@@ -50,10 +51,12 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
-        val response = geekdoApi.image(game.thumbnailUrl.getImageId())
-        val url = response.images.medium.url
-        dao.update(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to url))
-        game.copy(heroImageUrl = url)
+        val urlMap = imageRepository.getImageUrls(game.thumbnailUrl.getImageId())
+        val urls = urlMap[ImageRepository.ImageType.HERO]
+        if (urls?.isNotEmpty() == true) {
+            dao.update(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to urls.first()))
+            game.copy(heroImageUrl = urls.first())
+        } else game
     }
 
     suspend fun loadComments(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {

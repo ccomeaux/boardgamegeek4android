@@ -65,29 +65,31 @@ class ImageRepository(
     /***
      * Based on the image ID, returns a list of URLs that could be a valid thumbnail or hero image, in order of validity.
      */
-    suspend fun getImageUrls(imageId: Int, imageType: ImageType): List<String> = withContext(Dispatchers.IO) {
-        val list = if (imageId > 0) {
+    suspend fun getImageUrls(imageId: Int): Map<ImageType, List<String>> {
+        val fallbackList = if (imageId > 0) {
             val imageUrlPrefix = "https://cf.geekdo-images.com/images/pic"
-            mutableListOf("$imageUrlPrefix$this.jpg", "$imageUrlPrefix$this.png")
-        } else emptyList<String>().toMutableList()
+            listOf("$imageUrlPrefix$this.jpg", "$imageUrlPrefix$this.png")
+        } else emptyList()
 
+        val urls = fetchImageUrls(imageId)
+        val list = urls.mapValues { it.value + fallbackList }
+        Timber.d(list.toString())
+        return list
+    }
+
+    suspend fun fetchImageUrls(imageId: Int): Map<ImageType, List<String>> = withContext(Dispatchers.IO) {
         if (imageId > 0 && RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
             try {
                 val response = geekdoApi.image(imageId)
-                when (imageType) {
-                    ImageType.THUMBNAIL -> list.add(0, response.images.small.url)
-                    ImageType.HERO -> {
-                        // TODO find better options for images
-                        list.add(0, response.images.medium.url)
-                        list.add(1, response.images.small.url)
-                    }
+                mutableMapOf<ImageType, List<String>>().apply {
+                    this[ImageType.THUMBNAIL] = listOf(response.images.small.url)
+                    this[ImageType.HERO] = listOf(response.images.medium.url, response.images.small.url)
                 }
             } catch (e: Exception) {
                 Timber.w(e, "Couldn't resolve image ID $imageId")
             }
         }
-        Timber.d(list.toString())
-        list.toList()
+        emptyMap()
     }
 
     suspend fun delete() {

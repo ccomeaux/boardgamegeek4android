@@ -10,7 +10,6 @@ import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Artists
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +18,7 @@ import kotlinx.coroutines.withContext
 class ArtistRepository(
     val context: Context,
     private val api: BggService,
-    private val geekdoApi: GeekdoApi,
+    private val imageRepository: ImageRepository,
 ) {
     private val dao = ArtistDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
@@ -62,10 +61,12 @@ class ArtistRepository(
     }
 
     suspend fun refreshHeroImage(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = geekdoApi.image(artist.thumbnailUrl.getImageId())
-        val url = response.images.medium.url
-        dao.upsert(artist.id, contentValuesOf(Artists.Columns.ARTIST_HERO_IMAGE_URL to url))
-        artist.copy(heroImageUrl = url)
+        val urlMap = imageRepository.fetchImageUrls(artist.thumbnailUrl.getImageId())
+        val urls = urlMap[ImageRepository.ImageType.HERO]
+        if (urls?.isNotEmpty()  == true) {
+            dao.upsert(artist.id, contentValuesOf(Artists.Columns.ARTIST_HERO_IMAGE_URL to urls.first()))
+            artist.copy(heroImageUrl = urls.first())
+        } else artist
     }
 
     suspend fun calculateWhitmoreScores(artists: List<PersonEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {

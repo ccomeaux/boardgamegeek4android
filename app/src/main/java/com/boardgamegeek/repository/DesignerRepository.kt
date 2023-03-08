@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 class DesignerRepository(
     val context: Context,
     private val api: BggService,
-    private val geekdoApi: GeekdoApi,
+    private val imageRepository: ImageRepository,
 ) {
     private val dao = DesignerDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
@@ -60,10 +60,12 @@ class DesignerRepository(
     }
 
     suspend fun refreshHeroImage(designer: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = geekdoApi.image(designer.thumbnailUrl.getImageId())
-        val url = response.images.medium.url
-        dao.upsert(designer.id, contentValuesOf(Designers.Columns.DESIGNER_HERO_IMAGE_URL to url))
-        designer.copy(heroImageUrl = url)
+        val urlMap = imageRepository.getImageUrls(designer.thumbnailUrl.getImageId())
+        val urls = urlMap[ImageRepository.ImageType.HERO]
+        if (urls?.isNotEmpty() == true) {
+            dao.upsert(designer.id, contentValuesOf(Designers.Columns.DESIGNER_HERO_IMAGE_URL to urls.first()))
+            designer.copy(heroImageUrl = urls.first())
+        } else designer
     }
 
     suspend fun calculateWhitmoreScores(designers: List<PersonEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
