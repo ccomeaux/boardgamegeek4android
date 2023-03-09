@@ -3,6 +3,7 @@ package com.boardgamegeek.livedata
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.boardgamegeek.entities.ThreadEntity
+import com.boardgamegeek.io.model.ForumResponse
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository
 import retrofit2.HttpException
@@ -20,7 +21,7 @@ class ForumPagingSource(private val forumId: Int?, private val repository: Forum
 
             val currentPage = params.key ?: 1
             val forumEntity = repository.loadForum(forumId, currentPage)
-            val nextPage = getNextPage(currentPage, params.loadSize, forumEntity.numberOfThreads)
+            val nextPage = if (currentPage * ForumResponse.PAGE_SIZE < forumEntity.numberOfThreads) currentPage + 1 else null
             LoadResult.Page(forumEntity.threads, null, nextPage)
         } catch (e: Exception) {
             if (e is HttpException) {
@@ -30,9 +31,5 @@ class ForumPagingSource(private val forumId: Int?, private val repository: Forum
             }
             LoadResult.Error(e)
         }
-    }
-
-    private fun getNextPage(currentPage: Int, pageSize: Int, totalCount: Int): Int? {
-        return if (currentPage * pageSize < totalCount) currentPage + 1 else null
     }
 }

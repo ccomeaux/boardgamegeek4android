@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.switchMap
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import androidx.paging.liveData
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.GeekListsResponse
@@ -34,16 +35,9 @@ class GeekListsViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     val geekLists = _sort.switchMap { sort ->
-        Pager(
-            PagingConfig(
-                pageSize = GeekListsResponse.PAGE_SIZE,
-                initialLoadSize = GeekListsResponse.PAGE_SIZE,
-                prefetchDistance = 30,
-                enablePlaceholders = true,
-            )
-        ) {
+        Pager(PagingConfig(GeekListsResponse.PAGE_SIZE)) {
             GeekListsPagingSource(sort, repository)
-        }.liveData
+        }.liveData.cachedIn(this)
     }
 
     enum class SortType {

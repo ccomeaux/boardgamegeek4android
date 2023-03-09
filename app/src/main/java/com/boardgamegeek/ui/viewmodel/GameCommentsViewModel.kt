@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import androidx.paging.liveData
 import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.livedata.CommentsPagingSource
@@ -32,15 +33,8 @@ class GameCommentsViewModel(application: Application) : AndroidViewModel(applica
 
     val comments = _id.switchMap {
         val sortByRating = it.second == SortType.RATING
-        Pager(
-            PagingConfig(
-                pageSize = Game.PAGE_SIZE,
-                initialLoadSize = Game.PAGE_SIZE,
-                prefetchDistance = 30,
-                enablePlaceholders = true,
-            )
-        ) {
+        Pager(PagingConfig(Game.PAGE_SIZE)) {
             CommentsPagingSource(it.first, sortByRating, repository)
-        }.liveData
+        }.liveData.cachedIn(this)
     }
 }
