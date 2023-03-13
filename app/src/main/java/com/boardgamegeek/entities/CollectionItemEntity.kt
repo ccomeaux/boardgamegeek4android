@@ -7,6 +7,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.appendBold
 import com.boardgamegeek.extensions.asMoney
+import com.boardgamegeek.extensions.formatDateTime
 import com.boardgamegeek.provider.BggContract
 
 data class CollectionItemEntity(
@@ -113,9 +114,9 @@ data class CollectionItemEntity(
             sb.append(" ").appendBold(quantity.toString())
         }
         if (acquisitionDate > 0L) {
-            val date = DateUtils.formatDateTime(context, acquisitionDate, DateUtils.FORMAT_SHOW_DATE)
-            if (!date.isNullOrEmpty()) {
-                sb.append(" ").append(context.getString(R.string.on)).append(" ").appendBold(date)
+            val date = acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE)
+            if (date.isNotEmpty()) {
+                sb.append(" ").append(context.getString(R.string.on)).append(" ").appendBold(date.toString())
             }
         }
         if (acquiredFrom.isNotBlank()) {

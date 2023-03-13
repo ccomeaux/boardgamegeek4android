@@ -459,14 +459,14 @@ class GameDao(private val context: BggApplication) {
                 Timber.i(
                     "Inserted game ID '%s' at %s",
                     game.id,
-                    DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+                    updateTime.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
                 )
             } else {
                 Timber.i(
                     "Updated game ID '%s' (%s) at %s",
                     game.id,
                     internalId,
-                    DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+                    updateTime.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
                 )
             }
         }

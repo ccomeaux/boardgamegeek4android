@@ -557,10 +557,9 @@ class LogPlayActivity : AppCompatActivity() {
         viewModel.dateInMillis.observe(this) {
             it?.let {
                 dateInMillis = it
-                binding.dateButton.text = DateUtils.formatDateTime(
+                binding.dateButton.text = it.formatDateTime(
                     this,
-                    it,
-                    DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
+                    flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_WEEKDAY or DateUtils.FORMAT_SHOW_WEEKDAY
                 )
             }
         }

@@ -136,8 +136,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     private fun setAndDisplayAcquisitionDate(new: Long) {
         acquisitionDate = new
-        binding.acquisitionDateView.text =
-            if (acquisitionDate == 0L) "" else DateUtils.formatDateTime(context, acquisitionDate, DateUtils.FORMAT_SHOW_DATE)
+        binding.acquisitionDateView.text = acquisitionDate.formatDateTime(context, 0, DateUtils.FORMAT_SHOW_DATE)
         binding.acquisitionDateLabelView.isInvisible = binding.acquisitionDateView.text.isEmpty()
     }
 

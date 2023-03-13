@@ -6,10 +6,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.extensions.getSyncStatusesOrDefault
-import com.boardgamegeek.extensions.isCollectionSetToSync
-import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
@@ -132,7 +129,14 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
             if (response.code() == 200) {
                 val items = response.body()?.items
                 if (items != null && items.size > 0) {
-                    updateProgressNotification(context.getString(R.string.sync_notification_collection_saving, items.size, statusDescription, subtypeDescription))
+                    updateProgressNotification(
+                        context.getString(
+                            R.string.sync_notification_collection_saving,
+                            items.size,
+                            statusDescription,
+                            subtypeDescription
+                        )
+                    )
                     for (item in items) {
                         val (collectionItem, game) = item.mapToEntities()
                         runBlocking {
@@ -179,7 +183,7 @@ class SyncCollectionComplete(application: BggApplication, service: BggService, s
 
     private fun deleteUnusedItems() {
         val timestamp = syncPrefs.getCurrentCollectionSyncTimestamp()
-        val formattedDateTime = DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        val formattedDateTime = timestamp.formatDateTime(context, flags = DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
         Timber.i("Deleting collection items not updated since $formattedDateTime")
         val count = context.contentResolver.delete(
             Collection.CONTENT_URI,
