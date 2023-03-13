@@ -14,6 +14,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.formatDateTime
 import com.boardgamegeek.extensions.setSelectableBackground
 import java.text.DecimalFormat
 import java.text.ParseException
@@ -44,13 +45,8 @@ class PlayStatRow(context: Context) : TableRow(context) {
     fun setValueAsDate(date: String, context: Context) {
         if (date.isNotEmpty()) {
             try {
-                setValue(
-                    DateUtils.formatDateTime(
-                        context,
-                        FORMAT.parse(date)?.time ?: 0L,
-                        DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH
-                    )
-                )
+                val millis = FORMAT.parse(date)?.time ?: 0L
+                setValue(millis.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH))
             } catch (e: ParseException) {
                 setValue(date)
             }

@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -89,15 +90,17 @@ class PlaysSummaryFragment : Fragment() {
     private fun bindStatusMessage() {
         binding.syncStatusView.text = when {
             oldestSyncDate == Long.MAX_VALUE && newestSyncDate <= 0L -> getString(R.string.plays_sync_status_none)
-            oldestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_new), newestSyncDate.asDate(requireContext()))
-            newestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_old), oldestSyncDate.asDate(requireContext()))
+            oldestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_new), newestSyncDate.asDate())
+            newestSyncDate <= 0L -> String.format(getString(R.string.plays_sync_status_old), oldestSyncDate.asDate())
             else -> String.format(
                 getString(R.string.plays_sync_status_range),
-                oldestSyncDate.asDate(requireContext()),
-                newestSyncDate.asDate(requireContext())
+                oldestSyncDate.asDate(),
+                newestSyncDate.asDate()
             )
         }
     }
+
+    private fun Long.asDate() = this.formatDateTime(requireContext(), flags = DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_ALL)
 
     private fun bindSyncCard() {
         binding.syncCard.isGone = syncPlays || syncPlaysTimestamp > 0
