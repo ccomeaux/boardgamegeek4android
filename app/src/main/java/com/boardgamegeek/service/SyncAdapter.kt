@@ -19,6 +19,7 @@ import com.boardgamegeek.repository.*
 import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import okhttp3.OkHttpClient
 import okhttp3.Request
 import timber.log.Timber
 import java.io.IOException
@@ -31,6 +32,7 @@ class SyncAdapter(
     private val gameCollectionRepository: GameCollectionRepository,
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
+    private val httpClient: OkHttpClient,
 ) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
     private var currentTask: SyncTask? = null
     private var isCancelled = false
@@ -175,7 +177,6 @@ class SyncAdapter(
             Timber.i("We checked the privacy statement less than %,d weeks ago; skipping", weeksToCompare)
             return false
         }
-        val httpClient = HttpUtils.getHttpClientWithAuth(context)
         val url = "https://www.boardgamegeek.com"
         val request: Request = Request.Builder().url(url).build()
         return try {
@@ -221,7 +222,7 @@ class SyncAdapter(
     ): List<SyncTask> {
         val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-            tasks.add(SyncCollectionUpload(application, syncResult, gameCollectionRepository))
+            tasks.add(SyncCollectionUpload(application, syncResult, gameCollectionRepository, httpClient))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
             tasks.add(SyncCollectionComplete(application, syncResult, collectionItemRepository))
@@ -234,7 +235,7 @@ class SyncAdapter(
             tasks.add(SyncGamesUnupdated(application, syncResult, gameRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-            tasks.add(SyncPlaysUpload(application, syncResult, playRepository))
+            tasks.add(SyncPlaysUpload(application, syncResult, playRepository, httpClient))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
             tasks.add(SyncPlays(application, syncResult, playRepository))

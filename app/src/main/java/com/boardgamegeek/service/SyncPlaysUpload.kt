@@ -21,6 +21,7 @@ import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.HttpUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.FormBody
+import okhttp3.OkHttpClient
 import okhttp3.Request.Builder
 import java.util.concurrent.TimeUnit
 
@@ -28,8 +29,8 @@ class SyncPlaysUpload(
     application: BggApplication,
     syncResult: SyncResult,
     private val repository: PlayRepository,
+    private val httpClient: OkHttpClient,
 ) : SyncUploadTask(application, syncResult) {
-    private val httpClient = HttpUtils.getHttpClientWithAuth(context)
     private var currentPlay = PlayForNotification()
     private val gameIds = mutableSetOf<Int>()
 

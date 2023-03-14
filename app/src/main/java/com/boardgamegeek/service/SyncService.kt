@@ -11,7 +11,9 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.*
 import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.OkHttpClient
 import javax.inject.Inject
+import javax.inject.Named
 
 @AndroidEntryPoint
 class SyncService : Service() {
@@ -20,6 +22,7 @@ class SyncService : Service() {
     @Inject lateinit var gameCollectionRepository: GameCollectionRepository
     @Inject lateinit var playRepository: PlayRepository
     @Inject lateinit var userRepository: UserRepository
+    @Inject @Named("withAuth") lateinit var httpClient: OkHttpClient
 
     override fun onCreate() {
         super.onCreate()
@@ -32,6 +35,7 @@ class SyncService : Service() {
                     gameCollectionRepository,
                     playRepository,
                     userRepository,
+                    httpClient,
                 )
             }
         }

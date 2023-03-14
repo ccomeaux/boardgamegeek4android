@@ -25,7 +25,6 @@ import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
-import com.boardgamegeek.util.HttpUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import timber.log.Timber
@@ -35,8 +34,8 @@ class SyncCollectionUpload(
     application: BggApplication,
     syncResult: SyncResult,
     private val gameCollectionRepository: GameCollectionRepository,
+    private val httpClient: OkHttpClient,
 ) : SyncUploadTask(application, syncResult) {
-    private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
     private val uploadTasks: List<CollectionUploadTask>
     private var currentGameId: Int = 0
     private var currentGameName: String = ""
@@ -72,14 +71,14 @@ class SyncCollectionUpload(
 
     private fun createUploadTasks(): List<CollectionUploadTask> {
         val tasks = ArrayList<CollectionUploadTask>()
-        tasks.add(CollectionStatusUploadTask(okHttpClient))
-        tasks.add(CollectionRatingUploadTask(okHttpClient))
-        tasks.add(CollectionCommentUploadTask(okHttpClient))
-        tasks.add(CollectionPrivateInfoUploadTask(okHttpClient))
-        tasks.add(CollectionWishlistCommentUploadTask(okHttpClient))
-        tasks.add(CollectionTradeConditionUploadTask(okHttpClient))
-        tasks.add(CollectionWantPartsUploadTask(okHttpClient))
-        tasks.add(CollectionHasPartsUploadTask(okHttpClient))
+        tasks.add(CollectionStatusUploadTask(httpClient))
+        tasks.add(CollectionRatingUploadTask(httpClient))
+        tasks.add(CollectionCommentUploadTask(httpClient))
+        tasks.add(CollectionPrivateInfoUploadTask(httpClient))
+        tasks.add(CollectionWishlistCommentUploadTask(httpClient))
+        tasks.add(CollectionTradeConditionUploadTask(httpClient))
+        tasks.add(CollectionWantPartsUploadTask(httpClient))
+        tasks.add(CollectionHasPartsUploadTask(httpClient))
         return tasks
     }
 
@@ -204,7 +203,7 @@ class SyncCollectionUpload(
     }
 
     private fun processDeletedCollectionItem(item: CollectionItemForUploadEntity) {
-        val deleteTask = CollectionDeleteTask(okHttpClient, item)
+        val deleteTask = CollectionDeleteTask(httpClient, item)
         deleteTask.post()
         if (processResponseForError(deleteTask)) {
             return
@@ -214,7 +213,7 @@ class SyncCollectionUpload(
     }
 
     private fun processNewCollectionItem(item: CollectionItemForUploadEntity) {
-        val addTask = CollectionAddTask(okHttpClient, item)
+        val addTask = CollectionAddTask(httpClient, item)
         addTask.post()
         if (processResponseForError(addTask)) {
             return
