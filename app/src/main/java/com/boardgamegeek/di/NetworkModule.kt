@@ -6,18 +6,19 @@ import android.content.Context
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.io.*
 import com.boardgamegeek.repository.*
-import com.boardgamegeek.util.HttpUtils
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
 import javax.inject.Singleton
@@ -34,7 +35,7 @@ object NetworkModule {
         .connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
-        .addInterceptor(UserAgentInterceptor(null))
+        .addInterceptor(UserAgentInterceptor())
         .addInterceptor(RetryInterceptor(true))
         .addLoggingInterceptor()
         .build()
@@ -51,6 +52,19 @@ object NetworkModule {
         .addInterceptor(RetryInterceptor(true))
         .addLoggingInterceptor()
         .build()
+
+    @Provides
+    @Singleton
+    @Named("withCache")
+    fun getHttpClientWithCache(@ApplicationContext context: Context) = OkHttpClient.Builder()
+        .connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .addInterceptor(UserAgentInterceptor(context))
+        .addLoggingInterceptor()
+        .cache(Cache(File(context.cacheDir, "http"), 10 * 1024 * 1024))
+        .build()
+
 
     private fun OkHttpClient.Builder.addLoggingInterceptor() = apply {
         if (BuildConfig.DEBUG) {

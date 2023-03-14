@@ -7,10 +7,8 @@ import com.boardgamegeek.io.AuthInterceptor
 import com.boardgamegeek.io.RetryInterceptor
 import com.boardgamegeek.io.UserAgentInterceptor
 import com.facebook.stetho.okhttp3.StethoInterceptor
-import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import java.io.File
 import java.util.concurrent.TimeUnit
 
 object HttpUtils {
@@ -32,12 +30,6 @@ object HttpUtils {
         .addInterceptor(AuthInterceptor(context))
         .addInterceptor(RetryInterceptor())
         .addLoggingInterceptor()
-        .build()
-
-    fun getHttpClientWithCache(context: Context) = createBuilder()
-        .addInterceptor(UserAgentInterceptor(context))
-        .addLoggingInterceptor()
-        .cache(Cache(File(context.cacheDir, "http"), 10 * 1024 * 1024))
         .build()
 
     private fun createBuilder() = OkHttpClient.Builder()
