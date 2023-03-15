@@ -10,6 +10,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.OkHttpClient
 import javax.inject.Named
 import javax.inject.Singleton
 
@@ -20,6 +21,11 @@ object AppModule {
     @Singleton
     fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository) =
         ArtistRepository(context, api, imageRepository)
+
+    @Provides
+    @Singleton
+    fun provideAuthRepository(@ApplicationContext context: Context, @Named("without202Retry") httpClient: OkHttpClient) =
+        AuthRepository(context, httpClient)
 
     @Provides
     @Singleton

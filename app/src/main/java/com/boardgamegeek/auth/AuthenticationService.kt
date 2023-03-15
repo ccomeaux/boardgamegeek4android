@@ -4,13 +4,19 @@ import android.app.Service
 import timber.log.Timber
 import android.content.Intent
 import android.os.IBinder
+import com.boardgamegeek.repository.AuthRepository
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AuthenticationService : Service() {
+    @Inject lateinit var authRepository: AuthRepository
     private var authenticator: Authenticator? = null
 
     override fun onCreate() {
+        super.onCreate()
         Timber.v("BoardGameGeek Authentication Service started.")
-        authenticator = Authenticator(this)
+        authenticator = Authenticator(this, authRepository)
     }
 
     override fun onDestroy() {

@@ -10,12 +10,17 @@ import androidx.core.os.bundleOf
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.set
+import com.boardgamegeek.repository.AuthRepository
 import com.boardgamegeek.ui.LoginActivity
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 import java.io.IOException
 
-class Authenticator(private val context: Context?) : AbstractAccountAuthenticator(context) {
+class Authenticator(
+    private val context: Context,
+    private val authRepository: AuthRepository,
+) : AbstractAccountAuthenticator(context) {
+
     @Throws(NetworkErrorException::class)
     override fun addAccount(
         response: AccountAuthenticatorResponse,
@@ -25,7 +30,7 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
         options: Bundle
     ): Bundle {
         Timber.v("Adding account: accountType=%s, authTokenType=%s", accountType, authTokenType)
-        return LoginActivity.createIntentBundle(context!!, response, null)
+        return LoginActivity.createIntentBundle(context, response, null)
     }
 
     @Throws(NetworkErrorException::class)
@@ -62,19 +67,18 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
         // Ensure the password is valid and not expired, then return the stored AuthToken
         val password = am.getPassword(account)
         if (!password.isNullOrBlank()) {
-            val cookieJar = NetworkAuthenticator.authenticate(account.name, password, "Renewal", context!!)
-            if (cookieJar != null) {
-                am.setAuthToken(account, authTokenType, cookieJar.authToken)
-                am.setUserData(account, KEY_AUTH_TOKEN_EXPIRY, cookieJar.authTokenExpiry.toString())
+            authRepository.authenticate(account.name, password, "Renewal")?.let {authEntity ->
+                am.setAuthToken(account, authTokenType, authEntity.token)
+                am.setUserData(account, KEY_AUTH_TOKEN_EXPIRY, authEntity.expiry.toString())
                 Timber.v(toDebugString())
-                return createAuthTokenBundle(account, cookieJar.authToken)
+                return createAuthTokenBundle(account, authEntity.token)
             }
         }
 
         // If we get here, then we couldn't access the user's password - so we need to re-prompt them for their
         // credentials. We do that by creating an intent to display our AuthenticatorActivity panel.
         Timber.i("Expired credentials...")
-        return LoginActivity.createIntentBundle(context!!, response, account.name)
+        return LoginActivity.createIntentBundle(context, response, account.name)
     }
 
     override fun getAuthTokenLabel(authTokenType: String): String? {
@@ -108,7 +112,6 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
     }
 
     private fun toDebugString(): String {
-        if (context == null) return ""
         val accountManager = AccountManager.get(context) ?: return ""
         val account = getAccount(accountManager) ?: return ""
         return """
@@ -131,9 +134,7 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
          * Gets the account associated with BoardGameGeek. Returns null if there is a problem getting the account.
          */
         fun getAccount(context: Context?): Account? {
-            return if (context != null) {
-                getAccount(AccountManager.get(context))
-            } else null
+            return context?.let { getAccount(AccountManager.get(it)) }
         }
 
         /**
@@ -141,15 +142,16 @@ class Authenticator(private val context: Context?) : AbstractAccountAuthenticato
          */
         fun getAccount(accountManager: AccountManager): Account? {
             val accounts = accountManager.getAccountsByType(ACCOUNT_TYPE)
-            if (accounts.isEmpty()) {
+            return if (accounts.isEmpty()) {
                 // likely the user has never signed in
-                Timber.v("no account!")
-                return null
+                Timber.v("No account found for $ACCOUNT_TYPE")
+                null
             } else if (accounts.size > 1) {
-                Timber.w("multiple accounts!")
-                return null
+                Timber.w("Multiple accounts found for $ACCOUNT_TYPE")
+                null
+            } else {
+                accounts.first()
             }
-            return accounts[0]
         }
 
         /**

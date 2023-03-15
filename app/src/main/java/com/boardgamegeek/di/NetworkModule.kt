@@ -56,7 +56,7 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("withCache")
-    fun getHttpClientWithCache(@ApplicationContext context: Context) = OkHttpClient.Builder()
+    fun provideHttpClientWithCache(@ApplicationContext context: Context) = OkHttpClient.Builder()
         .connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
@@ -65,6 +65,17 @@ object NetworkModule {
         .cache(Cache(File(context.cacheDir, "http"), 10 * 1024 * 1024))
         .build()
 
+    @Provides
+    @Singleton
+    @Named("without202Retry")
+    fun provideHttpClientWithout202Retry() = OkHttpClient.Builder()
+        .connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        .addInterceptor(UserAgentInterceptor())
+        .addInterceptor(RetryInterceptor(false))
+        .addLoggingInterceptor()
+        .build()
 
     private fun OkHttpClient.Builder.addLoggingInterceptor() = apply {
         if (BuildConfig.DEBUG) {
