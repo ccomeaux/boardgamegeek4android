@@ -18,7 +18,6 @@ import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
-import com.boardgamegeek.util.HttpUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.FormBody
 import okhttp3.OkHttpClient

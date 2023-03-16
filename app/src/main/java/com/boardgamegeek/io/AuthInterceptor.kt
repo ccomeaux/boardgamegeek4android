@@ -5,7 +5,7 @@ import android.accounts.AuthenticatorException
 import android.accounts.OperationCanceledException
 import android.content.Context
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.util.HttpUtils.encodeForUrl
+import com.boardgamegeek.extensions.encodeForUrl
 import okhttp3.Interceptor
 import okhttp3.Response
 import timber.log.Timber

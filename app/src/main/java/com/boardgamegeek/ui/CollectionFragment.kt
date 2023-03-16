@@ -38,7 +38,6 @@ import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemV
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.HttpUtils.encodeForUrl
 import com.google.android.material.chip.Chip
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
