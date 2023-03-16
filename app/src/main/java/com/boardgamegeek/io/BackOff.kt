@@ -1,9 +1,7 @@
 package com.boardgamegeek.io
 
 interface BackOff {
-
     fun nextBackOffMillis(): Long
-
     fun reset()
 
     companion object {
