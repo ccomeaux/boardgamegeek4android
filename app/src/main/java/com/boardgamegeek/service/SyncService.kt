@@ -17,6 +17,7 @@ import javax.inject.Named
 
 @AndroidEntryPoint
 class SyncService : Service() {
+    @Inject lateinit var authRepository: AuthRepository
     @Inject lateinit var collectionItemRepository: CollectionItemRepository
     @Inject lateinit var gameRepository: GameRepository
     @Inject lateinit var gameCollectionRepository: GameCollectionRepository
@@ -30,6 +31,7 @@ class SyncService : Service() {
             if (syncAdapter == null) {
                 syncAdapter = SyncAdapter(
                     (application as BggApplication),
+                    authRepository,
                     collectionItemRepository,
                     gameRepository,
                     gameCollectionRepository,

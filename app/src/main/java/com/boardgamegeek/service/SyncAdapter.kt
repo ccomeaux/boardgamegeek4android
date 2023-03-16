@@ -16,17 +16,15 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.setCurrentTimestamp
 import com.boardgamegeek.repository.*
-import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import okhttp3.OkHttpClient
-import okhttp3.Request
 import timber.log.Timber
-import java.io.IOException
 import java.net.SocketTimeoutException
 
 class SyncAdapter(
     private val application: BggApplication,
+    private val authRepository: AuthRepository,
     private val collectionItemRepository: CollectionItemRepository,
     private val gameRepository: GameRepository,
     private val gameCollectionRepository: GameCollectionRepository,
@@ -163,52 +161,27 @@ class SyncAdapter(
             Timber.i("Sync disabled remotely")
             return false
         }
-        if (hasPrivacyError()) {
+        val url = "https://www.boardgamegeek.com"
+        if (authRepository.hasPrivacyError(url)) {
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(Intent.ACTION_VIEW, Uri.parse(url)),
+                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            )
+            val message = context.getString(R.string.sync_notification_message_privacy_error)
+            val builder = context
+                .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
+                .setContentText(message)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                .setContentIntent(pendingIntent)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+            context.notify(builder, NotificationTags.SYNC_ERROR, Int.MAX_VALUE)
             Timber.i("User still hasn't accepted the new privacy policy.")
             return false
         }
         return true
-    }
-
-    private fun hasPrivacyError(): Boolean {
-        val weeksToCompare = RemoteConfig.getInt(RemoteConfig.KEY_PRIVACY_CHECK_WEEKS)
-        val weeks = prefs.getLastPrivacyCheckTimestamp().howManyWeeksOld()
-        if (weeks < weeksToCompare) {
-            Timber.i("We checked the privacy statement less than %,d weeks ago; skipping", weeksToCompare)
-            return false
-        }
-        val url = "https://www.boardgamegeek.com"
-        val request: Request = Request.Builder().url(url).build()
-        return try {
-            val response = httpClient.newCall(request).execute()
-            val body = response.body
-            val content = body?.string()?.trim().orEmpty()
-            if (content.contains("Please update your privacy and marketing preferences")) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                val pendingIntent = PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
-                )
-                val message = context.getString(R.string.sync_notification_message_privacy_error)
-                val builder = context
-                    .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
-                    .setContentText(message)
-                    .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-                    .setContentIntent(pendingIntent)
-                    .setCategory(NotificationCompat.CATEGORY_ERROR)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                context.notify(builder, NotificationTags.SYNC_ERROR, Int.MAX_VALUE)
-                true
-            } else {
-                prefs.setLastPrivacyCheckTimestamp()
-                false
-            }
-        } catch (e: IOException) {
-            Timber.w(e)
-            true
-        }
     }
 
     /**
