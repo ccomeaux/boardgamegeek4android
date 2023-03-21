@@ -60,10 +60,10 @@ class SyncCollectionComplete(
             if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
                 val lastCompleteSync = syncPrefs.getLastCompleteCollectionTimestamp()
                 if (lastCompleteSync > 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays, TimeUnit.DAYS)) {
-                    Timber.i("Not currently syncing but it's been less than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.asDateTime(context)}], aborting")
+                    Timber.i("Not currently syncing but it's been less than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.formatDateTime(context)}], aborting")
                     return
                 } else {
-                    Timber.i("Not currently syncing and it's been more than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.asDateTime(context)}], continuing")
+                    Timber.i("Not currently syncing and it's been more than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.formatDateTime(context)}], continuing")
                 }
                 syncPrefs.setCurrentCollectionSyncTimestamp()
             }
@@ -153,7 +153,7 @@ class SyncCollectionComplete(
 
     private fun deleteUnusedItems() {
         val timestamp = syncPrefs.getCurrentCollectionSyncTimestamp()
-        val formattedDateTime = DateUtils.formatDateTime(context, timestamp, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        val formattedDateTime = timestamp.formatDateTime(context, flags = DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
         Timber.i("Deleting collection items not updated since $formattedDateTime")
         val count = context.contentResolver.delete(
             Collection.CONTENT_URI,

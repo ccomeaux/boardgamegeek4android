@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.*
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
@@ -295,14 +296,17 @@ class PlayFragment : Fragment() {
                         play?.let {
                             val subject = getString(R.string.play_description_game_segment, it.gameName) + getString(
                                 R.string.play_description_date_segment,
-                                it.dateInMillis.asDate(requireContext())
+                                it.dateInMillis.formatDateTime(requireContext())
                             )
                             val sb = StringBuilder()
                             sb.append(getString(R.string.play_description_game_segment, it.gameName))
                             if (it.dateInMillis != PlayEntity.UNKNOWN_DATE) sb.append(
                                 getString(
                                     R.string.play_description_date_segment,
-                                    it.dateInMillis.asDate(requireContext(), includeWeekDay = true)
+                                    it.dateInMillis.formatDateTime(
+                                        requireContext(),
+                                        DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_ABBREV_ALL
+                                    )
                                 )
                             )
                             if (it.quantity > 1) sb.append(

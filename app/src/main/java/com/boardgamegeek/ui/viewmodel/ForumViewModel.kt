@@ -27,14 +27,7 @@ class ForumViewModel @Inject constructor(
     }
 
     val threads = _forumId.switchMap { forumId ->
-        Pager(
-            PagingConfig(
-                pageSize = ForumResponse.PAGE_SIZE,
-                initialLoadSize = ForumResponse.PAGE_SIZE,
-                prefetchDistance = 30,
-                enablePlaceholders = true,
-            )
-        ) {
+        Pager(PagingConfig(ForumResponse.PAGE_SIZE)) {
             ForumPagingSource(forumId, repository)
         }.liveData.cachedIn(viewModelScope)
     }

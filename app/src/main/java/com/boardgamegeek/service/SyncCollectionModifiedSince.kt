@@ -5,6 +5,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getDescription
+import com.boardgamegeek.extensions.formatDateTime
 import com.boardgamegeek.extensions.isCollectionSetToSync
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.getCurrentCollectionSyncTimestamp
@@ -81,7 +82,7 @@ class SyncCollectionModifiedSince(
         val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(lastStatusSync))
         val subtypeDescription = subtype.getDescription(context)
 
-        val formattedDateTime = DateUtils.formatDateTime(context, lastStatusSync, DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        val formattedDateTime = lastStatusSync.formatDateTime(context, flags = DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 
         updateProgressNotification(context.getString(R.string.sync_notification_collection_since_syncing, subtypeDescription, formattedDateTime))
 

@@ -141,12 +141,12 @@ class GamePlaysFragment : Fragment() {
     private fun bindLastPlay(plays: List<PlayEntity>) {
         val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
         if (lastPlay != null) {
+            binding.lastPlayViews.isVisible = true
             binding.lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
             binding.lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
             binding.lastPlayContainer.setOnClickListener {
                 PlayActivity.start(requireContext(), lastPlay.internalId)
             }
-            binding.lastPlayViews.isVisible = true
         } else {
             binding.lastPlayViews.isVisible = false
         }
