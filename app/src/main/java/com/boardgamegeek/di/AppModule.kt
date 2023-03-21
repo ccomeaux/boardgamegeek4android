@@ -29,8 +29,16 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideCategoryRepository(@ApplicationContext context: Context) = CategoryRepository(context)
+
+    @Provides
+    @Singleton
     fun provideCollectionItemRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService) =
         CollectionItemRepository(context, api)
+
+    @Provides
+    @Singleton
+    fun provideCollectionViewRepository(@ApplicationContext context: Context) = CollectionViewRepository(context)
 
     @Provides
     @Singleton
@@ -62,6 +70,10 @@ object AppModule {
     @Provides
     @Singleton
     fun provideImageRepository(@ApplicationContext context: Context, geekdoApi: GeekdoApi) = ImageRepository(context, geekdoApi)
+
+    @Provides
+    @Singleton
+    fun provideMechanicRepository(@ApplicationContext context: Context) = MechanicRepository(context)
 
     @Provides
     @Singleton

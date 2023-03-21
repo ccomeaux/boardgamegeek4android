@@ -5,13 +5,17 @@ import androidx.lifecycle.*
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CategoryRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class CategoryViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class CategoryViewModel @Inject constructor(
+    application: Application,
+    private val repository: CategoryRepository,
+) : AndroidViewModel(application) {
     enum class CollectionSort {
         NAME, RATING
     }
-
-    private val repository = CategoryRepository(getApplication())
 
     private val _category = MutableLiveData<Pair<Int, CollectionSort>>()
 

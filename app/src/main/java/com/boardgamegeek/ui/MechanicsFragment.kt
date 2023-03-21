@@ -15,8 +15,10 @@ import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class MechanicsFragment : Fragment() {
     private var _binding: FragmentMechanicsBinding? = null
     private val binding get() = _binding!!

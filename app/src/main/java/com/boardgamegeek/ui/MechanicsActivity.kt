@@ -10,7 +10,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel.SortType
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MechanicsActivity : SimpleSinglePaneActivity() {
     private var numberOfMechanics = -1
     private var sortBy = SortType.ITEM_COUNT

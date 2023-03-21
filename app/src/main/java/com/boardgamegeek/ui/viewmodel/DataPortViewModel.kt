@@ -39,11 +39,11 @@ import javax.inject.Inject
 @HiltViewModel
 class DataPortViewModel @Inject constructor(
     application: Application,
+    private val collectionViewRepository: CollectionViewRepository,
     private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
-    private val collectionViewRepository = CollectionViewRepository(getApplication())
 
     private val gson: Gson = GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()

@@ -10,7 +10,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel.SortType
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class CategoriesActivity : SimpleSinglePaneActivity() {
     private var numberOfCategories = -1
     private var sortBy = SortType.ITEM_COUNT

@@ -4,13 +4,17 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.MechanicDao
 import com.boardgamegeek.repository.MechanicRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class MechanicsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class MechanicsViewModel @Inject constructor(
+    application: Application,
+    private val repository: MechanicRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         NAME, ITEM_COUNT
     }
-
-    private val repository = MechanicRepository(getApplication())
 
     private val _sort = MutableLiveData<MechanicsSort>()
     val sort: LiveData<MechanicsSort>
