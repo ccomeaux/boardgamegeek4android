@@ -24,8 +24,8 @@ class GameCommentsViewModel @Inject constructor(
 
     private val _id = MutableLiveData<Pair<Int, SortType>>()
 
-    val sort: LiveData<SortType> = Transformations.map(_id) {
-        _id.value?.second
+    val sort: LiveData<SortType> = _id.map {
+        _id.value?.second ?: SortType.USER
     }
 
     fun setGameId(id: Int) {

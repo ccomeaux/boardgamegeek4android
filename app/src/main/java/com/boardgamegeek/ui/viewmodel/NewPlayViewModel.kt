@@ -41,7 +41,7 @@ class NewPlayViewModel @Inject constructor(
         get() = _startTime
 
     private val _lengthInMillis = MutableLiveData<Long>()
-    val length: LiveData<Int> = Transformations.map(_lengthInMillis) {
+    val length: LiveData<Int> = _lengthInMillis.map {
         (it / 60_000).toInt()
     }
 
