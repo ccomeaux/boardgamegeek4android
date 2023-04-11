@@ -37,10 +37,10 @@ fun TextView.setTextMaybeHtml(
             var html = text.trim()
             // Fix up problematic HTML
             // replace DIVs with BR
-            html = html.replace("[<]div[^>]*[>]".toRegex(), "")
-            html = html.replace("[<]/div[>]".toRegex(), "<br/>")
+            html = html.replace("<div[^>]*>".toRegex(), "")
+            html = html.replace("</div>".toRegex(), "<br/>")
             // remove all P tags
-            html = html.replace("[<](/)?p[>]".toRegex(), "")
+            html = html.replace("<(/)?p>".toRegex(), "")
             // remove trailing BRs
             html = html.replace("(<br\\s?/>)+$".toRegex(), "")
             // use BRs instead of &#10; (ASCII 10 = new line)

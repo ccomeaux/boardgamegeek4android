@@ -14,10 +14,10 @@ import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.extensions.trimTrailingWhitespace
 
 class TimestampView @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = android.R.attr.textViewStyle,
-        defStyleRes: Int = 0
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = android.R.attr.textViewStyle,
+    defStyleRes: Int = 0
 ) : SelfUpdatingView(context, attrs, defStyleAttr) {
 
     var timestamp: Long = 0
@@ -59,15 +59,12 @@ class TimestampView @JvmOverloads constructor(
     }
 
     override fun onSaveInstanceState(): Parcelable? {
-        val superState = super.onSaveInstanceState()
-        return if (superState != null) {
-            val savedState = SavedState(superState)
-            savedState.timestamp = timestamp
-            savedState.format = format
-            savedState.formatArg = formatArg
-            savedState
-        } else {
-            superState
+        return super.onSaveInstanceState()?.let {
+            SavedState(it).also { ss ->
+                ss.timestamp = timestamp
+                ss.format = format
+                ss.formatArg = formatArg
+            }
         }
     }
 
@@ -90,10 +87,12 @@ class TimestampView @JvmOverloads constructor(
             val formattedTimestamp = timestamp.formatTimestamp(context, includeTime, isForumTimeStamp)
             text = if (format.isNotEmpty()) {
                 @Suppress("DEPRECATION")
-                Html.fromHtml(String.format(
+                Html.fromHtml(
+                    String.format(
                         Html.toHtml(SpannedString(this@TimestampView.format)),
                         formattedTimestamp,
-                        formatArg)
+                        formatArg,
+                    )
                 ).trimTrailingWhitespace()
             } else {
                 formattedTimestamp

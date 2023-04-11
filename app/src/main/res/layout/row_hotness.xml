@@ -6,7 +6,8 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@drawable/bg_activatable"
-	android:foreground="?android:attr/selectableItemBackground">
+	android:foreground="?android:attr/selectableItemBackground"
+	tools:ignore="UnusedAttribute">
 
 	<TextView
 		android:id="@+id/rankView"
