@@ -209,7 +209,7 @@ class PlayRepository(
         }
     }
 
-    suspend fun downloadPlays(fromDate: Long, toDate: Long, page:Int, timestamp: Long = System.currentTimeMillis()) = withContext(Dispatchers.IO) {
+    suspend fun downloadPlays(fromDate: Long, toDate: Long, page: Int, timestamp: Long = System.currentTimeMillis()) = withContext(Dispatchers.IO) {
         val from = if (fromDate > 0L) fromDate.asDateForApi() else null
         val to = if (toDate > 0L) toDate.asDateForApi() else null
         val response = api.plays(username, from, to, page)
@@ -450,14 +450,17 @@ class PlayRepository(
     suspend fun save(play: PlayEntity, internalId: Long = play.internalId): Long {
         val id = playDao.upsert(play, internalId)
 
-        // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
-        val isUpdating = play.updateTimestamp > 0
-        val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
-        val isToday = play.dateInMillis.isToday() || endTime.isToday()
-        if (!play.isSynced && isUpdating && isToday) {
-            prefs[KEY_LAST_PLAY_TIME] = System.currentTimeMillis()
-            prefs[KEY_LAST_PLAY_LOCATION] = play.location
-            prefs.putLastPlayPlayerEntities(play.players)
+        // remember details about the play if it's being uploaded for the first time
+        if (!play.isSynced && (play.updateTimestamp > 0)) {
+            prefs[KEY_LAST_PLAY_DATE] = play.dateInMillis
+            // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
+            val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
+            val isToday = play.dateInMillis.isToday() || endTime.isToday()
+            if (isToday) {
+                prefs[KEY_LAST_PLAY_TIME] = System.currentTimeMillis()
+                prefs[KEY_LAST_PLAY_LOCATION] = play.location
+                prefs.putLastPlayPlayerEntities(play.players)
+            }
         }
 
         return id

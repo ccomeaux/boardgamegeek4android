@@ -6,6 +6,7 @@ import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -35,6 +36,8 @@ class NewPlayViewModel @Inject constructor(
     private var _playDate = MutableLiveData<Long>()
     val playDate: LiveData<Long>
         get() = _playDate
+
+    val lastPlayDate = LiveSharedPreference<Long>(application, KEY_LAST_PLAY_DATE)
 
     private val _startTime = MutableLiveData<Long>()
     val startTime: LiveData<Long>
