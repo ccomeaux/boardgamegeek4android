@@ -22,7 +22,7 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request.Builder
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class SyncPlaysUpload(
     application: BggApplication,
@@ -89,7 +89,7 @@ class SyncPlaysUpload(
         updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update, totalNumberOfPlays, totalNumberOfPlays)
         pendingPlays.forEach { play ->
             if (isCancelled) return
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) return
+            if (wasSleepInterrupted(1.seconds, false)) return
 
             updateProgressNotificationAsPlural(
                 R.plurals.sync_notification_plays_update_increment,
@@ -151,7 +151,7 @@ class SyncPlaysUpload(
 
         deletedPlays.forEach { play ->
             if (isCancelled) return
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) return
+            if (wasSleepInterrupted(1.seconds, false)) return
 
             updateProgressNotificationAsPlural(
                 R.plurals.sync_notification_plays_delete_increment,

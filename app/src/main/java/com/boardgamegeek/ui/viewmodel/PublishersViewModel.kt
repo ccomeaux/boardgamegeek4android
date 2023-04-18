@@ -8,9 +8,9 @@ import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 
 @HiltViewModel
 class PublishersViewModel @Inject constructor(
@@ -46,7 +46,7 @@ class PublishersViewModel @Inject constructor(
             val publishers = publisherRepository.loadPublishers(it.sortBy)
             emit(publishers)
             val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
-            if (lastCalculation.isOlderThan(1, TimeUnit.HOURS) &&
+            if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
                 publisherRepository.calculateWhitmoreScores(publishers, _progress)

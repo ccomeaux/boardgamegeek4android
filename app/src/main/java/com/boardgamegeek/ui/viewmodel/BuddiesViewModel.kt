@@ -11,7 +11,6 @@ import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.repository.UserRepository
-import java.util.concurrent.TimeUnit
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
@@ -20,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
 @HiltViewModel
 class BuddiesViewModel @Inject constructor(
@@ -48,7 +48,7 @@ class BuddiesViewModel @Inject constructor(
                 val buddies = userRepository.loadBuddies(it.sortBy)
                 val refreshedBuddies = if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true) {
                     when {
-                        syncPrefs.getBuddiesTimestamp().isOlderThan(1, TimeUnit.DAYS) &&
+                        syncPrefs.getBuddiesTimestamp().isOlderThan(1.days) &&
                                 isRefreshing.compareAndSet(false, true) -> {
                             emit(RefreshableResource.refreshing(buddies))
                             val timestamp = System.currentTimeMillis()

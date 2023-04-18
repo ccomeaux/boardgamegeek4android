@@ -12,6 +12,7 @@ import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
+import kotlin.time.Duration.Companion.milliseconds
 
 class SyncPlays(
     application: BggApplication,
@@ -84,7 +85,7 @@ class SyncPlays(
                 return true
             }
 
-            if (page != 1) if (wasSleepInterrupted(fetchPauseMillis)) return true
+            if (page != 1) if (wasSleepInterrupted(fetchPauseMillis.milliseconds)) return true
 
             val message = formatNotificationMessage(minDate, maxDate, page)
             updateProgressNotification(message)

@@ -17,6 +17,7 @@ import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
 import java.util.*
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Syncs the user's collection modified since the date stored in the sync service.
@@ -55,7 +56,7 @@ class SyncCollectionModifiedSince(
                 return
             }
 
-            if (wasSleepInterrupted(fetchPauseMillis)) return
+            if (wasSleepInterrupted(fetchPauseMillis.milliseconds)) return
 
             syncBySubtype(BggService.ThingSubtype.BOARDGAME_ACCESSORY)
             if (isCancelled) {

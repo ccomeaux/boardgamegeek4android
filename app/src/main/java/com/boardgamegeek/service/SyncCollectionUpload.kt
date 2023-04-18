@@ -28,7 +28,7 @@ import com.boardgamegeek.ui.GameActivity
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
 class SyncCollectionUpload(
     application: BggApplication,
@@ -85,19 +85,19 @@ class SyncCollectionUpload(
     override fun execute() {
         fetchList(fetchDeletedCollectionItems()).forEach {
             if (isCancelled) return@forEach
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS)) return@forEach
+            if (wasSleepInterrupted(1.seconds)) return@forEach
             processDeletedCollectionItem(it)
         }
 
         fetchList(fetchNewCollectionItems()).forEach {
             if (isCancelled) return@forEach
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS)) return@forEach
+            if (wasSleepInterrupted(1.seconds)) return@forEach
             processNewCollectionItem(it)
         }
 
         fetchList(fetchDirtyCollectionItems()).forEach {
             if (isCancelled) return@forEach
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS)) return@forEach
+            if (wasSleepInterrupted(1.seconds)) return@forEach
             processDirtyCollectionItem(it)
         }
     }

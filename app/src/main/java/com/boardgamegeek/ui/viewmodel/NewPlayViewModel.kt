@@ -13,8 +13,8 @@ import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 
 @HiltViewModel
 class NewPlayViewModel @Inject constructor(
@@ -490,7 +490,7 @@ class NewPlayViewModel @Inject constructor(
 
     private fun isLastPlayRecent(): Boolean {
         val lastPlayTime = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
-        return !lastPlayTime.isOlderThan(6, TimeUnit.HOURS)
+        return !lastPlayTime.isOlderThan(6.hours)
     }
 
     fun setComments(input: String) {

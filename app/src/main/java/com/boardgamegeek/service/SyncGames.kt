@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
 import java.io.IOException
+import kotlin.time.Duration.Companion.milliseconds
 
 abstract class SyncGames(
     application: BggApplication,
@@ -32,7 +33,7 @@ abstract class SyncGames(
             do {
                 if (isCancelled) break
 
-                if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis)) return
+                if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis.milliseconds)) return
 
                 numberOfFetches++
                 val gameList = runBlocking { getGames() }

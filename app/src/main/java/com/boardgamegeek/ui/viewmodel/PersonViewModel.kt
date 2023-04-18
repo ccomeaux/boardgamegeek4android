@@ -13,8 +13,8 @@ import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
 @HiltViewModel
 class PersonViewModel @Inject constructor(
@@ -87,11 +87,11 @@ class PersonViewModel @Inject constructor(
     private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadArtist(artistId: Int, application: Application) {
         val artist = artistRepository.loadArtist(artistId)
         try {
-            val refreshedArtist = if (artist == null || artist.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val refreshedArtist = if (artist == null || artist.updatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(artist))
                 artistRepository.refreshArtist(artistId)
             } else artist
-            val artistWithImages = if (refreshedArtist.imagesUpdatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val artistWithImages = if (refreshedArtist.imagesUpdatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(refreshedArtist))
                 artistRepository.refreshImages(refreshedArtist)
             } else refreshedArtist
@@ -108,11 +108,11 @@ class PersonViewModel @Inject constructor(
     private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadDesigner(designerId: Int, application: Application) {
         val designer = designerRepository.loadDesigner(designerId)
         try {
-            val refreshedDesigner = if (designer == null || designer.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val refreshedDesigner = if (designer == null || designer.updatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(designer))
                 designerRepository.refreshDesigner(designerId)
             } else designer
-            val designerWithImages = if (refreshedDesigner.imagesUpdatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val designerWithImages = if (refreshedDesigner.imagesUpdatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(refreshedDesigner))
                 designerRepository.refreshImages(refreshedDesigner)
             } else refreshedDesigner
@@ -129,7 +129,7 @@ class PersonViewModel @Inject constructor(
     private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadPublisher(publisherId: Int, application: Application) {
         val publisher = publisherRepository.loadPublisher(publisherId)
         try {
-            val refreshedPublisher = if (publisher == null || publisher.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val refreshedPublisher = if (publisher == null || publisher.updatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(publisher.toPersonEntity()))
                 publisherRepository.refreshPublisher(publisherId)
             } else publisher

@@ -8,8 +8,8 @@ import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
 @HiltViewModel
 class SelfUserViewModel @Inject constructor(
@@ -35,7 +35,7 @@ class SelfUserViewModel @Inject constructor(
                     try {
                         emit(RefreshableResource.refreshing(latestValue?.data))
                         val entity = userRepository.load(username)
-                        if (entity == null || entity.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+                        if (entity == null || entity.updatedTimestamp.isOlderThan(1.days)) {
                             val refreshedUser = userRepository.refresh(username)
                             emit(RefreshableResource.success(refreshedUser))
                             if (username == Authenticator.getAccount(application)?.name) {

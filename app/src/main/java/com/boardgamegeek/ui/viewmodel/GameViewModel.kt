@@ -21,9 +21,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class GameViewModel @Inject constructor(
@@ -92,7 +92,7 @@ class GameViewModel @Inject constructor(
                     val game = gameRepository.loadGame(gameId)
                     emit(RefreshableResource.success(game))
                     val refreshedGame = if (isGameRefreshing.compareAndSet(false, true)) {
-                        if (game == null || game.updated.isOlderThan(gameRefreshMinutes, TimeUnit.MINUTES)) {
+                        if (game == null || game.updated.isOlderThan(gameRefreshMinutes.minutes)) {
                             emit(RefreshableResource.refreshing(game))
                             gameRepository.refreshGame(gameId)
                             val loadedGame = gameRepository.loadGame(gameId)
@@ -255,7 +255,7 @@ class GameViewModel @Inject constructor(
                     emit(RefreshableResource.success(items))
                     val refreshedItems = if (areItemsRefreshing.compareAndSet(false, true)) {
                         val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-                        val refreshedItems = if (lastUpdated.isOlderThan(itemsRefreshMinutes, TimeUnit.MINUTES)) {
+                        val refreshedItems = if (lastUpdated.isOlderThan(itemsRefreshMinutes.minutes)) {
                             emit(RefreshableResource.refreshing(items))
                             gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype)
                             val newItems = gameCollectionRepository.loadCollectionItems(gameId)
@@ -289,11 +289,11 @@ class GameViewModel @Inject constructor(
                         emit(RefreshableResource.refreshing(plays))
                         val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
                         val rPlays = when {
-                            lastUpdated.isOlderThan(playsFullMinutes, TimeUnit.MINUTES) -> {
+                            lastUpdated.isOlderThan(playsFullMinutes.minutes) -> {
                                 playRepository.refreshPlaysForGame(gameId)
                                 gameRepository.getPlays(gameId)
                             }
-                            lastUpdated.isOlderThan(playsPartialMinutes, TimeUnit.MINUTES) -> {
+                            lastUpdated.isOlderThan(playsPartialMinutes.minutes) -> {
                                 playRepository.refreshPartialPlaysForGame(gameId)
                                 gameRepository.getPlays(gameId)
                             }

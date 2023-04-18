@@ -14,9 +14,9 @@ import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class GameCollectionItemViewModel @Inject constructor(
@@ -63,7 +63,7 @@ class GameCollectionItemViewModel @Inject constructor(
                     if (isItemRefreshing.compareAndSet(false, true)) {
                         val refreshedItem = if (
                             forceRefresh.get() ||
-                            it.syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
+                            it.syncTimestamp.isOlderThan(refreshMinutes.minutes)
                         ) {
                             emit(RefreshableResource.refreshing(it))
                             gameCollectionRepository.refreshCollectionItem(it.gameId, it.collectionId, it.subtype)

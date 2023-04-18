@@ -10,6 +10,7 @@ import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
+import kotlin.time.Duration.Companion.milliseconds
 
 abstract class SyncBuddiesDetail(application: BggApplication, syncResult: SyncResult, private val repository: UserRepository) :
     SyncTask(application, syncResult) {
@@ -63,7 +64,7 @@ abstract class SyncBuddiesDetail(application: BggApplication, syncResult: SyncRe
                         }
                     }
 
-                    if (wasSleepInterrupted(fetchPauseMillis, showNotification = false)) break
+                    if (wasSleepInterrupted(fetchPauseMillis.milliseconds, showNotification = false)) break
                 }
             } else {
                 Timber.i("...no buddies to update")

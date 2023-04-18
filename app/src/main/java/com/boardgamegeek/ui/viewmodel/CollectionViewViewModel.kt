@@ -25,8 +25,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class CollectionViewViewModel @Inject constructor(
@@ -296,7 +296,7 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     fun refresh(): Boolean {
-        return if ((syncTimestamp.value ?: 0).isOlderThan(1, TimeUnit.MINUTES)) {
+        return if ((syncTimestamp.value ?: 0).isOlderThan(1.minutes)) {
             syncTimestamp.postValue(System.currentTimeMillis())
             true
         } else false

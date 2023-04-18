@@ -8,9 +8,9 @@ import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.ArtistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 
 @HiltViewModel
 class ArtistsViewModel @Inject constructor(
@@ -46,7 +46,7 @@ class ArtistsViewModel @Inject constructor(
             val artists = artistRepository.loadArtists(it.sortBy)
             emit(artists)
             val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L] ?: 0L
-            if (lastCalculation.isOlderThan(1, TimeUnit.HOURS) &&
+            if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
                 artistRepository.calculateWhitmoreScores(artists, _progress)
