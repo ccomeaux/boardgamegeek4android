@@ -107,8 +107,7 @@ class GameViewModel @Inject constructor(
                     refreshedGame?.let {
                         if (it.heroImageUrl.isBlank()) {
                             emit(RefreshableResource.refreshing(it))
-                            gameRepository.refreshHeroImage(it)
-                            val gameWithHeroImage = gameRepository.loadGame(gameId)
+                            val gameWithHeroImage = gameRepository.refreshHeroImage(it)
                             emit(RefreshableResource.success(gameWithHeroImage))
                         }
                     }

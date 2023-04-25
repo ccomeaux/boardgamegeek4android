@@ -22,7 +22,7 @@ import timber.log.Timber
 class GameCollectionRepository(
     val context: Context,
     private val api: BggService,
-    private val geekdoApi: GeekdoApi,
+    private val imageRepository: ImageRepository,
 ) {
     private val dao = CollectionDao(context)
     private val gameDao = GameDao(context)
@@ -62,10 +62,12 @@ class GameCollectionRepository(
         }
 
     suspend fun refreshHeroImage(item: CollectionItemEntity): CollectionItemEntity = withContext(Dispatchers.IO) {
-        val response = geekdoApi.image(item.thumbnailUrl.getImageId())
-        val url = response.images.medium.url
-        dao.update(item.internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to url))
-        item.copy(heroImageUrl = url)
+        val urlMap = imageRepository.getImageUrls(item.thumbnailUrl.getImageId())
+        val urls = urlMap[ImageRepository.ImageType.HERO]
+        if (urls?.isNotEmpty() == true) {
+            dao.update(item.internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to urls.first()))
+            item.copy(heroImageUrl = urls.first())
+        } else item
     }
 
     suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId)

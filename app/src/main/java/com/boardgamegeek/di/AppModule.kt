@@ -56,8 +56,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, geekdoApi: GeekdoApi) =
-        GameCollectionRepository(context, api, geekdoApi)
+    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, imageRepository: ImageRepository) =
+        GameCollectionRepository(context, api, imageRepository)
 
     @Provides
     @Singleton
