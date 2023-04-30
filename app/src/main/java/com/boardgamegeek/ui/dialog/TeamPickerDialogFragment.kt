@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
@@ -16,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogTeamsBinding
 import com.boardgamegeek.databinding.RowTeamBinding
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
@@ -31,7 +31,7 @@ class TeamPickerDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogTeamsBinding.inflate(layoutInflater)
 
-        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(binding.root)
+        val builder = requireContext().createThemedBuilder().setView(binding.root)
         val playerName = arguments?.getString(KEY_PLAYER_NAME).orEmpty()
         if (playerName.isBlank()) {
             builder.setTitle(R.string.team_color)

@@ -6,13 +6,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogPlayStatsSettingsIncludeBinding
 import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_ACCESSORIES
 import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_EXPANSIONS
 import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_INCOMPLETE
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.set
@@ -25,7 +25,7 @@ class PlayStatsIncludeSettingsDialogFragment : DialogFragment() {
         @SuppressLint("InflateParams")
         _binding = DialogPlayStatsSettingsIncludeBinding.inflate(layoutInflater, null, false)
         val prefs = requireContext().preferences()
-        return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        return requireContext().createThemedBuilder()
             .setTitle(R.string.title_settings)
             .setView(binding.root)
             .setPositiveButton(R.string.ok) { _, _ ->

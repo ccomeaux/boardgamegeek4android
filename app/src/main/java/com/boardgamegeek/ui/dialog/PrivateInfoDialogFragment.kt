@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.core.view.isInvisible
 import androidx.fragment.app.DialogFragment
@@ -36,7 +35,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val viewModel = ViewModelProvider(requireActivity())[GameCollectionItemViewModel::class.java]
         _binding = DialogPrivateInfoBinding.inflate(layoutInflater)
-        return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        return requireContext().createThemedBuilder()
             .setTitle(R.string.title_private_info)
             .setView(binding.root)
             .setNegativeButton(R.string.cancel, null)

@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.dialog
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,9 +23,16 @@ class GameRanksDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        _binding = DialogGameRanksBinding.inflate(layoutInflater)
+        val builder = requireContext().createThemedBuilder()
+            .setView(binding.root)
+            .setTitle(R.string.title_ranks_ratings)
+        return builder.create()
+    }
+
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = DialogGameRanksBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -88,9 +96,7 @@ class GameRanksDialogFragment : DialogFragment() {
 
     companion object {
         fun launch(host: Fragment) {
-            host.showAndSurvive(GameRanksDialogFragment().apply {
-                setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
-            })
+            host.showAndSurvive(GameRanksDialogFragment())
         }
     }
 }
