@@ -22,6 +22,11 @@ class CollectionFilterDialogFactory {
         dialogs.add(MyRatingFilterDialog())
         dialogs.add(RecommendedPlayerCountFilterDialog())
         dialogs.add(FavoriteFilterDialog())
+
+        // Private Info
+        dialogs.add(AcquiredFromFilterDialog())
+        dialogs.add(InventoryLocationFilterDialog())
+        dialogs.add(PrivateCommentFilterDialog())
     }
 
     fun create(context: Context, type: Int): CollectionFilterDialog? {
