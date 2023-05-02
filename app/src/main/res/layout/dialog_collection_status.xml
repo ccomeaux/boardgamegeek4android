@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/scroll_container"
-	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:paddingBottom="@dimen/material_margin_vertical"
-	android:paddingLeft="@dimen/material_margin_horizontal"
-	android:paddingRight="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical">
+	android:paddingHorizontal="@dimen/material_margin_horizontal_dialog"
+	android:paddingVertical="@dimen/material_margin_vertical"
+	android:paddingLeft="@dimen/material_margin_horizontal">
 
 	<LinearLayout
 		android:id="@+id/container"
@@ -21,7 +19,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="own"
-			android:text="@string/collection_status_own"/>
+			android:text="@string/collection_status_own" />
 
 		<CheckBox
 			android:id="@+id/previously_owned"
@@ -29,7 +27,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="previously_owned"
-			android:text="@string/collection_status_prev_owned"/>
+			android:text="@string/collection_status_prev_owned" />
 
 		<CheckBox
 			android:id="@+id/for_trade"
@@ -37,7 +35,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="for_trade"
-			android:text="@string/collection_status_for_trade"/>
+			android:text="@string/collection_status_for_trade" />
 
 		<CheckBox
 			android:id="@+id/want_to_play"
@@ -45,7 +43,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="want_to_play"
-			android:text="@string/collection_status_want_to_play"/>
+			android:text="@string/collection_status_want_to_play" />
 
 		<CheckBox
 			android:id="@+id/want"
@@ -53,7 +51,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="want"
-			android:text="@string/collection_status_want_in_trade"/>
+			android:text="@string/collection_status_want_in_trade" />
 
 		<CheckBox
 			android:id="@+id/want_to_buy"
@@ -61,7 +59,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="want_to_buy"
-			android:text="@string/collection_status_want_to_buy"/>
+			android:text="@string/collection_status_want_to_buy" />
 
 		<CheckBox
 			android:id="@+id/preordered"
@@ -69,7 +67,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="preordered"
-			android:text="@string/collection_status_preordered"/>
+			android:text="@string/collection_status_preordered" />
 
 		<CheckBox
 			android:id="@+id/wishlistView"
@@ -77,13 +75,13 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:tag="wishlist"
-			android:text="@string/collection_status_wishlist"/>
+			android:text="@string/collection_status_wishlist" />
 
 		<Spinner
 			android:id="@+id/wishlistPriorityView"
 			style="@style/DialogSpinner"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content"/>
-
+			android:layout_height="wrap_content"
+			android:paddingLeft="32dp" />
 	</LinearLayout>
 </ScrollView>

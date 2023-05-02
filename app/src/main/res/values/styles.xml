@@ -120,7 +120,6 @@
 	<style name="DialogSectionHeader">
 		<item name="android:minHeight">64dp</item>
 		<item name="android:gravity">bottom</item>
-		<item name="android:paddingLeft">4dp</item>
 		<item name="android:paddingBottom">8dp</item>
 		<item name="android:textAppearance">@style/TextAppearance.Title.Accent</item>
 	</style>
@@ -128,24 +127,26 @@
 	<style name="DialogCheckbox">
 		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
 		<item name="android:textSize">18sp</item>
+		<item name="android:paddingLeft">8dp</item>
 		<item name="android:textColor">?attr/textColorAlertDialogListItem</item>
 		<item name="android:gravity">center_vertical</item>
-		<item name="android:paddingLeft">20dp</item>
-		<item name="android:paddingRight">24dp</item>
 		<item name="android:ellipsize">end</item>
 	</style>
 
 	<style name="DialogSpinner">
 		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
 		<item name="android:gravity">center_vertical</item>
-		<item name="android:paddingLeft">48dp</item>
-		<item name="android:paddingRight">24dp</item>
 	</style>
 
 	<style name="DialogRadioButton">
 		<item name="android:minHeight">?attr/listPreferredItemHeightSmall</item>
 		<item name="android:gravity">center_vertical</item>
 		<item name="android:background">?attr/selectableItemBackground</item>
+	</style>
+
+	<style name="MaterialAlertDialog.App.Title.Text" parent="MaterialAlertDialog.MaterialComponents.Title.Text">
+		<item name="android:textSize">20sp</item>
+		<item name="android:textStyle">bold</item>
 	</style>
 
 	<!-- Buttons -->
