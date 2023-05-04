@@ -44,6 +44,14 @@
 				android:text="@string/menu_my_rating" />
 
 			<com.google.android.material.chip.Chip
+				android:id="@+id/comment"
+				style="@style/FilterChip"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:tag="@string/collection_filter_type_comment"
+				android:text="@string/menu_comment" />
+
+			<com.google.android.material.chip.Chip
 				android:id="@+id/playCount"
 				style="@style/FilterChip"
 				android:layout_width="wrap_content"

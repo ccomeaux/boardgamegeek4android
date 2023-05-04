@@ -1,14 +1,17 @@
 package com.boardgamegeek.ui.dialog
 
 import android.content.Context
-import java.util.*
 
 class CollectionFilterDialogFactory {
-    private val dialogs: MutableList<CollectionFilterDialog> = ArrayList()
+    private val dialogs = mutableListOf<CollectionFilterDialog>()
 
     init {
-        dialogs.add(CollectionNameFilterDialog())
+        // Collection
         dialogs.add(CollectionStatusFilterDialog())
+        dialogs.add(MyRatingFilterDialog())
+        dialogs.add(CommentFilterDialog())
+
+        dialogs.add(CollectionNameFilterDialog())
         dialogs.add(PlayerNumberFilterDialog())
         dialogs.add(PlayTimeFilterDialog())
         dialogs.add(SuggestedAgeFilterDialog())
@@ -19,7 +22,6 @@ class CollectionFilterDialogFactory {
         dialogs.add(GeekRankingFilterDialog())
         dialogs.add(ExpansionStatusFilterDialog())
         dialogs.add(PlayCountFilterDialog())
-        dialogs.add(MyRatingFilterDialog())
         dialogs.add(RecommendedPlayerCountFilterDialog())
         dialogs.add(FavoriteFilterDialog())
 
