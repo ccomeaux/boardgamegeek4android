@@ -17,6 +17,7 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
+import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionActivity
@@ -34,6 +35,7 @@ class CollectionViewViewModel @Inject constructor(
     private val viewRepository: CollectionViewRepository,
     private val itemRepository: CollectionItemRepository,
     private val playRepository: PlayRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
 ) : AndroidViewModel(application) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
 
@@ -222,6 +224,14 @@ class CollectionViewViewModel @Inject constructor(
             }
             _removedFilterTypes.postValue(removedFilters)
         }
+    }
+
+    val acquiredFrom = liveData {
+        emit(gameCollectionRepository.loadAcquiredFrom())
+    }
+
+    val inventoryLocation = liveData {
+        emit(gameCollectionRepository.loadInventoryLocation())
     }
 
     private fun createEffectiveFilters(

@@ -14,17 +14,19 @@
 		android:layout_height="wrap_content" />
 
 	<com.google.android.material.textfield.TextInputLayout
+		android:id="@+id/filterTextInput"
 		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:hint="@string/name">
 
-		<com.google.android.material.textfield.TextInputEditText
+		<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 			android:id="@+id/filterTextView"
+			style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:inputType="text"
-			android:maxLines="1" />
+			android:imeOptions="actionNext"
+			android:inputType="text" />
 	</com.google.android.material.textfield.TextInputLayout>
 
 	<CheckBox
