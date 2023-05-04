@@ -933,14 +933,8 @@ class LogPlayActivity : AppCompatActivity() {
             private val binding = RowLogplayPlayerBinding.bind(itemView)
             private val ratingFormat = DecimalFormat("0.0######")
 
-            private val nameTypeface: Typeface
-                get() = binding.nameView.typeface
             private val nameColor: Int
                 get() = binding.nameView.textColors.defaultColor
-            private val usernameTypeface: Typeface
-                get() = binding.usernameView.typeface
-            private val scoreTypeface: Typeface
-                get() = binding.scoreView.typeface
 
             fun onItemDragging() {
                 isDragging = true
@@ -965,21 +959,21 @@ class LogPlayActivity : AppCompatActivity() {
                         resources.getString(R.string.title_player)
                     else
                         resources.getString(R.string.generic_player, player.seat)
-                    binding.nameView.setTextWithStyle(name, nameTypeface, player.isNew, player.isWin, nameColor)
+                    binding.nameView.setTextWithStyle(name,player.isNew, player.isWin, nameColor)
                     binding.usernameView.isVisible = false
                 } else if (player.name.isEmpty()) {
-                    binding.nameView.setTextWithStyle(player.username, nameTypeface, player.isNew, player.isWin)
+                    binding.nameView.setTextWithStyle(player.username,  player.isNew, player.isWin)
                     binding.usernameView.isVisible = false
                 } else {
-                    binding.nameView.setTextWithStyle(player.name, nameTypeface, player.isNew, player.isWin)
-                    binding.usernameView.setTextWithStyle(player.username, usernameTypeface, player.isNew, player.isWin)
+                    binding.nameView.setTextWithStyle(player.name, player.isNew, player.isWin)
+                    binding.usernameView.setTextWithStyle(player.username, player.isNew, player.isWin)
                 }
                 binding.nameView.setSelectableBackgroundBorderless()
                 binding.nameContainer.setOnClickListener { editPlayer(position) }
 
                 // score
                 val scoreDescription = player.numericScore?.let { it.asScore(itemView.context) } ?: player.score
-                binding.scoreView.setTextWithStyle(scoreDescription, scoreTypeface, false, player.isWin, nameColor)
+                binding.scoreView.setTextWithStyle(scoreDescription, false, player.isWin, nameColor)
                 binding.scoreButton.setColorFilter(ContextCompat.getColor(itemView.context, R.color.button_under_text), PorterDuff.Mode.SRC_IN)
                 binding.scoreButton.setOnClickListener {
                     players.getOrNull(position)?.let { player ->

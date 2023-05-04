@@ -7,7 +7,6 @@ import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayBinding
@@ -25,7 +24,6 @@ import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.util.LinkedList
 
 @AndroidEntryPoint
