@@ -252,7 +252,7 @@ class PlayerColorsActivity : BaseActivity() {
             return colors.getOrNull(position)
         }
 
-        class ColorViewHolder(itemView: View, private val itemTouchHelper: ItemTouchHelper?) : RecyclerView.ViewHolder(itemView) {
+        class ColorViewHolder(itemView: View, private val itemTouchHelper: ItemTouchHelper?) : ViewHolder(itemView) {
             val binding = RowPlayerColorBinding.bind(itemView)
 
             @SuppressLint("ClickableViewAccessibility")

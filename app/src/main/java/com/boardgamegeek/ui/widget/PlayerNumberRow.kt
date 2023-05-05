@@ -38,15 +38,14 @@ class PlayerNumberRow @JvmOverloads constructor(
         }
 
     override fun onSaveInstanceState(): Parcelable? {
-        val superState = super.onSaveInstanceState()
-        return if (superState != null) {
-            SavedState(superState).also {
-                it.totalVoteCount = totalVoteCount
-                it.bestVoteCount = bestVoteCount
-                it.recommendedVoteCount = recommendedVoteCount
-                it.notRecommendedVoteCount = notRecommendedVoteCount
+        return super.onSaveInstanceState()?.let {
+            SavedState(it).also { savedState ->
+                savedState.totalVoteCount = totalVoteCount
+                savedState.bestVoteCount = bestVoteCount
+                savedState.recommendedVoteCount = recommendedVoteCount
+                savedState.notRecommendedVoteCount = notRecommendedVoteCount
             }
-        } else null
+        }
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {

@@ -237,7 +237,8 @@
 				android:foreground="?attr/selectableItemBackgroundBorderless"
 				android:gravity="center_vertical"
 				android:minHeight="@dimen/edit_row_height"
-				android:orientation="horizontal">
+				android:orientation="horizontal"
+				tools:ignore="UnusedAttribute">
 
 				<TextView
 					android:id="@+id/privateInfoHintView"

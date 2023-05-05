@@ -59,14 +59,13 @@ class TimestampView @JvmOverloads constructor(
     }
 
     override fun onSaveInstanceState(): Parcelable? {
-        val superState = super.onSaveInstanceState()
-        return if (superState != null) {
-            SavedState(superState).also {
-                it.timestamp = timestamp
-                it.format = format
-                it.formatArg = formatArg
+        return super.onSaveInstanceState()?.let {
+            SavedState(it).also { ss ->
+                ss.timestamp = timestamp
+                ss.format = format
+                ss.formatArg = formatArg
             }
-        } else null
+        }
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
@@ -93,7 +92,7 @@ class TimestampView @JvmOverloads constructor(
                     String.format(
                         Html.toHtml(SpannedString(this@TimestampView.format)),
                         formattedTimestamp,
-                        formatArg
+                        formatArg,
                     )
                 ).trimTrailingWhitespace()
             } else {

@@ -17,14 +17,14 @@ fun Chip.loadIcon(imageUrl: String?, @DrawableRes errorResId: Int = 0) {
         .resize(chipIconSize.toInt(), chipIconSize.toInt())
         .centerCrop()
         .transform(CircleTransform())
-    if (errorResId > 0) {
+    if (errorResId != 0) {
         creator
             .error(errorResId)
             .placeholder(errorResId)
     }
     creator.into(object : Target {
         override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-            if (errorResId > 0)
+            if (errorResId != 0)
                 this@loadIcon.setChipIconResource(errorResId)
         }
 
@@ -33,7 +33,7 @@ fun Chip.loadIcon(imageUrl: String?, @DrawableRes errorResId: Int = 0) {
         }
 
         override fun onBitmapFailed(errorDrawable: Drawable?) {
-            if (errorResId > 0)
+            if (errorResId != 0)
                 this@loadIcon.setChipIconResource(errorResId)
         }
     })

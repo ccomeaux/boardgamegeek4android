@@ -82,7 +82,7 @@ fun ImageView.safelyLoadImage(imageUrls: Queue<String>, callback: ImageLoadCallb
             }
         } while (url.isNullOrBlank())
     }
-    if (url.isNullOrEmpty()) {
+    if (url.isEmpty()) {
         callback?.onFailedImageLoad()
         return
     }

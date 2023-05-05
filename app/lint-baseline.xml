@@ -1,308 +1,915 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.1.4">
+<issues format="5" by="lint Electric Eel | 2022.1.1">
 
     <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
+        id="UnusedAttribute"
+        message="Attribute `android:foreground` has no effect on API levels lower than 23 (current min is 19)">
         <location
-            file="src/main/java/com/boardgamegeek/tasks/ColorAssignerTask.java"
-            line="243"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/tasks/ColorAssignerTask.java"
-            line="251"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/tasks/ColorAssignerTask.java"
-            line="398"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/util/DateTimeUtils.java"
-            line="53"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/util/DateTimeUtils.java"
-            line="95"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/util/DateTimeUtils.java"
-            line="95"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/util/DateTimeUtils.java"
-            line="95"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/ui/LocationsActivity.java"
-            line="56"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/ui/PlayersActivity.java"
-            line="68"/>
-    </issue>
-
-    <issue
-        id="DefaultLocale"
-        message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead">
-        <location
-            file="src/main/java/com/boardgamegeek/ui/PlaysActivity.java"
-            line="49"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`android:elevation` requires API level 21 (current min is 15)">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="587"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`android:drawableTint` requires API level 23 (current min is 15)">
-        <location
-            file="src/main/res/values/styles.xml"
-            line="604"/>
+            file="src/main/res/layout/fragment_game_collection_item.xml"
+            line="237"/>
     </issue>
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        message="Attribute `android:foreground` has no effect on API levels lower than 23 (current min is 19)">
         <location
-            file="src/main/res/layout/dialog_help_score.xml"
-            line="17"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/dialog_help_score.xml"
-            line="28"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/dialog_help_score.xml"
-            line="39"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/dialog_help_score.xml"
-            line="51"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/fragment_article.xml"
-            line="13"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/fragment_collection.xml"
-            line="71"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/include_game_play_stats_scores.xml"
-            line="53"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/include_game_play_stats_scores.xml"
-            line="68"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/include_game_play_stats_scores.xml"
-            line="83"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/include_game_play_stats_scores.xml"
-            line="99"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/row_header_drawer.xml"
-            line="18"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/row_poll_players.xml"
-            line="33"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/row_poll_players.xml"
-            line="41"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/row_poll_players.xml"
-            line="58"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/widget_button_filter.xml"
+            file="src/main/res/layout/row_color.xml"
             line="8"/>
     </issue>
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        message="Attribute `android:foreground` has no effect on API levels lower than 23 (current min is 19)">
         <location
-            file="src/main/res/layout/widget_player_stat.xml"
-            line="65"/>
+            file="src/main/res/layout/row_hotness.xml"
+            line="9"/>
     </issue>
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
+        message="Attribute `android:foreground` has no effect on API levels lower than 23 (current min is 19)">
         <location
-            file="src/main/res/layout/widget_player_stat.xml"
-            line="80"/>
+            file="src/main/res/layout/row_search.xml"
+            line="13"/>
     </issue>
 
     <issue
         id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/widget_player_stat.xml"
-            line="95"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `drawableTint` is only used in API level 23 and higher (current min is 15)">
-        <location
-            file="src/main/res/layout/widget_player_stat.xml"
-            line="110"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `elevation` is only used in API level 21 and higher (current min is 15)">
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 19)">
         <location
             file="src/main/res/layout/widget_stat_bar.xml"
             line="16"/>
     </issue>
 
     <issue
-        id="BatteryLife"
-        message="Declaring a broadcastreceiver for `android.net.conn.CONNECTIVITY_CHANGE` is deprecated for apps targeting N and higher. In general, apps should not rely on this broadcast and instead use `JobScheduler` or `GCMNetworkManager`.">
+        id="GradleDependency"
+        message="A newer version of androidx.annotation:annotation than 1.4.0 is available: 1.5.0">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="361"/>
+            file="build.gradle"/>
     </issue>
 
     <issue
-        id="InflateParams"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)">
+        id="GradleDependency"
+        message="A newer version of androidx.appcompat:appcompat than 1.4.2 is available: 1.6.0">
         <location
-            file="src/main/java/com/boardgamegeek/ui/dialog/CollectionNameFilterDialog.java"
-            line="29"/>
+            file="build.gradle"/>
     </issue>
 
     <issue
-        id="AppCompatCustomView"
-        message="This custom view should extend `android.support.v7.widget.AppCompatImageView` instead">
+        id="GradleDependency"
+        message="A newer version of androidx.core:core-ktx than 1.8.0 is available: 1.9.0">
         <location
-            file="src/main/java/com/boardgamegeek/ui/widget/BezelImageView.java"
-            line="47"/>
+            file="build.gradle"/>
     </issue>
 
     <issue
-        id="AppCompatCustomView"
-        message="This custom view should extend `android.support.v7.widget.AppCompatImageView` instead">
+        id="GradleDependency"
+        message="A newer version of androidx.fragment:fragment-ktx than 1.5.1 is available: 1.5.5">
         <location
-            file="src/main/java/com/boardgamegeek/ui/widget/ForegroundImageView.java"
+            file="build.gradle"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of androidx.preference:preference-ktx than 1.1.1 is available: 1.2.0">
+        <location
+            file="build.gradle"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.android.material:material than 1.6.1 is available: 1.7.0">
+        <location
+            file="build.gradle"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.firebase:firebase-crashlytics-gradle than 2.9.1 is available: 2.9.2">
+        <location
+            file="build.gradle"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of com.google.gms:google-services than 4.3.13 is available: 4.3.15">
+        <location
+            file="build.gradle"/>
+    </issue>
+
+    <issue
+        id="GradleDependency"
+        message="A newer version of org.jetbrains.kotlin:kotlin-reflect than 1.7.10 is available: 1.7.21">
+        <location
+            file="build.gradle"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="659"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="664"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="669"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="674"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="679"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="684"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="689"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="694"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="699"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="704"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="709"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="714"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="719"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="724"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="729"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="734"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="739"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="744"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="749"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="754"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="759"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="764"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="769"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="774"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="779"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="784"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="789"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="794"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="799"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="804"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="809"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="814"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="819"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="824"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="40"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="45"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="50"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="55"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="60"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="65"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="70"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="75"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="80"/>
+    </issue>
+
+    <issue
+        id="MissingQuantity"
+        message="For locale &quot;pl&quot; (Polish) the following quantity should also be defined: `many` (e.g. &quot;5 miesięcy&quot;)">
+        <location
+            file="src/main/res/values-pl/strings_sync_service.xml"
+            line="85"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_time&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="19"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;year_published&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="20"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;no_length&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
             line="35"/>
     </issue>
 
     <issue
-        id="AppCompatCustomView"
-        message="This custom view should extend `android.support.v7.widget.AppCompatTextView` instead">
+        id="MissingTranslation"
+        message="&quot;ok&quot; is not translated in &quot;pl&quot; (Polish)">
         <location
-            file="src/main/java/com/boardgamegeek/ui/widget/TimestampView.java"
-            line="25"/>
+            file="src/main/res/values/strings.xml"
+            line="47"/>
     </issue>
 
     <issue
-        id="PluralsCandidate"
-        message="Formatting %d followed by words (&quot;more&quot;): This should probably be a plural rather than a string">
+        id="MissingTranslation"
+        message="&quot;today&quot; is not translated in &quot;pl&quot; (Polish)">
         <location
             file="src/main/res/values/strings.xml"
-            line="103"/>
+            line="60"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;yesterday&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="61"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;earlier&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="62"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;avatar&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="116"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;app_name&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="136"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;title_forum&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="186"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;title_import&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="218"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;msg_error_buddies&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="265"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;title_date&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="309"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;search_label&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="317"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;search_error&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="323"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;menu_refresh&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="338"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;link_bgg&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="344"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;link_bg_prices&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="345"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;link_bg_prices_uk&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="346"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;link_amazon&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="347"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;link_amazon_uk&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="348"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;link_amazon_de&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="349"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;link_ebay&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="350"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;menu_collection_status&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="357"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;collection_sort_play_count&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="372"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;collection_sort_play_date&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="373"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;msg_play_upload&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="448"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;msg_collection_view_inserted&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="454"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;msg_collection_view_updated&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="455"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;text_unknown&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="489"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;unknown_abbr&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="491"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;and_up_suffix_abbr&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="498"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;rank&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="506"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;remove&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="507"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;player_description_starting_position_segment&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="514"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;player_description_username_segment&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="515"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;player_description_score_segment&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="518"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;unranked_abbr&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="530"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_quarters&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="594"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_quarter&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="595"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_half_dollar&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="596"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_half_dollars&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="597"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_dollar&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="598"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_dollars&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="599"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_dimes&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="600"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_dime&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="601"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_penny&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="602"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_win_percentage&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="603"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;percentage&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="604"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_nickels&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="612"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;play_stat_nickel&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="613"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;msg_offline&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="681"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;msg_sync_error_timeout&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="690"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;msg_sync_error&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="691"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;validate&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="719"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;not_found&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="720"/>
+    </issue>
+
+    <issue
+        id="MissingTranslation"
+        message="&quot;valid&quot; is not translated in &quot;pl&quot; (Polish)">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="721"/>
     </issue>
 
     <issue
@@ -314,11 +921,11 @@
     </issue>
 
     <issue
-        id="ExportedContentProvider"
-        message="Exported content providers can provide access to potentially sensitive data">
+        id="ExportedService"
+        message="Exported service does not require permission">
         <location
             file="src/main/AndroidManifest.xml"
-            line="348"/>
+            line="374"/>
     </issue>
 
     <issue
@@ -326,47 +933,103 @@
         message="Exported service does not require permission">
         <location
             file="src/main/AndroidManifest.xml"
-            line="317"/>
+            line="385"/>
     </issue>
 
     <issue
-        id="ExportedService"
-        message="Exported service does not require permission">
+        id="DataExtractionRules"
+        message="The attribute `android:fullBackupContent` is deprecated from Android 12 and higher and may be removed in future versions. Consider adding the attribute `android:dataExtractionRules` specifying an `@xml` resource which configures cloud backups and device transfers on Android 12 and higher.">
         <location
             file="src/main/AndroidManifest.xml"
-            line="328"/>
+            line="21"/>
     </issue>
 
     <issue
-        id="DrawAllocation"
-        message="Avoid object allocations during draw/layout operations (preallocate and reuse instead)">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 22">
         <location
-            file="src/main/java/com/boardgamegeek/ui/widget/BezelImageView.java"
-            line="154"/>
+            file="src/main/java/com/boardgamegeek/auth/Authenticator.kt"
+            line="242"/>
     </issue>
 
     <issue
-        id="UseCompoundDrawables"
-        message="This tag and its children can be replaced by one `&lt;TextView/>` and a compound drawable">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 21">
         <location
-            file="src/main/res/layout/row_log_play_date.xml"
-            line="2"/>
+            file="src/main/java/com/boardgamegeek/extensions/FloatingActionButton.kt"
+            line="19"/>
     </issue>
 
     <issue
-        id="HandlerLeak"
-        message="This Handler class should be static or leaks might occur (anonymous android.os.Handler)">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 21">
         <location
-            file="src/main/java/com/boardgamegeek/ui/SearchResultsFragment.java"
-            line="91"/>
+            file="src/main/java/com/boardgamegeek/ui/widget/ForegroundImageView.kt"
+            line="136"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 21">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/widget/ForegroundLinearLayout.kt"
+            line="188"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 29">
+        <location
+            file="src/main/java/com/boardgamegeek/ui/NewPlayAddPlayersFragment.kt"
+            line="180"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 26">
+        <location
+            file="src/main/java/com/boardgamegeek/extensions/NotificationContext.kt"
+            line="146"/>
     </issue>
 
     <issue
         id="Overdraw"
         message="Possible overdraw: Root element paints background `@color/primary` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
         <location
-            file="src/main/res/layout/row_buffer_drawer.xml"
-            line="5"/>
+            file="src/main/res/layout/header_drawer.xml"
+            line="7"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_artist.xml"
+            line="9"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_buddy.xml"
+            line="9"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_category.xml"
+            line="9"/>
+    </issue>
+
+    <issue
+        id="Overdraw"
+        message="Possible overdraw: Root element paints background `?attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
+        <location
+            file="src/main/res/layout/row_designer.xml"
+            line="9"/>
     </issue>
 
     <issue
@@ -374,7 +1037,7 @@
         message="Possible overdraw: Root element paints background `?android:attr/selectableItemBackground` with a theme that also paints a background (inferred theme is `@style/Theme.bgglight.NavDrawer`)">
         <location
             file="src/main/res/layout/row_forum.xml"
-            line="9"/>
+            line="8"/>
     </issue>
 
     <issue
@@ -387,658 +1050,1550 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.style.HeroContainer` appears to be unused">
+        message="The resource `R.color.edit` appears to be unused">
         <location
-            file="src/main/res/values/styles.xml"
-            line="391"/>
+            file="src/main/res/values/colors.xml"
+            line="40"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        message="The resource `R.style.HeroImage` appears to be unused">
+        message="The resource `R.dimen.thumbnail_size` appears to be unused">
         <location
-            file="src/main/res/values/styles.xml"
-            line="397"/>
+            file="src/main/res/values/dimens.xml"
+            line="24"/>
     </issue>
 
     <issue
-        id="UselessParent"
-        message="This `LinearLayout` layout or its `FrameLayout` parent is possibly useless">
+        id="UnusedResources"
+        message="The resource `R.layout.fragment_producer` appears to be unused">
         <location
-            file="src/main/res/layout/widget_color.xml"
-            line="8"/>
+            file="src/main/res/layout/fragment_producer.xml"
+            line="2"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.drawable.ic_launcher_foreground` appears to be unused">
+        <location
+            file="src/main/res/drawable-hdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_launcher_foreground.png"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.play_time` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="19"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.cancelled` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="54"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="49"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.my_rating_abbr` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="98"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="90"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.average_rating_abbr` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="104"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="96"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_color_success` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="125"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="116"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.title_user` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="204"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="193"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_export_failed` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="226"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="214"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_export_failed_external_permissions` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="227"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="215"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_export_failed_external_unavailable` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="228"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="216"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_export_failed_external_not_created` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="229"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="217"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_export_failed_null_cursor` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="233"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="221"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_import_failed` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="236"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="224"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_import_failed_external_not_exist` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="237"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="225"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_export_permission_rationale` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="248"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="236"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.loading` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="254"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="242"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.empty` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="255"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="243"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.parse_error` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="307"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="294"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.search_searching` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="321"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="306"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.menu_log_play_wizard` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="331"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="315"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.menu_log_play_quick` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="333"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="317"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_play_location_change` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="452"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="422"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string._players` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="482"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="450"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string._with_` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="485"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="453"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.and_up_suffix` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="497"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="463"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.notification_start_player` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="544"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="501"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_plays` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="560"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="515"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_game_menu` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="561"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="516"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_game_poll` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="562"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="517"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_collection` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="563"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="518"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_collection_sort` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="564"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="519"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_collection_filter` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="565"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="520"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_collection_save` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="566"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="521"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_collection_random` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="567"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="522"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_collection_long_click` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="568"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="523"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_logplayer` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="569"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="524"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.help_thread` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="570"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="525"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_invalid_username` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="654"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="596"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_offline` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="681"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_sync_remotely_disabled` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="682"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="623"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_update_invalid_request` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="683"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="624"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_update_invalid_response` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="684"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="625"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.msg_sync_error_null` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="689"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="630"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.profile_updated` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="692"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="631"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.plurals.players_suffix` appears to be unused">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="819"/>
+        <location
+            file="src/main/res/values-pl/strings.xml"
+            line="779"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_sync_group_tasks` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="37"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="37"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_sync_timestamps_plays_newest_date` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="69"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="68"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_sync_timestamps_plays_oldest_date` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="70"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="69"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_sync_timestamps_buddy` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="71"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="70"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_advanced_polls` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="80"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="79"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_advanced_polls_off` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="81"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="80"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_advanced_polls_on` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="82"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="81"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_advanced_notify_errors` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="83"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="82"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_advanced_notify_errors_off` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="84"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="83"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.pref_advanced_notify_errors_on` appears to be unused">
+        <location
+            file="src/main/res/values/strings_prefs.xml"
+            line="85"/>
+        <location
+            file="src/main/res/values-pl/strings_prefs.xml"
+            line="84"/>
+    </issue>
+
+    <issue
+        id="MonochromeLauncherIcon"
+        message="The application adaptive icon is missing a monochrome tag">
+        <location
+            file="src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
+            line="2"/>
+    </issue>
+
+    <issue
+        id="MonochromeLauncherIcon"
+        message="The application adaptive roundIcon is missing a monochrome tag">
+        <location
+            file="src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml"
+            line="2"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `ic_launcher_foreground.png` icon has identical contents in the following configuration folders: drawable-hdpi, mipmap-hdpi">
+        <location
+            file="src/main/res/mipmap-hdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-hdpi/ic_launcher_foreground.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `ic_launcher_foreground.png` icon has identical contents in the following configuration folders: drawable-mdpi, mipmap-mdpi">
+        <location
+            file="src/main/res/mipmap-mdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-mdpi/ic_launcher_foreground.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `ic_launcher_foreground.png` icon has identical contents in the following configuration folders: drawable-xhdpi, mipmap-xhdpi">
+        <location
+            file="src/main/res/mipmap-xhdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-xhdpi/ic_launcher_foreground.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `ic_launcher_foreground.png` icon has identical contents in the following configuration folders: drawable-xxhdpi, mipmap-xxhdpi">
+        <location
+            file="src/main/res/mipmap-xxhdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-xxhdpi/ic_launcher_foreground.png"/>
+    </issue>
+
+    <issue
+        id="IconDuplicatesConfig"
+        message="The `ic_launcher_foreground.png` icon has identical contents in the following configuration folders: drawable-xxxhdpi, mipmap-xxxhdpi">
+        <location
+            file="src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png"/>
+        <location
+            file="src/main/res/drawable-xxxhdpi/ic_launcher_foreground.png"/>
     </issue>
 
     <issue
         id="IconDensities"
-        message="Missing the following drawables in `drawable-hdpi`: drag_grip.9.png, ic_launcher_large.png, underline.9.png">
+        message="Missing the following drawables in `drawable-hdpi`: ic_launcher_large.png, underline.9.png">
         <location
             file="src/main/res/drawable-hdpi"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_time.png, ic_clock_small.png">
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-mdpi`: title_logo.png, underline.9.png">
         <location
-            file="src/main/res/drawable-xhdpi/ic_clock_small.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/ic_time.png"/>
+            file="src/main/res/drawable-mdpi"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_time.png, ic_clock_small.png">
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xhdpi`: ic_launcher_large.png, title_logo.png">
         <location
-            file="src/main/res/drawable-xxxhdpi/ic_clock_small.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_time.png"/>
+            file="src/main/res/drawable-xhdpi"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_designers.png, ic_edit_small.png">
+        id="IconDensities"
+        message="Missing the following drawables in `drawable-xxhdpi`: drawer_shadow.9.png, ic_color_picker_selected.png, ic_launcher_large.png, ic_stat_bgg.png, title_logo.png... (1 more)">
         <location
-            file="src/main/res/drawable-xxxhdpi/ic_edit_small.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_designers.png"/>
+            file="src/main/res/drawable-xxhdpi"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png">
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-hdpi/ic_edit_white.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/fab_edit.png"/>
+            file="src/main/res/layout/activity_logplay.xml"
+            line="99"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_forums.png, ic_forums_small.png">
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-xhdpi/ic_forums_small.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/ic_forums.png"/>
+            file="src/main/res/layout-land/dialog_number_pad.xml"
+            line="50"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_forums.png, ic_forums_small.png">
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-xxxhdpi/ic_forums_small.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_forums.png"/>
+            file="src/main/res/layout/dialog_number_pad.xml"
+            line="50"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_rating.png, ic_score_average_win.png">
+        id="RtlSymmetry"
+        message="When you define `paddingRight` you should probably also define `paddingLeft` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-xhdpi/ic_score_average_win.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/ic_rating.png"/>
+            file="src/main/res/layout-land/dialog_number_pad.xml"
+            line="73"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_rating.png, ic_score_average_win.png">
+        id="RtlSymmetry"
+        message="When you define `paddingRight` you should probably also define `paddingLeft` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-xxxhdpi/ic_score_average_win.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_rating.png"/>
+            file="src/main/res/layout/dialog_number_pad.xml"
+            line="73"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        id="RtlSymmetry"
+        message="When you define `paddingStart` you should probably also define `paddingEnd` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-hdpi/ic_settings.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/ic_mechanics.png"/>
+            file="src/main/res/layout/row_color.xml"
+            line="36"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-mdpi/ic_settings.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/ic_mechanics.png"/>
+            file="src/main/res/layout/row_color.xml"
+            line="37"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        id="RtlSymmetry"
+        message="When you define `paddingRight` you should probably also define `paddingLeft` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-xhdpi/ic_settings.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_mechanics.png"/>
+            file="src/main/res/layout/row_poll_key.xml"
+            line="25"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        id="RtlSymmetry"
+        message="When you define `paddingLeft` you should probably also define `paddingRight` for right-to-left symmetry">
         <location
-            file="src/main/res/drawable-xxhdpi/ic_settings.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_mechanics.png"/>
+            file="src/main/res/layout/widget_play_stat.xml"
+            line="25"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_mechanics.png, ic_settings.png">
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/drawable-xxxhdpi/ic_settings.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_mechanics.png"/>
+            file="src/main/res/layout/actionbar_text.xml"
+            line="6"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/drawable-hdpi/ic_thumbs_small.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/ic_score_high.png"/>
+            file="src/main/res/layout/actionbar_text_2line.xml"
+            line="8"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/drawable-mdpi/ic_thumbs_small.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/ic_score_high.png"/>
+            file="src/main/res/layout/actionbar_text_2line.xml"
+            line="17"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/drawable-xhdpi/ic_thumbs_small.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_score_high.png"/>
+            file="src/main/res/layout/actionbar_text_2line.xml"
+            line="25"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/drawable-xxhdpi/ic_thumbs_small.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_score_high.png"/>
+            file="src/main/res/layout/activity_drawer_base.xml"
+            line="29"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_score_high.png, ic_thumbs_small.png">
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/drawable-xxxhdpi/ic_thumbs_small.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_score_high.png"/>
+            file="src/main/res/layout/activity_logplay.xml"
+            line="77"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;@dimen/material_indent_horizontal&quot;` to better support right-to-left layouts">
         <location
-            file="src/main/res/drawable-hdpi/ic_today.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/ic_plays.png"/>
+            file="src/main/res/layout/activity_logplay.xml"
+            line="79"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/material_margin_horizontal&quot;` to better support right-to-left layouts">
         <location
-            file="src/main/res/drawable-mdpi/ic_today.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/ic_plays.png"/>
+            file="src/main/res/layout/activity_logplay.xml"
+            line="80"/>
     </issue>
 
     <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_today.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_plays.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_today.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_plays.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_plays.png, ic_today.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_today.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_plays.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_user.png, ic_user_small.png">
-        <location
-            file="src/main/res/drawable-xhdpi/ic_user_small.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/ic_user.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_user.png, ic_user_small.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_user_small.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_user.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
-        <location
-            file="src/main/res/drawable-hdpi/menu_delete.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/ic_delete_white.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
-        <location
-            file="src/main/res/drawable-mdpi/menu_delete.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/ic_delete_white.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
-        <location
-            file="src/main/res/drawable-xhdpi/menu_delete.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_delete_white.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/menu_delete.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_delete_white.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: ic_delete_white.png, menu_delete.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/menu_delete.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_delete_white.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_done.png, menu_done.png">
-        <location
-            file="src/main/res/drawable-xhdpi/menu_done.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/fab_done.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_done.png, menu_done.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/menu_done.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/fab_done.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png, menu_edit.png">
-        <location
-            file="src/main/res/drawable-mdpi/menu_edit.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/ic_edit_white.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/fab_edit.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png, menu_edit.png">
-        <location
-            file="src/main/res/drawable-xhdpi/menu_edit.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/ic_edit_white.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/fab_edit.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png, menu_edit.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/menu_edit.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/ic_edit_white.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/fab_edit.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_edit.png, ic_edit_white.png, menu_edit.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/menu_edit.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/ic_edit_white.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/fab_edit.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
-        <location
-            file="src/main/res/drawable-hdpi/menu_log_play.png"/>
-        <location
-            file="src/main/res/drawable-hdpi/fab_log_play.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
-        <location
-            file="src/main/res/drawable-mdpi/menu_log_play.png"/>
-        <location
-            file="src/main/res/drawable-mdpi/fab_log_play.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
-        <location
-            file="src/main/res/drawable-xhdpi/menu_log_play.png"/>
-        <location
-            file="src/main/res/drawable-xhdpi/fab_log_play.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
-        <location
-            file="src/main/res/drawable-xxhdpi/menu_log_play.png"/>
-        <location
-            file="src/main/res/drawable-xxhdpi/fab_log_play.png"/>
-    </issue>
-
-    <issue
-        id="IconDuplicates"
-        message="The following unrelated icon files have identical contents: fab_log_play.png, menu_log_play.png">
-        <location
-            file="src/main/res/drawable-xxxhdpi/menu_log_play.png"/>
-        <location
-            file="src/main/res/drawable-xxxhdpi/fab_log_play.png"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/actionbar_done_cancel.xml"
-            line="19"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/actionbar_done_cancel.xml"
-            line="33"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `paddingLeft`; already defining `paddingStart` with `targetSdkVersion` 33">
         <location
             file="src/main/res/layout/activity_logplayer.xml"
-            line="35"/>
+            line="50"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `paddingRight`; already defining `paddingEnd` with `targetSdkVersion` 33">
         <location
             file="src/main/res/layout/activity_logplayer.xml"
-            line="89"/>
+            line="52"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `paddingLeft`; already defining `paddingStart` with `targetSdkVersion` 33">
         <location
             file="src/main/res/layout/activity_logplayer.xml"
-            line="110"/>
+            line="65"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `paddingRight`; already defining `paddingEnd` with `targetSdkVersion` 33">
         <location
             file="src/main/res/layout/activity_logplayer.xml"
-            line="137"/>
+            line="67"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
         <location
             file="src/main/res/layout/activity_logplayer.xml"
-            line="165"/>
+            line="167"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/layout/activity_logplayer.xml"
-            line="192"/>
+            file="src/main/res/layout/activity_player_colors.xml"
+            line="68"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/layout/activity_logplayer.xml"
-            line="219"/>
+            file="src/main/res/layout/activity_tab.xml"
+            line="48"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;@dimen/padding_extra&quot;` to better support right-to-left layouts">
         <location
-            file="src/main/res/layout/autocomplete_color.xml"
-            line="21"/>
+            file="src/main/res/layout-land/dialog_number_pad.xml"
+            line="50"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;@dimen/padding_extra&quot;` to better support right-to-left layouts">
         <location
-            file="src/main/res/layout/autocomplete_player.xml"
-            line="9"/>
+            file="src/main/res/layout/dialog_number_pad.xml"
+            line="50"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/padding_extra&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout-land/dialog_number_pad.xml"
+            line="73"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/padding_extra&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/dialog_number_pad.xml"
+            line="73"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
         <location
             file="src/main/res/layout/dialog_private_info.xml"
-            line="116"/>
+            line="111"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/dialog_slider_filter.xml"
+            file="src/main/res/layout/dialog_private_info.xml"
+            line="131"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableLeft` with `android:drawableStart=&quot;@drawable/ic_outline_schedule_18&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/fragment_article.xml"
+            line="36"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableLeft` with `android:drawableStart=&quot;@drawable/ic_outline_edit_18&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/fragment_article.xml"
+            line="46"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginRight`; already defining `layout_marginEnd` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/fragment_buddy.xml"
             line="38"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/layout/dialog_slider_filter.xml"
-            line="47"/>
+            file="src/main/res/layout/fragment_colors.xml"
+            line="43"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/dialog_slider_filter.xml"
-            line="61"/>
+            file="src/main/res/layout/fragment_game_collection_item.xml"
+            line="124"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/material_margin_horizontal&quot;` to better support right-to-left layouts">
         <location
-            file="src/main/res/layout/dialog_slider_filter.xml"
-            line="70"/>
+            file="src/main/res/layout/fragment_game_links.xml"
+            line="19"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/material_margin_horizontal&quot;` to better support right-to-left layouts">
         <location
-            file="src/main/res/layout/header_play.xml"
-            line="130"/>
+            file="src/main/res/layout/fragment_game_plays.xml"
+            line="37"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginLeft` with `android:layout_marginStart=&quot;@dimen/material_margin_horizontal&quot;` to better support right-to-left layouts">
         <location
-            file="src/main/res/layout/include_game_play_stats_scores.xml"
-            line="28"/>
+            file="src/main/res/layout/fragment_game_plays.xml"
+            line="100"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `drawableLeft`; already defining `drawableStart` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/row_color.xml"
-            line="21"/>
+            file="src/main/res/layout-w480dp/fragment_geeklist_item.xml"
+            line="105"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `drawableLeft`; already defining `drawableStart` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/row_drawer.xml"
-            line="11"/>
+            file="src/main/res/layout/fragment_geeklist_item.xml"
+            line="106"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `drawableLeft`; already defining `drawableStart` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/row_log_play_date.xml"
-            line="10"/>
+            file="src/main/res/layout-w480dp/fragment_geeklist_item.xml"
+            line="122"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `drawableLeft`; already defining `drawableStart` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/row_log_play_header.xml"
-            line="12"/>
+            file="src/main/res/layout/fragment_geeklist_item.xml"
+            line="123"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/row_player.xml"
-            line="14"/>
+            file="src/main/res/layout/fragment_new_play_add_players.xml"
+            line="27"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/row_player.xml"
-            line="74"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/row_player.xml"
-            line="98"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/row_player.xml"
-            line="117"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/row_player_color.xml"
-            line="16"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/row_player_color.xml"
-            line="24"/>
-    </issue>
-
-    <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
-        <location
-            file="src/main/res/layout/widget_color.xml"
+            file="src/main/res/layout/fragment_new_play_locations.xml"
             line="15"/>
     </issue>
 
     <issue
-        id="ContentDescription"
-        message="Missing `contentDescription` attribute on image">
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginRight`; already defining `layout_marginEnd` with `targetSdkVersion` 33">
         <location
-            file="src/main/res/layout/widget_play_stat.xml"
-            line="21"/>
+            file="src/main/res/layout/fragment_person_stats.xml"
+            line="143"/>
     </issue>
 
     <issue
-        id="RelativeOverlap"
-        message="`@id/rating` can overlap `@id/username` if @id/username, @id/rating grow due to localized text expansion">
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
         <location
-            file="src/main/res/layout/row_comment.xml"
-            line="20"/>
+            file="src/main/res/layout/fragment_play.xml"
+            line="77"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;@dimen/material_indent_horizontal&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="79"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/material_margin_horizontal&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="80"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;@dimen/material_margin_horizontal&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="90"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="91"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="103"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;@dimen/material_margin_horizontal&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="113"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="114"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="124"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;@dimen/material_margin_horizontal&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="134"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="135"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="145"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/fragment_play.xml"
+            line="165"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/fragment_plays.xml"
+            line="59"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableLeft` with `android:drawableStart=&quot;@drawable/ic_outline_schedule_18&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/header_geek_list.xml"
+            line="72"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableLeft` with `android:drawableStart=&quot;@drawable/ic_outline_edit_18&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/header_geek_list.xml"
+            line="87"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/include_game_play_stats_players.xml"
+            line="35"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/include_game_play_stats_scores.xml"
+            line="33"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_category.xml"
+            line="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_category.xml"
+            line="29"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `paddingLeft`; already defining `paddingStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_color.xml"
+            line="37"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableLeft` with `android:drawableStart=&quot;@drawable/ic_outline_schedule_18&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/row_forum.xml"
+            line="48"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableLeft` with `android:drawableStart=&quot;@drawable/ic_outline_schedule_18&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/row_forum_thread.xml"
+            line="61"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `drawableLeft`; already defining `drawableStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_geeklist_comment.xml"
+            line="56"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `drawableLeft`; already defining `drawableStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_geeklist_comment.xml"
+            line="73"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_mechanic.xml"
+            line="16"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_mechanic.xml"
+            line="29"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_is_new.xml"
+            line="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_is_new.xml"
+            line="56"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_is_new.xml"
+            line="70"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_is_new.xml"
+            line="83"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_sort.xml"
+            line="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_sort.xml"
+            line="56"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_sort.xml"
+            line="70"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_sort.xml"
+            line="83"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_win.xml"
+            line="42"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_win.xml"
+            line="56"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_win.xml"
+            line="70"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginLeft`; already defining `layout_marginStart` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_win.xml"
+            line="83"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginRight`; already defining `layout_marginEnd` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_new_play_player_win.xml"
+            line="97"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_marginRight`; already defining `layout_marginEnd` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_play_player.xml"
+            line="23"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/row_player_color.xml"
+            line="13"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/row_player_color.xml"
+            line="19"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;@dimen/padding_extra&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/row_poll_key.xml"
+            line="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingRight` with `android:paddingEnd=&quot;@dimen/padding_standard&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/row_poll_key.xml"
+            line="25"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/row_poll_key.xml"
+            line="36"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/row_poll_players.xml"
+            line="61"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/row_poll_players.xml"
+            line="71"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`start`&quot; instead of &quot;`left`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/row_team.xml"
+            line="9"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_alignParentLeft` with `android:layout_alignParentStart=&quot;true&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/row_thread_article.xml"
+            line="39"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:layout_toLeftOf` with `android:layout_toStartOf=&quot;@+id/viewButton&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/row_thread_article.xml"
+            line="40"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableLeft` with `android:drawableStart=&quot;@drawable/ic_outline_schedule_18&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/row_thread_article.xml"
+            line="52"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:drawableLeft` with `android:drawableStart=&quot;@drawable/ic_outline_edit_18&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/row_thread_article.xml"
+            line="69"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Redundant attribute `layout_alignParentRight`; already defining `layout_alignParentEnd` with `targetSdkVersion` 33">
+        <location
+            file="src/main/res/layout/row_thread_article.xml"
+            line="80"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/widget_play_stat.xml"
+            line="10"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Consider replacing `android:paddingLeft` with `android:paddingStart=&quot;@dimen/padding_standard&quot;` to better support right-to-left layouts">
+        <location
+            file="src/main/res/layout/widget_play_stat.xml"
+            line="25"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/widget_player_stat.xml"
+            line="37"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/widget_rating.xml"
+            line="15"/>
+    </issue>
+
+    <issue
+        id="RtlHardcoded"
+        message="Use &quot;`end`&quot; instead of &quot;`right`&quot; to ensure correct behavior in right-to-left locales">
+        <location
+            file="src/main/res/layout/widget_rating.xml"
+            line="23"/>
     </issue>
 
 </issues>

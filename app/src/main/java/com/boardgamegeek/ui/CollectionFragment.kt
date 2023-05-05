@@ -378,7 +378,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         val selectedItemCount: Int
             get() = selectedItems.filterTrue().size
 
-        val selectedItemPositions: List<Int>
+        private val selectedItemPositions: List<Int>
             get() = selectedItems.filterTrue()
 
         fun getSelectedItems() = selectedItemPositions.mapNotNull { items.getOrNull(it) }
