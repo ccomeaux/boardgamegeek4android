@@ -9,7 +9,6 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -18,6 +17,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogEditUsernameBinding
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.getTextColor
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
@@ -33,7 +33,7 @@ class EditUsernameDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogEditUsernameBinding.inflate(layoutInflater)
 
-        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        val builder = requireContext().createThemedBuilder()
             .setTitle(R.string.title_add_username)
             .setView(binding.root)
             .setNegativeButton(R.string.cancel, null)

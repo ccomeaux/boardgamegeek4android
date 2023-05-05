@@ -33,7 +33,7 @@ class YearPublishedFilterDialog : SliderFilterDialog() {
     }
 
     override fun describeRange(context: Context): String {
-        return (createFilterer(context) as? YearPublishedFilterer)?.describeRange()?.ifBlank { context.getString(R.string.all) }
+        return (createFilterer(context) as? YearPublishedFilterer)?.chipText()?.ifBlank { context.getString(R.string.all) }
             ?: context.getString(R.string.all)
     }
 

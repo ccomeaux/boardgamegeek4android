@@ -10,10 +10,11 @@
 		style="@style/ColoredIconButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="@dimen/padding_extra"
+		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
 		android:text="@string/today"
 		app:icon="@drawable/ic_baseline_calendar_today_24"
 		app:iconGravity="textStart"
+		app:layout_constraintBottom_toTopOf="@id/yesterdayButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent" />
@@ -23,9 +24,10 @@
 		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="@dimen/padding_extra"
+		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
 		android:text="@string/yesterday"
 		app:iconGravity="textStart"
+		app:layout_constraintBottom_toTopOf="@id/earlierButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/todayButton" />
@@ -35,11 +37,23 @@
 		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_margin="@dimen/padding_extra"
+		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
 		android:text="@string/earlier"
 		app:iconGravity="textStart"
+		app:layout_constraintBottom_toTopOf="@id/lastPlayDateButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/yesterdayButton" />
 
+	<Button
+		android:id="@+id/lastPlayDateButton"
+		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+		android:visibility="gone"
+		app:iconGravity="textStart"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/earlierButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>

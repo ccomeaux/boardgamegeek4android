@@ -16,9 +16,9 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
 @HiltViewModel
 class BuddyViewModel @Inject constructor(
@@ -64,7 +64,7 @@ class BuddyViewModel @Inject constructor(
                                 else -> userRepository.load(it)
                             }
                             val refreshedUser =
-                                if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0, TimeUnit.DAYS)) &&
+                                if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0.days)) &&
                                     isRefreshing.compareAndSet(false, true)
                                 ) {
                                     emit(RefreshableResource.refreshing(loadedUser))

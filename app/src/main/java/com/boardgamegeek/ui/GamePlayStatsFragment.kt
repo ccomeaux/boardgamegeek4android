@@ -39,15 +39,16 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.math.ln
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
+import kotlin.time.Duration.Companion.milliseconds
 
 @AndroidEntryPoint
 class GamePlayStatsFragment : Fragment() {
@@ -152,7 +153,7 @@ class GamePlayStatsFragment : Fragment() {
 
                 viewModel.plays.observe(viewLifecycleOwner) { playList ->
                     playList?.let { (_, data, _) ->
-                        if (data == null || data.isEmpty()) {
+                        if (data.isNullOrEmpty()) {
                             binding.progressView.hide()
                             binding.dataView.fadeOut()
                             binding.emptyView.fadeIn()
@@ -705,7 +706,7 @@ class GamePlayStatsFragment : Fragment() {
 //        }
 
         private fun daysBetweenDates(from: Long, to: Long = System.currentTimeMillis()): Long {
-            return TimeUnit.DAYS.convert(to - from, TimeUnit.MILLISECONDS).coerceAtLeast(1)
+            return (to - from).milliseconds.inWholeDays.coerceAtLeast(1)
         }
     }
 

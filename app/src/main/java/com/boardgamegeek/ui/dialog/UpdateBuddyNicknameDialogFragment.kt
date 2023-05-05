@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogEditNicknameBinding
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
@@ -29,7 +29,7 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
         super.onCreateDialog(savedInstanceState)
         _binding = DialogEditNicknameBinding.inflate(layoutInflater)
 
-        return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        return requireContext().createThemedBuilder()
             .setView(binding.root)
             .setTitle(R.string.title_edit_nickname)
             .setNegativeButton(R.string.cancel, null)

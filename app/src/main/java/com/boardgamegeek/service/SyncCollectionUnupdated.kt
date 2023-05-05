@@ -10,6 +10,7 @@ import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Syncs collection items that have not yet been updated completely with stats and private info (in batches).
@@ -45,7 +46,7 @@ class SyncCollectionUnupdated(
             do {
                 if (isCancelled) break
 
-                if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis)) return
+                if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis.milliseconds)) return
 
                 numberOfFetches++
                 val gameList = runBlocking { collectionItemRepository.loadUnupdatedItems(gamesPerFetch) }

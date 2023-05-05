@@ -7,11 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
-import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogColorsBinding
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.ui.adapter.ColorGridAdapter
 
 abstract class ColorPickerDialogFragment : DialogFragment() {
@@ -21,12 +20,12 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogColorsBinding.inflate(layoutInflater)
 
-        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert).setView(binding.root)
+        val builder = requireContext().createThemedBuilder().setView(binding.root)
         @StringRes val titleResId = arguments?.getInt(KEY_TITLE_ID) ?: 0
         if (titleResId != 0) {
             builder.setTitle(titleResId)
         } else {
-            val title = arguments?.getString(KEY_TITLE) ?: ""
+            val title = arguments?.getString(KEY_TITLE).orEmpty()
             if (title.isNotBlank()) builder.setTitle(title)
         }
         return builder.create()
@@ -39,7 +38,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val colorChoices: MutableList<Pair<String, Int>> = ArrayList()
         for (i in 0 until (arguments?.getInt(KEY_COLOR_COUNT) ?: 0)) {
-            val name = arguments?.getString(KEY_COLORS_DESCRIPTION + i) ?: ""
+            val name = arguments?.getString(KEY_COLORS_DESCRIPTION + i).orEmpty()
             val color = arguments?.getInt(KEY_COLORS + i) ?: Color.TRANSPARENT
             colorChoices.add(Pair(name, color))
         }

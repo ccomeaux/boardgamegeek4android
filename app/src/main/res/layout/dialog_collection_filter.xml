@@ -4,9 +4,8 @@
 	android:id="@+id/scrollContainer"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:paddingHorizontal="@dimen/material_margin_horizontal"
-	android:paddingTop="@dimen/material_margin_vertical"
-	android:paddingBottom="@dimen/material_margin_vertical">
+	android:paddingHorizontal="@dimen/material_margin_horizontal_dialog"
+	android:paddingVertical="@dimen/material_margin_vertical">
 
 	<LinearLayout
 		android:id="@+id/container"
@@ -45,12 +44,56 @@
 				android:text="@string/menu_my_rating" />
 
 			<com.google.android.material.chip.Chip
+				android:id="@+id/comment"
+				style="@style/FilterChip"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:tag="@string/collection_filter_type_comment"
+				android:text="@string/menu_comment" />
+
+			<com.google.android.material.chip.Chip
 				android:id="@+id/playCount"
 				style="@style/FilterChip"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:tag="@string/collection_filter_type_play_count"
 				android:text="@string/menu_play_count" />
+		</com.google.android.material.chip.ChipGroup>
+
+		<TextView
+			style="@style/DialogSectionHeader"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/collection_filter_private_info" />
+
+		<com.google.android.material.chip.ChipGroup
+			android:id="@+id/privateInfoChipGroup"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/acquiredFrom"
+				style="@style/FilterChip"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:tag="@string/collection_filter_type_acquired_from"
+				android:text="@string/menu_acquired_from" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/inventoryLocation"
+				style="@style/FilterChip"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:tag="@string/collection_filter_type_inventory_location"
+				android:text="@string/menu_inventory_location" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/privateComment"
+				style="@style/FilterChip"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:tag="@string/collection_filter_type_private_comment"
+				android:text="@string/menu_private_comment" />
 		</com.google.android.material.chip.ChipGroup>
 
 		<TextView

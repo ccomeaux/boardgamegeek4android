@@ -234,6 +234,7 @@ const val KEY_ADVANCED_DATES = "advancedForumDates"
 //region LAST PLAY
 
 const val KEY_LAST_PLAY_TIME = "last_play_time"
+const val KEY_LAST_PLAY_DATE = "last_play_date"
 const val KEY_LAST_PLAY_LOCATION = "last_play_location"
 const val KEY_LAST_PLAY_PLAYERS = "last_play_players"
 

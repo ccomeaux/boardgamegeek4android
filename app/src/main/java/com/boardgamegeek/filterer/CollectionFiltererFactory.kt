@@ -22,6 +22,15 @@ class CollectionFiltererFactory(context: Context) {
         filterers.add(MyRatingFilterer(context))
         filterers.add(RecommendedPlayerCountFilterer(context))
         filterers.add(FavoriteFilterer(context))
+
+        // Price paid
+        // Current price
+        // Quantity
+        // acquisition date
+        filterers.add(AcquiredFromFilter(context))
+        // inventory date
+        filterers.add(InventoryLocationFilter(context))
+        filterers.add(PrivateCommentFilter(context))
     }
 
     fun create(type: Int): CollectionFilterer? = filterers.find { it.type == type }

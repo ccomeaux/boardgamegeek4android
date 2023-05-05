@@ -40,6 +40,7 @@ class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun filter(item: CollectionItemEntity): Boolean {
         return when {
+            item.minPlayerCount == 0 -> false
             isExact -> item.minPlayerCount == min && item.maxPlayerCount == max
             else -> item.minPlayerCount <= min && (item.maxPlayerCount >= max || item.maxPlayerCount == 0)
         }

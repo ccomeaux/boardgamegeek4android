@@ -17,6 +17,7 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
+import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionActivity
@@ -25,8 +26,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class CollectionViewViewModel @Inject constructor(
@@ -34,6 +35,7 @@ class CollectionViewViewModel @Inject constructor(
     private val viewRepository: CollectionViewRepository,
     private val itemRepository: CollectionItemRepository,
     private val playRepository: PlayRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
 ) : AndroidViewModel(application) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
 
@@ -224,6 +226,14 @@ class CollectionViewViewModel @Inject constructor(
         }
     }
 
+    val acquiredFrom = liveData {
+        emit(gameCollectionRepository.loadAcquiredFrom())
+    }
+
+    val inventoryLocation = liveData {
+        emit(gameCollectionRepository.loadInventoryLocation())
+    }
+
     private fun createEffectiveFilters(
         loadedView: CollectionViewEntity?,
         addedFilters: List<CollectionFilterer>,
@@ -296,7 +306,7 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     fun refresh(): Boolean {
-        return if ((syncTimestamp.value ?: 0).isOlderThan(1, TimeUnit.MINUTES)) {
+        return if ((syncTimestamp.value ?: 0).isOlderThan(1.minutes)) {
             syncTimestamp.postValue(System.currentTimeMillis())
             true
         } else false

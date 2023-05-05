@@ -68,7 +68,7 @@ class ImageRepository(
     suspend fun getImageUrls(imageId: Int): Map<ImageType, List<String>> {
         val fallbackList = if (imageId > 0) {
             val imageUrlPrefix = "https://cf.geekdo-images.com/images/pic"
-            listOf("$imageUrlPrefix$this.jpg", "$imageUrlPrefix$this.png")
+            listOf("$imageUrlPrefix$imageId.jpg", "$imageUrlPrefix$imageId.png")
         } else emptyList()
 
         val urls = fetchImageUrls(imageId)
@@ -81,15 +81,15 @@ class ImageRepository(
         if (imageId > 0 && RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
             try {
                 val response = geekdoApi.image(imageId)
-                mutableMapOf<ImageType, List<String>>().apply {
-                    this[ImageType.THUMBNAIL] = listOf(response.images.small.url)
-                    this[ImageType.HERO] = listOf(response.images.medium.url, response.images.small.url)
-                }
+                mapOf(
+                    ImageType.THUMBNAIL to listOf(response.images.small.url),
+                    ImageType.HERO to listOf(response.images.medium.url, response.images.small.url),
+                )
             } catch (e: Exception) {
                 Timber.w(e, "Couldn't resolve image ID $imageId")
+                emptyMap()
             }
-        }
-        emptyMap()
+        } else emptyMap()
     }
 
     suspend fun delete() {

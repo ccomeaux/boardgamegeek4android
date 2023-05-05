@@ -13,7 +13,8 @@ import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Syncs the user's complete collection in brief mode, one collection status at a time, deleting all items from the local
@@ -59,7 +60,7 @@ class SyncCollectionComplete(
 
             if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
                 val lastCompleteSync = syncPrefs.getLastCompleteCollectionTimestamp()
-                if (lastCompleteSync > 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays, TimeUnit.DAYS)) {
+                if (lastCompleteSync > 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays.days)) {
                     Timber.i("Not currently syncing but it's been less than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.formatDateTime(context)}], aborting")
                     return
                 } else {
@@ -76,13 +77,13 @@ class SyncCollectionComplete(
                         Timber.i("Complete collection sync task cancelled before syncing $status, aborting")
                         return
                     }
-                    if (wasSleepInterrupted(5, TimeUnit.SECONDS)) return
+                    if (wasSleepInterrupted(5.seconds)) return
                 }
 
                 val excludedStatuses = (0 until i).map { statuses[it] }
                 syncByStatus(null, status, *excludedStatuses.toTypedArray())
 
-                if (wasSleepInterrupted(5, TimeUnit.SECONDS)) return
+                if (wasSleepInterrupted(5.seconds)) return
 
                 syncByStatus(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status, *excludedStatuses.toTypedArray())
             }

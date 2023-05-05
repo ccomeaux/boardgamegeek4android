@@ -8,11 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.CheckBox
-import androidx.appcompat.app.AlertDialog.Builder
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogCollectionStatusBinding
+import com.boardgamegeek.extensions.createThemedBuilder
 
 class CollectionStatusDialogFragment : DialogFragment() {
     private var _binding: DialogCollectionStatusBinding? = null
@@ -32,7 +32,7 @@ class CollectionStatusDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogCollectionStatusBinding.inflate(layoutInflater)
 
-        val builder = Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        val builder = requireContext().createThemedBuilder()
             .setTitle(R.string.title_add_a_copy)
             .setView(binding.root)
             .setPositiveButton(R.string.ok) { _, _ ->

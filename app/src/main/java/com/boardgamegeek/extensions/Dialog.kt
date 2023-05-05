@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.boardgamegeek.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 
 fun FragmentActivity.showAndSurvive(dialog: DialogFragment, tag: String = "dialog") {
@@ -74,7 +75,7 @@ fun Activity.createDiscardDialog(
 }
 
 fun Context.createThemedBuilder(): AlertDialog.Builder {
-    return AlertDialog.Builder(this, R.style.Theme_bgglight_Dialog_Alert)
+    return MaterialAlertDialogBuilder(this, R.style.Theme_bgglight_Dialog_Alert)
 }
 
 fun Context.showClickableAlertDialog(@StringRes titleResId: Int, @StringRes messageResId: Int, vararg formatArgs: Any) {

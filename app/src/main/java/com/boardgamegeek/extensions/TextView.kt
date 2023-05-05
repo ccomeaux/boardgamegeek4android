@@ -71,13 +71,13 @@ fun View.setTextViewBackground(color: Int): Int {
     return color.getTextColor()
 }
 
-fun TextView.setTextWithStyle(text: String, tf: Typeface, italic: Boolean, bold: Boolean, @ColorInt textColor: Int? = null) {
+fun TextView.setTextWithStyle(text: String, italic: Boolean, bold: Boolean, @ColorInt textColor: Int? = null) {
     if (text.isNotBlank()) {
         when {
-            italic && bold -> setTypeface(tf, Typeface.BOLD_ITALIC)
-            italic -> setTypeface(tf, Typeface.ITALIC)
-            bold -> setTypeface(tf, Typeface.BOLD)
-            else -> setTypeface(tf, Typeface.NORMAL)
+            italic && bold -> setTypeface(null, Typeface.BOLD_ITALIC)
+            italic -> setTypeface(null, Typeface.ITALIC)
+            bold -> setTypeface(null, Typeface.BOLD)
+            else -> setTypeface(null, Typeface.NORMAL)
         }
         textColor?.let { setTextColor(it) }
     }

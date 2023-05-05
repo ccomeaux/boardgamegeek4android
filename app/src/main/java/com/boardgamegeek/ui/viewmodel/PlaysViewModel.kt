@@ -17,8 +17,8 @@ import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.lang.Exception
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class PlaysViewModel @Inject constructor(
@@ -27,7 +27,7 @@ class PlaysViewModel @Inject constructor(
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     private val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
+    private val playsRateLimiter = RateLimiter<Int>(10.minutes)
 
     private data class PlayInfo(
         val mode: Mode,

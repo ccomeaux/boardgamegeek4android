@@ -7,9 +7,9 @@ import com.boardgamegeek.R
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
 
-fun Long.isOlderThan(duration: Int, timeUnit: TimeUnit) = System.currentTimeMillis() - this > timeUnit.toMillis(duration.toLong())
+fun Long.isOlderThan(duration: Duration) = System.currentTimeMillis() - this > duration.inWholeMilliseconds
 
 fun Long.isToday(): Boolean = isToday(this)
 
