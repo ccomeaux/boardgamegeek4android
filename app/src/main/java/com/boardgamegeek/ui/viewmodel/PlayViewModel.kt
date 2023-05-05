@@ -8,12 +8,17 @@ import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 
-class PlayViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = PlayRepository(getApplication())
+@HiltViewModel
+class PlayViewModel @Inject constructor(
+    application: Application,
+    private val repository: PlayRepository,
+) : AndroidViewModel(application) {
     private val arePlaysRefreshing = AtomicBoolean()
     private val forceRefresh = AtomicBoolean()
 
@@ -31,7 +36,7 @@ class PlayViewModel(application: Application) : AndroidViewModel(application) {
                 if (arePlaysRefreshing.compareAndSet(false, true)) {
                     play?.let {
                         val canRefresh = it.playId != BggContract.INVALID_ID && it.gameId != BggContract.INVALID_ID
-                        val shouldRefresh = it.syncTimestamp.isOlderThan(2, TimeUnit.HOURS)
+                        val shouldRefresh = it.syncTimestamp.isOlderThan(2.hours)
                         if (canRefresh && (shouldRefresh || forceRefresh.compareAndSet(true, false))) {
                             emit(RefreshableResource.refreshing(it))
                             repository.refreshPlay(id, it.playId, it.gameId)

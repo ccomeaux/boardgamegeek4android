@@ -12,4 +12,6 @@ data class PersonEntity(
     val whitmoreScore: Int = 0,
     val statsUpdatedTimestamp: Long = 0L,
     val imagesUpdatedTimestamp: Long = 0L,
-)
+) {
+    val heroImageUrls = listOf(heroImageUrl, thumbnailUrl, imageUrl)
+}

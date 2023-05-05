@@ -1,6 +1,7 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
+import android.net.Uri
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameEntity
@@ -33,6 +34,8 @@ fun String.getImageId(): Int {
 }
 
 fun String.findFirstNumber() = "\\d+".toRegex().find(this)?.value?.toIntOrNull()
+
+fun String?.encodeForUrl(): String? = Uri.encode(this, "UTF-8")
 
 /**
  * Describes the rank with either the subtype or the family name.

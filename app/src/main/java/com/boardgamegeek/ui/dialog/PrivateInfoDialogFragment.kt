@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.core.view.isInvisible
 import androidx.fragment.app.DialogFragment
@@ -21,8 +20,10 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 
+@AndroidEntryPoint
 class PrivateInfoDialogFragment : DialogFragment() {
     private var _binding: DialogPrivateInfoBinding? = null
     private val binding get() = _binding!!
@@ -34,7 +35,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val viewModel = ViewModelProvider(requireActivity())[GameCollectionItemViewModel::class.java]
         _binding = DialogPrivateInfoBinding.inflate(layoutInflater)
-        return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        return requireContext().createThemedBuilder()
             .setTitle(R.string.title_private_info)
             .setView(binding.root)
             .setNegativeButton(R.string.cancel, null)
@@ -136,8 +137,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     private fun setAndDisplayAcquisitionDate(new: Long) {
         acquisitionDate = new
-        binding.acquisitionDateView.text =
-            if (acquisitionDate == 0L) "" else DateUtils.formatDateTime(context, acquisitionDate, DateUtils.FORMAT_SHOW_DATE)
+        binding.acquisitionDateView.text = acquisitionDate.formatDateTime(context, 0, DateUtils.FORMAT_SHOW_DATE)
         binding.acquisitionDateLabelView.isInvisible = binding.acquisitionDateView.text.isEmpty()
     }
 

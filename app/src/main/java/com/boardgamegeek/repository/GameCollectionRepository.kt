@@ -1,16 +1,16 @@
 package com.boardgamegeek.repository
 
 import android.content.ContentValues
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -19,11 +19,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class GameCollectionRepository(val application: BggApplication) {
-    private val dao = CollectionDao(application)
-    private val gameDao = GameDao(application)
-    private val username: String? by lazy { application.preferences()[AccountPreferences.KEY_USERNAME, ""] }
-    private val prefs: SharedPreferences by lazy { application.preferences() }
+class GameCollectionRepository(
+    val context: Context,
+    private val api: BggService,
+    private val imageRepository: ImageRepository,
+) {
+    private val dao = CollectionDao(context)
+    private val gameDao = GameDao(context)
+    private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
+    private val prefs: SharedPreferences by lazy { context.preferences() }
 
     suspend fun loadCollectionItem(internalId: Long) = dao.load(internalId)
 
@@ -40,7 +44,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 else
                     BggService.COLLECTION_QUERY_KEY_ID to gameId.toString()
                 options.addSubtype(subtype)
-                val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
+                val response = api.collection(username, options)
 
                 val collectionIds = mutableListOf<Int>()
                 var entity: CollectionItemEntity? = null
@@ -58,10 +62,12 @@ class GameCollectionRepository(val application: BggApplication) {
         }
 
     suspend fun refreshHeroImage(item: CollectionItemEntity): CollectionItemEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image(item.thumbnailUrl.getImageId())
-        val url = response.images.medium.url
-        dao.update(item.internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to url))
-        item.copy(heroImageUrl = url)
+        val urlMap = imageRepository.getImageUrls(item.thumbnailUrl.getImageId())
+        val urls = urlMap[ImageRepository.ImageType.HERO]
+        if (urls?.isNotEmpty() == true) {
+            dao.update(item.internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to urls.first()))
+            item.copy(heroImageUrl = urls.first())
+        } else item
     }
 
     suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId)
@@ -78,7 +84,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
             )
             options.addSubtype(subtype)
-            val response = Adapter.createForXmlWithAuth(application).collectionC(username, options)
+            val response = api.collection(username, options)
             response.items?.forEach { collectionItem ->
                 val (item, game) = collectionItem.mapToEntities()
                 val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
@@ -95,7 +101,7 @@ class GameCollectionRepository(val application: BggApplication) {
                     BggService.COLLECTION_QUERY_STATUS_PLAYED to "1",
                 )
                 playedOptions.addSubtype(subtype)
-                val playedResponse = Adapter.createForXmlWithAuth(application).collectionC(username, playedOptions)
+                val playedResponse = api.collection(username, playedOptions)
                 playedResponse.items?.forEach { collectionItem ->
                     val (item, game) = collectionItem.mapToEntities()
                     val (collectionId, internalId) = dao.saveItem(item, game, timestamp)
@@ -164,7 +170,7 @@ class GameCollectionRepository(val application: BggApplication) {
                 Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
             } else {
                 Timber.d("Collection item added for game %s (%s) (internal ID = %s)", gameName, gameId, internalId)
-                SyncService.sync(application, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
             }
         }
     }

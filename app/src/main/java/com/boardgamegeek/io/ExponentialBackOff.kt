@@ -3,23 +3,14 @@ package com.boardgamegeek.io
 import kotlin.random.Random
 
 class ExponentialBackOff(
-    private var initialIntervalMillis: Int = 500,
-    private var randomizationFactor: Double = 0.5,
-    private var multiplier: Double = 1.5,
-    private var maxIntervalMillis: Int = 60_000,
-    private var maxElapsedTimeMillis: Int = 900_000
+    private val initialIntervalMillis: Int = 500, // the number of milliseconds between the initial request and first retry
+    private val randomizationFactor: Double = 0.5, // the amount of jitter in each backoff timing. (1 = zero wait time up to double)
+    private val multiplier: Double = 1.5, // amount to increase the interval on each subsequent attempt (1 is same as fixed backoff)
+    private val maxIntervalMillis: Int = 60_000, // maximum number of milliseconds to wait on each retry
+    private val maxElapsedTimeMillis: Int = 900_000, // total milliseconds in back-off attempt
 ) : BackOff {
-    private var currentIntervalMillis: Int = 0
-    private var startTimeNanos: Long = 0
-
-    init {
-        if (initialIntervalMillis <= 0) initialIntervalMillis = 500
-        if (randomizationFactor < 0 || randomizationFactor >= 1) randomizationFactor = 0.5
-        if (multiplier < 1) multiplier = 1.5
-        if (maxIntervalMillis < initialIntervalMillis) maxIntervalMillis = initialIntervalMillis
-        if (maxElapsedTimeMillis <= 0) maxElapsedTimeMillis = 900000
-        reset()
-    }
+    private var currentIntervalMillis: Int = initialIntervalMillis
+    private var startTimeNanos: Long = System.nanoTime()
 
     override fun reset() {
         currentIntervalMillis = initialIntervalMillis

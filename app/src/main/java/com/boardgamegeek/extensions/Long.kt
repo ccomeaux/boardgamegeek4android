@@ -7,15 +7,15 @@ import com.boardgamegeek.R
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
 
-fun Long.isOlderThan(duration: Int, timeUnit: TimeUnit) = System.currentTimeMillis() - this > timeUnit.toMillis(duration.toLong())
+fun Long.isOlderThan(duration: Duration) = System.currentTimeMillis() - this > duration.inWholeMilliseconds
 
 fun Long.isToday(): Boolean = isToday(this)
 
 fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.never, includeWeekDay: Boolean = false): CharSequence {
     return if (this == 0L)
-        context.getString(zeroResId)
+        if (zeroResId != 0) context.getString(zeroResId) else ""
     else {
         var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_ALL
         if (includeWeekDay) flags = flags or FORMAT_SHOW_WEEKDAY
@@ -23,28 +23,10 @@ fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.ne
     }
 }
 
-fun Long.asDate(context: Context, @StringRes zeroResId: Int = R.string.never, includeWeekDay: Boolean = false): CharSequence {
+fun Long.formatDateTime(context: Context?, @StringRes zeroResId: Int = R.string.never, flags: Int = 0): CharSequence {
     return if (this == 0L)
-        context.getString(zeroResId)
+        if (zeroResId != 0) context?.getString(zeroResId) ?: "" else ""
     else {
-        var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_ALL
-        if (includeWeekDay) flags = flags or FORMAT_SHOW_WEEKDAY
-        formatDateTime(context, this, flags)
-    }
-}
-
-fun Long.asDateTime(
-    context: Context,
-    @StringRes zeroResId: Int = R.string.never,
-    abbreviate: Boolean = true,
-    includeWeekDay: Boolean = false
-): CharSequence {
-    return if (this == 0L)
-        context.getString(zeroResId)
-    else {
-        var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_SHOW_TIME
-        if (abbreviate) flags = flags or FORMAT_ABBREV_ALL
-        if (includeWeekDay) flags = flags or FORMAT_SHOW_WEEKDAY
         formatDateTime(context, this, flags)
     }
 }

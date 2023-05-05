@@ -7,9 +7,14 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.repository.UserRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class BuddyCollectionViewModel(application: Application) : AndroidViewModel(application) {
-    private val userRepository = UserRepository(getApplication())
+@HiltViewModel
+class BuddyCollectionViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository,
+) : AndroidViewModel(application) {
 
     private val usernameAndStatus = MutableLiveData<Pair<String, String>>()
 

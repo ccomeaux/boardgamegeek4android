@@ -11,20 +11,25 @@ import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.repository.UserRepository
-import java.util.concurrent.TimeUnit
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
-class BuddiesViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class BuddiesViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         FIRST_NAME, LAST_NAME, USERNAME
     }
 
-    private val userRepository = UserRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
     private var isRefreshing = AtomicBoolean()
@@ -43,7 +48,7 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
                 val buddies = userRepository.loadBuddies(it.sortBy)
                 val refreshedBuddies = if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true) {
                     when {
-                        syncPrefs.getBuddiesTimestamp().isOlderThan(1, TimeUnit.DAYS) &&
+                        syncPrefs.getBuddiesTimestamp().isOlderThan(1.days) &&
                                 isRefreshing.compareAndSet(false, true) -> {
                             emit(RefreshableResource.refreshing(buddies))
                             val timestamp = System.currentTimeMillis()

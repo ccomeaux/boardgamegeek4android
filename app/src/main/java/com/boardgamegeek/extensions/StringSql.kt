@@ -16,6 +16,8 @@ inline fun String.notBlank() = "$this<>''"
 
 inline fun String.whereZeroOrNull() = "($this=0 OR $this IS NULL)"
 
+inline fun String.whereNotZeroOrNull() = "($this>0 OR $this IS NOT NULL)"
+
 inline fun String.whereEqualsOrNull() = "($this=? OR $this IS NULL)"
 
 inline fun String.whereNotEqualsOrNull() = "($this!=? OR $this IS NULL)"

@@ -7,15 +7,20 @@ import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
-import java.util.concurrent.TimeUnit
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 
-class DesignersViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class DesignersViewModel @Inject constructor(
+    application: Application,
+    designerRepository: DesignerRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val designerRepository = DesignerRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private val _sort = MutableLiveData<DesignersSort>()
@@ -41,7 +46,7 @@ class DesignersViewModel(application: Application) : AndroidViewModel(applicatio
             val designers = designerRepository.loadDesigners(it.sortBy)
             emit(designers)
             val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
-            if (lastCalculation.isOlderThan(1, TimeUnit.HOURS) &&
+            if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
                 designerRepository.calculateWhitmoreScores(designers, _progress)

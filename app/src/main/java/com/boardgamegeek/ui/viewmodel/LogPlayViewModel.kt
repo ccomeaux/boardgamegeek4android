@@ -16,15 +16,20 @@ import com.boardgamegeek.repository.PlayerColorAssigner
 import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.util.*
+import javax.inject.Inject
 
-class LogPlayViewModel(application: Application) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
-    private val gameRepository = GameRepository(getApplication())
+@HiltViewModel
+class LogPlayViewModel @Inject constructor(
+    application: Application,
+    private val gameRepository: GameRepository,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private var originalPlay: PlayEntity? = null
@@ -397,7 +402,12 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
         players.value?.let {
             viewModelScope.launch(Dispatchers.Default) {
                 val existingPlayers = if (clearExisting) it.map { it.copy(color = "") } else it
-                val results = PlayerColorAssigner(getApplication(), _game.value?.first ?: INVALID_ID, existingPlayers).execute()
+                val results = PlayerColorAssigner(
+                    _game.value?.first ?: INVALID_ID,
+                    existingPlayers,
+                    gameRepository,
+                    playRepository,
+                ).execute()
                 val newPlayers = mutableListOf<PlayPlayerEntity>()
                 existingPlayers.forEach { ppe ->
                     val result = if (ppe.username.isEmpty()) {
@@ -463,7 +473,7 @@ class LogPlayViewModel(application: Application) : AndroidViewModel(application)
             ) {
                 prefs[KEY_LAST_PLAY_TIME] = now
                 prefs[KEY_LAST_PLAY_LOCATION] = play.location
-                players.value?.let { p -> prefs.putLastPlayPlayerEntities(p) }
+                prefs.putLastPlayPlayerEntities(players.value)
             }
             save(play)
             if (internalIdToDelete != INVALID_ID.toLong()) {

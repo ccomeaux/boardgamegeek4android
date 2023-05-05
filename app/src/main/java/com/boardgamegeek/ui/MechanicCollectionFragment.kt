@@ -11,8 +11,10 @@ import com.boardgamegeek.databinding.FragmentLinkedCollectionBinding
 import com.boardgamegeek.ui.adapter.LinkedCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.MechanicViewModel
 import com.boardgamegeek.ui.viewmodel.MechanicViewModel.CollectionSort
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class MechanicCollectionFragment : Fragment() {
     private var _binding: FragmentLinkedCollectionBinding? = null
     private val binding get() = _binding!!

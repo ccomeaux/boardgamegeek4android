@@ -4,7 +4,6 @@ package com.boardgamegeek.io
 
 import com.boardgamegeek.io.model.*
 import com.google.gson.annotations.SerializedName
-import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -14,33 +13,19 @@ import java.util.*
 
 interface BggService {
     @GET("/xmlapi2/collection")
-    fun collection(@Query("username") username: String?, @QueryMap options: Map<String, String>): Call<CollectionResponse>
-
-    @GET("/xmlapi2/collection")
-    suspend fun collectionC(@Query("username") username: String?, @QueryMap options: Map<String, String>): CollectionResponse
+    suspend fun collection(@Query("username") username: String?, @QueryMap options: Map<String, String>): CollectionResponse
 
     @GET("/xmlapi2/thing")
-    fun thing(@Query("id") gameId: Int, @Query("stats") stats: Int): Call<ThingResponse>
+    suspend fun thing(@Query("id") gameId: Int, @Query("stats") stats: Int): ThingResponse
 
     @GET("/xmlapi2/thing")
-    suspend fun thing2(@Query("id") gameId: Int, @Query("stats") stats: Int): ThingResponse
-
-    @GET("/xmlapi2/thing")
-    fun thing(@Query("id") gameIds: String?, @Query("stats") stats: Int): Call<ThingResponse>
+    suspend fun things(@Query("id") gameIds: String?, @Query("stats") stats: Int): ThingResponse
 
     @GET("/xmlapi2/thing?comments=1")
     suspend fun thingWithComments(@Query("id") gameId: Int, @Query("page") page: Int): ThingResponse
 
     @GET("/xmlapi2/thing?ratingcomments=1")
     suspend fun thingWithRatings(@Query("id") gameId: Int, @Query("page") page: Int): ThingResponse
-
-    @GET("/xmlapi2/plays")
-    suspend fun playsByDate(
-        @Query("username") username: String?,
-        @Query("mindate") minDate: String?,
-        @Query("maxdate") maxDate: String?,
-        @Query("page") page: Int
-    ): PlaysResponse
 
     @GET("/xmlapi2/plays")
     suspend fun playsByGame(@Query("username") username: String?, @Query("id") gameId: Int, @Query("page") page: Int): PlaysResponse
@@ -82,9 +67,6 @@ interface BggService {
 
     @GET("/xmlapi2/thread")
     suspend fun thread(@Query("id") id: Int): ThreadResponse
-
-    @GET("/geeklist/module?ajax=1&domain=boardgame&nosession=1&tradelists=0&version=v5")
-    suspend fun geekLists(@Query("sort") sort: GeekListSort?, @Query("showcount") pageSize: Int, @Query("pageid") page: Int): GeekListsResponse
 
     @GET("/xmlapi/geeklist/{id}")
     suspend fun geekList(@Path("id") id: Int, @Query("comments") comments: Int): GeekListResponse
@@ -158,17 +140,6 @@ interface BggService {
 
         @SerializedName("boardgamepublisher")
         BOARDGAME_PUBLISHER,
-    }
-
-    enum class GeekListSort {
-        @SerializedName("hot")
-        HOT,
-
-        @SerializedName("recent")
-        RECENT,
-
-        @SerializedName("active")
-        ACTIVE,
     }
 
     enum class ForumType {

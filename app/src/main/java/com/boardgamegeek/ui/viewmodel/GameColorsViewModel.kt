@@ -4,17 +4,22 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class GameColorsViewModel(application: Application) : AndroidViewModel(application) {
-    private val gameRepository = GameRepository(getApplication())
+@HiltViewModel
+class GameColorsViewModel @Inject constructor(
+    application: Application,
+    private val gameRepository: GameRepository,
+) : AndroidViewModel(application) {
     private val _gameId = MutableLiveData<Int>()
 
     fun setGameId(gameId: Int) {
         if (_gameId.value != gameId) _gameId.value = gameId
     }
 
-    fun refresh(){
+    fun refresh() {
         _gameId.value?.let { _gameId.value = it }
     }
 

@@ -6,13 +6,16 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
+import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameDetailActivity : SimpleSinglePaneActivity() {
     private var title: String = ""
     private var gameId: Int = BggContract.INVALID_ID
@@ -43,7 +46,7 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
         title = intent.getStringExtra(KEY_TITLE).orEmpty()
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
-        type = intent.getSerializableExtra(KEY_TYPE) as ProducerType
+        type = intent.getSerializableCompat(KEY_TYPE) ?: ProducerType.UNKNOWN
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -54,7 +57,7 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
         when (item.itemId) {
             android.R.id.home -> {
                 when (gameId) {
-                    BggContract.INVALID_ID -> onBackPressed()
+                    BggContract.INVALID_ID -> finish()
                     else -> GameActivity.startUp(this, gameId, gameName)
                 }
                 finish()

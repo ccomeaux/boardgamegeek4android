@@ -7,6 +7,7 @@ import android.view.MenuItem
 import androidx.collection.arrayMapOf
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.activity.addCallback
 import androidx.fragment.app.activityViewModels
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -17,11 +18,20 @@ import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SettingsActivity : DrawerActivity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (!supportFragmentManager.popBackStackImmediate()) {
+               finish()
+            }
+        }
+
         if (savedInstanceState == null) {
             val prefFragment = PrefFragment()
             val args = Bundle()
@@ -38,17 +48,11 @@ class SettingsActivity : DrawerActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                finish()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onBackPressed() {
-        if (!supportFragmentManager.popBackStackImmediate()) {
-            super.onBackPressed()
-        }
     }
 
     override val navigationItemId = R.id.settings
@@ -60,6 +64,7 @@ class SettingsActivity : DrawerActivity() {
         supportFragmentManager.beginTransaction().replace(R.id.root_container, fragment).addToBackStack(null).commitAllowingStateLoss()
     }
 
+    @AndroidEntryPoint
     class PrefFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()

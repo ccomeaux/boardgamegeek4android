@@ -11,7 +11,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayCommentsBinding
 import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class NewPlayCommentsFragment : Fragment() {
     private var _binding: FragmentNewPlayCommentsBinding? = null
     private val binding get() = _binding!!

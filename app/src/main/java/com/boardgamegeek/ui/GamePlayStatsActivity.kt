@@ -14,10 +14,13 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.startUp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GamePlayStatsActivity : SimpleSinglePaneActivity() {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
+
     @ColorInt
     private var headerColor = Color.TRANSPARENT
 

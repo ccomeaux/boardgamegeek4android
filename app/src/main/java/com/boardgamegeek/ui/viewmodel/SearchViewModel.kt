@@ -8,15 +8,19 @@ import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.SearchRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class SearchViewModel @Inject constructor(
+    application: Application,
+    private val repository: SearchRepository,
+    private val playRepository: PlayRepository
+) : AndroidViewModel(application) {
     private val _query = MutableLiveData<Pair<String, Boolean>>()
     val query: LiveData<Pair<String, Boolean>>
         get() = _query
-
-    private val repository = SearchRepository(getApplication())
-    private val playRepository = PlayRepository(getApplication())
 
     fun search(query: String) {
         FirebaseAnalytics.getInstance(getApplication()).logEvent(FirebaseAnalytics.Event.SEARCH) {

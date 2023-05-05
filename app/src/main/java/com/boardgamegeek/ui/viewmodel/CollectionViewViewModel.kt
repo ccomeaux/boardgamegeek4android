@@ -17,20 +17,27 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
+import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionActivity
 import com.google.firebase.analytics.FirebaseAnalytics
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
-class CollectionViewViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class CollectionViewViewModel @Inject constructor(
+    application: Application,
+    private val viewRepository: CollectionViewRepository,
+    private val itemRepository: CollectionItemRepository,
+    private val playRepository: PlayRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
+) : AndroidViewModel(application) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
-    private val viewRepository = CollectionViewRepository(getApplication())
-    private val itemRepository = CollectionItemRepository(getApplication())
-    private val playRepository = PlayRepository(getApplication())
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
     val defaultViewId
@@ -219,6 +226,14 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         }
     }
 
+    val acquiredFrom = liveData {
+        emit(gameCollectionRepository.loadAcquiredFrom())
+    }
+
+    val inventoryLocation = liveData {
+        emit(gameCollectionRepository.loadInventoryLocation())
+    }
+
     private fun createEffectiveFilters(
         loadedView: CollectionViewEntity?,
         addedFilters: List<CollectionFilterer>,
@@ -280,10 +295,10 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_COMMENTED) && it.comment.isNotBlank()) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_PARTS) && it.wantPartsList.isNotBlank())
-                }.asSequence()
+                }
             }
             filters.forEach { f ->
-                list = list.filter { f.filter(it) }.asSequence()
+                list = list.filter { f.filter(it) }
             }
             val sorter = collectionSorterFactory.create(sortType)
             _items.postValue(sorter?.first?.sort(list.toList(), sorter.second) ?: list.toList())
@@ -291,7 +306,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     }
 
     fun refresh(): Boolean {
-        return if ((syncTimestamp.value ?: 0).isOlderThan(1, TimeUnit.MINUTES)) {
+        return if ((syncTimestamp.value ?: 0).isOlderThan(1.minutes)) {
             syncTimestamp.postValue(System.currentTimeMillis())
             true
         } else false

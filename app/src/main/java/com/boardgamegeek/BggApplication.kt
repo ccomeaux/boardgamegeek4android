@@ -10,7 +10,6 @@ import androidx.preference.PreferenceManager
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
-import com.boardgamegeek.util.HttpUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.facebook.stetho.Stetho
 import com.google.android.gms.tasks.Task
@@ -18,9 +17,18 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.jakewharton.picasso.OkHttp3Downloader
 import com.squareup.picasso.Picasso
+import dagger.hilt.android.HiltAndroidApp
+import okhttp3.OkHttpClient
 import timber.log.Timber
+import javax.inject.Inject
+import javax.inject.Named
 
+@HiltAndroidApp
 class BggApplication : MultiDexApplication() {
+    @Inject
+    @Named("withCache")
+    lateinit var httpClient: OkHttpClient
+
     override fun onCreate() {
         super.onCreate()
         enableStrictMode()
@@ -75,7 +83,7 @@ class BggApplication : MultiDexApplication() {
     private fun initializePicasso() {
         Picasso.setSingletonInstance(
             Picasso.Builder(this)
-                .downloader(OkHttp3Downloader(HttpUtils.getHttpClientWithCache(this)))
+                .downloader(OkHttp3Downloader(httpClient))
                 .build()
         )
     }

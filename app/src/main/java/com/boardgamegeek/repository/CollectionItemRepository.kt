@@ -1,11 +1,10 @@
 package com.boardgamegeek.repository
 
+import android.content.Context
 import android.content.SharedPreferences
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
@@ -16,11 +15,14 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.*
 
-class CollectionItemRepository(val application: BggApplication) {
-    private val dao = CollectionDao(application)
-    private val prefs: SharedPreferences by lazy { application.preferences() }
+class CollectionItemRepository(
+    val context: Context,
+    private val api: BggService,
+) {
+    private val dao = CollectionDao(context)
+    private val prefs: SharedPreferences by lazy { context.preferences() }
     private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application) }
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
     private val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
 
     suspend fun load(): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
@@ -44,7 +46,7 @@ class CollectionItemRepository(val application: BggApplication) {
 
     suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
         syncPrefs.clearCollection()
-        SyncService.sync(application, SyncService.FLAG_SYNC_COLLECTION)
+        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
     }
 
     private suspend fun refreshSubtype(subtype: BggService.ThingSubtype?, timestamp: Long = System.currentTimeMillis()) {
@@ -58,24 +60,30 @@ class CollectionItemRepository(val application: BggApplication) {
                 BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
             )
             subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
-            val response = Adapter.createForXml().collectionC(username, options)
-
-            var count = 0
-            response.items?.forEach {
-                val (item, game) = it.mapToEntities()
-                if (isItemStatusSetToSync(item)) {
-                    val (collectionId, _) = dao.saveItem(item, game, timestamp)
-                    if (collectionId != BggContract.INVALID_ID) count++
-                } else {
-                    Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
-                }
-            }
+            val count = refresh(options, timestamp)
             syncPrefs.setPartialCollectionSyncLastCompletedAt(subtype, timestamp)
             Timber.i("...saved %,d %s collection items", count, subtype)
         } else {
             Timber.i("Collection subtype $subtype recently synced")
         }
     }
+
+    suspend fun refresh(options: Map<String, String>, timestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
+        var count = 0
+        val response = api.collection(username, options)
+        response.items?.forEach {
+            val (item, game) = it.mapToEntities()
+            if (isItemStatusSetToSync(item)) {
+                val (collectionId, _) = dao.saveItem(item, game, timestamp)
+                if (collectionId != BggContract.INVALID_ID) count++
+            } else {
+                Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
+            }
+        }
+        count
+    }
+
+    suspend fun loadUnupdatedItems(gamesPerFetch: Int) = dao.loadUnupdatedItems(gamesPerFetch)
 
     private fun isItemStatusSetToSync(item: CollectionItemEntity): Boolean {
         if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true

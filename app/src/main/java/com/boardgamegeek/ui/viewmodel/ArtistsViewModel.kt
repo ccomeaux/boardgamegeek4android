@@ -7,15 +7,20 @@ import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.ArtistRepository
-import java.util.concurrent.TimeUnit
+import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 
-class ArtistsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class ArtistsViewModel @Inject constructor(
+    application: Application,
+    artistRepository: ArtistRepository
+) : AndroidViewModel(application) {
     enum class SortType {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val artistRepository = ArtistRepository(getApplication())
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private val _sort = MutableLiveData<ArtistsSort>()
@@ -41,7 +46,7 @@ class ArtistsViewModel(application: Application) : AndroidViewModel(application)
             val artists = artistRepository.loadArtists(it.sortBy)
             emit(artists)
             val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L] ?: 0L
-            if (lastCalculation.isOlderThan(1, TimeUnit.HOURS) &&
+            if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
                 artistRepository.calculateWhitmoreScores(artists, _progress)

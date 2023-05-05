@@ -12,7 +12,9 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameCommentsViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class CommentsActivity : SimpleSinglePaneActivity() {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""

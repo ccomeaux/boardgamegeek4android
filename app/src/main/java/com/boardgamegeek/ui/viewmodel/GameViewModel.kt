@@ -17,13 +17,22 @@ import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.RemoteConfig
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
-class GameViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class GameViewModel @Inject constructor(
+    application: Application,
+    private val gameRepository: GameRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
+    private val imageRepository: ImageRepository,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val isGameRefreshing = AtomicBoolean()
     private val areItemsRefreshing = AtomicBoolean()
     private val arePlaysRefreshing = AtomicBoolean()
@@ -60,11 +69,6 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private val gameRepository = GameRepository(getApplication())
-    private val gameCollectionRepository = GameCollectionRepository(getApplication())
-    private val playRepository = PlayRepository(getApplication())
-    private val imageRepository = ImageRepository(getApplication())
-
     fun setId(gameId: Int) {
         if (_gameId.value != gameId) {
             viewModelScope.launch {
@@ -88,7 +92,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     val game = gameRepository.loadGame(gameId)
                     emit(RefreshableResource.success(game))
                     val refreshedGame = if (isGameRefreshing.compareAndSet(false, true)) {
-                        if (game == null || game.updated.isOlderThan(gameRefreshMinutes, TimeUnit.MINUTES)) {
+                        if (game == null || game.updated.isOlderThan(gameRefreshMinutes.minutes)) {
                             emit(RefreshableResource.refreshing(game))
                             gameRepository.refreshGame(gameId)
                             val loadedGame = gameRepository.loadGame(gameId)
@@ -103,8 +107,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     refreshedGame?.let {
                         if (it.heroImageUrl.isBlank()) {
                             emit(RefreshableResource.refreshing(it))
-                            gameRepository.refreshHeroImage(it)
-                            val gameWithHeroImage = gameRepository.loadGame(gameId)
+                            val gameWithHeroImage = gameRepository.refreshHeroImage(it)
                             emit(RefreshableResource.success(gameWithHeroImage))
                         }
                     }
@@ -251,7 +254,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     emit(RefreshableResource.success(items))
                     val refreshedItems = if (areItemsRefreshing.compareAndSet(false, true)) {
                         val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-                        val refreshedItems = if (lastUpdated.isOlderThan(itemsRefreshMinutes, TimeUnit.MINUTES)) {
+                        val refreshedItems = if (lastUpdated.isOlderThan(itemsRefreshMinutes.minutes)) {
                             emit(RefreshableResource.refreshing(items))
                             gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype)
                             val newItems = gameCollectionRepository.loadCollectionItems(gameId)
@@ -285,12 +288,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                         emit(RefreshableResource.refreshing(plays))
                         val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
                         val rPlays = when {
-                            lastUpdated.isOlderThan(playsFullMinutes, TimeUnit.MINUTES) -> {
-                                gameRepository.refreshPlays(gameId)
+                            lastUpdated.isOlderThan(playsFullMinutes.minutes) -> {
+                                playRepository.refreshPlaysForGame(gameId)
                                 gameRepository.getPlays(gameId)
                             }
-                            lastUpdated.isOlderThan(playsPartialMinutes, TimeUnit.MINUTES) -> {
-                                gameRepository.refreshPartialPlays(gameId)
+                            lastUpdated.isOlderThan(playsPartialMinutes.minutes) -> {
+                                playRepository.refreshPartialPlaysForGame(gameId)
                                 gameRepository.getPlays(gameId)
                             }
                             else -> plays

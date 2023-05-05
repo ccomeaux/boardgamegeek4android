@@ -2,12 +2,12 @@ package com.boardgamegeek.db
 
 import android.content.ContentProviderOperation
 import android.content.ContentValues
+import android.content.Context
 import android.net.Uri
 import android.provider.BaseColumns
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.BriefBuddyEntity
 import com.boardgamegeek.entities.UserEntity
@@ -22,7 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class UserDao(private val context: BggApplication) {
+class UserDao(private val context: Context) {
     enum class UsersSortBy {
         FIRST_NAME, LAST_NAME, USERNAME
     }

@@ -1,16 +1,14 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.databinding.ActivityHeroTabBinding
 import com.boardgamegeek.extensions.ImageLoadCallback
 import com.boardgamegeek.extensions.applyDarkScrim
-import com.boardgamegeek.extensions.loadUrl
 import com.boardgamegeek.extensions.safelyLoadImage
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.launch
+import java.util.LinkedList
 
 /**
  * A navigation drawer activity that displays a hero image over a view pager.
@@ -45,8 +43,8 @@ abstract class HeroTabActivity : DrawerActivity() {
         }
     }
 
-    protected fun loadToolbarImage(url: String) {
-        binding.toolbarImage.loadUrl(url, object : ImageLoadCallback {
+    protected fun loadToolbarImage(urls: List<String>?) {
+        binding.toolbarImage.safelyLoadImage(LinkedList(urls.orEmpty().filter { it.isNotBlank() }), object : ImageLoadCallback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
                 onPaletteLoaded(palette)
                 binding.scrimView.applyDarkScrim()
@@ -54,19 +52,6 @@ abstract class HeroTabActivity : DrawerActivity() {
 
             override fun onFailedImageLoad() {}
         })
-    }
-
-    protected fun loadToolbarImage(imageId: Int) {
-        lifecycleScope.launch {
-            binding.toolbarImage.safelyLoadImage(imageId, object : ImageLoadCallback {
-                override fun onSuccessfulImageLoad(palette: Palette?) {
-                    onPaletteLoaded(palette)
-                    binding.scrimView.applyDarkScrim()
-                }
-
-                override fun onFailedImageLoad() {}
-            })
-        }
     }
 
     protected open fun onPaletteLoaded(palette: Palette?) {

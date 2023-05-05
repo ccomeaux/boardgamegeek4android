@@ -19,28 +19,28 @@ import com.boardgamegeek.extensions.NotificationTags
 import com.boardgamegeek.extensions.getBoolean
 import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.whereNullOrBlank
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.ui.GameActivity
-import com.boardgamegeek.util.HttpUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
-class SyncCollectionUpload(application: BggApplication, service: BggService, syncResult: SyncResult) :
-    SyncUploadTask(application, service, syncResult) {
-    private val okHttpClient: OkHttpClient = HttpUtils.getHttpClientWithAuth(context)
+class SyncCollectionUpload(
+    application: BggApplication,
+    syncResult: SyncResult,
+    private val gameCollectionRepository: GameCollectionRepository,
+    private val httpClient: OkHttpClient,
+) : SyncUploadTask(application, syncResult) {
     private val uploadTasks: List<CollectionUploadTask>
     private var currentGameId: Int = 0
     private var currentGameName: String = ""
     private var currentGameHeroImageUrl: String = ""
     private var currentGameThumbnailUrl: String = ""
-    private val repository = GameCollectionRepository(application)
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_UPLOAD
 
@@ -71,33 +71,33 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
 
     private fun createUploadTasks(): List<CollectionUploadTask> {
         val tasks = ArrayList<CollectionUploadTask>()
-        tasks.add(CollectionStatusUploadTask(okHttpClient))
-        tasks.add(CollectionRatingUploadTask(okHttpClient))
-        tasks.add(CollectionCommentUploadTask(okHttpClient))
-        tasks.add(CollectionPrivateInfoUploadTask(okHttpClient))
-        tasks.add(CollectionWishlistCommentUploadTask(okHttpClient))
-        tasks.add(CollectionTradeConditionUploadTask(okHttpClient))
-        tasks.add(CollectionWantPartsUploadTask(okHttpClient))
-        tasks.add(CollectionHasPartsUploadTask(okHttpClient))
+        tasks.add(CollectionStatusUploadTask(httpClient))
+        tasks.add(CollectionRatingUploadTask(httpClient))
+        tasks.add(CollectionCommentUploadTask(httpClient))
+        tasks.add(CollectionPrivateInfoUploadTask(httpClient))
+        tasks.add(CollectionWishlistCommentUploadTask(httpClient))
+        tasks.add(CollectionTradeConditionUploadTask(httpClient))
+        tasks.add(CollectionWantPartsUploadTask(httpClient))
+        tasks.add(CollectionHasPartsUploadTask(httpClient))
         return tasks
     }
 
     override fun execute() {
         fetchList(fetchDeletedCollectionItems()).forEach {
             if (isCancelled) return@forEach
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS)) return@forEach
+            if (wasSleepInterrupted(1.seconds)) return@forEach
             processDeletedCollectionItem(it)
         }
 
         fetchList(fetchNewCollectionItems()).forEach {
             if (isCancelled) return@forEach
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS)) return@forEach
+            if (wasSleepInterrupted(1.seconds)) return@forEach
             processNewCollectionItem(it)
         }
 
         fetchList(fetchDirtyCollectionItems()).forEach {
             if (isCancelled) return@forEach
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS)) return@forEach
+            if (wasSleepInterrupted(1.seconds)) return@forEach
             processDirtyCollectionItem(it)
         }
     }
@@ -203,7 +203,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
     }
 
     private fun processDeletedCollectionItem(item: CollectionItemForUploadEntity) {
-        val deleteTask = CollectionDeleteTask(okHttpClient, item)
+        val deleteTask = CollectionDeleteTask(httpClient, item)
         deleteTask.post()
         if (processResponseForError(deleteTask)) {
             return
@@ -213,7 +213,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
     }
 
     private fun processNewCollectionItem(item: CollectionItemForUploadEntity) {
-        val addTask = CollectionAddTask(okHttpClient, item)
+        val addTask = CollectionAddTask(httpClient, item)
         addTask.post()
         if (processResponseForError(addTask)) {
             return
@@ -222,7 +222,7 @@ class SyncCollectionUpload(application: BggApplication, service: BggService, syn
         addTask.appendContentValues(contentValues)
         context.contentResolver.update(Collection.buildUri(item.internalId), contentValues, null, null)
         runBlocking {
-            repository.refreshCollectionItems(item.gameId)
+            gameCollectionRepository.refreshCollectionItems(item.gameId)
         }
         notifySuccess(item, item.gameId * -1, R.string.sync_notification_collection_added)
     }

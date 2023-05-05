@@ -17,7 +17,9 @@ import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameCollectionFragment : Fragment() {
     private var _binding: FragmentGameCollectionBinding? = null
     private val binding get() = _binding!!

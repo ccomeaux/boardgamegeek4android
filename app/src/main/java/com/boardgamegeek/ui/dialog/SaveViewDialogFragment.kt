@@ -12,13 +12,16 @@ import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogSaveViewBinding
 import com.boardgamegeek.extensions.CollectionView
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SaveViewDialogFragment : DialogFragment() {
     private var _binding: DialogSaveViewBinding? = null
     private val binding get() = _binding!!
@@ -35,14 +38,14 @@ class SaveViewDialogFragment : DialogFragment() {
         }
 
         val firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext())
-        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        val builder = requireContext().createThemedBuilder()
             .setTitle(R.string.title_save_view)
             .setView(binding.root)
             .setPositiveButton(R.string.save) { _, _ ->
                 val name = binding.nameView.text?.trim()?.toString().orEmpty()
                 val isDefault = binding.defaultViewCheckBox.isChecked
                 if (viewModel.findViewId(name) > 0L) {
-                    AlertDialog.Builder(requireContext())
+                    requireContext().createThemedBuilder()
                         .setTitle(R.string.title_collection_view_name_in_use)
                         .setMessage(R.string.msg_collection_view_name_in_use)
                         .setPositiveButton(R.string.update) { _, _ ->

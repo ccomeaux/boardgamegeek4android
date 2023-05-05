@@ -6,16 +6,18 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogEditTextBinding
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 abstract class EditCollectionTextDialogFragment : DialogFragment() {
     private var _binding: DialogEditTextBinding? = null
     private val binding get() = _binding!!
@@ -25,7 +27,7 @@ abstract class EditCollectionTextDialogFragment : DialogFragment() {
         _binding = DialogEditTextBinding.inflate(layoutInflater)
 
         val viewModel = ViewModelProvider(requireActivity())[GameCollectionItemViewModel::class.java]
-        val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        val builder = requireContext().createThemedBuilder()
             .setTitle(titleResId)
             .setView(binding.root)
             .setNegativeButton(R.string.cancel, null)
@@ -42,7 +44,6 @@ abstract class EditCollectionTextDialogFragment : DialogFragment() {
 
     protected abstract fun updateText(viewModel: GameCollectionItemViewModel, text: String)
 
-    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return binding.root
     }

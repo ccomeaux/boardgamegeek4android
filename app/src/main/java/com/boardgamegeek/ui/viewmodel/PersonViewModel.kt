@@ -12,9 +12,17 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
 import com.boardgamegeek.repository.PublisherRepository
-import java.util.concurrent.TimeUnit
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
-class PersonViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PersonViewModel @Inject constructor(
+    application: Application,
+    private val artistRepository: ArtistRepository,
+    private val designerRepository: DesignerRepository,
+    private val publisherRepository: PublisherRepository,
+) : AndroidViewModel(application) {
     data class Person(
         val type: PersonType,
         val id: Int,
@@ -30,10 +38,6 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
     enum class CollectionSort {
         NAME, RATING
     }
-
-    private val artistRepository = ArtistRepository(getApplication())
-    private val designerRepository = DesignerRepository(getApplication())
-    private val publisherRepository = PublisherRepository(getApplication())
 
     private val _person = MutableLiveData<Person>()
     val person: LiveData<Person>
@@ -83,11 +87,11 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
     private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadArtist(artistId: Int, application: Application) {
         val artist = artistRepository.loadArtist(artistId)
         try {
-            val refreshedArtist = if (artist == null || artist.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val refreshedArtist = if (artist == null || artist.updatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(artist))
                 artistRepository.refreshArtist(artistId)
             } else artist
-            val artistWithImages = if (refreshedArtist.imagesUpdatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val artistWithImages = if (refreshedArtist.imagesUpdatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(refreshedArtist))
                 artistRepository.refreshImages(refreshedArtist)
             } else refreshedArtist
@@ -104,11 +108,11 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
     private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadDesigner(designerId: Int, application: Application) {
         val designer = designerRepository.loadDesigner(designerId)
         try {
-            val refreshedDesigner = if (designer == null || designer.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val refreshedDesigner = if (designer == null || designer.updatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(designer))
                 designerRepository.refreshDesigner(designerId)
             } else designer
-            val designerWithImages = if (refreshedDesigner.imagesUpdatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val designerWithImages = if (refreshedDesigner.imagesUpdatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(refreshedDesigner))
                 designerRepository.refreshImages(refreshedDesigner)
             } else refreshedDesigner
@@ -125,7 +129,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
     private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadPublisher(publisherId: Int, application: Application) {
         val publisher = publisherRepository.loadPublisher(publisherId)
         try {
-            val refreshedPublisher = if (publisher == null || publisher.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+            val refreshedPublisher = if (publisher == null || publisher.updatedTimestamp.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(publisher.toPersonEntity()))
                 publisherRepository.refreshPublisher(publisherId)
             } else publisher

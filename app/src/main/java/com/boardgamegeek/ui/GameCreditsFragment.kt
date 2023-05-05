@@ -21,7 +21,9 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameCreditsFragment : Fragment() {
     private var _binding: FragmentGameCreditsBinding? = null
     private val binding get() = _binding!!

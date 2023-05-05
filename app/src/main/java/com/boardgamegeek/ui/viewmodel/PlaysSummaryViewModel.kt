@@ -10,12 +10,18 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RateLimiter
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
-class PlaysSummaryViewModel(application: Application) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
-    private val playsRateLimiter = RateLimiter<Int>(10, TimeUnit.MINUTES)
+@HiltViewModel
+class PlaysSummaryViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
+    private val playsRateLimiter = RateLimiter<Int>(10.minutes)
     private val syncTimestamp = MutableLiveData<Long>()
     private val h = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX)
     private val n = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX + PlayStats.KEY_H_INDEX_N_SUFFIX)
@@ -96,7 +102,7 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
 
     fun refresh(): Boolean {
         val value = syncTimestamp.value
-        return if (value == null || value.isOlderThan(1, TimeUnit.SECONDS)) {
+        return if (value == null || value.isOlderThan(1.seconds)) {
             syncTimestamp.postValue(System.currentTimeMillis())
             true
         } else false

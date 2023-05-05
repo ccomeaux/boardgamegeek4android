@@ -22,7 +22,9 @@ import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class CollectionActivity : TopLevelSinglePaneActivity() {
     private var viewId: Long = 0
     private var isCreatingShortcut = false

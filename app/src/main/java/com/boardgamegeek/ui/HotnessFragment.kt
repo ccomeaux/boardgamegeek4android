@@ -16,8 +16,10 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.HotnessViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class HotnessFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentHotnessBinding? = null
     private val binding get() = _binding!!

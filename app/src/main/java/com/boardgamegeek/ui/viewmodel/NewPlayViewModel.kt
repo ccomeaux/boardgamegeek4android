@@ -6,16 +6,22 @@ import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
-import java.util.concurrent.TimeUnit
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 
-class NewPlayViewModel(application: Application) : AndroidViewModel(application) {
-    private val playRepository = PlayRepository(getApplication())
-    private val gameRepository = GameRepository(getApplication())
+@HiltViewModel
+class NewPlayViewModel @Inject constructor(
+    application: Application,
+    private val gameRepository: GameRepository,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     private var gameId = MutableLiveData<Int>()
@@ -31,12 +37,14 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     val playDate: LiveData<Long>
         get() = _playDate
 
+    val lastPlayDate = LiveSharedPreference<Long>(application, KEY_LAST_PLAY_DATE)
+
     private val _startTime = MutableLiveData<Long>()
     val startTime: LiveData<Long>
         get() = _startTime
 
     private val _lengthInMillis = MutableLiveData<Long>()
-    val length: LiveData<Int> = Transformations.map(_lengthInMillis) {
+    val length: LiveData<Int> = _lengthInMillis.map {
         (it / 60_000).toInt()
     }
 
@@ -81,7 +89,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     val gameColors = gameId.switchMap { gameId ->
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId))
+            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId).filter { it.isNotBlank() })
         }
     }
 
@@ -197,7 +205,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
     private fun filterLocations(list: List<LocationEntity>?, filter: String): List<LocationEntity> {
         val newList = (list?.filter { it.name.isNotBlank() }.orEmpty()).toMutableList()
         if (isLastPlayRecent()) {
-            newList.find { it.name == prefs.getLastPlayLocation() }?.let {
+            newList.find { it.name == prefs[KEY_LAST_PLAY_LOCATION, ""] }?.let {
                 newList.remove(it)
                 newList.add(0, it)
             }
@@ -402,7 +410,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
         val self = allPlayers?.find { it.username == prefs[AccountPreferences.KEY_USERNAME, ""] }
         self?.let { newList.add(it) }
         //  2. last played at this location
-        if (isLastPlayRecent() && location.value == prefs.getLastPlayLocation()) {
+        if (isLastPlayRecent() && location.value == prefs[KEY_LAST_PLAY_LOCATION, ""]) {
             val lastPlayers = prefs.getLastPlayPlayerEntities()
             lastPlayers.forEach { lastPlayer ->
                 allPlayers?.find { it == lastPlayer && !newList.contains(it) }?.let {
@@ -482,7 +490,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
 
     private fun isLastPlayRecent(): Boolean {
         val lastPlayTime = prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L
-        return !lastPlayTime.isOlderThan(6, TimeUnit.HOURS)
+        return !lastPlayTime.isOlderThan(6.hours)
     }
 
     fun setComments(input: String) {
@@ -508,7 +516,7 @@ class NewPlayViewModel(application: Application) : AndroidViewModel(application)
                 PlayPlayerEntity(
                     player.name,
                     player.username,
-                    (playerSortMap.value.orEmpty())[player.id].toString(),
+                    (playerSortMap.value.orEmpty())[player.id]?.toString().orEmpty(),
                     color = (playerColorMap.value.orEmpty())[player.id].orEmpty(),
                     isNew = (playerIsNewMap.value.orEmpty())[player.id] ?: false,
                     isWin = (playerWinMap.value.orEmpty())[player.id] ?: false,

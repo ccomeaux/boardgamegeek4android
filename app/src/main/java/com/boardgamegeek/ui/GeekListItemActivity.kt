@@ -10,6 +10,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.extensions.link
+import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
@@ -31,7 +32,7 @@ class GeekListItemActivity : HeroTabActivity() {
         geekListTitle = intent.getStringExtra(KEY_TITLE).orEmpty()
         geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID)
         order = intent.getIntExtra(KEY_ORDER, 0)
-        geekListItemEntity = intent.getParcelableExtra(KEY_ITEM) ?: GeekListItemEntity()
+        geekListItemEntity = intent.getParcelableCompat(KEY_ITEM) ?: GeekListItemEntity()
 
         initializeViewPager()
 
@@ -43,7 +44,7 @@ class GeekListItemActivity : HeroTabActivity() {
                 param(FirebaseAnalytics.Param.ITEM_NAME, geekListItemEntity.objectName)
             }
         }
-        loadToolbarImage(geekListItemEntity.imageId)
+        geekListItemEntity.heroImageUrls?.let { loadToolbarImage(it) }
     }
 
     override val optionsMenuId = R.menu.view
@@ -53,9 +54,8 @@ class GeekListItemActivity : HeroTabActivity() {
             android.R.id.home -> {
                 if (geekListId != BggContract.INVALID_ID) {
                     GeekListActivity.startUp(this, geekListId, geekListTitle)
-                    finish()
                 }
-                else onBackPressed()
+                finish()
                 true
             }
             R.id.menu_view -> {
@@ -64,8 +64,7 @@ class GeekListItemActivity : HeroTabActivity() {
                         start(this, geekListItemEntity.objectId, geekListItemEntity.objectName)
                         true
                     }
-                }
-                else {
+                } else {
                     if (geekListItemEntity.objectUrl.isBlank()) false else {
                         link(geekListItemEntity.objectUrl)
                         true

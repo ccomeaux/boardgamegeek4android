@@ -3,12 +3,14 @@ package com.boardgamegeek.ui
 import android.content.res.ColorStateList
 import android.graphics.BlendMode
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.core.view.isVisible
@@ -26,8 +28,10 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.google.android.material.chip.Chip
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class NewPlayAddPlayersFragment : Fragment() {
     private var _binding: FragmentNewPlayAddPlayersBinding? = null
     private val binding get() = _binding!!
@@ -160,11 +164,13 @@ class NewPlayAddPlayersFragment : Fragment() {
                         }
 
                         override fun onFailedImageLoad() {
-                            tintPlayer(p)
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                                tintPlayer(p)
                         }
                     })
                     if (p.avatarUrl.isBlank() && p.favoriteColor != null) {
-                        tintPlayer(p)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+                            tintPlayer(p)
                     }
                     itemView.setOnClickListener {
                         viewModel.addPlayer(p)
@@ -173,6 +179,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                 }
             }
 
+            @RequiresApi(Build.VERSION_CODES.Q)
             private fun tintPlayer(p: PlayerEntity) {
                 binding.avatarView.imageTintBlendMode = BlendMode.COLOR_BURN
                 binding.avatarView.imageTintList = ColorStateList.valueOf(p.favoriteColor ?: Color.TRANSPARENT)

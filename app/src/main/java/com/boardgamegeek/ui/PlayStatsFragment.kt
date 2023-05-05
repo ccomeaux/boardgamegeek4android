@@ -20,8 +20,10 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class PlayStatsFragment : Fragment() {
     private var _binding: FragmentPlayStatsBinding? = null
     private val binding get() = _binding!!

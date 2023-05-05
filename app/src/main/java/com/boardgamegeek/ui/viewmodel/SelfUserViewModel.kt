@@ -7,10 +7,15 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.repository.UserRepository
-import java.util.concurrent.TimeUnit
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
-class SelfUserViewModel(application: Application) : AndroidViewModel(application) {
-    private val userRepository = UserRepository(getApplication())
+@HiltViewModel
+class SelfUserViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository,
+) : AndroidViewModel(application) {
     private val username = MutableLiveData<String?>()
 
     init {
@@ -30,7 +35,7 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
                     try {
                         emit(RefreshableResource.refreshing(latestValue?.data))
                         val entity = userRepository.load(username)
-                        if (entity == null || entity.updatedTimestamp.isOlderThan(1, TimeUnit.DAYS)) {
+                        if (entity == null || entity.updatedTimestamp.isOlderThan(1.days)) {
                             val refreshedUser = userRepository.refresh(username)
                             emit(RefreshableResource.success(refreshedUser))
                             if (username == Authenticator.getAccount(application)?.name) {

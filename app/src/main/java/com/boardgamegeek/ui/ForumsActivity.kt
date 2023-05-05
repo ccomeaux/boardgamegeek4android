@@ -5,7 +5,9 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.clearTop
 import com.boardgamegeek.extensions.intentFor
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ForumsActivity : TopLevelSinglePaneActivity() {
     override val firebaseContentType = "Forums"
 

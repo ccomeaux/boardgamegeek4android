@@ -11,7 +11,9 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ThreadActivity : SimpleSinglePaneActivity() {
     private var threadId = BggContract.INVALID_ID
     private var threadSubject = ""
@@ -48,7 +50,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
-        objectType = intent.getSerializableExtra(KEY_OBJECT_TYPE) as ForumEntity.ForumType
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
     }
 
     override fun onCreatePane(intent: Intent): Fragment {

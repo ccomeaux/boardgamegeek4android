@@ -4,7 +4,9 @@ package com.boardgamegeek.extensions
 
 import android.app.Activity
 import android.content.*
+import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PackageInfoFlags
 import android.graphics.Bitmap
 import android.os.Build
 import android.text.Html
@@ -51,12 +53,18 @@ private fun encodeArgs(args: Array<out Any?>): List<Any?> {
     return encodedArgs
 }
 
+fun PackageManager.getPackageInfoCompat(packageName: String, flags: Int = 0): PackageInfo =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getPackageInfo(packageName, PackageInfoFlags.of(flags.toLong()))
+    } else {
+        @Suppress("DEPRECATION") getPackageInfo(packageName, flags)
+    }
 /**
  * Get the version name of the package, or "?.?" if not found.
  */
 fun Context.versionName(): String {
     return try {
-        packageManager.getPackageInfo(packageName, 0).versionName
+        packageManager.getPackageInfoCompat(packageName).versionName
     } catch (e: PackageManager.NameNotFoundException) {
         "?.?"
     }

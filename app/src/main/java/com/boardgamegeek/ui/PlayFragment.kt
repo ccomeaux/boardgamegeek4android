@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.*
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayBinding
@@ -23,8 +23,10 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
+import java.util.LinkedList
 
+@AndroidEntryPoint
 class PlayFragment : Fragment() {
     private var _binding: FragmentPlayBinding? = null
     private val binding get() = _binding!!
@@ -110,15 +112,16 @@ class PlayFragment : Fragment() {
     }
 
     private fun showData(play: PlayEntity) {
-        lifecycleScope.launch {
-            binding.thumbnailView.safelyLoadImage(play.imageUrl, play.thumbnailUrl, play.heroImageUrl, object : ImageLoadCallback {
+        binding.thumbnailView.safelyLoadImage(
+            LinkedList(play.heroImageUrls),
+            object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     if (isAdded) binding.gameNameView.setBackgroundResource(R.color.black_overlay_light)
                 }
 
                 override fun onFailedImageLoad() {}
-            })
-        }
+            },
+        )
 
         binding.gameNameView.text = play.gameName
         binding.dateView.text = play.dateForDisplay(requireContext())
@@ -291,14 +294,17 @@ class PlayFragment : Fragment() {
                         play?.let {
                             val subject = getString(R.string.play_description_game_segment, it.gameName) + getString(
                                 R.string.play_description_date_segment,
-                                it.dateInMillis.asDate(requireContext())
+                                it.dateInMillis.formatDateTime(requireContext())
                             )
                             val sb = StringBuilder()
                             sb.append(getString(R.string.play_description_game_segment, it.gameName))
                             if (it.dateInMillis != PlayEntity.UNKNOWN_DATE) sb.append(
                                 getString(
                                     R.string.play_description_date_segment,
-                                    it.dateInMillis.asDate(requireContext(), includeWeekDay = true)
+                                    it.dateInMillis.formatDateTime(
+                                        requireContext(),
+                                        DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_SHOW_WEEKDAY or DateUtils.FORMAT_ABBREV_ALL
+                                    )
                                 )
                             )
                             if (it.quantity > 1) sb.append(

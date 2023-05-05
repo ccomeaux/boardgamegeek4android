@@ -9,12 +9,36 @@ import androidx.core.os.bundleOf
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.repository.*
+import dagger.hilt.android.AndroidEntryPoint
+import okhttp3.OkHttpClient
+import javax.inject.Inject
+import javax.inject.Named
 
+@AndroidEntryPoint
 class SyncService : Service() {
+    @Inject lateinit var authRepository: AuthRepository
+    @Inject lateinit var collectionItemRepository: CollectionItemRepository
+    @Inject lateinit var gameRepository: GameRepository
+    @Inject lateinit var gameCollectionRepository: GameCollectionRepository
+    @Inject lateinit var playRepository: PlayRepository
+    @Inject lateinit var userRepository: UserRepository
+    @Inject @Named("withAuth") lateinit var httpClient: OkHttpClient
+
     override fun onCreate() {
+        super.onCreate()
         synchronized(SYNC_ADAPTER_LOCK) {
             if (syncAdapter == null) {
-                syncAdapter = SyncAdapter((application as BggApplication))
+                syncAdapter = SyncAdapter(
+                    (application as BggApplication),
+                    authRepository,
+                    collectionItemRepository,
+                    gameRepository,
+                    gameCollectionRepository,
+                    playRepository,
+                    userRepository,
+                    httpClient,
+                )
             }
         }
     }
@@ -44,8 +68,8 @@ class SyncService : Service() {
         fun sync(context: Context?, syncType: Int) {
             Authenticator.getAccount(context)?.let { account ->
                 val extras = bundleOf(
-                        ContentResolver.SYNC_EXTRAS_MANUAL to true,
-                        EXTRA_SYNC_TYPE to syncType
+                    ContentResolver.SYNC_EXTRAS_MANUAL to true,
+                    EXTRA_SYNC_TYPE to syncType
                 )
                 ContentResolver.requestSync(account, BggContract.CONTENT_AUTHORITY, extras)
             }

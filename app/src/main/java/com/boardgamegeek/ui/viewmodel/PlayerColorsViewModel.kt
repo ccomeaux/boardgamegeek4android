@@ -9,13 +9,19 @@ import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.repository.PlayRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class PlayerColorsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class PlayerColorsViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
-    private val playRepository = PlayRepository(getApplication())
 
     private val _user = MutableLiveData<Pair<String?, Int>>()
     val user: LiveData<Pair<String?, Int>>

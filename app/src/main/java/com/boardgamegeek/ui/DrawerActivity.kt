@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.Group
@@ -21,10 +22,12 @@ import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.google.android.material.navigation.NavigationView
+import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * Activity that displays the navigation drawer and allows for content in the root_container FrameLayout.
  */
+@AndroidEntryPoint
 abstract class DrawerActivity : BaseActivity() {
     private lateinit var binding: ActivityDrawerBaseBinding
     lateinit var drawerLayout: DrawerLayout
@@ -53,6 +56,14 @@ abstract class DrawerActivity : BaseActivity() {
         rootContainer = findViewById(R.id.root_container)
 
         setSupportActionBar(toolbar)
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START)
+            } else {
+                finish() // TODO - register and deregister?
+            }
+        }
 
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         drawerLayout.setStatusBarBackgroundColor(ContextCompat.getColor(this, R.color.primary_dark))
@@ -90,14 +101,6 @@ abstract class DrawerActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         navigationView.setCheckedItem(navigationItemId)
-    }
-
-    override fun onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START)
-        } else {
-            super.onBackPressed()
-        }
     }
 
     private fun selectItem(menuItemId: Int) {

@@ -6,7 +6,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
 import com.boardgamegeek.repository.UserRepository
@@ -14,15 +13,13 @@ import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
 import retrofit2.HttpException
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.days
 
 /**
  * Syncs the list of buddies. Only runs every few days.
  */
-class SyncBuddiesList(application: BggApplication, service: BggService, syncResult: SyncResult) :
-    SyncTask(application, service, syncResult) {
-
-    private val repository = UserRepository(application)
+class SyncBuddiesList(application: BggApplication, syncResult: SyncResult, private val repository: UserRepository) :
+    SyncTask(application, syncResult) {
 
     override val syncType = SyncService.FLAG_SYNC_BUDDIES
 
@@ -39,7 +36,7 @@ class SyncBuddiesList(application: BggApplication, service: BggService, syncResu
             }
 
             val lastCompleteSync = syncPrefs.getBuddiesTimestamp()
-            if (lastCompleteSync >= 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays, TimeUnit.DAYS)) {
+            if (lastCompleteSync >= 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays.days)) {
                 Timber.i("...skipping; we synced already within the last $fetchIntervalInDays days")
                 return
             }

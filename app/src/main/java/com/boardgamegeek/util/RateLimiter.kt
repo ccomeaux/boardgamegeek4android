@@ -19,14 +19,14 @@ package com.boardgamegeek.util
 import android.os.SystemClock
 import androidx.collection.ArrayMap
 
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
 
 /**
  * Utility class that decides whether we should fetch some data or not.
  */
-class RateLimiter<in KEY>(timeout: Int, timeUnit: TimeUnit) {
+class RateLimiter<in KEY>(timeout: Duration) {
     private val timestamps = ArrayMap<KEY, Long>()
-    private val timeout = timeUnit.toMillis(timeout.toLong())
+    private val timeout = timeout.inWholeMilliseconds
 
     @Synchronized
     fun shouldProcess(key: KEY): Boolean {

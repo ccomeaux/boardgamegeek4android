@@ -12,7 +12,9 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GeekListDescriptionFragment : Fragment() {
     private var _binding: FragmentGeeklistDescriptionBinding? = null
     private val binding get() = _binding!!
@@ -29,18 +31,17 @@ class GeekListDescriptionFragment : Fragment() {
         val markupConverter = XmlApiMarkupConverter(requireContext())
         viewModel.geekList.observe(viewLifecycleOwner) {
             it?.let { (status, data, _) ->
-                if (status == Status.SUCCESS) {
-                    data?.let { entity ->
-                        binding.header.usernameView.text = entity.username
-                        binding.header.itemCountView.text = entity.numberOfItems.toString()
-                        binding.header.thumbCountView.text = entity.numberOfThumbs.toString()
-                        binding.bodyView.setWebViewText(markupConverter.toHtml(entity.description))
-                        binding.header.postedDateView.timestamp = entity.postTicks
-                        binding.header.editedDateView.timestamp = entity.editTicks
-                    }
-                    binding.container.isVisible = data != null
-                    binding.progressBar.hide()
+                if (status == Status.REFRESHING) binding.progressBar.show()
+                else binding.progressBar.hide()
+                data?.let { entity ->
+                    binding.header.usernameView.text = entity.username
+                    binding.header.itemCountView.text = entity.numberOfItems.toString()
+                    binding.header.thumbCountView.text = entity.numberOfThumbs.toString()
+                    binding.bodyView.setWebViewText(markupConverter.toHtml(entity.description))
+                    binding.header.postedDateView.timestamp = entity.postTicks
+                    binding.header.editedDateView.timestamp = entity.editTicks
                 }
+                binding.container.isVisible = data != null
             }
         }
     }

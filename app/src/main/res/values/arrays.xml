@@ -72,4 +72,14 @@
 		<item>Extensive use of text</item>
 		<item>Unplayable in another language</item>
 	</string-array>
+	<string-array name="text_operator">
+		<item>Is</item>
+		<item>Is Not</item>
+		<item>Contains</item>
+		<item>Does Not Contain</item>
+		<item>Starts With</item>
+		<item>Ends With</item>
+		<item>Is Empty</item>
+		<item>Is Not Empty</item>
+	</string-array>
 </resources>

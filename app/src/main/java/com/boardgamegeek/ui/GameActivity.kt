@@ -26,8 +26,10 @@ import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener {
     private var gameId: Int = BggContract.INVALID_ID
     private var gameName: String = ""
@@ -152,11 +154,9 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     }
 
     private fun changeImage(heroImageUrl: String, thumbnailUrl: String) {
-        val url = heroImageUrl.ifBlank { thumbnailUrl }
-        if (this.heroImageUrl != url) {
-            this.heroImageUrl = url
-            loadToolbarImage(url)
-        }
+        this.heroImageUrl = heroImageUrl
+        this.thumbnailUrl = thumbnailUrl
+        loadToolbarImage(listOf(heroImageUrl, thumbnailUrl))
     }
 
     override fun onPaletteLoaded(palette: Palette?) {

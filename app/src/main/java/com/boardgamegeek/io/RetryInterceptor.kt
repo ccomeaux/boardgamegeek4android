@@ -6,6 +6,9 @@ import okhttp3.Response
 import timber.log.Timber
 import java.io.IOException
 
+/**
+ * Attempts to retry unsuccessful requests based on the response code
+ */
 class RetryInterceptor(private val retry202Response: Boolean = true) : Interceptor {
     private val initialIntervalMillisFor202 = RemoteConfig.getInt(RemoteConfig.KEY_RETRY_202_INITIAL_INTERVAL_MILLIS)
     private val randomizationFactorFor202 = RemoteConfig.getDouble(RemoteConfig.KEY_RETRY_202_RANDOMIZATION_FACTOR)

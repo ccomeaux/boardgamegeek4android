@@ -13,9 +13,11 @@ import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 import java.util.*
 
+@AndroidEntryPoint
 class PersonStatsFragment : Fragment() {
     private var _binding: FragmentPersonStatsBinding? = null
     private val binding get() = _binding!!

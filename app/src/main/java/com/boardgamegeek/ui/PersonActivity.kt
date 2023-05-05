@@ -13,8 +13,10 @@ import com.boardgamegeek.ui.adapter.PersonPagerAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class PersonActivity : HeroTabActivity() {
     enum class PersonType {
         ARTIST,
@@ -38,7 +40,7 @@ class PersonActivity : HeroTabActivity() {
 
         id = intent.getIntExtra(KEY_PERSON_ID, BggContract.INVALID_ID)
         name = intent.getStringExtra(KEY_PERSON_NAME).orEmpty()
-        personType = (intent.getSerializableExtra(KEY_PERSON_TYPE) as PersonType?) ?: PersonType.DESIGNER
+        personType = intent.getSerializableCompat(KEY_PERSON_TYPE) ?: PersonType.DESIGNER
         emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
 
         initializeViewPager()
@@ -65,11 +67,7 @@ class PersonActivity : HeroTabActivity() {
             }
             it?.data?.let { person ->
                 safelySetTitle(person.name)
-                if (person.heroImageUrl.isNotBlank()) {
-                    loadToolbarImage(person.heroImageUrl)
-                } else if (person.thumbnailUrl.isNotBlank()) {
-                    loadToolbarImage(person.thumbnailUrl)
-                }
+                loadToolbarImage(person.heroImageUrls)
             }
         }
 

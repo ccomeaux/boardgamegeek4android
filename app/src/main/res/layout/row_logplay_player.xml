@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/merge"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:descendantFocusability="blocksDescendants"
+	android:minHeight="@dimen/player_row_height"
+	android:paddingVertical="@dimen/material_margin_vertical"
+	android:paddingStart="24dp"
+	android:paddingEnd="@dimen/material_margin_horizontal">
+
+	<ImageView
+		android:id="@+id/colorView"
+		android:layout_width="@dimen/color_circle_diameter"
+		android:layout_height="@dimen/color_circle_diameter"
+		android:layout_marginEnd="16dp"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:scaleType="fitXY"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/nameView"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:background="#0f0"
+		tools:ignore="ContentDescription" />
+
+	<TextView
+		android:id="@+id/seatView"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:fontFamily="sans-serif-condensed"
+		android:gravity="center"
+		android:textAppearance="@style/TextAppearance.Huge"
+		app:layout_constraintBottom_toBottomOf="@id/colorView"
+		app:layout_constraintEnd_toEndOf="@id/colorView"
+		app:layout_constraintStart_toStartOf="@id/colorView"
+		app:layout_constraintTop_toTopOf="@id/colorView"
+		tools:text="1" />
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Big"
+		app:layout_constraintBottom_toTopOf="@id/usernameView"
+		app:layout_constraintEnd_toStartOf="@id/ratingButton"
+		app:layout_constraintStart_toEndOf="@id/colorView"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:text="Chris" />
+
+	<TextView
+		android:id="@+id/usernameView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Caption.Primary"
+		app:layout_constraintBottom_toTopOf="@id/teamColorView"
+		app:layout_constraintStart_toStartOf="@id/nameView"
+		app:layout_constraintTop_toBottomOf="@id/nameView"
+		tools:text="ccomeaux" />
+
+	<TextView
+		android:id="@+id/teamColorView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Caption.Primary"
+		app:layout_constraintBottom_toTopOf="@id/startingPositionView"
+		app:layout_constraintStart_toStartOf="@id/nameView"
+		app:layout_constraintTop_toBottomOf="@id/usernameView"
+		tools:text="They" />
+
+	<TextView
+		android:id="@+id/startingPositionView"
+		android:textAppearance="@style/TextAppearance.Caption.Primary"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintStart_toStartOf="@id/nameView"
+		app:layout_constraintTop_toBottomOf="@id/teamColorView"
+		tools:text="First" />
+
+	<View
+		android:id="@+id/nameContainer"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:background="?attr/selectableItemBackground"
+		app:layout_constraintBottom_toBottomOf="@id/startingPositionView"
+		app:layout_constraintEnd_toEndOf="@id/nameView"
+		app:layout_constraintStart_toStartOf="@id/nameView"
+		app:layout_constraintTop_toTopOf="@id/nameView" />
+
+	<ImageView
+		android:id="@+id/ratingButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:contentDescription="@string/rating"
+		android:minWidth="40dp"
+		android:minHeight="48dp"
+		android:scaleType="center"
+		android:src="@drawable/ic_baseline_star_rate_24"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/scoreButton"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:tint="#2000"
+		tools:tintMode="src_in" />
+
+	<TextView
+		android:id="@+id/ratingView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Big"
+		app:layout_constraintBottom_toBottomOf="@id/ratingButton"
+		app:layout_constraintEnd_toEndOf="@id/ratingButton"
+		app:layout_constraintStart_toStartOf="@id/ratingButton"
+		app:layout_constraintTop_toTopOf="@id/ratingButton"
+		tools:text="7.5" />
+
+	<ImageView
+		android:id="@+id/scoreButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:minWidth="40dp"
+		android:minHeight="48dp"
+		android:scaleType="center"
+		android:src="@drawable/ic_baseline_emoji_events_24"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/moreButton"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:tint="#2000"
+		tools:tintMode="src_in" />
+
+	<TextView
+		android:id="@+id/scoreView"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Big"
+		app:layout_constraintBottom_toBottomOf="@id/scoreButton"
+		app:layout_constraintEnd_toEndOf="@id/scoreButton"
+		app:layout_constraintStart_toStartOf="@id/scoreButton"
+		app:layout_constraintTop_toTopOf="@id/scoreButton"
+		tools:text="529" />
+
+	<ImageView
+		android:id="@+id/moreButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="?attr/selectableItemBackgroundBorderless"
+		android:minWidth="40dp"
+		android:minHeight="48dp"
+		android:paddingHorizontal="8dp"
+		android:src="@drawable/ic_baseline_more_vert_24"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@id/dragHandle"
+		app:layout_constraintTop_toTopOf="parent" />
+
+	<ImageView
+		android:id="@+id/dragHandle"
+		style="@style/FormButton"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:contentDescription="@string/sort"
+		android:src="@drawable/ic_baseline_drag_handle_24"
+		android:visibility="gone"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		tools:visibility="visible" />
+</androidx.constraintlayout.widget.ConstraintLayout>

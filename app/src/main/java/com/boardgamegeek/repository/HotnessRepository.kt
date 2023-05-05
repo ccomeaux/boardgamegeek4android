@@ -1,16 +1,14 @@
 package com.boardgamegeek.repository
 
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.HotGameEntity
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class HotnessRepository(val application: BggApplication) {
+class HotnessRepository(private val api: BggService) {
     suspend fun getHotness(): List<HotGameEntity> = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().getHotness(BggService.HotnessType.BOARDGAME)
+        val response = api.getHotness(BggService.HotnessType.BOARDGAME)
         response.mapToEntity()
     }
 }

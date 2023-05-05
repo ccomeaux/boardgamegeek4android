@@ -16,8 +16,10 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class PersonDescriptionFragment : Fragment() {
     private var _binding: FragmentPersonDescriptionBinding? = null
     private val binding get() = _binding!!

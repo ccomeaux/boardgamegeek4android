@@ -1,56 +1,71 @@
 package com.boardgamegeek.repository
 
+import android.content.Context
 import androidx.core.content.contentValuesOf
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.extensions.AccountPreferences
-import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.getImageId
-import com.boardgamegeek.extensions.preferences
-import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
-class GameRepository(val application: BggApplication) {
-    private val dao = GameDao(application)
-    private val playDao = PlayDao(application)
-    private val bggService = Adapter.createForXml()
-    private val playRepository = PlayRepository(application)
-    private val username: String? by lazy { application.preferences()[AccountPreferences.KEY_USERNAME, ""] }
+class GameRepository @Inject constructor(
+    val context: Context,
+    private val api: BggService,
+    private val imageRepository: ImageRepository,
+) {
+    private val dao = GameDao(context)
+    private val playDao = PlayDao(context)
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)
 
-    suspend fun refreshGame(gameId: Int) = withContext(Dispatchers.IO) {
+    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0) = dao.loadOldestUpdatedGames(gamesPerFetch)
+
+    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0) = dao.loadUnupdatedGames(gamesPerFetch)
+
+    suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean) = dao.loadDeletableGames(hoursAgo, includeUnplayedGames)
+
+    suspend fun refreshGame(vararg gameId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val response = bggService.thing2(gameId, 1)
-        response.games.firstOrNull()?.let { game ->
-            dao.save(game.mapToEntity(), timestamp)
-            Timber.i("Synced game '$gameId'")
+        val response = if (gameId.size == 1) {
+            api.thing(gameId.first(), 1)
+        } else {
+            api.things(gameId.joinToString(), 1)
         }
+        for (game in response.games) {
+            val gameEntity = game.mapToEntity()
+            dao.save(gameEntity, timestamp)
+            Timber.i("Synced game ${gameEntity.name} [${gameEntity.id}]")
+        }
+        response.games.size
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image(game.thumbnailUrl.getImageId())
-        val url = response.images.medium.url
-        dao.update(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to url))
-        game.copy(heroImageUrl = url)
+        val urlMap = imageRepository.getImageUrls(game.thumbnailUrl.getImageId())
+        val urls = urlMap[ImageRepository.ImageType.HERO]
+        if (urls?.isNotEmpty() == true) {
+            dao.update(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to urls.first()))
+            game.copy(heroImageUrl = urls.first())
+        } else game
     }
 
     suspend fun loadComments(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().thingWithComments(gameId, page)
+        val response = api.thingWithComments(gameId, page)
         response.games.firstOrNull()?.mapToRatingEntities()
     }
 
     suspend fun loadRatings(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().thingWithRatings(gameId, page)
+        val response = api.thingWithRatings(gameId, page)
         response.games.firstOrNull()?.mapToRatingEntities()
     }
 
@@ -75,31 +90,6 @@ class GameRepository(val application: BggApplication) {
     suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId)
 
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
-
-    suspend fun refreshPlays(gameId: Int) = withContext(Dispatchers.Default) {
-        if (gameId != INVALID_ID || username.isNullOrBlank()) {
-            val timestamp = System.currentTimeMillis()
-            var page = 1
-            do {
-                val response = bggService.playsByGame(username, gameId, page++)
-                val playsPage = response.plays.mapToEntity(timestamp)
-                playRepository.saveFromSync(playsPage, timestamp)
-            } while (response.hasMorePages())
-
-            playDao.deleteUnupdatedPlays(gameId, timestamp)
-            dao.update(gameId, contentValuesOf(Games.Columns.UPDATED_PLAYS to System.currentTimeMillis()))
-
-            playRepository.calculatePlayStats()
-        }
-    }
-
-    suspend fun refreshPartialPlays(gameId: Int) = withContext(Dispatchers.IO) {
-        val timestamp = System.currentTimeMillis()
-        val response = bggService.playsByGame(username, gameId, 1)
-        val plays = response.plays.mapToEntity(timestamp)
-        playRepository.saveFromSync(plays, timestamp)
-        playRepository.calculatePlayStats()
-    }
 
     suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId)
 
@@ -161,6 +151,8 @@ class GameRepository(val application: BggApplication) {
             dao.update(gameId, contentValuesOf(Games.Columns.STARRED to if (isFavorite) 1 else 0))
         }
     }
+
+    suspend fun delete(gameId: Int) = dao.delete(gameId)
 
     suspend fun delete() = dao.delete()
 }

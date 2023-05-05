@@ -8,14 +8,13 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
+import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
@@ -30,14 +29,16 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import kotlin.math.min
 
-class PlayRepository(val application: BggApplication) {
-    private val playDao = PlayDao(application)
-    private val gameDao = GameDao(application)
-    private val collectionDao = CollectionDao(application)
-    private val prefs: SharedPreferences by lazy { application.preferences() }
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
+class PlayRepository(
+    val context: Context,
+    private val api: BggService,
+) {
+    private val playDao = PlayDao(context)
+    private val gameDao = GameDao(context)
+    private val collectionDao = CollectionDao(context)
+    private val prefs: SharedPreferences by lazy { context.preferences() }
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
     private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
-    private val bggService = Adapter.createForXml()
 
     enum class SortBy(val daoSortBy: PlayDao.PlaysSortBy) {
         DATE(PlayDao.PlaysSortBy.DATE),
@@ -63,17 +64,41 @@ class PlayRepository(val application: BggApplication) {
             ) {
                 null
             } else {
-                var returnedPlay: PlayEntity? = null
+                var returnedPlay: PlayEntity?
                 do {
-                    val result = bggService.playsByGame(username, gameId, page++)
+                    val result = api.playsByGame(username, gameId, page++)
                     val plays = result.plays.mapToEntity(timestamp)
                     saveFromSync(plays, timestamp)
                     Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
-                    if (returnedPlay == null) returnedPlay = plays.find { it.playId == playId }
+                    returnedPlay = plays.find { it.playId == playId }
                 } while (result.hasMorePages() && returnedPlay == null)
                 returnedPlay
             }
         }
+
+    suspend fun refreshPlaysForGame(gameId: Int) = withContext(Dispatchers.Default) {
+        if (gameId != INVALID_ID || username.isNullOrBlank()) {
+            val timestamp = System.currentTimeMillis()
+            var page = 1
+            do {
+                val response = api.playsByGame(username, gameId, page++)
+                val playsPage = response.plays.mapToEntity(timestamp)
+                saveFromSync(playsPage, timestamp)
+            } while (response.hasMorePages())
+
+            playDao.deleteUnupdatedPlays(gameId, timestamp)
+            gameDao.update(gameId, contentValuesOf(Games.Columns.UPDATED_PLAYS to System.currentTimeMillis()))
+            calculatePlayStats()
+        }
+    }
+
+    suspend fun refreshPartialPlaysForGame(gameId: Int) = withContext(Dispatchers.IO) {
+        val timestamp = System.currentTimeMillis()
+        val response = api.playsByGame(username, gameId, 1)
+        val plays = response.plays.mapToEntity(timestamp)
+        saveFromSync(plays, timestamp)
+        calculatePlayStats()
+    }
 
     suspend fun getPlays(sortBy: SortBy = SortBy.DATE) = playDao.loadPlays(sortBy.daoSortBy)
 
@@ -102,7 +127,7 @@ class PlayRepository(val application: BggApplication) {
         val minDate = if (newestTimestamp == 0L) null else newestTimestamp.asDateForApi()
         var page = 1
         do {
-            val response = bggService.plays(username, minDate, null, page++)
+            val response = api.plays(username, minDate, null, page++)
             val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
             saveFromSync(plays, syncInitiatedTimestamp)
 
@@ -132,7 +157,7 @@ class PlayRepository(val application: BggApplication) {
             page = 1
             val maxDate = if (oldestTimestamp == Long.MAX_VALUE) null else oldestTimestamp.asDateForApi()
             do {
-                val response = bggService.plays(username, null, maxDate, page++)
+                val response = api.plays(username, null, maxDate, page++)
                 val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
                 saveFromSync(plays, syncInitiatedTimestamp)
 
@@ -164,26 +189,31 @@ class PlayRepository(val application: BggApplication) {
     suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) =
         playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
 
-    suspend fun refreshPlays(timeInMillis: Long) = withContext(Dispatchers.IO) {
+    suspend fun refreshPlaysForDate(timeInMillis: Long) = withContext(Dispatchers.IO) {
         if (timeInMillis <= 0L && !username.isNullOrBlank()) {
             emptyList()
         } else {
             val plays = mutableListOf<PlayEntity>()
             val timestamp = System.currentTimeMillis()
-            val date = timeInMillis.asDateForApi()
             var page = 1
             do {
-                val response = bggService.playsByDate(username, date, date, page++)
-                val playsPage = response.plays.mapToEntity(timestamp)
+                val (playsPage, shouldContinue) = downloadPlays(timeInMillis, timeInMillis, page++)
                 saveFromSync(playsPage, timestamp)
                 plays += playsPage
                 Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page)
-            } while (response.hasMorePages())
+            } while (shouldContinue)
 
             calculatePlayStats()
 
             plays
         }
+    }
+
+    suspend fun downloadPlays(fromDate: Long, toDate: Long, page: Int, timestamp: Long = System.currentTimeMillis()) = withContext(Dispatchers.IO) {
+        val from = if (fromDate > 0L) fromDate.asDateForApi() else null
+        val to = if (toDate > 0L) toDate.asDateForApi() else null
+        val response = api.plays(username, from, to, page)
+        response.plays.mapToEntity(timestamp) to response.hasMorePages()
     }
 
     suspend fun loadForStats(
@@ -269,7 +299,7 @@ class PlayRepository(val application: BggApplication) {
             updateTimestamp = System.currentTimeMillis()
         )
         playDao.upsert(playEntity)
-        SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
     }
 
     suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
@@ -361,7 +391,7 @@ class PlayRepository(val application: BggApplication) {
         val batch = arrayListOf<ContentProviderOperation>()
         batch += playDao.createDirtyPlaysForUserAndNickNameOperations(username, nickName)
         batch += playDao.createNickNameUpdateOperation(username, nickName)
-        application.contentResolver.applyBatch(batch) // is this better for DAO?
+        context.contentResolver.applyBatch(batch) // is this better for DAO?
         count
     }
 
@@ -371,7 +401,7 @@ class PlayRepository(val application: BggApplication) {
         batch += playDao.createRenameUpdateOperation(oldName, newName)
         batch += playDao.createCopyPlayerColorsOperations(oldName, newName)
         batch += playDao.createDeletePlayerColorsOperation(oldName)
-        application.contentResolver.applyBatch(batch)// is this better for DAO?
+        context.contentResolver.applyBatch(batch)// is this better for DAO?
     }
 
     data class RenameLocationResults(val oldLocationName: String, val newLocationName: String, val count: Int)
@@ -404,7 +434,7 @@ class PlayRepository(val application: BggApplication) {
                 ).build()
         )
 
-        val results = application.contentResolver.applyBatch(batch)
+        val results = context.contentResolver.applyBatch(batch)
         RenameLocationResults(oldLocationName, newLocationName, results.sumOf { it.count ?: 0 })
     }
 
@@ -414,20 +444,23 @@ class PlayRepository(val application: BggApplication) {
         batch += playDao.createAddUsernameOperation(playerName, username)
         batch += playDao.createCopyPlayerColorsToUserOperations(playerName, username)
         batch += playDao.createDeletePlayerColorsOperation(playerName)
-        application.contentResolver.applyBatch(batch)
+        context.contentResolver.applyBatch(batch)
     }
 
     suspend fun save(play: PlayEntity, internalId: Long = play.internalId): Long {
         val id = playDao.upsert(play, internalId)
 
-        // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
-        val isUpdating = play.updateTimestamp > 0
-        val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
-        val isToday = play.dateInMillis.isToday() || endTime.isToday()
-        if (!play.isSynced && isUpdating && isToday) {
-            prefs.putLastPlayTime(System.currentTimeMillis())
-            prefs.putLastPlayLocation(play.location)
-            prefs.putLastPlayPlayerEntities(play.players)
+        // remember details about the play if it's being uploaded for the first time
+        if (!play.isSynced && (play.updateTimestamp > 0)) {
+            prefs[KEY_LAST_PLAY_DATE] = play.dateInMillis
+            // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
+            val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
+            val isToday = play.dateInMillis.isToday() || endTime.isToday()
+            if (isToday) {
+                prefs[KEY_LAST_PLAY_TIME] = System.currentTimeMillis()
+                prefs[KEY_LAST_PLAY_LOCATION] = play.location
+                prefs.putLastPlayPlayerEntities(play.players)
+            }
         }
 
         return id
@@ -438,7 +471,7 @@ class PlayRepository(val application: BggApplication) {
         syncPrefs.clearPlaysTimestamps()
         val count = playDao.updateAllPlays(contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0))
         Timber.i("Cleared the hashcode from %,d plays.", count)
-        SyncService.sync(application, SyncService.FLAG_SYNC_PLAYS)
+        SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS)
     }
 
     suspend fun deletePlays() {
@@ -465,7 +498,7 @@ class PlayRepository(val application: BggApplication) {
 
     fun updateGameHIndex(hIndex: HIndexEntity) {
         updateHIndex(
-            application,
+            context,
             hIndex,
             PlayStats.KEY_GAME_H_INDEX,
             R.string.game,
@@ -475,7 +508,7 @@ class PlayRepository(val application: BggApplication) {
 
     fun updatePlayerHIndex(hIndex: HIndexEntity) {
         updateHIndex(
-            application,
+            context,
             hIndex,
             PlayStats.KEY_PLAYER_H_INDEX,
             R.string.player,

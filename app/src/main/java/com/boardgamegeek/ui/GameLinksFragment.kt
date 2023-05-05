@@ -12,7 +12,9 @@ import com.boardgamegeek.databinding.FragmentGameLinksBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameLinksFragment : Fragment() {
     private var _binding: FragmentGameLinksBinding? = null
     private val binding get() = _binding!!

@@ -28,17 +28,22 @@ import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.*
+import javax.inject.Inject
 
-class DataPortViewModel(application: Application) : AndroidViewModel(application) {
-    private val collectionViewRepository = CollectionViewRepository(getApplication())
-    private val gameRepository = GameRepository(getApplication())
-    private val userRepository = UserRepository(getApplication())
-    private val playRepository = PlayRepository(getApplication())
+@HiltViewModel
+class DataPortViewModel @Inject constructor(
+    application: Application,
+    private val collectionViewRepository: CollectionViewRepository,
+    private val gameRepository: GameRepository,
+    private val playRepository: PlayRepository,
+    private val userRepository: UserRepository,
+) : AndroidViewModel(application) {
 
     private val gson: Gson = GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()

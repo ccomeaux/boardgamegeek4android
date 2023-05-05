@@ -5,30 +5,34 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.boardgamegeek.auth.BggCookieJar
-import com.boardgamegeek.auth.NetworkAuthenticator
+import com.boardgamegeek.entities.AuthEntity
+import com.boardgamegeek.repository.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class LoginViewModel @Inject constructor(
+    application: Application,
+    private val authRepository: AuthRepository,
+) : AndroidViewModel(application) {
     private var authenticationJob: Job? = null
 
     private val _isAuthenticating = MutableLiveData<Boolean>()
     val isAuthenticating: LiveData<Boolean>
         get() = _isAuthenticating
 
-    private val _authenticationResult = MutableLiveData<BggCookieJar?>()
-    val authenticationResult: LiveData<BggCookieJar?>
+    private val _authenticationResult = MutableLiveData<AuthEntity?>()
+    val authenticationResult: LiveData<AuthEntity?>
         get() = _authenticationResult
 
     fun login(username: String?, password: String?) {
         _isAuthenticating.value = true
         authenticationJob = viewModelScope.launch(Dispatchers.IO) {
-            val bggCookieJar = NetworkAuthenticator.authenticate(
-                username.orEmpty(), password.orEmpty(), "Dialog", getApplication()
-            )
-            _authenticationResult.postValue(bggCookieJar)
+            val authEntity = authRepository.authenticate(username.orEmpty(), password.orEmpty(), "Dialog")
+            _authenticationResult.postValue(authEntity)
             _isAuthenticating.postValue(false)
         }
     }

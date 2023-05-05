@@ -11,13 +11,12 @@ import androidx.core.app.NotificationCompat.BigTextStyle
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.SyncPrefs
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
 
-abstract class SyncTask(protected val application: BggApplication, protected val service: BggService, protected val syncResult: SyncResult) {
+abstract class SyncTask(protected val application: BggApplication, protected val syncResult: SyncResult) {
     protected val context = application.applicationContext!!
     protected val prefs: SharedPreferences by lazy { context.preferences() }
     protected val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
@@ -137,11 +136,11 @@ abstract class SyncTask(protected val application: BggApplication, protected val
      * Sleep for the specified number of milliseconds. Returns true if thread was interrupted. This typically means the
      * task should stop processing.
      */
-    protected fun wasSleepInterrupted(duration: Long, timeUnit: TimeUnit = TimeUnit.MILLISECONDS, showNotification: Boolean = true): Boolean {
+    protected fun wasSleepInterrupted(duration: Duration, showNotification: Boolean = true): Boolean {
         try {
-            Timber.d("Sleeping for %,d millis", timeUnit.toMillis(duration))
+            Timber.d("Sleeping for %,d millis", duration.inWholeMilliseconds)
             if (showNotification) {
-                val durationSeconds = timeUnit.toSeconds(duration).toInt()
+                val durationSeconds = duration.inWholeSeconds.toInt()
                 updateProgressNotification(
                     context.resources.getQuantityString(
                         R.plurals.sync_notification_collection_sleeping,
@@ -150,7 +149,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
                     )
                 )
             }
-            timeUnit.sleep(duration)
+            Thread.sleep(duration.inWholeMilliseconds)
         } catch (e: InterruptedException) {
             Timber.w(e, "Sleeping interrupted during sync.")
             context.cancelNotification(NotificationTags.SYNC_PROGRESS)

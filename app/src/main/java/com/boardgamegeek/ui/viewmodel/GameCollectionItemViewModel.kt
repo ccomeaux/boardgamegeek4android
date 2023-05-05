@@ -12,12 +12,17 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.util.RemoteConfig
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
-class GameCollectionItemViewModel(application: Application) : AndroidViewModel(application) {
-    private val gameCollectionRepository = GameCollectionRepository(getApplication())
+@HiltViewModel
+class GameCollectionItemViewModel @Inject constructor(
+    application: Application,
+    private val gameCollectionRepository: GameCollectionRepository,
+) : AndroidViewModel(application) {
     private val isItemRefreshing = AtomicBoolean()
     private val isImageRefreshing = AtomicBoolean()
     private val forceRefresh = AtomicBoolean()
@@ -58,7 +63,7 @@ class GameCollectionItemViewModel(application: Application) : AndroidViewModel(a
                     if (isItemRefreshing.compareAndSet(false, true)) {
                         val refreshedItem = if (
                             forceRefresh.get() ||
-                            it.syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
+                            it.syncTimestamp.isOlderThan(refreshMinutes.minutes)
                         ) {
                             emit(RefreshableResource.refreshing(it))
                             gameCollectionRepository.refreshCollectionItem(it.gameId, it.collectionId, it.subtype)

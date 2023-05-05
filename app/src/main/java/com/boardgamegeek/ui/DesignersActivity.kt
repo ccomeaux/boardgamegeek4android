@@ -10,7 +10,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.DesignersViewModel
 import com.boardgamegeek.ui.viewmodel.DesignersViewModel.SortType
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DesignersActivity : SimpleSinglePaneActivity() {
     private var numberOfDesigners = -1
     private var sortBy = SortType.ITEM_COUNT
@@ -35,11 +37,13 @@ class DesignersActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(when (sortBy) {
-            SortType.NAME -> R.id.menu_sort_name
-            SortType.ITEM_COUNT -> R.id.menu_sort_item_count
-            SortType.WHITMORE_SCORE -> R.id.menu_sort_whitmore_score
-        })?.isChecked = true
+        menu.findItem(
+            when (sortBy) {
+                SortType.NAME -> R.id.menu_sort_name
+                SortType.ITEM_COUNT -> R.id.menu_sort_item_count
+                SortType.WHITMORE_SCORE -> R.id.menu_sort_whitmore_score
+            }
+        )?.isChecked = true
         menu.setActionBarCount(R.id.menu_list_count, numberOfDesigners, getString(R.string.by_prefix, title))
         return true
     }
@@ -50,7 +54,7 @@ class DesignersActivity : SimpleSinglePaneActivity() {
             R.id.menu_sort_item_count -> viewModel.sort(SortType.ITEM_COUNT)
             R.id.menu_sort_whitmore_score -> viewModel.sort(SortType.WHITMORE_SCORE)
             R.id.menu_refresh -> viewModel.refresh()
-            else ->return super.onOptionsItemSelected(item)
+            else -> return super.onOptionsItemSelected(item)
         }
         return true
     }

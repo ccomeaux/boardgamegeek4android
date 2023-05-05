@@ -3,7 +3,9 @@ package com.boardgamegeek.ui.dialog
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class NewPlayerScoreNumberPadDialogFragment : NumberPadDialogFragment() {
     private val viewModel by activityViewModels<NewPlayViewModel>()
 

@@ -1,24 +1,28 @@
 package com.boardgamegeek.repository
 
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.MutableLiveData
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract.Designers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class DesignerRepository(val application: BggApplication) {
-    private val dao = DesignerDao(application)
-    private val prefs: SharedPreferences by lazy { application.preferences() }
+class DesignerRepository(
+    val context: Context,
+    private val api: BggService,
+    private val imageRepository: ImageRepository,
+) {
+    private val dao = DesignerDao(context)
+    private val prefs: SharedPreferences by lazy { context.preferences() }
 
     suspend fun loadDesigners(sortBy: DesignerDao.SortType) = dao.loadDesigners(sortBy)
 
@@ -29,7 +33,7 @@ class DesignerRepository(val application: BggApplication) {
     suspend fun delete() = dao.delete()
 
     suspend fun refreshDesigner(designerId: Int): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().person(BggService.PersonType.DESIGNER, designerId)
+        val response = api.person(BggService.PersonType.DESIGNER, designerId)
         val missingDesignerMessage = "This page does not exist. You can edit this page to create it."
         dao.upsert(
             designerId, contentValuesOf(
@@ -42,7 +46,7 @@ class DesignerRepository(val application: BggApplication) {
     }
 
     suspend fun refreshImages(designer: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createForXml().person(designer.id)
+        val response = api.person(designer.id)
         response.items.firstOrNull()?.let {
             dao.upsert(
                 designer.id, contentValuesOf(
@@ -56,10 +60,12 @@ class DesignerRepository(val application: BggApplication) {
     }
 
     suspend fun refreshHeroImage(designer: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = Adapter.createGeekdoApi().image(designer.thumbnailUrl.getImageId())
-        val url = response.images.medium.url
-        dao.upsert(designer.id, contentValuesOf(Designers.Columns.DESIGNER_HERO_IMAGE_URL to url))
-        designer.copy(heroImageUrl = url)
+        val urlMap = imageRepository.getImageUrls(designer.thumbnailUrl.getImageId())
+        val urls = urlMap[ImageRepository.ImageType.HERO]
+        if (urls?.isNotEmpty() == true) {
+            dao.upsert(designer.id, contentValuesOf(Designers.Columns.DESIGNER_HERO_IMAGE_URL to urls.first()))
+            designer.copy(heroImageUrl = urls.first())
+        } else designer
     }
 
     suspend fun calculateWhitmoreScores(designers: List<PersonEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
@@ -75,7 +81,7 @@ class DesignerRepository(val application: BggApplication) {
 
     suspend fun calculateStats(designerId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
         val collection = dao.loadCollection(designerId)
-        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, application)
+        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
         updateWhitmoreScore(designerId, statsEntity.whitmoreScore, whitmoreScore)
         statsEntity
     }

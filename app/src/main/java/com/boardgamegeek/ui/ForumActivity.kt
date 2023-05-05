@@ -9,6 +9,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.extensions.clearTop
 import com.boardgamegeek.extensions.intentFor
+import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.ForumsActivity.Companion.startUp
@@ -18,7 +19,9 @@ import com.boardgamegeek.ui.PersonActivity.Companion.startUpForDesigner
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForPublisher
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ForumActivity : SimpleSinglePaneActivity() {
     private var forumId = BggContract.INVALID_ID
     private var forumTitle = ""
@@ -47,7 +50,7 @@ class ForumActivity : SimpleSinglePaneActivity() {
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
-        objectType = intent.getSerializableExtra(KEY_OBJECT_TYPE) as ForumEntity.ForumType
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
     }
 

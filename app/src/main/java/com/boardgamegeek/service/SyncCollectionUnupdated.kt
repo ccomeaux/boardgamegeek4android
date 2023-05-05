@@ -1,30 +1,25 @@
 package com.boardgamegeek.service
 
-import android.accounts.Account
 import android.content.SyncResult
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.extensions.formatList
-import com.boardgamegeek.extensions.whereZeroOrNull
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToEntities
-import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.provider.BggContract.Games
+import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.util.RemoteConfig
 import kotlinx.coroutines.runBlocking
+import retrofit2.HttpException
 import timber.log.Timber
-import java.io.IOException
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Syncs collection items that have not yet been updated completely with stats and private info (in batches).
  */
 class SyncCollectionUnupdated(
     application: BggApplication,
-    service: BggService,
     syncResult: SyncResult,
-    private val account: Account
-) : SyncTask(application, service, syncResult) {
+    private val collectionItemRepository: CollectionItemRepository,
+) : SyncTask(application, syncResult) {
     private var detail: String = ""
 
     override val syncType = SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD
@@ -38,10 +33,10 @@ class SyncCollectionUnupdated(
     private val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_MAX)
 
     override fun execute() {
-        Timber.i("Syncing unupdated collection list...")
+        Timber.i("Starting to sync unupdated collection items")
         try {
             var numberOfFetches = 0
-            val dao = CollectionDao(application)
+
             val options = mutableMapOf(
                 BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
                 BggService.COLLECTION_QUERY_KEY_STATS to "1",
@@ -51,112 +46,77 @@ class SyncCollectionUnupdated(
             do {
                 if (isCancelled) break
 
-                if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis)) return
+                if (numberOfFetches > 0) if (wasSleepInterrupted(fetchPauseMillis.milliseconds)) return
 
                 numberOfFetches++
-                val gameList = queryGames()
-                if (gameList == previousGameList) {
-                    Timber.i("...didn't update any games; breaking out of fetch loop")
+                val gameList = runBlocking { collectionItemRepository.loadUnupdatedItems(gamesPerFetch) }
+                if (gameList.isEmpty()) {
+                    Timber.i("No unupdated collection items; aborting")
+                    break
+                } else if (gameList == previousGameList) {
+                    Timber.i("Didn't update any collection items in last attempt; aborting")
                     break
                 }
                 previousGameList = gameList.toMap()
 
                 if (gameList.isNotEmpty()) {
                     val gameDescription = gameList.values.toList().formatList()
-                    detail = context.getString(
-                        R.string.sync_notification_collection_update_games,
-                        gameList.size,
-                        gameDescription
-                    )
+                    detail = context.getString(R.string.sync_notification_collection_update_games, gameList.size, gameDescription)
                     if (numberOfFetches > 1) {
                         detail = context.getString(R.string.sync_notification_page_suffix, detail, numberOfFetches)
                     }
                     updateProgressNotification(detail)
-                    Timber.i("...found %,d games to update [%s]", gameList.size, gameDescription)
+                    Timber.i("Found %,d collection items to update [%s]", gameList.size, gameDescription)
 
                     options[BggService.COLLECTION_QUERY_KEY_ID] = gameList.keys.joinToString(",")
                     options.remove(BggService.COLLECTION_QUERY_KEY_SUBTYPE)
-                    val itemCount = requestAndPersist(account.name, dao, options)
+                    val itemCount = requestAndPersist(options)
 
                     if (itemCount < 0) {
-                        Timber.i("...unsuccessful sync; breaking out of fetch loop")
+                        Timber.i("Unsuccessful attempt to update collection items; aborting")
                         cancel()
                         break
                     }
 
                     options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = BggService.ThingSubtype.BOARDGAME_ACCESSORY.code
-                    val accessoryCount = requestAndPersist(account.name, dao, options)
+                    val accessoryCount = requestAndPersist(options)
 
                     if (accessoryCount < 0) {
-                        Timber.i("...unsuccessful sync; breaking out of fetch loop")
+                        Timber.i("Unsuccessful attempt to update collection accessories; aborting")
                         cancel()
                         break
                     }
 
                     if (itemCount + accessoryCount == 0) {
-                        Timber.i("...unsuccessful sync; breaking out of fetch loop")
+                        Timber.i("Didn't find any collection items or accessories to update; aborting")
                         break
                     }
                 } else {
-                    Timber.i("...no more unupdated collection items")
+                    Timber.i("No more unupdated collection items to sync")
                     break
                 }
             } while (numberOfFetches < maxFetchCount)
-        } finally {
-            Timber.i("...complete!")
+            Timber.i("Syncing unupdated collection completed successfully")
+        } catch (e: Exception) {
+            Timber.i("Syncing unupdated collection ended with exception:\n$e")
         }
     }
 
-    private fun queryGames(): Map<Int, String> {
-        val games = mutableMapOf<Int, String>()
-        val cursor = context.contentResolver.query(
-            Collection.CONTENT_URI,
-            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
-            "collection.${Collection.Columns.UPDATED}".whereZeroOrNull(),
-            null,
-            "collection.${Collection.Columns.UPDATED_LIST} DESC LIMIT $gamesPerFetch"
-        )
-        cursor?.use {
-            while (it.moveToNext()) {
-                games[it.getInt(0)] = it.getString(1)
-            }
-        }
-        return games
-    }
-
-
-    private fun requestAndPersist(username: String, dao: CollectionDao, options: Map<String, String>): Int {
-        Timber.i("..requesting collection items with options %s", options)
-
-        val call = service.collection(username, options)
-        try {
-            val timestamp = System.currentTimeMillis()
-            val response = call.execute()
-            if (response.isSuccessful) {
-                val items = response.body()?.items
-                return if (items != null && items.size > 0) {
-                    for (item in items) {
-                        val (collectionItem, game) = item.mapToEntities()
-                        runBlocking {
-                            dao.saveItem(collectionItem, game, timestamp)
-                        }
-                    }
-                    syncResult.stats.numUpdates += items.size.toLong()
-                    Timber.i("...saved %,d collection items", items.size)
-                    items.size
-                } else {
-                    Timber.i("...no collection items found for these games")
-                    0
-                }
+    private fun requestAndPersist(options: Map<String, String>): Int {
+        return try {
+            Timber.i("Requesting collection items with options %s", options)
+            val count = runBlocking { collectionItemRepository.refresh(options) }
+            syncResult.stats.numUpdates += count.toLong()
+            Timber.i("Saved %,d formerly unupdated collection items", count)
+            count
+        } catch (e: Exception) {
+            if (e is HttpException) {
+                showError(detail, e.code())
             } else {
-                showError(detail, response.code())
-                syncResult.stats.numIoExceptions++
-                return -1
+                showError(detail, e)
             }
-        } catch (e: IOException) {
-            showError(detail, e)
             syncResult.stats.numIoExceptions++
-            return -1
+            -1
         }
     }
 }

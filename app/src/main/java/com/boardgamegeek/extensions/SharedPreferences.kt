@@ -122,6 +122,7 @@ fun SharedPreferences.getSyncOnlyWifi(): Boolean {
 }
 
 private const val KEY_SYNC_STATUSES_OLD = "syncStatuses"
+
 @Suppress("SpellCheckingInspection")
 private const val SEPARATOR = "OV=I=XseparatorX=I=VO"
 
@@ -233,50 +234,29 @@ const val KEY_ADVANCED_DATES = "advancedForumDates"
 //region LAST PLAY
 
 const val KEY_LAST_PLAY_TIME = "last_play_time"
+const val KEY_LAST_PLAY_DATE = "last_play_date"
 const val KEY_LAST_PLAY_LOCATION = "last_play_location"
 const val KEY_LAST_PLAY_PLAYERS = "last_play_players"
+
 @Suppress("SpellCheckingInspection")
 private const val SEPARATOR_RECORD = "OV=I=XrecordX=I=VO"
+
 @Suppress("SpellCheckingInspection")
 private const val SEPARATOR_FIELD = "OV=I=XfieldX=I=VO"
 
-fun SharedPreferences.putLastPlayTime(millis: Long) {
-    this[KEY_LAST_PLAY_TIME] = millis
-}
-
-fun SharedPreferences.getLastPlayLocation(): String {
-    return this[KEY_LAST_PLAY_LOCATION, ""] ?: ""
-}
-
-fun SharedPreferences.putLastPlayLocation(location: String?) {
-    this[KEY_LAST_PLAY_LOCATION] = location
-}
-
 fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity> {
-    val players: MutableList<PlayerEntity> = ArrayList()
-    val playersString = this[KEY_LAST_PLAY_PLAYERS, ""] ?: ""
-    val playerStringArray = playersString.split(SEPARATOR_RECORD).toTypedArray()
-    for (playerString in playerStringArray) {
-        if (playerString.isNotEmpty()) {
-            val playerSplit = playerString.split(SEPARATOR_FIELD).toTypedArray()
-            if (playerSplit.size in 1..2) {
-                val player = PlayerEntity(
-                    playerSplit[0],
-                    if (playerSplit.size == 2) playerSplit[1] else ""
-                )
-                players.add(player)
-            }
+    return this[KEY_LAST_PLAY_PLAYERS, ""]?.split(SEPARATOR_RECORD)?.filter { it.isNotBlank() }?.map {
+        val x = it.split(SEPARATOR_FIELD)
+        PlayerEntity(x[0], x.getOrNull(1).orEmpty())
+    }.orEmpty()
+}
+
+fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>?) {
+    players?.let { list ->
+        this[KEY_LAST_PLAY_PLAYERS] = list.joinToString(SEPARATOR_RECORD) {
+            it.name + SEPARATOR_FIELD + it.username
         }
     }
-    return players
-}
-
-fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>) {
-    val sb = StringBuilder()
-    for (player in players) {
-        sb.append(player.name).append(SEPARATOR_FIELD).append(player.username).append(SEPARATOR_RECORD)
-    }
-    this[KEY_LAST_PLAY_PLAYERS] = sb.toString()
 }
 
 //endregion LAST PLAY

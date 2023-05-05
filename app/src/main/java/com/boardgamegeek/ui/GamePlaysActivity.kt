@@ -14,7 +14,9 @@ import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GamePlaysActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<PlaysViewModel>()
 

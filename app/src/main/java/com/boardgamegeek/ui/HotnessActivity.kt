@@ -3,7 +3,9 @@ package com.boardgamegeek.ui
 import android.view.MenuItem
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.startActivity
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class HotnessActivity : TopLevelSinglePaneActivity() {
     override val firebaseContentType = "Hotness"
 

@@ -11,7 +11,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.repository.PlayRepository
@@ -19,15 +18,18 @@ import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
-import com.boardgamegeek.util.HttpUtils
 import kotlinx.coroutines.runBlocking
 import okhttp3.FormBody
+import okhttp3.OkHttpClient
 import okhttp3.Request.Builder
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
 
-class SyncPlaysUpload(application: BggApplication, service: BggService, syncResult: SyncResult) : SyncUploadTask(application, service, syncResult) {
-    private val httpClient = HttpUtils.getHttpClientWithAuth(context)
-    private val repository = PlayRepository(application)
+class SyncPlaysUpload(
+    application: BggApplication,
+    syncResult: SyncResult,
+    private val repository: PlayRepository,
+    private val httpClient: OkHttpClient,
+) : SyncUploadTask(application, syncResult) {
     private var currentPlay = PlayForNotification()
     private val gameIds = mutableSetOf<Int>()
 
@@ -87,7 +89,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
         updateProgressNotificationAsPlural(R.plurals.sync_notification_plays_update, totalNumberOfPlays, totalNumberOfPlays)
         pendingPlays.forEach { play ->
             if (isCancelled) return
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) return
+            if (wasSleepInterrupted(1.seconds, false)) return
 
             updateProgressNotificationAsPlural(
                 R.plurals.sync_notification_plays_update_increment,
@@ -149,7 +151,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
 
         deletedPlays.forEach { play ->
             if (isCancelled) return
-            if (wasSleepInterrupted(1, TimeUnit.SECONDS, false)) return
+            if (wasSleepInterrupted(1.seconds, false)) return
 
             updateProgressNotificationAsPlural(
                 R.plurals.sync_notification_plays_delete_increment,

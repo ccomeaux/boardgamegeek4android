@@ -12,12 +12,9 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.setMargins
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.util.PaletteTransformation
-import com.boardgamegeek.util.RemoteConfig
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import timber.log.Timber
 import java.util.*
 
 fun ImageView.setOrClearColorFilter(@ColorInt color: Int) {
@@ -59,61 +56,10 @@ fun ImageView.loadUrl(url: String?, callback: ImageLoadCallback? = null) {
 }
 
 /**
- * Loads an image into the [android.widget.ImageView] by attempting various sizes and image formats. Applies
- * fit/center crop and will load a [androidx.palette.graphics.Palette].
- */
-suspend fun ImageView.safelyLoadImage(imageId: Int, callback: ImageLoadCallback? = null) {
-    if (imageId <= 0) {
-        Timber.i("Not attempting to fetch invalid image ID of 0 or negative [%s].", imageId)
-        return
-    }
-    RemoteConfig.fetch()
-    if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-        try {
-            val response = Adapter.createGeekdoApi().image(imageId)
-            loadImages(callback, response.images.medium.url, response.images.small.url, *imageId.createImageUrls().toTypedArray())
-        } catch (e: Exception) {
-            loadImages(callback, *imageId.createImageUrls().toTypedArray())
-        }
-    } else {
-        loadImages(callback, *imageId.createImageUrls().toTypedArray())
-    }
-}
-
-/**
- * Loads an image into the [android.widget.ImageView] by attempting various sizes. Applies fit/center crop and
- * will load a [androidx.palette.graphics.Palette].
- */
-suspend fun ImageView.safelyLoadImage(imageUrl: String, thumbnailUrl: String, heroImageUrl: String? = "", callback: ImageLoadCallback? = null) {
-    RemoteConfig.fetch()
-    if (heroImageUrl?.isNotEmpty() == true) {
-        loadImages(callback, heroImageUrl, thumbnailUrl, imageUrl)
-    } else if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-        val imageId = imageUrl.getImageId()
-        if (imageId > 0) {
-            try {
-                val response = Adapter.createGeekdoApi().image(imageId)
-                loadImages(callback, response.images.medium.url, response.images.small.url, thumbnailUrl, imageUrl)
-            } catch (e: Exception) {
-                loadImages(callback, thumbnailUrl, imageUrl)
-            }
-        } else {
-            loadImages(callback, thumbnailUrl, imageUrl)
-        }
-    } else {
-        loadImages(callback, thumbnailUrl, imageUrl)
-    }
-}
-
-fun ImageView.loadImages(callback: ImageLoadCallback?, vararg urls: String) {
-    safelyLoadImage(LinkedList(urls.toList()), callback)
-}
-
-/**
  * Loads an image into the [android.widget.ImageView] by attempting each URL in the [java.util.Queue]
  * until one is successful. Applies fit/center crop and will load a [androidx.palette.graphics.Palette].
  */
-private fun ImageView.safelyLoadImage(imageUrls: Queue<String>, callback: ImageLoadCallback?) {
+fun ImageView.safelyLoadImage(imageUrls: Queue<String>, callback: ImageLoadCallback? = null) {
     // Attempt to load 1) the URL saved as a tag to this ImageView or 2) the next URL in the queue. If this URL fails, recursively call this to
     // attempt to load the next URL. Signal a failure if the queue empties before successfully loading a URL.
     var url: String? = null
@@ -136,7 +82,7 @@ private fun ImageView.safelyLoadImage(imageUrls: Queue<String>, callback: ImageL
             }
         } while (url.isNullOrBlank())
     }
-    if (url.isNullOrEmpty()) {
+    if (url.isEmpty()) {
         callback?.onFailedImageLoad()
         return
     }
@@ -198,25 +144,7 @@ fun ImageView.loadThumbnailInList(imageUrl: String?, @DrawableRes errorResId: In
         .into(this)
 }
 
-suspend fun ImageView.loadThumbnail(imageId: Int) {
-    if (imageId <= 0) {
-        Timber.i("Not attempting to fetch invalid image ID of 0 or negative [%s].", imageId)
-        return
-    }
-    RemoteConfig.fetch()
-    if (RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-        try {
-            val response = Adapter.createGeekdoApi().image(imageId)
-            loadThumbnails(response.images.small.url, *imageId.createImageUrls().toTypedArray())
-        } catch (e: Exception) {
-            loadThumbnails(*imageId.createImageUrls().toTypedArray())
-        }
-    } else {
-        loadThumbnails(*imageId.createImageUrls().toTypedArray())
-    }
-}
-
-private fun ImageView.loadThumbnails(vararg urls: String) {
+fun ImageView.loadThumbnails(vararg urls: String) {
     safelyLoadThumbnail(LinkedList(urls.toList()))
 }
 
@@ -240,11 +168,6 @@ private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>) {
                 safelyLoadThumbnail(imageUrls)
             }
         })
-}
-
-fun Int.createImageUrls(): List<String> {
-    val imageUrlPrefix = "https://cf.geekdo-images.com/images/pic"
-    return listOf("$imageUrlPrefix$this.jpg", "$imageUrlPrefix$this.png")
 }
 
 fun ImageView.setOrClearColorViewValue(color: Int, disabled: Boolean = false) {

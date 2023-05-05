@@ -135,7 +135,7 @@ fun Int.asMinutes(context: Context): String {
 }
 
 /**
- * Returns the long representation of the time <code>this</<code> hours ago.
+ * Returns the long representation of the time <code>this</code> hours ago.
  */
 fun Int.hoursAgo(): Long {
     return System.currentTimeMillis() - (this * DateUtils.HOUR_IN_MILLIS)

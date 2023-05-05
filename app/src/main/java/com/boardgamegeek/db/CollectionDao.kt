@@ -2,6 +2,7 @@ package com.boardgamegeek.db
 
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.content.Context
 import android.content.SharedPreferences
 import android.database.Cursor
 import android.graphics.Color
@@ -11,7 +12,6 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
@@ -26,7 +26,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.*
 
-class CollectionDao(private val context: BggApplication) {
+class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -304,6 +304,21 @@ class CollectionDao(private val context: BggApplication) {
                 )
             }
         }
+
+    suspend fun loadUnupdatedItems(gamesPerFetch: Int = 0) = withContext(Dispatchers.IO) {
+        val games = mutableMapOf<Int, String>()
+        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
+        context.contentResolver.loadList(
+            Collection.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            "collection.${Collection.Columns.UPDATED}".whereZeroOrNull(),
+            null,
+            "collection.${Collection.Columns.UPDATED_LIST} ASC$limit"
+        ) {
+            games[it.getInt(0)] = it.getString(1)
+        }
+        games.toMap()
+    }
 
     suspend fun loadAcquiredFrom(): List<String> = withContext(Dispatchers.IO) {
         resolver.queryStrings(Collection.buildAcquiredFromUri(), Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM).filterNot { it.isBlank() }

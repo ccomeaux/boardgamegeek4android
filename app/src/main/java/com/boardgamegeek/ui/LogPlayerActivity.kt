@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.View
 import android.widget.EditText
+import androidx.activity.addCallback
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -28,8 +29,11 @@ import com.boardgamegeek.ui.viewmodel.LogPlayerViewModel
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import java.util.LinkedList
 
+@AndroidEntryPoint
 class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFragment.Listener {
     private lateinit var binding: ActivityLogplayerBinding
     private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -61,6 +65,10 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         setContentView(binding.root)
 
         firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
+        onBackPressedDispatcher.addCallback(this) {
+            cancel()
+        }
 
         binding.nameView.setOnItemClickListener { _, view, _, _ ->
             binding.usernameView.setText(view.tag as String)
@@ -123,11 +131,11 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         binding.fab.colorize(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)))
         if (savedInstanceState == null) {
             position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
-            player = intent.getParcelableExtra(KEY_PLAYER) ?: PlayPlayerEntity()
+            player = intent.getParcelableCompat(KEY_PLAYER) ?: PlayPlayerEntity()
             if (hasAutoPosition()) player = player.copy(startingPosition = autoPosition.toString())
             originalPlayer = player.copy()
         } else {
-            player = savedInstanceState.getParcelable(KEY_PLAYER) ?: PlayPlayerEntity()
+            player = savedInstanceState.getParcelableCompat(KEY_PLAYER) ?: PlayPlayerEntity()
             userHasShownTeamColor = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_TEAM_COLOR)
             userHasShownPosition = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_POSITION)
             userHasShownScore = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_SCORE)
@@ -139,9 +147,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         this.usedColors = if (usedColors == null) arrayListOf() else ArrayList(listOf(*usedColors))
         this.usedColors?.remove(player.color)
 
-        lifecycleScope.launch {
-            binding.thumbnailView.safelyLoadImage(imageUrl, thumbnailUrl, heroImageUrl)
-        }
+        binding.thumbnailView.safelyLoadImage(LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }))
 
         bindUi()
         binding.nameView.setAdapter(playerNameAdapter)
@@ -164,10 +170,6 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         outState.putBoolean(KEY_USER_HAS_SHOWN_RATING, userHasShownRating)
         outState.putBoolean(KEY_USER_HAS_SHOWN_NEW, userHasShownNew)
         outState.putBoolean(KEY_USER_HAS_SHOWN_WIN, userHasShownWin)
-    }
-
-    override fun onBackPressed() {
-        cancel()
     }
 
     override fun onColorSelected(description: String, color: Int, requestCode: Int) {
@@ -348,15 +350,14 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
         override fun parseResult(resultCode: Int, intent: Intent?): PlayPlayerEntity? {
             return if (resultCode == RESULT_OK) {
-                val player = intent?.getParcelableExtra(KEY_PLAYER) as? PlayPlayerEntity
-                player
+                intent?.getParcelableCompat(KEY_PLAYER) as? PlayPlayerEntity
             } else null
         }
     }
 
     class EditPlayerContract : ActivityResultContract<Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>, Pair<Int, PlayPlayerEntity?>>() {
         override fun createIntent(context: Context, input: Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>): Intent {
-             return Intent(context, LogPlayerActivity::class.java).apply {
+            return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.first.gameId)
                 putExtra(KEY_GAME_NAME, input.first.gameName)
                 putExtra(KEY_IMAGE_URL, input.first.imageUrl)
@@ -375,7 +376,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         override fun parseResult(resultCode: Int, intent: Intent?): Pair<Int, PlayPlayerEntity?> {
             return if (resultCode == RESULT_OK) {
                 val position = intent?.getIntExtra(KEY_POSITION, INVALID_POSITION) ?: INVALID_POSITION
-                val player = intent?.getParcelableExtra(KEY_PLAYER) as? PlayPlayerEntity
+                val player = intent?.getParcelableCompat(KEY_PLAYER) as? PlayPlayerEntity
                 position to player
             } else INVALID_POSITION to null
         }

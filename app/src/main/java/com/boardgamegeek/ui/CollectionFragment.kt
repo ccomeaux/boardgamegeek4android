@@ -38,14 +38,15 @@ import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemV
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import com.boardgamegeek.util.HttpUtils.encodeForUrl
 import com.google.android.material.chip.Chip
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.text.NumberFormat
 
+@AndroidEntryPoint
 class CollectionFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
@@ -377,7 +378,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         val selectedItemCount: Int
             get() = selectedItems.filterTrue().size
 
-        val selectedItemPositions: List<Int>
+        private val selectedItemPositions: List<Int>
             get() = selectedItems.filterTrue()
 
         fun getSelectedItems() = selectedItemPositions.mapNotNull { items.getOrNull(it) }

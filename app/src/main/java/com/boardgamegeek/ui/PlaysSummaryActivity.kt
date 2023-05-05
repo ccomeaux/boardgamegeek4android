@@ -6,7 +6,9 @@ import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class PlaysSummaryActivity : TopLevelSinglePaneActivity() {
     private val viewModel by viewModels<PlaysSummaryViewModel>()
 

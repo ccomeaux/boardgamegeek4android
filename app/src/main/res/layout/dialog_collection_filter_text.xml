@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:importantForAutofill="noExcludeDescendants"
+	android:orientation="vertical"
+	android:paddingHorizontal="@dimen/material_margin_horizontal_dialog"
+	android:paddingVertical="@dimen/material_margin_vertical">
+
+	<Spinner
+		android:id="@+id/textOperatorView"
+		style="@style/DialogSpinner"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content" />
+
+	<com.google.android.material.textfield.TextInputLayout
+		android:id="@+id/filterTextInput"
+		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:hint="@string/name">
+
+		<androidx.appcompat.widget.AppCompatAutoCompleteTextView
+			android:id="@+id/filterTextView"
+			style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:imeOptions="actionNext"
+			android:inputType="text" />
+	</com.google.android.material.textfield.TextInputLayout>
+
+	<CheckBox
+		android:id="@+id/matchCaseView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:text="@string/match_case"
+		android:textAppearance="@style/TextAppearance.Dialog" />
+</LinearLayout>

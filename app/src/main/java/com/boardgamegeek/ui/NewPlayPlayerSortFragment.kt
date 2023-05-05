@@ -22,8 +22,10 @@ import com.boardgamegeek.databinding.RowNewPlayPlayerSortBinding
 import com.boardgamegeek.entities.NewPlayPlayerEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class NewPlayPlayerSortFragment : Fragment() {
     private var _binding: FragmentNewPlayPlayerSortBinding? = null
     private val binding get() = _binding!!

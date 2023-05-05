@@ -7,13 +7,17 @@ import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.PlayRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class LocationsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class LocationsViewModel @Inject constructor(
+    application: Application,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         NAME, PLAY_COUNT
     }
-
-    private val playRepository = PlayRepository(getApplication())
 
     private val _sort = MutableLiveData<LocationsSort>()
     val sort: LiveData<LocationsSort>

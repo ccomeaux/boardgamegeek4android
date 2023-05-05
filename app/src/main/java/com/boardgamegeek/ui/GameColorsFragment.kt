@@ -18,9 +18,11 @@ import com.boardgamegeek.ui.adapter.GameColorRecyclerViewAdapter
 import com.boardgamegeek.ui.dialog.AddColorToGameDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.math.max
 import kotlin.math.min
 
+@AndroidEntryPoint
 class GameColorsFragment : Fragment() {
     private var _binding: FragmentColorsBinding? = null
     private val binding get() = _binding!!

@@ -4,22 +4,28 @@ import android.app.Application
 import androidx.lifecycle.*
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.cachedIn
 import androidx.paging.liveData
 import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.livedata.CommentsPagingSource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class GameCommentsViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class GameCommentsViewModel @Inject constructor(
+    application: Application,
+    private val gameRepository: GameRepository,
+) : AndroidViewModel(application) {
     enum class SortType {
         RATING, USER
     }
 
-    private val repository = GameRepository(getApplication())
     private val _id = MutableLiveData<Pair<Int, SortType>>()
 
-    val sort: LiveData<SortType> = Transformations.map(_id) {
-        _id.value?.second
+    val sort: LiveData<SortType> = _id.map {
+        _id.value?.second ?: SortType.USER
     }
 
     fun setGameId(id: Int) {
@@ -32,15 +38,9 @@ class GameCommentsViewModel(application: Application) : AndroidViewModel(applica
 
     val comments = _id.switchMap {
         val sortByRating = it.second == SortType.RATING
-        Pager(
-            PagingConfig(
-                pageSize = Game.PAGE_SIZE,
-                initialLoadSize = Game.PAGE_SIZE,
-                prefetchDistance = 30,
-                enablePlaceholders = true,
-            )
-        ) {
-            CommentsPagingSource(it.first, sortByRating, repository)
-        }.liveData
+
+        Pager(PagingConfig(Game.PAGE_SIZE)) {
+            CommentsPagingSource(it.first, sortByRating, gameRepository)
+        }.liveData.cachedIn(this)
     }
 }

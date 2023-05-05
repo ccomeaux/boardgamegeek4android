@@ -14,11 +14,14 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentForumBinding
 import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumPagedListAdapter
 import com.boardgamegeek.ui.viewmodel.ForumViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class ForumFragment : Fragment() {
     private var _binding: FragmentForumBinding? = null
     private val binding get() = _binding!!
@@ -46,7 +49,7 @@ class ForumFragment : Fragment() {
             forumTitle = it.getString(KEY_FORUM_TITLE).orEmpty()
             objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
             objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
-            objectType = it.getSerializable(KEY_OBJECT_TYPE) as ForumEntity.ForumType
+            objectType = it.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
         }
 
         binding.recyclerView.setHasFixedSize(true)

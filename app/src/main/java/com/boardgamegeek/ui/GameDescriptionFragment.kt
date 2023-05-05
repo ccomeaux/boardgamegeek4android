@@ -14,7 +14,9 @@ import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.ui.viewmodel.GameViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GameDescriptionFragment : Fragment() {
     private var _binding: FragmentGameDescriptionBinding? = null
     private val binding get() = _binding!!

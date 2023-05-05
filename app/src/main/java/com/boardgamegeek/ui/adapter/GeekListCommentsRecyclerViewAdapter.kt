@@ -8,6 +8,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowGeeklistCommentBinding
 import com.boardgamegeek.entities.GeekListCommentEntity
 import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.extensions.setTextMaybeHtml
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlin.properties.Delegates
 
 class GeekListCommentsRecyclerViewAdapter
@@ -30,6 +32,7 @@ class GeekListCommentsRecyclerViewAdapter
 
     inner class CommentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowGeeklistCommentBinding.bind(itemView)
+        private val markupConverter = XmlApiMarkupConverter(itemView.context)
 
         fun bind(comment: GeekListCommentEntity?) {
             comment?.let {
@@ -39,7 +42,7 @@ class GeekListCommentsRecyclerViewAdapter
                 binding.editedDateView.timestamp = it.editDate
                 binding.editedDateView.isVisible = it.editDate != it.postDate
                 binding.datetimeDividerView.isVisible = it.editDate != it.postDate
-                binding.commentView.text = it.content
+                binding.commentView.setTextMaybeHtml(markupConverter.toHtml(it.content))
             }
         }
     }

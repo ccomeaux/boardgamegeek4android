@@ -4,7 +4,9 @@ import androidx.fragment.app.FragmentManager
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.TAG
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class EditCollectionPrivateCommentDialogFragment : EditCollectionTextDialogFragment() {
     override val titleResId = R.string.private_comment
 

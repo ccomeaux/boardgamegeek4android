@@ -17,18 +17,19 @@ import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnail
+import com.boardgamegeek.extensions.loadThumbnails
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
-import kotlinx.coroutines.launch
+import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
 
+@AndroidEntryPoint
 class GeekListItemsFragment : Fragment() {
     private var _binding: FragmentGeeklistItemsBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GeekListViewModel>()
-    private val adapter: GeekListRecyclerViewAdapter by lazy { GeekListRecyclerViewAdapter(lifecycleScope) }
+    private val adapter: GeekListRecyclerViewAdapter by lazy { GeekListRecyclerViewAdapter() }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -44,20 +45,21 @@ class GeekListItemsFragment : Fragment() {
 
         viewModel.geekList.observe(viewLifecycleOwner) {
             it?.let { (status, data, message) ->
-                when (status) {
-                    Status.REFRESHING -> binding.progressView.show()
-                    Status.ERROR -> setError(message)
-                    Status.SUCCESS -> {
-                        val geekListItems = data?.items
-                        if (geekListItems == null || geekListItems.isEmpty()) {
-                            setError(getString(R.string.empty_geeklist))
-                            binding.recyclerView.isVisible = false
-                        } else {
-                            adapter.geekList = data
-                            adapter.geekListItems = geekListItems.orEmpty()
-                            binding.recyclerView.isVisible = true
-                            binding.progressView.hide()
-                        }
+                if (status == Status.REFRESHING)
+                    binding.progressView.show()
+                else binding.progressView.hide()
+                if (status == Status.ERROR)
+                    setError(message)
+                else {
+                    val geekListItems = data?.items
+                    if (geekListItems.isNullOrEmpty()) {
+                        setError(getString(R.string.empty_geeklist))
+                        binding.recyclerView.isVisible = false
+                    } else {
+                        setError(null)
+                        adapter.geekList = data
+                        adapter.geekListItems = geekListItems
+                        binding.recyclerView.isVisible = true
                     }
                 }
             }
@@ -71,11 +73,10 @@ class GeekListItemsFragment : Fragment() {
 
     private fun setError(message: String?) {
         binding.emptyView.text = message
-        binding.emptyView.isVisible = true
-        binding.progressView.hide()
+        binding.emptyView.isVisible = !message.isNullOrBlank()
     }
 
-    class GeekListRecyclerViewAdapter(val lifecycleScope: LifecycleCoroutineScope) :
+    class GeekListRecyclerViewAdapter() :
         RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
         var geekListItems: List<GeekListItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
@@ -107,9 +108,7 @@ class GeekListItemsFragment : Fragment() {
             fun bind(entity: GeekListItemEntity?, order: Int) {
                 entity?.let { item ->
                     binding.orderView.text = order.toString()
-                    lifecycleScope.launch {
-                        binding.thumbnailView.loadThumbnail(item.imageId)
-                    }
+                    binding.thumbnailView.loadThumbnails(*item.thumbnailUrls.orEmpty().toTypedArray())
                     binding.itemNameView.text = item.objectName
                     binding.usernameView.text = item.username
                     binding.usernameView.isVisible = item.username != geekList?.username

@@ -21,6 +21,8 @@ class PlayerNumberRow @JvmOverloads constructor(
     private var bestVoteCount: Int = 0
     private var recommendedVoteCount: Int = 0
     private var notRecommendedVoteCount: Int = 0
+    private val actualVotes
+        get() = bestVoteCount + recommendedVoteCount + notRecommendedVoteCount
 
     init {
         LayoutInflater.from(context).inflate(R.layout.row_poll_players, this)
@@ -36,26 +38,24 @@ class PlayerNumberRow @JvmOverloads constructor(
         }
 
     override fun onSaveInstanceState(): Parcelable? {
-        val superState = super.onSaveInstanceState()
-        return if (superState != null) {
-            val savedState = SavedState(superState)
-            savedState.totalVoteCount = totalVoteCount
-            savedState.bestVoteCount = bestVoteCount
-            savedState.recommendedVoteCount = recommendedVoteCount
-            savedState.notRecommendedVoteCount = notRecommendedVoteCount
-            savedState
-        } else {
-            superState
+        return super.onSaveInstanceState()?.let {
+            SavedState(it).also { savedState ->
+                savedState.totalVoteCount = totalVoteCount
+                savedState.bestVoteCount = bestVoteCount
+                savedState.recommendedVoteCount = recommendedVoteCount
+                savedState.notRecommendedVoteCount = notRecommendedVoteCount
+            }
         }
     }
 
     override fun onRestoreInstanceState(state: Parcelable) {
-        val ss = state as SavedState
-        super.onRestoreInstanceState(ss.superState)
-        totalVoteCount = ss.totalVoteCount
-        bestVoteCount = ss.bestVoteCount
-        recommendedVoteCount = ss.recommendedVoteCount
-        notRecommendedVoteCount = ss.notRecommendedVoteCount
+        (state as? SavedState)?.let {
+            super.onRestoreInstanceState(it.superState)
+            totalVoteCount = it.totalVoteCount
+            bestVoteCount = it.bestVoteCount
+            recommendedVoteCount = it.recommendedVoteCount
+            notRecommendedVoteCount = it.notRecommendedVoteCount
+        } ?: super.onRestoreInstanceState(state)
     }
 
     fun setText(text: CharSequence) {
@@ -67,17 +67,20 @@ class PlayerNumberRow @JvmOverloads constructor(
         this.recommendedVoteCount = recommendedVoteCount
         this.notRecommendedVoteCount = notRecommendedVoteCount
         this.totalVoteCount = totalVoteCount
-        val actualVotes = bestVoteCount + recommendedVoteCount + notRecommendedVoteCount
-
-        adjustSegment(findViewById(R.id.bestSegment), bestVoteCount)
-        adjustSegment(findViewById(R.id.recommendedSegment), recommendedVoteCount)
-        adjustSegment(findViewById(R.id.missingVotesSegment), totalVoteCount - bestVoteCount - recommendedVoteCount - notRecommendedVoteCount)
-        adjustSegment(findViewById(R.id.notRecommendedSegment), notRecommendedVoteCount)
+        if (actualVotes == 0) {
+            adjustSegment(findViewById(R.id.missingVotesSegment), 1)
+        } else {
+            adjustSegment(findViewById(R.id.bestSegment), bestVoteCount)
+            adjustSegment(findViewById(R.id.recommendedSegment), recommendedVoteCount)
+            adjustSegment(findViewById(R.id.missingVotesSegment), totalVoteCount - bestVoteCount - recommendedVoteCount - notRecommendedVoteCount)
+            adjustSegment(findViewById(R.id.notRecommendedSegment), notRecommendedVoteCount)
+        }
+        findViewById<View>(R.id.missingVotesSegment).isVisible = actualVotes == 0
         findViewById<TextView>(R.id.votesView).text = actualVotes.toString()
     }
 
     fun showNoVotes(show: Boolean) {
-        findViewById<View>(R.id.missingVotesSegment).isVisible = show
+        findViewById<View>(R.id.missingVotesSegment).isVisible = show || actualVotes == 0
         findViewById<TextView>(R.id.votesView).isVisible = !show
     }
 

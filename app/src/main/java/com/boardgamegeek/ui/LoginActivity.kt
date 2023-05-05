@@ -7,21 +7,24 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.auth.BggCookieJar
 import com.boardgamegeek.databinding.ActivityLoginBinding
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.entities.AuthEntity
 import com.boardgamegeek.ui.viewmodel.LoginViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 /**
  * Activity which displays a login screen to the user, offering registration as well.
  */
+@AndroidEntryPoint
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private val viewModel by viewModels<LoginViewModel>()
@@ -37,7 +40,11 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        accountAuthenticatorResponse = intent.getParcelableExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
+        onBackPressedDispatcher.addCallback(this) {
+            if (isAuthenticating) viewModel.cancel() else finish()
+        }
+
+        accountAuthenticatorResponse = intent.getParcelableCompat(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)
         accountAuthenticatorResponse?.onRequestContinued()
 
         binding = ActivityLoginBinding.inflate(layoutInflater)
@@ -77,14 +84,6 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 createAccount(it)
             }
-        }
-    }
-
-    override fun onBackPressed() {
-        if (isAuthenticating) {
-            viewModel.cancel()
-        } else {
-            super.onBackPressed()
         }
     }
 
@@ -136,11 +135,11 @@ class LoginActivity : AppCompatActivity() {
         binding.loginFormView.fade(!show)
     }
 
-    private fun createAccount(bggCookieJar: BggCookieJar) {
+    private fun createAccount(authEntity: AuthEntity) {
         Timber.i("Creating account")
         val account = Account(username, Authenticator.ACCOUNT_TYPE)
         try {
-            accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, bggCookieJar.authToken)
+            accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, authEntity.token)
         } catch (e: SecurityException) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.title_error)
@@ -148,7 +147,7 @@ class LoginActivity : AppCompatActivity() {
                 .show()
             return
         }
-        val userData = bundleOf(Authenticator.KEY_AUTH_TOKEN_EXPIRY to bggCookieJar.authTokenExpiry.toString())
+        val userData = bundleOf(Authenticator.KEY_AUTH_TOKEN_EXPIRY to authEntity.expiry.toString())
         if (isRequestingNewAccount) {
             try {
                 var success = accountManager.addAccountExplicitly(account, password, userData)

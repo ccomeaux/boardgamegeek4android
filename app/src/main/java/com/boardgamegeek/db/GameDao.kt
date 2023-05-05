@@ -4,6 +4,7 @@ import android.content.ContentProviderOperation
 import android.content.ContentProviderOperation.Builder
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.provider.BaseColumns
@@ -13,7 +14,6 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
@@ -31,7 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class GameDao(private val context: BggApplication) {
+class GameDao(private val context: Context) {
     private val resolver: ContentResolver = context.contentResolver
 
     suspend fun load(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
@@ -200,6 +200,61 @@ class GameDao(private val context: BggApplication) {
             }
             GamePlayerPollEntity(results)
         } else null
+    }
+
+    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
+        val games = mutableListOf<Pair<Int, String>>()
+        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
+        context.contentResolver.loadList(
+            Games.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            "${Tables.GAMES}.${Games.Columns.UPDATED}".whereNotZeroOrNull(),
+            null,
+            "${Tables.GAMES}.${Games.Columns.UPDATED_LIST}$limit"
+        ) {
+            games += it.getInt(0) to it.getString(1)
+        }
+        games
+    }
+
+    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
+        val games = mutableListOf<Pair<Int, String>>()
+        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
+        context.contentResolver.loadList(
+            Games.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            "${Tables.GAMES}.${Games.Columns.UPDATED}".whereZeroOrNull(),
+            null,
+            "${Tables.GAMES}.${Games.Columns.UPDATED_LIST}$limit",
+        ) {
+            games += it.getInt(0) to it.getString(1)
+        }
+        games
+    }
+
+
+    /**
+     * Get a list of games, sorted by least recently updated, that
+     * 1. have no associated collection record
+     * 2. haven't been viewed in a configurable number of hours
+     * 3. and have 0 plays (if plays are being synced
+     */
+    suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
+        val games = mutableListOf<Pair<Int, String>>()
+        var selection = "${Tables.COLLECTION}.${Collection.Columns.GAME_ID} IS NULL AND ${Tables.GAMES}.${Games.Columns.LAST_VIEWED}<?"
+        if (includeUnplayedGames) {
+            selection += " AND ${Tables.GAMES}.${Games.Columns.NUM_PLAYS}=0"
+        }
+        context.contentResolver.loadList(
+            Games.CONTENT_URI,
+            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
+            selection,
+            arrayOf(hoursAgo.toString()),
+            "${Tables.GAMES}.${Games.Columns.UPDATED}"
+        ) {
+            games += it.getInt(0) to it.getString(1)
+        }
+        games
     }
 
     suspend fun loadDesigners(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
@@ -423,9 +478,9 @@ class GameDao(private val context: BggApplication) {
 
     suspend fun save(game: GameEntity, updateTime: Long) = withContext(Dispatchers.IO) {
         if (game.name.isBlank()) {
-            Timber.w("Missing name from game ID=%s", game.id)
+            Timber.w("Missing name from game ID=${game.id}")
         } else {
-            Timber.i("Saving game %s (%s)", game.name, game.id)
+            Timber.i("Saving game ${game.name} [${game.id}]")
 
             val batch = arrayListOf<ContentProviderOperation>()
 
@@ -461,19 +516,11 @@ class GameDao(private val context: BggApplication) {
             batch += createAssociationBatch(game.id, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
 
             resolver.applyBatch(batch, "Game ${game.id}")
+            val dateTime = DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
             if (internalId == INVALID_ID.toLong()) {
-                Timber.i(
-                    "Inserted game ID '%s' at %s",
-                    game.id,
-                    DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-                )
+                Timber.i("Inserted game ${game.name} [${game.id}] at $dateTime")
             } else {
-                Timber.i(
-                    "Updated game ID '%s' (%s) at %s",
-                    game.id,
-                    internalId,
-                    DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-                )
+                Timber.i("Updated game ${game.name} [${game.id}] (${internalId}) at $dateTime")
             }
         }
     }

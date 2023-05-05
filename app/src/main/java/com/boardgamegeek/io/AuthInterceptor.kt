@@ -1,11 +1,9 @@
 package com.boardgamegeek.io
 
 import android.accounts.AccountManager
-import android.accounts.AuthenticatorException
-import android.accounts.OperationCanceledException
 import android.content.Context
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.util.HttpUtils.encodeForUrl
+import com.boardgamegeek.extensions.encodeForUrl
 import okhttp3.Interceptor
 import okhttp3.Response
 import timber.log.Timber
@@ -16,23 +14,19 @@ class AuthInterceptor(private val context: Context?) : Interceptor {
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        if (context != null) {
+        context?.let {
             val accountManager = AccountManager.get(context)
-            val account = Authenticator.getAccount(accountManager)
-            if (account != null) {
+            Authenticator.getAccount(accountManager)?.let { account ->
                 try {
                     val password = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true)
-                    if (account.name != null && account.name.isNotBlank() &&
-                            password != null && password.isNotBlank()) {
-                        val cookieValue = "bggusername=${account.name.encodeForUrl()}; bggpassword=$password"
-                        val request = originalRequest.newBuilder().addHeader("Cookie", cookieValue).build()
-                        return chain.proceed(request)
+                    if (!account.name.isNullOrBlank() && !password.isNullOrBlank()) {
+                        return chain.proceed(
+                            originalRequest.newBuilder()
+                                .addHeader("Cookie", "bggusername=${account.name.encodeForUrl()}; bggpassword=$password")
+                                .build()
+                        )
                     }
-                } catch (e: OperationCanceledException) {
-                    Timber.w(e)
-                } catch (e: AuthenticatorException) {
-                    Timber.w(e)
-                } catch (e: SecurityException) {
+                } catch (e: Exception) {
                     Timber.w(e)
                 }
             }

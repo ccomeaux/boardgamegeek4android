@@ -20,8 +20,10 @@ import com.boardgamegeek.util.FileUtils
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.analytics.ktx.logEvent
 import com.google.firebase.ktx.Firebase
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class DataFragment : Fragment() {
     private var _binding: FragmentDataBinding? = null
     private val binding get() = _binding!!

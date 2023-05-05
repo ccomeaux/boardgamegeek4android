@@ -7,11 +7,14 @@ import androidx.appcompat.app.AlertDialog.Builder
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class DeleteViewDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val viewModel = ViewModelProvider(requireActivity())[CollectionViewViewModel::class.java]
@@ -20,7 +23,7 @@ class DeleteViewDialogFragment : DialogFragment() {
         val views = viewModel.views.value.orEmpty()
         val viewNames = views.map { it.name }.toTypedArray()
 
-        return Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
+        return requireContext().createThemedBuilder()
             .setTitle(R.string.title_delete_view)
             .setItems(viewNames) { _, which ->
                 viewNames.getOrNull(which)?.let { viewName ->

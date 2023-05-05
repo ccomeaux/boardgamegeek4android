@@ -14,8 +14,10 @@ import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class BuddyActivity : SimpleSinglePaneActivity() {
     private var name: String? = null
     private var username: String? = null

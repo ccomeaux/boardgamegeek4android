@@ -3,6 +3,7 @@ package com.boardgamegeek.db
 import android.content.ContentProviderOperation
 import android.content.ContentResolver
 import android.content.ContentValues
+import android.content.Context
 import android.net.Uri
 import android.provider.BaseColumns
 import androidx.core.content.contentValuesOf
@@ -10,7 +11,6 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class PlayDao(private val context: BggApplication) {
+class PlayDao(private val context: Context) {
     enum class PlaysSortBy {
         DATE, LOCATION, GAME, LENGTH, UPDATED_DATE, DELETED_DATE
     }

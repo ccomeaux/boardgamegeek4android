@@ -10,7 +10,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel.SortType
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class ArtistsActivity : SimpleSinglePaneActivity() {
     private var numberOfArtists = -1
     private var sortBy = SortType.ITEM_COUNT

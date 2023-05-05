@@ -3,7 +3,9 @@ package com.boardgamegeek.ui.dialog
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.GameColorsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class AddColorToGameDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<GameColorsViewModel>()
 

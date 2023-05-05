@@ -18,7 +18,9 @@ import com.boardgamegeek.ui.adapter.SearchResultsAdapter.Callback
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SearchResultsFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentSearchResultsBinding? = null
     private val binding get() = _binding!!

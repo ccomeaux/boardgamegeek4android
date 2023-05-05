@@ -13,19 +13,25 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.setCurrentTimestamp
-import com.boardgamegeek.util.HttpUtils
+import com.boardgamegeek.repository.*
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import okhttp3.Request
+import okhttp3.OkHttpClient
 import timber.log.Timber
-import java.io.IOException
 import java.net.SocketTimeoutException
-import java.util.*
 
-class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
+class SyncAdapter(
+    private val application: BggApplication,
+    private val authRepository: AuthRepository,
+    private val collectionItemRepository: CollectionItemRepository,
+    private val gameRepository: GameRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
+    private val playRepository: PlayRepository,
+    private val userRepository: UserRepository,
+    private val httpClient: OkHttpClient,
+) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
     private var currentTask: SyncTask? = null
     private var isCancelled = false
     private val cancelReceiver = CancelReceiver()
@@ -60,7 +66,7 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
         val manualSync = extras.getBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false)
         val initialize = extras.getBoolean(ContentResolver.SYNC_EXTRAS_INITIALIZE, false)
         val type = extras.getInt(SyncService.EXTRA_SYNC_TYPE, SyncService.FLAG_SYNC_ALL)
-        Timber.i("Beginning sync for account %s, uploadOnly=%s manualSync=%s initialize=%s, type=%d", account.name, uploadOnly, manualSync, initialize, type)
+        Timber.i("Beginning sync for account ${account.name}, uploadOnly=$uploadOnly manualSync=$manualSync initialize=$initialize, type=$type")
 
         FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_TYPES, type)
 
@@ -79,7 +85,7 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
             return
         }
         toggleCancelReceiver(true)
-        val tasks = createTasks(application, type, uploadOnly, syncResult, account)
+        val tasks = createTasks(application, type, uploadOnly, syncResult)
         for (i in tasks.indices) {
             if (isCancelled) {
                 Timber.i("Cancelling all sync tasks")
@@ -155,53 +161,27 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
             Timber.i("Sync disabled remotely")
             return false
         }
-        if (hasPrivacyError()) {
+        val url = "https://www.boardgamegeek.com"
+        if (authRepository.hasPrivacyError(url)) {
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                Intent(Intent.ACTION_VIEW, Uri.parse(url)),
+                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            )
+            val message = context.getString(R.string.sync_notification_message_privacy_error)
+            val builder = context
+                .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
+                .setContentText(message)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                .setContentIntent(pendingIntent)
+                .setCategory(NotificationCompat.CATEGORY_ERROR)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+            context.notify(builder, NotificationTags.SYNC_ERROR, Int.MAX_VALUE)
             Timber.i("User still hasn't accepted the new privacy policy.")
             return false
         }
         return true
-    }
-
-    private fun hasPrivacyError(): Boolean {
-        val weeksToCompare = RemoteConfig.getInt(RemoteConfig.KEY_PRIVACY_CHECK_WEEKS)
-        val weeks = prefs.getLastPrivacyCheckTimestamp().howManyWeeksOld()
-        if (weeks < weeksToCompare) {
-            Timber.i("We checked the privacy statement less than %,d weeks ago; skipping", weeksToCompare)
-            return false
-        }
-        val httpClient = HttpUtils.getHttpClientWithAuth(context)
-        val url = "https://www.boardgamegeek.com"
-        val request: Request = Request.Builder().url(url).build()
-        return try {
-            val response = httpClient.newCall(request).execute()
-            val body = response.body
-            val content = body?.string()?.trim().orEmpty()
-            if (content.contains("Please update your privacy and marketing preferences")) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-                val pendingIntent = PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
-                )
-                val message = context.getString(R.string.sync_notification_message_privacy_error)
-                val builder = context
-                    .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
-                    .setContentText(message)
-                    .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-                    .setContentIntent(pendingIntent)
-                    .setCategory(NotificationCompat.CATEGORY_ERROR)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH)
-                context.notify(builder, NotificationTags.SYNC_ERROR, Int.MAX_VALUE)
-                true
-            } else {
-                prefs.setLastPrivacyCheckTimestamp()
-                false
-            }
-        } catch (e: IOException) {
-            Timber.w(e)
-            true
-        }
     }
 
     /**
@@ -212,33 +192,31 @@ class SyncAdapter(private val application: BggApplication) : AbstractThreadedSyn
         typeList: Int,
         uploadOnly: Boolean,
         syncResult: SyncResult,
-        account: Account
     ): List<SyncTask> {
-        val service = Adapter.createForXmlWithAuth(application)
-        val tasks: MutableList<SyncTask> = ArrayList()
+        val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-            tasks.add(SyncCollectionUpload(application, service, syncResult))
+            tasks.add(SyncCollectionUpload(application, syncResult, gameCollectionRepository, httpClient))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
-            tasks.add(SyncCollectionComplete(application, service, syncResult, account))
-            tasks.add(SyncCollectionModifiedSince(application, service, syncResult, account))
-            tasks.add(SyncCollectionUnupdated(application, service, syncResult, account))
+            tasks.add(SyncCollectionComplete(application, syncResult, collectionItemRepository))
+            tasks.add(SyncCollectionModifiedSince(application, syncResult, collectionItemRepository))
+            tasks.add(SyncCollectionUnupdated(application, syncResult, collectionItemRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
-            tasks.add(SyncGamesRemove(application, service, syncResult))
-            tasks.add(SyncGamesOldest(application, service, syncResult))
-            tasks.add(SyncGamesUnupdated(application, service, syncResult))
+            tasks.add(SyncGamesRemove(application, syncResult, gameRepository))
+            tasks.add(SyncGamesOldest(application, syncResult, gameRepository))
+            tasks.add(SyncGamesUnupdated(application, syncResult, gameRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-            tasks.add(SyncPlaysUpload(application, service, syncResult))
+            tasks.add(SyncPlaysUpload(application, syncResult, playRepository, httpClient))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-            tasks.add(SyncPlays(application, service, syncResult, account))
+            tasks.add(SyncPlays(application, syncResult, playRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
-            tasks.add(SyncBuddiesList(application, service, syncResult))
-            tasks.add(SyncBuddiesDetailOldest(application, service, syncResult))
-            tasks.add(SyncBuddiesDetailUnupdated(application, service, syncResult))
+            tasks.add(SyncBuddiesList(application, syncResult, userRepository))
+            tasks.add(SyncBuddiesDetailOldest(application, syncResult, userRepository))
+            tasks.add(SyncBuddiesDetailUnupdated(application, syncResult, userRepository))
         }
         return tasks
     }

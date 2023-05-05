@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.util.HttpUtils.encodeForUrl
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import timber.log.Timber

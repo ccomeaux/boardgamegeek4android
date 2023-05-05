@@ -12,7 +12,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.longToast
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class SearchResultsActivity : SimpleSinglePaneActivity() {
     companion object {
         private const val KEY_SEARCH_TEXT = "com.boardgamegeek.SEARCH_TEXT"
@@ -46,7 +48,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
-        searchView = menu.findItem(R.id.menu_search)?.actionView as SearchView?
+        searchView = menu.findItem(R.id.menu_search)?.actionView as? SearchView
         searchView?.let {
             setUpSearchView(it)
             // if searchText was restored from the bundle, populate it in the search view

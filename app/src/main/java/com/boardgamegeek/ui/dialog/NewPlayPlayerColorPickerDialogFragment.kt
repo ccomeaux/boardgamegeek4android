@@ -7,7 +7,9 @@ import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class NewPlayPlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     private val viewModel by activityViewModels<NewPlayViewModel>()
 

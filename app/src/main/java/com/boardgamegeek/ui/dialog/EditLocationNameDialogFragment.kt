@@ -6,7 +6,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel by activityViewModels<PlaysViewModel>()
 

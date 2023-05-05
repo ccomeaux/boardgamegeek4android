@@ -9,13 +9,14 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class GeekListActivity : TabActivity() {
     private var geekListId = BggContract.INVALID_ID
     private var geekListTitle: String = ""
@@ -38,15 +39,15 @@ class GeekListActivity : TabActivity() {
             }
         }
 
-        viewModel.setId(geekListId)
         viewModel.geekList.observe(this) {
-            it?.let { (status, data, _) ->
-                if (status == Status.SUCCESS && data != null) {
-                    geekListTitle = data.title
+            it?.let { (_, data, _) ->
+                data?.let { entity ->
+                    geekListTitle = entity.title
                     safelySetTitle(geekListTitle)
                 }
             }
         }
+        viewModel.setId(geekListId)
     }
 
     override val optionsMenuId = R.menu.view_share

@@ -14,13 +14,18 @@ import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
-class BuddyViewModel(application: Application) : AndroidViewModel(application) {
-    private val userRepository = UserRepository(getApplication())
-    private val playRepository = PlayRepository(getApplication())
+@HiltViewModel
+class BuddyViewModel @Inject constructor(
+    application: Application,
+    private val userRepository: UserRepository,
+    private val playRepository: PlayRepository,
+) : AndroidViewModel(application) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private val isRefreshing = AtomicBoolean()
 
@@ -59,7 +64,7 @@ class BuddyViewModel(application: Application) : AndroidViewModel(application) {
                                 else -> userRepository.load(it)
                             }
                             val refreshedUser =
-                                if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0, TimeUnit.DAYS)) &&
+                                if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0.days)) &&
                                     isRefreshing.compareAndSet(false, true)
                                 ) {
                                     emit(RefreshableResource.refreshing(loadedUser))
