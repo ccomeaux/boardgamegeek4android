@@ -92,11 +92,7 @@ class TimestampView @JvmOverloads constructor(
                     String.format(
                         Html.toHtml(SpannedString(this@TimestampView.format)),
                         formattedTimestamp,
-<<<<<<< HEAD
                         formatArg,
-=======
-                        formatArg
->>>>>>> develop
                     )
                 ).trimTrailingWhitespace()
             } else {
