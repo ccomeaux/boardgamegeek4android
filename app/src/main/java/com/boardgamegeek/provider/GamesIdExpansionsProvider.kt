@@ -21,7 +21,7 @@ class GamesIdExpansionsProvider : BaseProvider() {
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
-            .table(Tables.GAMES_EXPANSIONS_JOIN_EXPANSIONS)
+            .table(Tables.GAMES_EXPANSIONS_JOIN_GAMES)
             .mapToTable(_ID, Tables.GAMES_EXPANSIONS)
             .mapToTable(GamesExpansions.Columns.GAME_ID, Tables.GAMES_EXPANSIONS)
             .whereEquals("${Tables.GAMES_EXPANSIONS}.${GamesExpansions.Columns.GAME_ID}", gameId)

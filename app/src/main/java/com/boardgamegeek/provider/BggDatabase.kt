@@ -83,7 +83,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         val GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.Columns.PUBLISHER_ID)
         val GAMES_MECHANICS_JOIN_MECHANICS = createJoin(GAMES_MECHANICS, MECHANICS, Mechanics.Columns.MECHANIC_ID)
         val GAMES_CATEGORIES_JOIN_CATEGORIES = createJoin(GAMES_CATEGORIES, CATEGORIES, Categories.Columns.CATEGORY_ID)
-        val GAMES_EXPANSIONS_JOIN_EXPANSIONS = createJoin(GAMES_EXPANSIONS, GAMES, GamesExpansions.Columns.EXPANSION_ID, Games.Columns.GAME_ID)
+        val GAMES_EXPANSIONS_JOIN_GAMES = createJoin(GAMES_EXPANSIONS, GAMES, GamesExpansions.Columns.EXPANSION_ID, Games.Columns.GAME_ID)
         val GAMES_RANKS_JOIN_GAMES = createJoin(GAME_RANKS, GAMES, GameRanks.Columns.GAME_ID, Games.Columns.GAME_ID)
         val POLLS_JOIN_POLL_RESULTS = createJoin(GAME_POLLS, GAME_POLL_RESULTS, BaseColumns._ID, GamePollResults.Columns.POLL_ID)
         val POLLS_JOIN_GAMES = createJoin(GAMES, GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, Games.Columns.GAME_ID, GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID)
