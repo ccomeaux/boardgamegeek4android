@@ -62,11 +62,6 @@ class GameViewModel @Inject constructor(
         MECHANIC(5),
         EXPANSION(6),
         BASE_GAME(7);
-
-        companion object {
-            private val map = values().associateBy(ProducerType::value)
-            fun fromInt(value: Int?) = map[value] ?: UNKNOWN
-        }
     }
 
     fun setId(gameId: Int) {
@@ -196,7 +191,7 @@ class GameViewModel @Inject constructor(
         liveData {
             emit(it.data?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getExpansions(it.id).map { expansion ->
-                    GameDetailEntity(expansion.id, expansion.name, describeStatuses(expansion))
+                    GameDetailEntity(expansion.id, expansion.name, describeStatuses(expansion), expansion.thumbnailUrl)
                 }
             })
         }.distinctUntilChanged()
@@ -205,8 +200,8 @@ class GameViewModel @Inject constructor(
     val baseGames = game.switchMap {
         liveData {
             emit(it.data?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getBaseGames(it.id).map { expansion ->
-                    GameDetailEntity(expansion.id, expansion.name, describeStatuses(expansion))
+                if (it.id == BggContract.INVALID_ID) null else gameRepository.getBaseGames(it.id).map { baseGame ->
+                    GameDetailEntity(baseGame.id, baseGame.name, describeStatuses(baseGame), baseGame.thumbnailUrl)
                 }
             })
         }.distinctUntilChanged()

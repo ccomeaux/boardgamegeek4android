@@ -37,14 +37,14 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private val viewModel by lazy { ViewModelProvider(activity)[GameViewModel::class.java] }
     private val prefs by lazy { activity.preferences() }
 
-    private fun <T> tabUpdatingDelegate(initialValue: T) =
-        Delegates.observable(initialValue) { _, old, new ->
+    private fun tabUpdatingDelegate() =
+        Delegates.observable(false) { _, old, new ->
             if (old != new) updateTabs()
         }
 
-    private var isSignedIn by tabUpdatingDelegate(false)
-    private var shouldShowCollection by tabUpdatingDelegate(false)
-    private var shouldShowPlays by tabUpdatingDelegate(false)
+    private var isSignedIn by tabUpdatingDelegate()
+    private var shouldShowCollection by tabUpdatingDelegate()
+    private var shouldShowPlays by tabUpdatingDelegate()
 
     private inner class Tab(
         @field:StringRes val titleResId: Int,
@@ -90,6 +90,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
             R.string.title_descr -> GameDescriptionFragment()
             R.string.title_info -> GameFragment()
             R.string.title_credits -> GameCreditsFragment()
+            R.string.title_linked_items -> GameLinkedItemsFragment()
             R.string.title_my_games -> GameCollectionFragment()
             R.string.title_plays -> GamePlaysFragment()
             R.string.title_forums -> ForumsFragment.newInstanceForGame(gameId, gameName)
@@ -109,6 +110,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
             newTabs += Tab(R.string.title_my_games, R.drawable.ic_baseline_add_24) { activity.showAndSurvive(CollectionStatusDialogFragment()) }
         if (isSignedIn && shouldShowPlays)
             newTabs += Tab(R.string.title_plays, R.drawable.ic_baseline_event_available_24) { logPlay() }
+        newTabs += Tab(R.string.title_linked_items)
         newTabs += Tab(R.string.title_forums)
         newTabs += Tab(R.string.links)
 

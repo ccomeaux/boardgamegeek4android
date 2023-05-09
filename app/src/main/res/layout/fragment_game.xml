@@ -136,36 +136,6 @@
 				app:layout_constraintTop_toBottomOf="@id/weightInclude"
 				tools:visibility="visible" />
 
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/expansionsRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:minHeight="@dimen/card_row_height"
-				android:paddingHorizontal="@dimen/material_margin_horizontal"
-				android:visibility="gone"
-				app:icon_res="@drawable/ic_baseline_flip_to_back_24"
-				app:label="@string/expansions"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/languageInclude"
-				app:query_token="@integer/query_token_expansions"
-				tools:visibility="visible" />
-
-			<com.boardgamegeek.ui.widget.GameDetailRow
-				android:id="@+id/baseGamesRow"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:minHeight="@dimen/card_row_height"
-				android:paddingHorizontal="@dimen/material_margin_horizontal"
-				android:visibility="gone"
-				app:icon_res="@drawable/ic_baseline_flip_to_front_24"
-				app:label="@string/base_games"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/expansionsRow"
-				app:query_token="@integer/query_token_base_games"
-				tools:visibility="visible" />
-
 			<include
 				android:id="@+id/footer"
 				layout="@layout/include_game_footer"
@@ -175,7 +145,7 @@
 				android:layout_marginTop="@dimen/padding_extra"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/baseGamesRow" />
+				app:layout_constraintTop_toBottomOf="@id/languageInclude" />
 		</androidx.constraintlayout.widget.ConstraintLayout>
 	</androidx.core.widget.NestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

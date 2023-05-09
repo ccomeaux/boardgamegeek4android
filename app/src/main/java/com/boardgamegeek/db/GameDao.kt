@@ -337,6 +337,7 @@ class GameDao(private val context: Context) {
                     arrayOf(
                         GamesExpansions.Columns.EXPANSION_ID,
                         GamesExpansions.Columns.EXPANSION_NAME,
+                        Games.Columns.THUMBNAIL_URL,
                     ),
                     selection = "${GamesExpansions.Columns.INBOUND}=?",
                     selectionArgs = arrayOf(if (inbound) "1" else "0")
@@ -344,6 +345,7 @@ class GameDao(private val context: Context) {
                     GameExpansionsEntity(
                         it.getInt(0),
                         it.getString(1),
+                        it.getString(2).orEmpty(),
                     )
                 }
                 for (result in briefResults) {
