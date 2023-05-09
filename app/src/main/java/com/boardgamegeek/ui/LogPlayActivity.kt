@@ -269,9 +269,9 @@ class LogPlayActivity : AppCompatActivity() {
 
     private fun bindHeader() {
         binding.headerView.text = gameName
-        binding.thumbnailView.safelyLoadImage(
+        binding.thumbnailView.loadImage(
             LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }),
-            object : ImageLoadCallback {
+            callback = object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     binding.headerView.setBackgroundResource(R.color.black_overlay_light)
                     updateColors(palette.getIconSwatch().rgb)

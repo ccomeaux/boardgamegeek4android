@@ -34,94 +34,70 @@ interface ImageLoadCallback {
  * Loads the URL into an ImageView, triggering a callback with the palette for the loaded image. If the URL appears to be for the same image, no
  * placeholder or fade animation is shown.
  */
-fun ImageView.loadUrl(url: String?, callback: ImageLoadCallback? = null) {
-    val tag = getTag(R.id.image)
-    val isSameImage = tag != null && tag == url?.getImageId()
-    val requestCreator = Picasso.with(context)
-        .load(url.ensureHttpsScheme())
-        .transform(PaletteTransformation.instance())
-    if (isSameImage) {
-        requestCreator.noFade().noPlaceholder()
-    }
-    requestCreator.into(this, object : Callback {
-        override fun onSuccess() {
-            setTag(R.id.image, url?.getImageId())
-            callback?.onSuccessfulImageLoad(PaletteTransformation.getPalette((drawable as BitmapDrawable).bitmap))
-        }
+fun ImageView.loadImage(url: String?, @DrawableRes errorResId: Int = 0, callback: ImageLoadCallback? = null) {
+    safelyLoadImage(LinkedList(listOf(url)), errorResId, callback)
+}
 
-        override fun onError() {
-            callback?.onFailedImageLoad()
-        }
-    })
+fun ImageView.loadImage(urls: List<String>, @DrawableRes errorResId: Int = 0, callback: ImageLoadCallback? = null) {
+    safelyLoadImage(LinkedList(urls.filter { it.isNotBlank() }), errorResId, callback)
 }
 
 /**
  * Loads an image into the [android.widget.ImageView] by attempting each URL in the [java.util.Queue]
  * until one is successful. Applies fit/center crop and will load a [androidx.palette.graphics.Palette].
  */
-fun ImageView.safelyLoadImage(imageUrls: Queue<String>, callback: ImageLoadCallback? = null) {
+private fun ImageView.safelyLoadImage(imageUrls: Queue<String>?, @DrawableRes errorResId: Int = 0, callback: ImageLoadCallback? = null) {
     // Attempt to load 1) the URL saved as a tag to this ImageView or 2) the next URL in the queue. If this URL fails, recursively call this to
     // attempt to load the next URL. Signal a failure if the queue empties before successfully loading a URL.
-    var url: String? = null
-    val savedUrl = getTag(R.id.url) as String?
-    if (savedUrl?.isNotBlank() == true) {
-        if (imageUrls.contains(savedUrl)) {
-            url = savedUrl
+    var url: String?
+    do {
+        val polledUrl = imageUrls?.poll()
+        if (polledUrl == null) {
+            callback?.onFailedImageLoad()
+            return
         } else {
-            setTag(R.id.url, null)
+            url = polledUrl
         }
-    }
-    if (url == null) {
-        do {
-            val polledUrl = imageUrls.poll()
-            if (polledUrl == null) {
-                callback?.onFailedImageLoad()
-                return
-            } else {
-                url = polledUrl
-            }
-        } while (url.isNullOrBlank())
-    }
+    } while (url.isNullOrBlank())
     if (url.isEmpty()) {
         callback?.onFailedImageLoad()
         return
     }
     val imageUrl = url
-    Picasso.with(context)
-        .load(imageUrl.ensureHttpsScheme())
+    val isSameImage = getTag(R.id.image) == imageUrl.getImageId()
+    val requestCreator = Picasso.with(context)
+        .load(url.ensureHttpsScheme())
         .transform(PaletteTransformation.instance())
-        .into(this, object : Callback {
-            override fun onSuccess() {
-                setTag(R.id.url, imageUrl)
-                callback?.onSuccessfulImageLoad(PaletteTransformation.getPalette((drawable as BitmapDrawable).bitmap))
-            }
+    if (isSameImage) {
+        requestCreator.noFade().noPlaceholder()
+    } else if (errorResId != 0) {
+        requestCreator.placeholder(errorResId)
+    }
+    requestCreator.into(this, object : Callback {
+        override fun onSuccess() {
+            setTag(R.id.image, imageUrl.getImageId())
+            callback?.onSuccessfulImageLoad(PaletteTransformation.getPalette((drawable as BitmapDrawable).bitmap))
+        }
 
-            override fun onError() {
-                safelyLoadImage(imageUrls, callback)
-            }
-        })
+        override fun onError() {
+            this@safelyLoadImage.safelyLoadImage(imageUrls, errorResId, callback)
+        }
+    })
 }
 
 /**
- * Loads the URL into an ImageView, centering and fitting it into the image. If the URL appears to be for the same image, no placeholder or fade
- * animation is shown.
+ * Loads the URL into an ImageView, centering and fitting it into the image. If the URL appears to be for the same image, no placeholder is shown.
  */
 fun ImageView.loadThumbnail(imageUrl: String?, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty, callback: ImageLoadCallback? = null) {
-    val tag = getTag(R.id.image)
-    val isSameImage = tag != null && tag == imageUrl?.getImageId()
     val requestCreator = Picasso.with(context)
         .load(imageUrl.ensureHttpsScheme())
         .error(errorResId)
         .fit()
         .centerCrop()
-    if (isSameImage) {
-        requestCreator.noFade().noPlaceholder()
-    } else {
-        requestCreator.placeholder(errorResId).noFade()
-    }
+        .noFade()
+        .placeholder(errorResId)
     requestCreator.into(this, object : Callback {
         override fun onSuccess() {
-            setTag(R.id.url, imageUrl)
             callback?.onSuccessfulImageLoad(PaletteTransformation.getPalette((drawable as BitmapDrawable).bitmap))
         }
 
@@ -131,20 +107,7 @@ fun ImageView.loadThumbnail(imageUrl: String?, @DrawableRes errorResId: Int = R.
     })
 }
 
-/**
- * Loads the URL into an ImageView, centering and fitting it into the image. Always shows the fade animation (and it faster for that).
- */
-fun ImageView.loadThumbnailInList(imageUrl: String?, @DrawableRes errorResId: Int = R.drawable.thumbnail_image_empty) {
-    Picasso.with(context)
-        .load(imageUrl.ensureHttpsScheme())
-        .placeholder(errorResId)
-        .error(errorResId)
-        .fit()
-        .centerCrop()
-        .into(this)
-}
-
-fun ImageView.loadThumbnails(vararg urls: String) {
+fun ImageView.loadThumbnail(vararg urls: String) {
     safelyLoadThumbnail(LinkedList(urls.toList()))
 }
 

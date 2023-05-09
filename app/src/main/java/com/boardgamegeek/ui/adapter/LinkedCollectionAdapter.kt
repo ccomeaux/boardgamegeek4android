@@ -47,7 +47,7 @@ class LinkedCollectionAdapter :
             gameDetail?.let { entity ->
                 binding.nameView.text = entity.name
                 binding.yearView.text = entity.year.asYear(itemView.context)
-                binding.thumbnailView.loadThumbnailInList(entity.thumbnailUrl)
+                binding.thumbnailView.loadThumbnail(entity.thumbnailUrl)
                 binding.favoriteView.isVisible = entity.isFavorite
                 binding.ratingView.text = entity.personalRating.asPersonalRating(itemView.context)
                 binding.ratingView.setTextViewBackground(entity.personalRating.toColor(BggColors.ratingColors))

@@ -13,7 +13,7 @@ import com.boardgamegeek.databinding.FragmentPublishersBinding
 import com.boardgamegeek.databinding.RowPublisherBinding
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnailInList
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PublishersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -112,7 +112,7 @@ class PublishersFragment : Fragment() {
 
             fun bind(publisher: CompanyEntity?) {
                 publisher?.let { p ->
-                    binding.thumbnailView.loadThumbnailInList(p.thumbnailUrl)
+                    binding.thumbnailView.loadThumbnail(p.thumbnailUrl)
                     binding.nameView.text = p.name
                     binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, p.itemCount, p.itemCount)
                     binding.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${p.whitmoreScore}")

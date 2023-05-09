@@ -144,7 +144,7 @@ class BuddiesFragment : Fragment() {
 
             fun bind(buddy: UserEntity?) {
                 buddy?.let { b ->
-                    binding.avatarView.loadThumbnailInList(b.avatarUrl, R.drawable.person_image_empty)
+                    binding.avatarView.loadThumbnail(b.avatarUrl, R.drawable.person_image_empty)
                     if (b.fullName.isBlank()) {
                         binding.fullNameView.text = b.userName
                         binding.usernameView.isVisible = false

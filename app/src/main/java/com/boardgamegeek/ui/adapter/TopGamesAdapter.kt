@@ -8,7 +8,7 @@ import com.boardgamegeek.databinding.RowTopGameBinding
 import com.boardgamegeek.entities.TopGameEntity
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnailInList
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity
 import kotlin.properties.Delegates
@@ -44,7 +44,7 @@ class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), Auto
             binding.nameView.text = game.name
             binding.yearView.text = game.yearPublished.asYear(itemView.context)
             binding.rankView.text = game.rank.toString()
-            binding.thumbnailView.loadThumbnailInList(game.thumbnailUrl)
+            binding.thumbnailView.loadThumbnail(game.thumbnailUrl)
 
             itemView.setOnClickListener {
                 GameActivity.start(

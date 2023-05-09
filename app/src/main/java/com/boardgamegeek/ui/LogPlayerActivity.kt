@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
-import androidx.lifecycle.lifecycleScope
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityLogplayerBinding
 import com.boardgamegeek.entities.PlayPlayerEntity
@@ -30,7 +29,6 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import java.util.LinkedList
 
 @AndroidEntryPoint
@@ -147,7 +145,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         this.usedColors = if (usedColors == null) arrayListOf() else ArrayList(listOf(*usedColors))
         this.usedColors?.remove(player.color)
 
-        binding.thumbnailView.safelyLoadImage(LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }))
+        binding.thumbnailView.loadImage(LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }))
 
         bindUi()
         binding.nameView.setAdapter(playerNameAdapter)
