@@ -84,12 +84,12 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
     }
 
     protected fun loadToolbarImage(url: String) {
-        binding.toolbarImage.loadUrl(url, object : ImageLoadCallback {
+        binding.toolbarImage.loadImage(url, callback = object : ImageLoadCallback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
                 binding.scrimView.applyDarkScrim()
                 if (palette != null) {
                     onPaletteGenerated(palette)
-                    binding.fab.colorize(palette.getIconSwatch().rgb)
+                    binding.fab.colorize(palette.getIconColor())
                 }
                 binding.fab.show()
             }

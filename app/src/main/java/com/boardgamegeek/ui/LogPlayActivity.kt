@@ -269,19 +269,19 @@ class LogPlayActivity : AppCompatActivity() {
 
     private fun bindHeader() {
         binding.headerView.text = gameName
-        binding.thumbnailView.safelyLoadImage(
+        binding.thumbnailView.loadImage(
             LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }),
-            object : ImageLoadCallback {
+            callback = object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     binding.headerView.setBackgroundResource(R.color.black_overlay_light)
-                    updateColors(palette.getIconSwatch().rgb)
+                    updateColors(palette.getIconColor())
                 }
 
                 override fun onFailedImageLoad() {
                     updateColors(ContextCompat.getColor(this@LogPlayActivity, R.color.accent))
                 }
 
-                private fun updateColors(color: Int) {
+                private fun updateColors(@ColorInt color: Int) {
                     fabColor = color
                     binding.fab.colorize(color)
                     binding.fab.post { binding.fab.show() }
@@ -959,10 +959,10 @@ class LogPlayActivity : AppCompatActivity() {
                         resources.getString(R.string.title_player)
                     else
                         resources.getString(R.string.generic_player, player.seat)
-                    binding.nameView.setTextWithStyle(name,player.isNew, player.isWin, nameColor)
+                    binding.nameView.setTextWithStyle(name, player.isNew, player.isWin, nameColor)
                     binding.usernameView.isVisible = false
                 } else if (player.name.isEmpty()) {
-                    binding.nameView.setTextWithStyle(player.username,  player.isNew, player.isWin)
+                    binding.nameView.setTextWithStyle(player.username, player.isNew, player.isWin)
                     binding.usernameView.isVisible = false
                 } else {
                     binding.nameView.setTextWithStyle(player.name, player.isNew, player.isWin)

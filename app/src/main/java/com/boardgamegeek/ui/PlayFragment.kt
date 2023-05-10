@@ -112,9 +112,9 @@ class PlayFragment : Fragment() {
     }
 
     private fun showData(play: PlayEntity) {
-        binding.thumbnailView.safelyLoadImage(
+        binding.thumbnailView.loadImage(
             LinkedList(play.heroImageUrls),
-            object : ImageLoadCallback {
+            callback = object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     if (isAdded) binding.gameNameView.setBackgroundResource(R.color.black_overlay_light)
                 }

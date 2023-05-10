@@ -7,8 +7,6 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LifecycleCoroutineScope
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGeeklistItemsBinding
@@ -17,7 +15,7 @@ import com.boardgamegeek.entities.GeekListEntity
 import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnails
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
@@ -76,7 +74,7 @@ class GeekListItemsFragment : Fragment() {
         binding.emptyView.isVisible = !message.isNullOrBlank()
     }
 
-    class GeekListRecyclerViewAdapter() :
+    class GeekListRecyclerViewAdapter :
         RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
         var geekListItems: List<GeekListItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
@@ -108,7 +106,7 @@ class GeekListItemsFragment : Fragment() {
             fun bind(entity: GeekListItemEntity?, order: Int) {
                 entity?.let { item ->
                     binding.orderView.text = order.toString()
-                    binding.thumbnailView.loadThumbnails(*item.thumbnailUrls.orEmpty().toTypedArray())
+                    binding.thumbnailView.loadThumbnail(*item.thumbnailUrls.orEmpty().toTypedArray())
                     binding.itemNameView.text = item.objectName
                     binding.usernameView.text = item.username
                     binding.usernameView.isVisible = item.username != geekList?.username

@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.extensions.getHeaderSwatch
+import com.boardgamegeek.extensions.getIconColor
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
@@ -100,16 +100,16 @@ class GameCollectionItemViewModel @Inject constructor(
         emit(gameCollectionRepository.loadInventoryLocation())
     }
 
-    private val _swatch = MutableLiveData<Palette.Swatch>()
-    val swatch: LiveData<Palette.Swatch>
-        get() = _swatch
+    private val _iconColor = MutableLiveData<Int>()
+    val iconColor: LiveData<Int>
+        get() = _iconColor
 
     fun refresh() {
         _internalId.value?.let { _internalId.value = it }
     }
 
     fun updateGameColors(palette: Palette?) {
-        palette?.let { _swatch.value = it.getHeaderSwatch() }
+        palette?.let { _iconColor.value = it.getIconColor() }
     }
 
     fun updatePrivateInfo(

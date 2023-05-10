@@ -18,7 +18,6 @@ import com.boardgamegeek.ui.dialog.GamePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameRanksDialogFragment
 import com.boardgamegeek.ui.dialog.GameSuggestedPlayerCountPollDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.ui.widget.GameDetailRow
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 
@@ -68,8 +67,6 @@ class GameFragment : Fragment() {
                 viewModel.languagePoll.observe(viewLifecycleOwner) { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) }
                 viewModel.agePoll.observe(viewLifecycleOwner) { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) }
                 viewModel.playerPoll.observe(viewLifecycleOwner) { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) }
-                viewModel.expansions.observe(viewLifecycleOwner) { it?.let { entity -> onListQueryComplete(entity, binding.expansionsRow) } }
-                viewModel.baseGames.observe(viewLifecycleOwner) { it?.let { entity -> onListQueryComplete(entity, binding.baseGamesRow) } }
             }
         }
     }
@@ -91,8 +88,6 @@ class GameFragment : Fragment() {
             binding.agesInclude.root.isVisible = true
             binding.weightInclude.root.isVisible = true
             binding.languageInclude.root.isVisible = false
-            binding.baseGamesRow.isVisible = false
-            binding.expansionsRow.isVisible = false
         }
     }
 
@@ -109,8 +104,6 @@ class GameFragment : Fragment() {
             binding.weightInclude.weightIcon,
             binding.languageInclude.languageIcon,
         ).forEach { it.setOrClearColorFilter(iconColor) }
-
-        listOf(binding.expansionsRow, binding.baseGamesRow).forEach { it.colorize(iconColor) }
     }
 
     private fun onGameContentChanged(game: GameEntity) {
@@ -249,10 +242,5 @@ class GameFragment : Fragment() {
             else
                 it.first().playerCount + dash + it.last().playerCount
         }
-    }
-
-    private fun onListQueryComplete(list: List<GameDetailEntity>, view: GameDetailRow) {
-        view.bindData(viewModel.gameId.value ?: BggContract.INVALID_ID, gameName, list)
-        view.isVisible = list.isNotEmpty()
     }
 }

@@ -45,7 +45,7 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
 
         fun bind(item: CollectionItemEntity?, gameYearPublished: Int) {
             if (item == null) return
-            binding.thumbnail.loadThumbnailInList(item.thumbnailUrl)
+            binding.thumbnail.loadThumbnail(item.thumbnailUrl)
             binding.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
 
             binding.comment.setTextMaybeHtml(markupConverter.toHtml(item.comment), HtmlCompat.FROM_HTML_MODE_COMPACT, false)

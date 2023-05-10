@@ -86,7 +86,7 @@ class NewPlayActivity : AppCompatActivity() {
                 updateSummary()
 
                 val summaryView = findViewById<PlaySummary>(R.id.summaryView)
-                binding.thumbnailView.loadUrl(entity.heroImageUrl, object : ImageLoadCallback {
+                binding.thumbnailView.loadImage(entity.heroImageUrl, callback = object : ImageLoadCallback {
                     override fun onSuccessfulImageLoad(palette: Palette?) {
                         summaryView.setBackgroundResource(R.color.black_overlay_light)
                     }

@@ -13,7 +13,7 @@ import com.boardgamegeek.databinding.FragmentArtistsBinding
 import com.boardgamegeek.databinding.RowArtistBinding
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnailInList
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -114,7 +114,7 @@ class ArtistsFragment : Fragment() {
 
             fun bind(artist: PersonEntity?) {
                 artist?.let { a ->
-                    binding.avatarView.loadThumbnailInList(a.thumbnailUrl, R.drawable.person_image_empty)
+                    binding.avatarView.loadThumbnail(a.thumbnailUrl, R.drawable.person_image_empty)
                     binding.nameView.text = a.name
                     binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
                     binding.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${a.whitmoreScore}")

@@ -44,7 +44,7 @@ class GeekListItemActivity : HeroTabActivity() {
                 param(FirebaseAnalytics.Param.ITEM_NAME, geekListItemEntity.objectName)
             }
         }
-        geekListItemEntity.heroImageUrls?.let { loadToolbarImage(it) }
+        loadToolbarImage(geekListItemEntity.heroImageUrls)
     }
 
     override val optionsMenuId = R.menu.view

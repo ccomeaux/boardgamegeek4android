@@ -8,7 +8,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnailInList
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.extensions.setTextOrHide
 
 class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
@@ -35,7 +35,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
 
         view.findViewById<TextView>(R.id.player_title)?.setTextOrHide(result.title)
         view.findViewById<TextView>(R.id.player_subtitle)?.setTextOrHide(result.subtitle)
-        view.findViewById<ImageView>(R.id.player_avatar)?.loadThumbnailInList(result.avatarUrl, R.drawable.person_image_empty)
+        view.findViewById<ImageView>(R.id.player_avatar)?.loadThumbnail(result.avatarUrl, R.drawable.person_image_empty)
         view.tag = result.title
         return view
     }

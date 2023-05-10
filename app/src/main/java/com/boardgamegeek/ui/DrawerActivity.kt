@@ -148,7 +148,7 @@ abstract class DrawerActivity : BaseActivity() {
                 imageView.isVisible = false
             } else {
                 imageView.isVisible = true
-                imageView.loadThumbnail(user.avatarUrl, R.drawable.person_image_empty)
+                imageView.loadImage(user.avatarUrl, R.drawable.person_image_empty)
             }
             signedInGroup.isVisible = true
             signInButton.isVisible = false

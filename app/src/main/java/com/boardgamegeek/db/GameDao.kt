@@ -264,6 +264,7 @@ class GameDao(private val context: Context) {
             arrayOf(
                 Designers.Columns.DESIGNER_ID,
                 Designers.Columns.DESIGNER_NAME,
+                Designers.Columns.DESIGNER_THUMBNAIL_URL,
             )
         )
     }
@@ -275,6 +276,7 @@ class GameDao(private val context: Context) {
             arrayOf(
                 Artists.Columns.ARTIST_ID,
                 Artists.Columns.ARTIST_NAME,
+                Artists.Columns.ARTIST_THUMBNAIL_URL,
             )
         )
     }
@@ -286,6 +288,7 @@ class GameDao(private val context: Context) {
             arrayOf(
                 Publishers.Columns.PUBLISHER_ID,
                 Publishers.Columns.PUBLISHER_NAME,
+                Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
             )
         )
     }
@@ -315,9 +318,11 @@ class GameDao(private val context: Context) {
     private suspend fun loadDetails(gameId: Int, uri: Uri, projection: Array<String>): List<GameDetailEntity> = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
             context.contentResolver.loadList(uri, projection) {
+                val url = if (projection.size > 2) it.getString(2).orEmpty() else ""
                 GameDetailEntity(
                     it.getInt(0),
                     it.getString(1),
+                    thumbnailUrl = url,
                 )
             }
         } else emptyList()
@@ -332,6 +337,7 @@ class GameDao(private val context: Context) {
                     arrayOf(
                         GamesExpansions.Columns.EXPANSION_ID,
                         GamesExpansions.Columns.EXPANSION_NAME,
+                        Games.Columns.THUMBNAIL_URL,
                     ),
                     selection = "${GamesExpansions.Columns.INBOUND}=?",
                     selectionArgs = arrayOf(if (inbound) "1" else "0")
@@ -339,6 +345,7 @@ class GameDao(private val context: Context) {
                     GameExpansionsEntity(
                         it.getInt(0),
                         it.getString(1),
+                        it.getString(2).orEmpty(),
                     )
                 }
                 for (result in briefResults) {

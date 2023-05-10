@@ -13,7 +13,7 @@ import com.boardgamegeek.databinding.FragmentDesignersBinding
 import com.boardgamegeek.databinding.RowDesignerBinding
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.loadThumbnailInList
+import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.DesignersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -114,7 +114,7 @@ class DesignersFragment : Fragment() {
 
             fun bind(designer: PersonEntity?) {
                 designer?.let { d ->
-                    binding.avatarView.loadThumbnailInList(d.thumbnailUrl, R.drawable.person_image_empty)
+                    binding.avatarView.loadThumbnail(d.thumbnailUrl, R.drawable.person_image_empty)
                     binding.nameView.text = d.name
                     binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
                     binding.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")

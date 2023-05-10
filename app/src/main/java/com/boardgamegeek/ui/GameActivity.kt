@@ -154,9 +154,13 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     }
 
     private fun changeImage(heroImageUrl: String, thumbnailUrl: String) {
-        this.heroImageUrl = heroImageUrl
-        this.thumbnailUrl = thumbnailUrl
-        loadToolbarImage(listOf(heroImageUrl, thumbnailUrl))
+        if (this.heroImageUrl != heroImageUrl ||
+            this.thumbnailUrl != thumbnailUrl
+        ) {
+            this.heroImageUrl = heroImageUrl
+            this.thumbnailUrl = thumbnailUrl
+            loadToolbarImage(listOf(heroImageUrl, thumbnailUrl))
+        }
     }
 
     override fun onPaletteLoaded(palette: Palette?) {

@@ -12,7 +12,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.databinding.FragmentGameCreditsBinding
+import com.boardgamegeek.databinding.FragmentGameLinkedItemsBinding
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.loadIcon
@@ -24,14 +24,14 @@ import com.google.android.material.chip.ChipGroup
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class GameCreditsFragment : Fragment() {
-    private var _binding: FragmentGameCreditsBinding? = null
+class GameLinkedItemsFragment : Fragment() {
+    private var _binding: FragmentGameLinkedItemsBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentGameCreditsBinding.inflate(inflater, container, false)
+        _binding = FragmentGameLinkedItemsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -58,71 +58,34 @@ class GameCreditsFragment : Fragment() {
                         binding.footer.gameIdView.text = game.id.toString()
                         binding.footer.lastModifiedView.timestamp = game.updated
                         binding.emptyMessage.isVisible = false
-                        listOf(binding.designerHeaderView, binding.artistsHeaderView, binding.publishersHeaderView, binding.categoriesHeaderView, binding.mechanicsHeaderView)
-                            .forEach { tv -> tv.setTextColor(game.iconColor) }
+                        listOf(binding.expansionsHeaderView, binding.baseGamesHeaderView).forEach { tv -> tv.setTextColor(game.iconColor) }
                     }
                 }
             }
             binding.progress.hide()
         }
-        viewModel.designers.observe(viewLifecycleOwner) { entities ->
+        viewModel.expansions.observe(viewLifecycleOwner) { entities ->
             entities?.let { list ->
-                binding.designerHeaderView.isGone = list.isEmpty()
-                binding.designersChipGroup.bindData(
+                binding.expansionsHeaderView.isGone = list.isEmpty()
+                binding.expansionsChipGroup.bindData(
                     list,
-                    R.drawable.ic_baseline_edit_24,
-                    R.string.designers,
-                    GameViewModel.ProducerType.DESIGNER,
+                    R.drawable.ic_baseline_flip_to_back_24,
+                    R.string.expansions,
+                    GameViewModel.ProducerType.EXPANSION,
                 )
-                binding.designersDividerView.isGone = list.isEmpty()
+                binding.expansionsDividerView.isGone = list.isEmpty()
             }
         }
-        viewModel.artists.observe(viewLifecycleOwner) { entities ->
+        viewModel.baseGames.observe(viewLifecycleOwner) { entities ->
             entities?.let { list ->
-                binding.artistsHeaderView.isGone = list.isEmpty()
-                binding.artistsChipGroup.bindData(
+                binding.baseGamesHeaderView.isGone = list.isEmpty()
+                binding.baseGamesChipGroup.bindData(
                     list,
-                    R.drawable.ic_baseline_brush_24,
-                    R.string.artists,
-                    GameViewModel.ProducerType.ARTIST,
+                    R.drawable.ic_baseline_flip_to_front_24,
+                    R.string.base_games,
+                    GameViewModel.ProducerType.BASE_GAME,
                 )
-                binding.artistsDividerView.isGone = list.isEmpty()
-            }
-        }
-        viewModel.publishers.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
-                binding.publishersHeaderView.isGone = list.isEmpty()
-                binding.publishersChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_import_contacts_24,
-                    R.string.publishers,
-                    GameViewModel.ProducerType.PUBLISHER,
-                )
-                binding.publishersHeaderView.isGone = list.isEmpty()
-            }
-        }
-        viewModel.categories.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
-                binding.categoriesHeaderView.isGone = list.isEmpty()
-                binding.categoriesChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_category_24,
-                    R.string.categories,
-                    GameViewModel.ProducerType.CATEGORY,
-                )
-                binding.categoriesDividerView.isGone = list.isEmpty()
-            }
-        }
-        viewModel.mechanics.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
-                binding.mechanicsHeaderView.isGone = list.isEmpty()
-                binding.mechanicsChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_settings_24,
-                    R.string.mechanics,
-                    GameViewModel.ProducerType.MECHANIC,
-                )
-                binding.mechanicsDividerView.isGone = list.isEmpty()
+                binding.baseGamesDividerView.isGone = list.isEmpty()
             }
         }
     }
@@ -132,19 +95,19 @@ class GameCreditsFragment : Fragment() {
         @DrawableRes iconResId: Int,
         @StringRes labelResId: Int,
         type: GameViewModel.ProducerType,
+        limit: Int = 4,
     ) {
         if (list.isEmpty()) {
             visibility = View.GONE
         } else {
             removeAllViews()
-            val limit = 4
             if (list.size <= limit) {
                 list.forEach { producer ->
-                    addView(createChip(producer, type))
+                    addView(createChip(producer))
                 }
             } else {
                 list.take(limit - 1).forEach { producer ->
-                    addView(createChip(producer, type))
+                    addView(createChip(producer))
                 }
                 val moreChip = Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
                     layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
@@ -162,19 +125,14 @@ class GameCreditsFragment : Fragment() {
         }
     }
 
-    private fun createChip(producer: GameDetailEntity, type: GameViewModel.ProducerType): Chip {
+    private fun createChip(producer: GameDetailEntity): Chip {
         return Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             text = producer.name
             if (producer.thumbnailUrl.isNotBlank())
                 loadIcon(producer.thumbnailUrl)
             setOnClickListener {
-                when (type) {
-                    GameViewModel.ProducerType.ARTIST -> PersonActivity.startForArtist(context, producer.id, producer.name)
-                    GameViewModel.ProducerType.DESIGNER -> PersonActivity.startForDesigner(context, producer.id, producer.name)
-                    GameViewModel.ProducerType.PUBLISHER -> PersonActivity.startForPublisher(context, producer.id, producer.name)
-                    else -> {}
-                }
+                GameActivity.start(context, producer.id, producer.name)
             }
         }
     }

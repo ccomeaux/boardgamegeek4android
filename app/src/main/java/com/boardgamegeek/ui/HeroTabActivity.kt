@@ -6,9 +6,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.databinding.ActivityHeroTabBinding
 import com.boardgamegeek.extensions.ImageLoadCallback
 import com.boardgamegeek.extensions.applyDarkScrim
-import com.boardgamegeek.extensions.safelyLoadImage
+import com.boardgamegeek.extensions.loadImage
 import com.google.android.material.tabs.TabLayoutMediator
-import java.util.LinkedList
 
 /**
  * A navigation drawer activity that displays a hero image over a view pager.
@@ -44,7 +43,7 @@ abstract class HeroTabActivity : DrawerActivity() {
     }
 
     protected fun loadToolbarImage(urls: List<String>?) {
-        binding.toolbarImage.safelyLoadImage(LinkedList(urls.orEmpty().filter { it.isNotBlank() }), object : ImageLoadCallback {
+        binding.toolbarImage.loadImage(urls.orEmpty(), callback = object : ImageLoadCallback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
                 onPaletteLoaded(palette)
                 binding.scrimView.applyDarkScrim()

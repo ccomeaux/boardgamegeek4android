@@ -7,10 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.core.content.withStyledAttributes
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
-import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setSelectableBackground
 import com.boardgamegeek.extensions.setTextMaybeHtml
@@ -55,8 +55,8 @@ class TextEditorView @JvmOverloads constructor(
         setVisibilityAndClickability()
     }
 
-    fun setHeaderColor(swatch: Palette.Swatch) {
-        findViewById<TextView>(R.id.headerView).setTextColor(swatch.rgb)
+    fun setHeaderColor(@ColorInt color: Int) {
+        findViewById<TextView>(R.id.headerView).setTextColor(color)
     }
 
     fun enableEditMode(enable: Boolean) {
