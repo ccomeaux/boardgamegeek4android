@@ -58,6 +58,8 @@ class GameCreditsFragment : Fragment() {
                         binding.footer.gameIdView.text = game.id.toString()
                         binding.footer.lastModifiedView.timestamp = game.updated
                         binding.emptyMessage.isVisible = false
+                        listOf(binding.designerHeaderView, binding.artistsHeaderView, binding.publishersHeaderView, binding.categoriesHeaderView, binding.mechanicsHeaderView)
+                            .forEach { tv -> tv.setTextColor(game.iconColor) }
                     }
                 }
             }
@@ -72,6 +74,7 @@ class GameCreditsFragment : Fragment() {
                     R.string.designers,
                     GameViewModel.ProducerType.DESIGNER,
                 )
+                binding.designersDividerView.isGone = list.isEmpty()
             }
         }
         viewModel.artists.observe(viewLifecycleOwner) { entities ->
@@ -83,6 +86,7 @@ class GameCreditsFragment : Fragment() {
                     R.string.artists,
                     GameViewModel.ProducerType.ARTIST,
                 )
+                binding.artistsDividerView.isGone = list.isEmpty()
             }
         }
         viewModel.publishers.observe(viewLifecycleOwner) { entities ->
@@ -94,18 +98,19 @@ class GameCreditsFragment : Fragment() {
                     R.string.publishers,
                     GameViewModel.ProducerType.PUBLISHER,
                 )
+                binding.publishersHeaderView.isGone = list.isEmpty()
             }
         }
         viewModel.categories.observe(viewLifecycleOwner) { entities ->
             entities?.let { list ->
                 binding.categoriesHeaderView.isGone = list.isEmpty()
-                binding.categoriesChipGroup.chipSpacingVertical = 0
                 binding.categoriesChipGroup.bindData(
                     list,
                     R.drawable.ic_baseline_category_24,
                     R.string.categories,
                     GameViewModel.ProducerType.CATEGORY,
                 )
+                binding.categoriesDividerView.isGone = list.isEmpty()
             }
         }
         viewModel.mechanics.observe(viewLifecycleOwner) { entities ->
@@ -117,6 +122,7 @@ class GameCreditsFragment : Fragment() {
                     R.string.mechanics,
                     GameViewModel.ProducerType.MECHANIC,
                 )
+                binding.mechanicsDividerView.isGone = list.isEmpty()
             }
         }
     }
@@ -142,7 +148,7 @@ class GameCreditsFragment : Fragment() {
                 }
                 val moreChip = Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
                     layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    if (iconResId > 0) setChipIconResource(iconResId)
+                    if (iconResId != 0) setChipIconResource(iconResId)
                     text = context.getString(R.string.more_suffix, list.size - limit + 1)
                     setOnClickListener {
                         val gameId = viewModel.gameId.value ?: BggContract.INVALID_ID

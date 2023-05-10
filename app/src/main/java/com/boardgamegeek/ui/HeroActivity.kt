@@ -89,7 +89,7 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
                 binding.scrimView.applyDarkScrim()
                 if (palette != null) {
                     onPaletteGenerated(palette)
-                    binding.fab.colorize(palette.getIconSwatch().rgb)
+                    binding.fab.colorize(palette.getIconColor())
                 }
                 binding.fab.show()
             }

@@ -135,10 +135,10 @@ class GameCollectionItemFragment : Fragment() {
             isInEditMode = it
             bindVisibility()
         }
-        viewModel.swatch.observe(viewLifecycleOwner) {
+        viewModel.iconColor.observe(viewLifecycleOwner) {
             it?.let { swatch ->
                 listOf(binding.privateInfoHeader, binding.wishlistHeader, binding.tradeHeader, binding.privateInfoHintView).forEach { view ->
-                    view.setTextColor(swatch.rgb)
+                    view.setTextColor(swatch)
                 }
                 listOf(
                     binding.commentView,

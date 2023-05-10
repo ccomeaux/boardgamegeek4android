@@ -2,46 +2,43 @@ package com.boardgamegeek.extensions
 
 import android.content.Context
 import android.graphics.Color
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.palette.graphics.Palette
 import androidx.palette.graphics.Target
 import androidx.palette.graphics.get
 import com.boardgamegeek.R
+import com.boardgamegeek.util.DARK_TARGET
 
 /**
- * Gets a swatch from the palette suitable for tinting icon images.
+ * Gets a color from the palette suitable for tinting icon images and header text.
  */
-fun Palette?.getIconSwatch(): Palette.Swatch {
-    return this?.darkVibrantSwatch
-            ?: this?.vibrantSwatch
-            ?: this?.swatches?.getOrNull(0)
-            ?: Palette.Swatch(Color.BLACK, 0)
+@ColorInt
+fun Palette?.getIconColor(): Int {
+    return (this?.darkVibrantSwatch
+        ?: this?.vibrantSwatch
+        ?: this?.getSwatchForTarget(DARK_TARGET)
+        ?: this?.swatches?.minBy { it.hsl.last() })?.rgb
+        ?: Color.BLACK
 }
 
 /**
- * Gets a swatch from the palette suitable for light text.
+ * Gets a color from the palette suitable as a background for light text.
  */
-fun Palette?.getDarkSwatch(): Palette.Swatch {
-    return this?.darkMutedSwatch
-            ?: this?.darkVibrantSwatch
-            ?: this?.swatches?.getOrNull(0)
-            ?: Palette.Swatch(Color.BLACK, 0)
-}
-
-/**
- * Gets a swatch from the palette best suited for header text.
- */
-fun Palette?.getHeaderSwatch(): Palette.Swatch {
-    return this?.vibrantSwatch
-            ?: this?.darkMutedSwatch
-            ?: this?.swatches?.getOrNull(0)
-            ?: Palette.Swatch(Color.BLACK, 0)
+@ColorInt
+fun Palette?.getDarkColor(): Int {
+    return (this?.darkMutedSwatch
+        ?: this?.darkVibrantSwatch
+        ?: this?.getSwatchForTarget(DARK_TARGET)
+        ?: this?.swatches?.minBy { it.hsl.last() })?.rgb
+        ?: Color.BLACK
 }
 
 private val winsTargets = arrayOf(Target.VIBRANT, Target.LIGHT_VIBRANT, Target.DARK_VIBRANT, Target.LIGHT_MUTED, Target.MUTED, Target.DARK_MUTED)
 
-private val winnablePlaysTargets = arrayOf(Target.DARK_VIBRANT, Target.DARK_MUTED, Target.MUTED, Target.VIBRANT, Target.LIGHT_VIBRANT, Target.LIGHT_MUTED)
+private val winnablePlaysTargets =
+    arrayOf(Target.DARK_VIBRANT, Target.DARK_MUTED, Target.MUTED, Target.VIBRANT, Target.LIGHT_VIBRANT, Target.LIGHT_MUTED)
 
 private val allPlaysTargets = arrayOf(Target.LIGHT_MUTED, Target.LIGHT_VIBRANT, Target.MUTED, Target.VIBRANT, Target.DARK_MUTED, Target.DARK_VIBRANT)
 
@@ -53,7 +50,12 @@ fun Palette.getPlayCountColors(context: Context): IntArray {
     return intArrayOf(winColor.first, winnablePlaysColor.first, allPlaysColor.first)
 }
 
-private fun Palette.getColor(targets: Array<Target>, context: Context, @ColorRes defaultColorResId: Int, vararg usedTargets: Target): Pair<Int, Target> {
+private fun Palette.getColor(
+    targets: Array<Target>,
+    context: Context,
+    @ColorRes defaultColorResId: Int,
+    vararg usedTargets: Target
+): Pair<Int, Target> {
     return targets.find { !usedTargets.contains(it) && this[it] != null }?.let {
         this[it]!!.rgb to it
     } ?: (ContextCompat.getColor(context, defaultColorResId) to Target.Builder().build())

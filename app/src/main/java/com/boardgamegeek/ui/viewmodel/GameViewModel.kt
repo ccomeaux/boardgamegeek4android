@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import androidx.annotation.ColorInt
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
@@ -321,8 +322,10 @@ class GameViewModel @Inject constructor(
         palette?.let { p ->
             game.value?.data?.let { game ->
                 viewModelScope.launch {
-                    val iconColor = p.getIconSwatch().rgb
-                    val darkColor = p.getDarkSwatch().rgb
+                    @ColorInt
+                    val iconColor = p.getIconColor()
+                    @ColorInt
+                    val darkColor = p.getDarkColor()
                     val (winsColor, winnablePlaysColor, allPlaysColor) = p.getPlayCountColors(getApplication())
                     val modified = game.iconColor != iconColor ||
                             game.darkColor != darkColor ||

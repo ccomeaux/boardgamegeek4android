@@ -51,6 +51,7 @@
 				android:layout_height="wrap_content" />
 
 			<View
+				android:id="@+id/designersDividerView"
 				android:layout_width="match_parent"
 				android:layout_height="1dp"
 				android:background="@color/list_divider" />
@@ -68,6 +69,7 @@
 				android:layout_height="wrap_content" />
 
 			<View
+				android:id="@+id/artistsDividerView"
 				android:layout_width="match_parent"
 				android:layout_height="1dp"
 				android:background="@color/list_divider" />
@@ -85,6 +87,7 @@
 				android:layout_height="wrap_content" />
 
 			<View
+				android:id="@+id/publishersDividerView"
 				android:layout_width="match_parent"
 				android:layout_height="1dp"
 				android:background="@color/list_divider" />
@@ -102,6 +105,7 @@
 				android:layout_height="wrap_content" />
 
 			<View
+				android:id="@+id/categoriesDividerView"
 				android:layout_width="match_parent"
 				android:layout_height="1dp"
 				android:background="@color/list_divider" />
@@ -117,6 +121,12 @@
 				android:id="@+id/mechanicsChipGroup"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content" />
+
+			<View
+				android:id="@+id/mechanicsDividerView"
+				android:layout_width="match_parent"
+				android:layout_height="1dp"
+				android:background="@color/list_divider" />
 
 			<include
 				android:id="@+id/footer"

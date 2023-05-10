@@ -4,9 +4,10 @@ import android.annotation.TargetApi
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Build
+import androidx.annotation.ColorInt
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
-fun FloatingActionButton.colorize(color: Int): Boolean {
+fun FloatingActionButton.colorize(@ColorInt color: Int): Boolean {
     val colorStateList = ColorStateList.valueOf(color)
     if (color != Color.TRANSPARENT && backgroundTintList != colorStateList) {
         backgroundTintList = colorStateList
