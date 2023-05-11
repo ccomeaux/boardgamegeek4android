@@ -13,6 +13,7 @@
 		<item name="actionModeBackground">@color/primary</item>
 		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+		<item name="bottomSheetDialogTheme">@style/ModalBottomSheetDialog</item>
 	</style>
 
 	<style name="Theme.bgglight.Base" parent="@style/Theme.MaterialComponents.Light.NoActionBar"/>

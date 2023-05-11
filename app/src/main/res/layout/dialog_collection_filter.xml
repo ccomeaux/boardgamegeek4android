@@ -1,232 +1,248 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/scrollContainer"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:paddingHorizontal="@dimen/material_margin_horizontal_dialog"
-	android:paddingVertical="@dimen/material_margin_vertical">
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
 
-	<LinearLayout
-		android:id="@+id/container"
-		android:layout_width="match_parent"
+	<TextView
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:orientation="vertical">
+		android:gravity="center_vertical"
+		android:minHeight="48dp"
+		android:paddingHorizontal="@dimen/material_margin_horizontal"
+		android:text="@string/title_filter"
+		android:textAppearance="@style/TextAppearance.Title" />
 
-		<TextView
-			style="@style/DialogSectionHeader"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/collection_filter_personal" />
+	<ScrollView
+		android:id="@+id/scrollContainer"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:layout_marginVertical="@dimen/material_margin_vertical"
+		android:paddingHorizontal="@dimen/material_margin_horizontal"
+		android:scrollbarStyle="outsideInset">
 
-		<com.google.android.material.chip.ChipGroup
-			android:id="@+id/collectionChipGroup"
+		<LinearLayout
+			android:id="@+id/container"
 			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/collectionStatus"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_sort_type_collection_name"
-				android:text="@string/menu_collection_status"
-				tools:checked="true"
-				tools:checkedIcon="@drawable/ic_baseline_library_books_24"
-				tools:closeIconVisible="true" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/myRating"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_my_rating"
-				android:text="@string/menu_my_rating" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/comment"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_comment"
-				android:text="@string/menu_comment" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/playCount"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_play_count"
-				android:text="@string/menu_play_count" />
-		</com.google.android.material.chip.ChipGroup>
-
-		<TextView
-			style="@style/DialogSectionHeader"
-			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/collection_filter_private_info" />
+			android:orientation="vertical">
 
-		<com.google.android.material.chip.ChipGroup
-			android:id="@+id/privateInfoChipGroup"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/acquiredFrom"
-				style="@style/FilterChip"
+			<TextView
+				style="@style/DialogSectionHeader"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_acquired_from"
-				android:text="@string/menu_acquired_from" />
+				android:text="@string/collection_filter_personal" />
 
-			<com.google.android.material.chip.Chip
-				android:id="@+id/inventoryLocation"
-				style="@style/FilterChip"
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/collectionChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/collectionStatus"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_sort_type_collection_name"
+					android:text="@string/menu_collection_status"
+					tools:checked="true"
+					tools:checkedIcon="@drawable/ic_baseline_library_books_24"
+					tools:closeIconVisible="true" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/myRating"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_my_rating"
+					android:text="@string/menu_my_rating" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/comment"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_comment"
+					android:text="@string/menu_comment" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/playCount"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_play_count"
+					android:text="@string/menu_play_count" />
+			</com.google.android.material.chip.ChipGroup>
+
+			<TextView
+				style="@style/DialogSectionHeader"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_inventory_location"
-				android:text="@string/menu_inventory_location" />
+				android:text="@string/collection_filter_private_info" />
 
-			<com.google.android.material.chip.Chip
-				android:id="@+id/privateComment"
-				style="@style/FilterChip"
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/privateInfoChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/acquiredFrom"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_acquired_from"
+					android:text="@string/menu_acquired_from" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/inventoryLocation"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_inventory_location"
+					android:text="@string/menu_inventory_location" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/privateComment"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_private_comment"
+					android:text="@string/menu_private_comment" />
+			</com.google.android.material.chip.ChipGroup>
+
+			<TextView
+				style="@style/DialogSectionHeader"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_private_comment"
-				android:text="@string/menu_private_comment" />
-		</com.google.android.material.chip.ChipGroup>
+				android:text="@string/collection_filter_stats" />
 
-		<TextView
-			style="@style/DialogSectionHeader"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/collection_filter_stats" />
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/infoChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
 
-		<com.google.android.material.chip.ChipGroup
-			android:id="@+id/infoChipGroup"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
+				<com.google.android.material.chip.Chip
+					android:id="@+id/collectionName"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_collection_name"
+					android:text="@string/menu_collection_name" />
 
-			<com.google.android.material.chip.Chip
-				android:id="@+id/collectionName"
-				style="@style/FilterChip"
+				<com.google.android.material.chip.Chip
+					android:id="@+id/subtype"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_subtype"
+					android:text="@string/menu_expansion_status" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/numberOfPlayers"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_number_of_players"
+					android:text="@string/menu_number_of_players" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/yearPublished"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_year_published"
+					android:text="@string/menu_year_published" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/playTime"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_play_time"
+					android:text="@string/menu_play_time" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/suggestedAge"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_suggested_age"
+					android:text="@string/menu_suggested_age" />
+
+			</com.google.android.material.chip.ChipGroup>
+
+			<TextView
+				style="@style/DialogSectionHeader"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_collection_name"
-				android:text="@string/menu_collection_name" />
+				android:text="@string/collection_filter_community" />
 
-			<com.google.android.material.chip.Chip
-				android:id="@+id/subtype"
-				style="@style/FilterChip"
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/communityChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/geekRanking"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_geek_ranking"
+					android:text="@string/menu_geek_ranking" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/geekRating"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_geek_rating"
+					android:text="@string/menu_geek_rating" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/averageRating"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_average_rating"
+					android:text="@string/menu_average_rating" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/recommendedPlayerCount"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_recommended_player_count"
+					android:text="@string/menu_recommended_player_count" />
+
+				<com.google.android.material.chip.Chip
+					android:id="@+id/averageWeight"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_average_weight"
+					android:text="@string/menu_average_weight" />
+			</com.google.android.material.chip.ChipGroup>
+
+			<TextView
+				style="@style/DialogSectionHeader"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_subtype"
-				android:text="@string/menu_expansion_status" />
+				android:text="@string/collection_sort_local" />
 
-			<com.google.android.material.chip.Chip
-				android:id="@+id/numberOfPlayers"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_number_of_players"
-				android:text="@string/menu_number_of_players" />
+			<com.google.android.material.chip.ChipGroup
+				android:id="@+id/localChipGroup"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
 
-			<com.google.android.material.chip.Chip
-				android:id="@+id/yearPublished"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_year_published"
-				android:text="@string/menu_year_published" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/playTime"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_play_time"
-				android:text="@string/menu_play_time" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/suggestedAge"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_suggested_age"
-				android:text="@string/menu_suggested_age" />
-
-		</com.google.android.material.chip.ChipGroup>
-
-		<TextView
-			style="@style/DialogSectionHeader"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/collection_filter_community" />
-
-		<com.google.android.material.chip.ChipGroup
-			android:id="@+id/communityChipGroup"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/geekRanking"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_geek_ranking"
-				android:text="@string/menu_geek_ranking" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/geekRating"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_geek_rating"
-				android:text="@string/menu_geek_rating" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/averageRating"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_average_rating"
-				android:text="@string/menu_average_rating" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/recommendedPlayerCount"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_recommended_player_count"
-				android:text="@string/menu_recommended_player_count" />
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/averageWeight"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_average_weight"
-				android:text="@string/menu_average_weight" />
-		</com.google.android.material.chip.ChipGroup>
-
-		<TextView
-			style="@style/DialogSectionHeader"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:text="@string/collection_sort_local" />
-
-		<com.google.android.material.chip.ChipGroup
-			android:id="@+id/localChipGroup"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content">
-
-			<com.google.android.material.chip.Chip
-				android:id="@+id/favorite"
-				style="@style/FilterChip"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:tag="@string/collection_filter_type_favorite"
-				android:text="@string/menu_favorite" />
-		</com.google.android.material.chip.ChipGroup>
-	</LinearLayout>
-</ScrollView>
+				<com.google.android.material.chip.Chip
+					android:id="@+id/favorite"
+					style="@style/FilterChip"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:tag="@string/collection_filter_type_favorite"
+					android:text="@string/menu_favorite" />
+			</com.google.android.material.chip.ChipGroup>
+		</LinearLayout>
+	</ScrollView>
+</LinearLayout>
