@@ -25,59 +25,61 @@ class PlayDao(private val context: Context) {
     }
 
     suspend fun loadPlay(id: Long): PlayEntity? = withContext(Dispatchers.IO) {
-        context.contentResolver.loadEntity(
-            Plays.buildPlayWithGameUri(id),
-            arrayOf(
-                BaseColumns._ID,
-                Plays.Columns.PLAY_ID,
-                Plays.Columns.DATE,
-                Plays.Columns.OBJECT_ID,
-                Plays.Columns.ITEM_NAME,
-                Plays.Columns.QUANTITY,
-                Plays.Columns.LENGTH,
-                Plays.Columns.LOCATION,
-                Plays.Columns.INCOMPLETE,
-                Plays.Columns.NO_WIN_STATS,
-                Plays.Columns.COMMENTS,
-                Plays.Columns.SYNC_TIMESTAMP,
-                Plays.Columns.PLAYER_COUNT,
-                Plays.Columns.DIRTY_TIMESTAMP,
-                Plays.Columns.UPDATE_TIMESTAMP,
-                Plays.Columns.DELETE_TIMESTAMP,
-                Plays.Columns.START_TIME,
-                Games.Columns.IMAGE_URL,
-                Games.Columns.THUMBNAIL_URL,
-                Games.Columns.HERO_IMAGE_URL,
-                Games.Columns.UPDATED_PLAYS,
-            ),
-        ) {
-            val internalId = it.getLong(0)
-            val players = loadPlayers(internalId)
-            PlayEntity(
-                internalId = internalId,
-                playId = it.getInt(1),
-                rawDate = it.getString(2),
-                gameId = it.getInt(3),
-                gameName = it.getString(4),
-                quantity = it.getIntOrNull(5) ?: 1,
-                length = it.getIntOrNull(6) ?: 0,
-                location = it.getStringOrNull(7).orEmpty(),
-                incomplete = it.getInt(8) == 1,
-                noWinStats = it.getInt(9) == 1,
-                comments = it.getStringOrNull(10).orEmpty(),
-                syncTimestamp = it.getLong(11),
-                initialPlayerCount = it.getInt(12),
-                dirtyTimestamp = it.getLong(13),
-                updateTimestamp = it.getLong(14),
-                deleteTimestamp = it.getLong(15),
-                startTime = it.getLong(16),
-                imageUrl = it.getStringOrNull(17).orEmpty(),
-                thumbnailUrl = it.getStringOrNull(18).orEmpty(),
-                heroImageUrl = it.getStringOrNull(19).orEmpty(),
-                updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
-                _players = players,
-            )
-        }
+        if (id != INVALID_ID.toLong()) {
+            context.contentResolver.loadEntity(
+                Plays.buildPlayWithGameUri(id),
+                arrayOf(
+                    BaseColumns._ID,
+                    Plays.Columns.PLAY_ID,
+                    Plays.Columns.DATE,
+                    Plays.Columns.OBJECT_ID,
+                    Plays.Columns.ITEM_NAME,
+                    Plays.Columns.QUANTITY,
+                    Plays.Columns.LENGTH,
+                    Plays.Columns.LOCATION,
+                    Plays.Columns.INCOMPLETE,
+                    Plays.Columns.NO_WIN_STATS,
+                    Plays.Columns.COMMENTS,
+                    Plays.Columns.SYNC_TIMESTAMP,
+                    Plays.Columns.PLAYER_COUNT,
+                    Plays.Columns.DIRTY_TIMESTAMP,
+                    Plays.Columns.UPDATE_TIMESTAMP,
+                    Plays.Columns.DELETE_TIMESTAMP,
+                    Plays.Columns.START_TIME,
+                    Games.Columns.IMAGE_URL,
+                    Games.Columns.THUMBNAIL_URL,
+                    Games.Columns.HERO_IMAGE_URL,
+                    Games.Columns.UPDATED_PLAYS,
+                ),
+            ) {
+                val internalId = it.getLong(0)
+                val players = loadPlayers(internalId)
+                PlayEntity(
+                    internalId = internalId,
+                    playId = it.getInt(1),
+                    rawDate = it.getString(2),
+                    gameId = it.getInt(3),
+                    gameName = it.getString(4),
+                    quantity = it.getIntOrNull(5) ?: 1,
+                    length = it.getIntOrNull(6) ?: 0,
+                    location = it.getStringOrNull(7).orEmpty(),
+                    incomplete = it.getInt(8) == 1,
+                    noWinStats = it.getInt(9) == 1,
+                    comments = it.getStringOrNull(10).orEmpty(),
+                    syncTimestamp = it.getLong(11),
+                    initialPlayerCount = it.getInt(12),
+                    dirtyTimestamp = it.getLong(13),
+                    updateTimestamp = it.getLong(14),
+                    deleteTimestamp = it.getLong(15),
+                    startTime = it.getLong(16),
+                    imageUrl = it.getStringOrNull(17).orEmpty(),
+                    thumbnailUrl = it.getStringOrNull(18).orEmpty(),
+                    heroImageUrl = it.getStringOrNull(19).orEmpty(),
+                    updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+                    _players = players,
+                )
+            }
+        } else null
     }
 
     private suspend fun loadPlayers(internalId: Long): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
@@ -479,14 +481,17 @@ class PlayDao(private val context: Context) {
                 Timber.i("Can't sync a play without a play ID.")
                 SaveStatus.ERROR
             }
+
             candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
                 upsert(play, INVALID_ID.toLong())
                 SaveStatus.INSERTED
             }
+
             candidate.isDirty -> {
                 Timber.i("Not saving during the sync; local play is modified.")
                 SaveStatus.DIRTY
             }
+
             candidate.syncHashCode == play.generateSyncHashCode() -> {
                 context.contentResolver.update(
                     Plays.buildPlayUri(candidate.internalId),
@@ -496,6 +501,7 @@ class PlayDao(private val context: Context) {
                 )
                 SaveStatus.UNCHANGED
             }
+
             else -> {
                 upsert(play, candidate.internalId)
                 SaveStatus.UPDATED
@@ -553,7 +559,7 @@ class PlayDao(private val context: Context) {
             Timber.d("Saved play _ID=$insertedId")
             insertedId
         } else {
-            Timber.i("Skipping inserting a deleted play")
+            Timber.i("Skipping upserting a deleted play")
             INVALID_ID.toLong()
         }
     }
