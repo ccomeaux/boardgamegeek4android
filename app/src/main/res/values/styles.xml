@@ -3,17 +3,16 @@
 
 	<!-- TextAppearance -->
 
-	<style name="TextAppearance.Basic" parent="@style/TextAppearance.MaterialComponents.Body1">
+	<style name="TextAppearance.Basic" parent="@style/TextAppearance.Material3.BodyMedium">
 		<item name="android:textColor">@color/primary_text</item>
 		<item name="android:textSize">14sp</item>
 	</style>
 
-	<style name="TextAppearance.Primary" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
+	<style name="TextAppearance.Primary" parent="@style/TextAppearance.Material3.TitleMedium">
 		<item name="android:textColor">#000</item>
-		<item name="android:textSize">16sp</item>
 	</style>
 
-	<style name="TextAppearance.Secondary" parent="@style/TextAppearance.MaterialComponents.Body2">
+	<style name="TextAppearance.Secondary" parent="@style/TextAppearance.Material3.BodyMedium">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
@@ -25,41 +24,41 @@
 		<item name="android:textColor">@color/inverse_secondary_text</item>
 	</style>
 
-	<style name="TextAppearance.Big" parent="@style/TextAppearance.MaterialComponents.Body1">
+	<style name="TextAppearance.Big" parent="@style/TextAppearance.Material3.BodyLarge">
 		<item name="android:textSize">18sp</item>
 	</style>
 
-	<style name="TextAppearance.Huge" parent="@style/TextAppearance.MaterialComponents.Body1">
+	<style name="TextAppearance.Huge" parent="@style/TextAppearance.Material3.BodyLarge">
 		<item name="android:textSize">20sp</item>
 		<item name="fontFamily">sans-serif-condensed</item>
 		<item name="android:fontFamily">sans-serif-condensed</item>
 	</style>
 
-	<style name="TextAppearance.Body" parent="TextAppearance.MaterialComponents.Body2" />
+	<style name="TextAppearance.Body" parent="TextAppearance.Material3.BodyMedium" />
 
-	<style name="TextAppearance.Title" parent="@style/TextAppearance.MaterialComponents.Headline6" />
+	<style name="TextAppearance.Title" parent="@style/TextAppearance.Material3.TitleLarge" />
 
 	<style name="TextAppearance.Title.Accent">
 		<item name="android:textColor">@color/accent</item>
 	</style>
 
-	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1" />
+	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.Material3.TitleMedium" />
 
-	<style name="TextAppearance.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5" />
+	<style name="TextAppearance.Headline" parent="@style/TextAppearance.Material3.HeadlineSmall" />
 
-	<style name="TextAppearance.Caption.Primary" parent="@style/TextAppearance.MaterialComponents.Caption">
+	<style name="TextAppearance.Caption.Primary" parent="@style/TextAppearance.Material3.BodySmall">
 		<item name="android:textColor">@color/primary_text</item>
 	</style>
 
-	<style name="TextAppearance.Caption.Secondary" parent="@style/TextAppearance.MaterialComponents.Caption">
+	<style name="TextAppearance.Caption.Secondary" parent="@style/TextAppearance.Material3.BodySmall">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
-	<style name="TextAppearance.RowTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+	<style name="TextAppearance.RowTitle" parent="TextAppearance.Material3.BodyLarge">
 		<item name="fontWeight">500</item>
 	</style>
 
-	<style name="TextAppearance.RowDetail" parent="TextAppearance.MaterialComponents.Caption">
+	<style name="TextAppearance.RowDetail" parent="TextAppearance.Material3.BodySmall">
 		<item name="android:textColor">@color/primary_text</item>
 	</style>
 
@@ -75,11 +74,11 @@
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
-	<style name="TextAppearance.Empty" parent="@style/TextAppearance.MaterialComponents.Subtitle1">
+	<style name="TextAppearance.Empty" parent="@style/TextAppearance.Material3.TitleMedium">
 		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
-	<style name="TextAppearance.Dialog" parent="@style/TextAppearance.MaterialComponents.Body1">>
+	<style name="TextAppearance.Dialog" parent="@style/TextAppearance.Material3.BodyLarge">
 		<item name="android:textColor">@color/dialog_text</item>
 		<item name="android:textSize">14sp</item>
 	</style>
@@ -88,13 +87,13 @@
 		<item name="android:textSize">18sp</item>
 	</style>
 
-	<style name="TextAppearance.Pad" parent="@style/TextAppearance.MaterialComponents.Body1">
+	<style name="TextAppearance.Pad" parent="@style/TextAppearance.Material3.BodyLarge">
 		<item name="android:textSize">34sp</item>
 		<item name="android:textColor">#888</item>
 		<item name="android:fontFamily">sans-serif-light</item>
 	</style>
 
-	<style name="TextAppearance.Readout" parent="@style/TextAppearance.MaterialComponents.Body1">
+	<style name="TextAppearance.Readout" parent="@style/TextAppearance.Material3.BodyLarge">
 		<item name="android:textSize">45sp</item>
 	</style>
 
