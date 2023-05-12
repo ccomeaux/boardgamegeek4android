@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<style name="TextAppearance.RowTitle" parent="TextAppearance.MaterialComponents.Subtitle1">
+	<style name="TextAppearance.RowTitle" parent="TextAppearance.Material3.BodyLarge">
 		<item name="fontWeight">500</item>
 		<item name="android:textFontWeight">500</item>
 	</style>
