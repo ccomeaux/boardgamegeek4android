@@ -21,7 +21,7 @@
 
 	<Button
 		android:id="@+id/yesterdayButton"
-		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+		style="@style/Widget.Material3.Button.OutlinedButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
@@ -34,7 +34,7 @@
 
 	<Button
 		android:id="@+id/earlierButton"
-		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+		style="@style/Widget.Material3.Button.OutlinedButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
@@ -47,7 +47,7 @@
 
 	<Button
 		android:id="@+id/lastPlayDateButton"
-		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+		style="@style/Widget.Material3.Button.OutlinedButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
