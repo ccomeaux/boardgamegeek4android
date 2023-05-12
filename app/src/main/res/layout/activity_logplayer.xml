@@ -90,7 +90,7 @@
 
 					<com.google.android.material.textfield.TextInputLayout
 						android:id="@+id/nameContainer"
-						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginVertical="4dp"
@@ -100,7 +100,7 @@
 
 						<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 							android:id="@+id/nameView"
-							style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
+							style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:imeOptions="actionNext"
@@ -111,7 +111,7 @@
 
 					<com.google.android.material.textfield.TextInputLayout
 						android:id="@+id/usernameContainer"
-						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginVertical="4dp"
@@ -121,7 +121,7 @@
 
 						<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 							android:id="@+id/usernameView"
-							style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
+							style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
 							android:imeOptions="actionNext"
@@ -140,7 +140,7 @@
 						android:orientation="horizontal">
 
 						<com.google.android.material.textfield.TextInputLayout
-							style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+							style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 							android:layout_width="0dp"
 							android:layout_height="wrap_content"
 							android:layout_weight="1"
@@ -150,7 +150,7 @@
 
 							<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 								android:id="@+id/teamColorView"
-								style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
+								style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
 								android:layout_width="match_parent"
 								android:layout_height="wrap_content"
 								android:imeOptions="actionNext"
@@ -181,7 +181,7 @@
 
 					<com.google.android.material.textfield.TextInputLayout
 						android:id="@+id/positionContainer"
-						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginVertical="4dp"
@@ -201,7 +201,7 @@
 
 					<com.google.android.material.textfield.TextInputLayout
 						android:id="@+id/scoreContainer"
-						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginVertical="4dp"
@@ -221,7 +221,7 @@
 
 					<com.google.android.material.textfield.TextInputLayout
 						android:id="@+id/ratingContainer"
-						style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+						style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:layout_marginVertical="4dp"

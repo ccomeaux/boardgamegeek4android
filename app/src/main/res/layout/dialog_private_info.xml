@@ -44,7 +44,7 @@
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/input_price"
-				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
@@ -73,7 +73,7 @@
 
 			<com.google.android.material.textfield.TextInputLayout
 				android:id="@+id/input_current_value"
-				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:hint="@string/current_value">
@@ -89,7 +89,7 @@
 
 		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/input_quantity"
-			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+			style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginVertical="@dimen/padding_half"
@@ -153,7 +153,7 @@
 
 		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/input_acquired_from"
-			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+			style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginVertical="@dimen/padding_half"
@@ -162,7 +162,7 @@
 
 			<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 				android:id="@+id/acquiredFromView"
-				style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
+				style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:imeOptions="actionNext"
@@ -171,7 +171,7 @@
 
 		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/input_inventory_location"
-			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+			style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginVertical="@dimen/padding_half"
@@ -180,7 +180,7 @@
 
 			<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 				android:id="@+id/inventoryLocationView"
-				style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
+				style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:imeOptions="actionNext"

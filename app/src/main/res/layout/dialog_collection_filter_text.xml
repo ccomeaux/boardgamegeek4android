@@ -15,14 +15,14 @@
 
 	<com.google.android.material.textfield.TextInputLayout
 		android:id="@+id/filterTextInput"
-		style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+		style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:hint="@string/name">
 
 		<androidx.appcompat.widget.AppCompatAutoCompleteTextView
 			android:id="@+id/filterTextView"
-			style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
+			style="@style/Widget.Material3.AutoCompleteTextView.OutlinedBox.Dense"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:imeOptions="actionNext"
