@@ -117,7 +117,7 @@ class NewPlayAddPlayersFragment : Fragment() {
     }
 
     private fun findOrCreateChip(playerId: String): Chip {
-        return binding.chipGroup.findViewWithTag(playerId) ?: Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
+        return binding.chipGroup.findViewWithTag(playerId) ?: Chip(context, null, R.style.Widget_Material3_Chip_Input).apply {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             tag = playerId
             binding.chipGroup.addView(this)

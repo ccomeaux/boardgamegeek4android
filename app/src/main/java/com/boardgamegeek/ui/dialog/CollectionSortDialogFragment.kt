@@ -61,14 +61,13 @@ class CollectionSortDialogFragment : BottomSheetDialogFragment() {
 
     private fun selectChip(chip: Chip, direction: Boolean) {
         chip.isChecked = true
-        chip.chipIcon = AppCompatResources.getDrawable(
+        chip.checkedIcon = AppCompatResources.getDrawable(
             requireContext(), if (direction)
                 R.drawable.ic_baseline_arrow_downward_24
             else
                 R.drawable.ic_baseline_arrow_upward_24
         )
-        chip.chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
-        chip.isChipIconVisible = true
+        chip.checkedIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             binding.scrollContainer.scrollToDescendant(chip)
         }

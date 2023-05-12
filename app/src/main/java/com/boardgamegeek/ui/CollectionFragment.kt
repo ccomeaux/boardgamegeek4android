@@ -267,7 +267,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
     @Suppress("SameParameterValue")
     private fun findOrCreateSortChip(sortTag: String): Chip {
-        return binding.chipGroup.findViewWithTag(sortTag) ?: Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Choice).apply {
+        return binding.chipGroup.findViewWithTag(sortTag) ?: Chip(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             tag = sortTag
             binding.chipGroup.addView(this)
@@ -275,11 +275,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     }
 
     private fun findOrCreateFilterChip(filterType: Int): Chip {
-        return binding.chipGroup.findViewWithTag(filterType.toString()) ?: Chip(
-            requireContext(),
-            null,
-            R.style.Widget_MaterialComponents_Chip_Filter
-        ).apply {
+        return binding.chipGroup.findViewWithTag(filterType.toString()) ?: Chip(requireContext()).apply {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             tag = filterType.toString()
             binding.chipGroup.addView(this)

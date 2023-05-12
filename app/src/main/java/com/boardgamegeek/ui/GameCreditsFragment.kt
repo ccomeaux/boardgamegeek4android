@@ -146,7 +146,7 @@ class GameCreditsFragment : Fragment() {
                 list.take(limit - 1).forEach { producer ->
                     addView(createChip(producer, type))
                 }
-                val moreChip = Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
+                val moreChip = Chip(context).apply {
                     layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                     if (iconResId != 0) setChipIconResource(iconResId)
                     text = context.getString(R.string.more_suffix, list.size - limit + 1)
@@ -163,7 +163,7 @@ class GameCreditsFragment : Fragment() {
     }
 
     private fun createChip(producer: GameDetailEntity, type: GameViewModel.ProducerType): Chip {
-        return Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
+        return Chip(context).apply {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             text = producer.name
             if (producer.thumbnailUrl.isNotBlank())
