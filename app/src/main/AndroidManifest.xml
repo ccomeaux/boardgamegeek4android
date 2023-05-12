@@ -151,7 +151,7 @@
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
-			android:theme="@style/Theme.MaterialComponents.NoActionBar" />
+			android:theme="@style/Theme.Material3.Light.NoActionBar" />
 		<activity
 			android:name=".ui.GameDetailActivity"
 			android:label="@string/title_game_detail" />
