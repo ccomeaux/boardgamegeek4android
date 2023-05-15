@@ -11,6 +11,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.mappers.mapToFormBodyForDelete
+import com.boardgamegeek.mappers.mapToFormBodyForUpsert
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.repository.PlayRepository
@@ -19,7 +21,6 @@ import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
 import kotlinx.coroutines.runBlocking
-import okhttp3.FormBody
 import okhttp3.OkHttpClient
 import okhttp3.Request.Builder
 import kotlin.time.Duration.Companion.seconds
@@ -199,58 +200,18 @@ class SyncPlaysUpload(
         }
     }
 
-    @Suppress("SpellCheckingInspection")
     private fun postPlayUpdate(play: PlayEntity): PlaySaveResponse {
-        val bodyBuilder = FormBody.Builder()
-            .add("ajax", "1")
-            .add("action", "save")
-            .add("version", "2")
-            .add("objecttype", "thing")
-        if (play.playId > 0) {
-            bodyBuilder.add("playid", play.playId.toString())
-        }
-        bodyBuilder.add("objectid", play.gameId.toString())
-            .add("playdate", play.dateInMillis.asDateForApi())
-            .add("dateinput", play.dateInMillis.asDateForApi())
-            .add("length", play.length.toString())
-            .add("location", play.location)
-            .add("quantity", play.quantity.toString())
-            .add("incomplete", if (play.incomplete) "1" else "0")
-            .add("nowinstats", if (play.noWinStats) "1" else "0")
-            .add("comments", play.comments)
-        val players = play.players
-        for (i in players.indices) {
-            val player = players[i]
-            bodyBuilder
-                .add(getMapKey(i, "playerid"), "player_$i")
-                .add(getMapKey(i, "name"), player.name)
-                .add(getMapKey(i, "username"), player.username)
-                .add(getMapKey(i, "color"), player.color)
-                .add(getMapKey(i, "position"), player.startingPosition)
-                .add(getMapKey(i, "score"), player.score)
-                .add(getMapKey(i, "rating"), player.rating.toString())
-                .add(getMapKey(i, "new"), if (player.isNew) "1" else "0")
-                .add(getMapKey(i, "win"), if (player.isWin) "1" else "0")
-        }
-
         val request = Builder()
             .url(GEEK_PLAY_URL)
-            .post(bodyBuilder.build())
+            .post(play.mapToFormBodyForUpsert().build())
             .build()
         return PlaySaveResponse(httpClient, request)
     }
 
     private fun postPlayDelete(playId: Int): PlayDeleteResponse {
-        @Suppress("SpellCheckingInspection")
-        val bodyBuilder = FormBody.Builder()
-            .add("ajax", "1")
-            .add("action", "delete")
-            .add("playid", playId.toString())
-            .add("finalize", "1")
-
         val request = Builder()
             .url(GEEK_PLAY_URL)
-            .post(bodyBuilder.build())
+            .post(playId.mapToFormBodyForDelete().build())
             .build()
         return PlayDeleteResponse(httpClient, request)
     }
@@ -332,7 +293,5 @@ class SyncPlaysUpload(
 
     companion object {
         const val GEEK_PLAY_URL = "https://boardgamegeek.com/geekplay.php"
-
-        private fun getMapKey(index: Int, key: String) = "players[$index][$key]"
     }
 }
