@@ -5,8 +5,10 @@ import android.os.Build.VERSION_CODES
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
+import androidx.work.Configuration
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
@@ -24,10 +26,17 @@ import javax.inject.Inject
 import javax.inject.Named
 
 @HiltAndroidApp
-class BggApplication : MultiDexApplication() {
+class BggApplication : MultiDexApplication(), Configuration.Provider {
     @Inject
     @Named("withCache")
     lateinit var httpClient: OkHttpClient
+
+    @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    override fun getWorkManagerConfiguration() =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()

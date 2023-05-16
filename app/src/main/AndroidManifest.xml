@@ -410,6 +410,11 @@
 			android:label="@string/provider_label"
 			tools:ignore="ExportedContentProvider" />
 
+		<provider
+			android:name="androidx.startup.InitializationProvider"
+			android:authorities="${applicationId}.androidx-startup"
+			tools:node="remove" />
+
 		<receiver
 			android:name=".service.CancelReceiver"
 			android:exported="false" />
