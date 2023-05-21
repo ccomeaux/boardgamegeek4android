@@ -124,4 +124,13 @@ object NetworkModule {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(GeekdoApi::class.java)
+    
+    @Provides
+    @Singleton
+    fun providePhpApi(@Named("withAuth") httpClient: OkHttpClient): PhpApi = Retrofit.Builder()
+        .client(httpClient)
+        .baseUrl("https://boardgamegeek.com")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(PhpApi::class.java)
 }

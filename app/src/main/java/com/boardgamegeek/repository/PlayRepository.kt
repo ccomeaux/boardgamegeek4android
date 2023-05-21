@@ -15,6 +15,7 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
@@ -32,6 +33,7 @@ import kotlin.math.min
 class PlayRepository(
     val context: Context,
     private val api: BggService,
+    private val phpApi: PhpApi,
 ) {
     private val playDao = PlayDao(context)
     private val gameDao = GameDao(context)

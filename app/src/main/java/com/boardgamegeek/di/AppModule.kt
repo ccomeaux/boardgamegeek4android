@@ -4,6 +4,7 @@ import android.content.Context
 import com.boardgamegeek.io.BggAjaxApi
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.GeekdoApi
+import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.repository.*
 import dagger.Module
 import dagger.Provides
@@ -77,7 +78,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService) = PlayRepository(context, api)
+    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi) = PlayRepository(context, api, phpApi)
 
     @Provides
     @Singleton
