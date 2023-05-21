@@ -17,8 +17,13 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.HomeActivity
+import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
+import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.LargeIconLoader
 
 private const val TAG_PREFIX = "com.boardgamegeek."
@@ -53,7 +58,7 @@ fun Context.createNotificationBuilder(@StringRes titleResId: Int, channelId: Str
  * Creates a [NotificationCompat.Builder] with the correct icons, specified title, and pending intent.
  */
 fun Context.createNotificationBuilder(
-    title: String?,
+    title: CharSequence?,
     channelId: String,
     intent: Intent?
 ): NotificationCompat.Builder {
@@ -133,6 +138,85 @@ fun Context.cancelNotification(tag: String?, id: Long = 0L) {
  */
 fun Context.notify(builder: NotificationCompat.Builder, tag: String?, id: Int = 0) {
     NotificationManagerCompat.from(this).notify(tag, id, builder.build())
+}
+
+fun Context.notifyLoggedPlay(title: CharSequence, message: CharSequence, play: PlayEntity) {
+    val imageUrls = listOf(play.thumbnailUrl, play.heroImageUrl, play.imageUrl)
+
+    val loader = LargeIconLoader(this, *imageUrls.toTypedArray(), callback = object : LargeIconLoader.Callback {
+        override fun onSuccessfulIconLoad(bitmap: Bitmap) {
+            buildAndNotify(this@notifyLoggedPlay, title, message, bitmap)
+        }
+
+        override fun onFailedIconLoad() {
+            buildAndNotify(this@notifyLoggedPlay, title, message)
+        }
+
+        fun buildAndNotify(context: Context, title: CharSequence, message: CharSequence, largeIcon: Bitmap? = null) {
+            val intent = if (play.internalId == INVALID_ID.toLong())
+                GamePlaysActivity.createIntent(
+                    context,
+                    play.gameId,
+                    play.gameName,
+                    play.imageUrl,
+                    play.thumbnailUrl,
+                    play.heroImageUrl,
+                )
+            else
+                PlayActivity.createIntent(context, play.internalId)
+
+            val builder = context.createNotificationBuilder(
+                message,
+                NotificationChannels.SYNC_UPLOAD,
+                intent
+            )
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setContentTitle(title)
+                .setLargeIcon(largeIcon)
+                .setOnlyAlertOnce(true)
+                .setGroup(NotificationTags.UPLOAD_PLAY)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+                .addAction(createRematchAction(context, play))
+            context.notify(builder, NotificationTags.UPLOAD_PLAY, play.playId)
+            showNotificationSummary(context)
+        }
+    })
+    loader.executeInBackground()
+}
+
+private fun createRematchAction(context: Context, play: PlayEntity): NotificationCompat.Action? {
+    return if (play.internalId != INVALID_ID.toLong()) {
+        val intent = LogPlayActivity.createRematchIntent(
+            context,
+            play.internalId,
+            play.gameId,
+            play.gameName,
+            play.imageUrl,
+            play.thumbnailUrl,
+            play.heroImageUrl,
+            play.gameIsCustomSorted,
+        )
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+        )
+        NotificationCompat.Action.Builder(R.drawable.ic_baseline_replay_24, context.getString(R.string.rematch), pendingIntent).build()
+    } else null
+}
+
+private fun showNotificationSummary(context: Context) {
+    val builder = context.createNotificationBuilder(
+        R.string.sync_notification_title_play_upload,
+        NotificationChannels.SYNC_UPLOAD,
+        context.intentFor<PlaysActivity>()
+    )
+        .setGroup(NotificationTags.UPLOAD_PLAY)
+        .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+        .setGroupSummary(true)
+    // TODO keep track of all plays?
+    context.notify(builder, NotificationTags.UPLOAD_PLAY, 0)
 }
 
 object NotificationChannels {

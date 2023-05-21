@@ -449,6 +449,8 @@
 	<string name="msg_play_updated">Updated play</string>
 	<string name="msg_play_deleted">Deleted play</string>
 	<string name="msg_play_deleted_draft">Deleted draft</string>
+	<string name="msg_play_update_not_set">Play isn\'t set to update.</string>
+	<string name="msg_play_update_auth_error">Not logged in. Try again later.</string>
 	<string name="msg_play_update_bad_id">Play <b>%s</b> doesn\'t exist!</string>
 	<string name="msg_play_upload"><b>%1$s</b> - %2$s</string>
 	<string name="msg_play_update_null_response">Trouble communicating with the \'Geek.</string>

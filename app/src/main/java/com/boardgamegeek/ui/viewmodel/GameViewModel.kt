@@ -9,6 +9,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
@@ -53,6 +54,14 @@ class GameViewModel @Inject constructor(
     private val _producerType = MutableLiveData<ProducerType>()
     val producerType: LiveData<ProducerType>
         get() = _producerType
+
+    private val _errorMessage = MutableLiveData<Event<String>>()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
+
+    private val _loggedPlayId = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayId: LiveData<Event<PlayUploadResult>>
+        get() = _loggedPlayId
 
     enum class ProducerType(val value: Int) {
         UNKNOWN(0),
@@ -357,7 +366,11 @@ class GameViewModel @Inject constructor(
 
     fun logQuickPlay(gameId: Int, gameName: String) {
         viewModelScope.launch {
-            playRepository.logQuickPlay(gameId, gameName)
+            val result = playRepository.logQuickPlay(gameId, gameName)
+            if (result.errorMessage.isNotBlank())
+                _errorMessage.value = Event(result.errorMessage)
+            else if (result.play.playId != BggContract.INVALID_ID)
+                _loggedPlayId.value = Event(result)
         }
     }
 

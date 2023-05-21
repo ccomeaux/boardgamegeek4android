@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
 import com.boardgamegeek.R
+import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
@@ -17,6 +18,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToFormBodyForUpsert
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
@@ -100,6 +102,35 @@ class PlayRepository(
         val plays = response.plays.mapToEntity(timestamp)
         saveFromSync(plays, timestamp)
         calculatePlayStats()
+    }
+
+    suspend fun uploadPlays(): List<Int> {
+        val results = mutableListOf<Int>()
+        val plays = getPendingPlays()
+        plays.forEach { play ->
+            results += uploadPlay(play).play.playId
+        }
+        return results.filterNot { it == INVALID_ID }
+    }
+
+    /**
+     * Upload the play to BGG. Returns the Play ID if successful, or [INVALID_ID] and an error message if not.
+     */
+    private suspend fun uploadPlay(play: PlayEntity): PlayUploadResult {
+        if (play.updateTimestamp == 0L)
+            return PlayUploadResult.error(play, context.getString(R.string.msg_play_update_not_set))
+        val response = phpApi.play(play.mapToFormBodyForUpsert().build())
+        return if (response.hasAuthError()) {
+            Authenticator.clearPassword(context)
+            return PlayUploadResult.error(play, context.getString(R.string.msg_play_update_auth_error))
+        } else if (response.hasInvalidIdError()) {
+            return PlayUploadResult.error(play, context.getString(R.string.msg_play_update_bad_id))
+        } else if (response.hasError()) {
+            return PlayUploadResult.error(play, response.error.orEmpty())
+        } else {
+            markAsSynced(play.internalId, response.playId)
+            PlayUploadResult.success(play, response.playId, response.numberOfPlays)
+        }
     }
 
     suspend fun getPlays(sortBy: SortBy = SortBy.DATE) = playDao.loadPlays(sortBy.daoSortBy)
@@ -293,15 +324,18 @@ class PlayRepository(
 
     suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy)
 
-    suspend fun logQuickPlay(gameId: Int, gameName: String) {
+    suspend fun logQuickPlay(gameId: Int, gameName: String): PlayUploadResult {
         val playEntity = PlayEntity(
             gameId = gameId,
             gameName = gameName,
             rawDate = PlayEntity.currentDate(),
             updateTimestamp = System.currentTimeMillis()
         )
-        playDao.upsert(playEntity)
-        SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        val internalId = playDao.upsert(playEntity)
+        val uploadResult = uploadPlay(playEntity.copy(internalId = internalId))
+        updateGamePlayCount(gameId)
+        calculatePlayStats()
+        return uploadResult
     }
 
     suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {

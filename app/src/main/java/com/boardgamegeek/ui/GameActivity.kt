@@ -17,6 +17,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.ActivityHeroTabBinding
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -78,6 +79,26 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                     imageUrl = game.imageUrl
                     arePlayersCustomSorted = game.customPlayerSort
                 }
+            }
+        }
+
+        viewModel.errorMessage.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                binding.coordinatorLayout.snackbar(it)
+            }
+        }
+
+        viewModel.loggedPlayId.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                val message = when {
+                    it.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
+                    it.play.quantity > 0 -> getText(
+                        R.string.msg_play_added_quantity,
+                        it.numberOfPlays.asRangeDescription(it.play.quantity),
+                    )
+                    else -> getString(R.string.msg_play_added)
+                }
+                notifyLoggedPlay(it.play.gameName, message, it.play)
             }
         }
 
