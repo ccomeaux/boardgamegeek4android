@@ -30,6 +30,7 @@ data class PlayEntity(
     val thumbnailUrl: String = "",
     val heroImageUrl: String = "",
     val updatedPlaysTimestamp: Long = 0L,
+    val gameIsCustomSorted: Boolean = false,
     val subtypes: List<String> = emptyList(),
     private val _players: List<PlayPlayerEntity>? = null,
 ) {

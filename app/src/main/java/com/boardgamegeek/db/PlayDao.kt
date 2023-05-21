@@ -50,6 +50,7 @@ class PlayDao(private val context: Context) {
                     Games.Columns.THUMBNAIL_URL,
                     Games.Columns.HERO_IMAGE_URL,
                     Games.Columns.UPDATED_PLAYS,
+                    Games.Columns.CUSTOM_PLAYER_SORT,
                 ),
             ) {
                 val internalId = it.getLong(0)
@@ -63,8 +64,8 @@ class PlayDao(private val context: Context) {
                     quantity = it.getIntOrNull(5) ?: 1,
                     length = it.getIntOrNull(6) ?: 0,
                     location = it.getStringOrNull(7).orEmpty(),
-                    incomplete = it.getInt(8) == 1,
-                    noWinStats = it.getInt(9) == 1,
+                    incomplete = it.getBoolean(8),
+                    noWinStats = it.getBoolean(9),
                     comments = it.getStringOrNull(10).orEmpty(),
                     syncTimestamp = it.getLong(11),
                     initialPlayerCount = it.getInt(12),
@@ -76,6 +77,7 @@ class PlayDao(private val context: Context) {
                     thumbnailUrl = it.getStringOrNull(18).orEmpty(),
                     heroImageUrl = it.getStringOrNull(19).orEmpty(),
                     updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+                    gameIsCustomSorted = it.getBoolean(21),
                     _players = players,
                 )
             }
