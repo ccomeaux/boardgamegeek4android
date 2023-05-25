@@ -15,6 +15,7 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionViewEntity
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
@@ -57,6 +58,19 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 } else {
                     snackbar = rootContainer?.longSnackbar(message)
                 }
+            }
+        }
+        viewModel.loggedPlayResult.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                val message = when {
+                    it.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
+                    it.play.quantity > 0 -> getText(
+                        R.string.msg_play_added_quantity,
+                        it.numberOfPlays.asRangeDescription(it.play.quantity),
+                    )
+                    else -> getString(R.string.msg_play_added)
+                }
+                notifyLoggedPlay(it.play.gameName, message, it.play)
             }
         }
         viewModel.selectedViewId.observe(this) { id: Long -> viewId = id }

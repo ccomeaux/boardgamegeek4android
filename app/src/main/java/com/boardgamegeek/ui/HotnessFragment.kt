@@ -12,6 +12,7 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.FragmentHotnessBinding
 import com.boardgamegeek.databinding.RowHotnessBinding
 import com.boardgamegeek.entities.HotGameEntity
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
@@ -38,6 +39,26 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
 
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
+
+        viewModel.errorMessage.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                binding.coordinatorLayout.snackbar(it)
+            }
+        }
+
+        viewModel.loggedPlayResult.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                val message = when {
+                    it.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
+                    it.play.quantity > 0 -> requireContext().getText(
+                        R.string.msg_play_added_quantity,
+                        it.numberOfPlays.asRangeDescription(it.play.quantity),
+                    )
+                    else -> getString(R.string.msg_play_added)
+                }
+                requireContext().notifyLoggedPlay(it.play.gameName, message, it.play)
+            }
+        }
 
         viewModel.hotness.observe(viewLifecycleOwner) {
             it?.let { (status, data, message) ->
@@ -199,7 +220,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
                 }
             }
             R.id.menu_log_play_quick -> {
-                binding.containerView.snackbar(resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount))
+                binding.coordinatorLayout.snackbar(resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount))
                 for (game in selectedGames) {
                     viewModel.logQuickPlay(game.id, game.name)
                 }

@@ -88,7 +88,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             }
         }
 
-        viewModel.loggedPlayId.observe(this) { event ->
+        viewModel.loggedPlayResult.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
                 val message = when {
                     it.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)

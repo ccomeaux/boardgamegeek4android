@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.FragmentSearchResultsBinding
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
@@ -27,7 +28,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     private var actionMode: ActionMode? = null
 
     private val snackbar: Snackbar by lazy {
-        Snackbar.make(binding.containerView, "", Snackbar.LENGTH_INDEFINITE).apply {
+        Snackbar.make(binding.coordinatorLayout, "", Snackbar.LENGTH_INDEFINITE).apply {
             view.setBackgroundResource(R.color.dark_blue)
             setActionTextColor(ContextCompat.getColor(context, R.color.accent))
         }
@@ -79,6 +80,26 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = searchResultsAdapter
 
+        viewModel.errorMessage.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                binding.coordinatorLayout.snackbar(it)
+            }
+        }
+
+        viewModel.loggedPlayResult.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                val message = when {
+                    it.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
+                    it.play.quantity > 0 -> requireContext().getText(
+                        R.string.msg_play_added_quantity,
+                        it.numberOfPlays.asRangeDescription(it.play.quantity),
+                    )
+                    else -> getString(R.string.msg_play_added)
+                }
+                requireContext().notifyLoggedPlay(it.play.gameName, message, it.play)
+            }
+        }
+
         viewModel.searchResults.observe(viewLifecycleOwner) { resource ->
             resource?.let { (status, data, message) ->
                 when (status) {
@@ -91,7 +112,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     }
                     Status.SUCCESS -> {
                         val query = viewModel.query.value
-                        if (data == null || data.isEmpty()) {
+                        if (data.isNullOrEmpty()) {
                             binding.emptyView.setText(
                                 if (query == null || query.first.isBlank()) R.string.search_initial_help else R.string.empty_search
                             )
@@ -180,7 +201,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                 mode.finish()
             }
             R.id.menu_log_play_wizard -> {
-                game?.let { it ->
+                game?.let {
                     NewPlayActivity.start(requireContext(), it.id, it.name)
                 }
                 mode.finish()

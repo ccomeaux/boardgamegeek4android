@@ -59,9 +59,9 @@ class GameViewModel @Inject constructor(
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
 
-    private val _loggedPlayId = MutableLiveData<Event<PlayUploadResult>>()
-    val loggedPlayId: LiveData<Event<PlayUploadResult>>
-        get() = _loggedPlayId
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
+        get() = _loggedPlayResult
 
     enum class ProducerType(val value: Int) {
         UNKNOWN(0),
@@ -370,7 +370,7 @@ class GameViewModel @Inject constructor(
             if (result.errorMessage.isNotBlank())
                 _errorMessage.value = Event(result.errorMessage)
             else if (result.play.playId != BggContract.INVALID_ID)
-                _loggedPlayId.value = Event(result)
+                _loggedPlayResult.value = Event(result)
         }
     }
 

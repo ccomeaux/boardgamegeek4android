@@ -9,6 +9,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
 import com.boardgamegeek.filterer.CollectionFilterer
@@ -82,6 +83,10 @@ class CollectionViewViewModel @Inject constructor(
     private val _errorMessage = MediatorLiveData<Event<String>>()
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
+
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
+        get() = _loggedPlayResult
 
     private val _isFiltering = MediatorLiveData<Boolean>()
     val isFiltering: LiveData<Boolean>
@@ -357,7 +362,11 @@ class CollectionViewViewModel @Inject constructor(
 
     fun logQuickPlay(gameId: Int, gameName: String) {
         viewModelScope.launch {
-            playRepository.logQuickPlay(gameId, gameName)
+            val result = playRepository.logQuickPlay(gameId, gameName)
+            if (result.errorMessage.isNotBlank())
+                _errorMessage.value = Event(result.errorMessage)
+            else if (result.play.playId != BggContract.INVALID_ID)
+                _loggedPlayResult.value = Event(result)
         }
     }
 
