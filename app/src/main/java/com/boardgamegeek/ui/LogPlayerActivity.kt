@@ -29,7 +29,6 @@ import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.LinkedList
 
 @AndroidEntryPoint
 class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFragment.Listener {
@@ -98,8 +97,6 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         val gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
-        val imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
-        val thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         val heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
         autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, PlayPlayerEntity.SEAT_UNKNOWN)
         val usedColors = intent.getStringArrayExtra(KEY_USED_COLORS)
@@ -145,7 +142,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         this.usedColors = if (usedColors == null) arrayListOf() else ArrayList(listOf(*usedColors))
         this.usedColors?.remove(player.color)
 
-        binding.thumbnailView.loadImage(LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }))
+        binding.thumbnailView.loadImage(heroImageUrl)
 
         bindUi()
         binding.nameView.setAdapter(playerNameAdapter)
@@ -321,8 +318,6 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     data class LaunchInput(
         val gameId: Int,
         val gameName: String,
-        val imageUrl: String,
-        val thumbnailUrl: String,
         val heroImageUrl: String,
         val isRequestingToEndPlay: Boolean,
         val fabColor: Int,
@@ -335,8 +330,6 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.gameId)
                 putExtra(KEY_GAME_NAME, input.gameName)
-                putExtra(KEY_IMAGE_URL, input.imageUrl)
-                putExtra(KEY_THUMBNAIL_URL, input.thumbnailUrl)
                 putExtra(KEY_HERO_IMAGE_URL, input.heroImageUrl)
                 putExtra(KEY_END_PLAY, input.isRequestingToEndPlay)
                 putExtra(KEY_FAB_COLOR, input.fabColor)
@@ -358,8 +351,6 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.first.gameId)
                 putExtra(KEY_GAME_NAME, input.first.gameName)
-                putExtra(KEY_IMAGE_URL, input.first.imageUrl)
-                putExtra(KEY_THUMBNAIL_URL, input.first.thumbnailUrl)
                 putExtra(KEY_HERO_IMAGE_URL, input.first.heroImageUrl)
                 putExtra(KEY_END_PLAY, input.first.isRequestingToEndPlay)
                 putExtra(KEY_FAB_COLOR, input.first.fabColor)
@@ -383,8 +374,6 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     companion object {
         const val KEY_GAME_ID = "GAME_ID"
         const val KEY_GAME_NAME = "GAME_NAME"
-        const val KEY_IMAGE_URL = "IMAGE_URL"
-        const val KEY_THUMBNAIL_URL = "THUMBNAIL_URL"
         const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
         const val KEY_AUTO_POSITION = "AUTO_POSITION"
         const val KEY_USED_COLORS = "USED_COLORS"

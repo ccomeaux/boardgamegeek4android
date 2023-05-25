@@ -459,9 +459,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                                 changingGamePlayId,
                                 item.gameId,
                                 item.gameName,
-                                item.thumbnailUrl,
-                                item.imageUrl,
-                                item.heroImageUrl
+                                item.heroImageUrl.ifBlank { item.thumbnailUrl },
                             )
                             requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
                         }
@@ -529,10 +527,8 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                         requireContext(),
                         it.gameId,
                         it.gameName,
-                        it.thumbnailUrl,
-                        it.imageUrl,
-                        it.heroImageUrl,
-                        it.arePlayersCustomSorted
+                        it.heroImageUrl.ifBlank { it.thumbnailUrl },
+                        it.arePlayersCustomSorted,
                     )
                 }
             }

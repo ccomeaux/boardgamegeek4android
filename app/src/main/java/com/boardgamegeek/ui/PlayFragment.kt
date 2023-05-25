@@ -67,8 +67,6 @@ class PlayFragment : Fragment() {
                     play.internalId,
                     play.gameId,
                     play.gameName,
-                    play.thumbnailUrl,
-                    play.imageUrl,
                     play.heroImageUrl,
                 )
             }
@@ -237,8 +235,6 @@ class PlayFragment : Fragment() {
                                 it.internalId,
                                 it.gameId,
                                 it.gameName,
-                                it.thumbnailUrl,
-                                it.imageUrl,
                                 it.heroImageUrl
                             )
                             return true
@@ -273,8 +269,6 @@ class PlayFragment : Fragment() {
                                 it.internalId,
                                 it.gameId,
                                 it.gameName,
-                                it.thumbnailUrl,
-                                it.imageUrl,
                                 it.heroImageUrl,
                                 it.arePlayersCustomSorted()
                             )
@@ -383,8 +377,6 @@ class PlayFragment : Fragment() {
                     it.location,
                     it.playerCount,
                     it.startTime,
-                    it.thumbnailUrl,
-                    it.imageUrl,
                     it.heroImageUrl,
                 )
                 hasBeenNotified = true

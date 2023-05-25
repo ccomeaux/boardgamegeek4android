@@ -158,8 +158,6 @@ fun Context.notifyLoggedPlay(title: CharSequence, message: CharSequence, play: P
                     context,
                     play.gameId,
                     play.gameName,
-                    play.imageUrl,
-                    play.thumbnailUrl,
                     play.heroImageUrl,
                 )
             else
@@ -192,8 +190,6 @@ private fun createRematchAction(context: Context, play: PlayEntity): Notificatio
             play.internalId,
             play.gameId,
             play.gameName,
-            play.imageUrl,
-            play.thumbnailUrl,
             play.heroImageUrl,
             play.gameIsCustomSorted,
         )

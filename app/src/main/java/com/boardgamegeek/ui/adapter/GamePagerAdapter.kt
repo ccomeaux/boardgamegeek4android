@@ -124,7 +124,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
 
     private fun logPlay() {
         when (prefs.logPlayPreference()) {
-            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, heroImageUrl.ifBlank { thumbnailUrl }, arePlayersCustomSorted)
             LOG_PLAY_TYPE_QUICK -> viewModel.logQuickPlay(gameId, gameName)
             LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(activity, gameId, gameName)
         }

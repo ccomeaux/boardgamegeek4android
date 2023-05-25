@@ -39,8 +39,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
     private var gameId: Int = INVALID_ID
     private var gameName: String? = null
-    private var thumbnailUrl: String? = null
-    private var imageUrl: String? = null
     private var heroImageUrl: String? = null
     private var arePlayersCustomSorted: Boolean = false
     private var emptyStringResId: Int = 0
@@ -60,8 +58,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         showGameName = arguments.getBooleanOrElse(KEY_SHOW_GAME_NAME, true)
         gameId = arguments.getIntOrElse(KEY_GAME_ID, INVALID_ID)
         gameName = arguments?.getString(KEY_GAME_NAME)
-        thumbnailUrl = arguments?.getString(KEY_THUMBNAIL_URL)
-        imageUrl = arguments?.getString(KEY_IMAGE_URL)
         heroImageUrl = arguments?.getString(KEY_HERO_IMAGE_URL)
         arePlayersCustomSorted = arguments.getBooleanOrElse(KEY_CUSTOM_PLAYER_SORT, false)
         @ColorInt val iconColor = arguments.getIntOrElse(KEY_ICON_COLOR, Color.TRANSPARENT)
@@ -74,8 +70,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                         requireContext(),
                         gameId,
                         gameName.orEmpty(),
-                        thumbnailUrl.orEmpty(),
-                        imageUrl.orEmpty(),
                         heroImageUrl.orEmpty(),
                         arePlayersCustomSorted
                     )
@@ -316,8 +310,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                         play.internalId,
                         play.gameId,
                         play.gameName,
-                        play.thumbnailUrl,
-                        play.imageUrl,
                         play.heroImageUrl,
                     )
                 mode.finish()
@@ -339,8 +331,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
     companion object {
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_GAME_NAME = "GAME_NAME"
-        private const val KEY_IMAGE_URL = "IMAGE_URL"
-        private const val KEY_THUMBNAIL_URL = "THUMBNAIL_URL"
         private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
         private const val KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT"
         private const val KEY_ICON_COLOR = "ICON_COLOR"
@@ -356,8 +346,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         fun newInstanceForGame(
             gameId: Int,
             gameName: String,
-            imageUrl: String,
-            thumbnailUrl: String,
             heroImageUrl: String,
             arePlayersCustomSorted: Boolean,
             @ColorInt iconColor: Int
@@ -368,8 +356,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                     KEY_SHOW_GAME_NAME to false,
                     KEY_GAME_ID to gameId,
                     KEY_GAME_NAME to gameName,
-                    KEY_IMAGE_URL to imageUrl,
-                    KEY_THUMBNAIL_URL to thumbnailUrl,
                     KEY_HERO_IMAGE_URL to heroImageUrl,
                     KEY_CUSTOM_PLAYER_SORT to arePlayersCustomSorted,
                     KEY_ICON_COLOR to iconColor,

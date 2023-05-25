@@ -195,7 +195,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
         when (item.itemId) {
             R.id.menu_log_play_form -> {
                 selectedGames.firstOrNull()?.let { game ->
-                    LogPlayActivity.logPlay(requireContext(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl)
+                    LogPlayActivity.logPlay(requireContext(), game.id, game.name, game.thumbnailUrl)
                 }
             }
             R.id.menu_log_play_quick -> {

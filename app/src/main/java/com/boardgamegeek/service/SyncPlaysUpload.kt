@@ -14,7 +14,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.mappers.mapToFormBodyForDelete
 import com.boardgamegeek.mappers.mapToFormBodyForUpsert
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.LogPlayActivity
@@ -39,8 +38,6 @@ class SyncPlaysUpload(
         val gameId: Int = INVALID_ID,
         val gameName: String = ""
     ) {
-        var imageUrl: String = ""
-        var thumbnailUrl: String = ""
         var heroImageUrl: String = ""
         var customPlayerSort: Boolean = false
 
@@ -61,8 +58,6 @@ class SyncPlaysUpload(
                 context,
                 currentPlay.gameId,
                 currentPlay.gameName,
-                currentPlay.imageUrl,
-                currentPlay.thumbnailUrl,
                 currentPlay.heroImageUrl
             )
         else
@@ -231,35 +226,13 @@ class SyncPlaysUpload(
     }
 
     private fun notifyUser(play: PlayEntity, message: CharSequence) {
-        if (play.gameId != INVALID_ID) {
-            val gameCursor = context.contentResolver.query(
-                Games.buildGameUri(play.gameId),
-                arrayOf(
-                    Games.Columns.IMAGE_URL,
-                    Games.Columns.THUMBNAIL_URL,
-                    Games.Columns.HERO_IMAGE_URL,
-                    Games.Columns.CUSTOM_PLAYER_SORT,
-                ),
-                null,
-                null,
-                null
-            )
-            gameCursor?.use {
-                if (it.moveToFirst()) {
-                    currentPlay.imageUrl = it.getString(0).orEmpty()
-                    currentPlay.thumbnailUrl = it.getString(1).orEmpty()
-                    currentPlay.heroImageUrl = it.getString(2).orEmpty()
-                    currentPlay.customPlayerSort = it.getInt(3) == 1
-                }
-            }
-        }
+        currentPlay.heroImageUrl = play.heroImageUrl
+        currentPlay.customPlayerSort = play.gameIsCustomSorted
         notifyUser(
             play.gameName,
             message,
             currentPlay.internalIdAsInt,
-            currentPlay.heroImageUrl,
-            currentPlay.thumbnailUrl,
-            currentPlay.imageUrl,
+            play.heroImageUrl,
         )
     }
 
@@ -270,8 +243,6 @@ class SyncPlaysUpload(
                 currentPlay.internalId,
                 currentPlay.gameId,
                 currentPlay.gameName,
-                currentPlay.imageUrl,
-                currentPlay.thumbnailUrl,
                 currentPlay.heroImageUrl,
                 currentPlay.customPlayerSort,
             )
