@@ -466,20 +466,13 @@ class LogPlayViewModel @Inject constructor(
 
     fun logPlay() {
         viewModelScope.launch {
-            val now = System.currentTimeMillis()
             val play = buildPlayEntity(updateTimestamp = System.currentTimeMillis(), dirtyTimestamp = System.currentTimeMillis())
-            if (!play.isSynced &&
-                (play.dateInMillis.isToday() || (now - play.length * DateUtils.MINUTE_IN_MILLIS).isToday())
-            ) {
-                prefs[KEY_LAST_PLAY_TIME] = now
-                prefs[KEY_LAST_PLAY_LOCATION] = play.location
-                prefs.putLastPlayPlayerEntities(players.value)
-            }
-            save(play)
+            val internalId = playRepository.save(play, _internalId.value ?: INVALID_ID.toLong())
+            _internalId.postValue(internalId)
             if (internalIdToDelete != INVALID_ID.toLong()) {
                 playRepository.markAsDeleted(internalIdToDelete)
             }
-            triggerUpload()
+            playRepository.enqueueUploadRequest(play.copy(internalId = internalId))
         }
     }
 

@@ -8,6 +8,7 @@ import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.StringRes
 import androidx.core.content.contentValuesOf
+import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
@@ -27,9 +28,12 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
+import com.boardgamegeek.work.PlayUploadWorker
+import com.boardgamegeek.work.PlayUploadWorker.Companion.INTERNAL_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
 class PlayRepository(
@@ -114,9 +118,10 @@ class PlayRepository(
     }
 
     /**
-     * Upload the play to BGG. Returns the Play ID if successful, or [INVALID_ID] and an error message if not.
+     * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
+     * an error message if not.
      */
-    private suspend fun uploadPlay(play: PlayEntity): PlayUploadResult {
+    suspend fun uploadPlay(play: PlayEntity): PlayUploadResult {
         if (play.updateTimestamp == 0L)
             return PlayUploadResult.error(play, context.getString(R.string.msg_play_update_not_set))
         val response = phpApi.play(play.mapToFormBodyForUpsert().build())
@@ -332,10 +337,36 @@ class PlayRepository(
             updateTimestamp = System.currentTimeMillis()
         )
         val internalId = playDao.upsert(playEntity)
-        val uploadResult = uploadPlay(playEntity.copy(internalId = internalId))
-        updateGamePlayCount(gameId)
-        calculatePlayStats()
-        return uploadResult
+        return logPlay(playEntity.copy(internalId = internalId))
+    }
+
+    suspend fun logPlay(playEntity: PlayEntity): PlayUploadResult {
+        return try {
+            val uploadResult = uploadPlay(playEntity)
+            if (uploadResult.errorMessage.isBlank()) {
+                updateGamePlayCount(playEntity.gameId)
+                calculatePlayStats()
+            }
+            uploadResult
+        } catch (ex: Exception) {
+            enqueueUploadRequest(playEntity)
+            return PlayUploadResult.error(playEntity, context.getString(R.string.msg_play_queued_for_upload))
+        }
+    }
+
+    fun enqueueUploadRequest(playEntity: PlayEntity) {
+        if (playEntity.updateTimestamp > 0L) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
+                .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
+                .build()
+            val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+                .setInputData(workDataOf(INTERNAL_ID to playEntity.internalId))
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(context).enqueue(workRequest)
+        }
     }
 
     suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
