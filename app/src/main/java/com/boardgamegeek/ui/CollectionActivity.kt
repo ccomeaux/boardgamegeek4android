@@ -62,15 +62,7 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
         }
         viewModel.loggedPlayResult.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
-                val message = when {
-                    it.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
-                    it.play.quantity > 0 -> getText(
-                        R.string.msg_play_added_quantity,
-                        it.numberOfPlays.asRangeDescription(it.play.quantity),
-                    )
-                    else -> getString(R.string.msg_play_added)
-                }
-                notifyLoggedPlay(it.play.gameName, message, it.play)
+                notifyLoggedPlay(it)
             }
         }
         viewModel.selectedViewId.observe(this) { id: Long -> viewId = id }

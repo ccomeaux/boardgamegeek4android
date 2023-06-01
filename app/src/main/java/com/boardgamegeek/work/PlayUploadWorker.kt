@@ -28,17 +28,7 @@ class PlayUploadWorker @AssistedInject constructor(
             if (uploadResult.errorMessage.isBlank()) {
                 playRepository.updateGamePlayCount(playEntity.gameId)
                 playRepository.calculatePlayStats()
-
-                val message = when {
-                    uploadResult.status == PlayUploadResult.Status.UPDATE -> applicationContext.getString(R.string.msg_play_updated)
-                    uploadResult.play.quantity > 0 -> applicationContext.getText(
-                        R.string.msg_play_added_quantity,
-                        uploadResult.numberOfPlays.asRangeDescription(uploadResult.play.quantity),
-                    )
-                    else -> applicationContext.getString(R.string.msg_play_added)
-                }
-                applicationContext.notifyLoggedPlay(playEntity.gameName, message, playEntity)
-
+                applicationContext.notifyLoggedPlay(uploadResult)
                 return Result.success() // TODO include uploadResult?
             } else {
                 return Result.failure(workDataOf(ERROR_MESSAGE to uploadResult.errorMessage))

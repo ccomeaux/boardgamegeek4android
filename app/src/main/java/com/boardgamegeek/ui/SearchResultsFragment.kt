@@ -86,17 +86,9 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             }
         }
 
-        viewModel.loggedPlayResult.observe(this) { event ->
+        viewModel.loggedPlayResult.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
-                val message = when {
-                    it.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
-                    it.play.quantity > 0 -> requireContext().getText(
-                        R.string.msg_play_added_quantity,
-                        it.numberOfPlays.asRangeDescription(it.play.quantity),
-                    )
-                    else -> getString(R.string.msg_play_added)
-                }
-                requireContext().notifyLoggedPlay(it.play.gameName, message, it.play)
+                requireContext().notifyLoggedPlay(it)
             }
         }
 

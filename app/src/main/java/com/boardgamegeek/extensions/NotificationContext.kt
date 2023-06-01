@@ -18,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.HomeActivity
@@ -140,28 +141,36 @@ fun Context.notify(builder: NotificationCompat.Builder, tag: String?, id: Int = 
     NotificationManagerCompat.from(this).notify(tag, id, builder.build())
 }
 
-fun Context.notifyLoggedPlay(title: CharSequence, message: CharSequence, play: PlayEntity) {
-    val imageUrls = listOf(play.thumbnailUrl, play.heroImageUrl, play.imageUrl)
+fun Context.notifyLoggedPlay(result: PlayUploadResult) {
+    val imageUrls = listOf(result.play.thumbnailUrl, result.play.heroImageUrl, result.play.imageUrl)
+    val message = when {
+        result.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
+        result.play.quantity > 0 -> getText(
+            R.string.msg_play_added_quantity,
+            result.numberOfPlays.asRangeDescription(result.play.quantity),
+        )
+        else -> getString(R.string.msg_play_added)
+    }
 
     val loader = LargeIconLoader(this, *imageUrls.toTypedArray(), callback = object : LargeIconLoader.Callback {
         override fun onSuccessfulIconLoad(bitmap: Bitmap) {
-            buildAndNotify(this@notifyLoggedPlay, title, message, bitmap)
+            buildAndNotify(this@notifyLoggedPlay, result.play.gameName, message, bitmap)
         }
 
         override fun onFailedIconLoad() {
-            buildAndNotify(this@notifyLoggedPlay, title, message)
+            buildAndNotify(this@notifyLoggedPlay, result.play.gameName, message)
         }
 
         fun buildAndNotify(context: Context, title: CharSequence, message: CharSequence, largeIcon: Bitmap? = null) {
-            val intent = if (play.internalId == INVALID_ID.toLong())
+            val intent = if (result.play.internalId == INVALID_ID.toLong())
                 GamePlaysActivity.createIntent(
                     context,
-                    play.gameId,
-                    play.gameName,
-                    play.heroImageUrl,
+                    result.play.gameId,
+                    result.play.gameName,
+                    result.play.heroImageUrl,
                 )
             else
-                PlayActivity.createIntent(context, play.internalId)
+                PlayActivity.createIntent(context, result.play.internalId)
 
             val builder = context.createNotificationBuilder(
                 message,
@@ -175,8 +184,8 @@ fun Context.notifyLoggedPlay(title: CharSequence, message: CharSequence, play: P
                 .setGroup(NotificationTags.UPLOAD_PLAY)
                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(message))
-                .addAction(createRematchAction(context, play))
-            context.notify(builder, NotificationTags.UPLOAD_PLAY, play.playId)
+                .addAction(createRematchAction(context, result.play))
+            context.notify(builder, NotificationTags.UPLOAD_PLAY, result.play.playId)
             showNotificationSummary(context)
         }
     })
