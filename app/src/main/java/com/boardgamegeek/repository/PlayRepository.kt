@@ -127,11 +127,11 @@ class PlayRepository(
         val response = phpApi.play(play.mapToFormBodyForUpsert().build())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
-            return PlayUploadResult.error(play, context.getString(R.string.msg_play_update_auth_error))
+            PlayUploadResult.error(play, context.getString(R.string.msg_play_update_auth_error))
         } else if (response.hasInvalidIdError()) {
-            return PlayUploadResult.error(play, context.getString(R.string.msg_play_update_bad_id))
-        } else if (response.hasError()) {
-            return PlayUploadResult.error(play, response.error.orEmpty())
+            PlayUploadResult.error(play, context.getString(R.string.msg_play_update_bad_id))
+        } else if (!response.error.isNullOrBlank()) {
+            PlayUploadResult.error(play, response.error)
         } else {
             markAsSynced(play.internalId, response.playId)
             PlayUploadResult.success(play, response.playId, response.numberOfPlays)

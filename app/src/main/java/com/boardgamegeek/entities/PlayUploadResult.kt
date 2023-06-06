@@ -14,7 +14,7 @@ data class PlayUploadResult(
     }
 
     companion object {
-        fun success(play: PlayEntity, playId:Int, numberOfPlays: Int): PlayUploadResult {
+        fun success(play: PlayEntity, playId:Int = play.playId, numberOfPlays: Int = 0): PlayUploadResult {
             val status = if (play.playId == playId) Status.UPDATE else Status.NEW
             return PlayUploadResult(play.copy(playId = playId), status, numberOfPlays = numberOfPlays)
         }

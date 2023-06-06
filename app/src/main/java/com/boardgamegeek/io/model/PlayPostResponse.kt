@@ -13,8 +13,6 @@ class PlayPostResponse {
     val html: String? = null // Plays: <a href="/plays/thing/${gameId}?userid=${userId}">${numberOfPlays}</a>
     val error: String? = null
 
-    fun hasError(): Boolean = error?.isNotBlank() ?: false || numberOfPlays <= 0
-
     fun hasAuthError(): Boolean {
         return "You must login to save plays".equals(error, ignoreCase = true) ||
                 "You can't delete this play".equals(error, ignoreCase = true) ||

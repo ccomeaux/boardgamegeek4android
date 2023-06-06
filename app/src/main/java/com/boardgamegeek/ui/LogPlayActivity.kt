@@ -663,7 +663,7 @@ class LogPlayActivity : AppCompatActivity() {
         shouldSaveOnPause = false
         if (viewModel.isDirty()) {
             if (shouldDeletePlayOnActivityCancel) {
-                createDiscardDialog(R.string.play, isNew = true, finishActivity = true) {
+                createDiscardDialog(R.string.play, isNew = true) {
                     viewModel.deletePlay()
                     cancelPlayingNotification()
                 }.show()

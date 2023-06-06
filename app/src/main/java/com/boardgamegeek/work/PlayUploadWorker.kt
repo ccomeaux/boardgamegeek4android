@@ -34,7 +34,7 @@ class PlayUploadWorker @AssistedInject constructor(
                 return Result.failure(workDataOf(ERROR_MESSAGE to uploadResult.errorMessage))
             }
         }
-        return Result.failure(workDataOf(ERROR_MESSAGE to "Failed to load play with internal ID=$internalId"))
+        return Result.failure(workDataOf(ERROR_MESSAGE to "Failed to load play for upload with internal ID=$internalId"))
     }
 
     companion object {
