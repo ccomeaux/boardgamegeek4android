@@ -4,8 +4,7 @@ data class PlayUploadResult(
     val play: PlayEntity,
     val status: Status,
     val numberOfPlays: Int = 0,
-    val errorMessage: String = ""
-
+    val errorMessage: String = "",
 ) {
     enum class Status {
         NEW,

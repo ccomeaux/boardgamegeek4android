@@ -17,6 +17,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.PlayDeleteResult
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -141,6 +142,41 @@ fun Context.notify(builder: NotificationCompat.Builder, tag: String?, id: Int = 
     NotificationManagerCompat.from(this).notify(tag, id, builder.build())
 }
 
+fun Context.notifyDeletedPlay(result: PlayDeleteResult) {
+    val imageUrls = listOf(result.play.thumbnailUrl, result.play.heroImageUrl, result.play.imageUrl)
+    val message = getString(R.string.msg_play_deleted)
+
+    val loader = LargeIconLoader(this, *imageUrls.toTypedArray(), callback = object : LargeIconLoader.Callback {
+        override fun onSuccessfulIconLoad(bitmap: Bitmap) {
+            buildAndNotify(this@notifyDeletedPlay, result.play.gameName, message, bitmap)
+        }
+
+        override fun onFailedIconLoad() {
+            buildAndNotify(this@notifyDeletedPlay, result.play.gameName, message)
+        }
+
+        fun buildAndNotify(context: Context, title: CharSequence, message: CharSequence, largeIcon: Bitmap? = null) {
+            val intent = GamePlaysActivity.createIntent(context, result.play.gameId, result.play.gameName, result.play.heroImageUrl)
+
+            val builder = context.createNotificationBuilder(
+                message,
+                NotificationChannels.SYNC_UPLOAD,
+                intent
+            )
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .setContentTitle(title)
+                .setLargeIcon(largeIcon)
+                .setOnlyAlertOnce(true)
+                .setGroup(NotificationTags.UPLOAD_PLAY)
+                .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
+            context.notify(builder, NotificationTags.UPLOAD_PLAY, result.play.internalId.toInt())
+            showNotificationSummary(context)
+        }
+    })
+    loader.executeInBackground()
+}
+
 fun Context.notifyLoggedPlay(result: PlayUploadResult) {
     val imageUrls = listOf(result.play.thumbnailUrl, result.play.heroImageUrl, result.play.imageUrl)
     val message = when {
@@ -185,7 +221,7 @@ fun Context.notifyLoggedPlay(result: PlayUploadResult) {
                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
                 .setStyle(NotificationCompat.BigTextStyle().bigText(message))
                 .addAction(createRematchAction(context, result.play))
-            context.notify(builder, NotificationTags.UPLOAD_PLAY, result.play.playId)
+            context.notify(builder, NotificationTags.UPLOAD_PLAY, result.play.internalId.toInt())
             showNotificationSummary(context)
         }
     })

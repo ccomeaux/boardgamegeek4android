@@ -93,10 +93,10 @@ class PlayViewModel @Inject constructor(
     fun delete() {
         viewModelScope.launch {
             play.value?.data?.let {
-                repository.markAsDeleted(it.internalId)
-                _updatedId.postValue(it.internalId)
+                repository.markAsDeleted(it.internalId)?.let { play ->
+                    repository.enqueueDeleteRequest(play)
+                }
             }
-            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         }
     }
 }

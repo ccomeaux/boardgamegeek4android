@@ -469,7 +469,10 @@ class PlayDao(private val context: Context) {
     }
 
     suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
+        if (internalId == INVALID_ID.toLong())
+            false
+        else
+            context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
     }
 
     enum class SaveStatus {

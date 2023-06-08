@@ -450,6 +450,7 @@
 	<string name="msg_play_deleted">Deleted play</string>
 	<string name="msg_play_deleted_draft">Deleted draft</string>
 	<string name="msg_play_update_not_set">Play isn\'t set to update.</string>
+	<string name="msg_play_delete_not_set">Play isn\'t set to delete.</string>
 	<string name="msg_play_update_auth_error">Not logged in. Try again later.</string>
 	<string name="msg_play_update_bad_id">Play <b>%s</b> doesn\'t exist!</string>
 	<string name="msg_play_queued_for_upload">Queued for upload</string>

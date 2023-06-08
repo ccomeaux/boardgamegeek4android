@@ -12,6 +12,7 @@ class PlayPostResponse {
     val numberOfPlays = 0
     val html: String? = null // Plays: <a href="/plays/thing/${gameId}?userid=${userId}">${numberOfPlays}</a>
     val error: String? = null
+    val success: Boolean = false
 
     fun hasAuthError(): Boolean {
         return "You must login to save plays".equals(error, ignoreCase = true) ||

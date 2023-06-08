@@ -19,6 +19,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToFormBodyForDelete
 import com.boardgamegeek.mappers.mapToFormBodyForUpsert
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
@@ -28,6 +29,7 @@ import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
+import com.boardgamegeek.work.PlayDeleteWorker
 import com.boardgamegeek.work.PlayUploadWorker
 import com.boardgamegeek.work.PlayUploadWorker.Companion.INTERNAL_ID
 import kotlinx.coroutines.Dispatchers
@@ -135,6 +137,29 @@ class PlayRepository(
         } else {
             markAsSynced(play.internalId, response.playId)
             PlayUploadResult.success(play, response.playId, response.numberOfPlays)
+        }
+    }
+
+    suspend fun deletePlay(play: PlayEntity): PlayDeleteResult {
+        if (play.deleteTimestamp == 0L)
+            return PlayDeleteResult.error(play, context.getString(R.string.msg_play_delete_not_set))
+        if (play.playId == INVALID_ID) {
+            playDao.delete(play.internalId)
+            return PlayDeleteResult.success(play)
+        }
+        val response = phpApi.play(play.playId.mapToFormBodyForDelete().build()) // TODO handle malformed JSON
+        return if (response.hasAuthError()) {
+            Authenticator.clearPassword(context)
+            PlayDeleteResult.error(play, context.getString(R.string.msg_play_update_auth_error))
+        } else if (response.hasInvalidIdError()) {
+            PlayDeleteResult.error(play, context.getString(R.string.msg_play_update_bad_id))
+        } else if (!response.error.isNullOrBlank()) {
+            PlayDeleteResult.error(play, response.error)
+        } else if (!response.success) {
+            PlayDeleteResult.error(play, "Unsuccessful, don't know why") // TODO better error message
+        } else {
+            playDao.delete(play.internalId)
+            PlayDeleteResult.success(play)
         }
     }
 
@@ -369,6 +394,21 @@ class PlayRepository(
         }
     }
 
+    fun enqueueDeleteRequest(playEntity: PlayEntity){
+        if (playEntity.deleteTimestamp > 0L) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
+                .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
+                .build()
+            val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
+                .setInputData(workDataOf(INTERNAL_ID to playEntity.internalId))
+                .setConstraints(constraints)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(context).enqueue(workRequest)
+        }
+    }
+
     suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
         var updateCount = 0
         var insertCount = 0
@@ -430,7 +470,7 @@ class PlayRepository(
         )
     }
 
-    suspend fun markAsDeleted(internalId: Long) {
+    suspend fun markAsDeleted(internalId: Long): PlayEntity? {
         playDao.update(
             internalId,
             contentValuesOf(
@@ -439,6 +479,7 @@ class PlayRepository(
                 Plays.Columns.DIRTY_TIMESTAMP to 0,
             )
         )
+        return playDao.loadPlay(internalId)
     }
 
     suspend fun updateGamePlayCount(gameId: Int) = withContext(Dispatchers.Default) {
