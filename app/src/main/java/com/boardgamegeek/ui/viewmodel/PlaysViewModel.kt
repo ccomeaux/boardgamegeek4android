@@ -193,7 +193,7 @@ class PlaysViewModel @Inject constructor(
             plays.forEach {
                 playRepository.markAsDeleted(it.internalId)
             }
-            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+            playRepository.enqueueDeleteRequest()
         }
     }
 }

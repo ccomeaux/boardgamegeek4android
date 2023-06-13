@@ -381,33 +381,38 @@ class PlayRepository(
 
     fun enqueueUploadRequest(playEntity: PlayEntity) {
         if (playEntity.updateTimestamp > 0L) {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
-                .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
-                .build()
             val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
                 .setInputData(workDataOf(INTERNAL_ID to playEntity.internalId))
-                .setConstraints(constraints)
+                .setConstraints(createWorkConstraints())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(workRequest)
         }
     }
 
+    fun enqueueDeleteRequest(){
+        val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
+            .setConstraints(createWorkConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueue(workRequest)
+    }
+
     fun enqueueDeleteRequest(playEntity: PlayEntity){
         if (playEntity.deleteTimestamp > 0L) {
-            val constraints = Constraints.Builder()
-                .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
-                .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
-                .build()
             val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
                 .setInputData(workDataOf(INTERNAL_ID to playEntity.internalId))
-                .setConstraints(constraints)
+                .setConstraints(createWorkConstraints())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(workRequest)
         }
     }
+
+    private fun createWorkConstraints() = Constraints.Builder()
+        .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
+        .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
+        .build()
 
     suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
         var updateCount = 0
