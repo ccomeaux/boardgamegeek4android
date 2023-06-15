@@ -31,7 +31,6 @@ import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.work.PlayDeleteWorker
 import com.boardgamegeek.work.PlayUploadWorker
-import com.boardgamegeek.work.PlayUploadWorker.Companion.INTERNAL_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -379,10 +378,18 @@ class PlayRepository(
         }
     }
 
+    fun enqueueUploadRequest() {
+        val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+            .setConstraints(createWorkConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueue(workRequest)
+    }
+
     fun enqueueUploadRequest(playEntity: PlayEntity) {
         if (playEntity.updateTimestamp > 0L) {
             val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
-                .setInputData(workDataOf(INTERNAL_ID to playEntity.internalId))
+                .setInputData(workDataOf(PlayUploadWorker.INTERNAL_ID to playEntity.internalId))
                 .setConstraints(createWorkConstraints())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
                 .build()
@@ -390,7 +397,7 @@ class PlayRepository(
         }
     }
 
-    fun enqueueDeleteRequest(){
+    fun enqueueDeleteRequest() {
         val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
             .setConstraints(createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
@@ -398,10 +405,10 @@ class PlayRepository(
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
-    fun enqueueDeleteRequest(playEntity: PlayEntity){
+    fun enqueueDeleteRequest(playEntity: PlayEntity) {
         if (playEntity.deleteTimestamp > 0L) {
             val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
-                .setInputData(workDataOf(INTERNAL_ID to playEntity.internalId))
+                .setInputData(workDataOf(PlayDeleteWorker.INTERNAL_ID to playEntity.internalId))
                 .setConstraints(createWorkConstraints())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
                 .build()
@@ -464,7 +471,7 @@ class PlayRepository(
         )
     }
 
-    suspend fun markAsUpdated(internalId: Long) {
+    suspend fun markAsUpdated(internalId: Long): PlayEntity? {
         playDao.update(
             internalId,
             contentValuesOf(
@@ -473,6 +480,7 @@ class PlayRepository(
                 Plays.Columns.DIRTY_TIMESTAMP to 0,
             )
         )
+        return playDao.loadPlay(internalId)
     }
 
     suspend fun markAsDeleted(internalId: Long): PlayEntity? {

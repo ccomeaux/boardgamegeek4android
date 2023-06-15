@@ -25,6 +25,7 @@ class PlayDeleteWorker @AssistedInject constructor(
         if (internalId == BggContract.INVALID_ID.toLong()) {
             Timber.i("Deleting all plays marked for deletion")
             val plays = playRepository.getDeletingPlays()
+            Timber.i("Found ${plays.count()} play(s) marked for deletion")
             plays.forEach { playEntity ->
                 val (gameId, errorMessage) = deletePlayAndNotify(playEntity)
                 if (errorMessage.isNotBlank())
