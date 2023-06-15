@@ -409,10 +409,11 @@ class PlayRepository(
         }
     }
 
-    fun enqueueUploadRequest() {
+    fun enqueueUploadRequest(gameId: Int = INVALID_ID) {
         val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+            .setInputData(workDataOf(PlayUpsertWorker.GAME_ID to gameId))
             .setConstraints(createWorkConstraints())
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
     }

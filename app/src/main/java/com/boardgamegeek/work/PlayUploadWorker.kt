@@ -22,24 +22,48 @@ class PlayUploadWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
         val gameIds = mutableSetOf<Int>()
-        Timber.i("Uploading all plays marked for deletion or updating")
+        val requestedGameId = inputData.getInt(PlayUpsertWorker.GAME_ID, BggContract.INVALID_ID)
 
-        val playsToDelete = playRepository.getDeletingPlays()
-        Timber.i("Found ${playsToDelete.count()} play(s) marked for deletion")
-        playsToDelete.forEach { playEntity ->
-            val (gameId, errorMessage) = deletePlayAndNotify(playEntity)
-            if (errorMessage.isNotBlank())
-                return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
-            else gameIds += gameId
-        }
+        if (requestedGameId == BggContract.INVALID_ID) {
+            Timber.i("Uploading all plays marked for deletion or updating")
 
-        val playsToUpsert = playRepository.getUpdatingPlays()
-        Timber.i("Found ${playsToUpsert.count()} play(s) marked for upsert")
-        playsToUpsert.forEach { playEntity ->
-            val (gameId, errorMessage) = upsertPlayAndNotify(playEntity)
-            if (errorMessage.isNotBlank())
-                return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
-            else gameIds += gameId
+            val playsToDelete = playRepository.getDeletingPlays()
+            Timber.i("Found ${playsToDelete.count()} play(s) marked for deletion")
+            playsToDelete.forEach { playEntity ->
+                val (gameId, errorMessage) = deletePlayAndNotify(playEntity)
+                if (errorMessage.isNotBlank())
+                    return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
+                else gameIds += gameId
+            }
+
+            val playsToUpsert = playRepository.getUpdatingPlays()
+            Timber.i("Found ${playsToUpsert.count()} play(s) marked for upsert")
+            playsToUpsert.forEach { playEntity ->
+                val (gameId, errorMessage) = upsertPlayAndNotify(playEntity)
+                if (errorMessage.isNotBlank())
+                    return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
+                else gameIds += gameId
+            }
+        } else {
+            Timber.i("Uploading all plays for game ID=$requestedGameId marked for deletion or updating")
+
+            val playsToDelete = playRepository.getDeletingPlays().filter { it.gameId == requestedGameId }
+            Timber.i("Found ${playsToDelete.count()} play(s) marked for deletion")
+            playsToDelete.forEach { playEntity ->
+                val (gameId, errorMessage) = deletePlayAndNotify(playEntity)
+                if (errorMessage.isNotBlank())
+                    return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
+                else gameIds += gameId
+            }
+
+            val playsToUpsert = playRepository.getUpdatingPlays().filter { it.gameId == requestedGameId }
+            Timber.i("Found ${playsToUpsert.count()} play(s) marked for upsert")
+            playsToUpsert.forEach { playEntity ->
+                val (gameId, errorMessage) = upsertPlayAndNotify(playEntity)
+                if (errorMessage.isNotBlank())
+                    return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
+                else gameIds += gameId
+            }
         }
 
         gameIds.forEach { gameId ->

@@ -12,7 +12,6 @@ import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -81,7 +80,11 @@ class PlaysViewModel @Inject constructor(
                 val list = loadPlays(it)
                 val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(it.id)) {
                     emit(RefreshableResource.refreshing(list))
-                    SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                    if (it.mode == Mode.GAME)
+                        playRepository.enqueueUploadRequest(it.id)
+                    else
+                        playRepository.enqueueUploadRequest()
+                    // TODO should wait for upload before attempting a download
                     when (it.mode) {
                         Mode.GAME -> playRepository.refreshPlaysForGame(it.id)
                         else -> playRepository.refreshPlays()
