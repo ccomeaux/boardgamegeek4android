@@ -7,7 +7,6 @@ import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.service.SyncService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -58,12 +57,13 @@ class PlayViewModel @Inject constructor(
     }
 
     fun refresh() {
-        play.value?.data?.let {
-            if (it.updateTimestamp > 0 || it.deleteTimestamp > 0)
-                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        viewModelScope.launch {
+            play.value?.data?.let {
+                repository.uploadPlay(it)
+            }
+            forceRefresh.set(true)
+            reload()
         }
-        forceRefresh.set(true)
-        reload()
     }
 
     fun reload() {
@@ -83,10 +83,11 @@ class PlayViewModel @Inject constructor(
     fun send() {
         viewModelScope.launch {
             play.value?.data?.let {
-                repository.markAsUpdated(it.internalId)
-                _updatedId.postValue(it.internalId)
+                repository.markAsUpdated(it.internalId)?.let { play ->
+                    _updatedId.postValue(it.internalId)
+                    repository.enqueueUpsertRequest(play)
+                }
             }
-            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
         }
     }
 
