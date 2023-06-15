@@ -158,18 +158,13 @@ fun Context.notifyDeletedPlay(result: PlayDeleteResult) {
         fun buildAndNotify(context: Context, title: CharSequence, message: CharSequence, largeIcon: Bitmap? = null) {
             val intent = GamePlaysActivity.createIntent(context, result.play.gameId, result.play.gameName, result.play.heroImageUrl)
 
-            val builder = context.createNotificationBuilder(
-                message,
-                NotificationChannels.SYNC_UPLOAD,
-                intent
-            )
+            val builder = context.createNotificationBuilder(title, NotificationChannels.SYNC_UPLOAD, intent)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                .setContentTitle(title)
+                .setContentText(message)
                 .setLargeIcon(largeIcon)
                 .setOnlyAlertOnce(true)
                 .setGroup(NotificationTags.UPLOAD_PLAY)
                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
             context.notify(builder, NotificationTags.UPLOAD_PLAY, result.play.internalId.toInt())
             showNotificationSummary(context)
         }
@@ -208,18 +203,13 @@ fun Context.notifyLoggedPlay(result: PlayUpsertResult) {
             else
                 PlayActivity.createIntent(context, result.play.internalId)
 
-            val builder = context.createNotificationBuilder(
-                message,
-                NotificationChannels.SYNC_UPLOAD,
-                intent
-            )
+            val builder = context.createNotificationBuilder(title, NotificationChannels.SYNC_UPLOAD, intent)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
-                .setContentTitle(title)
+                .setContentText(message)
                 .setLargeIcon(largeIcon)
                 .setOnlyAlertOnce(true)
                 .setGroup(NotificationTags.UPLOAD_PLAY)
                 .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
-                .setStyle(NotificationCompat.BigTextStyle().bigText(message))
                 .addAction(createRematchAction(context, result.play))
             context.notify(builder, NotificationTags.UPLOAD_PLAY, result.play.internalId.toInt())
             showNotificationSummary(context)
