@@ -42,9 +42,9 @@ class PlayUpsertWorker @AssistedInject constructor(
                 else gameIds += gameId
             }
         } else {
-            Timber.i("Upserting all plays marked for update")
+            Timber.i("Upserting all plays marked for upsert")
             val plays = playRepository.getUpdatingPlays()
-            Timber.i("Found ${plays.count()} play(s) marked for update")
+            Timber.i("Found ${plays.count()} play(s) marked for upsert")
             plays.forEach { playEntity ->
                 val (gameId, errorMessage) = upsertPlayAndNotify(playEntity)
                 if (errorMessage.isNotBlank())

@@ -30,6 +30,7 @@ import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.work.PlayDeleteWorker
+import com.boardgamegeek.work.PlayUploadWorker
 import com.boardgamegeek.work.PlayUpsertWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -107,15 +108,6 @@ class PlayRepository(
         val plays = response.plays.mapToEntity(timestamp)
         saveFromSync(plays, timestamp)
         calculatePlayStats()
-    }
-
-    suspend fun uploadPlays(): List<Int> {
-        val results = mutableListOf<Int>()
-        val plays = getPendingPlays()
-        plays.forEach { play ->
-            results += upsertPlay(play).play.playId
-        }
-        return results.filterNot { it == INVALID_ID }
     }
 
     /**
@@ -415,6 +407,14 @@ class PlayRepository(
                 .build()
             WorkManager.getInstance(context).enqueue(workRequest)
         }
+    }
+
+    fun enqueueUploadRequest() {
+        val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+            .setConstraints(createWorkConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueue(workRequest)
     }
 
     private fun createWorkConstraints() = Constraints.Builder()

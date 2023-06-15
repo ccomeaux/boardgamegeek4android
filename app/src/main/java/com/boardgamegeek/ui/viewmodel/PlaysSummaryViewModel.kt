@@ -8,7 +8,6 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -40,7 +39,7 @@ class PlaysSummaryViewModel @Inject constructor(
         liveData {
             try {
                 val list = playRepository.getPlays()
-                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                playRepository.enqueueUploadRequest()
                 val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
                     emit(RefreshableResource.refreshing(list))
                     // TODO - while refreshing, the plays aren't updated in the UI. Figure out how to do that. Maybe listen to the play sync dates
