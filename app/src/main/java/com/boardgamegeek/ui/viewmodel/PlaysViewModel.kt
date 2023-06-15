@@ -54,7 +54,9 @@ class PlaysViewModel @Inject constructor(
     private val locationRenameCount = MutableLiveData<PlayRepository.RenameLocationResults>()
     val updateMessage: LiveData<Event<String>> = locationRenameCount.map { result ->
         setLocation(result.newLocationName)
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+        viewModelScope.launch {
+            playRepository.enqueueUploadRequest()
+        }
         Event(
             getApplication<BggApplication>().resources.getQuantityString(
                 R.plurals.msg_play_location_change,
