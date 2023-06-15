@@ -12,7 +12,6 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.FragmentHotnessBinding
 import com.boardgamegeek.databinding.RowHotnessBinding
 import com.boardgamegeek.entities.HotGameEntity
-import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
@@ -40,13 +39,13 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
-        viewModel.errorMessage.observe(this) { event ->
+        viewModel.errorMessage.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 binding.coordinatorLayout.snackbar(it)
             }
         }
 
-        viewModel.loggedPlayResult.observe(this) { event ->
+        viewModel.loggedPlayResult.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 requireContext().notifyLoggedPlay(it)
             }

@@ -9,7 +9,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
-import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.entities.PlayUpsertResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
 import com.boardgamegeek.filterer.CollectionFilterer
@@ -84,8 +84,8 @@ class CollectionViewViewModel @Inject constructor(
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
 
-    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
-    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUpsertResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUpsertResult>>
         get() = _loggedPlayResult
 
     private val _isFiltering = MediatorLiveData<Boolean>()

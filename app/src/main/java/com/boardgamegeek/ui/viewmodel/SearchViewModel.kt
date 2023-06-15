@@ -2,7 +2,7 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.entities.PlayUpsertResult
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.SearchResultEntity
 import com.boardgamegeek.livedata.Event
@@ -29,8 +29,8 @@ class SearchViewModel @Inject constructor(
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
 
-    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
-    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUpsertResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUpsertResult>>
         get() = _loggedPlayResult
 
     fun search(query: String) {

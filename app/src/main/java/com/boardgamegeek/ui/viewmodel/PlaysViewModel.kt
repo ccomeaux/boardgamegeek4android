@@ -55,7 +55,7 @@ class PlaysViewModel @Inject constructor(
     val updateMessage: LiveData<Event<String>> = locationRenameCount.map { result ->
         setLocation(result.newLocationName)
         viewModelScope.launch {
-            playRepository.enqueueUploadRequest()
+            playRepository.enqueueUpsertRequest()
         }
         Event(
             getApplication<BggApplication>().resources.getQuantityString(
@@ -186,7 +186,7 @@ class PlaysViewModel @Inject constructor(
             plays.forEach {
                 playRepository.markAsUpdated(it.internalId)
             }
-            playRepository.enqueueUploadRequest()
+            playRepository.enqueueUpsertRequest()
         }
     }
 

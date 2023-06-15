@@ -19,7 +19,7 @@ import androidx.core.content.getSystemService
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayDeleteResult
 import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.entities.PlayUpsertResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.HomeActivity
@@ -177,10 +177,10 @@ fun Context.notifyDeletedPlay(result: PlayDeleteResult) {
     loader.executeInBackground()
 }
 
-fun Context.notifyLoggedPlay(result: PlayUploadResult) {
+fun Context.notifyLoggedPlay(result: PlayUpsertResult) {
     val imageUrls = listOf(result.play.thumbnailUrl, result.play.heroImageUrl, result.play.imageUrl)
     val message = when {
-        result.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
+        result.status == PlayUpsertResult.Status.UPDATE -> getString(R.string.msg_play_updated)
         result.play.quantity > 0 -> getText(
             R.string.msg_play_added_quantity,
             result.numberOfPlays.asRangeDescription(result.play.quantity),

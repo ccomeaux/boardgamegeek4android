@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.FragmentSearchResultsBinding
-import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
@@ -80,7 +79,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = searchResultsAdapter
 
-        viewModel.errorMessage.observe(this) { event ->
+        viewModel.errorMessage.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let {
                 binding.coordinatorLayout.snackbar(it)
             }

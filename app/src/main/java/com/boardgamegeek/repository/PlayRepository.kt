@@ -30,7 +30,7 @@ import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.work.PlayDeleteWorker
-import com.boardgamegeek.work.PlayUploadWorker
+import com.boardgamegeek.work.PlayUpsertWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -113,7 +113,7 @@ class PlayRepository(
         val results = mutableListOf<Int>()
         val plays = getPendingPlays()
         plays.forEach { play ->
-            results += uploadPlay(play).play.playId
+            results += upsertPlay(play).play.playId
         }
         return results.filterNot { it == INVALID_ID }
     }
@@ -122,20 +122,20 @@ class PlayRepository(
      * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
      * an error message if not.
      */
-    suspend fun uploadPlay(play: PlayEntity): PlayUploadResult {
+    suspend fun upsertPlay(play: PlayEntity): PlayUpsertResult {
         if (play.updateTimestamp == 0L)
-            return PlayUploadResult.error(play, context.getString(R.string.msg_play_update_not_set))
+            return PlayUpsertResult.error(play, context.getString(R.string.msg_play_update_not_set))
         val response = phpApi.play(play.mapToFormBodyForUpsert().build())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
-            PlayUploadResult.error(play, context.getString(R.string.msg_play_update_auth_error))
+            PlayUpsertResult.error(play, context.getString(R.string.msg_play_update_auth_error))
         } else if (response.hasInvalidIdError()) {
-            PlayUploadResult.error(play, context.getString(R.string.msg_play_update_bad_id))
+            PlayUpsertResult.error(play, context.getString(R.string.msg_play_update_bad_id))
         } else if (!response.error.isNullOrBlank()) {
-            PlayUploadResult.error(play, response.error)
+            PlayUpsertResult.error(play, response.error)
         } else {
             markAsSynced(play.internalId, response.playId)
-            PlayUploadResult.success(play, response.playId, response.numberOfPlays)
+            PlayUpsertResult.success(play, response.playId, response.numberOfPlays)
         }
     }
 
@@ -353,7 +353,7 @@ class PlayRepository(
 
     suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy)
 
-    suspend fun logQuickPlay(gameId: Int, gameName: String): PlayUploadResult {
+    suspend fun logQuickPlay(gameId: Int, gameName: String): PlayUpsertResult {
         val playEntity = PlayEntity(
             gameId = gameId,
             gameName = gameName,
@@ -364,32 +364,33 @@ class PlayRepository(
         return logPlay(playEntity.copy(internalId = internalId))
     }
 
-    suspend fun logPlay(playEntity: PlayEntity): PlayUploadResult {
+    suspend fun logPlay(playEntity: PlayEntity): PlayUpsertResult {
         return try {
-            val uploadResult = uploadPlay(playEntity)
-            if (uploadResult.errorMessage.isBlank()) {
+            val result = upsertPlay(playEntity)
+            if (result.errorMessage.isBlank()) {
                 updateGamePlayCount(playEntity.gameId)
                 calculatePlayStats()
             }
-            uploadResult
+            result
         } catch (ex: Exception) {
-            enqueueUploadRequest(playEntity)
-            return PlayUploadResult.error(playEntity, context.getString(R.string.msg_play_queued_for_upload))
+            enqueueUpsertRequest(playEntity)
+            return PlayUpsertResult.error(playEntity, context.getString(R.string.msg_play_queued_for_upload))
         }
     }
 
-    fun enqueueUploadRequest() {
-        val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+    fun enqueueUpsertRequest(gameId: Int = INVALID_ID) {
+        val workRequest = OneTimeWorkRequestBuilder<PlayUpsertWorker>()
             .setConstraints(createWorkConstraints())
+            .setInputData(workDataOf(PlayUpsertWorker.GAME_ID to gameId))
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
-    fun enqueueUploadRequest(playEntity: PlayEntity) {
+    fun enqueueUpsertRequest(playEntity: PlayEntity) {
         if (playEntity.updateTimestamp > 0L) {
-            val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
-                .setInputData(workDataOf(PlayUploadWorker.INTERNAL_ID to playEntity.internalId))
+            val workRequest = OneTimeWorkRequestBuilder<PlayUpsertWorker>()
+                .setInputData(workDataOf(PlayUpsertWorker.INTERNAL_ID to playEntity.internalId))
                 .setConstraints(createWorkConstraints())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
                 .build()
