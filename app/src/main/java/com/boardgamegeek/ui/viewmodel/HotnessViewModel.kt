@@ -46,10 +46,18 @@ class HotnessViewModel @Inject constructor(
     fun logQuickPlay(gameId: Int, gameName: String) {
         viewModelScope.launch {
             val result = playRepository.logQuickPlay(gameId, gameName)
-            if (result.errorMessage.isNotBlank())
-                _errorMessage.value = Event(result.errorMessage)
-            else if (result.play.playId != BggContract.INVALID_ID)
-                _loggedPlayResult.value = Event(result)
+            if (result.isFailure)
+                postError(result.exceptionOrNull())
+            else {
+                result.getOrNull()?.let {
+                    if (it.play.playId != BggContract.INVALID_ID)
+                        _loggedPlayResult.value = Event(it)
+                }
+            }
         }
+    }
+
+    private fun postError(exception: Throwable?) {
+        _errorMessage.value = Event(exception?.message.orEmpty())
     }
 }

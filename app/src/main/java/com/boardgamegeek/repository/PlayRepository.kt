@@ -125,20 +125,21 @@ class PlayRepository(
      * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
      * an error message if not.
      */
-    suspend fun upsertPlay(play: PlayEntity): PlayUpsertResult {
+    suspend fun upsertPlay(play: PlayEntity): Result<PlayUpsertResult> {
         if (play.updateTimestamp == 0L)
-            return PlayUpsertResult.error(play, context.getString(R.string.msg_play_update_not_set))
+            return Result.failure(Exception(context.getString(R.string.msg_play_update_not_set)))
         val response = phpApi.play(play.mapToFormBodyForUpsert().build())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
-            PlayUpsertResult.error(play, context.getString(R.string.msg_play_update_auth_error))
+            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
         } else if (response.hasInvalidIdError()) {
-            PlayUpsertResult.error(play, context.getString(R.string.msg_play_update_bad_id))
+            Result.failure(Exception(context.getString(R.string.msg_play_update_bad_id)))
         } else if (!response.error.isNullOrBlank()) {
-            PlayUpsertResult.error(play, response.error)
+            Result.failure(Exception(response.error))
         } else {
             markAsSynced(play.internalId, response.playId)
-            PlayUpsertResult.success(play, response.playId, response.numberOfPlays)
+            val status = if (play.playId == response.playId) PlayUpsertResult.Status.UPDATE else PlayUpsertResult.Status.NEW
+            Result.success(PlayUpsertResult(play.copy(playId = response.playId), status, response.numberOfPlays))
         }
     }
 
@@ -356,7 +357,7 @@ class PlayRepository(
 
     suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy)
 
-    suspend fun logQuickPlay(gameId: Int, gameName: String): PlayUpsertResult {
+    suspend fun logQuickPlay(gameId: Int, gameName: String): Result<PlayUpsertResult> {
         val playEntity = PlayEntity(
             gameId = gameId,
             gameName = gameName,
@@ -367,17 +368,17 @@ class PlayRepository(
         return logPlay(playEntity.copy(internalId = internalId))
     }
 
-    suspend fun logPlay(playEntity: PlayEntity): PlayUpsertResult {
+    suspend fun logPlay(playEntity: PlayEntity): Result<PlayUpsertResult> {
         return try {
             val result = upsertPlay(playEntity)
-            if (result.errorMessage.isBlank()) {
+            if (result.isSuccess) {
                 updateGamePlayCount(playEntity.gameId)
                 calculatePlayStats()
             }
             result
         } catch (ex: Exception) {
             enqueueUpsertRequest(playEntity)
-            return PlayUpsertResult.error(playEntity, context.getString(R.string.msg_play_queued_for_upload))
+            return Result.failure(Exception(context.getString(R.string.msg_play_queued_for_upload), ex))
         }
     }
 

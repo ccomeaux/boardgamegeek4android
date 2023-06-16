@@ -13,6 +13,7 @@ import com.boardgamegeek.repository.PlayRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import timber.log.Timber
+import java.lang.Exception
 
 @HiltWorker
 class PlayUploadWorker @AssistedInject constructor(
@@ -39,10 +40,10 @@ class PlayUploadWorker @AssistedInject constructor(
             val playsToUpsert = playRepository.getUpdatingPlays()
             Timber.i("Found ${playsToUpsert.count()} play(s) marked for upsert")
             playsToUpsert.forEach { playEntity ->
-                val (gameId, errorMessage) = upsertPlayAndNotify(playEntity)
-                if (errorMessage.isNotBlank())
-                    return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
-                else gameIds += gameId
+                val result = upsertPlayAndNotify(playEntity)
+                if (result.isFailure)
+                    return Result.failure(workDataOf(ERROR_MESSAGE to result.exceptionOrNull()?.message))
+                else gameIds += result.getOrElse { BggContract.INVALID_ID }
             }
         } else {
             Timber.i("Uploading all plays for game ID=$requestedGameId marked for deletion or updating")
@@ -59,14 +60,14 @@ class PlayUploadWorker @AssistedInject constructor(
             val playsToUpsert = playRepository.getUpdatingPlays().filter { it.gameId == requestedGameId }
             Timber.i("Found ${playsToUpsert.count()} play(s) marked for upsert")
             playsToUpsert.forEach { playEntity ->
-                val (gameId, errorMessage) = upsertPlayAndNotify(playEntity)
-                if (errorMessage.isNotBlank())
-                    return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
-                else gameIds += gameId
+                val result = upsertPlayAndNotify(playEntity)
+                if (result.isFailure)
+                    return Result.failure(workDataOf(ERROR_MESSAGE to result.exceptionOrNull()?.message))
+                else gameIds += result.getOrElse { BggContract.INVALID_ID }
             }
         }
 
-        gameIds.forEach { gameId ->
+        gameIds.filterNot { it == BggContract.INVALID_ID }.forEach { gameId ->
             playRepository.updateGamePlayCount(gameId)
         }
         playRepository.calculatePlayStats()
@@ -88,14 +89,12 @@ class PlayUploadWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun upsertPlayAndNotify(playEntity: PlayEntity): Pair<Int, String> {
+    private suspend fun upsertPlayAndNotify(playEntity: PlayEntity): kotlin.Result<Int> {
         val result = playRepository.upsertPlay(playEntity)
-        return if (result.errorMessage.isBlank()) {
-            applicationContext.notifyLoggedPlay(result)
-            playEntity.gameId to ""
-        } else {
-            BggContract.INVALID_ID to result.errorMessage
-        }
+        return if (result.isSuccess) {
+            result.getOrNull()?.let { applicationContext.notifyLoggedPlay(it) }
+            kotlin.Result.success(playEntity.gameId)
+        } else kotlin.Result.failure(result.exceptionOrNull() ?: Exception())
     }
 
     companion object {
