@@ -20,47 +20,36 @@ class PlayDeleteWorker @AssistedInject constructor(
     private val playRepository: PlayRepository,
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
+        val plays = mutableListOf<PlayEntity>()
         val gameIds = mutableSetOf<Int>()
         val internalId = inputData.getLong(INTERNAL_ID, BggContract.INVALID_ID.toLong())
         if (internalId == BggContract.INVALID_ID.toLong()) {
             Timber.i("Deleting all plays marked for deletion")
-            val plays = playRepository.getDeletingPlays()
-            Timber.i("Found ${plays.count()} play(s) marked for deletion")
-            plays.forEach { playEntity ->
-                val (gameId, errorMessage) = deletePlayAndNotify(playEntity)
-                if (errorMessage.isNotBlank())
-                    return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
-                else gameIds += gameId
-            }
+            plays += playRepository.getDeletingPlays()
         } else {
             Timber.i("Deleting play with internal ID=$internalId")
             playRepository.loadPlay(internalId)?.let { playEntity ->
-                val (gameId, errorMessage) = deletePlayAndNotify(playEntity)
-                if (errorMessage.isNotBlank())
-                    return Result.failure(workDataOf(ERROR_MESSAGE to errorMessage))
-                else gameIds += gameId
+                plays += playEntity
             } ?: return Result.failure(workDataOf(ERROR_MESSAGE to "Failed to load play for deletion with internal ID=$internalId"))
+        }
+        Timber.i("Found ${plays.count()} play(s) marked for deletion")
+        plays.forEach { playEntity ->
+            if (playEntity.playId == BggContract.INVALID_ID) {
+                playRepository.delete(playEntity.internalId)
+                gameIds += playEntity.gameId
+            } else {
+                val deleteResult = playRepository.deletePlay(playEntity)
+                if (deleteResult.isSuccess) {
+                    applicationContext.notifyDeletedPlay(deleteResult.getOrThrow())
+                    gameIds += playEntity.gameId
+                } else return Result.failure(workDataOf(PlayUpsertWorker.ERROR_MESSAGE to deleteResult.exceptionOrNull()?.message))
+            }
         }
         gameIds.forEach { gameId ->
             playRepository.updateGamePlayCount(gameId)
         }
         playRepository.calculatePlayStats()
         return Result.success()
-    }
-
-    private suspend fun deletePlayAndNotify(playEntity: PlayEntity): Pair<Int, String> {
-        return if (playEntity.playId == BggContract.INVALID_ID) {
-            playRepository.delete(playEntity.internalId)
-            playEntity.gameId to ""
-        } else {
-            val deleteResult = playRepository.deletePlay(playEntity)
-            if (deleteResult.errorMessage.isBlank()) {
-                applicationContext.notifyDeletedPlay(deleteResult)
-                playEntity.gameId to ""
-            } else {
-                BggContract.INVALID_ID to deleteResult.errorMessage
-            }
-        }
     }
 
     companion object {

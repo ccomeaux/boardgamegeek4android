@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.boardgamegeek.entities.HotGameEntity
-import com.boardgamegeek.entities.PlayUpsertResult
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
@@ -29,8 +29,8 @@ class HotnessViewModel @Inject constructor(
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
 
-    private val _loggedPlayResult = MutableLiveData<Event<PlayUpsertResult>>()
-    val loggedPlayResult: LiveData<Event<PlayUpsertResult>>
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
         get() = _loggedPlayResult
 
     val hotness: LiveData<RefreshableResource<List<HotGameEntity>>> = liveData {

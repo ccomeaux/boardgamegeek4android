@@ -110,22 +110,19 @@ class PlayRepository(
         calculatePlayStats()
     }
 
-    suspend fun uploadPlay(playEntity: PlayEntity): Boolean {
-        // TODO return a result?
+    suspend fun uploadPlay(playEntity: PlayEntity): Result<PlayUploadResult> {
         return if (playEntity.updateTimestamp > 0L) {
             upsertPlay(playEntity)
-            true
         } else if (playEntity.deleteTimestamp > 0L) {
             deletePlay(playEntity)
-            true
-        } else false
+        } else Result.failure(Exception("Play not marked for upsert or deletion"))
     }
 
     /**
      * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
      * an error message if not.
      */
-    suspend fun upsertPlay(play: PlayEntity): Result<PlayUpsertResult> {
+    suspend fun upsertPlay(play: PlayEntity): Result<PlayUploadResult> {
         if (play.updateTimestamp == 0L)
             return Result.failure(Exception(context.getString(R.string.msg_play_update_not_set)))
         val response = phpApi.play(play.mapToFormBodyForUpsert().build())
@@ -138,31 +135,30 @@ class PlayRepository(
             Result.failure(Exception(response.error))
         } else {
             markAsSynced(play.internalId, response.playId)
-            val status = if (play.playId == response.playId) PlayUpsertResult.Status.UPDATE else PlayUpsertResult.Status.NEW
-            Result.success(PlayUpsertResult(play.copy(playId = response.playId), status, response.numberOfPlays))
+            Result.success(PlayUploadResult.upsert(play, response.playId, response.numberOfPlays))
         }
     }
 
-    suspend fun deletePlay(play: PlayEntity): PlayDeleteResult {
+    suspend fun deletePlay(play: PlayEntity): Result<PlayUploadResult> {
         if (play.deleteTimestamp == 0L)
-            return PlayDeleteResult.error(play, context.getString(R.string.msg_play_delete_not_set))
+            return Result.failure(Exception(context.getString(R.string.msg_play_delete_not_set)))
         if (play.playId == INVALID_ID) {
             playDao.delete(play.internalId)
-            return PlayDeleteResult.success(play)
+            return Result.success(PlayUploadResult.delete(play))
         }
         val response = phpApi.play(play.playId.mapToFormBodyForDelete().build()) // TODO handle malformed JSON
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
-            PlayDeleteResult.error(play, context.getString(R.string.msg_play_update_auth_error))
+            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
         } else if (response.hasInvalidIdError()) {
-            PlayDeleteResult.error(play, context.getString(R.string.msg_play_update_bad_id))
+            Result.failure(Exception(context.getString(R.string.msg_play_update_bad_id, play.playId.toString())))
         } else if (!response.error.isNullOrBlank()) {
-            PlayDeleteResult.error(play, response.error)
+            Result.failure(Exception(response.error))
         } else if (!response.success) {
-            PlayDeleteResult.error(play, "Unsuccessful, don't know why") // TODO better error message
+            Result.failure(Exception("Unsuccessful, don't know why")) // TODO better error message
         } else {
             playDao.delete(play.internalId)
-            PlayDeleteResult.success(play)
+            Result.success(PlayUploadResult.delete(play))
         }
     }
 
@@ -357,7 +353,7 @@ class PlayRepository(
 
     suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy)
 
-    suspend fun logQuickPlay(gameId: Int, gameName: String): Result<PlayUpsertResult> {
+    suspend fun logQuickPlay(gameId: Int, gameName: String): Result<PlayUploadResult> {
         val playEntity = PlayEntity(
             gameId = gameId,
             gameName = gameName,
@@ -368,7 +364,7 @@ class PlayRepository(
         return logPlay(playEntity.copy(internalId = internalId))
     }
 
-    suspend fun logPlay(playEntity: PlayEntity): Result<PlayUpsertResult> {
+    suspend fun logPlay(playEntity: PlayEntity): Result<PlayUploadResult> {
         return try {
             val result = upsertPlay(playEntity)
             if (result.isSuccess) {

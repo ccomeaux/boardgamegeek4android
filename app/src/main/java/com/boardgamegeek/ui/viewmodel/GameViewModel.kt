@@ -59,8 +59,8 @@ class GameViewModel @Inject constructor(
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
 
-    private val _loggedPlayResult = MutableLiveData<Event<PlayUpsertResult>>()
-    val loggedPlayResult: LiveData<Event<PlayUpsertResult>>
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
         get() = _loggedPlayResult
 
     enum class ProducerType(val value: Int) {

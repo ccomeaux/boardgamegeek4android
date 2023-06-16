@@ -17,9 +17,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayDeleteResult
 import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayUpsertResult
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.GamePlaysActivity
 import com.boardgamegeek.ui.HomeActivity
@@ -142,7 +141,7 @@ fun Context.notify(builder: NotificationCompat.Builder, tag: String?, id: Int = 
     NotificationManagerCompat.from(this).notify(tag, id, builder.build())
 }
 
-fun Context.notifyDeletedPlay(result: PlayDeleteResult) {
+fun Context.notifyDeletedPlay(result: PlayUploadResult) {
     val imageUrls = listOf(result.play.thumbnailUrl, result.play.heroImageUrl, result.play.imageUrl)
     val message = getString(R.string.msg_play_deleted)
 
@@ -172,10 +171,10 @@ fun Context.notifyDeletedPlay(result: PlayDeleteResult) {
     loader.executeInBackground()
 }
 
-fun Context.notifyLoggedPlay(result: PlayUpsertResult) {
+fun Context.notifyLoggedPlay(result: PlayUploadResult) {
     val imageUrls = listOf(result.play.thumbnailUrl, result.play.heroImageUrl, result.play.imageUrl)
     val message = when {
-        result.status == PlayUpsertResult.Status.UPDATE -> getString(R.string.msg_play_updated)
+        result.status == PlayUploadResult.Status.UPDATE -> getString(R.string.msg_play_updated)
         result.play.quantity > 0 -> getText(
             R.string.msg_play_added_quantity,
             result.numberOfPlays.asRangeDescription(result.play.quantity),
