@@ -20,11 +20,7 @@ class PlayViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val arePlaysRefreshing = AtomicBoolean()
     private val forceRefresh = AtomicBoolean()
-
     private val internalId = MutableLiveData<Long>()
-    private val _updatedId = MutableLiveData<Long>()
-    val updatedId: LiveData<Long>
-        get() = _updatedId
 
     val play: LiveData<RefreshableResource<PlayEntity>> = internalId.switchMap { id ->
         liveData {
@@ -74,7 +70,6 @@ class PlayViewModel @Inject constructor(
         viewModelScope.launch {
             play.value?.data?.let {
                 repository.markAsDiscarded(it.internalId)
-                _updatedId.postValue(it.internalId)
             }
             refresh() // pull down the data from BGG
         }
@@ -84,7 +79,6 @@ class PlayViewModel @Inject constructor(
         viewModelScope.launch {
             play.value?.data?.let {
                 repository.markAsUpdated(it.internalId)?.let { play ->
-                    _updatedId.postValue(it.internalId)
                     repository.enqueueUpsertRequest(play)
                 }
             }

@@ -110,6 +110,17 @@ class PlayRepository(
         calculatePlayStats()
     }
 
+    suspend fun uploadPlay(playEntity: PlayEntity): Boolean {
+        // TODO return a result?
+        return if (playEntity.updateTimestamp > 0L) {
+            upsertPlay(playEntity)
+            true
+        } else if (playEntity.deleteTimestamp > 0L) {
+            deletePlay(playEntity)
+            true
+        } else false
+    }
+
     /**
      * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
      * an error message if not.

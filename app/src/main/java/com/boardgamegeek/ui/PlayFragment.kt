@@ -15,7 +15,6 @@ import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -88,12 +87,6 @@ class PlayFragment : Fragment() {
                     requireActivity().invalidateOptionsMenu()
                 }
             }
-        }
-        viewModel.updatedId.observe(viewLifecycleOwner) {
-            view.postDelayed({
-                SyncService.sync(requireContext(), SyncService.FLAG_SYNC_PLAYS)
-                viewModel.refresh()
-            }, 200)
         }
     }
 
