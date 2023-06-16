@@ -543,6 +543,7 @@ class NewPlayViewModel @Inject constructor(
                 _players = players,
             )
 
+            playRepository.enqueueUpsertRequest(play)
             _insertedId.value = playRepository.save(play)
         }
     }
