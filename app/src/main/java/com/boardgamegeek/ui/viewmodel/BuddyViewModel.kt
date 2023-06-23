@@ -11,7 +11,6 @@ import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
-import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -87,13 +86,14 @@ class BuddyViewModel @Inject constructor(
     val player: LiveData<PlayerEntity?> = _userTypeAndName.switchMap { user ->
         liveData {
             val name = user.first
-            val p = when {
-                name == null || name.isBlank() -> null
-                user.second == TYPE_USER -> playRepository.loadUserPlayer(name)
-                user.second == TYPE_PLAYER -> playRepository.loadNonUserPlayer(name)
-                else -> null
-            }
-            emit(p)
+            emit(
+                when {
+                    name.isNullOrBlank() -> null
+                    user.second == TYPE_USER -> playRepository.loadUserPlayer(name)
+                    user.second == TYPE_PLAYER -> playRepository.loadNonUserPlayer(name)
+                    else -> null
+                }
+            )
         }
     }
 
@@ -102,7 +102,7 @@ class BuddyViewModel @Inject constructor(
             val name = user.first
             emit(
                 when {
-                    name == null || name.isBlank() -> emptyList()
+                    name.isNullOrBlank() -> emptyList()
                     user.second == TYPE_USER -> playRepository.loadUserColors(name)
                     user.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
                     else -> emptyList()
@@ -115,30 +115,23 @@ class BuddyViewModel @Inject constructor(
         viewModelScope.launch {
             if (user.value?.second == TYPE_USER) {
                 val username = user.value?.first
-                if (username != null && username.isNotBlank()) {
+                if (!username.isNullOrBlank()) {
                     userRepository.updateNickName(username, nickName)
                     refresh()
 
-                    if (updatePlays) {
+                    val message = if (updatePlays) {
                         val newNickName = nickName.ifBlank { buddy.value?.data?.fullName }
                         if (newNickName.isNullOrBlank()) {
-                            setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_missing_nickname))
+                            getApplication<BggApplication>().getString(R.string.msg_missing_nickname)
                         } else {
                             val count = playRepository.updatePlaysWithNickName(username, newNickName)
-                            setUpdateMessage(
-                                getApplication<BggApplication>().resources.getQuantityString(
-                                    R.plurals.msg_updated_plays_buddy_nickname,
-                                    count,
-                                    count,
-                                    username,
-                                    newNickName
-                                )
-                            )
-                            SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                            playRepository.enqueueUploadRequest()
+                            getApplication<BggApplication>().resources.getQuantityString(R.plurals.msg_updated_plays_buddy_nickname, count, count, username, newNickName)
                         }
                     } else {
-                        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName))
+                        getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName)
                     }
+                    setUpdateMessage(message)
                     firebaseAnalytics.logEvent("DataManipulation") {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyNickname")
                         param("Action", "Edit")
@@ -151,12 +144,9 @@ class BuddyViewModel @Inject constructor(
     fun renamePlayer(newName: String) {
         viewModelScope.launch {
             val oldName = user.value?.first
-            if (user.value?.second == TYPE_PLAYER &&
-                newName.isNotBlank() &&
-                oldName != null && oldName.isNotBlank()
-            ) {
+            if (user.value?.second == TYPE_PLAYER && newName.isNotBlank() && !oldName.isNullOrBlank()) {
                 playRepository.renamePlayer(oldName, newName)
-                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                playRepository.enqueueUploadRequest()
                 setUpdateMessage(
                     getApplication<BggApplication>().getString(
                         R.string.msg_play_player_change,
@@ -183,11 +173,10 @@ class BuddyViewModel @Inject constructor(
         viewModelScope.launch {
             val playerName = user.value?.first
             if (user.value?.second == TYPE_PLAYER &&
-                username.isNotBlank() &&
-                playerName != null && playerName.isNotBlank()
+                username.isNotBlank() && !playerName.isNullOrBlank()
             ) {
                 playRepository.addUsernameToPlayer(playerName, username)
-                SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
+                playRepository.enqueueUploadRequest()
                 setUpdateMessage(
                     getApplication<BggApplication>().getString(
                         R.string.msg_player_add_username,
