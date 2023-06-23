@@ -13,6 +13,15 @@ fun Long.isOlderThan(duration: Duration) = System.currentTimeMillis() - this > d
 
 fun Long.isToday(): Boolean = isToday(this)
 
+fun Long.isSameDay(date: Long): Boolean {
+    val otherCalendar = Calendar.getInstance()
+    val cal2 = Calendar.getInstance()
+    otherCalendar.timeInMillis = this
+    cal2.timeInMillis = date
+    return otherCalendar[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR] &&
+            otherCalendar[Calendar.YEAR] == cal2[Calendar.YEAR]
+}
+
 fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.never, includeWeekDay: Boolean = false): CharSequence {
     return if (this == 0L)
         if (zeroResId != 0) context.getString(zeroResId) else ""

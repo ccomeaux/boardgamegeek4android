@@ -142,6 +142,8 @@ class PlayRepository(
     suspend fun deletePlay(play: PlayEntity): Result<PlayUploadResult> {
         if (play.deleteTimestamp == 0L)
             return Result.failure(Exception(context.getString(R.string.msg_play_delete_not_set)))
+        if (play.internalId == INVALID_ID.toLong())
+            return Result.success(PlayUploadResult.delete(play))
         if (play.playId == INVALID_ID) {
             playDao.delete(play.internalId)
             return Result.success(PlayUploadResult.delete(play))
@@ -155,7 +157,7 @@ class PlayRepository(
         } else if (!response.error.isNullOrBlank()) {
             Result.failure(Exception(response.error))
         } else if (!response.success) {
-            Result.failure(Exception("Unsuccessful, don't know why")) // TODO better error message
+            Result.failure(Exception(context.getString(R.string.msg_play_delete_unsuccessful)))
         } else {
             playDao.delete(play.internalId)
             Result.success(PlayUploadResult.delete(play))
@@ -406,15 +408,20 @@ class PlayRepository(
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
-    fun enqueueDeleteRequest(playEntity: PlayEntity) {
+    suspend fun enqueueDeleteRequest(playEntity: PlayEntity) {
         if (playEntity.deleteTimestamp > 0L) {
-            val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
-                .setInputData(workDataOf(PlayDeleteWorker.INTERNAL_ID to playEntity.internalId))
-                .setConstraints(createWorkConstraints())
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
-                .build()
-            WorkManager.getInstance(context).enqueue(workRequest)
+            playDao.upsert(playEntity)
+            enqueueDeleteRequest(playEntity.internalId)
         }
+    }
+
+    fun enqueueDeleteRequest(internalId: Long) {
+        val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
+            .setInputData(workDataOf(PlayDeleteWorker.INTERNAL_ID to internalId))
+            .setConstraints(createWorkConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueue(workRequest)
     }
 
     fun enqueueUploadRequest(gameId: Int = INVALID_ID) {
@@ -578,8 +585,8 @@ class PlayRepository(
         context.contentResolver.applyBatch(batch)
     }
 
-    suspend fun save(play: PlayEntity, internalId: Long = play.internalId): Long {
-        val id = playDao.upsert(play, internalId)
+    suspend fun save(play: PlayEntity): Long {
+        val id = playDao.upsert(play)
 
         // remember details about the play if it's being uploaded for the first time
         if (!play.isSynced && (play.updateTimestamp > 0)) {

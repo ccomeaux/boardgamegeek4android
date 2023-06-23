@@ -452,6 +452,7 @@
 	<string name="msg_play_update_not_set">Play isn\'t set to update.</string>
 	<string name="msg_play_delete_not_set">Play isn\'t set to delete.</string>
 	<string name="msg_play_update_auth_error">Not logged in. Try again later.</string>
+	<string name="msg_play_delete_unsuccessful">Unsuccessful trying to delete a play</string>
 	<string name="msg_play_update_bad_id">Play <b>%s</b> doesn\'t exist!</string>
 	<string name="msg_play_queued_for_upload">Queued for upload</string>
 	<string name="msg_play_upload"><b>%1$s</b> - %2$s</string>

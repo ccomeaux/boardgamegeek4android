@@ -13,7 +13,6 @@ import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.PlayerColorAssigner
-import com.boardgamegeek.service.SyncService
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -43,6 +42,10 @@ class LogPlayViewModel @Inject constructor(
     private val _internalId = MutableLiveData<Long>()
     val internalId: LiveData<Long>
         get() = _internalId
+
+    private val _canFinish = MutableLiveData<Boolean>()
+    val canFinish: LiveData<Boolean>
+        get() = _canFinish
 
     private var _playId: Int = INVALID_ID
 
@@ -143,6 +146,7 @@ class LogPlayViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _isLoading.postValue(true)
+            _canFinish.postValue(false)
 
             _game.postValue(gameId to gameName)
             val game = gameRepository.loadGame(gameId)
@@ -161,9 +165,10 @@ class LogPlayViewModel @Inject constructor(
                         assignSeats(players.map { PlayPlayerEntity(name = it.name, username = it.username) })
                     _players.postValue(seatedPlayers)
                 }
+                originalPlay = buildPlayEntity().copy()
             } else {
                 playRepository.loadPlay(internalId)?.let { play ->
-                    if (originalPlay == null) originalPlay = play.copy() // TODO - confirm this works
+                    if (originalPlay == null) originalPlay = play.copy()
                     internalIdToDelete = if (isChangingGame) internalId else INVALID_ID.toLong()
                     _internalId.value = (if (isChangingGame || isRequestingRematch) INVALID_ID.toLong() else internalId)
                     if (!isChangingGame && !isRequestingRematch) _playId = play.playId
@@ -277,7 +282,17 @@ class LogPlayViewModel @Inject constructor(
     }
 
     fun isDirty(): Boolean {
-        return buildPlayEntity() != originalPlay
+        return originalPlay?.let {
+            !it.dateInMillis.isSameDay(_dateInMillis.value ?: 0L) ||
+            it.location != _location.value.orEmpty() ||
+            it.length != (_length.value ?: 0) ||
+            it.startTime != (_startTime.value ?: 0L) ||
+            it.quantity != (_quantity.value ?: 1) ||
+            it.incomplete != (_incomplete.value ?: false) ||
+            it.noWinStats != (_doNotCountWinStats.value ?: false) ||
+            it.comments != _comments.value.orEmpty() ||
+            it.players != players.value.orEmpty()
+        } ?: false
     }
 
     fun addPlayers(players: List<PlayerEntity>) {
@@ -467,22 +482,30 @@ class LogPlayViewModel @Inject constructor(
     fun logPlay() {
         viewModelScope.launch {
             val play = buildPlayEntity(updateTimestamp = System.currentTimeMillis(), dirtyTimestamp = System.currentTimeMillis())
-            val internalId = playRepository.save(play, _internalId.value ?: INVALID_ID.toLong())
+            val internalId = playRepository.save(play)
+            playRepository.enqueueUpsertRequest(play.copy(internalId = internalId))
             _internalId.postValue(internalId)
             if (internalIdToDelete != INVALID_ID.toLong()) {
                 playRepository.markAsDeleted(internalIdToDelete)
+                playRepository.enqueueDeleteRequest(internalIdToDelete)
             }
-            playRepository.enqueueUploadRequest(play.copy(internalId = internalId))
+            _canFinish.postValue(true)
         }
     }
 
-    fun saveDraft() {
-        save(buildPlayEntity(dirtyTimestamp = System.currentTimeMillis()))
+    fun saveDraft(wantToFinish: Boolean = true) {
+        viewModelScope.launch {
+            _internalId.postValue(playRepository.save(buildPlayEntity(dirtyTimestamp = System.currentTimeMillis())))
+            if (wantToFinish) _canFinish.postValue(true)
+        }
     }
 
     fun deletePlay() {
-        save(buildPlayEntity(deleteTimestamp = System.currentTimeMillis()))
-        triggerUpload()
+        viewModelScope.launch {
+            val play = buildPlayEntity(deleteTimestamp = System.currentTimeMillis())
+            playRepository.enqueueDeleteRequest(play)
+            _canFinish.postValue(true)
+        }
     }
 
     private fun buildPlayEntity(
@@ -507,14 +530,4 @@ class LogPlayViewModel @Inject constructor(
         updateTimestamp = updateTimestamp,
         deleteTimestamp = deleteTimestamp,
     )
-
-    private fun save(play: PlayEntity) {
-        viewModelScope.launch {
-            _internalId.postValue(playRepository.save(play, _internalId.value ?: INVALID_ID.toLong()))
-        }
-    }
-
-    private fun triggerUpload() {
-        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_PLAYS_UPLOAD)
-    }
 }

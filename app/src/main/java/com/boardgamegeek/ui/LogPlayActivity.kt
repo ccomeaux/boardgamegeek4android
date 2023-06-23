@@ -339,10 +339,14 @@ class LogPlayActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         onBackPressedDispatcher.addCallback(this) {
-            saveDraft()
-            toast(R.string.msg_saving_draft)
-            setResult(RESULT_OK)
-            finish()
+            setResult(RESULT_CANCELED)
+            if (viewModel.isDirty()) {
+                saveDraft(true)
+                toast(R.string.msg_saving_draft)
+            } else{
+                shouldSaveOnPause = false
+                finish()
+            }
         }
 
         setDoneCancelActionBarView { v: View ->
@@ -359,7 +363,6 @@ class LogPlayActivity : AppCompatActivity() {
                         cancelPlayingNotification()
                     }
                     setResult(RESULT_OK)
-                    finish()
                 }
                 R.id.menu_cancel -> cancel()
             }
@@ -550,6 +553,11 @@ class LogPlayActivity : AppCompatActivity() {
             internalId = it
             updateNotification()
         }
+        viewModel.canFinish.observe(this) {
+            if (it == true) {
+                finish()
+            }
+        }
         viewModel.dateInMillis.observe(this) {
             it?.let {
                 dateInMillis = it
@@ -630,6 +638,7 @@ class LogPlayActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         isLaunchingActivity = false
+        shouldSaveOnPause = true
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -649,23 +658,24 @@ class LogPlayActivity : AppCompatActivity() {
         super.onPause()
         updateNotification()
         if (shouldSaveOnPause && !isLaunchingActivity) {
-            saveDraft()
+            saveDraft(false)
         }
     }
 
-    private fun saveDraft() {
+    private fun saveDraft(wantToFinish: Boolean) {
         shouldSaveOnPause = false
         viewModel.updateComments(binding.commentsView.text.toString())
-        viewModel.saveDraft()
+        viewModel.saveDraft(wantToFinish)
     }
 
     private fun cancel() {
         shouldSaveOnPause = false
         if (viewModel.isDirty()) {
             if (shouldDeletePlayOnActivityCancel) {
-                createDiscardDialog(R.string.play, isNew = true) {
+                createDiscardDialog(R.string.play, isNew = true, finishActivity = false) {
                     viewModel.deletePlay()
                     cancelPlayingNotification()
+                    setResult(RESULT_CANCELED)
                 }.show()
             } else {
                 createDiscardDialog(R.string.play, isNew = false).show()
@@ -674,9 +684,8 @@ class LogPlayActivity : AppCompatActivity() {
             if (shouldDeletePlayOnActivityCancel) {
                 viewModel.deletePlay()
                 cancelPlayingNotification()
+                setResult(RESULT_CANCELED)
             }
-            setResult(RESULT_CANCELED)
-            finish()
         }
     }
 

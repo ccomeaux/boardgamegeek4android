@@ -34,14 +34,14 @@ class PlayDeleteWorker @AssistedInject constructor(
         }
         Timber.i("Found ${plays.count()} play(s) marked for deletion")
         plays.forEach { playEntity ->
-            if (playEntity.playId == BggContract.INVALID_ID) {
+            gameIds += if (playEntity.playId == BggContract.INVALID_ID) {
                 playRepository.delete(playEntity.internalId)
-                gameIds += playEntity.gameId
+                playEntity.gameId
             } else {
                 val deleteResult = playRepository.deletePlay(playEntity)
                 if (deleteResult.isSuccess) {
                     applicationContext.notifyDeletedPlay(deleteResult.getOrThrow())
-                    gameIds += playEntity.gameId
+                    playEntity.gameId
                 } else return Result.failure(workDataOf(PlayUpsertWorker.ERROR_MESSAGE to deleteResult.exceptionOrNull()?.message))
             }
         }
