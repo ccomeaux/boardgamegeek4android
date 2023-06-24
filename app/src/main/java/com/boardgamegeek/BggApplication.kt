@@ -1,5 +1,6 @@
 package com.boardgamegeek
 
+import android.content.SharedPreferences
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.StrictMode
@@ -8,11 +9,12 @@ import android.os.StrictMode.VmPolicy
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
-import androidx.work.Configuration
+import androidx.work.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
 import com.boardgamegeek.util.RemoteConfig
+import com.boardgamegeek.work.SyncWorker
 import com.facebook.stetho.Stetho
 import com.google.android.gms.tasks.Task
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -22,6 +24,7 @@ import com.squareup.picasso.Picasso
 import dagger.hilt.android.HiltAndroidApp
 import okhttp3.OkHttpClient
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
 
@@ -32,6 +35,8 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
     lateinit var httpClient: OkHttpClient
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(this) }
 
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()
@@ -46,7 +51,19 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         initializeTimber()
         initializePicasso()
         migrateData()
+
+        val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.DAYS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
+            .setConstraints(createWorkConstraints())
+            .build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(SyncWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, syncRequest)
     }
+
+    private fun createWorkConstraints() = Constraints.Builder()
+        .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
+        .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
+        .setRequiresBatteryNotLow(true)
+        .build()
 
     private fun initializeFirebase() {
         if (BuildConfig.DEBUG) {

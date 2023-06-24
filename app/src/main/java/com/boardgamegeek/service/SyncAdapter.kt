@@ -207,9 +207,6 @@ class SyncAdapter(
             tasks.add(SyncGamesOldest(application, syncResult, gameRepository))
             tasks.add(SyncGamesUnupdated(application, syncResult, gameRepository))
         }
-        if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_UPLOAD)) {
-            tasks.add(SyncPlaysUpload(application, syncResult, playRepository, httpClient))
-        }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
             tasks.add(SyncPlays(application, syncResult, playRepository))
         }

@@ -21,6 +21,8 @@ class PlayUploadWorker @AssistedInject constructor(
     private val playRepository: PlayRepository,
 ) : CoroutineWorker(appContext, workerParams) {
     override suspend fun doWork(): Result {
+        Timber.i("Begin uploading plays")
+
         val playsToDelete = mutableListOf<PlayEntity>()
         val playsToUpsert = mutableListOf<PlayEntity>()
         val gameIds = mutableSetOf<Int>()

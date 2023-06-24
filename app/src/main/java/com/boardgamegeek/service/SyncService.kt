@@ -56,10 +56,9 @@ class SyncService : Service() {
         const val FLAG_SYNC_COLLECTION_UPLOAD = 1 shl 1
         const val FLAG_SYNC_BUDDIES = 1 shl 2
         const val FLAG_SYNC_PLAYS_DOWNLOAD = 1 shl 3
-        const val FLAG_SYNC_PLAYS_UPLOAD = 1 shl 4
         const val FLAG_SYNC_GAMES = 1 shl 5
         const val FLAG_SYNC_COLLECTION = FLAG_SYNC_COLLECTION_DOWNLOAD or FLAG_SYNC_COLLECTION_UPLOAD or FLAG_SYNC_GAMES
-        const val FLAG_SYNC_PLAYS = FLAG_SYNC_PLAYS_DOWNLOAD or FLAG_SYNC_PLAYS_UPLOAD
+        const val FLAG_SYNC_PLAYS = FLAG_SYNC_PLAYS_DOWNLOAD
         const val FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION or FLAG_SYNC_BUDDIES or FLAG_SYNC_PLAYS
 
         private val SYNC_ADAPTER_LOCK = Any()
