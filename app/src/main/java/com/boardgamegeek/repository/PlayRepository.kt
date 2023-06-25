@@ -148,12 +148,13 @@ class PlayRepository(
             playDao.delete(play.internalId)
             return Result.success(PlayUploadResult.delete(play))
         }
-        val response = phpApi.play(play.playId.mapToFormBodyForDelete().build()) // TODO handle malformed JSON
+        val response = phpApi.play(play.playId.mapToFormBodyForDelete().build())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
             Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
         } else if (response.hasInvalidIdError()) {
-            Result.failure(Exception(context.getString(R.string.msg_play_update_bad_id, play.playId.toString())))
+            playDao.delete(play.internalId)
+            Result.success(PlayUploadResult.delete(play))
         } else if (!response.error.isNullOrBlank()) {
             Result.failure(Exception(response.error))
         } else if (!response.success) {

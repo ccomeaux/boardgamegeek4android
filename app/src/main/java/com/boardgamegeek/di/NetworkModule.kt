@@ -130,6 +130,7 @@ object NetworkModule {
     fun providePhpApi(@Named("withAuth") httpClient: OkHttpClient): PhpApi = Retrofit.Builder()
         .client(httpClient)
         .baseUrl("https://boardgamegeek.com")
+        .addConverterFactory(BggUploadConverterFactory.create())
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(PhpApi::class.java)
