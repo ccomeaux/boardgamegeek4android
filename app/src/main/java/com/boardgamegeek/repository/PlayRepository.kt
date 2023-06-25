@@ -385,7 +385,7 @@ class PlayRepository(
         val workRequest = OneTimeWorkRequestBuilder<PlayUpsertWorker>()
             .setConstraints(createWorkConstraints())
             .setInputData(workDataOf(PlayUpsertWorker.GAME_ID to gameId))
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
     }
@@ -395,7 +395,7 @@ class PlayRepository(
             val workRequest = OneTimeWorkRequestBuilder<PlayUpsertWorker>()
                 .setInputData(workDataOf(PlayUpsertWorker.INTERNAL_ID to playEntity.internalId))
                 .setConstraints(createWorkConstraints())
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(workRequest)
         }
@@ -404,7 +404,7 @@ class PlayRepository(
     fun enqueueDeleteRequest() {
         val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
             .setConstraints(createWorkConstraints())
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
     }
@@ -420,7 +420,7 @@ class PlayRepository(
         val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
             .setInputData(workDataOf(PlayDeleteWorker.INTERNAL_ID to internalId))
             .setConstraints(createWorkConstraints())
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
     }
@@ -466,7 +466,7 @@ class PlayRepository(
 
     suspend fun delete(internalId: Long) = playDao.delete(internalId)
 
-    suspend fun markAsSynced(internalId: Long, playId: Int) {
+    private suspend fun markAsSynced(internalId: Long, playId: Int) {
         playDao.update(
             internalId,
             contentValuesOf(
