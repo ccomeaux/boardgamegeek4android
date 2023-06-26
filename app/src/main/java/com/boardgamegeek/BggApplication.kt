@@ -1,6 +1,5 @@
 package com.boardgamegeek
 
-import android.content.SharedPreferences
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.StrictMode
@@ -36,8 +35,6 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
 
     @Inject lateinit var workerFactory: HiltWorkerFactory
 
-    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(this) }
-
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()
             .setWorkerFactory(workerFactory)
@@ -54,16 +51,10 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
 
         val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.DAYS)
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
-            .setConstraints(createWorkConstraints())
+            .setConstraints(createWorkConstraints(true))
             .build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(SyncWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, syncRequest)
     }
-
-    private fun createWorkConstraints() = Constraints.Builder()
-        .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
-        .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
-        .setRequiresBatteryNotLow(true)
-        .build()
 
     private fun initializeFirebase() {
         if (BuildConfig.DEBUG) {

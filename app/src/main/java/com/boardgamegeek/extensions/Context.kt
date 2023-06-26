@@ -21,8 +21,11 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.bundleOf
 import androidx.preference.PreferenceManager
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 
 fun Context.preferences(name: String? = null): SharedPreferences = if (name.isNullOrEmpty())
@@ -75,6 +78,15 @@ fun Context.cancelSync() {
     Authenticator.getAccount(this)?.let { account ->
         ContentResolver.cancelSync(account, BggContract.CONTENT_AUTHORITY)
     }
+}
+
+fun Context.createWorkConstraints(preserveBattery: Boolean = false): Constraints {
+    val syncPrefs: SharedPreferences = SyncPrefs.getPrefs(this)
+    return Constraints.Builder()
+        .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
+        .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
+        .setRequiresBatteryNotLow(preserveBattery)
+        .build()
 }
 
 inline fun <reified T : Activity> Context.startActivity(vararg params: Pair<String, Any?>) = startActivity(T::class.java, params)

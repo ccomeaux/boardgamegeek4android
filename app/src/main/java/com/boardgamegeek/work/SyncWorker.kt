@@ -228,19 +228,11 @@ class SyncWorker @AssistedInject constructor(
 
         fun requestPlaySync(context: Context) {
             val workRequest = OneTimeWorkRequestBuilder<SyncWorker>()
-                .setConstraints(createWorkConstraints(context))
+                .setConstraints(context.createWorkConstraints(true))
                 .setInputData(workDataOf(SYNC_TYPE to SYNC_TYPE_PLAYS))
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
                 .build()
             WorkManager.getInstance(context).enqueue(workRequest)
-        }
-
-        private fun createWorkConstraints(context: Context): Constraints {
-            val syncPrefs: SharedPreferences = SyncPrefs.getPrefs(context.applicationContext)
-            return Constraints.Builder()
-                .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
-                .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
-                .build()
         }
     }
 }

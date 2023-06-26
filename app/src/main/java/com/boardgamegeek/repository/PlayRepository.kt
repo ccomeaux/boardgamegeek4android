@@ -383,7 +383,7 @@ class PlayRepository(
 
     fun enqueueUpsertRequest(gameId: Int = INVALID_ID) {
         val workRequest = OneTimeWorkRequestBuilder<PlayUpsertWorker>()
-            .setConstraints(createWorkConstraints())
+            .setConstraints(context.createWorkConstraints())
             .setInputData(workDataOf(PlayUpsertWorker.GAME_ID to gameId))
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
@@ -394,7 +394,7 @@ class PlayRepository(
         if (playEntity.updateTimestamp > 0L) {
             val workRequest = OneTimeWorkRequestBuilder<PlayUpsertWorker>()
                 .setInputData(workDataOf(PlayUpsertWorker.INTERNAL_ID to playEntity.internalId))
-                .setConstraints(createWorkConstraints())
+                .setConstraints(context.createWorkConstraints())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
                 .build()
             WorkManager.getInstance(context).enqueue(workRequest)
@@ -403,7 +403,7 @@ class PlayRepository(
 
     fun enqueueDeleteRequest() {
         val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
-            .setConstraints(createWorkConstraints())
+            .setConstraints(context.createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
@@ -419,7 +419,7 @@ class PlayRepository(
     fun enqueueDeleteRequest(internalId: Long) {
         val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
             .setInputData(workDataOf(PlayDeleteWorker.INTERNAL_ID to internalId))
-            .setConstraints(createWorkConstraints())
+            .setConstraints(context.createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
@@ -428,16 +428,11 @@ class PlayRepository(
     fun enqueueUploadRequest(gameId: Int = INVALID_ID) {
         val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
             .setInputData(workDataOf(PlayUpsertWorker.GAME_ID to gameId))
-            .setConstraints(createWorkConstraints())
+            .setConstraints(context.createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
     }
-
-    private fun createWorkConstraints() = Constraints.Builder()
-        .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
-        .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
-        .build()
 
     suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
         Timber.i("Saving %d plays", plays.size)
