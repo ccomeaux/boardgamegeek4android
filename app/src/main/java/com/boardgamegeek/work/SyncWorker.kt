@@ -1,23 +1,25 @@
 package com.boardgamegeek.work
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
-import androidx.annotation.RequiresApi
+import android.content.SharedPreferences
+import android.text.format.DateUtils
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
+import com.boardgamegeek.util.RemoteConfig
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.delay
+import retrofit2.HttpException
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class SyncWorker @AssistedInject constructor(
@@ -25,7 +27,27 @@ class SyncWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val playRepository: PlayRepository,
 ) : CoroutineWorker(appContext, workerParams) {
+
+    private val prefs: SharedPreferences by lazy { appContext.preferences() }
+    private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(appContext) }
+    private val playsFetchPauseMilliseconds = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS)
+
+    private var startTime = System.currentTimeMillis()
+
     override suspend fun doWork(): Result {
+        val syncType = inputData.getString(SYNC_TYPE)
+
+        if (syncType == null || syncType == SYNC_TYPE_PLAYS) {
+            uploadPlays()
+            if (isStopped) return Result.success(workDataOf(STOPPED_REASON to "Canceled after uploading plays"))
+            downloadPlays()
+            if (isStopped) return Result.success(workDataOf(STOPPED_REASON to "Canceled after downloading plays"))
+        }
+
+        return Result.success()
+    }
+
+    private suspend fun uploadPlays(): Result {
         Timber.i("Begin uploading plays")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays_upload)))
 
@@ -83,20 +105,101 @@ class SyncWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private fun createForegroundInfo(contentText: String): ForegroundInfo {
-        val id = NotificationChannels.SYNC_PROGRESS //applicationContext.getString( com.boardgamegeek.R.string.notification_channel_id)
-        val title = applicationContext.getString(R.string.sync_notification_title)
-        val cancel = applicationContext.getString(R.string.cancel)
-        val cancelIntent = WorkManager.getInstance(applicationContext).createCancelPendingIntent(getId())
-
-        // Create a Notification channel if necessary
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannel()
+    private suspend fun downloadPlays(): Result {
+        if (prefs[PREFERENCES_KEY_SYNC_PLAYS, false] != true) {
+            Timber.i("Plays not set to sync; aborting")
+            return Result.success()
         }
 
-        val notification = NotificationCompat.Builder(applicationContext, id)
-            .setContentTitle(title)
-            .setTicker(title)
+        Timber.i("Begin downloading plays")
+        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays)))
+        try {
+            val startTime = System.currentTimeMillis()
+
+            val newestSyncDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
+            val newestPlaysResult = downloadPlays(newestSyncDate, 0L)
+            if (newestPlaysResult is Result.Failure) return newestPlaysResult
+            if (newestSyncDate > 0L) {
+                val deletedCount = playRepository.deleteUnupdatedPlaysSince(startTime, newestSyncDate)
+                Timber.i("Deleted $deletedCount unupdated plays since ${newestSyncDate.toDate()}")
+            }
+
+            val oldestDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE
+            if (oldestDate > 0) {
+                val oldestPlaysResult = downloadPlays(0L, oldestDate)
+                if (oldestPlaysResult is Result.Failure) return oldestPlaysResult
+                if (oldestDate != Long.MAX_VALUE) {
+                    val deletedCount = playRepository.deleteUnupdatedPlaysBefore(startTime, oldestDate)
+                    Timber.i("Deleted $deletedCount unupdated plays before ${oldestDate.toDate()}")
+                }
+                syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] = 0L
+            } else Timber.i("Downloaded all past plays")
+            playRepository.calculatePlayStats()
+            Timber.i("Plays synced successfully ")
+            return Result.success()
+        } catch (e: Exception) {
+            Timber.i("Plays sync ended with exception:\n$e")
+            return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
+        }
+    }
+
+    private suspend fun downloadPlays(minDate: Long, maxDate: Long): Result {
+        var page = 1
+        do {
+            if (page > 1) delay(playsFetchPauseMilliseconds)
+
+            if (isStopped) {
+                Timber.i("Stopping while downloading plays")
+                return Result.failure(workDataOf(ERROR_MESSAGE to "Worker stopped early while downloading plays"))
+            }
+
+            val message = when {
+                minDate == 0L && maxDate == 0L -> applicationContext.getString(R.string.sync_notification_plays_all)
+                minDate == 0L -> applicationContext.getString(R.string.sync_notification_plays_old, maxDate.toDate())
+                maxDate == 0L -> applicationContext.getString(R.string.sync_notification_plays_new, minDate.toDate())
+                else -> applicationContext.getString(R.string.sync_notification_plays_between, minDate.toDate(), maxDate.toDate())
+            }
+            val contentText = when {
+                page > 1 -> applicationContext.getString(R.string.sync_notification_page_suffix, message, page)
+                else -> message
+            }.also { Timber.i(it) }
+            setForeground(createForegroundInfo(contentText))
+
+            var shouldContinue: Boolean
+            try {
+                val (plays, hasMorePages) = playRepository.downloadPlays(minDate, maxDate, page)
+                val gameIds = plays.map { it.gameId }.toSet()
+                playRepository.saveFromSync(plays, startTime)
+                plays.maxOfOrNull { it.dateInMillis }?.let {
+                    if (it > (syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L)) {
+                        syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] = it
+                    }
+                }
+                plays.minOfOrNull { it.dateInMillis }?.let {
+                    if (it < (syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE)) {
+                        syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] = it
+                    }
+                }
+                gameIds.filterNot { it == BggContract.INVALID_ID }.forEach { gameId ->
+                    playRepository.updateGamePlayCount(gameId)
+                }
+                shouldContinue = hasMorePages
+            } catch (e: Exception) {
+                val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
+                applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_plays), bigText)
+                return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
+            }
+            page++
+        } while (shouldContinue)
+        return Result.success()
+    }
+
+    private fun Long.toDate() = this.formatDateTime(applicationContext, flags = DateUtils.FORMAT_SHOW_DATE)
+
+    private fun createForegroundInfo(contentText: String): ForegroundInfo {
+        val notification = NotificationCompat.Builder(applicationContext, NotificationChannels.SYNC_PROGRESS)
+            .setContentTitle(applicationContext.getString(R.string.sync_notification_title))
+            .setTicker(applicationContext.getString(R.string.sync_notification_title))
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_stat_bgg)
             .setColor(ContextCompat.getColor(applicationContext, R.color.primary))
@@ -104,31 +207,40 @@ class SyncWorker @AssistedInject constructor(
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setOngoing(true)
             .setProgress(1, 0, true)
-            .addAction(R.drawable.ic_baseline_clear_24, cancel, cancelIntent)
+            .addAction(
+                R.drawable.ic_baseline_clear_24,
+                applicationContext.getString(R.string.cancel),
+                WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
+            )
             .build()
 
         return ForegroundInfo(42, notification) // What is 42?!
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createChannel() {
-        applicationContext.getSystemService<NotificationManager>()?.let {
-            it.createNotificationChannel(
-                NotificationChannel(
-                    NotificationChannels.SYNC_PROGRESS,
-                    applicationContext.getString(R.string.channel_name_sync_progress),
-                    NotificationManager.IMPORTANCE_LOW
-                ).apply {
-                    description = applicationContext.getString(R.string.channel_description_sync_progress)
-                }
-            )
-        }
-    }
-
     companion object {
         const val UNIQUE_WORK_NAME = "com.boardgamegeek.SYNC"
+        const val SYNC_TYPE = "SYNC_TYPE"
+        const val SYNC_TYPE_PLAYS = "SYNC_TYPE_PLAYS"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
         const val PROGRESS_MAX = "PROGRESS_MAX"
         const val PROGRESS_VALUE = "PROGRESS_VALUE"
+        const val STOPPED_REASON = "STOPPED_REASON"
+
+        fun requestPlaySync(context: Context) {
+            val workRequest = OneTimeWorkRequestBuilder<SyncWorker>()
+                .setConstraints(createWorkConstraints(context))
+                .setInputData(workDataOf(SYNC_TYPE to SYNC_TYPE_PLAYS))
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
+                .build()
+            WorkManager.getInstance(context).enqueue(workRequest)
+        }
+
+        private fun createWorkConstraints(context: Context): Constraints {
+            val syncPrefs: SharedPreferences = SyncPrefs.getPrefs(context.applicationContext)
+            return Constraints.Builder()
+                .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
+                .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
+                .build()
+        }
     }
 }

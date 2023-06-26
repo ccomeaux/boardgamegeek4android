@@ -17,6 +17,7 @@ import com.boardgamegeek.util.FileUtils.deleteContents
 import com.boardgamegeek.util.TableBuilder
 import com.boardgamegeek.util.TableBuilder.ColumnType
 import com.boardgamegeek.util.TableBuilder.ConflictResolution
+import com.boardgamegeek.work.SyncWorker
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -221,7 +222,12 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                                 @Suppress("DEPRECATION")
                                 val oldCacheDirectory = File(Environment.getExternalStorageDirectory(), BggContract.CONTENT_AUTHORITY)
                                 deleteContents(oldCacheDirectory)
-                                if (!oldCacheDirectory.delete()) Timber.i("Unable to delete old cache directory")
+                                val deleteSuccess = oldCacheDirectory.delete()
+                                if (deleteSuccess) {
+                                    Timber.i("Deleted old cache directory")
+                                } else {
+                                    Timber.i("Unable to delete old cache directory")
+                                }
                             } catch (e: IOException) {
                                 Timber.e(e, "Error clearing the cache")
                             }
@@ -306,7 +312,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         VER_PLAYS_RESET -> {
                             syncPrefs.clearPlaysTimestamps()
                             it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.SYNC_HASH_CODE}=0")
-                            SyncService.sync(context!!, SyncService.FLAG_SYNC_PLAYS)
+                            context?.let { ctx -> SyncWorker.requestPlaySync(ctx) }
                         }
                         VER_PLAYS_HARD_RESET -> {
                             it.dropTable(Tables.PLAYS)
@@ -314,7 +320,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                             buildPlaysTable().create(it)
                             buildPlayPlayersTable().create(it)
                             syncPrefs.clearPlaysTimestamps()
-                            SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS)
+                            context?.let { ctx -> SyncWorker.requestPlaySync(ctx) }
                         }
                         VER_COLLECTION_VIEWS_SELECTED_COUNT -> {
                             addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SELECTED_COUNT, ColumnType.INTEGER)
@@ -383,6 +389,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                             it.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
                             SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
                         }
+                        else -> Timber.i("Unexpected database version=$version")
                     }
                 }
             }

@@ -28,7 +28,6 @@ class SyncAdapter(
     private val collectionItemRepository: CollectionItemRepository,
     private val gameRepository: GameRepository,
     private val gameCollectionRepository: GameCollectionRepository,
-    private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
     private val httpClient: OkHttpClient,
 ) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
@@ -206,9 +205,6 @@ class SyncAdapter(
             tasks.add(SyncGamesRemove(application, syncResult, gameRepository))
             tasks.add(SyncGamesOldest(application, syncResult, gameRepository))
             tasks.add(SyncGamesUnupdated(application, syncResult, gameRepository))
-        }
-        if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_PLAYS_DOWNLOAD) && !uploadOnly) {
-            tasks.add(SyncPlays(application, syncResult, playRepository))
         }
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_BUDDIES) && !uploadOnly) {
             tasks.add(SyncBuddiesList(application, syncResult, userRepository))

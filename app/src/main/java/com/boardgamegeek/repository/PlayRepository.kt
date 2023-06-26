@@ -27,11 +27,11 @@ import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 import com.boardgamegeek.pref.clearPlaysTimestamps
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.work.PlayDeleteWorker
 import com.boardgamegeek.work.PlayUploadWorker
 import com.boardgamegeek.work.PlayUpsertWorker
+import com.boardgamegeek.work.SyncWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -440,6 +440,7 @@ class PlayRepository(
         .build()
 
     suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
+        Timber.i("Saving %d plays", plays.size)
         var updateCount = 0
         var insertCount = 0
         var unchangedCount = 0
@@ -455,7 +456,8 @@ class PlayRepository(
             }
         }
         Timber.i(
-            "Updated %1$,d, inserted %2$,d, %3$,d unchanged, %4$,d dirty, %5$,d",
+            "Saved %1\$,d plays: updated %2$,d, inserted %3$,d, %4$,d unchanged, %5$,d dirty, %6$,d errors",
+            plays.size,
             updateCount,
             insertCount,
             unchangedCount,
@@ -610,7 +612,7 @@ class PlayRepository(
         syncPrefs.clearPlaysTimestamps()
         val count = playDao.updateAllPlays(contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0))
         Timber.i("Cleared the hashcode from %,d plays.", count)
-        SyncService.sync(context, SyncService.FLAG_SYNC_PLAYS)
+        SyncWorker.requestPlaySync(context)
     }
 
     suspend fun deletePlays() {

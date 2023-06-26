@@ -26,6 +26,7 @@ import com.boardgamegeek.ui.LogPlayActivity
 import com.boardgamegeek.ui.PlayActivity
 import com.boardgamegeek.ui.PlaysActivity
 import com.boardgamegeek.util.LargeIconLoader
+import timber.log.Timber
 
 private const val TAG_PREFIX = "com.boardgamegeek."
 const val TAG_PLAY_TIMER = TAG_PREFIX + "PLAY_TIMER"
@@ -139,6 +140,21 @@ fun Context.cancelNotification(tag: String?, id: Long = 0L) {
  */
 fun Context.notify(builder: NotificationCompat.Builder, tag: String?, id: Int = 0) {
     NotificationManagerCompat.from(this).notify(tag, id, builder.build())
+}
+
+fun Context.notifySyncError(contextText: String, bigText: String) {
+    Timber.w("$contextText\n$bigText".trim())
+    if (this.preferences()[KEY_SYNC_ERRORS, false] != true) return
+    val builder = this
+        .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
+        .setContentText(contextText)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+        .setCategory(NotificationCompat.CATEGORY_ERROR)
+    if (bigText.trim().isNotBlank()) {
+        builder.setStyle(NotificationCompat.BigTextStyle().bigText(bigText.trim()))
+    }
+
+    notify(builder, NotificationTags.SYNC_ERROR)
 }
 
 fun Context.notifyDeletedPlay(result: PlayUploadResult) {
@@ -331,7 +347,6 @@ object NotificationTags {
     const val SYNC_PROGRESS = TAG_PREFIX + "SYNC_PROGRESS"
     const val SYNC_ERROR = TAG_PREFIX + "SYNC_ERROR"
     const val UPLOAD_PLAY = TAG_PREFIX + "UPLOAD_PLAY"
-    const val UPLOAD_PLAY_ERROR = TAG_PREFIX + "UPLOAD_PLAY_ERROR"
     const val UPLOAD_COLLECTION = TAG_PREFIX + "UPLOAD_COLLECTION"
     const val UPLOAD_COLLECTION_ERROR = TAG_PREFIX + "UPLOAD_COLLECTION_ERROR"
     const val FIREBASE_MESSAGE = TAG_PREFIX + "FIREBASE_MESSAGE"
