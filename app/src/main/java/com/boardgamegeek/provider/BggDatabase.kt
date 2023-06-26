@@ -175,221 +175,218 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         Timber.d("Upgrading database from $oldVersion to $newVersion")
+        if (db == null) return
         try {
             for (version in oldVersion..newVersion) {
-                db?.let {
-                    when (version + 1) {
-                        VER_INITIAL -> {}
-                        VER_WISHLIST_PRIORITY -> addColumn(it, Tables.COLLECTION, Collection.Columns.STATUS_WISHLIST_PRIORITY, ColumnType.INTEGER)
-                        VER_GAME_COLORS -> buildGameColorsTable().create(it)
-                        VER_EXPANSIONS -> buildGameExpansionsTable().create(it)
-                        VER_VARIOUS -> {
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.LAST_MODIFIED, ColumnType.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.Columns.LAST_VIEWED, ColumnType.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.Columns.STARRED, ColumnType.INTEGER)
-                        }
-                        VER_PLAYS -> {
-                            buildPlaysTable().create(it)
-                            buildPlayPlayersTable().create(it)
-                        }
-                        VER_PLAY_NICKNAME -> addColumn(it, Tables.BUDDIES, Buddies.Columns.PLAY_NICKNAME, ColumnType.TEXT)
-                        VER_PLAY_SYNC_STATUS -> {
-                            addColumn(it, Tables.PLAYS, "sync_status", ColumnType.INTEGER)
-                            addColumn(it, Tables.PLAYS, "updated", ColumnType.INTEGER)
-                        }
-                        VER_COLLECTION_VIEWS -> {
-                            buildCollectionViewsTable().create(it)
-                            buildCollectionViewFiltersTable().create(it)
-                        }
-                        VER_COLLECTION_VIEWS_SORT -> addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SORT_TYPE, ColumnType.INTEGER)
-                        VER_CASCADING_DELETE -> {
-                            buildGameRanksTable().replace(it)
-                            buildGamesDesignersTable().replace(it)
-                            buildGamesArtistsTable().replace(it)
-                            buildGamesPublishersTable().replace(it)
-                            buildGamesMechanicsTable().replace(it)
-                            buildGamesCategoriesTable().replace(it)
-                            buildGameExpansionsTable().replace(it)
-                            buildGamePollsTable().replace(it)
-                            buildGamePollResultsTable().replace(it)
-                            buildGamePollResultsResultTable().replace(it)
-                            buildGameColorsTable().replace(it)
-                            buildPlayPlayersTable().replace(it)
-                            buildCollectionViewFiltersTable().replace(it)
-                        }
-                        VER_IMAGE_CACHE -> {
-                            try {
-                                @Suppress("DEPRECATION")
-                                val oldCacheDirectory = File(Environment.getExternalStorageDirectory(), BggContract.CONTENT_AUTHORITY)
-                                deleteContents(oldCacheDirectory)
-                                val deleteSuccess = oldCacheDirectory.delete()
-                                if (deleteSuccess) {
-                                    Timber.i("Deleted old cache directory")
-                                } else {
-                                    Timber.i("Unable to delete old cache directory")
-                                }
-                            } catch (e: IOException) {
-                                Timber.e(e, "Error clearing the cache")
+                when (version + 1) {
+                    VER_INITIAL -> {}
+                    VER_WISHLIST_PRIORITY -> addColumn(db, Tables.COLLECTION, Collection.Columns.STATUS_WISHLIST_PRIORITY, ColumnType.INTEGER)
+                    VER_GAME_COLORS -> buildGameColorsTable().create(db)
+                    VER_EXPANSIONS -> buildGameExpansionsTable().create(db)
+                    VER_VARIOUS -> {
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.LAST_MODIFIED, ColumnType.INTEGER)
+                        addColumn(db, Tables.GAMES, Games.Columns.LAST_VIEWED, ColumnType.INTEGER)
+                        addColumn(db, Tables.GAMES, Games.Columns.STARRED, ColumnType.INTEGER)
+                    }
+                    VER_PLAYS -> {
+                        buildPlaysTable().create(db)
+                        buildPlayPlayersTable().create(db)
+                    }
+                    VER_PLAY_NICKNAME -> addColumn(db, Tables.BUDDIES, Buddies.Columns.PLAY_NICKNAME, ColumnType.TEXT)
+                    VER_PLAY_SYNC_STATUS -> {
+                        addColumn(db, Tables.PLAYS, "sync_status", ColumnType.INTEGER)
+                        addColumn(db, Tables.PLAYS, "updated", ColumnType.INTEGER)
+                    }
+                    VER_COLLECTION_VIEWS -> {
+                        buildCollectionViewsTable().create(db)
+                        buildCollectionViewFiltersTable().create(db)
+                    }
+                    VER_COLLECTION_VIEWS_SORT -> addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SORT_TYPE, ColumnType.INTEGER)
+                    VER_CASCADING_DELETE -> {
+                        buildGameRanksTable().replace(db)
+                        buildGamesDesignersTable().replace(db)
+                        buildGamesArtistsTable().replace(db)
+                        buildGamesPublishersTable().replace(db)
+                        buildGamesMechanicsTable().replace(db)
+                        buildGamesCategoriesTable().replace(db)
+                        buildGameExpansionsTable().replace(db)
+                        buildGamePollsTable().replace(db)
+                        buildGamePollResultsTable().replace(db)
+                        buildGamePollResultsResultTable().replace(db)
+                        buildGameColorsTable().replace(db)
+                        buildPlayPlayersTable().replace(db)
+                        buildCollectionViewFiltersTable().replace(db)
+                    }
+                    VER_IMAGE_CACHE -> {
+                        try {
+                            val oldCacheDirectory = File(Environment.getExternalStorageDirectory(), BggContract.CONTENT_AUTHORITY)
+                            deleteContents(oldCacheDirectory)
+                            val deleteSuccess = oldCacheDirectory.delete()
+                            if (deleteSuccess) {
+                                Timber.i("Deleted old cache directory")
+                            } else {
+                                Timber.i("Unable to delete old cache directory")
                             }
+                        } catch (e: IOException) {
+                            Timber.e(e, "Error clearing the cache")
                         }
-                        VER_GAMES_UPDATED_PLAYS -> addColumn(it, Tables.GAMES, Games.Columns.UPDATED_PLAYS, ColumnType.INTEGER)
-                        VER_COLLECTION -> {
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.CONDITION, ColumnType.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.HASPARTS_LIST, ColumnType.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.WANTPARTS_LIST, ColumnType.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.WISHLIST_COMMENT, ColumnType.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_YEAR_PUBLISHED, ColumnType.INTEGER)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.RATING, ColumnType.REAL)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_THUMBNAIL_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_IMAGE_URL, ColumnType.TEXT)
-                            buildCollectionTable().replace(it)
-                        }
-                        VER_GAME_COLLECTION_CONFLICT -> {
-                            addColumn(it, Tables.GAMES, Games.Columns.SUBTYPE, ColumnType.TEXT)
-                            addColumn(it, Tables.GAMES, Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.Columns.GAME_RANK, ColumnType.INTEGER)
-                            buildGamesTable().replace(it)
-                            it.dropTable(Tables.COLLECTION)
-                            buildCollectionTable().create(it)
-                            syncPrefs.clearCollection()
-                            SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
-                        }
-                        VER_PLAYS_START_TIME -> addColumn(it, Tables.PLAYS, Plays.Columns.START_TIME, ColumnType.INTEGER)
-                        VER_PLAYS_PLAYER_COUNT -> {
-                            addColumn(it, Tables.PLAYS, Plays.Columns.PLAYER_COUNT, ColumnType.INTEGER)
-                            it.execSQL(
-                                "UPDATE ${Tables.PLAYS} SET ${Plays.Columns.PLAYER_COUNT}=(SELECT COUNT(${PlayPlayers.Columns.USER_ID}) FROM ${Tables.PLAY_PLAYERS} WHERE ${Tables.PLAYS}.${Plays.Columns.PLAY_ID}=${Tables.PLAY_PLAYERS}.${Plays.Columns.PLAY_ID})"
-                            )
-                        }
-                        VER_GAMES_SUBTYPE -> addColumn(it, Tables.GAMES, Games.Columns.SUBTYPE, ColumnType.TEXT)
-                        VER_COLLECTION_ID_NULLABLE -> buildCollectionTable().replace(it)
-                        VER_GAME_CUSTOM_PLAYER_SORT -> addColumn(it, Tables.GAMES, Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
-                        VER_BUDDY_FLAG -> addColumn(it, Tables.BUDDIES, Buddies.Columns.BUDDY_FLAG, ColumnType.INTEGER)
-                        VER_GAME_RANK -> addColumn(it, Tables.GAMES, Games.Columns.GAME_RANK, ColumnType.INTEGER)
-                        VER_BUDDY_SYNC_HASH_CODE -> addColumn(it, Tables.BUDDIES, Buddies.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
-                        VER_PLAY_SYNC_HASH_CODE -> addColumn(it, Tables.PLAYS, Plays.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
-                        VER_PLAYER_COLORS -> buildPlayerColorsTable().create(it)
-                        VER_RATING_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.Columns.RATING_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                        VER_COMMENT_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.Columns.COMMENT_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                        VER_PRIVATE_INFO_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                        VER_STATUS_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.Columns.STATUS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                        VER_COLLECTION_DIRTY_TIMESTAMP -> addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                        VER_COLLECTION_DELETE_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_DELETE_TIMESTAMP, ColumnType.INTEGER)
-                        VER_COLLECTION_TIMESTAMPS -> {
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                            addColumn(it, Tables.COLLECTION, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                        }
-                        VER_PLAY_ITEMS_COLLAPSE -> {
-                            addColumn(it, Tables.PLAYS, Plays.Columns.ITEM_NAME, ColumnType.TEXT)
-                            addColumn(it, Tables.PLAYS, Plays.Columns.OBJECT_ID, ColumnType.INTEGER)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.OBJECT_ID} = (SELECT play_items.object_id FROM play_items WHERE play_items.${Plays.Columns.PLAY_ID} = ${Tables.PLAYS}.${Plays.Columns.PLAY_ID}), ${Plays.Columns.ITEM_NAME} = (SELECT play_items.name FROM play_items WHERE play_items.${Plays.Columns.PLAY_ID} = ${Tables.PLAYS}.${Plays.Columns.PLAY_ID})")
-                            it.dropTable("play_items")
-                        }
-                        VER_PLAY_PLAYERS_KEY -> {
-                            val columnMap: MutableMap<String, String> = HashMap()
-                            columnMap[PlayPlayers.Columns._PLAY_ID] = "${Tables.PLAYS}.${BaseColumns._ID}"
-                            buildPlayPlayersTable().replace(it, columnMap, Tables.PLAYS, Plays.Columns.PLAY_ID)
-                        }
-                        VER_PLAY_DELETE_TIMESTAMP -> {
-                            addColumn(it, Tables.PLAYS, Plays.Columns.DELETE_TIMESTAMP, ColumnType.INTEGER)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DELETE_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=3") // 3 = deleted sync status
-                        }
-                        VER_PLAY_UPDATE_TIMESTAMP -> {
-                            addColumn(it, Tables.PLAYS, Plays.Columns.UPDATE_TIMESTAMP, ColumnType.INTEGER)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.UPDATE_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=1") // 1 = update sync status
-                        }
-                        VER_PLAY_DIRTY_TIMESTAMP -> {
-                            addColumn(it, Tables.PLAYS, Plays.Columns.DIRTY_TIMESTAMP, ColumnType.INTEGER)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DIRTY_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=2") // 2 = in progress
-                        }
-                        VER_PLAY_PLAY_ID_NOT_REQUIRED -> {
-                            buildPlaysTable().replace(it)
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.PLAY_ID}=null WHERE ${Plays.Columns.PLAY_ID}>=100000000 AND (${Plays.Columns.DIRTY_TIMESTAMP}>0 OR ${Plays.Columns.UPDATE_TIMESTAMP}>0 OR ${Plays.Columns.DELETE_TIMESTAMP}>0)")
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DIRTY_TIMESTAMP}=${System.currentTimeMillis()}, ${Plays.Columns.PLAY_ID}=null WHERE ${Plays.Columns.PLAY_ID}>=100000000")
-                        }
-                        VER_PLAYS_RESET -> {
-                            syncPrefs.clearPlaysTimestamps()
-                            it.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.SYNC_HASH_CODE}=0")
-                            context?.let { ctx -> SyncWorker.requestPlaySync(ctx) }
-                        }
-                        VER_PLAYS_HARD_RESET -> {
-                            it.dropTable(Tables.PLAYS)
-                            it.dropTable(Tables.PLAY_PLAYERS)
-                            buildPlaysTable().create(it)
-                            buildPlayPlayersTable().create(it)
-                            syncPrefs.clearPlaysTimestamps()
-                            context?.let { ctx -> SyncWorker.requestPlaySync(ctx) }
-                        }
-                        VER_COLLECTION_VIEWS_SELECTED_COUNT -> {
-                            addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SELECTED_COUNT, ColumnType.INTEGER)
-                            addColumn(it, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SELECTED_TIMESTAMP, ColumnType.INTEGER)
-                        }
-                        VER_SUGGESTED_PLAYER_COUNT_POLL -> {
-                            addColumn(it, Tables.GAMES, Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, ColumnType.INTEGER)
-                            buildGameSuggestedPlayerCountPollResultsTable().create(it)
-                        }
-                        VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION -> addColumn(
-                            db,
-                            Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS,
-                            GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION,
-                            ColumnType.INTEGER
+                    }
+                    VER_GAMES_UPDATED_PLAYS -> addColumn(db, Tables.GAMES, Games.Columns.UPDATED_PLAYS, ColumnType.INTEGER)
+                    VER_COLLECTION -> {
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.CONDITION, ColumnType.TEXT)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.HASPARTS_LIST, ColumnType.TEXT)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.WANTPARTS_LIST, ColumnType.TEXT)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.WISHLIST_COMMENT, ColumnType.TEXT)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_YEAR_PUBLISHED, ColumnType.INTEGER)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.RATING, ColumnType.REAL)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_THUMBNAIL_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_IMAGE_URL, ColumnType.TEXT)
+                        buildCollectionTable().replace(db)
+                    }
+                    VER_GAME_COLLECTION_CONFLICT -> {
+                        addColumn(db, Tables.GAMES, Games.Columns.SUBTYPE, ColumnType.TEXT)
+                        addColumn(db, Tables.GAMES, Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
+                        addColumn(db, Tables.GAMES, Games.Columns.GAME_RANK, ColumnType.INTEGER)
+                        buildGamesTable().replace(db)
+                        db.dropTable(Tables.COLLECTION)
+                        buildCollectionTable().create(db)
+                        syncPrefs.clearCollection()
+                        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
+                    }
+                    VER_PLAYS_START_TIME -> addColumn(db, Tables.PLAYS, Plays.Columns.START_TIME, ColumnType.INTEGER)
+                    VER_PLAYS_PLAYER_COUNT -> {
+                        addColumn(db, Tables.PLAYS, Plays.Columns.PLAYER_COUNT, ColumnType.INTEGER)
+                        db.execSQL(
+                            "UPDATE ${Tables.PLAYS} SET ${Plays.Columns.PLAYER_COUNT}=(SELECT COUNT(${PlayPlayers.Columns.USER_ID}) FROM ${Tables.PLAY_PLAYERS} WHERE ${Tables.PLAYS}.${Plays.Columns.PLAY_ID}=${Tables.PLAY_PLAYERS}.${Plays.Columns.PLAY_ID})"
                         )
-                        VER_MIN_MAX_PLAYING_TIME -> {
-                            addColumn(it, Tables.GAMES, Games.Columns.MIN_PLAYING_TIME, ColumnType.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.Columns.MAX_PLAYING_TIME, ColumnType.INTEGER)
-                        }
-                        VER_SUGGESTED_PLAYER_COUNT_RE_SYNC -> {
-                            it.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
-                            SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
-                        }
-                        VER_GAME_HERO_IMAGE_URL -> addColumn(it, Tables.GAMES, Games.Columns.HERO_IMAGE_URL, ColumnType.TEXT)
-                        VER_COLLECTION_HERO_IMAGE_URL -> addColumn(it, Tables.COLLECTION, Collection.Columns.COLLECTION_HERO_IMAGE_URL, ColumnType.TEXT)
-                        VER_GAME_PALETTE_COLORS -> {
-                            addColumn(it, Tables.GAMES, Games.Columns.ICON_COLOR, ColumnType.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.Columns.DARK_COLOR, ColumnType.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.Columns.WINS_COLOR, ColumnType.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.Columns.WINNABLE_PLAYS_COLOR, ColumnType.INTEGER)
-                            addColumn(it, Tables.GAMES, Games.Columns.ALL_PLAYS_COLOR, ColumnType.INTEGER)
-                        }
-                        VER_PRIVATE_INFO_INVENTORY_LOCATION -> addColumn(db, Tables.COLLECTION, Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION, ColumnType.TEXT)
-                        VER_ARTIST_IMAGES -> {
-                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_IMAGE_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_THUMBNAIL_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_HERO_IMAGE_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP, ColumnType.INTEGER)
-                        }
-                        VER_DESIGNER_IMAGES -> {
-                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_IMAGE_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_THUMBNAIL_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_HERO_IMAGE_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_IMAGES_UPDATED_TIMESTAMP, ColumnType.INTEGER)
-                        }
-                        VER_PUBLISHER_IMAGES -> {
-                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_IMAGE_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_THUMBNAIL_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_HERO_IMAGE_URL, ColumnType.TEXT)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_SORT_NAME, ColumnType.INTEGER)
-                        }
-                        VER_WHITMORE_SCORE -> {
-                            addColumn(it, Tables.DESIGNERS, Designers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
-                            addColumn(it, Tables.ARTISTS, Artists.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
-                        }
-                        VER_DAP_STATS_UPDATED_TIMESTAMP -> {
-                            addColumn(it, Tables.DESIGNERS, Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
-                            addColumn(it, Tables.ARTISTS, Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
-                            addColumn(it, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
-                        }
-                        VER_RECOMMENDED_PLAYER_COUNTS -> {
-                            addColumn(it, Tables.GAMES, Games.Columns.PLAYER_COUNTS_BEST, ColumnType.TEXT)
-                            addColumn(it, Tables.GAMES, Games.Columns.PLAYER_COUNTS_RECOMMENDED, ColumnType.TEXT)
-                            addColumn(it, Tables.GAMES, Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED, ColumnType.TEXT)
-                            it.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
-                            SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
-                        }
-                        else -> Timber.i("Unexpected database version=$version")
+                    }
+                    VER_GAMES_SUBTYPE -> addColumn(db, Tables.GAMES, Games.Columns.SUBTYPE, ColumnType.TEXT)
+                    VER_COLLECTION_ID_NULLABLE -> buildCollectionTable().replace(db)
+                    VER_GAME_CUSTOM_PLAYER_SORT -> addColumn(db, Tables.GAMES, Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
+                    VER_BUDDY_FLAG -> addColumn(db, Tables.BUDDIES, Buddies.Columns.BUDDY_FLAG, ColumnType.INTEGER)
+                    VER_GAME_RANK -> addColumn(db, Tables.GAMES, Games.Columns.GAME_RANK, ColumnType.INTEGER)
+                    VER_BUDDY_SYNC_HASH_CODE -> addColumn(db, Tables.BUDDIES, Buddies.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+                    VER_PLAY_SYNC_HASH_CODE -> addColumn(db, Tables.PLAYS, Plays.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+                    VER_PLAYER_COLORS -> buildPlayerColorsTable().create(db)
+                    VER_RATING_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.RATING_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                    VER_COMMENT_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.COMMENT_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                    VER_PRIVATE_INFO_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                    VER_STATUS_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.STATUS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                    VER_COLLECTION_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                    VER_COLLECTION_DELETE_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_DELETE_TIMESTAMP, ColumnType.INTEGER)
+                    VER_COLLECTION_TIMESTAMPS -> {
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        addColumn(db, Tables.COLLECTION, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                    }
+                    VER_PLAY_ITEMS_COLLAPSE -> {
+                        addColumn(db, Tables.PLAYS, Plays.Columns.ITEM_NAME, ColumnType.TEXT)
+                        addColumn(db, Tables.PLAYS, Plays.Columns.OBJECT_ID, ColumnType.INTEGER)
+                        db.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.OBJECT_ID} = (SELECT play_items.object_id FROM play_items WHERE play_items.${Plays.Columns.PLAY_ID} = ${Tables.PLAYS}.${Plays.Columns.PLAY_ID}), ${Plays.Columns.ITEM_NAME} = (SELECT play_items.name FROM play_items WHERE play_items.${Plays.Columns.PLAY_ID} = ${Tables.PLAYS}.${Plays.Columns.PLAY_ID})")
+                        db.dropTable("play_items")
+                    }
+                    VER_PLAY_PLAYERS_KEY -> {
+                        val columnMap: MutableMap<String, String> = HashMap()
+                        columnMap[PlayPlayers.Columns._PLAY_ID] = "${Tables.PLAYS}.${BaseColumns._ID}"
+                        buildPlayPlayersTable().replace(db, columnMap, Tables.PLAYS, Plays.Columns.PLAY_ID)
+                    }
+                    VER_PLAY_DELETE_TIMESTAMP -> {
+                        addColumn(db, Tables.PLAYS, Plays.Columns.DELETE_TIMESTAMP, ColumnType.INTEGER)
+                        db.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DELETE_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=3") // 3 = deleted sync status
+                    }
+                    VER_PLAY_UPDATE_TIMESTAMP -> {
+                        addColumn(db, Tables.PLAYS, Plays.Columns.UPDATE_TIMESTAMP, ColumnType.INTEGER)
+                        db.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.UPDATE_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=1") // 1 = update sync status
+                    }
+                    VER_PLAY_DIRTY_TIMESTAMP -> {
+                        addColumn(db, Tables.PLAYS, Plays.Columns.DIRTY_TIMESTAMP, ColumnType.INTEGER)
+                        db.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DIRTY_TIMESTAMP}=${System.currentTimeMillis()}, sync_status=0 WHERE sync_status=2") // 2 = in progress
+                    }
+                    VER_PLAY_PLAY_ID_NOT_REQUIRED -> {
+                        buildPlaysTable().replace(db)
+                        db.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.PLAY_ID}=null WHERE ${Plays.Columns.PLAY_ID}>=100000000 AND (${Plays.Columns.DIRTY_TIMESTAMP}>0 OR ${Plays.Columns.UPDATE_TIMESTAMP}>0 OR ${Plays.Columns.DELETE_TIMESTAMP}>0)")
+                        db.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.DIRTY_TIMESTAMP}=${System.currentTimeMillis()}, ${Plays.Columns.PLAY_ID}=null WHERE ${Plays.Columns.PLAY_ID}>=100000000")
+                    }
+                    VER_PLAYS_RESET -> {
+                        syncPrefs.clearPlaysTimestamps()
+                        db.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.SYNC_HASH_CODE}=0")
+                        context?.let { ctx -> SyncWorker.requestPlaySync(ctx) }
+                    }
+                    VER_PLAYS_HARD_RESET -> {
+                        db.dropTable(Tables.PLAYS)
+                        db.dropTable(Tables.PLAY_PLAYERS)
+                        buildPlaysTable().create(db)
+                        buildPlayPlayersTable().create(db)
+                        syncPrefs.clearPlaysTimestamps()
+                        context?.let { ctx -> SyncWorker.requestPlaySync(ctx) }
+                    }
+                    VER_COLLECTION_VIEWS_SELECTED_COUNT -> {
+                        addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SELECTED_COUNT, ColumnType.INTEGER)
+                        addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SELECTED_TIMESTAMP, ColumnType.INTEGER)
+                    }
+                    VER_SUGGESTED_PLAYER_COUNT_POLL -> {
+                        addColumn(db, Tables.GAMES, Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL, ColumnType.INTEGER)
+                        buildGameSuggestedPlayerCountPollResultsTable().create(db)
+                    }
+                    VER_SUGGESTED_PLAYER_COUNT_RECOMMENDATION -> addColumn(
+                        db,
+                        Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS,
+                        GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION,
+                        ColumnType.INTEGER
+                    )
+                    VER_MIN_MAX_PLAYING_TIME -> {
+                        addColumn(db, Tables.GAMES, Games.Columns.MIN_PLAYING_TIME, ColumnType.INTEGER)
+                        addColumn(db, Tables.GAMES, Games.Columns.MAX_PLAYING_TIME, ColumnType.INTEGER)
+                    }
+                    VER_SUGGESTED_PLAYER_COUNT_RE_SYNC -> {
+                        db.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
+                        SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
+                    }
+                    VER_GAME_HERO_IMAGE_URL -> addColumn(db, Tables.GAMES, Games.Columns.HERO_IMAGE_URL, ColumnType.TEXT)
+                    VER_COLLECTION_HERO_IMAGE_URL -> addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_HERO_IMAGE_URL, ColumnType.TEXT)
+                    VER_GAME_PALETTE_COLORS -> {
+                        addColumn(db, Tables.GAMES, Games.Columns.ICON_COLOR, ColumnType.INTEGER)
+                        addColumn(db, Tables.GAMES, Games.Columns.DARK_COLOR, ColumnType.INTEGER)
+                        addColumn(db, Tables.GAMES, Games.Columns.WINS_COLOR, ColumnType.INTEGER)
+                        addColumn(db, Tables.GAMES, Games.Columns.WINNABLE_PLAYS_COLOR, ColumnType.INTEGER)
+                        addColumn(db, Tables.GAMES, Games.Columns.ALL_PLAYS_COLOR, ColumnType.INTEGER)
+                    }
+                    VER_PRIVATE_INFO_INVENTORY_LOCATION -> addColumn(db, Tables.COLLECTION, Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION, ColumnType.TEXT)
+                    VER_ARTIST_IMAGES -> {
+                        addColumn(db, Tables.ARTISTS, Artists.Columns.ARTIST_IMAGE_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.ARTISTS, Artists.Columns.ARTIST_THUMBNAIL_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.ARTISTS, Artists.Columns.ARTIST_HERO_IMAGE_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.ARTISTS, Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+                    }
+                    VER_DESIGNER_IMAGES -> {
+                        addColumn(db, Tables.DESIGNERS, Designers.Columns.DESIGNER_IMAGE_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.DESIGNERS, Designers.Columns.DESIGNER_THUMBNAIL_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.DESIGNERS, Designers.Columns.DESIGNER_HERO_IMAGE_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.DESIGNERS, Designers.Columns.DESIGNER_IMAGES_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+                    }
+                    VER_PUBLISHER_IMAGES -> {
+                        addColumn(db, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_IMAGE_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_THUMBNAIL_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_HERO_IMAGE_URL, ColumnType.TEXT)
+                        addColumn(db, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_SORT_NAME, ColumnType.INTEGER)
+                    }
+                    VER_WHITMORE_SCORE -> {
+                        addColumn(db, Tables.DESIGNERS, Designers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
+                        addColumn(db, Tables.ARTISTS, Artists.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
+                        addColumn(db, Tables.PUBLISHERS, Publishers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
+                    }
+                    VER_DAP_STATS_UPDATED_TIMESTAMP -> {
+                        addColumn(db, Tables.DESIGNERS, Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+                        addColumn(db, Tables.ARTISTS, Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+                        addColumn(db, Tables.PUBLISHERS, Publishers.Columns.PUBLISHER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
+                    }
+                    VER_RECOMMENDED_PLAYER_COUNTS -> {
+                        addColumn(db, Tables.GAMES, Games.Columns.PLAYER_COUNTS_BEST, ColumnType.TEXT)
+                        addColumn(db, Tables.GAMES, Games.Columns.PLAYER_COUNTS_RECOMMENDED, ColumnType.TEXT)
+                        addColumn(db, Tables.GAMES, Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED, ColumnType.TEXT)
+                        db.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
+                        SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
                     }
                 }
             }
