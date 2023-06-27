@@ -50,7 +50,7 @@
 	</entry>
 	<entry>
 		<key>sync_games_fetch_pause_millis</key>
-		<value>5000</value>
+		<value>2000</value>
 	</entry>
 	<entry>
 		<key>sync_games_delete_view_hours</key>

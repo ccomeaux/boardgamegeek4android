@@ -341,7 +341,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                     }
                     VER_SUGGESTED_PLAYER_COUNT_RE_SYNC -> {
                         db.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
-                        SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
+                        context?.let { ctx -> SyncWorker.requestGameSync(ctx) }
                     }
                     VER_GAME_HERO_IMAGE_URL -> addColumn(db, Tables.GAMES, Games.Columns.HERO_IMAGE_URL, ColumnType.TEXT)
                     VER_COLLECTION_HERO_IMAGE_URL -> addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_HERO_IMAGE_URL, ColumnType.TEXT)
@@ -386,7 +386,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         addColumn(db, Tables.GAMES, Games.Columns.PLAYER_COUNTS_RECOMMENDED, ColumnType.TEXT)
                         addColumn(db, Tables.GAMES, Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED, ColumnType.TEXT)
                         db.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
-                        SyncService.sync(context, SyncService.FLAG_SYNC_GAMES)
+                        context?.let { ctx -> SyncWorker.requestGameSync(ctx) }
                     }
                 }
             }

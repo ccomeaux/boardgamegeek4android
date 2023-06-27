@@ -26,7 +26,6 @@ class SyncAdapter(
     private val application: BggApplication,
     private val authRepository: AuthRepository,
     private val collectionItemRepository: CollectionItemRepository,
-    private val gameRepository: GameRepository,
     private val gameCollectionRepository: GameCollectionRepository,
     private val httpClient: OkHttpClient,
 ) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
@@ -199,11 +198,6 @@ class SyncAdapter(
             tasks.add(SyncCollectionComplete(application, syncResult, collectionItemRepository))
             tasks.add(SyncCollectionModifiedSince(application, syncResult, collectionItemRepository))
             tasks.add(SyncCollectionUnupdated(application, syncResult, collectionItemRepository))
-        }
-        if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_GAMES) && !uploadOnly) {
-            tasks.add(SyncGamesRemove(application, syncResult, gameRepository))
-            tasks.add(SyncGamesOldest(application, syncResult, gameRepository))
-            tasks.add(SyncGamesUnupdated(application, syncResult, gameRepository))
         }
         return tasks
     }

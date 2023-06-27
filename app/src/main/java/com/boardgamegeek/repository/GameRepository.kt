@@ -8,10 +8,8 @@ import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +43,7 @@ class GameRepository @Inject constructor(
         for (game in response.games) {
             val gameEntity = game.mapToEntity()
             dao.save(gameEntity, timestamp)
-            Timber.i("Synced game ${gameEntity.name} [${gameEntity.id}]")
+            Timber.d("Synced game ${gameEntity.name} [${gameEntity.id}]")
         }
         response.games.size
     }
