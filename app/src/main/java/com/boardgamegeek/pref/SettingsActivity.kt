@@ -153,7 +153,7 @@ class SettingsActivity : DrawerActivity() {
                 }
                 PREFERENCES_KEY_SYNC_BUDDIES -> {
                     syncPrefs.clearBuddyListTimestamps()
-                    syncType = syncType or SyncService.FLAG_SYNC_BUDDIES
+                    SyncWorker.requestBuddySync(requireContext())
                 }
             }
         }
