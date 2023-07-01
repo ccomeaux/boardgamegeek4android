@@ -45,8 +45,7 @@ class SyncService : Service() {
 
         const val FLAG_SYNC_NONE = 0
         const val FLAG_SYNC_COLLECTION_UPLOAD = 1 shl 1
-        const val FLAG_SYNC_COLLECTION = FLAG_SYNC_COLLECTION_UPLOAD
-        const val FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION
+        const val FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION_UPLOAD
 
         private val SYNC_ADAPTER_LOCK = Any()
         private var syncAdapter: SyncAdapter? = null

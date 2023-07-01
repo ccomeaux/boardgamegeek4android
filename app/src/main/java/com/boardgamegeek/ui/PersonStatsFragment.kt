@@ -11,8 +11,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPersonStatsBinding
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
+import com.boardgamegeek.work.SyncCollectionWorker
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 import java.util.*
@@ -41,7 +41,7 @@ class PersonStatsFragment : Fragment() {
                 .setPositiveButton(R.string.modify) { _, _ ->
                     prefs.addSyncStatus(COLLECTION_STATUS_PLAYED)
                     prefs.addSyncStatus(COLLECTION_STATUS_RATED)
-                    SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
+                    SyncCollectionWorker.requestSync(requireContext())
                     bindCollectionStatusMessage()
                 }
                 .setNegativeButton(R.string.cancel, null)

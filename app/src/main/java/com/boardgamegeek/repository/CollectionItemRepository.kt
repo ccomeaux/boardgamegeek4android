@@ -9,7 +9,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.work.SyncCollectionWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -46,7 +46,7 @@ class CollectionItemRepository(
 
     suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
         syncPrefs.clearCollection()
-        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
+        SyncCollectionWorker.requestSync(context)
     }
 
     private suspend fun refreshSubtype(subtype: BggService.ThingSubtype?, timestamp: Long = System.currentTimeMillis()) {

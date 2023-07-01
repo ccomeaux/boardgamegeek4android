@@ -60,7 +60,7 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         )
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork(
-                SyncUsersWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(1, TimeUnit.DAYS)
+                SyncPlaysWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(1, TimeUnit.DAYS)
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
                     .setConstraints(createWorkConstraints(true))
                     .build()

@@ -10,7 +10,6 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
