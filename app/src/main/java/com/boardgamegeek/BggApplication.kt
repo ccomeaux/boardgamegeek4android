@@ -14,7 +14,8 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.work.SyncCollectionWorker
-import com.boardgamegeek.work.SyncWorker
+import com.boardgamegeek.work.SyncPlaysWorker
+import com.boardgamegeek.work.SyncUsersWorker
 import com.facebook.stetho.Stetho
 import com.google.android.gms.tasks.Task
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -34,7 +35,8 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
     @Named("withCache")
     lateinit var httpClient: OkHttpClient
 
-    @Inject lateinit var workerFactory: HiltWorkerFactory
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
     override fun getWorkManagerConfiguration() =
         Configuration.Builder()
@@ -51,17 +53,22 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         migrateData()
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
-            SyncCollectionWorker.UNIQUE_WORK_NAME,
-            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
-            PeriodicWorkRequestBuilder<SyncCollectionWorker>(1, TimeUnit.DAYS)
+            SyncCollectionWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncCollectionWorker>(1, TimeUnit.DAYS)
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)
                 .setConstraints(createWorkConstraints(true))
                 .build()
         )
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork(
-                SyncWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.DAYS)
+                SyncUsersWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(1, TimeUnit.DAYS)
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
+                    .setConstraints(createWorkConstraints(true))
+                    .build()
+            )
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                SyncUsersWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncUsersWorker>(1, TimeUnit.DAYS)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.MINUTES)
                     .setConstraints(createWorkConstraints(true))
                     .build()
             )

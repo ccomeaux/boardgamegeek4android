@@ -16,7 +16,7 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
 import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.work.SyncWorker
+import com.boardgamegeek.work.SyncUsersWorker
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -120,7 +120,7 @@ class UserRepository(
 
     suspend fun resetUsers() {
         deleteUsers()
-        SyncWorker.requestBuddySync(context)
+        SyncUsersWorker.requestSync(context)
     }
 
     suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = userDao.updateColors(username, colors)

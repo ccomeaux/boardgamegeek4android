@@ -28,10 +28,7 @@ import com.boardgamegeek.pref.clearPlaysTimestamps
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.PlayStatsActivity
-import com.boardgamegeek.work.PlayDeleteWorker
-import com.boardgamegeek.work.PlayUploadWorker
-import com.boardgamegeek.work.PlayUpsertWorker
-import com.boardgamegeek.work.SyncWorker
+import com.boardgamegeek.work.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -607,7 +604,7 @@ class PlayRepository(
         syncPrefs.clearPlaysTimestamps()
         val count = playDao.updateAllPlays(contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0))
         Timber.i("Cleared the hashcode from %,d plays.", count)
-        SyncWorker.requestPlaySync(context)
+        SyncPlaysWorker.requestSync(context)
     }
 
     suspend fun deletePlays() {

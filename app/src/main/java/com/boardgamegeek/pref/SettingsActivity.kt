@@ -16,7 +16,8 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
-import com.boardgamegeek.work.SyncWorker
+import com.boardgamegeek.work.SyncPlaysWorker
+import com.boardgamegeek.work.SyncUsersWorker
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -149,11 +150,11 @@ class SettingsActivity : DrawerActivity() {
                 }
                 PREFERENCES_KEY_SYNC_PLAYS -> {
                     syncPrefs.clearPlaysTimestamps()
-                    SyncWorker.requestPlaySync(requireContext())
+                    SyncPlaysWorker.requestSync(requireContext())
                 }
                 PREFERENCES_KEY_SYNC_BUDDIES -> {
                     syncPrefs.clearBuddyListTimestamps()
-                    SyncWorker.requestBuddySync(requireContext())
+                    SyncUsersWorker.requestSync(requireContext())
                 }
             }
         }

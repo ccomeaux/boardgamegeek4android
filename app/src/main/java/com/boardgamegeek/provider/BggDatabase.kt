@@ -12,13 +12,12 @@ import com.boardgamegeek.pref.clearCollection
 import com.boardgamegeek.pref.clearPlaysTimestamps
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.util.FileUtils.deleteContents
 import com.boardgamegeek.util.TableBuilder
 import com.boardgamegeek.util.TableBuilder.ColumnType
 import com.boardgamegeek.util.TableBuilder.ConflictResolution
 import com.boardgamegeek.work.SyncCollectionWorker
-import com.boardgamegeek.work.SyncWorker
+import com.boardgamegeek.work.SyncPlaysWorker
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
@@ -177,6 +176,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         Timber.d("Upgrading database from $oldVersion to $newVersion")
         if (db == null) return
+        var needsCollectionSync = false
+        var needsPlaysSync = false
         try {
             for (version in oldVersion..newVersion) {
                 when (version + 1) {
@@ -252,7 +253,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         db.dropTable(Tables.COLLECTION)
                         buildCollectionTable().create(db)
                         syncPrefs.clearCollection()
-                        SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
+                        needsCollectionSync = true
                     }
                     VER_PLAYS_START_TIME -> addColumn(db, Tables.PLAYS, Plays.Columns.START_TIME, ColumnType.INTEGER)
                     VER_PLAYS_PLAYER_COUNT -> {
@@ -312,7 +313,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                     VER_PLAYS_RESET -> {
                         syncPrefs.clearPlaysTimestamps()
                         db.execSQL("UPDATE ${Tables.PLAYS} SET ${Plays.Columns.SYNC_HASH_CODE}=0")
-                        context?.let { ctx -> SyncWorker.requestPlaySync(ctx) }
+                        needsPlaysSync = true
                     }
                     VER_PLAYS_HARD_RESET -> {
                         db.dropTable(Tables.PLAYS)
@@ -320,7 +321,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         buildPlaysTable().create(db)
                         buildPlayPlayersTable().create(db)
                         syncPrefs.clearPlaysTimestamps()
-                        context?.let { ctx -> SyncWorker.requestPlaySync(ctx) }
+                        needsPlaysSync = true
                     }
                     VER_COLLECTION_VIEWS_SELECTED_COUNT -> {
                         addColumn(db, Tables.COLLECTION_VIEWS, CollectionViews.Columns.SELECTED_COUNT, ColumnType.INTEGER)
@@ -342,7 +343,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                     }
                     VER_SUGGESTED_PLAYER_COUNT_RE_SYNC -> {
                         db.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
-                        context?.let { ctx -> SyncCollectionWorker.requestSync(ctx) }
+                        needsCollectionSync = true
                     }
                     VER_GAME_HERO_IMAGE_URL -> addColumn(db, Tables.GAMES, Games.Columns.HERO_IMAGE_URL, ColumnType.TEXT)
                     VER_COLLECTION_HERO_IMAGE_URL -> addColumn(db, Tables.COLLECTION, Collection.Columns.COLLECTION_HERO_IMAGE_URL, ColumnType.TEXT)
@@ -387,10 +388,12 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         addColumn(db, Tables.GAMES, Games.Columns.PLAYER_COUNTS_RECOMMENDED, ColumnType.TEXT)
                         addColumn(db, Tables.GAMES, Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED, ColumnType.TEXT)
                         db.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
-                        context?.let { ctx -> SyncCollectionWorker.requestSync(ctx) }
+                        needsCollectionSync = true
                     }
                 }
             }
+            if (needsCollectionSync) context?.let { ctx -> SyncCollectionWorker.requestSync(ctx) }
+            if (needsPlaysSync) context?.let { ctx -> SyncPlaysWorker.requestSync(ctx) }
         } catch (e: Exception) {
             Timber.e(e)
             recreateDatabase(db)
