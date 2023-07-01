@@ -341,7 +341,7 @@ class CollectionDao(private val context: Context) {
      * @param protectedCollectionIds list of collection IDs not to delete.
      * @return the number or rows deleted.
      */
-    fun delete(gameId: Int, protectedCollectionIds: List<Int> = emptyList()): Int {
+    suspend fun delete(gameId: Int, protectedCollectionIds: List<Int> = emptyList()): Int = withContext(Dispatchers.IO) {
         // determine the collection IDs that are no longer in the collection
         val collectionIdsToDelete = resolver.queryInts(
             Collection.CONTENT_URI,
@@ -363,8 +363,17 @@ class CollectionDao(private val context: Context) {
                 )
             }
         }
+        numberOfDeletedRows
+    }
 
-        return numberOfDeletedRows
+    suspend fun deleteUnupdatedItems(timestamp: Long): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(
+            Collection.CONTENT_URI,
+            "${Collection.Columns.UPDATED_LIST}<?",
+            arrayOf(timestamp.toString())
+        ).also { count ->
+            Timber.d("Deleted $count old collection items")
+        }
     }
 
     suspend fun saveItem(

@@ -517,7 +517,7 @@ class GameDao(private val context: Context) {
             batch += createAssociationBatch(game.id, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
             batch += createAssociationBatch(game.id, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
 
-            resolver.applyBatch(batch, "Game ${game.id}")
+            resolver.applyBatch(batch, "Game ${game.name} [${game.id}]")
             val dateTime = DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
             if (internalId == INVALID_ID.toLong()) {
                 Timber.i("Inserted game ${game.name} [${game.id}] at $dateTime")

@@ -13,6 +13,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
 import com.boardgamegeek.util.RemoteConfig
+import com.boardgamegeek.work.SyncCollectionWorker
 import com.boardgamegeek.work.SyncWorker
 import com.facebook.stetho.Stetho
 import com.google.android.gms.tasks.Task
@@ -49,11 +50,21 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         initializePicasso()
         migrateData()
 
-        val syncRequest = PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.DAYS)
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
-            .setConstraints(createWorkConstraints(true))
-            .build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork(SyncWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, syncRequest)
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            SyncCollectionWorker.UNIQUE_WORK_NAME,
+            ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+            PeriodicWorkRequestBuilder<SyncCollectionWorker>(1, TimeUnit.DAYS)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)
+                .setConstraints(createWorkConstraints(true))
+                .build()
+        )
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                SyncWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncWorker>(1, TimeUnit.DAYS)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
+                    .setConstraints(createWorkConstraints(true))
+                    .build()
+            )
     }
 
     private fun initializeFirebase() {

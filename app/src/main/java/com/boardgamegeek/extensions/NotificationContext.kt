@@ -142,12 +142,12 @@ fun Context.notify(builder: NotificationCompat.Builder, tag: String?, id: Int = 
     NotificationManagerCompat.from(this).notify(tag, id, builder.build())
 }
 
-fun Context.notifySyncError(contextText: String, bigText: String) {
-    Timber.w("$contextText\n$bigText".trim())
+fun Context.notifySyncError(contentText: String, bigText: String) {
+    Timber.w("$contentText\n$bigText".trim())
     if (this.preferences()[KEY_SYNC_ERRORS, false] != true) return
     val builder = this
         .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
-        .setContentText(contextText)
+        .setContentText(contentText)
         .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setCategory(NotificationCompat.CATEGORY_ERROR)
     if (bigText.trim().isNotBlank()) {

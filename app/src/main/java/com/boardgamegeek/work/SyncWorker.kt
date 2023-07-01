@@ -11,11 +11,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.pref.getBuddiesTimestamp
-import com.boardgamegeek.pref.setBuddiesTimestamp
+import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.util.RemoteConfig
@@ -31,7 +28,6 @@ import kotlin.time.Duration.Companion.days
 class SyncWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
 ) : CoroutineWorker(appContext, workerParams) {
@@ -49,13 +45,6 @@ class SyncWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         val syncType = inputData.getString(SYNC_TYPE)
 
-        if (syncType == null || syncType == SYNC_TYPE_GAMES) {
-            removeGames()
-            if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after removing old games"))
-            downloadGames()
-            if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after downloading games"))
-        }
-
         if (syncType == null || syncType == SYNC_TYPE_PLAYS) {
             uploadPlays()
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after uploading plays"))
@@ -68,67 +57,6 @@ class SyncWorker @AssistedInject constructor(
             if (isStopped) return Result.success(workDataOf(STOPPED_REASON to "Canceled after downloading buddies"))
         }
 
-        return Result.success()
-    }
-
-    private suspend fun removeGames(): Result {
-        Timber.i("Removing games not in the collection")
-        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_collection_missing)))
-
-        val hoursAgo = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_DELETE_VIEW_HOURS).hoursAgo()
-        val date = DateUtils.formatDateTime(applicationContext, hoursAgo, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_SHOW_TIME)
-        Timber.i("Fetching games that aren't in the collection and have not been viewed since $date")
-
-        val games = gameRepository.loadDeletableGames(hoursAgo, prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED))
-        if (games.isNotEmpty()) {
-            Timber.i("Found ${games.size} games to delete: ${games.map { "[${it.first}] ${it.second}" }}")
-            setForeground(createForegroundInfo(applicationContext.resources.getQuantityString(R.plurals.sync_notification_games_remove, games.size, games.size)))
-
-            var count = 0
-            // NOTE: We're deleting one at a time, because a batch doesn't perform the game/collection join
-            for ((gameId, _) in games) {
-                Timber.i("Deleting game ID=${gameId}")
-                count += gameRepository.delete(gameId)
-            }
-            Timber.i("Deleted $count games")
-        } else {
-            Timber.i("No games need deleting")
-        }
-        return Result.success()
-    }
-
-    private suspend fun downloadGames(): Result {
-        var updatedCount = 0
-        val gamesPerFetch = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_PER_FETCH)
-        // val maxFetchCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED) useful if fetching multiple games at a time
-
-        Timber.i("Refreshing $gamesPerFetch oldest games in the collection")
-        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_games_oldest)))
-        val staleGames = gameRepository.loadOldestUpdatedGames(gamesPerFetch)
-        staleGames.forEach {(gameId, gameName) ->
-            Timber.i("Refreshing game $gameName [$gameId]")
-            delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS))
-            try {
-                updatedCount += gameRepository.refreshGame(gameId)
-            } catch (e: Exception) {
-                handleException(e)
-            }
-        }
-
-        Timber.i("Refreshing $gamesPerFetch oldest games in the collection")
-        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_games_unupdated)))
-        val games = gameRepository.loadUnupdatedGames(gamesPerFetch)
-        games.forEach {(gameId, gameName) ->
-            Timber.i("Refreshing game $gameName [$gameId]")
-            delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS))
-            try {
-                updatedCount += gameRepository.refreshGame(gameId)
-            } catch (e: Exception) {
-                handleException(e)
-            }
-        }
-
-        Timber.i("Refreshed $updatedCount games")
         return Result.success()
     }
 
@@ -344,6 +272,7 @@ class SyncWorker @AssistedInject constructor(
     }
 
     private fun handleException(e: Exception): Result {
+        Timber.e(e)
         val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
         applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_plays), bigText)
         return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
@@ -375,7 +304,6 @@ class SyncWorker @AssistedInject constructor(
     companion object {
         const val UNIQUE_WORK_NAME = "com.boardgamegeek.SYNC"
         const val SYNC_TYPE = "SYNC_TYPE"
-        const val SYNC_TYPE_GAMES = "SYNC_TYPE_GAMES"
         const val SYNC_TYPE_PLAYS = "SYNC_TYPE_PLAYS"
         const val SYNC_TYPE_BUDDIES = "SYNC_TYPE_BUDDIES"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
@@ -383,15 +311,6 @@ class SyncWorker @AssistedInject constructor(
         const val PROGRESS_VALUE = "PROGRESS_VALUE"
         const val PROGRESS_USERNAME = "PROGRESS_USERNAME"
         const val STOPPED_REASON = "STOPPED_REASON"
-
-        fun requestGameSync(context: Context) {
-            val workRequest = OneTimeWorkRequestBuilder<SyncWorker>()
-                .setConstraints(context.createWorkConstraints(true))
-                .setInputData(workDataOf(SYNC_TYPE to SYNC_TYPE_GAMES))
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
-                .build()
-            WorkManager.getInstance(context).enqueue(workRequest)
-        }
 
         fun requestPlaySync(context: Context) {
             val workRequest = OneTimeWorkRequestBuilder<SyncWorker>()

@@ -18,7 +18,6 @@ import javax.inject.Named
 @AndroidEntryPoint
 class SyncService : Service() {
     @Inject lateinit var authRepository: AuthRepository
-    @Inject lateinit var collectionItemRepository: CollectionItemRepository
     @Inject lateinit var gameCollectionRepository: GameCollectionRepository
     @Inject @Named("withAuth") lateinit var httpClient: OkHttpClient
 
@@ -29,7 +28,6 @@ class SyncService : Service() {
                 syncAdapter = SyncAdapter(
                     (application as BggApplication),
                     authRepository,
-                    collectionItemRepository,
                     gameCollectionRepository,
                     httpClient,
                 )
@@ -46,9 +44,8 @@ class SyncService : Service() {
         const val ACTION_CANCEL_SYNC = "com.boardgamegeek.ACTION_SYNC_CANCEL"
 
         const val FLAG_SYNC_NONE = 0
-        const val FLAG_SYNC_COLLECTION_DOWNLOAD = 1
         const val FLAG_SYNC_COLLECTION_UPLOAD = 1 shl 1
-        const val FLAG_SYNC_COLLECTION = FLAG_SYNC_COLLECTION_DOWNLOAD or FLAG_SYNC_COLLECTION_UPLOAD
+        const val FLAG_SYNC_COLLECTION = FLAG_SYNC_COLLECTION_UPLOAD
         const val FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION
 
         private val SYNC_ADAPTER_LOCK = Any()

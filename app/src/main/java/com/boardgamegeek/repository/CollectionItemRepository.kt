@@ -83,7 +83,9 @@ class CollectionItemRepository(
         count
     }
 
-    suspend fun loadUnupdatedItems(gamesPerFetch: Int) = dao.loadUnupdatedItems(gamesPerFetch)
+    suspend fun loadUnupdatedItems() = dao.loadUnupdatedItems()
+
+    suspend fun deleteUnupdatedItems(timestamp: Long) = dao.deleteUnupdatedItems(timestamp)
 
     private fun isItemStatusSetToSync(item: CollectionItemEntity): Boolean {
         if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true

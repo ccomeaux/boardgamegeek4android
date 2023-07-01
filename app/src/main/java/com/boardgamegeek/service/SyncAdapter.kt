@@ -25,7 +25,6 @@ import java.net.SocketTimeoutException
 class SyncAdapter(
     private val application: BggApplication,
     private val authRepository: AuthRepository,
-    private val collectionItemRepository: CollectionItemRepository,
     private val gameCollectionRepository: GameCollectionRepository,
     private val httpClient: OkHttpClient,
 ) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
@@ -82,7 +81,7 @@ class SyncAdapter(
             return
         }
         toggleCancelReceiver(true)
-        val tasks = createTasks(application, type, uploadOnly, syncResult)
+        val tasks = createTasks(application, type, syncResult)
         for (i in tasks.indices) {
             if (isCancelled) {
                 Timber.i("Cancelling all sync tasks")
@@ -187,17 +186,11 @@ class SyncAdapter(
     private fun createTasks(
         application: BggApplication,
         typeList: Int,
-        uploadOnly: Boolean,
         syncResult: SyncResult,
     ): List<SyncTask> {
         val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
             tasks.add(SyncCollectionUpload(application, syncResult, gameCollectionRepository, httpClient))
-        }
-        if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_DOWNLOAD) && !uploadOnly) {
-            tasks.add(SyncCollectionComplete(application, syncResult, collectionItemRepository))
-            tasks.add(SyncCollectionModifiedSince(application, syncResult, collectionItemRepository))
-            tasks.add(SyncCollectionUnupdated(application, syncResult, collectionItemRepository))
         }
         return tasks
     }
