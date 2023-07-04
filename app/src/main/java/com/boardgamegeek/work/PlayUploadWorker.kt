@@ -26,7 +26,7 @@ class PlayUploadWorker @AssistedInject constructor(
         val playsToDelete = mutableListOf<PlayEntity>()
         val playsToUpsert = mutableListOf<PlayEntity>()
         val gameIds = mutableSetOf<Int>()
-        val requestedGameId = inputData.getInt(PlayUpsertWorker.GAME_ID, BggContract.INVALID_ID)
+        val requestedGameId = inputData.getInt(GAME_ID, BggContract.INVALID_ID)
 
         if (requestedGameId == BggContract.INVALID_ID) {
             Timber.i("Uploading all plays marked for deletion or updating")
@@ -69,6 +69,7 @@ class PlayUploadWorker @AssistedInject constructor(
     }
 
     companion object {
+        const val GAME_ID = "GAME_ID"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
     }
 }

@@ -562,13 +562,14 @@ class CollectionDao(private val context: Context) {
     }
 
     private fun maybeDeleteThumbnail(values: ContentValues, uri: Uri) {
-        val newThumbnailUrl: String = values.getAsString(Collection.Columns.COLLECTION_THUMBNAIL_URL).orEmpty()
-        val oldThumbnailUrl = resolver.queryString(uri, Collection.Columns.COLLECTION_THUMBNAIL_URL).orEmpty()
-        if (newThumbnailUrl == oldThumbnailUrl) return // nothing to do - thumbnail hasn't changed
-
-        val thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl)
-        if (thumbnailFileName.isNotBlank()) {
-            resolver.delete(Thumbnails.buildUri(thumbnailFileName), null, null)
+        values.getAsString(Collection.Columns.COLLECTION_THUMBNAIL_URL)?.let { newThumbnailUrl ->
+            val oldThumbnailUrl = resolver.queryString(uri, Collection.Columns.COLLECTION_THUMBNAIL_URL).orEmpty()
+            if (newThumbnailUrl != oldThumbnailUrl) {
+                val thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl)
+                if (thumbnailFileName.isNotBlank()) {
+                    resolver.delete(Thumbnails.buildUri(thumbnailFileName), null, null)
+                }
+            }
         }
     }
 

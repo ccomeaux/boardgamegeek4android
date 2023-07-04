@@ -7,9 +7,8 @@ import com.google.gson.annotations.SerializedName
 
 class PlayPostResponse(
     val error: String? = null,
-    val success: Boolean = false
-)
-{
+    val success: Boolean = false,
+) {
     @SerializedName("playid")
     val playId = BggContract.INVALID_ID
     @SerializedName("numplays")

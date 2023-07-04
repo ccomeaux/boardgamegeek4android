@@ -43,7 +43,6 @@ class SyncService : Service() {
         const val EXTRA_SYNC_TYPE = "com.boardgamegeek.SYNC_TYPE"
         const val ACTION_CANCEL_SYNC = "com.boardgamegeek.ACTION_SYNC_CANCEL"
 
-        const val FLAG_SYNC_NONE = 0
         const val FLAG_SYNC_COLLECTION_UPLOAD = 1 shl 1
         const val FLAG_SYNC_ALL = FLAG_SYNC_COLLECTION_UPLOAD
 
