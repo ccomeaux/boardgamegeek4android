@@ -18,7 +18,6 @@ import com.boardgamegeek.pref.setCurrentTimestamp
 import com.boardgamegeek.repository.*
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import okhttp3.OkHttpClient
 import timber.log.Timber
 import java.net.SocketTimeoutException
 
@@ -26,7 +25,6 @@ class SyncAdapter(
     private val application: BggApplication,
     private val authRepository: AuthRepository,
     private val gameCollectionRepository: GameCollectionRepository,
-    private val httpClient: OkHttpClient,
 ) : AbstractThreadedSyncAdapter(application.applicationContext, false) {
     private var currentTask: SyncTask? = null
     private var isCancelled = false
@@ -190,7 +188,7 @@ class SyncAdapter(
     ): List<SyncTask> {
         val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-            tasks.add(SyncCollectionUpload(application, syncResult, gameCollectionRepository, httpClient))
+            tasks.add(SyncCollectionUpload(application, syncResult, gameCollectionRepository))
         }
         return tasks
     }

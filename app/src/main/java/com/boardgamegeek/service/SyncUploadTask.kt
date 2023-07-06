@@ -105,8 +105,7 @@ abstract class SyncUploadTask(application: BggApplication, syncResult: SyncResul
         val builder = context.createNotificationBuilder(notificationTitleResId, NotificationChannels.ERROR, notificationSummaryIntent)
             .setContentText(errorMessage)
             .setCategory(NotificationCompat.CATEGORY_ERROR)
-        val detail = NotificationCompat.BigTextStyle(builder)
-        detail.bigText(errorMessage)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(errorMessage))
         context.notify(builder, notificationErrorTag)
     }
 }

@@ -14,6 +14,7 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItemForUploadEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
@@ -304,6 +305,99 @@ class CollectionDao(private val context: Context) {
                 )
             }
         }
+
+    suspend fun loadPending(selection: String): List<CollectionItemForUploadEntity> = withContext(Dispatchers.IO) {
+        context.contentResolver.loadList(
+            Collection.CONTENT_URI,
+            arrayOf(
+                BaseColumns._ID,
+                Collection.Columns.COLLECTION_ID,
+                Games.Columns.GAME_ID,
+                Collection.Columns.COLLECTION_NAME,
+                Collection.Columns.COLLECTION_IMAGE_URL,
+                Collection.Columns.COLLECTION_THUMBNAIL_URL, // 5
+                Collection.Columns.COLLECTION_HERO_IMAGE_URL,
+                Games.Columns.IMAGE_URL,
+                Games.Columns.THUMBNAIL_URL,
+                Games.Columns.HERO_IMAGE_URL,
+                Collection.Columns.RATING, // 10
+                Collection.Columns.RATING_DIRTY_TIMESTAMP,
+                Collection.Columns.COMMENT,
+                Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
+                Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM,
+                Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE, // 15
+                Collection.Columns.PRIVATE_INFO_COMMENT,
+                Collection.Columns.PRIVATE_INFO_CURRENT_VALUE,
+                Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+                Collection.Columns.PRIVATE_INFO_PRICE_PAID,
+                Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY, // 20
+                Collection.Columns.PRIVATE_INFO_QUANTITY,
+                Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION,
+                Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
+                Collection.Columns.STATUS_OWN,
+                Collection.Columns.STATUS_PREVIOUSLY_OWNED, // 25
+                Collection.Columns.STATUS_FOR_TRADE,
+                Collection.Columns.STATUS_WANT,
+                Collection.Columns.STATUS_WANT_TO_BUY,
+                Collection.Columns.STATUS_WANT_TO_PLAY,
+                Collection.Columns.STATUS_PREORDERED, // 30
+                Collection.Columns.STATUS_WISHLIST,
+                Collection.Columns.STATUS_WISHLIST_PRIORITY,
+                Collection.Columns.STATUS_DIRTY_TIMESTAMP,
+                Collection.Columns.WISHLIST_COMMENT,
+                Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP, // 35
+                Collection.Columns.CONDITION,
+                Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
+                Collection.Columns.WANTPARTS_LIST,
+                Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
+                Collection.Columns.HASPARTS_LIST, // 40
+                Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP,
+            ),
+            selection,
+        ) {
+            CollectionItemForUploadEntity(
+                internalId = it.getLong(0),
+                collectionId = it.getIntOrNull(1) ?: INVALID_ID,
+                gameId = it.getIntOrNull(2) ?: INVALID_ID,
+                collectionName = it.getStringOrNull(3).orEmpty(),
+                imageUrl = it.getStringOrNull(4).orEmpty().ifEmpty { it.getStringOrNull(7) }.orEmpty(),
+                thumbnailUrl = it.getStringOrNull(5).orEmpty().ifEmpty { it.getStringOrNull(8) }.orEmpty(),
+                heroImageUrl = it.getStringOrNull(6).orEmpty().ifEmpty { it.getStringOrNull(9) }.orEmpty(),
+                rating = it.getDoubleOrNull(10) ?: 0.0,
+                ratingTimestamp = it.getLongOrNull(11) ?: 0L,
+                comment = it.getStringOrNull(12).orEmpty(),
+                commentTimestamp = it.getLongOrNull(13) ?: 0L,
+                acquiredFrom = it.getStringOrNull(14).orEmpty(),
+                acquisitionDate = it.getStringOrNull(15).orEmpty(),
+                privateComment = it.getStringOrNull(16).orEmpty(),
+                currentValue = it.getDoubleOrNull(17) ?: 0.0,
+                currentValueCurrency = it.getStringOrNull(18).orEmpty(),
+                pricePaid = it.getDoubleOrNull(19) ?: 0.0,
+                pricePaidCurrency = it.getStringOrNull(20).orEmpty(),
+                quantity = it.getIntOrNull(21) ?: 1,
+                inventoryLocation = it.getStringOrNull(22).orEmpty(),
+                privateInfoTimestamp = it.getLongOrNull(23) ?: 0L,
+                owned = it.getBoolean(24),
+                previouslyOwned = it.getBoolean(25),
+                forTrade = it.getBoolean(26),
+                wantInTrade = it.getBoolean(27),
+                wantToBuy = it.getBoolean(28),
+                wantToPlay = it.getBoolean(29),
+                preordered = it.getBoolean(30),
+                wishlist = it.getBoolean(31),
+                wishlistPriority = it.getIntOrNull(32) ?: 3, // Like to Have
+                statusTimestamp = it.getLongOrNull(33) ?: 0L,
+                wishlistComment = it.getString(34),
+                wishlistCommentDirtyTimestamp = it.getLongOrNull(35) ?: 0L,
+                tradeCondition = it.getStringOrNull(36),
+                tradeConditionDirtyTimestamp = it.getLongOrNull(37) ?: 0L,
+                wantParts = it.getStringOrNull(38),
+                wantPartsDirtyTimestamp = it.getLongOrNull(39) ?: 0L,
+                hasParts = it.getStringOrNull(40),
+                hasPartsDirtyTimestamp = it.getLongOrNull(41) ?: 0L,
+            )
+        }
+    }
 
     suspend fun loadUnupdatedItems(gamesPerFetch: Int = 0) = withContext(Dispatchers.IO) {
         val games = mutableMapOf<Int, String>()
