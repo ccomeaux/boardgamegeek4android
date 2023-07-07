@@ -17,14 +17,11 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
+import com.boardgamegeek.entities.CollectionItemUploadResult
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.ui.GamePlaysActivity
-import com.boardgamegeek.ui.HomeActivity
-import com.boardgamegeek.ui.LogPlayActivity
-import com.boardgamegeek.ui.PlayActivity
-import com.boardgamegeek.ui.PlaysActivity
+import com.boardgamegeek.ui.*
 import com.boardgamegeek.util.LargeIconLoader
 import timber.log.Timber
 
@@ -148,7 +145,6 @@ fun Context.notifySyncError(contentText: String, bigText: String) {
     val builder = this
         .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
         .setContentText(contentText)
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
         .setCategory(NotificationCompat.CATEGORY_ERROR)
     if (bigText.trim().isNotBlank()) {
         builder.setStyle(NotificationCompat.BigTextStyle().bigText(bigText.trim()))

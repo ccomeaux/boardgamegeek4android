@@ -168,7 +168,7 @@ class GameCollectionRepository(
             Result.failure(Exception(response.error))
         } else {
             context.contentResolver.delete(Collection.buildUri(item.internalId), null, null)
-            Result.success(CollectionItemUploadResult.delete())
+            Result.success(CollectionItemUploadResult.delete(item))
         }
     }
 
@@ -185,44 +185,44 @@ class GameCollectionRepository(
                 contentValuesOf(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP to 0)
             )
             if (count == 1)
-                Result.success(CollectionItemUploadResult.insert())
+                Result.success(CollectionItemUploadResult.insert(item))
             else
                 Result.failure(Exception("Error inserting into database"))
         }
     }
 
     suspend fun uploadUpdatedItem(item: CollectionItemForUploadEntity): Result<CollectionItemUploadResult> {
-        val statusResult = updateItemField(item.statusTimestamp, item.mapToFormBodyForStatusUpdate(), item.internalId, Collection.Columns.STATUS_DIRTY_TIMESTAMP)
+        val statusResult = updateItemField(item.statusTimestamp, item.mapToFormBodyForStatusUpdate(), item, Collection.Columns.STATUS_DIRTY_TIMESTAMP)
         if (statusResult.isFailure) return statusResult
 
-        val ratingResult = updateItemField(item.ratingTimestamp, item.mapToFormBodyForRatingUpdate(), item.internalId, Collection.Columns.RATING_DIRTY_TIMESTAMP)
+        val ratingResult = updateItemField(item.ratingTimestamp, item.mapToFormBodyForRatingUpdate(), item, Collection.Columns.RATING_DIRTY_TIMESTAMP)
         if (ratingResult.isFailure) return ratingResult
 
-        val commentResult = updateItemField(item.commentTimestamp, item.mapToFormBodyForCommentUpdate(), item.internalId, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+        val commentResult = updateItemField(item.commentTimestamp, item.mapToFormBodyForCommentUpdate(), item, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
         if (commentResult.isFailure) return commentResult
 
-        val privateInfoResult = updateItemField(item.privateInfoTimestamp, item.mapToFormBodyForPrivateInfoUpdate(), item.internalId, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+        val privateInfoResult = updateItemField(item.privateInfoTimestamp, item.mapToFormBodyForPrivateInfoUpdate(), item, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
         if (privateInfoResult.isFailure) return privateInfoResult
 
-        val wishlistCommentResult = updateItemField(item.wishlistCommentDirtyTimestamp, item.mapToFormBodyForWishlistCommentUpdate(), item.internalId, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+        val wishlistCommentResult = updateItemField(item.wishlistCommentDirtyTimestamp, item.mapToFormBodyForWishlistCommentUpdate(), item, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
         if (wishlistCommentResult.isFailure) return wishlistCommentResult
 
-        val tradeConditionResult = updateItemField(item.tradeConditionDirtyTimestamp, item.mapToFormBodyForTradeConditionUpdate(), item.internalId, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+        val tradeConditionResult = updateItemField(item.tradeConditionDirtyTimestamp, item.mapToFormBodyForTradeConditionUpdate(), item, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
         if (tradeConditionResult.isFailure) return tradeConditionResult
 
-        val wantPartsResult = updateItemField(item.wantPartsDirtyTimestamp, item.mapToFormBodyForWantPartsUpdate(), item.internalId, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+        val wantPartsResult = updateItemField(item.wantPartsDirtyTimestamp, item.mapToFormBodyForWantPartsUpdate(), item, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
         if (wantPartsResult.isFailure) return wantPartsResult
 
-        val hasPartsResult = updateItemField(item.hasPartsDirtyTimestamp, item.mapToFormBodyForHasPartsUpdate(), item.internalId, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+        val hasPartsResult = updateItemField(item.hasPartsDirtyTimestamp, item.mapToFormBodyForHasPartsUpdate(), item, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
         if (hasPartsResult.isFailure) return hasPartsResult
 
-        return Result.success(CollectionItemUploadResult.update())
+        return Result.success(CollectionItemUploadResult.update(item))
     }
 
     private suspend fun updateItemField(
         timestamp: Long,
         formBody: FormBody,
-        internalId: Long,
+        item: CollectionItemForUploadEntity,
         timestampColumn: String
     ): Result<CollectionItemUploadResult> {
         return if (timestamp > 0L) {
@@ -233,13 +233,13 @@ class GameCollectionRepository(
             } else if (!response.error.isNullOrBlank()) {
                 Result.failure(Exception(response.error))
             } else {
-                val count = dao.update(internalId, contentValuesOf(timestampColumn to 0))
+                val count = dao.update(item.internalId, contentValuesOf(timestampColumn to 0))
                 if (count != 1)
                     Result.failure(Exception("Error inserting into database"))
                 else
-                    Result.success(CollectionItemUploadResult.update())
+                    Result.success(CollectionItemUploadResult.update(item))
             }
-        } else Result.success(CollectionItemUploadResult.update())
+        } else Result.success(CollectionItemUploadResult.update(item))
     }
 
     suspend fun addCollectionItem(

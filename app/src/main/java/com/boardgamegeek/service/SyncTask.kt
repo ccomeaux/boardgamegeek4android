@@ -3,9 +3,7 @@ package com.boardgamegeek.service
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.SharedPreferences
-import android.content.SyncResult
 import android.os.Build
-import androidx.annotation.PluralsRes
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationCompat.BigTextStyle
 import com.boardgamegeek.BggApplication
@@ -16,7 +14,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import timber.log.Timber
 import kotlin.time.Duration
 
-abstract class SyncTask(protected val application: BggApplication, protected val syncResult: SyncResult) {
+abstract class SyncTask(protected val application: BggApplication) {
     protected val context = application.applicationContext!!
     protected val prefs: SharedPreferences by lazy { context.preferences() }
     protected val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
@@ -32,13 +30,6 @@ abstract class SyncTask(protected val application: BggApplication, protected val
      */
     abstract val syncType: Int
 
-    /***
-     * The resource ID of the context text to display in syncing progress and error notifications. It should describe
-     * the entire task.
-     */
-    open val notificationSummaryMessageId: Int
-        get() = NO_NOTIFICATION
-
     /**
      * Perform the sync operation.
      */
@@ -52,10 +43,6 @@ abstract class SyncTask(protected val application: BggApplication, protected val
         isCancelled = true
     }
 
-    protected fun updateProgressNotificationAsPlural(@PluralsRes detailResId: Int, quantity: Int, vararg formatArgs: Any) {
-        updateProgressNotification(application.resources.getQuantityString(detailResId, quantity, *formatArgs))
-    }
-
     /**
      * If the user's preferences are set, show a notification with the current progress of the sync status. The content
      * text is set by the sync task, while the detail message is displayed in BigTextStyle.
@@ -65,7 +52,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
         FirebaseCrashlytics.getInstance().setCustomKey(CrashKeys.SYNC_DETAIL, detail ?: "")
         if (prefs[KEY_SYNC_NOTIFICATIONS, false] != true) return
 
-        val message = if (notificationSummaryMessageId == NO_NOTIFICATION) "" else context.getString(notificationSummaryMessageId)
+        val message = ""
 
         val intent = Intent(context, CancelReceiver::class.java)
         intent.action = SyncService.ACTION_CANCEL_SYNC
@@ -87,49 +74,6 @@ abstract class SyncTask(protected val application: BggApplication, protected val
             builder.setStyle(BigTextStyle().bigText(detail))
         }
         context.notify(builder, NotificationTags.SYNC_PROGRESS)
-    }
-
-    /**
-     * If the user's preferences are set, show a notification message with the error message. This will replace any
-     * existing error notification.
-     */
-    protected fun showError(detailMessage: String, t: Throwable) {
-        showError(detailMessage, t.localizedMessage ?: t.toString())
-    }
-
-    /**
-     * If the user's preferences are set, show a notification message with the error message. This will replace any
-     * existing error notification.
-     */
-    protected fun showError(detailMessage: String, httpCode: Int) {
-        showError(detailMessage, httpCode.asHttpErrorMessage(context))
-    }
-
-    /**
-     * If the user's preferences are set, show a notification message with the error message. This will replace any
-     * existing error notification.
-     */
-    fun showError(detailMessage: String, errorMessage: String) {
-        Timber.w("$detailMessage\n$errorMessage".trim())
-
-        if (prefs[KEY_SYNC_ERRORS, false] != true) return
-
-        val contentMessage = if (notificationSummaryMessageId == NO_NOTIFICATION) detailMessage
-        else context.getString(notificationSummaryMessageId)
-
-        val bigText = if (notificationSummaryMessageId == NO_NOTIFICATION) errorMessage
-        else (detailMessage + "\n" + errorMessage).trim()
-
-        val builder = context
-            .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
-            .setContentText(contentMessage)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setCategory(NotificationCompat.CATEGORY_ERROR)
-        if (bigText.isNotBlank()) {
-            builder.setStyle(BigTextStyle().bigText(bigText))
-        }
-
-        context.notify(builder, NotificationTags.SYNC_ERROR)
     }
 
     /**
@@ -157,10 +101,6 @@ abstract class SyncTask(protected val application: BggApplication, protected val
         }
 
         return false
-    }
-
-    companion object {
-        const val NO_NOTIFICATION = 0
     }
 
     object CrashKeys {

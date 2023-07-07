@@ -79,11 +79,10 @@ class SyncAdapter(
             return
         }
         toggleCancelReceiver(true)
-        val tasks = createTasks(application, type, syncResult)
+        val tasks = createTasks(application, type)
         for (i in tasks.indices) {
             if (isCancelled) {
                 Timber.i("Cancelling all sync tasks")
-                notifySyncIsCancelled(currentTask?.notificationSummaryMessageId ?: SyncTask.NO_NOTIFICATION)
                 break
             }
             currentTask = tasks[i]
@@ -101,7 +100,6 @@ class SyncAdapter(
             } catch (e: Exception) {
                 Timber.e(e, "Syncing %s", currentTask)
                 syncResult.stats.numIoExceptions += 10
-                showException(currentTask, e)
                 if (e.cause is SocketTimeoutException) {
                     break
                 }
@@ -184,11 +182,10 @@ class SyncAdapter(
     private fun createTasks(
         application: BggApplication,
         typeList: Int,
-        syncResult: SyncResult,
     ): List<SyncTask> {
         val tasks = mutableListOf<SyncTask>()
         if (shouldCreateTask(typeList, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)) {
-            tasks.add(SyncCollectionUpload(application, syncResult, gameCollectionRepository))
+            tasks.add(SyncCollectionUpload(application, gameCollectionRepository))
         }
         return tasks
     }
@@ -207,43 +204,5 @@ class SyncAdapter(
             if (enable) PackageManager.COMPONENT_ENABLED_STATE_ENABLED else PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
             PackageManager.DONT_KILL_APP
         )
-    }
-
-    /**
-     * Show a notification of any exception thrown by a sync task that isn't caught by the task.
-     */
-    private fun showException(task: SyncTask?, t: Throwable) {
-        val message = t.message?.ifEmpty {
-            t.cause?.toString()
-        } ?: t.cause?.toString()
-        Timber.w(message)
-        if (!prefs.getSyncShowErrors() || task == null) return
-        val messageId = task.notificationSummaryMessageId
-        if (messageId != SyncTask.NO_NOTIFICATION) {
-            val text = context.getText(messageId)
-            val builder = context
-                .createNotificationBuilder(R.string.sync_notification_title_error, NotificationChannels.ERROR)
-                .setContentText(text)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setCategory(NotificationCompat.CATEGORY_ERROR)
-            if (!message.isNullOrBlank()) {
-                builder.setStyle(NotificationCompat.BigTextStyle().bigText(message).setSummaryText(text))
-            }
-            context.notify(builder, NotificationTags.SYNC_ERROR)
-        }
-    }
-
-    /**
-     * Show that the sync was cancelled in a notification. This may be useless since the notification is cancelled
-     * almost immediately after this is shown.
-     */
-    private fun notifySyncIsCancelled(messageId: Int) {
-        if (!prefs.getSyncShowNotifications()) return
-        val contextText = if (messageId == SyncTask.NO_NOTIFICATION) "" else context.getText(messageId)
-        val builder = context
-            .createNotificationBuilder(R.string.sync_notification_title_cancel, NotificationChannels.SYNC_PROGRESS)
-            .setContentText(contextText)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-        context.notify(builder, NotificationTags.SYNC_PROGRESS)
     }
 }
