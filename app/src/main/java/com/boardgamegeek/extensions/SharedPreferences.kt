@@ -100,26 +100,10 @@ fun SharedPreferences.getSyncStatusesOrDefault(): Set<String> {
 }
 
 const val KEY_SYNC_UPLOADS = "sync_uploads"
-const val KEY_SYNC_NOTIFICATIONS = "sync_notifications"
+const val KEY_SYNC_NOTIFICATIONS = "sync_notifications" // TODO not sure if we can avoid showing notification for worker
 const val KEY_SYNC_ERRORS = "sync_errors"
 const val KEY_SYNC_ONLY_WIFI = "sync_only_wifi"
 const val KEY_SYNC_ONLY_CHARGING = "sync_only_charging"
-
-fun SharedPreferences.getSyncShowNotifications(): Boolean {
-    return this[KEY_SYNC_NOTIFICATIONS, false] ?: false
-}
-
-fun SharedPreferences.getSyncShowErrors(): Boolean {
-    return this[KEY_SYNC_ERRORS, false] ?: false
-}
-
-fun SharedPreferences.getSyncOnlyCharging(): Boolean {
-    return this[KEY_SYNC_ONLY_CHARGING, false] ?: false
-}
-
-fun SharedPreferences.getSyncOnlyWifi(): Boolean {
-    return this[KEY_SYNC_ONLY_WIFI, false] ?: false
-}
 
 private const val KEY_SYNC_STATUSES_OLD = "syncStatuses"
 

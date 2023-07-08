@@ -83,8 +83,8 @@ fun Context.cancelSync() {
 fun Context.createWorkConstraints(preserveBattery: Boolean = false): Constraints {
     val syncPrefs: SharedPreferences = SyncPrefs.getPrefs(this)
     return Constraints.Builder()
-        .setRequiredNetworkType(if (syncPrefs.getSyncOnlyWifi()) NetworkType.METERED else NetworkType.CONNECTED)
-        .setRequiresCharging(syncPrefs.getSyncOnlyCharging())
+        .setRequiredNetworkType(if (syncPrefs[KEY_SYNC_ONLY_CHARGING, false] == true) NetworkType.METERED else NetworkType.CONNECTED)
+        .setRequiresCharging(syncPrefs[KEY_SYNC_ONLY_WIFI, false] ?: false)
         .setRequiresBatteryNotLow(preserveBattery)
         .build()
 }
