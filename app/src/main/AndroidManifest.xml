@@ -372,17 +372,6 @@
 			android:windowSoftInputMode="adjustResize|stateVisible" />
 
 		<service
-			android:name=".service.SyncService"
-			android:exported="true">
-			<intent-filter>
-				<action android:name="android.content.SyncAdapter" />
-			</intent-filter>
-
-			<meta-data
-				android:name="android.content.SyncAdapter"
-				android:resource="@xml/sync_adapter" />
-		</service>
-		<service
 			android:name=".auth.AuthenticationService"
 			android:exported="true">
 			<intent-filter>
@@ -414,10 +403,6 @@
 			android:name="androidx.startup.InitializationProvider"
 			android:authorities="${applicationId}.androidx-startup"
 			tools:node="remove" />
-
-		<receiver
-			android:name=".service.CancelReceiver"
-			android:exported="false" />
 
 		<meta-data
 			android:name="android.app.default_searchable"

@@ -34,10 +34,11 @@ class GameCollectionItemViewModel @Inject constructor(
 
     private val _isEditMode = MutableLiveData<Boolean>()
     val isEditMode: LiveData<Boolean>
-        get() = _isEditMode
+        get() = _isEditMode.distinctUntilChanged()
+
     private val _isEdited = MutableLiveData<Boolean>()
     val isEdited: LiveData<Boolean>
-        get() = _isEdited
+        get() = _isEdited.distinctUntilChanged()
 
     init {
         _isEditMode.value = false
@@ -48,9 +49,12 @@ class GameCollectionItemViewModel @Inject constructor(
         if (_internalId.value != id) _internalId.value = id
     }
 
-    fun toggleEditMode() {
-        if (item.value?.data != null)
-            _isEditMode.value?.let { _isEditMode.value = !it }
+    fun enableEditMode() {
+        _isEditMode.value = true
+    }
+
+    fun disableEditMode() {
+        _isEditMode.value = false
     }
 
     val item: LiveData<RefreshableResource<CollectionItemEntity>> = _internalId.switchMap { internalId ->
@@ -60,6 +64,8 @@ class GameCollectionItemViewModel @Inject constructor(
                 val item = gameCollectionRepository.loadCollectionItem(internalId)
                 emit(RefreshableResource.success(item))
                 item?.let {
+                    if (it.isDirty)
+                        gameCollectionRepository.enqueueUploadRequest(it.gameId)
                     if (isItemRefreshing.compareAndSet(false, true)) {
                         val refreshedItem = if (
                             forceRefresh.get() ||
@@ -133,7 +139,7 @@ class GameCollectionItemViewModel @Inject constructor(
                     inventoryLocation != it.inventoryLocation
         } ?: false
         if (itemModified) {
-            setEdited(true)
+            _isEdited.value = true
             viewModelScope.launch {
                 gameCollectionRepository.updatePrivateInfo(
                     internalId.value ?: BggContract.INVALID_ID.toLong(),
@@ -164,7 +170,7 @@ class GameCollectionItemViewModel @Inject constructor(
                     statuses.contains(Collection.Columns.STATUS_WISHLIST) != it.wishList
         } ?: false
         if (itemModified) {
-            setEdited(true)
+            _isEdited.value = true
             viewModelScope.launch {
                 gameCollectionRepository.updateStatuses(internalId.value ?: BggContract.INVALID_ID.toLong(), statuses, wishlistPriority)
                 refresh()
@@ -175,7 +181,7 @@ class GameCollectionItemViewModel @Inject constructor(
     fun updateRating(rating: Double) {
         val currentRating = item.value?.data?.rating ?: 0.0
         if (rating != currentRating) {
-            setEdited(true)
+            _isEdited.value = true
             viewModelScope.launch {
                 gameCollectionRepository.updateRating(internalId.value ?: BggContract.INVALID_ID.toLong(), rating)
                 refresh()
@@ -209,7 +215,7 @@ class GameCollectionItemViewModel @Inject constructor(
 
     private fun updateText(text: String, originalText: String?, update: suspend (String) -> Unit) {
         if (text != originalText) {
-            setEdited(true)
+            _isEdited.value = true
             viewModelScope.launch {
                 update(text)
             }.invokeOnCompletion { refresh() }
@@ -217,23 +223,28 @@ class GameCollectionItemViewModel @Inject constructor(
     }
 
     fun delete() {
-        setEdited(false)
+        _isEdited.value = false
         viewModelScope.launch {
-            gameCollectionRepository.markAsDeleted(internalId.value ?: BggContract.INVALID_ID.toLong())
-            refresh()
+            if (gameCollectionRepository.markAsDeleted(internalId.value ?: BggContract.INVALID_ID.toLong()) > 0) {
+                item.value?.data?.gameId?.let { gameCollectionRepository.enqueueUploadRequest(it) }
+            }
         }
     }
 
+    fun update() {
+        _isEdited.value = false
+        viewModelScope.launch {
+            item.value?.data?.gameId?.let { gameCollectionRepository.enqueueUploadRequest(it) }
+        }
+    }
+
+
     fun reset() {
-        setEdited(false)
+        _isEdited.value = false
         viewModelScope.launch {
             gameCollectionRepository.resetTimestamps(internalId.value ?: BggContract.INVALID_ID.toLong())
             forceRefresh.set(true)
             refresh()
         }
-    }
-
-    private fun setEdited(edited: Boolean) {
-        if (_isEdited.value != edited) _isEdited.value = edited
     }
 }

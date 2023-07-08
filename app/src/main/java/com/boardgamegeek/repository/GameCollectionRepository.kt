@@ -279,7 +279,7 @@ class GameCollectionRepository(
                 Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
             } else {
                 Timber.d("Collection item added for game %s (%s) (internal ID = %s)", gameName, gameId, internalId)
-                SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                enqueueUploadRequest(gameId)
             }
         }
     }
@@ -386,10 +386,7 @@ class GameCollectionRepository(
         }
 
     suspend fun markAsDeleted(internalId: Long): Int = withContext(Dispatchers.IO) {
-        if (internalId != INVALID_ID.toLong()) {
-            val values = contentValuesOf(Collection.Columns.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis())
-            dao.update(internalId, values)
-        } else 0
+        dao.update(internalId, contentValuesOf(Collection.Columns.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis()))
     }
 
     suspend fun resetTimestamps(internalId: Long): Int =
@@ -409,4 +406,13 @@ class GameCollectionRepository(
                 dao.update(internalId, values)
             } else 0
         }
+
+    fun enqueueUploadRequest(gameId: Int = INVALID_ID) {
+        val workRequest = OneTimeWorkRequestBuilder<CollectionUploadWorker>()
+            .setInputData(workDataOf(CollectionUploadWorker.GAME_ID to gameId))
+            .setConstraints(context.createWorkConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 3, TimeUnit.MINUTES)
+            .build()
+        WorkManager.getInstance(context).enqueue(workRequest)
+    }
 }

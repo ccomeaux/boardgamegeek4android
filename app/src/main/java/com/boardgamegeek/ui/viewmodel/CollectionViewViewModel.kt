@@ -70,6 +70,7 @@ class CollectionViewViewModel @Inject constructor(
             try {
                 emit(itemRepository.load())
                 _isRefreshing.postValue(true)
+                gameCollectionRepository.enqueueUploadRequest() // TODO move to the itemRepository?
                 itemRepository.refresh()
                 emit(itemRepository.load())
             } catch (e: Exception) {

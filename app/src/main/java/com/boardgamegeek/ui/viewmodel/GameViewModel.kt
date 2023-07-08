@@ -16,7 +16,6 @@ import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.ImageRepository
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.RemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -270,7 +269,7 @@ class GameViewModel @Inject constructor(
                         refreshedItems
                     } else items
                     if (refreshedItems.any { it.isDirty })
-                        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                        gameCollectionRepository.enqueueUploadRequest(gameId)
                 }
             } catch (e: Exception) {
                 Timber.w(e)
