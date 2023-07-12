@@ -236,7 +236,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             return thisLetter != lastLetter
         }
 
-        @Suppress("SpellCheckingInspection")
         private val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
 
         override fun getSectionHeader(position: Int): CharSequence {

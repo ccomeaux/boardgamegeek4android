@@ -30,7 +30,6 @@ import java.util.*
 class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
     private val prefs: SharedPreferences by lazy { context.preferences() }
-    private val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     suspend fun load(internalId: Long): CollectionItemEntity? = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
@@ -51,6 +50,7 @@ class CollectionDao(private val context: Context) {
     }
 
     private fun entityFromCursor(cursor: Cursor): CollectionItemEntity {
+        val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return CollectionItemEntity(
             internalId = cursor.getLong(COLUMN_ID),
             gameId = cursor.getInt(COLUMN_GAME_ID),
@@ -120,6 +120,7 @@ class CollectionDao(private val context: Context) {
     suspend fun loadByGame(gameId: Int, includeDeletedItems: Boolean = false): List<CollectionItemEntity> =
         withContext(Dispatchers.IO) {
             if (gameId != INVALID_ID) {
+                val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
                 val uri = Collection.CONTENT_URI
                 val projection = arrayOf(
                     BaseColumns._ID,

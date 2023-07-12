@@ -41,7 +41,7 @@ data class PlayEntity(
         get() = playId > 0
 
     val dateInMillis: Long by lazy {
-        rawDate.toMillis(FORMAT, UNKNOWN_DATE)
+        rawDate.toMillis(SimpleDateFormat(dateFormatPattern, Locale.US), UNKNOWN_DATE)
     }
 
     val heroImageUrls = listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }
@@ -120,7 +120,7 @@ data class PlayEntity(
     }
 
     companion object {
-        private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        private const val dateFormatPattern = "yyyy-MM-dd"
         const val UNKNOWN_DATE: Long = -1L
 
         fun currentDate(): String {
@@ -128,7 +128,7 @@ data class PlayEntity(
         }
 
         fun millisToRawDate(millis: Long): String {
-            return FORMAT.format(millis)
+            return SimpleDateFormat(dateFormatPattern, Locale.US).format(millis)
         }
     }
 }

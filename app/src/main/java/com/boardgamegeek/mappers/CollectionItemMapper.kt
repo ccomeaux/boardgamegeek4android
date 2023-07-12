@@ -12,9 +12,6 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-private val dateTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-
 fun CollectionItem.mapToEntities(): Pair<CollectionItemEntity, CollectionItemGameEntity> {
     val item = CollectionItemEntity(
         gameId = objectid,
@@ -42,13 +39,13 @@ fun CollectionItem.mapToEntities(): Pair<CollectionItemEntity, CollectionItemGam
         wishList = wishlist?.equals("1") ?: false,
         wishListPriority = wishlistpriority,
         preOrdered = preordered?.equals("1") ?: false,
-        lastModifiedDate = lastmodified.toMillis(dateTimeFormat),
+        lastModifiedDate = lastmodified.toMillis(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)),
         pricePaidCurrency = pp_currency.orEmpty(),
         pricePaid = pricepaid?.toDoubleOrNull() ?: 0.0,
         currentValueCurrency = cv_currency.orEmpty(),
         currentValue = currvalue?.toDoubleOrNull() ?: 0.0,
         quantity = quantity?.toIntOrNull() ?: 1,
-        acquisitionDate = acquisitiondate.toMillis(dateFormat),
+        acquisitionDate = acquisitiondate.toMillis(SimpleDateFormat("yyyy-MM-dd", Locale.US)),
         acquiredFrom = acquiredfrom.orEmpty(),
         privateComment = privatecomment.orEmpty(),
         inventoryLocation = inventorylocation.orEmpty()
