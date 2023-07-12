@@ -79,7 +79,7 @@ class PlayViewModel @Inject constructor(
         viewModelScope.launch {
             play.value?.data?.let {
                 repository.markAsUpdated(it.internalId)?.let { play ->
-                    repository.enqueueUpsertRequest(play)
+                    repository.enqueueUploadRequest(play.internalId)
                 }
             }
         }
@@ -89,7 +89,7 @@ class PlayViewModel @Inject constructor(
         viewModelScope.launch {
             play.value?.data?.let {
                 repository.markAsDeleted(it.internalId)?.let { play ->
-                    repository.enqueueDeleteRequest(play)
+                    repository.enqueueUploadRequest(play.internalId)
                 }
             }
         }

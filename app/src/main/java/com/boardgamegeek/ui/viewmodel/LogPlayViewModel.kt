@@ -483,11 +483,11 @@ class LogPlayViewModel @Inject constructor(
         viewModelScope.launch {
             val play = buildPlayEntity(updateTimestamp = System.currentTimeMillis(), dirtyTimestamp = System.currentTimeMillis())
             val internalId = playRepository.save(play)
-            playRepository.enqueueUpsertRequest(play.copy(internalId = internalId))
+            playRepository.enqueueUploadRequest(internalId)
             _internalId.postValue(internalId)
             if (internalIdToDelete != INVALID_ID.toLong()) {
                 playRepository.markAsDeleted(internalIdToDelete)
-                playRepository.enqueueDeleteRequest(internalIdToDelete)
+                playRepository.enqueueUploadRequest(internalIdToDelete)
             }
             _canFinish.postValue(true)
         }
@@ -503,7 +503,7 @@ class LogPlayViewModel @Inject constructor(
     fun deletePlay() {
         viewModelScope.launch {
             val play = buildPlayEntity(deleteTimestamp = System.currentTimeMillis())
-            playRepository.enqueueDeleteRequest(play)
+            playRepository.enqueueUploadRequest(play.internalId)
             _canFinish.postValue(true)
         }
     }

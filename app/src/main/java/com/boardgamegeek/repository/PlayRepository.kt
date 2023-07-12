@@ -121,7 +121,7 @@ class PlayRepository(
      */
     suspend fun upsertPlay(play: PlayEntity): Result<PlayUploadResult> {
         if (play.updateTimestamp == 0L)
-            return Result.failure(Exception(context.getString(R.string.msg_play_update_not_set)))
+            Result.success(PlayUploadResult.noOp(play))
         val response = phpApi.play(play.mapToFormBodyForUpsert().build())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
@@ -138,9 +138,9 @@ class PlayRepository(
 
     suspend fun deletePlay(play: PlayEntity): Result<PlayUploadResult> {
         if (play.deleteTimestamp == 0L)
-            return Result.failure(Exception(context.getString(R.string.msg_play_delete_not_set)))
+            return Result.success(PlayUploadResult.noOp(play))
         if (play.internalId == INVALID_ID.toLong())
-            return Result.success(PlayUploadResult.delete(play))
+            return Result.success(PlayUploadResult.noOp(play))
         if (play.playId == INVALID_ID) {
             playDao.delete(play.internalId)
             return Result.success(PlayUploadResult.delete(play))
@@ -373,49 +373,14 @@ class PlayRepository(
             }
             result
         } catch (ex: Exception) {
-            enqueueUpsertRequest(playEntity)
+            enqueueUploadRequest(playEntity.internalId)
             return Result.failure(Exception(context.getString(R.string.msg_play_queued_for_upload), ex))
         }
     }
 
-    fun enqueueUpsertRequest(gameId: Int = INVALID_ID) {
-        val workRequest = OneTimeWorkRequestBuilder<PlayUpsertWorker>()
-            .setConstraints(context.createWorkConstraints())
-            .setInputData(workDataOf(PlayUpsertWorker.GAME_ID to gameId))
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
-            .build()
-        WorkManager.getInstance(context).enqueue(workRequest)
-    }
-
-    fun enqueueUpsertRequest(playEntity: PlayEntity) {
-        if (playEntity.updateTimestamp > 0L) {
-            val workRequest = OneTimeWorkRequestBuilder<PlayUpsertWorker>()
-                .setInputData(workDataOf(PlayUpsertWorker.INTERNAL_ID to playEntity.internalId))
-                .setConstraints(context.createWorkConstraints())
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-                .build()
-            WorkManager.getInstance(context).enqueue(workRequest)
-        }
-    }
-
-    fun enqueueDeleteRequest() {
-        val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
-            .setConstraints(context.createWorkConstraints())
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
-            .build()
-        WorkManager.getInstance(context).enqueue(workRequest)
-    }
-
-    suspend fun enqueueDeleteRequest(playEntity: PlayEntity) {
-        if (playEntity.deleteTimestamp > 0L) {
-            playDao.upsert(playEntity)
-            enqueueDeleteRequest(playEntity.internalId)
-        }
-    }
-
-    fun enqueueDeleteRequest(internalId: Long) {
-        val workRequest = OneTimeWorkRequestBuilder<PlayDeleteWorker>()
-            .setInputData(workDataOf(PlayDeleteWorker.INTERNAL_ID to internalId))
+    fun enqueueUploadRequest(internalId: Long) {
+        val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+            .setInputData(workDataOf(PlayUploadWorker.INTERNAL_ID to internalId))
             .setConstraints(context.createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
             .build()
@@ -424,7 +389,7 @@ class PlayRepository(
 
     fun enqueueUploadRequest(gameId: Int = INVALID_ID) {
         val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
-            .setInputData(workDataOf(PlayUpsertWorker.GAME_ID to gameId))
+            .setInputData(workDataOf(PlayUploadWorker.GAME_ID to gameId))
             .setConstraints(context.createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()

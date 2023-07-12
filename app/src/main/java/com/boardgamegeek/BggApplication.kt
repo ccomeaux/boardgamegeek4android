@@ -13,6 +13,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
 import com.boardgamegeek.util.RemoteConfig
+import com.boardgamegeek.work.PlayUploadWorker
 import com.boardgamegeek.work.SyncCollectionWorker
 import com.boardgamegeek.work.SyncPlaysWorker
 import com.boardgamegeek.work.SyncUsersWorker
@@ -58,6 +59,13 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
                 .setConstraints(createWorkConstraints(true))
                 .build()
         )
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                PlayUploadWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(2, TimeUnit.HOURS)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
+                    .setConstraints(createWorkConstraints(true))
+                    .build()
+            )
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork(
                 SyncPlaysWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(1, TimeUnit.DAYS)

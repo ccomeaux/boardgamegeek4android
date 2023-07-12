@@ -2,8 +2,6 @@ package com.boardgamegeek.work
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
@@ -19,6 +17,12 @@ import retrofit2.HttpException
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.days
+
+/***
+ * 1. Download list of all GeekBuddies for the logged in user
+ * 2. Update a few users that haven't been updated in a while
+ * 3. Update all users that haven't been updated at all
+ */
 
 @HiltWorker
 class SyncUsersWorker @AssistedInject constructor(
@@ -66,16 +70,7 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Updating $limit buddies; ${staleBuddies.size} total buddies cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
         for (username in staleBuddies.take(limit)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during stale buddy update"))
-            Timber.i("About to refresh user $username")
-            setProgress(workDataOf(PROGRESS_USERNAME to username))
-            delay(buddiesFetchPauseMilliseconds)
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddy, username)))
-            try {
-                userRepository.refresh(username)
-                updatedBuddyCount++
-            } catch (e: Exception) {
-                handleException(e)
-            }
+            updatedBuddyCount += updateBuddy(username)
         }
 
         Timber.i("Syncing unupdated buddies")
@@ -85,48 +80,36 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Found ${unupdatedBuddies.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
         for (username in unupdatedBuddies.take(buddySyncSliceMaxSize)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during unupdated buddy update"))
-            Timber.i("About to refresh user $username")
-            setProgress(workDataOf(PROGRESS_USERNAME to username))
-            delay(buddiesFetchPauseMilliseconds)
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddy, username)))
-            try {
-                userRepository.refresh(username)
-                updatedBuddyCount++
-            } catch (e: Exception) {
-                handleException(e)
-            }
+            updatedBuddyCount += updateBuddy(username)
         }
         Timber.i("Updated %,d stale & unupdated buddies", updatedBuddyCount)
 
         return Result.success()
     }
 
+    private suspend fun updateBuddy(username: String): Int {
+        Timber.i("About to refresh user $username")
+        setProgress(workDataOf(PROGRESS_USERNAME to username))
+        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddy, username)))
+        delay(buddiesFetchPauseMilliseconds)
+        return try {
+            userRepository.refresh(username)
+            1
+        } catch (e: Exception) {
+            handleException(e)
+            0
+        }
+    }
+
     private fun handleException(e: Exception): Result {
         Timber.e(e)
         val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
-        applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_plays), bigText)
+        applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_buddies_list), bigText)
         return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
     }
 
     private fun createForegroundInfo(contentText: String): ForegroundInfo {
-        val notification = NotificationCompat.Builder(applicationContext, NotificationChannels.SYNC_PROGRESS)
-            .setContentTitle(applicationContext.getString(R.string.sync_notification_title))
-            .setTicker(applicationContext.getString(R.string.sync_notification_title))
-            .setContentText(contentText)
-            .setSmallIcon(R.drawable.ic_stat_bgg)
-            .setColor(ContextCompat.getColor(applicationContext, R.color.primary))
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setOngoing(true)
-            .setProgress(1, 0, true)
-            .addAction(
-                R.drawable.ic_baseline_clear_24,
-                applicationContext.getString(R.string.cancel),
-                WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
-            )
-            .build()
-
-        return ForegroundInfo(42, notification) // What is 42?!
+        return applicationContext.createForegroundInfo(R.string.sync_notification_title_buddies, NOTIFICATION_ID_USERS, id, contentText)
     }
 
     companion object {
