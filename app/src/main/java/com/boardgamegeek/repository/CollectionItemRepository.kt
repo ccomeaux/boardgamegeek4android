@@ -21,18 +21,15 @@ class CollectionItemRepository(
 ) {
     private val dao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
-    private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
     private val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
 
-    suspend fun load(): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
-        dao.load()
-    }
+    suspend fun load(): List<CollectionItemEntity> = dao.load()
 
     suspend fun refresh() = withContext(Dispatchers.IO) {
         if (!prefs.isCollectionSetToSync()) {
             Timber.i("Collection not set to sync any statuses")
-        } else if (username.isNullOrBlank()) {
+        } else if (prefs[AccountPreferences.KEY_USERNAME, ""].isNullOrBlank()) {
             Timber.i("User name not set")
         } else if (syncPrefs.getCurrentCollectionSyncTimestamp() > 0) {
             Timber.i("Collection sync is already under way")
@@ -70,14 +67,17 @@ class CollectionItemRepository(
 
     suspend fun refresh(options: Map<String, String>, timestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
         var count = 0
-        val response = api.collection(username, options)
-        response.items?.forEach {
-            val (item, game) = it.mapToEntities()
-            if (isItemStatusSetToSync(item)) {
-                val (collectionId, _) = dao.saveItem(item, game, timestamp)
-                if (collectionId != BggContract.INVALID_ID) count++
-            } else {
-                Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        if (!username.isNullOrBlank()) {
+            val response = api.collection(username, options)
+            response.items?.forEach {
+                val (item, game) = it.mapToEntities()
+                if (isItemStatusSetToSync(item)) {
+                    val (collectionId, _) = dao.saveItem(item, game, timestamp)
+                    if (collectionId != BggContract.INVALID_ID) count++
+                } else {
+                    Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
+                }
             }
         }
         count

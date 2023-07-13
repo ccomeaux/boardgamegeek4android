@@ -45,7 +45,6 @@ class PlayRepository(
     private val collectionDao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
-    private val username: String? by lazy { prefs[AccountPreferences.KEY_USERNAME, ""] }
 
     enum class SortBy(val daoSortBy: PlayDao.PlaysSortBy) {
         DATE(PlayDao.PlaysSortBy.DATE),
@@ -63,7 +62,7 @@ class PlayRepository(
         timestamp: Long = System.currentTimeMillis()
     ): PlayEntity? =
         withContext(Dispatchers.IO) {
-            var page = 1
+            val username = prefs[AccountPreferences.KEY_USERNAME, ""]
             if (username.isNullOrBlank() ||
                 internalId == INVALID_ID.toLong() ||
                 playId == INVALID_ID ||
@@ -71,6 +70,7 @@ class PlayRepository(
             ) {
                 null
             } else {
+                var page = 1
                 var returnedPlay: PlayEntity?
                 do {
                     val result = api.playsByGame(username, gameId, page++)
@@ -84,7 +84,8 @@ class PlayRepository(
         }
 
     suspend fun refreshPlaysForGame(gameId: Int) = withContext(Dispatchers.Default) {
-        if (gameId != INVALID_ID || username.isNullOrBlank()) {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        if (gameId != INVALID_ID  && !username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             var page = 1
             do {
@@ -100,11 +101,14 @@ class PlayRepository(
     }
 
     suspend fun refreshPartialPlaysForGame(gameId: Int) = withContext(Dispatchers.IO) {
-        val timestamp = System.currentTimeMillis()
-        val response = api.playsByGame(username, gameId, 1)
-        val plays = response.plays.mapToEntity(timestamp)
-        saveFromSync(plays, timestamp)
-        calculatePlayStats()
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        if (!username.isNullOrBlank()) {
+            val timestamp = System.currentTimeMillis()
+            val response = api.playsByGame(username, gameId, 1)
+            val plays = response.plays.mapToEntity(timestamp)
+            saveFromSync(plays, timestamp)
+            calculatePlayStats()
+        }
     }
 
     suspend fun uploadPlay(playEntity: PlayEntity): Result<PlayUploadResult> {
@@ -184,6 +188,9 @@ class PlayRepository(
 
     suspend fun refreshPlays() = withContext(Dispatchers.IO) {
         val syncInitiatedTimestamp = System.currentTimeMillis()
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        if (username.isNullOrBlank())
+            return@withContext
 
         val newestTimestamp = syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
         val minDate = if (newestTimestamp == 0L) null else newestTimestamp.asDateForApi()
@@ -252,6 +259,7 @@ class PlayRepository(
         playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
 
     suspend fun refreshPlaysForDate(timeInMillis: Long) = withContext(Dispatchers.IO) {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         if (timeInMillis <= 0L && !username.isNullOrBlank()) {
             emptyList()
         } else {
@@ -274,8 +282,13 @@ class PlayRepository(
     suspend fun downloadPlays(fromDate: Long, toDate: Long, page: Int, timestamp: Long = System.currentTimeMillis()) = withContext(Dispatchers.IO) {
         val from = if (fromDate > 0L) fromDate.asDateForApi() else null
         val to = if (toDate > 0L) toDate.asDateForApi() else null
-        val response = api.plays(username, from, to, page)
-        response.plays.mapToEntity(timestamp) to response.hasMorePages()
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        if (username.isNullOrBlank()) {
+            emptyList<PlayEntity>() to false
+        } else {
+            val response = api.plays(username, from, to, page)
+            response.plays.mapToEntity(timestamp) to response.hasMorePages()
+        }
     }
 
     suspend fun loadForStats(
