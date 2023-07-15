@@ -18,6 +18,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import timber.log.Timber
 import java.io.File
 import java.util.concurrent.TimeUnit
 import javax.inject.Named
@@ -79,7 +80,11 @@ object NetworkModule {
 
     private fun OkHttpClient.Builder.addLoggingInterceptor() = apply {
         if (BuildConfig.DEBUG) {
-            addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
+            addInterceptor(HttpLoggingInterceptor { message ->
+                Timber.d(message)
+            }.apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
             addNetworkInterceptor(StethoInterceptor())
         }
     }
@@ -124,7 +129,7 @@ object NetworkModule {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(GeekdoApi::class.java)
-    
+
     @Provides
     @Singleton
     fun providePhpApi(@Named("withAuth") httpClient: OkHttpClient): PhpApi = Retrofit.Builder()
