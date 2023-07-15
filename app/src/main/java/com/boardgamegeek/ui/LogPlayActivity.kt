@@ -343,7 +343,7 @@ class LogPlayActivity : AppCompatActivity() {
             if (viewModel.isDirty()) {
                 saveDraft(true)
                 toast(R.string.msg_saving_draft)
-            } else{
+            } else {
                 shouldSaveOnPause = false
                 finish()
             }
@@ -685,6 +685,9 @@ class LogPlayActivity : AppCompatActivity() {
                 viewModel.deletePlay()
                 cancelPlayingNotification()
                 setResult(RESULT_CANCELED)
+            } else {
+                setResult(RESULT_CANCELED)
+                finish()
             }
         }
     }
