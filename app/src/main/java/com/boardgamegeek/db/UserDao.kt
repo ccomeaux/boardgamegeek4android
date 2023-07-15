@@ -28,6 +28,7 @@ class UserDao(private val context: Context) {
     }
 
     suspend fun loadUser(username: String): UserEntity? = withContext(Dispatchers.IO) {
+        if (username.isBlank()) return@withContext null
         context.contentResolver.loadEntity(
             Buddies.buildBuddyUri(username),
             arrayOf(

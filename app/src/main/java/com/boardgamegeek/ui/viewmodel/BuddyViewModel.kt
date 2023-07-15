@@ -57,20 +57,17 @@ class BuddyViewModel @Inject constructor(
             try {
                 when (userTypeAndName.second) {
                     TYPE_USER -> {
-                        userTypeAndName.first?.let {
-                            val loadedUser = when {
-                                it.isBlank() -> null
-                                else -> userRepository.load(it)
-                            }
-                            val refreshedUser =
-                                if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0.days)) &&
-                                    isRefreshing.compareAndSet(false, true)
-                                ) {
-                                    emit(RefreshableResource.refreshing(loadedUser))
-                                    userRepository.refresh(it).also {
-                                        isRefreshing.set(false)
-                                    }
-                                } else loadedUser
+                        userTypeAndName.first?.let { username ->
+                            val loadedUser = userRepository.load(username)
+                            val refreshedUser = if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0.days)) &&
+                                isRefreshing.compareAndSet(false, true)
+                            ) {
+                                emit(RefreshableResource.refreshing(loadedUser))
+                                val user = userRepository.refresh(username).also {
+                                    isRefreshing.set(false)
+                                }
+                                loadedUser?.let { user.copy(playNickname = it.playNickname) } ?: user
+                            } else loadedUser
                             emit(RefreshableResource.success(refreshedUser))
                         } ?: emit(RefreshableResource.success(null))
                     }
