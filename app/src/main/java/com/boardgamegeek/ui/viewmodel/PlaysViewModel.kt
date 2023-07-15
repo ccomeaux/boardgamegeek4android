@@ -50,22 +50,9 @@ class PlaysViewModel @Inject constructor(
 
     private val playInfo = MutableLiveData<PlayInfo>()
 
-    private val locationRenameCount = MutableLiveData<PlayRepository.RenameLocationResults>()
-    val updateMessage: LiveData<Event<String>> = locationRenameCount.map { result ->
-        setLocation(result.newLocationName)
-        viewModelScope.launch {
-            playRepository.enqueueUploadRequest()
-        }
-        Event(
-            getApplication<BggApplication>().resources.getQuantityString(
-                R.plurals.msg_play_location_change,
-                result.count,
-                result.count,
-                result.oldLocationName,
-                result.newLocationName
-            )
-        )
-    }
+    private val _updateMessage = MutableLiveData<Event<String>>()
+    val updateMessage: LiveData<Event<String>>
+        get() = _updateMessage
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<Event<String>> = _errorMessage.map { Event(it) }
@@ -80,11 +67,6 @@ class PlaysViewModel @Inject constructor(
                 val list = loadPlays(it)
                 val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(it.id)) {
                     emit(RefreshableResource.refreshing(list))
-                    if (it.mode == Mode.GAME)
-                        playRepository.enqueueUploadRequest(it.id)
-                    else
-                        playRepository.enqueueUploadRequest()
-                    // TODO should wait for upload before attempting a download
                     when (it.mode) {
                         Mode.GAME -> playRepository.refreshPlaysForGame(it.id)
                         else -> playRepository.refreshPlays()
@@ -165,8 +147,18 @@ class PlaysViewModel @Inject constructor(
 
     fun renameLocation(oldLocationName: String, newLocationName: String) {
         viewModelScope.launch {
-            val results = playRepository.renameLocation(oldLocationName, newLocationName)
-            locationRenameCount.postValue(results)
+            val internalIds = playRepository.renameLocation(oldLocationName, newLocationName)
+            playRepository.enqueueUploadRequest(internalIds)
+            _updateMessage.value = Event(
+                getApplication<BggApplication>().resources.getQuantityString(
+                    R.plurals.msg_play_location_change,
+                    internalIds.size,
+                    internalIds.size,
+                    oldLocationName,
+                    newLocationName
+                )
+            )
+            setLocation(newLocationName)
         }
     }
 
@@ -186,19 +178,23 @@ class PlaysViewModel @Inject constructor(
 
     fun send(plays: List<PlayEntity>) {
         viewModelScope.launch {
+            val idsToSend = mutableListOf<Long>()
             plays.forEach {
-                playRepository.markAsUpdated(it.internalId)
+                if (playRepository.markAsUpdated(it.internalId))
+                    idsToSend += it.internalId
             }
-            playRepository.enqueueUploadRequest()
+            playRepository.enqueueUploadRequest(idsToSend)
         }
     }
 
     fun delete(plays: List<PlayEntity>) {
         viewModelScope.launch {
+            val idsDeleted = mutableListOf<Long>()
             plays.forEach {
-                playRepository.markAsDeleted(it.internalId)
+                if (playRepository.markAsDeleted(it.internalId))
+                    idsDeleted += it.internalId
             }
-            playRepository.enqueueUploadRequest()
+            playRepository.enqueueUploadRequest(idsDeleted)
         }
     }
 }

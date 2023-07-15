@@ -121,9 +121,9 @@ class BuddyViewModel @Inject constructor(
                         if (newNickName.isNullOrBlank()) {
                             getApplication<BggApplication>().getString(R.string.msg_missing_nickname)
                         } else {
-                            val count = playRepository.updatePlaysWithNickName(username, newNickName)
-                            playRepository.enqueueUploadRequest()
-                            getApplication<BggApplication>().resources.getQuantityString(R.plurals.msg_updated_plays_buddy_nickname, count, count, username, newNickName)
+                            val internalIds = playRepository.updatePlaysWithNickName(username, newNickName)
+                            playRepository.enqueueUploadRequest(internalIds)
+                            getApplication<BggApplication>().resources.getQuantityString(R.plurals.msg_updated_plays_buddy_nickname, internalIds.size, internalIds.size, username, newNickName)
                         }
                     } else {
                         getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName)
@@ -142,15 +142,9 @@ class BuddyViewModel @Inject constructor(
         viewModelScope.launch {
             val oldName = user.value?.first
             if (user.value?.second == TYPE_PLAYER && newName.isNotBlank() && !oldName.isNullOrBlank()) {
-                playRepository.renamePlayer(oldName, newName)
-                playRepository.enqueueUploadRequest()
-                setUpdateMessage(
-                    getApplication<BggApplication>().getString(
-                        R.string.msg_play_player_change,
-                        oldName,
-                        newName
-                    )
-                )
+                val internalIds = playRepository.renamePlayer(oldName, newName)
+                playRepository.enqueueUploadRequest(internalIds)
+                setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_player_change, oldName, newName))
                 setPlayerName(newName)
             }
         }
@@ -172,15 +166,9 @@ class BuddyViewModel @Inject constructor(
             if (user.value?.second == TYPE_PLAYER &&
                 username.isNotBlank() && !playerName.isNullOrBlank()
             ) {
-                playRepository.addUsernameToPlayer(playerName, username)
-                playRepository.enqueueUploadRequest()
-                setUpdateMessage(
-                    getApplication<BggApplication>().getString(
-                        R.string.msg_player_add_username,
-                        username,
-                        playerName
-                    )
-                )
+                val internalIds = playRepository.addUsernameToPlayer(playerName, username)
+                playRepository.enqueueUploadRequest(internalIds)
+                setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_player_add_username, username, playerName))
                 setUsername(username)
             }
         }

@@ -85,7 +85,7 @@ class PlayRepository(
 
     suspend fun refreshPlaysForGame(gameId: Int) = withContext(Dispatchers.Default) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
-        if (gameId != INVALID_ID  && !username.isNullOrBlank()) {
+        if (gameId != INVALID_ID && !username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             var page = 1
             do {
@@ -394,13 +394,24 @@ class PlayRepository(
     fun enqueueUploadRequest(internalId: Long) {
         val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
             .setInputData(workDataOf(PlayUploadWorker.INTERNAL_ID to internalId))
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .setConstraints(context.createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
-    fun enqueueUploadRequest(gameId: Int = INVALID_ID) {
+    fun enqueueUploadRequest(internalIds: Collection<Long>) {
+        if (internalIds.isEmpty()) return
+        val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+            .setInputData(workDataOf(PlayUploadWorker.INTERNAL_IDS to internalIds.toLongArray()))
+            .setConstraints(context.createWorkConstraints())
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+            .build()
+        WorkManager.getInstance(context).enqueue(workRequest)
+    }
+
+    fun enqueueUploadRequest(gameId: Int) {
         val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
             .setInputData(workDataOf(PlayUploadWorker.GAME_ID to gameId))
             .setConstraints(context.createWorkConstraints())
@@ -436,10 +447,8 @@ class PlayRepository(
         )
     }
 
-    suspend fun delete(internalId: Long) = playDao.delete(internalId)
-
-    private suspend fun markAsSynced(internalId: Long, playId: Int) {
-        playDao.update(
+    private suspend fun markAsSynced(internalId: Long, playId: Int): Boolean {
+        return playDao.update(
             internalId,
             contentValuesOf(
                 Plays.Columns.PLAY_ID to playId,
@@ -450,8 +459,8 @@ class PlayRepository(
         )
     }
 
-    suspend fun markAsDiscarded(internalId: Long) {
-        playDao.update(
+    suspend fun markAsDiscarded(internalId: Long): Boolean {
+        return playDao.update(
             internalId,
             contentValuesOf(
                 Plays.Columns.DELETE_TIMESTAMP to 0,
@@ -461,8 +470,8 @@ class PlayRepository(
         )
     }
 
-    suspend fun markAsUpdated(internalId: Long): PlayEntity? {
-        playDao.update(
+    suspend fun markAsUpdated(internalId: Long): Boolean {
+        return playDao.update(
             internalId,
             contentValuesOf(
                 Plays.Columns.UPDATE_TIMESTAMP to System.currentTimeMillis(),
@@ -470,11 +479,10 @@ class PlayRepository(
                 Plays.Columns.DIRTY_TIMESTAMP to 0,
             )
         )
-        return playDao.loadPlay(internalId)
     }
 
-    suspend fun markAsDeleted(internalId: Long): PlayEntity? {
-        playDao.update(
+    suspend fun markAsDeleted(internalId: Long): Boolean {
+        return playDao.update(
             internalId,
             contentValuesOf(
                 Plays.Columns.DELETE_TIMESTAMP to System.currentTimeMillis(),
@@ -482,7 +490,6 @@ class PlayRepository(
                 Plays.Columns.DIRTY_TIMESTAMP to 0,
             )
         )
-        return playDao.loadPlay(internalId)
     }
 
     suspend fun updateGamePlayCount(gameId: Int) = withContext(Dispatchers.Default) {
@@ -497,65 +504,119 @@ class PlayRepository(
         playDao.loadPlayersByLocation(location)
     }
 
-    suspend fun updatePlaysWithNickName(username: String, nickName: String): Int = withContext(Dispatchers.IO) {
-        val count = playDao.countNickNameUpdatePlays(username, nickName)
-        val batch = arrayListOf<ContentProviderOperation>()
-        batch += playDao.createDirtyPlaysForUserAndNickNameOperations(username, nickName)
-        batch += playDao.createNickNameUpdateOperation(username, nickName)
-        context.contentResolver.applyBatch(batch) // is this better for DAO?
-        count
+    suspend fun updatePlaysWithNickName(username: String, nickName: String): Collection<Long> = withContext(Dispatchers.IO) {
+        val internalIds = mutableListOf<Long>()
+        val plays = playDao.loadPlaysByUsername(username, true)
+        plays.forEach { play ->
+            play.players.find { it.username == username && it.name != nickName }?.let { player ->
+                val batch = arrayListOf<ContentProviderOperation>()
+                if (play.updateTimestamp == 0L && play.dirtyTimestamp == 0L) {
+                    batch += ContentProviderOperation
+                        .newUpdate(Plays.buildPlayUri(play.internalId))
+                        .withValue(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
+                        .build()
+                }
+                batch += ContentProviderOperation
+                    .newUpdate(Plays.buildPlayerUri(play.internalId, player.internalId))
+                    .withValue(PlayPlayers.Columns.NAME, nickName)
+                    .build()
+                context.contentResolver.applyBatch(batch)
+                if (play.dirtyTimestamp == 0L) internalIds += play.internalId
+            }
+        }
+        internalIds
     }
 
-    suspend fun renamePlayer(oldName: String, newName: String) = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        batch += playDao.createDirtyPlaysForNonUserPlayerOperations(oldName)
-        batch += playDao.createRenameUpdateOperation(oldName, newName)
-        batch += playDao.createCopyPlayerColorsOperations(oldName, newName)
-        batch += playDao.createDeletePlayerColorsOperation(oldName)
-        context.contentResolver.applyBatch(batch)// is this better for DAO?
+    suspend fun renamePlayer(oldName: String, newName: String): Collection<Long> = withContext(Dispatchers.IO) {
+        val internalIds = mutableListOf<Long>()
+        val plays = playDao.loadPlaysByPlayerName(oldName, true)
+        plays.forEach { play ->
+            play.players.find { it.username.isBlank() && it.name == oldName }?.let { player ->
+                val batch = arrayListOf<ContentProviderOperation>()
+                if (play.updateTimestamp == 0L && play.dirtyTimestamp == 0L) {
+                    batch += ContentProviderOperation
+                        .newUpdate(Plays.buildPlayUri(play.internalId))
+                        .withValue(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
+                        .build()
+                }
+                batch += ContentProviderOperation
+                    .newUpdate(Plays.buildPlayerUri(play.internalId, player.internalId))
+                    .withValue(PlayPlayers.Columns.NAME, newName)
+                    .build()
+                context.contentResolver.applyBatch(batch)
+                if (play.dirtyTimestamp == 0L) internalIds += play.internalId
+            }
+            val batch = arrayListOf<ContentProviderOperation>()
+            val colors = playDao.loadColors(PlayerColors.buildPlayerUri(oldName))
+            colors.forEach {
+                batch += ContentProviderOperation
+                    .newInsert(PlayerColors.buildPlayerUri(newName))
+                    .withValue(PlayerColors.Columns.PLAYER_COLOR, it.description)
+                    .withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                    .build()
+            }
+            batch += ContentProviderOperation.newDelete(PlayerColors.buildPlayerUri(oldName)).build()
+            context.contentResolver.applyBatch(batch)
+        }
+        internalIds
     }
-
-    data class RenameLocationResults(val oldLocationName: String, val newLocationName: String, val count: Int)
 
     suspend fun renameLocation(
         oldLocationName: String,
         newLocationName: String,
-    ): RenameLocationResults = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
+    ): List<Long> = withContext(Dispatchers.IO) {
+        val internalIds = mutableListOf<Long>()
 
-        val values = contentValuesOf(Plays.Columns.LOCATION to newLocationName)
-        batch.add(
-            ContentProviderOperation
-                .newUpdate(Plays.CONTENT_URI)
-                .withValues(values)
-                .withSelection(
-                    "${Plays.Columns.LOCATION}=? AND (${Plays.Columns.UPDATE_TIMESTAMP.greaterThanZero()} OR ${Plays.Columns.DIRTY_TIMESTAMP.greaterThanZero()})",
-                    arrayOf(oldLocationName)
-                ).build()
-        )
+        val plays = playDao.loadPlaysByLocation(oldLocationName)
+        plays.forEach { play ->
+            if (play.dirtyTimestamp > 0) {
+                playDao.update(play.internalId, contentValuesOf(Plays.Columns.LOCATION to newLocationName))
+            } else if (play.updateTimestamp > 0) {
+                if (playDao.update(play.internalId, contentValuesOf(Plays.Columns.LOCATION to newLocationName)))
+                    internalIds += play.internalId
+            } else {
+                val values = contentValuesOf(Plays.Columns.LOCATION to newLocationName, Plays.Columns.UPDATE_TIMESTAMP to System.currentTimeMillis())
+                if (playDao.update(play.internalId, values))
+                    internalIds += play.internalId
+            }
+        }
 
-        values.put(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
-        batch.add(
-            ContentProviderOperation
-                .newUpdate(Plays.CONTENT_URI)
-                .withValues(values)
-                .withSelection(
-                    "${Plays.Columns.LOCATION}=? AND ${Plays.Columns.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.Columns.DIRTY_TIMESTAMP.whereZeroOrNull()}",
-                    arrayOf(oldLocationName)
-                ).build()
-        )
-
-        val results = context.contentResolver.applyBatch(batch)
-        RenameLocationResults(oldLocationName, newLocationName, results.sumOf { it.count ?: 0 })
+        internalIds
     }
 
-    suspend fun addUsernameToPlayer(playerName: String, username: String) = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        batch += playDao.createDirtyPlaysForNonUserPlayerOperations(playerName)
-        batch += playDao.createAddUsernameOperation(playerName, username)
-        batch += playDao.createCopyPlayerColorsToUserOperations(playerName, username)
-        batch += playDao.createDeletePlayerColorsOperation(playerName)
-        context.contentResolver.applyBatch(batch)
+    suspend fun addUsernameToPlayer(playerName: String, username: String): Collection<Long> = withContext(Dispatchers.IO) {
+        val internalIds = mutableListOf<Long>()
+        val plays = playDao.loadPlaysByPlayerName(playerName, true)
+        plays.forEach { play ->
+            play.players.find { it.username.isBlank() && it.name == playerName }?.let { player ->
+                val batch = arrayListOf<ContentProviderOperation>()
+                if (play.updateTimestamp == 0L && play.dirtyTimestamp == 0L) {
+                    batch += ContentProviderOperation
+                        .newUpdate(Plays.buildPlayUri(play.internalId))
+                        .withValue(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
+                        .build()
+                }
+                batch += ContentProviderOperation
+                    .newUpdate(Plays.buildPlayerUri(play.internalId, player.internalId))
+                    .withValue(PlayPlayers.Columns.USER_NAME, username)
+                    .build()
+                context.contentResolver.applyBatch(batch)
+                if (play.dirtyTimestamp == 0L) internalIds += play.internalId
+            }
+
+            val batch = arrayListOf<ContentProviderOperation>()
+            val colors = playDao.loadColors(PlayerColors.buildPlayerUri(playerName))
+            colors.forEach {
+                batch += ContentProviderOperation
+                    .newInsert(PlayerColors.buildUserUri(username))
+                    .withValue(PlayerColors.Columns.PLAYER_COLOR, it.description)
+                    .withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
+                    .build()
+            }
+            batch += ContentProviderOperation.newDelete(PlayerColors.buildPlayerUri(playerName)).build()
+            context.contentResolver.applyBatch(batch)
+        }
+        internalIds
     }
 
     suspend fun save(play: PlayEntity): Long {

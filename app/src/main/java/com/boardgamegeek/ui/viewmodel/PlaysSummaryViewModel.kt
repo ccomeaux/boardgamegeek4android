@@ -39,7 +39,6 @@ class PlaysSummaryViewModel @Inject constructor(
         liveData {
             try {
                 val list = playRepository.getPlays()
-                playRepository.enqueueUploadRequest()
                 val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
                     emit(RefreshableResource.refreshing(list))
                     // TODO - while refreshing, the plays aren't updated in the UI. Figure out how to do that. Maybe listen to the play sync dates

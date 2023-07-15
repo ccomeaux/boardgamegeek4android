@@ -486,8 +486,8 @@ class LogPlayViewModel @Inject constructor(
             playRepository.enqueueUploadRequest(internalId)
             _internalId.postValue(internalId)
             if (internalIdToDelete != INVALID_ID.toLong()) {
-                playRepository.markAsDeleted(internalIdToDelete)
-                playRepository.enqueueUploadRequest(internalIdToDelete)
+                if (playRepository.markAsDeleted(internalIdToDelete))
+                    playRepository.enqueueUploadRequest(internalIdToDelete)
             }
             _canFinish.postValue(true)
         }

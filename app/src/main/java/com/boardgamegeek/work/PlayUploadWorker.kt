@@ -7,6 +7,7 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.notifyLoggedPlay
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
@@ -29,22 +30,31 @@ class PlayUploadWorker @AssistedInject constructor(
         val playsToUpsert = mutableListOf<PlayEntity>()
 
         val internalId = inputData.getLong(INTERNAL_ID, BggContract.INVALID_ID.toLong())
+        val internalIds = inputData.getLongArray(INTERNAL_IDS)
         val requestedGameId = inputData.getInt(GAME_ID, BggContract.INVALID_ID)
 
         if (internalId != BggContract.INVALID_ID.toLong()) {
-            Timber.i("Uploading play internal ID=$internalId")
-            playRepository.loadPlay(internalId)?.let {
-                if (it.deleteTimestamp > 0L) playsToDelete += it
-                if (it.updateTimestamp > 0L) playsToUpsert += it
+            Timber.i("Uploading play with internal ID $internalId")
+            playRepository.loadPlay(internalId)?.let { play ->
+                if (play.deleteTimestamp > 0L) playsToDelete += play
+                if (play.updateTimestamp > 0L) playsToUpsert += play
             }
-        } else if (requestedGameId == BggContract.INVALID_ID) {
-            Timber.i("Uploading all plays marked for deletion or updating")
-            playsToDelete += playRepository.getDeletingPlays()
-            playsToUpsert += playRepository.getUpdatingPlays()
-        } else {
+        } else if (internalIds != null && internalIds.isNotEmpty()) {
+            Timber.i("Uploading plays with internal IDs ${internalIds.toList().formatList()}")
+            internalIds.forEach {
+                playRepository.loadPlay(it)?.let { play ->
+                    if (play.deleteTimestamp > 0L) playsToDelete += play
+                    if (play.updateTimestamp > 0L) playsToUpsert += play
+                }
+            }
+        } else if (requestedGameId != BggContract.INVALID_ID) {
             Timber.i("Uploading all plays for game ID=$requestedGameId marked for deletion or updating")
             playsToDelete += playRepository.getDeletingPlays().filter { it.gameId == requestedGameId }
             playsToUpsert += playRepository.getUpdatingPlays().filter { it.gameId == requestedGameId }
+        } else {
+            Timber.i("Uploading all plays marked for deletion or updating")
+            playsToDelete += playRepository.getDeletingPlays()
+            playsToUpsert += playRepository.getUpdatingPlays()
         }
 
         Timber.i("Found ${playsToDelete.count()} play(s) marked for deletion")
@@ -85,6 +95,7 @@ class PlayUploadWorker @AssistedInject constructor(
     companion object {
         const val UNIQUE_WORK_NAME = "com.boardgamegeek.UPLOAD_PLAYS"
         const val INTERNAL_ID = "INTERNAL_ID"
+        const val INTERNAL_IDS = "INTERNAL_IDS"
         const val GAME_ID = "GAME_ID"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
     }

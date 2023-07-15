@@ -69,18 +69,17 @@ class PlayViewModel @Inject constructor(
     fun discard() {
         viewModelScope.launch {
             play.value?.data?.let {
-                repository.markAsDiscarded(it.internalId)
+                if (repository.markAsDiscarded(it.internalId))
+                    refresh() // TODO: request just this play, not all of them
             }
-            refresh() // pull down the data from BGG
         }
     }
 
     fun send() {
         viewModelScope.launch {
             play.value?.data?.let {
-                repository.markAsUpdated(it.internalId)?.let { play ->
-                    repository.enqueueUploadRequest(play.internalId)
-                }
+                if (repository.markAsUpdated(it.internalId))
+                    repository.enqueueUploadRequest(it.internalId)
             }
         }
     }
@@ -88,9 +87,8 @@ class PlayViewModel @Inject constructor(
     fun delete() {
         viewModelScope.launch {
             play.value?.data?.let {
-                repository.markAsDeleted(it.internalId)?.let { play ->
-                    repository.enqueueUploadRequest(play.internalId)
-                }
+                if (repository.markAsDeleted(it.internalId))
+                    repository.enqueueUploadRequest(it.internalId)
             }
         }
     }
