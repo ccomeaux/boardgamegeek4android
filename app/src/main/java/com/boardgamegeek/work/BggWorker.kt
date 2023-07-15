@@ -12,6 +12,8 @@ import java.util.UUID
 const val NOTIFICATION_ID_COLLECTION = 41
 const val NOTIFICATION_ID_PLAYS = 42
 const val NOTIFICATION_ID_USERS = 43
+const val NOTIFICATION_ID_PLAYS_UPLOAD = 44
+const val NOTIFICATION_ID_COLLECTION_UPLOAD = 45
 
 fun Context.createForegroundInfo(titleResId: Int, notificationId: Int, id: UUID, contentText: String): ForegroundInfo {
     val notification = NotificationCompat.Builder(applicationContext, NotificationChannels.SYNC_PROGRESS)

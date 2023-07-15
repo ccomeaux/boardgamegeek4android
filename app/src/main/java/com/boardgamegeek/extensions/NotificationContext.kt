@@ -153,6 +153,7 @@ fun Context.notifySyncError(contentText: String, bigText: String) {
 }
 
 fun Context.notifyLoggedPlay(result: PlayUploadResult) {
+    if (this.preferences()[KEY_SYNC_UPLOADS, true] != true) return
     if (result.status == PlayUploadResult.Status.NO_OP) return
 
     val imageUrls = listOf(result.play.thumbnailUrl, result.play.heroImageUrl, result.play.imageUrl)

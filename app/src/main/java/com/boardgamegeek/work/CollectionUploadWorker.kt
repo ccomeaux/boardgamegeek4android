@@ -4,11 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemForUploadEntity
@@ -69,24 +67,7 @@ class CollectionUploadWorker @AssistedInject constructor(
     }
 
     private fun createForegroundInfo(contentText: String): ForegroundInfo {
-        val notification = NotificationCompat.Builder(applicationContext, NotificationChannels.SYNC_PROGRESS)
-            .setContentTitle(applicationContext.getString(R.string.sync_notification_title_collection))
-            .setTicker(applicationContext.getString(R.string.sync_notification_title_collection))
-            .setContentText(contentText)
-            .setSmallIcon(R.drawable.ic_stat_bgg)
-            .setColor(ContextCompat.getColor(applicationContext, R.color.primary))
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-            .setOngoing(true)
-            .setProgress(1, 0, true)
-            .addAction(
-                R.drawable.ic_baseline_clear_24,
-                applicationContext.getString(R.string.cancel),
-                WorkManager.getInstance(applicationContext).createCancelPendingIntent(id)
-            )
-            .build()
-
-        return ForegroundInfo(43, notification) // Move the IDs to central place
+        return applicationContext.createForegroundInfo(R.string.sync_notification_title_collection_upload, NOTIFICATION_ID_COLLECTION_UPLOAD, id, contentText)
     }
 
     fun Context.notifyUploadCollectionItem(result: CollectionItemUploadResult) {

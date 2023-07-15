@@ -3,10 +3,13 @@ package com.boardgamegeek.work
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.extensions.NotificationChannels
 import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.notifyLoggedPlay
 import com.boardgamegeek.provider.BggContract
@@ -25,6 +28,8 @@ class PlayUploadWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         Timber.i("Begin uploading plays")
+
+        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays_upload)))
 
         val playsToDelete = mutableListOf<PlayEntity>()
         val playsToUpsert = mutableListOf<PlayEntity>()
@@ -90,6 +95,10 @@ class PlayUploadWorker @AssistedInject constructor(
             } else return Result.failure(workDataOf(ERROR_MESSAGE to result.exceptionOrNull()?.message))
         }
         return Result.success()
+    }
+
+    private fun createForegroundInfo(contentText: String): ForegroundInfo {
+        return applicationContext.createForegroundInfo(R.string.sync_notification_title_play_upload, NOTIFICATION_ID_PLAYS_UPLOAD, id, contentText)
     }
 
     companion object {
