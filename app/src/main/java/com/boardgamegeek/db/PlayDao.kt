@@ -134,14 +134,14 @@ class PlayDao(private val context: Context) {
         else loadPlays(Plays.CONTENT_URI, createLocationPlaySelectionAndArgs(locationName))
     }
 
-    suspend fun loadPlaysByUsername(username: String): List<PlayEntity> {
+    suspend fun loadPlaysByUsername(username: String, includePlayers: Boolean = false): List<PlayEntity> {
         return if (username.isBlank()) emptyList()
-        else loadPlays(Plays.buildPlayersByPlayUri(), createUsernamePlaySelectionAndArgs(username))
+        else loadPlays(Plays.buildPlayersByPlayUri(), createUsernamePlaySelectionAndArgs(username), includePlayers = includePlayers)
     }
 
-    suspend fun loadPlaysByPlayerName(playerName: String): List<PlayEntity> {
+    suspend fun loadPlaysByPlayerName(playerName: String, includePlayers: Boolean = false): List<PlayEntity> {
         return if (playerName.isBlank()) emptyList()
-        else loadPlays(Plays.buildPlayersByPlayUri(), createPlayerNamePlaySelectionAndArgs(playerName))
+        else loadPlays(Plays.buildPlayersByPlayUri(), createPlayerNamePlaySelectionAndArgs(playerName), includePlayers = includePlayers)
     }
 
     suspend fun loadPlaysByPlayerAndGame(name: String, gameId: Int, isUser: Boolean): List<PlayEntity> {
