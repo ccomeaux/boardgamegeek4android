@@ -99,6 +99,7 @@ class PlayDao(private val context: Context) {
                 PlayPlayers.Columns.NEW,
                 PlayPlayers.Columns.WIN,
                 Plays.Columns.PLAY_ID,
+                BaseColumns._ID,
             ),
         ) {
             PlayPlayerEntity(
@@ -112,6 +113,7 @@ class PlayDao(private val context: Context) {
                 isNew = it.getBoolean(8),
                 isWin = it.getBoolean(9),
                 playId = it.getIntOrNull(10) ?: INVALID_ID,
+                internalId = it.getLongOrNull(11) ?: INVALID_ID.toLong(),
             )
         }
     }

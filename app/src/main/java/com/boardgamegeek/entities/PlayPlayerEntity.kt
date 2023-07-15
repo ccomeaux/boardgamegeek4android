@@ -21,6 +21,7 @@ data class PlayPlayerEntity(
     val isWin: Boolean = false,
     val playId: Int = INVALID_ID,
     val uiId: Long = UUID.randomUUID().toString().hashCode().toLong(),
+    val internalId: Long = INVALID_ID.toLong(),
 ) : Parcelable {
     @IgnoredOnParcel
     private val format = NumberFormat.getInstance()
