@@ -434,7 +434,6 @@
 	<string name="menu_sort_geeklists_recent">Recent</string>
 	<string name="menu_sort_geeklists_active">Active</string>
 	<string name="menu_colors_generate">Generate colors</string>
-	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_clear">Clear</string>
 	<string name="menu_add_username">Add username</string>
 	<string name="menu_scroll_to_last_read">Scroll to last read</string>

@@ -82,9 +82,6 @@ abstract class DrawerActivity : BaseActivity() {
             refreshHeader(it?.data)
         }
 
-        syncViewModel.currentSyncTimestamp.observe(this) {
-            invalidateOptionsMenu()
-        }
         syncViewModel.username.observe(this) {
             viewModel.setUsername(it)
         }
