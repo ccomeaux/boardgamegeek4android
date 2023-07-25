@@ -38,7 +38,6 @@
 	<string name="pref_sync_statuses">Kolekcja</string>
 	<string name="pref_sync_plays">Rozgrywki</string>
 	<string name="pref_sync_upload">Pokazuj powiadomienia przesyłania</string>
-	<string name="pref_sync_notifications">Pokazuj powiadomienia postępu</string>
 	<string name="pref_sync_errors">Pokazuj powiadomenia o błędach</string>
 	<string name="pref_sync_only_charging">Tylko podczas ładownaia</string>
 	<string name="pref_sync_only_wifi">Tylko przez WiFi</string>

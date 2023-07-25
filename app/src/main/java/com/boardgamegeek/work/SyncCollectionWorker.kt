@@ -53,6 +53,8 @@ class SyncCollectionWorker @AssistedInject constructor(
             return Result.success()
         }
 
+        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_title_collection)))
+
         return if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
             val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
             val lastCompleteSync = syncPrefs.getLastCompleteCollectionTimestamp()
@@ -137,7 +139,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             Timber.i("Syncing recently modified collection completed successfully")
             return Result.success()
         } catch (e: Exception) {
-            return handleException(applicationContext.getString(R.string.sync_notification_collection_syncing), e)
+            return handleException(applicationContext.getString(R.string.sync_notification_collection_partial), e)
         }
     }
 
