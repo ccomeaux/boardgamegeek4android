@@ -21,6 +21,30 @@
 			android:textAppearance="@style/TextAppearance.Title" />
 
 		<LinearLayout
+			android:id="@+id/sync_timestamp_collection_full_current_layout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<TextView
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:text="@string/pref_sync_timestamps_collection_full_current"
+				android:textAppearance="@style/TextAppearance.Subtitle" />
+
+			<TextView
+				android:id="@+id/sync_timestamp_collection_full_current"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="2"
+				android:textColor="@color/dialog_text"
+				tools:text="January 1, 1970 12:00 AM" />
+		</LinearLayout>
+
+		<LinearLayout
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="horizontal">
@@ -30,7 +54,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:text="@string/pref_sync_timestamps_collection_full"
-				android:textColor="@color/dialog_text" />
+				android:textAppearance="@style/TextAppearance.Subtitle" />
 
 			<TextView
 				android:id="@+id/sync_timestamp_collection_full"
@@ -51,7 +75,7 @@
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:text="@string/pref_sync_timestamps_collection_partial"
-				android:textColor="@color/dialog_text" />
+				android:textAppearance="@style/TextAppearance.Subtitle" />
 
 			<TextView
 				android:id="@+id/sync_timestamp_collection_partial"
@@ -64,8 +88,7 @@
 
 		<LinearLayout
 			android:layout_width="match_parent"
-			android:layout_height="16dp"
-			tools:background="#ff0">
+			android:layout_height="16dp">
 
 			<View
 				android:id="@+id/divider"
@@ -82,7 +105,7 @@
 			android:gravity="bottom"
 			android:minHeight="32dp"
 			android:text="@string/title_buddies"
-			android:textAppearance="@style/TextAppearance.Subtitle" />
+			android:textAppearance="@style/TextAppearance.Title" />
 
 		<TextView
 			android:id="@+id/sync_timestamp_buddy"
@@ -93,8 +116,7 @@
 
 		<LinearLayout
 			android:layout_width="match_parent"
-			android:layout_height="16dp"
-			tools:background="#ff0">
+			android:layout_height="16dp">
 
 			<View
 				android:layout_width="match_parent"
@@ -110,7 +132,7 @@
 			android:gravity="bottom"
 			android:minHeight="32dp"
 			android:text="@string/title_plays"
-			android:textAppearance="@style/TextAppearance.Subtitle" />
+			android:textAppearance="@style/TextAppearance.Title" />
 
 		<TextView
 			android:id="@+id/sync_timestamp_plays"
