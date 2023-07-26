@@ -83,8 +83,7 @@ fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(timestamp: Long = 
 }
 
 fun SharedPreferences.getPartialCollectionSyncLastCompletedAt(subtype: BggService.ThingSubtype?): Long {
-    val ts = this.getPartialCollectionSyncLastCompletedAt()
-    return this["${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.code.orEmpty()}", ts] ?: ts
+    return this["${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.code.orEmpty()}", 0L] ?: 0L
 }
 
 fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(subtype: BggService.ThingSubtype?, timestamp: Long = System.currentTimeMillis()) {

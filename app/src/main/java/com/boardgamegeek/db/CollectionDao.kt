@@ -474,7 +474,7 @@ class CollectionDao(private val context: Context) {
     suspend fun saveItem(
         item: CollectionItemEntity,
         game: CollectionItemGameEntity,
-        timestamp: Long,
+        updatedTimestamp: Long,
         includeStats: Boolean = true,
         includePrivateInfo: Boolean = true,
         isBrief: Boolean = false
@@ -484,9 +484,9 @@ class CollectionDao(private val context: Context) {
         if (candidate.dirtyTimestamp != NOT_DIRTY) {
             Timber.i("Local copy of the collection item is dirty, skipping sync.")
         } else {
-            upsertGame(item.gameId, toGameValues(game, includeStats, isBrief, timestamp), isBrief)
+            upsertGame(item.gameId, toGameValues(game, includeStats, isBrief, updatedTimestamp), isBrief)
             internalId = upsertItem(
-                toCollectionValues(item, includeStats, includePrivateInfo, isBrief, timestamp),
+                toCollectionValues(item, includeStats, includePrivateInfo, isBrief, updatedTimestamp),
                 isBrief,
                 candidate
             )
@@ -504,10 +504,10 @@ class CollectionDao(private val context: Context) {
         game: CollectionItemGameEntity,
         includeStats: Boolean,
         isBrief: Boolean,
-        timestamp: Long
+        updatedTimestamp: Long
     ): ContentValues {
         val values = ContentValues()
-        values.put(Games.Columns.UPDATED_LIST, timestamp)
+        values.put(Games.Columns.UPDATED_LIST, updatedTimestamp)
         values.put(Games.Columns.GAME_ID, game.gameId)
         values.put(Games.Columns.GAME_NAME, game.gameName)
         values.put(Games.Columns.GAME_SORT_NAME, game.sortName)
@@ -551,13 +551,13 @@ class CollectionDao(private val context: Context) {
         includeStats: Boolean,
         includePrivateInfo: Boolean,
         isBrief: Boolean,
-        timestamp: Long
+        updatedTimestamp: Long
     ): ContentValues {
         val values = ContentValues()
         if (!isBrief && includePrivateInfo && includeStats) {
-            values.put(Collection.Columns.UPDATED, timestamp)
+            values.put(Collection.Columns.UPDATED, updatedTimestamp)
         }
-        values.put(Collection.Columns.UPDATED_LIST, timestamp)
+        values.put(Collection.Columns.UPDATED_LIST, updatedTimestamp)
         values.put(Collection.Columns.GAME_ID, item.gameId)
         if (item.collectionId != INVALID_ID) {
             values.put(Collection.Columns.COLLECTION_ID, item.collectionId)

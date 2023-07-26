@@ -22,7 +22,6 @@ class CollectionItemRepository(
     private val dao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
-    private val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
 
     suspend fun load(): List<CollectionItemEntity> = dao.load()
 
@@ -65,7 +64,7 @@ class CollectionItemRepository(
         }
     }
 
-    suspend fun refresh(options: Map<String, String>, timestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
+    suspend fun refresh(options: Map<String, String>, updatedTimestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
         var count = 0
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         if (!username.isNullOrBlank()) {
@@ -73,7 +72,7 @@ class CollectionItemRepository(
             response.items?.forEach {
                 val (item, game) = it.mapToEntities()
                 if (isItemStatusSetToSync(item)) {
-                    val (collectionId, _) = dao.saveItem(item, game, timestamp)
+                    val (collectionId, _) = dao.saveItem(item, game, updatedTimestamp)
                     if (collectionId != BggContract.INVALID_ID) count++
                 } else {
                     Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
@@ -88,6 +87,7 @@ class CollectionItemRepository(
     suspend fun deleteUnupdatedItems(timestamp: Long) = dao.deleteUnupdatedItems(timestamp)
 
     private fun isItemStatusSetToSync(item: CollectionItemEntity): Boolean {
+        val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
         if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true
         if (item.previouslyOwned && COLLECTION_STATUS_PREVIOUSLY_OWNED in statusesToSync) return true
         if (item.forTrade && COLLECTION_STATUS_FOR_TRADE in statusesToSync) return true

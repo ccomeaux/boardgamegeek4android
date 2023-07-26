@@ -237,7 +237,7 @@ class GameDao(private val context: Context) {
      * Get a list of games, sorted by least recently updated, that
      * 1. have no associated collection record
      * 2. haven't been viewed in a configurable number of hours
-     * 3. and have 0 plays (if plays are being synced
+     * 3. and have 0 plays (if plays are being synced)
      */
     suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
         val games = mutableListOf<Pair<Int, String>>()

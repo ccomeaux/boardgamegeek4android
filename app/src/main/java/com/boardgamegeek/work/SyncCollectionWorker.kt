@@ -58,13 +58,13 @@ class SyncCollectionWorker @AssistedInject constructor(
         return if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
             val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
             val lastCompleteSync = syncPrefs.getLastCompleteCollectionTimestamp()
-            if (lastCompleteSync > 0 && !lastCompleteSync.isOlderThan(fetchIntervalInDays.days)) {
-                Timber.i("Not currently syncing the complete collection but it's been less than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.toDateTime()}]; syncing recently modified collection instead")
-                syncCollectionModifiedSince()
-            } else {
-                Timber.i("Not currently syncing the complete collection and it's been more than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.toDateTime()}]; syncing entire collection")
+            if (lastCompleteSync == 0L || lastCompleteSync.isOlderThan(fetchIntervalInDays.days)) {
+                Timber.i("It's been more than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.toDateTime()}]; syncing entire collection")
                 syncPrefs.setCurrentCollectionSyncTimestamp()
                 syncCompleteCollection()
+            } else {
+                Timber.i("It's been less than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.toDateTime()}]; syncing recently modified collection instead")
+                syncCollectionModifiedSince()
             }
         } else {
             Timber.i("Continuing an in-progress sync of entire collection")
@@ -94,7 +94,6 @@ class SyncCollectionWorker @AssistedInject constructor(
         deleteUnusedItems()
 
         syncPrefs.setLastCompleteCollectionTimestamp(syncPrefs.getCurrentCollectionSyncTimestamp())
-        syncPrefs.setPartialCollectionSyncLastCompletedAt(syncPrefs.getCurrentCollectionSyncTimestamp())
         syncPrefs.setCurrentCollectionSyncTimestamp(0L)
 
         Timber.i("Complete collection synced successfully")
@@ -117,22 +116,22 @@ class SyncCollectionWorker @AssistedInject constructor(
         val contentText = applicationContext.getString(R.string.sync_notification_collection_detail, statusDescription, subtypeDescription)
         setForeground(createForegroundInfo(contentText))
 
-        val timestamp = System.currentTimeMillis()
-        val result = performSync(timestamp, subtype, null, status, excludedStatuses, errorMessage = contentText)
-        if (result is Result.Success) syncPrefs.setCompleteCollectionSyncTimestamp(subtype, status, timestamp)
+        val updatedTimestamp = System.currentTimeMillis()
+        val result = performSync(updatedTimestamp, subtype, null, status, excludedStatuses, errorMessage = contentText)
+        if (result is Result.Success) syncPrefs.setCompleteCollectionSyncTimestamp(subtype, status, updatedTimestamp)
         return result
     }
 
     private suspend fun syncCollectionModifiedSince(): Result {
         Timber.i("Starting to sync recently modified collection")
         try {
-            val itemResult = syncBySubtype(null)
+            val itemResult = syncCollectionModifiedSinceBySubtype(null)
             if (itemResult is Result.Failure) return itemResult
 
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Sync stopped before recently modified accessories, aborting"))
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS))
 
-            val accessoryResult = syncBySubtype(BggService.ThingSubtype.BOARDGAME_ACCESSORY)
+            val accessoryResult = syncCollectionModifiedSinceBySubtype(BggService.ThingSubtype.BOARDGAME_ACCESSORY)
             if (accessoryResult is Result.Failure) return accessoryResult
 
             syncPrefs.setPartialCollectionSyncLastCompletedAt()
@@ -143,21 +142,20 @@ class SyncCollectionWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun syncBySubtype(subtype: BggService.ThingSubtype?): Result {
+    private suspend fun syncCollectionModifiedSinceBySubtype(subtype: BggService.ThingSubtype?): Result {
         Timber.i("Starting to sync subtype [${subtype?.code ?: "<none>"}]")
-        val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
-        val lastPartialSync = syncPrefs.getPartialCollectionSyncLastCompletedAt()
-        if (lastStatusSync > lastPartialSync) {
+        val previousSyncTimestamp = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
+        if (previousSyncTimestamp > syncPrefs.getPartialCollectionSyncLastCompletedAt()) {
             Timber.i("Subtype [${subtype?.code ?: "<none>"}] has been synced in the current sync request; aborting")
             return Result.success()
         }
 
-        val contentText = applicationContext.getString(R.string.sync_notification_collection_since, subtype.getDescription(applicationContext), lastStatusSync.toDateTime())
+        val contentText = applicationContext.getString(R.string.sync_notification_collection_since, subtype.getDescription(applicationContext), previousSyncTimestamp.toDateTime())
         setForeground(createForegroundInfo(contentText))
 
-        val timestamp = System.currentTimeMillis()
-        val result = performSync(timestamp, subtype, lastStatusSync, errorMessage = contentText)
-        if (result is Result.Success) syncPrefs.setPartialCollectionSyncLastCompletedAt(subtype, timestamp)
+        val updatedTimestamp = System.currentTimeMillis()
+        val result = performSync(updatedTimestamp, subtype, previousSyncTimestamp, errorMessage = contentText)
+        if (result is Result.Success) syncPrefs.setPartialCollectionSyncLastCompletedAt(subtype, updatedTimestamp)
         return result
     }
 
@@ -195,7 +193,7 @@ class SyncCollectionWorker @AssistedInject constructor(
     }
 
     private suspend fun performSync(
-        timestamp: Long = System.currentTimeMillis(),
+        updatedTimestamp: Long = System.currentTimeMillis(),
         subtype: BggService.ThingSubtype? = null,
         sinceTimestamp: Long? = null,
         status: String? = null,
@@ -216,7 +214,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         gameIds?.let { options[BggService.COLLECTION_QUERY_KEY_ID] = it.joinToString(",") }
 
         val result = try {
-            val count = collectionItemRepository.refresh(options, timestamp)
+            val count = collectionItemRepository.refresh(options, updatedTimestamp)
             Timber.i(
                 "Saved $count collection ${subtype.getDescription(applicationContext).lowercase()}" +
                         if (status != null) " of status $status" else "" +
@@ -252,7 +250,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             hoursAgo,
             DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_SHOW_TIME
         )
-        Timber.i("Fetching games that aren't in the collection and have not been viewed since $date")
+        Timber.i("Finding games to delete that aren't in the collection and have not been viewed since $date")
 
         val games = gameRepository.loadDeletableGames(hoursAgo, prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED))
         if (games.isNotEmpty()) {
