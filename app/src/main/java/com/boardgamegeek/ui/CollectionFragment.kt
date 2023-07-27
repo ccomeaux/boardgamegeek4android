@@ -114,7 +114,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
         binding.swipeRefreshLayout.setBggColors()
         binding.swipeRefreshLayout.setOnRefreshListener {
-            binding.swipeRefreshLayout.isRefreshing = viewModel.refresh()
+            viewModel.refresh()
         }
 
         binding.progressBar.show()

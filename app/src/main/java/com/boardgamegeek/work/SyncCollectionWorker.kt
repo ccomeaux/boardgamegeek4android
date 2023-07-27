@@ -30,12 +30,15 @@ class SyncCollectionWorker @AssistedInject constructor(
 ) : CoroutineWorker(appContext, workerParams) {
     private val prefs: SharedPreferences by lazy { appContext.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(appContext) }
+    private var quickSync = false
 
     private val statusDescriptions = applicationContext.resources.getStringArray(R.array.pref_sync_status_values)
         .zip(applicationContext.resources.getStringArray(R.array.pref_sync_status_entries))
         .toMap()
 
     override suspend fun doWork(): Result {
+        quickSync = inputData.getBoolean(QUICK_SYNC, false)
+
         refreshCollection()
         if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after refreshing collection"))
         syncUnupdatedCollection()
@@ -55,7 +58,9 @@ class SyncCollectionWorker @AssistedInject constructor(
 
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_title_collection)))
 
-        return if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
+        return if (quickSync) {
+            Result.success() // skip for now
+        } else if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
             val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
             val lastCompleteSync = syncPrefs.getLastCompleteCollectionTimestamp()
             if (lastCompleteSync == 0L || lastCompleteSync.isOlderThan(fetchIntervalInDays.days)) {
@@ -143,7 +148,7 @@ class SyncCollectionWorker @AssistedInject constructor(
     }
 
     private suspend fun syncCollectionModifiedSinceBySubtype(subtype: BggService.ThingSubtype?): Result {
-        Timber.i("Starting to sync subtype [${subtype?.code ?: "<none>"}]")
+        Timber.i("Starting to sync recently modified subtype [${subtype?.code ?: "<none>"}]")
         val previousSyncTimestamp = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
         if (previousSyncTimestamp > syncPrefs.getPartialCollectionSyncLastCompletedAt()) {
             Timber.i("Subtype [${subtype?.code ?: "<none>"}] has been synced in the current sync request; aborting")
@@ -281,10 +286,11 @@ class SyncCollectionWorker @AssistedInject constructor(
     private suspend fun downloadGames(): Result {
         var updatedCount = 0
         val gamesPerFetch = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_PER_FETCH)
+        val maxGameCount = if (quickSync) gamesPerFetch.coerceAtMost(5) else gamesPerFetch
 
-        Timber.i("Refreshing $gamesPerFetch oldest games in the collection")
+        Timber.i("Refreshing $maxGameCount oldest games in the collection")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_games_oldest)))
-        val staleGames = gameRepository.loadOldestUpdatedGames(gamesPerFetch)
+        val staleGames = gameRepository.loadOldestUpdatedGames(maxGameCount)
         staleGames.forEach { (gameId, gameName) ->
             Timber.i("Refreshing game $gameName [$gameId]")
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS))
@@ -296,9 +302,9 @@ class SyncCollectionWorker @AssistedInject constructor(
             }
         }
 
-        Timber.i("Refreshing $gamesPerFetch games that are missing details in the collection")
+        Timber.i("Refreshing $maxGameCount games that are missing details in the collection")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_games_unupdated)))
-        val games = gameRepository.loadUnupdatedGames(gamesPerFetch)
+        val games = gameRepository.loadUnupdatedGames(maxGameCount)
         games.forEach { (gameId, gameName) ->
             Timber.i("Refreshing game $gameName [$gameId]")
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS))
@@ -331,9 +337,10 @@ class SyncCollectionWorker @AssistedInject constructor(
     }
 
     companion object {
-        const val UNIQUE_WORK_NAME = "com.boardgamegeek.SYNC_COLLECTION"
+        const val UNIQUE_WORK_NAME = "com.boardgamegeek.COLLECTION.DOWNLOAD"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
         const val STOPPED_REASON = "STOPPED_REASON"
+        private const val QUICK_SYNC = "QUICK_SYNC"
 
         fun requestSync(context: Context) {
             val workRequest = OneTimeWorkRequestBuilder<SyncCollectionWorker>()
@@ -342,5 +349,11 @@ class SyncCollectionWorker @AssistedInject constructor(
                 .build()
             WorkManager.getInstance(context).enqueue(workRequest)
         }
+
+        fun buildQuickRequest(context: Context) = OneTimeWorkRequestBuilder<SyncCollectionWorker>()
+            .setInputData(workDataOf(QUICK_SYNC to true))
+            .setConstraints(context.createWorkConstraints(true))
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
+            .build()
     }
 }

@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.*
+import androidx.work.WorkManager
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionViewEntity
@@ -69,14 +70,8 @@ class CollectionViewViewModel @Inject constructor(
         liveData {
             try {
                 emit(itemRepository.load())
-                _isRefreshing.postValue(true)
-                gameCollectionRepository.enqueueUploadRequest() // TODO move to the itemRepository?
-                itemRepository.refresh()
-                emit(itemRepository.load())
             } catch (e: Exception) {
                 _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
-            } finally {
-                _isRefreshing.postValue(false)
             }
         }
     }
@@ -93,9 +88,14 @@ class CollectionViewViewModel @Inject constructor(
     val isFiltering: LiveData<Boolean>
         get() = _isFiltering
 
-    private val _isRefreshing = MediatorLiveData<Boolean>()
-    val isRefreshing: LiveData<Boolean>
-        get() = _isRefreshing
+    private var wasRefreshing = false
+    val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(workName).map { list ->
+        if (wasRefreshing && list.all { it.state.isFinished }) {
+            wasRefreshing = false
+            syncTimestamp.postValue(System.currentTimeMillis())
+        }
+        list.any { workInfo -> !workInfo.state.isFinished }
+    }
 
     private val _selectedViewId = MutableLiveData<Long>()
     val selectedViewId: LiveData<Long>
@@ -313,6 +313,8 @@ class CollectionViewViewModel @Inject constructor(
 
     fun refresh(): Boolean {
         return if ((syncTimestamp.value ?: 0).isOlderThan(1.minutes)) {
+            wasRefreshing = true
+            gameCollectionRepository.enqueueRefreshRequest(workName)
             syncTimestamp.postValue(System.currentTimeMillis())
             true
         } else false
@@ -397,5 +399,9 @@ class CollectionViewViewModel @Inject constructor(
                 ShortcutManagerCompat.requestPinShortcut(context, info, null)
             }
         }
+    }
+
+    companion object {
+        const val workName = "CollectionViewViewModel"
     }
 }

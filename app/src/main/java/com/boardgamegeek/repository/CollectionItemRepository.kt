@@ -13,7 +13,6 @@ import com.boardgamegeek.work.SyncCollectionWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.util.*
 
 class CollectionItemRepository(
     val context: Context,
@@ -25,43 +24,9 @@ class CollectionItemRepository(
 
     suspend fun load(): List<CollectionItemEntity> = dao.load()
 
-    suspend fun refresh() = withContext(Dispatchers.IO) {
-        if (!prefs.isCollectionSetToSync()) {
-            Timber.i("Collection not set to sync any statuses")
-        } else if (prefs[AccountPreferences.KEY_USERNAME, ""].isNullOrBlank()) {
-            Timber.i("User name not set")
-        } else if (syncPrefs.getCurrentCollectionSyncTimestamp() > 0) {
-            Timber.i("Collection sync is already under way")
-        } else {
-            listOf(null, BggService.ThingSubtype.BOARDGAME_ACCESSORY).forEach { subtype ->
-                refreshSubtype(subtype)
-            }
-            syncPrefs.setPartialCollectionSyncLastCompletedAt()
-        }
-    }
-
     suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
         syncPrefs.clearCollection()
         SyncCollectionWorker.requestSync(context)
-    }
-
-    private suspend fun refreshSubtype(subtype: BggService.ThingSubtype?, timestamp: Long = System.currentTimeMillis()) {
-        val lastPartialSync = syncPrefs.getPartialCollectionSyncLastCompletedAt()
-        val lastStatusSync = syncPrefs.getPartialCollectionSyncLastCompletedAt(subtype)
-        if (lastStatusSync <= lastPartialSync) {
-            val modifiedSince = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(lastStatusSync))
-            val options = mutableMapOf(
-                BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE to modifiedSince,
-            )
-            subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
-            val count = refresh(options, timestamp)
-            syncPrefs.setPartialCollectionSyncLastCompletedAt(subtype, timestamp)
-            Timber.i("...saved %,d %s collection items", count, subtype)
-        } else {
-            Timber.i("Collection subtype $subtype recently synced")
-        }
     }
 
     suspend fun refresh(options: Map<String, String>, updatedTimestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
@@ -87,7 +52,7 @@ class CollectionItemRepository(
     suspend fun deleteUnupdatedItems(timestamp: Long) = dao.deleteUnupdatedItems(timestamp)
 
     private fun isItemStatusSetToSync(item: CollectionItemEntity): Boolean {
-        val statusesToSync = syncPrefs.getSyncStatusesOrDefault()
+        val statusesToSync = prefs.getSyncStatusesOrDefault()
         if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true
         if (item.previouslyOwned && COLLECTION_STATUS_PREVIOUSLY_OWNED in statusesToSync) return true
         if (item.forTrade && COLLECTION_STATUS_FOR_TRADE in statusesToSync) return true

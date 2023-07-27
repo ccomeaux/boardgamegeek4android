@@ -5,9 +5,7 @@ import android.content.SharedPreferences
 import android.graphics.Bitmap
 import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
-import androidx.work.WorkerParameters
+import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemForUploadEntity
 import com.boardgamegeek.entities.CollectionItemUploadResult
@@ -20,6 +18,7 @@ import com.boardgamegeek.util.LargeIconLoader
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class CollectionUploadWorker @AssistedInject constructor(
@@ -138,5 +137,12 @@ class CollectionUploadWorker @AssistedInject constructor(
 
     companion object {
         const val GAME_ID = "GAME_ID"
+
+        fun buildRequest(context: Context, gameId: Int = BggContract.INVALID_ID) =
+            OneTimeWorkRequestBuilder<CollectionUploadWorker>()
+                .setInputData(workDataOf(GAME_ID to gameId))
+                .setConstraints(context.createWorkConstraints())
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 3, TimeUnit.MINUTES)
+                .build()
     }
 }

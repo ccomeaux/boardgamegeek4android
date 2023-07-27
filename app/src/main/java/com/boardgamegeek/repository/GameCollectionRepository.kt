@@ -4,10 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
-import androidx.work.BackoffPolicy
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
+import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
@@ -20,6 +17,7 @@ import com.boardgamegeek.mappers.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.work.CollectionUploadWorker
+import com.boardgamegeek.work.SyncCollectionWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
@@ -407,12 +405,14 @@ class GameCollectionRepository(
             } else 0
         }
 
-    fun enqueueUploadRequest(gameId: Int = INVALID_ID) {
-        val workRequest = OneTimeWorkRequestBuilder<CollectionUploadWorker>()
-            .setInputData(workDataOf(CollectionUploadWorker.GAME_ID to gameId))
-            .setConstraints(context.createWorkConstraints())
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 3, TimeUnit.MINUTES)
-            .build()
-        WorkManager.getInstance(context).enqueue(workRequest)
+    fun enqueueUploadRequest(gameId: Int) {
+        WorkManager.getInstance(context).enqueue(CollectionUploadWorker.buildRequest(context, gameId))
+    }
+
+    fun enqueueRefreshRequest(workName: String): Operation {
+        return WorkManager.getInstance(context)
+            .beginUniqueWork(workName, ExistingWorkPolicy.KEEP,  CollectionUploadWorker.buildRequest(context))
+            .then(SyncCollectionWorker.buildQuickRequest(context))
+            .enqueue()
     }
 }
