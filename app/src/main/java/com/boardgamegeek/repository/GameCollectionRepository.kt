@@ -22,7 +22,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 class GameCollectionRepository(
     val context: Context,
@@ -76,7 +75,7 @@ class GameCollectionRepository(
         } else item
     }
 
-    suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId)
+    suspend fun loadCollectionItems(gameId: Int) = dao.load("collection.${Collection.Columns.GAME_ID}=?", arrayOf(gameId.toString()))
 
     suspend fun refreshCollectionItems(gameId: Int, subtype: GameEntity.Subtype? = null): List<CollectionItemEntity>? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
@@ -139,11 +138,11 @@ class GameCollectionRepository(
 
     suspend fun loadInventoryLocation() = dao.loadInventoryLocation()
 
-    suspend fun loadItemsPendingDeletion() = dao.loadPending(Collection.Columns.COLLECTION_DELETE_TIMESTAMP.greaterThanZero())
+    suspend fun loadItemsPendingDeletion() = dao.load(Collection.Columns.COLLECTION_DELETE_TIMESTAMP.greaterThanZero(), includeDeletedItems = true)
 
-    suspend fun loadItemsPendingInsert() = dao.loadPending("${Collection.Columns.COLLECTION_DIRTY_TIMESTAMP.greaterThanZero()} AND ${Collection.Columns.COLLECTION_ID.whereNullOrBlank()}")
+    suspend fun loadItemsPendingInsert() = dao.load("${Collection.Columns.COLLECTION_DIRTY_TIMESTAMP.greaterThanZero()} AND ${Collection.Columns.COLLECTION_ID.whereNullOrBlank()}")
 
-    suspend fun loadItemsPendingUpdate(): List<CollectionItemForUploadEntity> {
+    suspend fun loadItemsPendingUpdate(): List<CollectionItemEntity> {
         val columns = listOf(
             Collection.Columns.STATUS_DIRTY_TIMESTAMP,
             Collection.Columns.RATING_DIRTY_TIMESTAMP,
@@ -154,10 +153,10 @@ class GameCollectionRepository(
             Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
             Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP,
         ).map { it.greaterThanZero() }
-        return dao.loadPending("${columns.joinTo(" OR ")}")
+        return dao.load("${columns.joinTo(" OR ")}")
     }
 
-    suspend fun uploadDeletedItem(item: CollectionItemForUploadEntity): Result<CollectionItemUploadResult> {
+    suspend fun uploadDeletedItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
         val response = phpApi.collection(item.mapToFormBodyForDeletion())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
@@ -170,7 +169,7 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun uploadNewItem(item: CollectionItemForUploadEntity): Result<CollectionItemUploadResult> {
+    suspend fun uploadNewItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
         val response = phpApi.collection(item.mapToFormBodyForInsert())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
@@ -189,20 +188,20 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun uploadUpdatedItem(item: CollectionItemForUploadEntity): Result<CollectionItemUploadResult> {
-        val statusResult = updateItemField(item.statusTimestamp, item.mapToFormBodyForStatusUpdate(), item, Collection.Columns.STATUS_DIRTY_TIMESTAMP)
+    suspend fun uploadUpdatedItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
+        val statusResult = updateItemField(item.statusDirtyTimestamp, item.mapToFormBodyForStatusUpdate(), item, Collection.Columns.STATUS_DIRTY_TIMESTAMP)
         if (statusResult.isFailure) return statusResult
 
-        val ratingResult = updateItemField(item.ratingTimestamp, item.mapToFormBodyForRatingUpdate(), item, Collection.Columns.RATING_DIRTY_TIMESTAMP)
+        val ratingResult = updateItemField(item.ratingDirtyTimestamp, item.mapToFormBodyForRatingUpdate(), item, Collection.Columns.RATING_DIRTY_TIMESTAMP)
         if (ratingResult.isFailure) return ratingResult
 
-        val commentResult = updateItemField(item.commentTimestamp, item.mapToFormBodyForCommentUpdate(), item, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+        val commentResult = updateItemField(item.commentDirtyTimestamp, item.mapToFormBodyForCommentUpdate(), item, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
         if (commentResult.isFailure) return commentResult
 
-        val privateInfoResult = updateItemField(item.privateInfoTimestamp, item.mapToFormBodyForPrivateInfoUpdate(), item, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+        val privateInfoResult = updateItemField(item.privateInfoDirtyTimestamp, item.mapToFormBodyForPrivateInfoUpdate(), item, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
         if (privateInfoResult.isFailure) return privateInfoResult
 
-        val wishlistCommentResult = updateItemField(item.wishlistCommentDirtyTimestamp, item.mapToFormBodyForWishlistCommentUpdate(), item, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+        val wishlistCommentResult = updateItemField(item.wishListCommentDirtyTimestamp, item.mapToFormBodyForWishlistCommentUpdate(), item, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
         if (wishlistCommentResult.isFailure) return wishlistCommentResult
 
         val tradeConditionResult = updateItemField(item.tradeConditionDirtyTimestamp, item.mapToFormBodyForTradeConditionUpdate(), item, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
@@ -220,7 +219,7 @@ class GameCollectionRepository(
     private suspend fun updateItemField(
         timestamp: Long,
         formBody: FormBody,
-        item: CollectionItemForUploadEntity,
+        item: CollectionItemEntity,
         timestampColumn: String
     ): Result<CollectionItemUploadResult> {
         return if (timestamp > 0L) {
@@ -409,8 +408,8 @@ class GameCollectionRepository(
         WorkManager.getInstance(context).enqueue(CollectionUploadWorker.buildRequest(context, gameId))
     }
 
-    fun enqueueRefreshRequest(workName: String): Operation {
-        return WorkManager.getInstance(context)
+    fun enqueueRefreshRequest(workName: String) {
+        WorkManager.getInstance(context)
             .beginUniqueWork(workName, ExistingWorkPolicy.KEEP,  CollectionUploadWorker.buildRequest(context))
             .then(SyncCollectionWorker.buildQuickRequest(context))
             .enqueue()

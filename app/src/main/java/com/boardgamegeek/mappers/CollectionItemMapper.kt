@@ -1,8 +1,8 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.CollectionItemForUploadEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
+import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.CollectionItem
@@ -75,38 +75,38 @@ fun CollectionItem.mapToEntities(): Pair<CollectionItemEntity, CollectionItemGam
     return item to game
 }
 
-fun CollectionItemForUploadEntity.mapToFormBodyForDeletion(): FormBody {
+fun CollectionItemEntity.mapToFormBodyForDeletion(): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "delete")
         .build()
 }
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForInsert(): FormBody {
+fun CollectionItemEntity.mapToFormBodyForInsert(): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "additem")
         .build()
 }
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForStatusUpdate(): FormBody {
+fun CollectionItemEntity.mapToFormBodyForStatusUpdate(): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "savedata")
         .add("fieldname", "status")
-        .add("own", if (owned) "1" else "0")
+        .add("own", if (own) "1" else "0")
         .add("prevowned", if (previouslyOwned) "1" else "0")
         .add("fortrade", if (forTrade) "1" else "0")
         .add("want", if (wantInTrade) "1" else "0")
         .add("wanttobuy", if (wantToBuy) "1" else "0")
         .add("wanttoplay", if (wantToPlay) "1" else "0")
-        .add("preordered", if (preordered) "1" else "0")
-        .add("wishlist", if (wishlist) "1" else "0")
-        .add("wishlistpriority", wishlistPriority.toString())
+        .add("preordered", if (preOrdered) "1" else "0")
+        .add("wishlist", if (wishList) "1" else "0")
+        .add("wishlistpriority", wishListPriority.toString())
         .build()
 }
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForRatingUpdate(): FormBody {
+fun CollectionItemEntity.mapToFormBodyForRatingUpdate(): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "savedata")
         .add("fieldname", "rating")
@@ -115,7 +115,7 @@ fun CollectionItemForUploadEntity.mapToFormBodyForRatingUpdate(): FormBody {
 }
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForPrivateInfoUpdate(): FormBody {
+fun CollectionItemEntity.mapToFormBodyForPrivateInfoUpdate(): FormBody {
     fun Double.formatCurrency(currencyFormat: DecimalFormat = DecimalFormat("0.00")): String {
         return if (this == 0.0) "" else currencyFormat.format(this)
     }
@@ -128,38 +128,38 @@ fun CollectionItemForUploadEntity.mapToFormBodyForPrivateInfoUpdate(): FormBody 
         .add("cv_currency", currentValueCurrency)
         .add("currvalue", currentValue.formatCurrency())
         .add("quantity", quantity.toString())
-        .add("acquisitiondate", acquisitionDate)
+        .add("acquisitiondate", acquisitionDate.asDateForApi())
         .add("acquiredfrom", acquiredFrom)
         .add("privatecomment", privateComment)
         .add("invlocation", inventoryLocation)
         .build()
 }
 
-fun CollectionItemForUploadEntity.mapToFormBodyForCommentUpdate() = mapToFormBodyForTextUpdate("comment")
+fun CollectionItemEntity.mapToFormBodyForCommentUpdate() = mapToFormBodyForTextUpdate("comment", comment)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForWishlistCommentUpdate() = mapToFormBodyForTextUpdate("wishlistcomment")
+fun CollectionItemEntity.mapToFormBodyForWishlistCommentUpdate() = mapToFormBodyForTextUpdate("wishlistcomment", wishListComment)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForTradeConditionUpdate() = mapToFormBodyForTextUpdate("conditiontext")
+fun CollectionItemEntity.mapToFormBodyForTradeConditionUpdate() = mapToFormBodyForTextUpdate("conditiontext", conditionText)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForWantPartsUpdate() = mapToFormBodyForTextUpdate("wantpartslist")
+fun CollectionItemEntity.mapToFormBodyForWantPartsUpdate() = mapToFormBodyForTextUpdate("wantpartslist", wantPartsList)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForHasPartsUpdate() = mapToFormBodyForTextUpdate("haspartslist")
+fun CollectionItemEntity.mapToFormBodyForHasPartsUpdate() = mapToFormBodyForTextUpdate("haspartslist", hasPartsList)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemForUploadEntity.mapToFormBodyForTextUpdate(value: String): FormBody {
+private fun CollectionItemEntity.mapToFormBodyForTextUpdate(fieldName: String, value: String): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "savedata")
-        .add("fieldname", value)
-        .add("value", hasParts.orEmpty())
+        .add("fieldname", fieldName)
+        .add("value", value)
         .build()
 }
 
 @Suppress("SpellCheckingInspection")
-private fun CollectionItemForUploadEntity.mapToFormBodyBuilder(): FormBody.Builder {
+private fun CollectionItemEntity.mapToFormBodyBuilder(): FormBody.Builder {
     val builder = FormBody.Builder()
         .add("ajax", "1")
         .add("objecttype", "thing")

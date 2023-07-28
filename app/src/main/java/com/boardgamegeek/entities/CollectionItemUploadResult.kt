@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class CollectionItemUploadResult private constructor(val item: CollectionItemForUploadEntity, val status: Status) {
+data class CollectionItemUploadResult private constructor(val item: CollectionItemEntity, val status: Status) {
     enum class Status {
         NEW,
         UPDATE,
@@ -8,8 +8,8 @@ data class CollectionItemUploadResult private constructor(val item: CollectionIt
     }
 
     companion object {
-        fun delete(item: CollectionItemForUploadEntity) = CollectionItemUploadResult(item, Status.DELETE)
-        fun insert(item: CollectionItemForUploadEntity) = CollectionItemUploadResult(item, Status.NEW)
-        fun update(item: CollectionItemForUploadEntity) = CollectionItemUploadResult(item, Status.UPDATE)
+        fun delete(item: CollectionItemEntity) = CollectionItemUploadResult(item, Status.DELETE)
+        fun insert(item: CollectionItemEntity) = CollectionItemUploadResult(item, Status.NEW)
+        fun update(item: CollectionItemEntity) = CollectionItemUploadResult(item, Status.UPDATE)
     }
 }
