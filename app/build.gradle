@@ -191,7 +191,7 @@ dependencies {
     implementation "com.facebook.stetho:stetho:$stetho_version"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
-    implementation 'org.jsoup:jsoup:1.15.4'
+    implementation 'org.jsoup:jsoup:1.16.1'
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.10"
 }
