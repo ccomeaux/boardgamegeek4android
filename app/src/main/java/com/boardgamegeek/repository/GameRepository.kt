@@ -35,17 +35,21 @@ class GameRepository @Inject constructor(
 
     suspend fun refreshGame(vararg gameId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
+        val gameEntities = fetchGame(*gameId)
+        gameEntities.forEach { gameEntity ->
+            dao.save(gameEntity, timestamp)
+            Timber.d("Synced game ${gameEntity.name} [${gameEntity.id}]")
+        }
+        gameEntities.size
+    }
+
+    suspend fun fetchGame(vararg gameId: Int): List<GameEntity> = withContext(Dispatchers.IO) {
         val response = if (gameId.size == 1) {
             api.thing(gameId.first(), 1)
         } else {
             api.things(gameId.joinToString(), 1)
         }
-        for (game in response.games) {
-            val gameEntity = game.mapToEntity()
-            dao.save(gameEntity, timestamp)
-            Timber.d("Synced game ${gameEntity.name} [${gameEntity.id}]")
-        }
-        response.games.size
+        response.games.map { it.mapToEntity() }
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {

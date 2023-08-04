@@ -3,8 +3,10 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.entities.GeekListEntity
+import com.boardgamegeek.entities.GeekListItemEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.GeekListRepository
 import com.boardgamegeek.repository.ImageRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,8 +15,9 @@ import javax.inject.Inject
 @HiltViewModel
 class GeekListViewModel @Inject constructor(
     application: Application,
-    private val repository: GeekListRepository,
+    private val geekListRepository: GeekListRepository,
     private val imageRepository: ImageRepository,
+    private val gameRepository: GameRepository,
 ) : AndroidViewModel(application) {
     private val _geekListId = MutableLiveData<Int>()
 
@@ -24,22 +27,27 @@ class GeekListViewModel @Inject constructor(
 
     val geekList: LiveData<RefreshableResource<GeekListEntity>> = _geekListId.switchMap { id ->
         liveData {
+            emit(RefreshableResource.refreshing(latestValue?.data))
             if (id == BggContract.INVALID_ID) {
                 emit(RefreshableResource.error("Invalid ID!"))
             } else {
                 try {
-                    emit(RefreshableResource.refreshing(latestValue?.data))
-                    val geekList = repository.getGeekList(id)
-                    // TODO only fetch URLs if the UI needs to display the image
+                    val geekList = geekListRepository.getGeekList(id)
                     emit(RefreshableResource.refreshing(geekList))
-                    geekList.items.forEach { // TODO if imageID == 0, then use the object's image (requires another network call)
-                        if (it.thumbnailUrls == null || it.heroImageUrls == null) {
-                            val urls = imageRepository.getImageUrls(it.imageId)
-                            it.thumbnailUrls = urls[ImageRepository.ImageType.THUMBNAIL]
-                            it.heroImageUrls = urls[ImageRepository.ImageType.HERO]
-                        }
+                    val itemsWithImages = mutableListOf<GeekListItemEntity>()
+                    geekList.items.forEach {
+                        itemsWithImages += if (it.thumbnailUrls == null || it.heroImageUrls == null) {
+                            val urlPair = if (it.imageId == 0) {
+                                val games = gameRepository.fetchGame(it.objectId)
+                                listOf(games.firstOrNull()?.thumbnailUrl.orEmpty()) to listOf(games.firstOrNull()?.thumbnailUrl.orEmpty())
+                            } else {
+                                val urls = imageRepository.getImageUrls(it.imageId)
+                                urls[ImageRepository.ImageType.THUMBNAIL] to urls[ImageRepository.ImageType.HERO]
+                            }
+                            it.copy(thumbnailUrls = urlPair.first, heroImageUrls = urlPair.second)
+                        } else it
                     }
-                    emit(RefreshableResource.success(geekList))
+                    emit(RefreshableResource.success(geekList.copy(items = itemsWithImages)))
                 } catch (e: Exception) {
                     emit(RefreshableResource.error(e, application))
                 }
