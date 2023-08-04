@@ -45,7 +45,7 @@ class PlayStatRow(context: Context) : TableRow(context) {
     fun setValueAsDate(date: String, context: Context) {
         if (date.isNotEmpty()) {
             try {
-                val millis = FORMAT.parse(date)?.time ?: 0L
+                val millis = SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(date)?.time ?: 0L
                 setValue(millis.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_MONTH))
             } catch (e: ParseException) {
                 setValue(date)
@@ -77,6 +77,5 @@ class PlayStatRow(context: Context) : TableRow(context) {
 
     companion object {
         private val DOUBLE_FORMAT = DecimalFormat("0.00")
-        private val FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     }
 }

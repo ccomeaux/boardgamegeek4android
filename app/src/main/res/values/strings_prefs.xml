@@ -39,7 +39,6 @@
 	<string name="pref_sync_buddies" tools:ignore="MissingTranslation">GeekBuddies</string>
 	<string name="pref_sync_plays">Plays</string>
 	<string name="pref_sync_upload">Show upload notifications</string>
-	<string name="pref_sync_notifications">Show progress notifications</string>
 	<string name="pref_sync_errors">Show error notifications</string>
 	<string name="pref_sync_only_charging">Only while charging</string>
 	<string name="pref_sync_only_wifi">Only on WiFi</string>
@@ -64,6 +63,7 @@
 	<string name="pref_sync_reset_buddies_info_message">This will delete all GeekBuddies, then force a complete sync. This may take a while, but it is recommended if all GeekBuddies aren\'t appearing.</string>
 	<string name="pref_sync_timestamps">View sync status</string>
 	<string name="pref_sync_timestamps_title">Sync status</string>
+	<string name="pref_sync_timestamps_collection_full_current">Current</string>
 	<string name="pref_sync_timestamps_collection_full">Full</string>
 	<string name="pref_sync_timestamps_collection_partial">Partial</string>
 	<string name="pref_sync_timestamps_plays_newest_date">Newest Synced Play Date</string>

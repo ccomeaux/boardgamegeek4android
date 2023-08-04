@@ -55,23 +55,26 @@ fun Activity.createDiscardDialog(
     @StringRes positiveButtonResId: Int = R.string.keep_editing,
     isNew: Boolean,
     finishActivity: Boolean = true,
-    discardListener: () -> Unit = {}): Dialog {
-    val messageFormat = getString(if (isNew)
-        R.string.discard_new_message
-    else
-        R.string.discard_changes_message)
+    discardListener: () -> Unit = {}
+): Dialog {
+    val messageFormat = getString(
+        if (isNew)
+            R.string.discard_new_message
+        else
+            R.string.discard_changes_message
+    )
     return createThemedBuilder()
-            .setMessage(String.format(messageFormat, getString(objectResId).lowercase(Locale.getDefault())))
-            .setPositiveButton(positiveButtonResId, null)
-            .setNegativeButton(R.string.discard) { _, _ ->
-                discardListener()
-                if (finishActivity) {
-                    setResult(Activity.RESULT_CANCELED)
-                    finish()
-                }
+        .setMessage(String.format(messageFormat, getString(objectResId).lowercase(Locale.getDefault())))
+        .setPositiveButton(positiveButtonResId, null)
+        .setNegativeButton(R.string.discard) { _, _ ->
+            discardListener()
+            if (finishActivity) {
+                setResult(Activity.RESULT_CANCELED)
+                finish()
             }
-            .setCancelable(true)
-            .create()
+        }
+        .setCancelable(true)
+        .create()
 }
 
 fun Context.createThemedBuilder(): AlertDialog.Builder {
@@ -91,8 +94,8 @@ fun Context.showClickableAlertDialogPlural(@StringRes titleResId: Int, @PluralsR
 private fun Context.showClickableAlertDialog(spannableMessage: SpannableString, titleResId: Int) {
     Linkify.addLinks(spannableMessage, Linkify.WEB_URLS)
     val dialog = AlertDialog.Builder(this)
-            .setTitle(titleResId)
-            .setMessage(spannableMessage)
-            .show()
+        .setTitle(titleResId)
+        .setMessage(spannableMessage)
+        .show()
     dialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
 }

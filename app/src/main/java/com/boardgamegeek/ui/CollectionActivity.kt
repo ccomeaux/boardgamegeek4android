@@ -59,6 +59,11 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 }
             }
         }
+        viewModel.loggedPlayResult.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                notifyLoggedPlay(it)
+            }
+        }
         viewModel.selectedViewId.observe(this) { id: Long -> viewId = id }
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {

@@ -29,8 +29,6 @@ class GamePlaysFragment : Fragment() {
     private val binding get() = _binding!!
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
-    private var imageUrl = ""
-    private var thumbnailUrl = ""
     private var heroImageUrl = ""
     private var arePlayersCustomSorted = false
 
@@ -58,8 +56,6 @@ class GamePlaysFragment : Fragment() {
             it?.data?.let { game ->
                 gameId = game.id
                 gameName = game.name
-                imageUrl = game.imageUrl
-                thumbnailUrl = game.thumbnailUrl
                 heroImageUrl = game.heroImageUrl
                 arePlayersCustomSorted = game.customPlayerSort
                 binding.syncTimestampView.timestamp = game.updatedPlays
@@ -106,8 +102,6 @@ class GamePlaysFragment : Fragment() {
                     requireContext(),
                     gameId,
                     gameName,
-                    imageUrl,
-                    thumbnailUrl,
                     heroImageUrl,
                     arePlayersCustomSorted,
                     iconColor,

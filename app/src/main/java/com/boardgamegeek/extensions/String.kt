@@ -11,7 +11,7 @@ import java.text.DateFormat
 import java.util.*
 
 fun String?.replaceHtmlLineFeeds(): String {
-    return if (this == null || isBlank()) "" else replace("&#10;", "\n")
+    return if (isNullOrBlank()) "" else replace("&#10;", "\n")
 }
 
 fun String?.sortName(sortIndex: Int): String {
@@ -117,7 +117,7 @@ inline fun String.andMore() = "${this}+"
 inline fun String.andLess() = "<${this}"
 
 fun String?.firstChar(): String {
-    if (this == null || isEmpty()) return "-"
+    if (isNullOrEmpty()) return "-"
     return substring(0, 1).uppercase(Locale.getDefault())
 }
 

@@ -4,7 +4,6 @@ import android.content.Context
 import android.text.format.DateUtils.*
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.time.Duration
@@ -12,6 +11,15 @@ import kotlin.time.Duration
 fun Long.isOlderThan(duration: Duration) = System.currentTimeMillis() - this > duration.inWholeMilliseconds
 
 fun Long.isToday(): Boolean = isToday(this)
+
+fun Long.isSameDay(date: Long): Boolean {
+    val otherCalendar = Calendar.getInstance()
+    val cal2 = Calendar.getInstance()
+    otherCalendar.timeInMillis = this
+    cal2.timeInMillis = date
+    return otherCalendar[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR] &&
+            otherCalendar[Calendar.YEAR] == cal2[Calendar.YEAR]
+}
 
 fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.never, includeWeekDay: Boolean = false): CharSequence {
     return if (this == 0L)
@@ -46,7 +54,7 @@ fun Long.howManyWeeksOld(): Int {
 fun Long.forDatabase(): String {
     val c = Calendar.getInstance()
     c.timeInMillis = this
-    return FORMAT_DATABASE.format(c.time)
+    return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(c.time)
 }
 
 fun Long.formatTimestamp(context: Context, includeTime: Boolean, isForumTimestamp: Boolean = false): CharSequence {
@@ -62,15 +70,12 @@ fun Long.formatTimestamp(context: Context, includeTime: Boolean, isForumTimestam
     }
 }
 
-private val FORMAT_API: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-private val FORMAT_DATABASE: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-
 fun Long?.asDateForApi(): String {
     if (this == null) return ""
     if (this == 0L) return ""
     val c = Calendar.getInstance()
     c.timeInMillis = this
-    return FORMAT_API.format(c.time)
+    return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(c.time)
 }
 
 fun Long.fromLocalToUtc(): Long {

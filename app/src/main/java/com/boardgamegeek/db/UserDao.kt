@@ -24,10 +24,11 @@ import timber.log.Timber
 
 class UserDao(private val context: Context) {
     enum class UsersSortBy {
-        FIRST_NAME, LAST_NAME, USERNAME
+        FIRST_NAME, LAST_NAME, USERNAME, UPDATED
     }
 
     suspend fun loadUser(username: String): UserEntity? = withContext(Dispatchers.IO) {
+        if (username.isBlank()) return@withContext null
         context.contentResolver.loadEntity(
             Buddies.buildBuddyUri(username),
             arrayOf(
@@ -54,12 +55,13 @@ class UserDao(private val context: Context) {
         }
     }
 
-    suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME, buddiesOnly: Boolean = true): List<UserEntity> =
+    suspend fun loadUsers(sortBy: UsersSortBy = UsersSortBy.USERNAME, buddiesOnly: Boolean): List<UserEntity> =
         withContext(Dispatchers.IO) {
             val sortOrder = when (sortBy) {
                 UsersSortBy.USERNAME -> Buddies.Columns.BUDDY_NAME
                 UsersSortBy.FIRST_NAME -> Buddies.Columns.BUDDY_FIRSTNAME
                 UsersSortBy.LAST_NAME -> Buddies.Columns.BUDDY_LASTNAME
+                UsersSortBy.UPDATED -> Buddies.Columns.UPDATED
             }.plus(" $COLLATE_NOCASE ASC")
             context.contentResolver.loadList(
                 Buddies.CONTENT_URI,

@@ -90,7 +90,7 @@ abstract class BaseProvider {
 
     protected fun notifyException(context: Context?, e: SQLException) {
         val prefs = context?.preferences()
-        if (prefs != null && prefs[KEY_SYNC_NOTIFICATIONS, false] == true) {
+        if (prefs != null && prefs[KEY_SYNC_ERRORS, false] == true) {
             val builder = context
                 .createNotificationBuilder(R.string.title_error, NotificationChannels.ERROR)
                 .setContentText(e.localizedMessage)

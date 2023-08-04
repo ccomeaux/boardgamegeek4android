@@ -114,7 +114,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
         binding.swipeRefreshLayout.setBggColors()
         binding.swipeRefreshLayout.setOnRefreshListener {
-            binding.swipeRefreshLayout.isRefreshing = viewModel.refresh()
+            viewModel.refresh()
         }
 
         binding.progressBar.show()
@@ -459,9 +459,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                                 changingGamePlayId,
                                 item.gameId,
                                 item.gameName,
-                                item.thumbnailUrl,
-                                item.imageUrl,
-                                item.heroImageUrl
+                                item.heroImageUrl.ifBlank { item.thumbnailUrl },
                             )
                             requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
                         }
@@ -509,13 +507,14 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         menu.findItem(R.id.menu_log_play_form)?.isVisible = count == 1
         menu.findItem(R.id.menu_log_play_wizard)?.isVisible = count == 1
         menu.findItem(R.id.menu_link)?.isVisible = count == 1
-        // TODO: disable Navigation Drawer open/close when the ActionBar is enabled
+        (activity as? DrawerActivity)?.lockDrawerClosed()
         return true
     }
 
     override fun onDestroyActionMode(mode: ActionMode) {
         actionMode = null
         adapter.clearSelection()
+        (activity as? DrawerActivity)?.unlockDrawer()
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
@@ -529,10 +528,8 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                         requireContext(),
                         it.gameId,
                         it.gameName,
-                        it.thumbnailUrl,
-                        it.imageUrl,
-                        it.heroImageUrl,
-                        it.arePlayersCustomSorted
+                        it.heroImageUrl.ifBlank { it.thumbnailUrl },
+                        it.arePlayersCustomSorted,
                     )
                 }
             }

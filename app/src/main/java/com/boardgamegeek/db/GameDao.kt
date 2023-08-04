@@ -237,7 +237,7 @@ class GameDao(private val context: Context) {
      * Get a list of games, sorted by least recently updated, that
      * 1. have no associated collection record
      * 2. haven't been viewed in a configurable number of hours
-     * 3. and have 0 plays (if plays are being synced
+     * 3. and have 0 plays (if plays are being synced)
      */
     suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
         val games = mutableListOf<Pair<Int, String>>()
@@ -517,7 +517,7 @@ class GameDao(private val context: Context) {
             batch += createAssociationBatch(game.id, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
             batch += createAssociationBatch(game.id, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
 
-            resolver.applyBatch(batch, "Game ${game.id}")
+            resolver.applyBatch(batch, "Game ${game.name} [${game.id}]")
             val dateTime = DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
             if (internalId == INVALID_ID.toLong()) {
                 Timber.i("Inserted game ${game.name} [${game.id}] at $dateTime")

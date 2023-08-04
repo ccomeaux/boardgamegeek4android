@@ -400,7 +400,6 @@
 	<string name="menu_sort_geeklists_recent">Ostatnie</string>
 	<string name="menu_sort_geeklists_active">Aktywne</string>
 	<string name="menu_colors_generate">Generuj kolory</string>
-	<string name="menu_cancel_sync">Anuluj synchronizację</string>
 	<string name="menu_clear">Wyczyść</string>
 	<string name="menu_add_username">Dodaj nazwę użytkownika</string>
 	<string name="menu_scroll_to_last_read">Przewiń do ostatniej przeczytanej</string>

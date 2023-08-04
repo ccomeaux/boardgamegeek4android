@@ -2,8 +2,11 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.SearchResultEntity
+import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.SearchRepository
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -21,6 +24,14 @@ class SearchViewModel @Inject constructor(
     private val _query = MutableLiveData<Pair<String, Boolean>>()
     val query: LiveData<Pair<String, Boolean>>
         get() = _query
+
+    private val _errorMessage = MediatorLiveData<Event<String>>()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
+
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
+        get() = _loggedPlayResult
 
     fun search(query: String) {
         FirebaseAnalytics.getInstance(getApplication()).logEvent(FirebaseAnalytics.Event.SEARCH) {
@@ -60,7 +71,19 @@ class SearchViewModel @Inject constructor(
 
     fun logQuickPlay(gameId: Int, gameName: String) {
         viewModelScope.launch {
-            playRepository.logQuickPlay(gameId, gameName)
+            val result = playRepository.logQuickPlay(gameId, gameName)
+            if (result.isFailure)
+                postError(result.exceptionOrNull())
+            else {
+                result.getOrNull()?.let {
+                    if (it.play.playId != BggContract.INVALID_ID)
+                        _loggedPlayResult.value = Event(it)
+                }
+            }
         }
+    }
+
+    private fun postError(exception: Throwable?) {
+        _errorMessage.value = Event(exception?.message.orEmpty())
     }
 }

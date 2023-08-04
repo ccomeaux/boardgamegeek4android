@@ -22,6 +22,9 @@ data class CollectionItemEntity(
     val imageUrl: String = "",
     val thumbnailUrl: String = "",
     val heroImageUrl: String = "",
+    val gameImageUrl: String = "",
+    val gameThumbnailUrl: String = "",
+    val gameHeroImageUrl: String = "",
     val averageRating: Double = 0.0,
     val rating: Double = 0.0,
     val own: Boolean = false,
@@ -57,7 +60,7 @@ data class CollectionItemEntity(
     val ratingDirtyTimestamp: Long = 0L,
     val commentDirtyTimestamp: Long = 0L,
     val privateInfoDirtyTimestamp: Long = 0L,
-    val wishListDirtyTimestamp: Long = 0L,
+    val wishListCommentDirtyTimestamp: Long = 0L,
     val tradeConditionDirtyTimestamp: Long = 0L,
     val hasPartsDirtyTimestamp: Long = 0L,
     val wantPartsDirtyTimestamp: Long = 0L,
@@ -86,7 +89,7 @@ data class CollectionItemEntity(
             ratingDirtyTimestamp > 0L -> true
             commentDirtyTimestamp > 0L -> true
             privateInfoDirtyTimestamp > 0L -> true
-            wishListDirtyTimestamp > 0L -> true
+            wishListCommentDirtyTimestamp > 0L -> true
             tradeConditionDirtyTimestamp > 0L -> true
             hasPartsDirtyTimestamp > 0L -> true
             wantPartsDirtyTimestamp > 0L -> true

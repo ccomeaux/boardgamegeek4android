@@ -16,10 +16,10 @@ import com.boardgamegeek.entities.HIndexEntity
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
+import com.boardgamegeek.work.SyncCollectionWorker
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -51,7 +51,7 @@ class PlayStatsFragment : Fragment() {
                 .setPositiveButton(R.string.modify) { _, _ ->
                     prefs.addSyncStatus(COLLECTION_STATUS_OWN)
                     prefs.addSyncStatus(COLLECTION_STATUS_PLAYED)
-                    SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION)
+                    SyncCollectionWorker.requestSync(requireContext())
                     bindCollectionStatusMessage()
                 }
                 .setNegativeButton(R.string.cancel, null)

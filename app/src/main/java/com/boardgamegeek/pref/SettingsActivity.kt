@@ -13,9 +13,11 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
+import com.boardgamegeek.work.SyncCollectionWorker
+import com.boardgamegeek.work.SyncPlaysWorker
+import com.boardgamegeek.work.SyncUsersWorker
 import com.mikepenz.aboutlibraries.Libs
 import com.mikepenz.aboutlibraries.LibsBuilder
 import dagger.hilt.android.AndroidEntryPoint
@@ -68,9 +70,11 @@ class SettingsActivity : DrawerActivity() {
     class PrefFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()
-        private var syncType = SyncService.FLAG_SYNC_NONE
         private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
         private val syncViewModel by activityViewModels<SyncViewModel>()
+        private var needsCollectionSync = false
+        private var needsPlaysSync = false
+        private var needsUsersSync = false
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -133,10 +137,9 @@ class SettingsActivity : DrawerActivity() {
 
         override fun onStop() {
             super.onStop()
-            if (syncType != SyncService.FLAG_SYNC_NONE) {
-                SyncService.sync(activity, syncType)
-                syncType = SyncService.FLAG_SYNC_NONE
-            }
+            if (needsCollectionSync) SyncCollectionWorker.requestSync(requireContext())
+            if (needsPlaysSync) SyncPlaysWorker.requestSync(requireContext())
+            if (needsUsersSync) SyncUsersWorker.requestSync(requireContext())
         }
 
         override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
@@ -144,15 +147,15 @@ class SettingsActivity : DrawerActivity() {
                 PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
                     syncPrefs.requestPartialSync()
-                    syncType = syncType or SyncService.FLAG_SYNC_COLLECTION
+                    needsCollectionSync = true
                 }
                 PREFERENCES_KEY_SYNC_PLAYS -> {
                     syncPrefs.clearPlaysTimestamps()
-                    syncType = syncType or SyncService.FLAG_SYNC_PLAYS
+                    needsPlaysSync = true
                 }
                 PREFERENCES_KEY_SYNC_BUDDIES -> {
                     syncPrefs.clearBuddyListTimestamps()
-                    syncType = syncType or SyncService.FLAG_SYNC_BUDDIES
+                    needsUsersSync = true
                 }
             }
         }

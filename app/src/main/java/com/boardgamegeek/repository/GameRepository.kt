@@ -8,10 +8,8 @@ import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.GeekdoApi
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
@@ -37,17 +35,21 @@ class GameRepository @Inject constructor(
 
     suspend fun refreshGame(vararg gameId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
+        val gameEntities = fetchGame(*gameId)
+        gameEntities.forEach { gameEntity ->
+            dao.save(gameEntity, timestamp)
+            Timber.d("Synced game ${gameEntity.name} [${gameEntity.id}]")
+        }
+        gameEntities.size
+    }
+
+    suspend fun fetchGame(vararg gameId: Int): List<GameEntity> = withContext(Dispatchers.IO) {
         val response = if (gameId.size == 1) {
             api.thing(gameId.first(), 1)
         } else {
             api.things(gameId.joinToString(), 1)
         }
-        for (game in response.games) {
-            val gameEntity = game.mapToEntity()
-            dao.save(gameEntity, timestamp)
-            Timber.i("Synced game ${gameEntity.name} [${gameEntity.id}]")
-        }
-        response.games.size
+        response.games.map { it.mapToEntity() }
     }
 
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {

@@ -789,7 +789,7 @@ class GamePlayStatsFragment : Fragment() {
     }
 
     val PlayEntity.date: String
-        get() = FORMAT.format(this.dateInMillis)
+        get() = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(this.dateInMillis)
 
 //    val PlayEntity.year: String
 //        get() = this.date.substring(0, 4)
@@ -811,7 +811,6 @@ class GamePlayStatsFragment : Fragment() {
     companion object {
         private val SCORE_FORMAT = DecimalFormat("0.##")
         private val DOUBLE_FORMAT = DecimalFormat("0.00")
-        private val FORMAT: DateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_HEADER_COLOR = "HEADER_COLOR"

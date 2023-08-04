@@ -12,14 +12,12 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_BUDDIES
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_PARTIAL
-import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_CURRENT
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 
 class SyncPrefs {
     companion object {
         const val NAME = "com.boardgamegeek.sync"
-        const val TIMESTAMP_CURRENT = "TIMESTAMP_CURRENT"
         const val TIMESTAMP_COLLECTION_COMPLETE = "TIMESTAMP_COLLECTION_COMPLETE"
         const val TIMESTAMP_COLLECTION_PARTIAL = "TIMESTAMP_COLLECTION_PARTIAL"
         const val TIMESTAMP_BUDDIES = "TIMESTAMP_BUDDIES"
@@ -48,10 +46,6 @@ class SyncPrefs {
             }
         }
     }
-}
-
-fun SharedPreferences.setCurrentTimestamp(timestamp: Long = System.currentTimeMillis()) {
-    this[TIMESTAMP_CURRENT] = timestamp
 }
 
 // COLLECTION
@@ -89,8 +83,7 @@ fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(timestamp: Long = 
 }
 
 fun SharedPreferences.getPartialCollectionSyncLastCompletedAt(subtype: BggService.ThingSubtype?): Long {
-    val ts = this.getPartialCollectionSyncLastCompletedAt()
-    return this["${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.code.orEmpty()}", ts] ?: ts
+    return this["${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.code.orEmpty()}", 0L] ?: 0L
 }
 
 fun SharedPreferences.setPartialCollectionSyncLastCompletedAt(subtype: BggService.ThingSubtype?, timestamp: Long = System.currentTimeMillis()) {

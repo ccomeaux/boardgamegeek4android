@@ -15,7 +15,6 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
@@ -51,10 +50,10 @@ class GameCollectionItemActivity : HeroActivity() {
                         finishActivity = false
                     ) {
                         viewModel.reset()
-                        viewModel.toggleEditMode()
+                        viewModel.disableEditMode()
                     }.show()
                 } else {
-                    viewModel.toggleEditMode()
+                    viewModel.disableEditMode()
                 }
             } else {
                 finish()
@@ -73,11 +72,15 @@ class GameCollectionItemActivity : HeroActivity() {
         }
 
         fabOnClickListener = View.OnClickListener {
-            if (isInEditMode && isItemUpdated) {
-                SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
-                isItemUpdated = false
+            if (isInEditMode) {
+                if (isItemUpdated) {
+                    viewModel.update()
+                } else {
+                    viewModel.disableEditMode()
+                }
+            } else {
+                viewModel.enableEditMode()
             }
-            viewModel.toggleEditMode()
         }
         if (collectionId == BggContract.INVALID_ID) binding.fab.hide() else binding.fab.ensureShown()
 
@@ -144,7 +147,6 @@ class GameCollectionItemActivity : HeroActivity() {
                         isItemUpdated = false
                         viewModel.delete()
                         longToast(R.string.msg_collection_item_deleted)
-                        SyncService.sync(this, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
                         finish()
                     }
                     .setNegativeButton(R.string.cancel, null)

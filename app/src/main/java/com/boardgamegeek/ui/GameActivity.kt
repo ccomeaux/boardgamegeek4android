@@ -81,6 +81,18 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             }
         }
 
+        viewModel.errorMessage.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                binding.coordinatorLayout.snackbar(it)
+            }
+        }
+
+        viewModel.loggedPlayResult.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                notifyLoggedPlay(it)
+            }
+        }
+
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Game")
@@ -131,7 +143,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 binding.coordinatorLayout.snackbar(R.string.msg_logging_play)
                 viewModel.logQuickPlay(gameId, gameName)
             }
-            R.id.menu_log_play -> LogPlayActivity.logPlay(this, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
+            R.id.menu_log_play -> LogPlayActivity.logPlay(this, gameId, gameName, heroImageUrl.ifBlank { thumbnailUrl }, arePlayersCustomSorted)
             R.id.menu_log_play_wizard -> NewPlayActivity.start(this, gameId, gameName)
             R.id.menu_view_image -> ImageActivity.start(this, heroImageUrl)
             R.id.menu_users -> GameUsersDialogFragment.launch(this)

@@ -4,25 +4,30 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.contentValuesOf
+import androidx.work.*
+import com.boardgamegeek.R
+import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.GeekdoApi
-import com.boardgamegeek.mappers.mapToEntities
+import com.boardgamegeek.io.PhpApi
+import com.boardgamegeek.mappers.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.service.SyncService
+import com.boardgamegeek.work.CollectionUploadWorker
+import com.boardgamegeek.work.SyncCollectionWorker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.FormBody
 import timber.log.Timber
 
 class GameCollectionRepository(
     val context: Context,
     private val api: BggService,
     private val imageRepository: ImageRepository,
+    private val phpApi: PhpApi,
 ) {
     private val dao = CollectionDao(context)
     private val gameDao = GameDao(context)
@@ -70,7 +75,7 @@ class GameCollectionRepository(
         } else item
     }
 
-    suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId)
+    suspend fun loadCollectionItems(gameId: Int) = dao.load("collection.${Collection.Columns.GAME_ID}=?", arrayOf(gameId.toString()))
 
     suspend fun refreshCollectionItems(gameId: Int, subtype: GameEntity.Subtype? = null): List<CollectionItemEntity>? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
@@ -133,6 +138,107 @@ class GameCollectionRepository(
 
     suspend fun loadInventoryLocation() = dao.loadInventoryLocation()
 
+    suspend fun loadItemsPendingDeletion() = dao.load(Collection.Columns.COLLECTION_DELETE_TIMESTAMP.greaterThanZero(), includeDeletedItems = true)
+
+    suspend fun loadItemsPendingInsert() = dao.load("${Collection.Columns.COLLECTION_DIRTY_TIMESTAMP.greaterThanZero()} AND ${Collection.Columns.COLLECTION_ID.whereNullOrBlank()}")
+
+    suspend fun loadItemsPendingUpdate(): List<CollectionItemEntity> {
+        val columns = listOf(
+            Collection.Columns.STATUS_DIRTY_TIMESTAMP,
+            Collection.Columns.RATING_DIRTY_TIMESTAMP,
+            Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
+            Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
+            Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
+            Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
+            Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
+            Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP,
+        ).map { it.greaterThanZero() }
+        return dao.load("${columns.joinTo(" OR ")}")
+    }
+
+    suspend fun uploadDeletedItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
+        val response = phpApi.collection(item.mapToFormBodyForDeletion())
+        return if (response.hasAuthError()) {
+            Authenticator.clearPassword(context)
+            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+        } else if (!response.error.isNullOrBlank()) {
+            Result.failure(Exception(response.error))
+        } else {
+            context.contentResolver.delete(Collection.buildUri(item.internalId), null, null)
+            Result.success(CollectionItemUploadResult.delete(item))
+        }
+    }
+
+    suspend fun uploadNewItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
+        val response = phpApi.collection(item.mapToFormBodyForInsert())
+        return if (response.hasAuthError()) {
+            Authenticator.clearPassword(context)
+            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+        } else if (!response.error.isNullOrBlank()) {
+            Result.failure(Exception(response.error))
+        } else {
+            val count = dao.update(
+                item.internalId,
+                contentValuesOf(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP to 0)
+            )
+            if (count == 1)
+                Result.success(CollectionItemUploadResult.insert(item))
+            else
+                Result.failure(Exception("Error inserting into database"))
+        }
+    }
+
+    suspend fun uploadUpdatedItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
+        val statusResult = updateItemField(item.statusDirtyTimestamp, item.mapToFormBodyForStatusUpdate(), item, Collection.Columns.STATUS_DIRTY_TIMESTAMP)
+        if (statusResult.isFailure) return statusResult
+
+        val ratingResult = updateItemField(item.ratingDirtyTimestamp, item.mapToFormBodyForRatingUpdate(), item, Collection.Columns.RATING_DIRTY_TIMESTAMP)
+        if (ratingResult.isFailure) return ratingResult
+
+        val commentResult = updateItemField(item.commentDirtyTimestamp, item.mapToFormBodyForCommentUpdate(), item, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+        if (commentResult.isFailure) return commentResult
+
+        val privateInfoResult = updateItemField(item.privateInfoDirtyTimestamp, item.mapToFormBodyForPrivateInfoUpdate(), item, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+        if (privateInfoResult.isFailure) return privateInfoResult
+
+        val wishlistCommentResult = updateItemField(item.wishListCommentDirtyTimestamp, item.mapToFormBodyForWishlistCommentUpdate(), item, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+        if (wishlistCommentResult.isFailure) return wishlistCommentResult
+
+        val tradeConditionResult = updateItemField(item.tradeConditionDirtyTimestamp, item.mapToFormBodyForTradeConditionUpdate(), item, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+        if (tradeConditionResult.isFailure) return tradeConditionResult
+
+        val wantPartsResult = updateItemField(item.wantPartsDirtyTimestamp, item.mapToFormBodyForWantPartsUpdate(), item, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+        if (wantPartsResult.isFailure) return wantPartsResult
+
+        val hasPartsResult = updateItemField(item.hasPartsDirtyTimestamp, item.mapToFormBodyForHasPartsUpdate(), item, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+        if (hasPartsResult.isFailure) return hasPartsResult
+
+        return Result.success(CollectionItemUploadResult.update(item))
+    }
+
+    private suspend fun updateItemField(
+        timestamp: Long,
+        formBody: FormBody,
+        item: CollectionItemEntity,
+        timestampColumn: String
+    ): Result<CollectionItemUploadResult> {
+        return if (timestamp > 0L) {
+            val response = phpApi.collection(formBody)
+            if (response.hasAuthError()) {
+                Authenticator.clearPassword(context)
+                Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+            } else if (!response.error.isNullOrBlank()) {
+                Result.failure(Exception(response.error))
+            } else {
+                val count = dao.update(item.internalId, contentValuesOf(timestampColumn to 0))
+                if (count != 1)
+                    Result.failure(Exception("Error inserting into database"))
+                else
+                    Result.success(CollectionItemUploadResult.update(item))
+            }
+        } else Result.success(CollectionItemUploadResult.update(item))
+    }
+
     suspend fun addCollectionItem(
         gameId: Int,
         statuses: List<String>,
@@ -170,7 +276,7 @@ class GameCollectionRepository(
                 Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
             } else {
                 Timber.d("Collection item added for game %s (%s) (internal ID = %s)", gameName, gameId, internalId)
-                SyncService.sync(context, SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                enqueueUploadRequest(gameId)
             }
         }
     }
@@ -277,10 +383,7 @@ class GameCollectionRepository(
         }
 
     suspend fun markAsDeleted(internalId: Long): Int = withContext(Dispatchers.IO) {
-        if (internalId != INVALID_ID.toLong()) {
-            val values = contentValuesOf(Collection.Columns.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis())
-            dao.update(internalId, values)
-        } else 0
+        dao.update(internalId, contentValuesOf(Collection.Columns.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis()))
     }
 
     suspend fun resetTimestamps(internalId: Long): Int =
@@ -300,4 +403,15 @@ class GameCollectionRepository(
                 dao.update(internalId, values)
             } else 0
         }
+
+    fun enqueueUploadRequest(gameId: Int) {
+        WorkManager.getInstance(context).enqueue(CollectionUploadWorker.buildRequest(context, gameId))
+    }
+
+    fun enqueueRefreshRequest(workName: String) {
+        WorkManager.getInstance(context)
+            .beginUniqueWork(workName, ExistingWorkPolicy.KEEP,  CollectionUploadWorker.buildRequest(context))
+            .then(SyncCollectionWorker.buildQuickRequest(context))
+            .enqueue()
+    }
 }

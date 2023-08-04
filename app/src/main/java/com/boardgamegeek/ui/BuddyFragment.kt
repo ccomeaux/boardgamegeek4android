@@ -75,7 +75,7 @@ class BuddyFragment : Fragment() {
         }
 
         viewModel.player.observe(viewLifecycleOwner) { player ->
-            if (playerName == null) {
+            if (buddyName.isNullOrBlank()) {
                 playerName = player?.name
                 binding.nicknameView.text = playerName
                 binding.nicknameView.setOnClickListener {

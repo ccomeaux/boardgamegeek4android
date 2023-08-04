@@ -18,7 +18,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityNewPlayBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.boardgamegeek.ui.widget.SelfUpdatingView
 import dagger.hilt.android.AndroidEntryPoint
@@ -59,7 +58,6 @@ class NewPlayActivity : AppCompatActivity() {
         viewModel.insertedId.observe(this) {
             if ((viewModel.startTime.value ?: 0L) == 0L) {
                 this.cancelNotification(TAG_PLAY_TIMER, it)
-                SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD)
             } else {
                 launchPlayingNotification(
                     it,

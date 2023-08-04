@@ -9,13 +9,13 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.ImageRepository
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.RemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,6 +53,14 @@ class GameViewModel @Inject constructor(
     private val _producerType = MutableLiveData<ProducerType>()
     val producerType: LiveData<ProducerType>
         get() = _producerType
+
+    private val _errorMessage = MutableLiveData<Event<String>>()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
+
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
+        get() = _loggedPlayResult
 
     enum class ProducerType(val value: Int) {
         UNKNOWN(0),
@@ -261,7 +269,7 @@ class GameViewModel @Inject constructor(
                         refreshedItems
                     } else items
                     if (refreshedItems.any { it.isDirty })
-                        SyncService.sync(getApplication(), SyncService.FLAG_SYNC_COLLECTION_UPLOAD)
+                        gameCollectionRepository.enqueueUploadRequest(gameId)
                 }
             } catch (e: Exception) {
                 Timber.w(e)
@@ -357,8 +365,20 @@ class GameViewModel @Inject constructor(
 
     fun logQuickPlay(gameId: Int, gameName: String) {
         viewModelScope.launch {
-            playRepository.logQuickPlay(gameId, gameName)
+            val result = playRepository.logQuickPlay(gameId, gameName)
+            if (result.isFailure)
+                postError(result.exceptionOrNull())
+            else {
+                result.getOrNull()?.let {
+                    if (it.play.playId != BggContract.INVALID_ID)
+                        _loggedPlayResult.value = Event(it)
+                }
+            }
         }
+    }
+
+    private fun postError(exception: Throwable?) {
+        _errorMessage.value = Event(exception?.message.orEmpty())
     }
 
     fun addCollectionItem(statuses: List<String>, wishListPriority: Int?) {

@@ -29,7 +29,6 @@ import java.util.*
 class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
     private val prefs: SharedPreferences by lazy { context.preferences() }
-    private val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     suspend fun load(internalId: Long): CollectionItemEntity? = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
@@ -42,14 +41,20 @@ class CollectionDao(private val context: Context) {
         } else null
     }
 
-    suspend fun load(includeDeletedItems: Boolean = false): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
-        resolver.loadList(Collection.CONTENT_URI, projection()) {
+    suspend fun load(
+        selection: String? = null,
+        selectionArgs: Array<String>? = null,
+        includeDeletedItems: Boolean = false
+    ): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
+        resolver.loadList(Collection.CONTENT_URI, projection(), selection, selectionArgs) {
             val item = entityFromCursor(it)
             if (includeDeletedItems || item.deleteTimestamp == 0L) item else null
         }
     }
 
     private fun entityFromCursor(cursor: Cursor): CollectionItemEntity {
+        val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val acquisitionDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return CollectionItemEntity(
             internalId = cursor.getLong(COLUMN_ID),
             gameId = cursor.getInt(COLUMN_GAME_ID),
@@ -84,7 +89,7 @@ class CollectionDao(private val context: Context) {
             ratingDirtyTimestamp = cursor.getLongOrNull(COLUMN_RATING_DIRTY_TIMESTAMP) ?: 0L,
             commentDirtyTimestamp = cursor.getLongOrNull(COLUMN_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
             privateInfoDirtyTimestamp = cursor.getLongOrNull(COLUMN_PRIVATE_INFO_DIRTY_TIMESTAMP) ?: 0L,
-            wishListDirtyTimestamp = cursor.getLongOrNull(COLUMN_WISHLIST_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
+            wishListCommentDirtyTimestamp = cursor.getLongOrNull(COLUMN_WISHLIST_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
             tradeConditionDirtyTimestamp = cursor.getLongOrNull(COLUMN_TRADE_CONDITION_DIRTY_TIMESTAMP) ?: 0L,
             hasPartsDirtyTimestamp = cursor.getLongOrNull(COLUMN_HAS_PARTS_DIRTY_TIMESTAMP) ?: 0L,
             wantPartsDirtyTimestamp = cursor.getLongOrNull(COLUMN_WANT_PARTS_DIRTY_TIMESTAMP) ?: 0L,
@@ -93,7 +98,7 @@ class CollectionDao(private val context: Context) {
             pricePaidCurrency = cursor.getString(COLUMN_PRIVATE_INFO_PRICE_PAID_CURRENCY).orEmpty(),
             currentValue = cursor.getDoubleOrNull(COLUMN_PRIVATE_INFO_CURRENT_VALUE) ?: 0.0,
             currentValueCurrency = cursor.getString(COLUMN_PRIVATE_INFO_CURRENT_VALUE_CURRENCY).orEmpty(),
-            acquisitionDate = cursor.getString(COLUMN_PRIVATE_INFO_ACQUISITION_DATE).orEmpty().toMillis(playDateFormat),
+            acquisitionDate = cursor.getString(COLUMN_PRIVATE_INFO_ACQUISITION_DATE).orEmpty().toMillis(acquisitionDateFormat),
             acquiredFrom = cursor.getString(COLUMN_PRIVATE_INFO_ACQUIRED_FROM).orEmpty(),
             inventoryLocation = cursor.getString(COLUMN_PRIVATE_INFO_INVENTORY_LOCATION).orEmpty(),
             privateComment = cursor.getString(COLUMN_PRIVATE_INFO_COMMENT).orEmpty(),
@@ -113,126 +118,15 @@ class CollectionDao(private val context: Context) {
             subtype = cursor.getString(COLUMN_SUBTYPE).toSubtype(),
             bestPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_BEST).orEmpty(),
             recommendedPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_RECOMMENDED).orEmpty(),
+            gameImageUrl = cursor.getString(COLUMN_GAME_IMAGE_URL).orEmpty(),
+            gameThumbnailUrl = cursor.getString(COLUMN_GAME_THUMBNAIL_URL).orEmpty(),
+            gameHeroImageUrl = cursor.getString(COLUMN_GAME_HERO_IMAGE_URL).orEmpty(),
+            winsColor = cursor.getIntOrNull(COLUMN_WINS_COLOR) ?: Color.TRANSPARENT,
+            winnablePlaysColor = cursor.getIntOrNull(COLUMN_WINNABLE_PLAYS_COLOR) ?: Color.TRANSPARENT,
+            allPlaysColor = cursor.getIntOrNull(COLUMN_ALL_PLAYS_COLOR) ?: Color.TRANSPARENT,
+            arePlayersCustomSorted = cursor.getBoolean(COLUMN_CUSTOM_PLAYER_SORT),
         )
     }
-
-    suspend fun loadByGame(gameId: Int, includeDeletedItems: Boolean = false): List<CollectionItemEntity> =
-        withContext(Dispatchers.IO) {
-            if (gameId != INVALID_ID) {
-                val uri = Collection.CONTENT_URI
-                val projection = arrayOf(
-                    BaseColumns._ID,
-                    Collection.Columns.GAME_ID,
-                    Collection.Columns.COLLECTION_ID,
-                    Collection.Columns.COLLECTION_NAME,
-                    Collection.Columns.COLLECTION_SORT_NAME,
-                    Games.Columns.GAME_NAME, // 5
-                    Collection.Columns.COLLECTION_YEAR_PUBLISHED,
-                    Games.Columns.YEAR_PUBLISHED,
-                    Games.Columns.IMAGE_URL,
-                    Games.Columns.THUMBNAIL_URL,
-                    Games.Columns.HERO_IMAGE_URL, // 10
-                    Collection.Columns.COLLECTION_IMAGE_URL,
-                    Collection.Columns.COLLECTION_THUMBNAIL_URL,
-                    Collection.Columns.COLLECTION_HERO_IMAGE_URL,
-                    Collection.Columns.COMMENT,
-                    Games.Columns.NUM_PLAYS, // 15
-                    Collection.Columns.RATING,
-                    Collection.Columns.STATUS_OWN,
-                    Collection.Columns.STATUS_PREVIOUSLY_OWNED,
-                    Collection.Columns.STATUS_FOR_TRADE,
-                    Collection.Columns.STATUS_WANT, // 20
-                    Collection.Columns.STATUS_WANT_TO_BUY,
-                    Collection.Columns.STATUS_WISHLIST,
-                    Collection.Columns.STATUS_WANT_TO_PLAY,
-                    Collection.Columns.STATUS_PREORDERED,
-                    Collection.Columns.STATUS_WISHLIST_PRIORITY, // 25
-                    Collection.Columns.UPDATED,
-                    Collection.Columns.COLLECTION_DELETE_TIMESTAMP,
-                    Collection.Columns.COLLECTION_DIRTY_TIMESTAMP,
-                    Collection.Columns.STATUS_DIRTY_TIMESTAMP,
-                    Collection.Columns.RATING_DIRTY_TIMESTAMP, //30
-                    Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
-                    Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
-                    Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
-                    Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
-                    Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP, // 35
-                    Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
-                    Collection.Columns.PRIVATE_INFO_PRICE_PAID,
-                    Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-                    Collection.Columns.PRIVATE_INFO_CURRENT_VALUE,
-                    Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, // 40
-                    Collection.Columns.PRIVATE_INFO_QUANTITY,
-                    Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM,
-                    Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE,
-                    Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION,
-                    Collection.Columns.PRIVATE_INFO_COMMENT, // 45
-                    Games.Columns.WINS_COLOR,
-                    Games.Columns.WINNABLE_PLAYS_COLOR,
-                    Games.Columns.ALL_PLAYS_COLOR,
-                    Games.Columns.PLAYING_TIME,
-                    Games.Columns.CUSTOM_PLAYER_SORT, // 50
-                )
-                resolver.loadList(
-                    uri,
-                    projection,
-                    "collection.${Collection.Columns.GAME_ID}=?",
-                    arrayOf(gameId.toString())
-                ) {
-                    val item = CollectionItemEntity(
-                        internalId = it.getLong(0),
-                        gameId = it.getInt(1),
-                        collectionId = it.getIntOrNull(2) ?: INVALID_ID,
-                        collectionName = it.getStringOrNull(3).orEmpty(),
-                        sortName = it.getStringOrNull(4).orEmpty(),
-                        gameName = it.getStringOrNull(5).orEmpty(),
-                        gameYearPublished = it.getIntOrNull(6) ?: CollectionItemEntity.YEAR_UNKNOWN,
-                        collectionYearPublished = it.getIntOrNull(7) ?: CollectionItemEntity.YEAR_UNKNOWN,
-                        imageUrl = it.getStringOrNull(11).orEmpty().ifBlank { it.getStringOrNull(8) }.orEmpty(),
-                        thumbnailUrl = it.getStringOrNull(12).orEmpty().ifBlank { it.getStringOrNull(9) }.orEmpty(),
-                        heroImageUrl = it.getStringOrNull(13).orEmpty().ifBlank { it.getStringOrNull(10) }.orEmpty(),
-                        comment = it.getStringOrNull(14).orEmpty(),
-                        numberOfPlays = it.getIntOrNull(15) ?: 0,
-                        rating = it.getDoubleOrNull(16) ?: 0.0,
-                        own = it.getBoolean(17),
-                        previouslyOwned = it.getBoolean(18),
-                        forTrade = it.getBoolean(19),
-                        wantInTrade = it.getBoolean(2),
-                        wantToBuy = it.getBoolean(21),
-                        wishList = it.getBoolean(22),
-                        wantToPlay = it.getBoolean(23),
-                        preOrdered = it.getBoolean(24),
-                        wishListPriority = it.getIntOrNull(25) ?: CollectionItemEntity.WISHLIST_PRIORITY_UNKNOWN,
-                        syncTimestamp = it.getLongOrNull(26) ?: 0L,
-                        deleteTimestamp = it.getLongOrNull(27) ?: 0L,
-                        dirtyTimestamp = it.getLongOrNull(28) ?: 0L,
-                        statusDirtyTimestamp = it.getLongOrNull(29) ?: 0L,
-                        ratingDirtyTimestamp = it.getLongOrNull(30) ?: 0L,
-                        commentDirtyTimestamp = it.getLongOrNull(31) ?: 0L,
-                        privateInfoDirtyTimestamp = it.getLongOrNull(32) ?: 0L,
-                        wishListDirtyTimestamp = it.getLongOrNull(33) ?: 0L,
-                        tradeConditionDirtyTimestamp = it.getLongOrNull(34) ?: 0L,
-                        hasPartsDirtyTimestamp = it.getLongOrNull(35) ?: 0L,
-                        wantPartsDirtyTimestamp = it.getLongOrNull(36) ?: 0L,
-                        pricePaid = it.getDoubleOrNull(37) ?: 0.0,
-                        pricePaidCurrency = it.getStringOrNull(38).orEmpty(),
-                        currentValue = it.getDoubleOrNull(39) ?: 0.0,
-                        currentValueCurrency = it.getStringOrNull(40).orEmpty(),
-                        quantity = it.getIntOrNull(41) ?: 0,
-                        acquiredFrom = it.getStringOrNull(42).orEmpty(),
-                        acquisitionDate = it.getStringOrNull(43).toMillis(playDateFormat),
-                        inventoryLocation = it.getStringOrNull(44).orEmpty(),
-                        privateComment = it.getStringOrNull(45).orEmpty(),
-                        winsColor = it.getIntOrNull(46) ?: Color.TRANSPARENT,
-                        winnablePlaysColor = it.getIntOrNull(47) ?: Color.TRANSPARENT,
-                        allPlaysColor = it.getIntOrNull(48) ?: Color.TRANSPARENT,
-                        playingTime = it.getIntOrNull(49) ?: 0,
-                        arePlayersCustomSorted = it.getBoolean(50),
-                    )
-                    if (includeDeletedItems || item.deleteTimestamp == 0L) item else null
-                }
-            } else emptyList()
-        }
 
     enum class SortType {
         NAME, RATING
@@ -341,7 +235,7 @@ class CollectionDao(private val context: Context) {
      * @param protectedCollectionIds list of collection IDs not to delete.
      * @return the number or rows deleted.
      */
-    fun delete(gameId: Int, protectedCollectionIds: List<Int> = emptyList()): Int {
+    suspend fun delete(gameId: Int, protectedCollectionIds: List<Int> = emptyList()): Int = withContext(Dispatchers.IO) {
         // determine the collection IDs that are no longer in the collection
         val collectionIdsToDelete = resolver.queryInts(
             Collection.CONTENT_URI,
@@ -363,14 +257,23 @@ class CollectionDao(private val context: Context) {
                 )
             }
         }
+        numberOfDeletedRows
+    }
 
-        return numberOfDeletedRows
+    suspend fun deleteUnupdatedItems(timestamp: Long): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(
+            Collection.CONTENT_URI,
+            "${Collection.Columns.UPDATED_LIST}<?",
+            arrayOf(timestamp.toString())
+        ).also { count ->
+            Timber.d("Deleted $count old collection items")
+        }
     }
 
     suspend fun saveItem(
         item: CollectionItemEntity,
         game: CollectionItemGameEntity,
-        timestamp: Long,
+        updatedTimestamp: Long,
         includeStats: Boolean = true,
         includePrivateInfo: Boolean = true,
         isBrief: Boolean = false
@@ -380,9 +283,9 @@ class CollectionDao(private val context: Context) {
         if (candidate.dirtyTimestamp != NOT_DIRTY) {
             Timber.i("Local copy of the collection item is dirty, skipping sync.")
         } else {
-            upsertGame(item.gameId, toGameValues(game, includeStats, isBrief, timestamp), isBrief)
+            upsertGame(item.gameId, toGameValues(game, includeStats, isBrief, updatedTimestamp), isBrief)
             internalId = upsertItem(
-                toCollectionValues(item, includeStats, includePrivateInfo, isBrief, timestamp),
+                toCollectionValues(item, includeStats, includePrivateInfo, isBrief, updatedTimestamp),
                 isBrief,
                 candidate
             )
@@ -400,10 +303,10 @@ class CollectionDao(private val context: Context) {
         game: CollectionItemGameEntity,
         includeStats: Boolean,
         isBrief: Boolean,
-        timestamp: Long
+        updatedTimestamp: Long
     ): ContentValues {
         val values = ContentValues()
-        values.put(Games.Columns.UPDATED_LIST, timestamp)
+        values.put(Games.Columns.UPDATED_LIST, updatedTimestamp)
         values.put(Games.Columns.GAME_ID, game.gameId)
         values.put(Games.Columns.GAME_NAME, game.gameName)
         values.put(Games.Columns.GAME_SORT_NAME, game.sortName)
@@ -447,13 +350,13 @@ class CollectionDao(private val context: Context) {
         includeStats: Boolean,
         includePrivateInfo: Boolean,
         isBrief: Boolean,
-        timestamp: Long
+        updatedTimestamp: Long
     ): ContentValues {
         val values = ContentValues()
         if (!isBrief && includePrivateInfo && includeStats) {
-            values.put(Collection.Columns.UPDATED, timestamp)
+            values.put(Collection.Columns.UPDATED, updatedTimestamp)
         }
-        values.put(Collection.Columns.UPDATED_LIST, timestamp)
+        values.put(Collection.Columns.UPDATED_LIST, updatedTimestamp)
         values.put(Collection.Columns.GAME_ID, item.gameId)
         if (item.collectionId != INVALID_ID) {
             values.put(Collection.Columns.COLLECTION_ID, item.collectionId)
@@ -553,13 +456,14 @@ class CollectionDao(private val context: Context) {
     }
 
     private fun maybeDeleteThumbnail(values: ContentValues, uri: Uri) {
-        val newThumbnailUrl: String = values.getAsString(Collection.Columns.COLLECTION_THUMBNAIL_URL).orEmpty()
-        val oldThumbnailUrl = resolver.queryString(uri, Collection.Columns.COLLECTION_THUMBNAIL_URL).orEmpty()
-        if (newThumbnailUrl == oldThumbnailUrl) return // nothing to do - thumbnail hasn't changed
-
-        val thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl)
-        if (thumbnailFileName.isNotBlank()) {
-            resolver.delete(Thumbnails.buildUri(thumbnailFileName), null, null)
+        values.getAsString(Collection.Columns.COLLECTION_THUMBNAIL_URL)?.let { newThumbnailUrl ->
+            val oldThumbnailUrl = resolver.queryString(uri, Collection.Columns.COLLECTION_THUMBNAIL_URL).orEmpty()
+            if (newThumbnailUrl != oldThumbnailUrl) {
+                val thumbnailFileName = FileUtils.getFileNameFromUrl(oldThumbnailUrl)
+                if (thumbnailFileName.isNotBlank()) {
+                    resolver.delete(Thumbnails.buildUri(thumbnailFileName), null, null)
+                }
+            }
         }
     }
 
@@ -662,7 +566,7 @@ class CollectionDao(private val context: Context) {
             Collection.Columns.COLLECTION_DIRTY_TIMESTAMP,
             Collection.Columns.STATUS_DIRTY_TIMESTAMP,
             Collection.Columns.RATING_DIRTY_TIMESTAMP,
-            Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
+            Collection.Columns.COMMENT_DIRTY_TIMESTAMP, // 30
             Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
             Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
             Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
@@ -672,7 +576,7 @@ class CollectionDao(private val context: Context) {
             Games.Columns.LAST_VIEWED,
             Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY,
             Collection.Columns.PRIVATE_INFO_PRICE_PAID,
-            Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+            Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, // 40
             Collection.Columns.PRIVATE_INFO_CURRENT_VALUE,
             Collection.Columns.PRIVATE_INFO_QUANTITY,
             Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE,
@@ -682,7 +586,7 @@ class CollectionDao(private val context: Context) {
             Collection.Columns.WISHLIST_COMMENT,
             Collection.Columns.WANTPARTS_LIST,
             Collection.Columns.HASPARTS_LIST,
-            Collection.Columns.CONDITION,
+            Collection.Columns.CONDITION, // 50
             Games.Columns.PLAYING_TIME,
             Games.Columns.MINIMUM_AGE,
             Games.Columns.GAME_RANK,
@@ -692,9 +596,15 @@ class CollectionDao(private val context: Context) {
             Plays.Columns.MAX_DATE,
             Games.Columns.MIN_PLAYERS,
             Games.Columns.MAX_PLAYERS,
-            Games.Columns.SUBTYPE,
+            Games.Columns.SUBTYPE, // 60
             Games.Columns.PLAYER_COUNTS_BEST,
             Games.Columns.PLAYER_COUNTS_RECOMMENDED,
+            Games.Columns.THUMBNAIL_URL,
+            Games.Columns.HERO_IMAGE_URL,
+            Games.Columns.WINS_COLOR,
+            Games.Columns.WINNABLE_PLAYS_COLOR,
+            Games.Columns.ALL_PLAYS_COLOR,
+            Games.Columns.CUSTOM_PLAYER_SORT,
         )
     }
 
@@ -724,8 +634,7 @@ class CollectionDao(private val context: Context) {
         private const val COLUMN_YEAR_PUBLISHED = 20
         private const val COLUMN_STATS_AVERAGE = 21
         private const val COLUMN_RATING = 22
-
-        // private const val COLUMN_IMAGE_URL = 23
+        private const val COLUMN_GAME_IMAGE_URL = 23
         private const val COLUMN_UPDATED = 24
         private const val COLUMN_GAME_NAME = 25
         private const val COLUMN_COLLECTION_DELETE_TIMESTAMP = 26
@@ -765,5 +674,11 @@ class CollectionDao(private val context: Context) {
         private const val COLUMN_SUBTYPE = 60
         private const val COLUMN_PLAYER_COUNTS_BEST = 61
         private const val COLUMN_PLAYER_COUNTS_RECOMMENDED = 62
+        private const val COLUMN_GAME_THUMBNAIL_URL = 63
+        private const val COLUMN_GAME_HERO_IMAGE_URL = 64
+        private const val COLUMN_WINS_COLOR = 65
+        private const val COLUMN_WINNABLE_PLAYS_COLOR = 66
+        private const val COLUMN_ALL_PLAYS_COLOR = 67
+        private const val COLUMN_CUSTOM_PLAYER_SORT = 68
     }
 }

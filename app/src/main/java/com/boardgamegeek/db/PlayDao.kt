@@ -50,6 +50,7 @@ class PlayDao(private val context: Context) {
                     Games.Columns.THUMBNAIL_URL,
                     Games.Columns.HERO_IMAGE_URL,
                     Games.Columns.UPDATED_PLAYS,
+                    Games.Columns.CUSTOM_PLAYER_SORT,
                 ),
             ) {
                 val internalId = it.getLong(0)
@@ -63,8 +64,8 @@ class PlayDao(private val context: Context) {
                     quantity = it.getIntOrNull(5) ?: 1,
                     length = it.getIntOrNull(6) ?: 0,
                     location = it.getStringOrNull(7).orEmpty(),
-                    incomplete = it.getInt(8) == 1,
-                    noWinStats = it.getInt(9) == 1,
+                    incomplete = it.getBoolean(8),
+                    noWinStats = it.getBoolean(9),
                     comments = it.getStringOrNull(10).orEmpty(),
                     syncTimestamp = it.getLong(11),
                     initialPlayerCount = it.getInt(12),
@@ -76,6 +77,7 @@ class PlayDao(private val context: Context) {
                     thumbnailUrl = it.getStringOrNull(18).orEmpty(),
                     heroImageUrl = it.getStringOrNull(19).orEmpty(),
                     updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+                    gameIsCustomSorted = it.getBoolean(21),
                     _players = players,
                 )
             }
@@ -97,6 +99,7 @@ class PlayDao(private val context: Context) {
                 PlayPlayers.Columns.NEW,
                 PlayPlayers.Columns.WIN,
                 Plays.Columns.PLAY_ID,
+                BaseColumns._ID,
             ),
         ) {
             PlayPlayerEntity(
@@ -110,6 +113,7 @@ class PlayDao(private val context: Context) {
                 isNew = it.getBoolean(8),
                 isWin = it.getBoolean(9),
                 playId = it.getIntOrNull(10) ?: INVALID_ID,
+                internalId = it.getLongOrNull(11) ?: INVALID_ID.toLong(),
             )
         }
     }
@@ -130,14 +134,14 @@ class PlayDao(private val context: Context) {
         else loadPlays(Plays.CONTENT_URI, createLocationPlaySelectionAndArgs(locationName))
     }
 
-    suspend fun loadPlaysByUsername(username: String): List<PlayEntity> {
+    suspend fun loadPlaysByUsername(username: String, includePlayers: Boolean = false): List<PlayEntity> {
         return if (username.isBlank()) emptyList()
-        else loadPlays(Plays.buildPlayersByPlayUri(), createUsernamePlaySelectionAndArgs(username))
+        else loadPlays(Plays.buildPlayersByPlayUri(), createUsernamePlaySelectionAndArgs(username), includePlayers = includePlayers)
     }
 
-    suspend fun loadPlaysByPlayerName(playerName: String): List<PlayEntity> {
+    suspend fun loadPlaysByPlayerName(playerName: String, includePlayers: Boolean = false): List<PlayEntity> {
         return if (playerName.isBlank()) emptyList()
-        else loadPlays(Plays.buildPlayersByPlayUri(), createPlayerNamePlaySelectionAndArgs(playerName))
+        else loadPlays(Plays.buildPlayersByPlayUri(), createPlayerNamePlaySelectionAndArgs(playerName), includePlayers = includePlayers)
     }
 
     suspend fun loadPlaysByPlayerAndGame(name: String, gameId: Int, isUser: Boolean): List<PlayEntity> {
@@ -245,9 +249,7 @@ class PlayDao(private val context: Context) {
         "${PlayPlayers.Columns.USER_NAME}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(username)
 
     private fun createPlayerNamePlaySelectionAndArgs(playerName: String) =
-        "${PlayPlayers.Columns.USER_NAME}='' AND play_players.${PlayPlayers.Columns.NAME}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(
-            playerName
-        )
+        "${PlayPlayers.Columns.USER_NAME.whereNullOrBlank()} AND play_players.${PlayPlayers.Columns.NAME}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(playerName)
 
     private fun addGamePlaySelectionAndArgs(existing: Pair<String, Array<String>>, gameId: Int) =
         "${existing.first} AND ${Plays.Columns.OBJECT_ID}=?" to (existing.second + arrayOf(gameId.toString()))
@@ -467,7 +469,10 @@ class PlayDao(private val context: Context) {
     }
 
     suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
+        if (internalId == INVALID_ID.toLong())
+            false
+        else
+            context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
     }
 
     enum class SaveStatus {
@@ -814,144 +819,16 @@ class PlayDao(private val context: Context) {
         return selection to selectionArgs
     }
 
-    suspend fun createCopyPlayerColorsOperations(
-        oldName: String,
-        newName: String
-    ): ArrayList<ContentProviderOperation> {
-        val colors = loadColors(PlayerColors.buildPlayerUri(oldName))
-        val batch = arrayListOf<ContentProviderOperation>()
-        colors.forEach {
-            batch += ContentProviderOperation
-                .newInsert(PlayerColors.buildPlayerUri(newName))
-                .withValue(PlayerColors.Columns.PLAYER_COLOR, it.description)
-                .withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
-                .build()
-        }
-        return batch
-    }
-
-    suspend fun createCopyPlayerColorsToUserOperations(
-        playerName: String,
-        username: String
-    ): ArrayList<ContentProviderOperation> {
-        val colors = loadColors(PlayerColors.buildPlayerUri(playerName))
-        val batch = arrayListOf<ContentProviderOperation>()
-        colors.forEach {
-            batch += ContentProviderOperation
-                .newInsert(PlayerColors.buildUserUri(username))
-                .withValue(PlayerColors.Columns.PLAYER_COLOR, it.description)
-                .withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, it.sortOrder)
-                .build()
-        }
-        return batch
-    }
-
-    fun createDirtyPlaysForUserAndNickNameOperations(
-        username: String,
-        nickName: String,
-        timestamp: Long = System.currentTimeMillis()
-    ): ArrayList<ContentProviderOperation> {
-        val selection = createNickNameSelectionAndArgs(username, nickName)
-        return createDirtyPlaysOperations(selection, timestamp)
-    }
-
-    fun createDirtyPlaysForNonUserPlayerOperations(
-        oldName: String,
-        timestamp: Long = System.currentTimeMillis()
-    ): ArrayList<ContentProviderOperation> {
-        val selection = createNonUserPlayerSelectionAndArgs(oldName)
-        return createDirtyPlaysOperations(selection, timestamp)
-    }
-
-    private fun createDirtyPlaysOperations(
-        selection: Pair<String, Array<String>>,
-        timestamp: Long
-    ): ArrayList<ContentProviderOperation> {
-        val internalIds = context.contentResolver.queryLongs(
-            Plays.buildPlayersByPlayUri(),
-            BaseColumns._ID,
-            "(${selection.first}) AND ${Plays.Columns.UPDATE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()} AND ${Plays.Columns.DIRTY_TIMESTAMP.whereZeroOrNull()}",
-            selection.second
-        )
-        val batch = arrayListOf<ContentProviderOperation>()
-        internalIds.filter { it != INVALID_ID.toLong() }.forEach {
-            batch += ContentProviderOperation
-                .newUpdate(Plays.buildPlayUri(it))
-                .withValue(Plays.Columns.UPDATE_TIMESTAMP, timestamp)
-                .build()
-        }
-        return batch
-    }
-
-    fun createNickNameUpdateOperation(username: String, nickName: String): ContentProviderOperation {
-        val selection = createNickNameSelectionAndArgs(username, nickName)
-        return ContentProviderOperation
-            .newUpdate(Plays.buildPlayersByPlayUri())
-            .withSelection(selection.first, selection.second)
-            .withValue(PlayPlayers.Columns.NAME, nickName)
-            .build()
-    }
-
-    suspend fun countNickNameUpdatePlays(username: String, nickName: String): Int = withContext(Dispatchers.IO) {
-        val selection = createNickNameSelectionAndArgs(username, nickName)
-        context.contentResolver.queryCount(
-            Plays.buildPlayersByPlayUri(),
-            selection.first,
-            selection.second
-        )
-    }
-
-    /**
-     * Change player records from the old name to the new name (username  must be blank)
-     */
-    fun createRenameUpdateOperation(oldName: String, newName: String): ContentProviderOperation {
-        val selection = createNonUserPlayerSelectionAndArgs(oldName)
-        return ContentProviderOperation
-            .newUpdate(Plays.buildPlayersByPlayUri())
-            .withValue(PlayPlayers.Columns.NAME, newName)
-            .withSelection(selection.first, selection.second)
-            .build()
-    }
-
-    fun createAddUsernameOperation(playerName: String, username: String): ContentProviderOperation {
-        val selection = createNonUserPlayerSelectionAndArgs(playerName)
-        return ContentProviderOperation
-            .newUpdate(Plays.buildPlayersByPlayUri())
-            .withValue(PlayPlayers.Columns.USER_NAME, username)
-            .withSelection(selection.first, selection.second)
-            .build()
-    }
-
-    suspend fun update(internalId: Long, values: ContentValues) = withContext(Dispatchers.IO) {
+    suspend fun update(internalId: Long, values: ContentValues): Boolean = withContext(Dispatchers.IO) {
         val rowsUpdated = context.contentResolver.update(Plays.buildPlayUri(internalId), values, null, null)
         if (rowsUpdated == 1) {
-            Timber.d("Updated play _ID=$internalId")
+            Timber.d("Updated play internal ID=$internalId")
+            true
         } else {
-            Timber.w("Upserted $rowsUpdated plays when trying to set _ID=$internalId")
+            Timber.w("Updated $rowsUpdated plays when trying to set internal ID=$internalId")
+            false
         }
     }
-
-    /**
-     * Create an operation to delete the colors of the specified player
-     */
-    fun createDeletePlayerColorsOperation(playerName: String): ContentProviderOperation {
-        return ContentProviderOperation.newDelete(PlayerColors.buildPlayerUri(playerName)).build()
-    }
-
-    /**
-     * Select a player with the specified username AND nick name
-     */
-    private fun createNickNameSelectionAndArgs(username: String, nickName: String) =
-        "${PlayPlayers.Columns.USER_NAME}=? AND play_players.${PlayPlayers.Columns.NAME}!=?" to arrayOf(username, nickName)
-
-    /**
-     * Select a player with the specified name and no username
-     */
-    private fun createNonUserPlayerSelectionAndArgs(playerName: String) =
-        "play_players.${PlayPlayers.Columns.NAME}=? AND (${PlayPlayers.Columns.USER_NAME}=? OR ${PlayPlayers.Columns.USER_NAME} IS NULL)" to arrayOf(
-            playerName,
-            ""
-        )
 
     data class PlaySyncCandidate(
         val internalId: Long = INVALID_ID.toLong(),

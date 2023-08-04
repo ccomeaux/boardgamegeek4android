@@ -15,7 +15,6 @@ import com.boardgamegeek.entities.PlayPlayerEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.service.SyncService
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -67,13 +66,17 @@ class PlayFragment : Fragment() {
                     play.internalId,
                     play.gameId,
                     play.gameName,
-                    play.thumbnailUrl,
-                    play.imageUrl,
                     play.heroImageUrl,
                 )
             }
         }
         binding.playersView.adapter = adapter
+        viewModel.isRefreshing.observe(viewLifecycleOwner) {
+            it?.let {
+                if (it) binding.progressBar.show()
+                else binding.progressBar.hide()
+            }
+        }
         viewModel.play.observe(viewLifecycleOwner) {
             binding.swipeRefreshLayout.post { binding.swipeRefreshLayout.isRefreshing = it?.status == Status.REFRESHING }
             play = it.data
@@ -91,12 +94,6 @@ class PlayFragment : Fragment() {
                 }
             }
         }
-        viewModel.updatedId.observe(viewLifecycleOwner) {
-            view.postDelayed({
-                SyncService.sync(requireContext(), SyncService.FLAG_SYNC_PLAYS)
-                viewModel.refresh()
-            }, 200)
-        }
     }
 
     override fun onDestroyView() {
@@ -108,7 +105,6 @@ class PlayFragment : Fragment() {
         binding.emptyView.text = message
         binding.emptyView.isVisible = true
         binding.listContainer.isVisible = false
-        binding.progressBar.hide()
     }
 
     private fun showData(play: PlayEntity) {
@@ -196,7 +192,6 @@ class PlayFragment : Fragment() {
 
         binding.emptyView.isVisible = false
         binding.listContainer.isVisible = true
-        binding.progressBar.hide()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -237,8 +232,6 @@ class PlayFragment : Fragment() {
                                 it.internalId,
                                 it.gameId,
                                 it.gameName,
-                                it.thumbnailUrl,
-                                it.imageUrl,
                                 it.heroImageUrl
                             )
                             return true
@@ -273,8 +266,6 @@ class PlayFragment : Fragment() {
                                 it.internalId,
                                 it.gameId,
                                 it.gameName,
-                                it.thumbnailUrl,
-                                it.imageUrl,
                                 it.heroImageUrl,
                                 it.arePlayersCustomSorted()
                             )
@@ -383,8 +374,6 @@ class PlayFragment : Fragment() {
                     it.location,
                     it.playerCount,
                     it.startTime,
-                    it.thumbnailUrl,
-                    it.imageUrl,
                     it.heroImageUrl,
                 )
                 hasBeenNotified = true

@@ -274,7 +274,7 @@ class GameCollectionItemFragment : Fragment() {
         }
         binding.wishlistPriorityView.isEnabled = item.wishList
         binding.wishlistView.isChecked = item.wishList
-        binding.wishlistCommentView.setContent(item.wishListComment, item.wishListDirtyTimestamp)
+        binding.wishlistCommentView.setContent(item.wishListComment, item.wishListCommentDirtyTimestamp)
     }
 
     private fun bindTrade(item: CollectionItemEntity) {

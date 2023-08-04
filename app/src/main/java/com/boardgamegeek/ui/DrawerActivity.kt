@@ -61,7 +61,7 @@ abstract class DrawerActivity : BaseActivity() {
             if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
                 drawerLayout.closeDrawer(GravityCompat.START)
             } else {
-                finish() // TODO - register and deregister?
+                finish()
             }
         }
 
@@ -82,9 +82,6 @@ abstract class DrawerActivity : BaseActivity() {
             refreshHeader(it?.data)
         }
 
-        syncViewModel.currentSyncTimestamp.observe(this) {
-            invalidateOptionsMenu()
-        }
         syncViewModel.username.observe(this) {
             viewModel.setUsername(it)
         }
@@ -101,6 +98,14 @@ abstract class DrawerActivity : BaseActivity() {
     override fun onResume() {
         super.onResume()
         navigationView.setCheckedItem(navigationItemId)
+    }
+
+    fun lockDrawerClosed() {
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+    }
+
+    fun unlockDrawer() {
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
     }
 
     private fun selectItem(menuItemId: Int) {

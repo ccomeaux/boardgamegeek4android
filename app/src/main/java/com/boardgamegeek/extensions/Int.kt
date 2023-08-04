@@ -36,6 +36,14 @@ fun Int.toOrdinal(): String {
     }
 }
 
+fun Int.asRangeDescription(quantity: Int): String {
+    return when (quantity) {
+        1 -> toOrdinal()
+        2 -> "${(this - 1).toOrdinal()} & ${toOrdinal()}"
+        else -> "${(this - quantity + 1).toOrdinal()} - ${toOrdinal()}"
+    }
+}
+
 fun Int.asYear(context: Context?): String {
     return when {
         context == null -> this.toString()

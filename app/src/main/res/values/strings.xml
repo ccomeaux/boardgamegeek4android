@@ -434,7 +434,6 @@
 	<string name="menu_sort_geeklists_recent">Recent</string>
 	<string name="menu_sort_geeklists_active">Active</string>
 	<string name="menu_colors_generate">Generate colors</string>
-	<string name="menu_cancel_sync">Cancel sync</string>
 	<string name="menu_clear">Clear</string>
 	<string name="menu_add_username">Add username</string>
 	<string name="menu_scroll_to_last_read">Scroll to last read</string>
@@ -449,7 +448,12 @@
 	<string name="msg_play_updated">Updated play</string>
 	<string name="msg_play_deleted">Deleted play</string>
 	<string name="msg_play_deleted_draft">Deleted draft</string>
+	<string name="msg_play_update_not_set">Play isn\'t set to update.</string>
+	<string name="msg_play_delete_not_set">Play isn\'t set to delete.</string>
+	<string name="msg_play_update_auth_error">Not logged in. Try again later.</string>
+	<string name="msg_play_delete_unsuccessful">Unsuccessful trying to delete a play</string>
 	<string name="msg_play_update_bad_id">Play <b>%s</b> doesn\'t exist!</string>
+	<string name="msg_play_queued_for_upload">Queued for upload</string>
 	<string name="msg_play_upload"><b>%1$s</b> - %2$s</string>
 	<string name="msg_play_update_null_response">Trouble communicating with the \'Geek.</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>

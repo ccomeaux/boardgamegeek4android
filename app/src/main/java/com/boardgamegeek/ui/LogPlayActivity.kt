@@ -48,7 +48,6 @@ import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.text.DecimalFormat
-import java.util.LinkedList
 import kotlin.math.abs
 
 @AndroidEntryPoint
@@ -65,8 +64,6 @@ class LogPlayActivity : AppCompatActivity() {
     private var isRequestingToEndPlay = false
     private var isRequestingRematch = false
     private var isChangingGame = false
-    private var thumbnailUrl: String = ""
-    private var imageUrl: String = ""
     private var heroImageUrl: String = ""
 
     private var lastRemovedPlayer: PlayPlayerEntity? = null
@@ -270,7 +267,7 @@ class LogPlayActivity : AppCompatActivity() {
     private fun bindHeader() {
         binding.headerView.text = gameName
         binding.thumbnailView.loadImage(
-            LinkedList(listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }),
+            heroImageUrl,
             callback = object : ImageLoadCallback {
                 override fun onSuccessfulImageLoad(palette: Palette?) {
                     binding.headerView.setBackgroundResource(R.color.black_overlay_light)
@@ -342,10 +339,14 @@ class LogPlayActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         onBackPressedDispatcher.addCallback(this) {
-            saveDraft()
-            toast(R.string.msg_saving_draft)
-            setResult(RESULT_OK)
-            finish()
+            setResult(RESULT_CANCELED)
+            if (viewModel.isDirty()) {
+                saveDraft(true)
+                toast(R.string.msg_saving_draft)
+            } else {
+                shouldSaveOnPause = false
+                finish()
+            }
         }
 
         setDoneCancelActionBarView { v: View ->
@@ -362,7 +363,6 @@ class LogPlayActivity : AppCompatActivity() {
                         cancelPlayingNotification()
                     }
                     setResult(RESULT_OK)
-                    finish()
                 }
                 R.id.menu_cancel -> cancel()
             }
@@ -492,8 +492,6 @@ class LogPlayActivity : AppCompatActivity() {
         isRequestingToEndPlay = intent.getBooleanExtra(KEY_END_PLAY, false)
         isRequestingRematch = intent.getBooleanExtra(KEY_REMATCH, false)
         isChangingGame = intent.getBooleanExtra(KEY_CHANGE_GAME, false)
-        thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
-        imageUrl = intent.getStringExtra(KEY_IMAGE_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
         playerAdapter.shouldCustomSortPlayers = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
 
@@ -554,6 +552,11 @@ class LogPlayActivity : AppCompatActivity() {
         viewModel.internalId.observe(this) {
             internalId = it
             updateNotification()
+        }
+        viewModel.canFinish.observe(this) {
+            if (it == true) {
+                finish()
+            }
         }
         viewModel.dateInMillis.observe(this) {
             it?.let {
@@ -635,6 +638,7 @@ class LogPlayActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         isLaunchingActivity = false
+        shouldSaveOnPause = true
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -654,23 +658,24 @@ class LogPlayActivity : AppCompatActivity() {
         super.onPause()
         updateNotification()
         if (shouldSaveOnPause && !isLaunchingActivity) {
-            saveDraft()
+            saveDraft(false)
         }
     }
 
-    private fun saveDraft() {
+    private fun saveDraft(wantToFinish: Boolean) {
         shouldSaveOnPause = false
         viewModel.updateComments(binding.commentsView.text.toString())
-        viewModel.saveDraft()
+        viewModel.saveDraft(wantToFinish)
     }
 
     private fun cancel() {
         shouldSaveOnPause = false
         if (viewModel.isDirty()) {
             if (shouldDeletePlayOnActivityCancel) {
-                createDiscardDialog(R.string.play, isNew = true, finishActivity = true) {
+                createDiscardDialog(R.string.play, isNew = true, finishActivity = false) {
                     viewModel.deletePlay()
                     cancelPlayingNotification()
+                    setResult(RESULT_CANCELED)
                 }.show()
             } else {
                 createDiscardDialog(R.string.play, isNew = false).show()
@@ -679,9 +684,11 @@ class LogPlayActivity : AppCompatActivity() {
             if (shouldDeletePlayOnActivityCancel) {
                 viewModel.deletePlay()
                 cancelPlayingNotification()
+                setResult(RESULT_CANCELED)
+            } else {
+                setResult(RESULT_CANCELED)
+                finish()
             }
-            setResult(RESULT_CANCELED)
-            finish()
         }
     }
 
@@ -693,8 +700,6 @@ class LogPlayActivity : AppCompatActivity() {
                 location,
                 playerCount,
                 startTime,
-                thumbnailUrl,
-                imageUrl,
                 heroImageUrl
             )
         }
@@ -820,8 +825,6 @@ class LogPlayActivity : AppCompatActivity() {
     private fun createLaunchInput(autoPosition: Int) = LogPlayerActivity.LaunchInput(
         gameId = gameId,
         gameName = gameName,
-        imageUrl = imageUrl,
-        thumbnailUrl = thumbnailUrl,
         heroImageUrl = heroImageUrl,
         isRequestingToEndPlay = isRequestingToEndPlay,
         fabColor = fabColor,
@@ -1079,8 +1082,6 @@ class LogPlayActivity : AppCompatActivity() {
         private const val KEY_ID = "ID"
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_GAME_NAME = "GAME_NAME"
-        private const val KEY_IMAGE_URL = "IMAGE_URL"
-        private const val KEY_THUMBNAIL_URL = "THUMBNAIL_URL"
         private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
         private const val KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT"
         private const val KEY_END_PLAY = "END_PLAY"
@@ -1099,8 +1100,6 @@ class LogPlayActivity : AppCompatActivity() {
             context: Context,
             gameId: Int,
             gameName: String,
-            thumbnailUrl: String = "",
-            imageUrl: String = "",
             heroImageUrl: String = "",
             customPlayerSort: Boolean = false
         ) {
@@ -1110,8 +1109,6 @@ class LogPlayActivity : AppCompatActivity() {
                     INVALID_ID.toLong(),
                     gameId,
                     gameName,
-                    thumbnailUrl,
-                    imageUrl,
                     heroImageUrl,
                     customPlayerSort
                 )
@@ -1123,15 +1120,13 @@ class LogPlayActivity : AppCompatActivity() {
             internalId: Long,
             gameId: Int,
             gameName: String,
-            thumbnailUrl: String,
-            imageUrl: String,
             heroImageUrl: String
         ) {
-            context.startActivity(createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false))
+            context.startActivity(createIntent(context, internalId, gameId, gameName, heroImageUrl, false))
         }
 
-        fun endPlay(context: Context, internalId: Long, gameId: Int, gameName: String, thumbnailUrl: String, imageUrl: String, heroImageUrl: String) {
-            context.startActivity(createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false).also {
+        fun endPlay(context: Context, internalId: Long, gameId: Int, gameName: String, heroImageUrl: String) {
+            context.startActivity(createIntent(context, internalId, gameId, gameName, heroImageUrl, false).also {
                 it.putExtra(KEY_END_PLAY, true)
             })
         }
@@ -1141,12 +1136,10 @@ class LogPlayActivity : AppCompatActivity() {
             internalId: Long,
             gameId: Int,
             gameName: String,
-            thumbnailUrl: String,
-            imageUrl: String,
             heroImageUrl: String,
             customPlayerSort: Boolean
         ) {
-            context.startActivity(createRematchIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort))
+            context.startActivity(createRematchIntent(context, internalId, gameId, gameName, heroImageUrl, customPlayerSort))
         }
 
         fun changeGame(
@@ -1154,11 +1147,9 @@ class LogPlayActivity : AppCompatActivity() {
             internalId: Long,
             gameId: Int,
             gameName: String,
-            thumbnailUrl: String,
-            imageUrl: String,
             heroImageUrl: String
         ) {
-            context.startActivity(createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, false).also {
+            context.startActivity(createIntent(context, internalId, gameId, gameName, heroImageUrl, false).also {
                 it.putExtra(KEY_CHANGE_GAME, true)
             })
         }
@@ -1168,12 +1159,10 @@ class LogPlayActivity : AppCompatActivity() {
             internalId: Long,
             gameId: Int,
             gameName: String,
-            thumbnailUrl: String,
-            imageUrl: String,
             heroImageUrl: String,
             customPlayerSort: Boolean
         ): Intent {
-            return createIntent(context, internalId, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, customPlayerSort).also {
+            return createIntent(context, internalId, gameId, gameName, heroImageUrl, customPlayerSort).also {
                 it.putExtra(KEY_REMATCH, true)
             }
         }
@@ -1183,8 +1172,6 @@ class LogPlayActivity : AppCompatActivity() {
             internalId: Long,
             gameId: Int,
             gameName: String,
-            thumbnailUrl: String,
-            imageUrl: String,
             heroImageUrl: String,
             customPlayerSort: Boolean
         ): Intent {
@@ -1192,8 +1179,6 @@ class LogPlayActivity : AppCompatActivity() {
                 KEY_ID to internalId,
                 KEY_GAME_ID to gameId,
                 KEY_GAME_NAME to gameName,
-                KEY_THUMBNAIL_URL to thumbnailUrl,
-                KEY_IMAGE_URL to imageUrl,
                 KEY_HERO_IMAGE_URL to heroImageUrl,
                 KEY_CUSTOM_PLAYER_SORT to customPlayerSort,
             )

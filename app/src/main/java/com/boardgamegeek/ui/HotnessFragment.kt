@@ -39,6 +39,18 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
+        viewModel.errorMessage.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                binding.coordinatorLayout.snackbar(it)
+            }
+        }
+
+        viewModel.loggedPlayResult.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let {
+                requireContext().notifyLoggedPlay(it)
+            }
+        }
+
         viewModel.hotness.observe(viewLifecycleOwner) {
             it?.let { (status, data, message) ->
                 when (status) {
@@ -195,11 +207,11 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
         when (item.itemId) {
             R.id.menu_log_play_form -> {
                 selectedGames.firstOrNull()?.let { game ->
-                    LogPlayActivity.logPlay(requireContext(), game.id, game.name, game.thumbnailUrl, game.thumbnailUrl)
+                    LogPlayActivity.logPlay(requireContext(), game.id, game.name, game.thumbnailUrl)
                 }
             }
             R.id.menu_log_play_quick -> {
-                binding.containerView.snackbar(resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount))
+                binding.coordinatorLayout.snackbar(resources.getQuantityString(R.plurals.msg_logging_plays, adapter.selectedItemCount))
                 for (game in selectedGames) {
                     viewModel.logQuickPlay(game.id, game.name)
                 }

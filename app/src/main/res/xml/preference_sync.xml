@@ -24,10 +24,6 @@
 			android:title="@string/pref_sync_upload"/>
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
-			android:key="sync_notifications"
-			android:title="@string/pref_sync_notifications"/>
-		<androidx.preference.CheckBoxPreference
-			android:defaultValue="false"
 			android:key="sync_errors"
 			android:title="@string/pref_sync_errors"/>
 		<androidx.preference.CheckBoxPreference

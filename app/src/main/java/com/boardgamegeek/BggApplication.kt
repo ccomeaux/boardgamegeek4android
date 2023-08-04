@@ -5,12 +5,18 @@ import android.os.Build.VERSION_CODES
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
+import androidx.work.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
 import com.boardgamegeek.util.RemoteConfig
+import com.boardgamegeek.work.PlayUploadWorker
+import com.boardgamegeek.work.SyncCollectionWorker
+import com.boardgamegeek.work.SyncPlaysWorker
+import com.boardgamegeek.work.SyncUsersWorker
 import com.facebook.stetho.Stetho
 import com.google.android.gms.tasks.Task
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -20,14 +26,23 @@ import com.squareup.picasso.Picasso
 import dagger.hilt.android.HiltAndroidApp
 import okhttp3.OkHttpClient
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
 
 @HiltAndroidApp
-class BggApplication : MultiDexApplication() {
+class BggApplication : MultiDexApplication(), Configuration.Provider {
     @Inject
     @Named("withCache")
     lateinit var httpClient: OkHttpClient
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    override fun getWorkManagerConfiguration() =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()
@@ -37,6 +52,34 @@ class BggApplication : MultiDexApplication() {
         initializeTimber()
         initializePicasso()
         migrateData()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            SyncCollectionWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncCollectionWorker>(1, TimeUnit.DAYS)
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)
+                .setConstraints(createWorkConstraints(true))
+                .build()
+        )
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                PlayUploadWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(2, TimeUnit.HOURS)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
+                    .setConstraints(createWorkConstraints(true))
+                    .build()
+            )
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                SyncPlaysWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(1, TimeUnit.DAYS)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
+                    .setConstraints(createWorkConstraints(true))
+                    .build()
+            )
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork(
+                SyncUsersWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncUsersWorker>(1, TimeUnit.DAYS)
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.MINUTES)
+                    .setConstraints(createWorkConstraints(true))
+                    .build()
+            )
     }
 
     private fun initializeFirebase() {
