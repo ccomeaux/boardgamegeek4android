@@ -231,7 +231,6 @@ private fun showNotificationSummary(context: Context) {
         .setGroup(NotificationTags.UPLOAD_PLAY)
         .setGroupAlertBehavior(NotificationCompat.GROUP_ALERT_SUMMARY)
         .setGroupSummary(true)
-    // TODO keep track of all plays?
     context.notify(builder, NotificationTags.UPLOAD_PLAY, 0)
 }
 

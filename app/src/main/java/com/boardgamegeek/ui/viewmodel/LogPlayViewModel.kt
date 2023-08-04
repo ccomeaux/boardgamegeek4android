@@ -203,7 +203,7 @@ class LogPlayViewModel @Inject constructor(
                             _startTime.postValue(play.startTime)
                         }
                     }
-                    _customPlayerSort.postValue(gameSupportsCustomSort || play.arePlayersCustomSorted()) // TODO - confirm this works
+                    _customPlayerSort.postValue(gameSupportsCustomSort || play.arePlayersCustomSorted())
                 }
             }
 
@@ -519,7 +519,7 @@ class LogPlayViewModel @Inject constructor(
         gameId = _game.value?.first ?: INVALID_ID,
         gameName = _game.value?.second.orEmpty(),
         location = _location.value.orEmpty(),
-        length = _length.value ?: 0, // TODO allow nulls
+        length = _length.value ?: 0,
         startTime = _startTime.value ?: 0L,
         quantity = _quantity.value ?: 1,
         incomplete = _incomplete.value ?: false,
