@@ -54,11 +54,7 @@ class NewPlayDateFragment : Fragment() {
 
         binding.lastPlayDateButton.setOnClickListener {
             lastPlayDate?.let {
-                val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(it).build()
-                datePicker.addOnPositiveButtonClickListener { newDate ->
-                    viewModel.setDate(newDate.fromLocalToUtc())
-                }
-                datePicker.show(parentFragmentManager, "DATE_PICKER_DIALOG")
+                viewModel.setDate(it)
             }
         }
 
