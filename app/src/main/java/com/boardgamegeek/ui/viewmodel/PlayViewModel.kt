@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import androidx.work.WorkManager
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
@@ -53,24 +54,28 @@ class PlayViewModel @Inject constructor(
     }
 
     fun refresh() {
-        viewModelScope.launch {
-            play.value?.data?.let {
-                repository.uploadPlay(it)
-            }
-            forceRefresh.set(true)
-            reload()
-        }
+        forceRefresh.set(true)
+        reload()
     }
 
     fun reload() {
         internalId.value = internalId.value
     }
 
+    private var wasRefreshing = false
+    val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosByTagLiveData(workTag).map { list ->
+        if (wasRefreshing && list.all { it.state.isFinished }) {
+            wasRefreshing = false
+            reload()
+        }
+        list.any { workInfo -> !workInfo.state.isFinished }
+    }
+
     fun discard() {
         viewModelScope.launch {
             play.value?.data?.let {
                 if (repository.markAsDiscarded(it.internalId))
-                    refresh() // TODO: request just this play, not all of them
+                    refresh()
             }
         }
     }
@@ -78,8 +83,10 @@ class PlayViewModel @Inject constructor(
     fun send() {
         viewModelScope.launch {
             play.value?.data?.let {
-                if (repository.markAsUpdated(it.internalId))
-                    repository.enqueueUploadRequest(it.internalId)
+                if (repository.markAsUpdated(it.internalId)) {
+                    wasRefreshing = true
+                    repository.enqueueUploadRequest(it.internalId, workTag)
+                }
             }
         }
     }
@@ -87,9 +94,15 @@ class PlayViewModel @Inject constructor(
     fun delete() {
         viewModelScope.launch {
             play.value?.data?.let {
-                if (repository.markAsDeleted(it.internalId))
-                    repository.enqueueUploadRequest(it.internalId)
+                if (repository.markAsDeleted(it.internalId)) {
+                    wasRefreshing = true
+                    repository.enqueueUploadRequest(it.internalId, workTag)
+                }
             }
         }
+    }
+
+    companion object {
+        const val workTag = "PlayViewModel"
     }
 }

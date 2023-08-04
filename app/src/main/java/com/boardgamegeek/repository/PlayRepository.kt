@@ -111,14 +111,6 @@ class PlayRepository(
         }
     }
 
-    suspend fun uploadPlay(playEntity: PlayEntity): Result<PlayUploadResult> {
-        return if (playEntity.updateTimestamp > 0L) {
-            upsertPlay(playEntity)
-        } else if (playEntity.deleteTimestamp > 0L) {
-            deletePlay(playEntity)
-        } else Result.failure(Exception("Play not marked for upsert or deletion"))
-    }
-
     /**
      * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
      * an error message if not.
@@ -391,29 +383,20 @@ class PlayRepository(
         }
     }
 
-    fun enqueueUploadRequest(internalId: Long) {
-        val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+    fun enqueueUploadRequest(internalId: Long, tag: String? = null) {
+        val workRequestBuilder = OneTimeWorkRequestBuilder<PlayUploadWorker>()
             .setInputData(workDataOf(PlayUploadWorker.INTERNAL_ID to internalId))
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .setConstraints(context.createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, WorkRequest.MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-            .build()
-        WorkManager.getInstance(context).enqueue(workRequest)
+        tag?.let { workRequestBuilder.addTag(it) }
+        WorkManager.getInstance(context).enqueue(workRequestBuilder.build())
     }
 
     fun enqueueUploadRequest(internalIds: Collection<Long>) {
         if (internalIds.isEmpty()) return
         val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
             .setInputData(workDataOf(PlayUploadWorker.INTERNAL_IDS to internalIds.toLongArray()))
-            .setConstraints(context.createWorkConstraints())
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
-            .build()
-        WorkManager.getInstance(context).enqueue(workRequest)
-    }
-
-    fun enqueueUploadRequest(gameId: Int) {
-        val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
-            .setInputData(workDataOf(PlayUploadWorker.GAME_ID to gameId))
             .setConstraints(context.createWorkConstraints())
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
             .build()
@@ -448,6 +431,7 @@ class PlayRepository(
     }
 
     private suspend fun markAsSynced(internalId: Long, playId: Int): Boolean {
+        if (playId == INVALID_ID) return false
         return playDao.update(
             internalId,
             contentValuesOf(

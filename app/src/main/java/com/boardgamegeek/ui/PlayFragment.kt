@@ -71,6 +71,12 @@ class PlayFragment : Fragment() {
             }
         }
         binding.playersView.adapter = adapter
+        viewModel.isRefreshing.observe(viewLifecycleOwner) {
+            it?.let {
+                if (it) binding.progressBar.show()
+                else binding.progressBar.hide()
+            }
+        }
         viewModel.play.observe(viewLifecycleOwner) {
             binding.swipeRefreshLayout.post { binding.swipeRefreshLayout.isRefreshing = it?.status == Status.REFRESHING }
             play = it.data
@@ -99,7 +105,6 @@ class PlayFragment : Fragment() {
         binding.emptyView.text = message
         binding.emptyView.isVisible = true
         binding.listContainer.isVisible = false
-        binding.progressBar.hide()
     }
 
     private fun showData(play: PlayEntity) {
@@ -187,7 +192,6 @@ class PlayFragment : Fragment() {
 
         binding.emptyView.isVisible = false
         binding.listContainer.isVisible = true
-        binding.progressBar.hide()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
