@@ -24,7 +24,7 @@
 				android:layout_gravity="center"
 				android:scaleType="fitXY"
 				tools:background="#0f0"
-				tools:ignore="ContentDescription" />
+				tools:ignore="ContentDescription,ImageContrastCheck" />
 
 			<ImageView
 				android:id="@+id/colorSelectedView"
@@ -34,7 +34,7 @@
 				android:scaleType="fitXY"
 				android:src="@drawable/ic_color_picker_selected"
 				android:visibility="gone"
-				tools:ignore="ContentDescription"
+				tools:ignore="ContentDescription,ImageContrastCheck"
 				tools:visibility="visible" />
 		</FrameLayout>
 
@@ -43,6 +43,8 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center"
+			android:ellipsize="middle"
+			android:singleLine="true"
 			android:textAppearance="@style/TextAppearance.Primary"
 			tools:text="Blue" />
 
