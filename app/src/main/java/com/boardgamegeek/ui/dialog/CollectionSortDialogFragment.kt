@@ -1,19 +1,16 @@
 package com.boardgamegeek.ui.dialog
 
-import android.app.Dialog
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.isVisible
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogCollectionSortBinding
@@ -22,6 +19,7 @@ import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -30,20 +28,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 @AndroidEntryPoint
-class CollectionSortDialogFragment : DialogFragment() {
+class CollectionSortDialogFragment : BottomSheetDialogFragment() {
     private var _binding: DialogCollectionSortBinding? = null
     private val binding get() = _binding!!
     private var selectedType: Int = CollectionSorterFactory.TYPE_DEFAULT
     private val viewModel by activityViewModels<CollectionViewViewModel>()
     private val factory by lazy { CollectionSorterFactory(requireContext()) }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        _binding = DialogCollectionSortBinding.inflate(layoutInflater)
-        return AlertDialog.Builder(requireContext()).setView(binding.root).setTitle(R.string.title_sort_by).create()
-    }
-
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        _binding = DialogCollectionSortBinding.inflate(layoutInflater)
         return binding.root
     }
 
