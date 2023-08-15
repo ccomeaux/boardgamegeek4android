@@ -1,8 +1,10 @@
 package com.boardgamegeek.db
 
 import android.content.Context
+import android.provider.BaseColumns
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
+import com.boardgamegeek.db.model.MechanicLocal
 import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.extensions.ascending
 import com.boardgamegeek.extensions.collateNoCase
@@ -19,7 +21,7 @@ class MechanicDao(private val context: Context) {
         NAME, ITEM_COUNT
     }
 
-    suspend fun loadMechanics(sortBy: SortType): List<MechanicEntity> = withContext(Dispatchers.IO) {
+    suspend fun loadMechanics(sortBy: SortType): List<MechanicLocal> = withContext(Dispatchers.IO) {
         val sortByName = Mechanics.Columns.MECHANIC_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
@@ -30,11 +32,13 @@ class MechanicDao(private val context: Context) {
             arrayOf(
                 Mechanics.Columns.MECHANIC_ID,
                 Mechanics.Columns.MECHANIC_NAME,
-                Mechanics.Columns.ITEM_COUNT
+                Mechanics.Columns.ITEM_COUNT,
+                BaseColumns._ID,
             ),
             sortOrder = sortOrder
         ) {
-            MechanicEntity(
+            MechanicLocal(
+                it.getInt(3),
                 it.getInt(0),
                 it.getStringOrNull(1).orEmpty(),
                 it.getIntOrNull(2) ?: 0

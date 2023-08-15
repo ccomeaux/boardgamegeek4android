@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import android.provider.BaseColumns
 
 import com.boardgamegeek.provider.BggContract.Mechanics
 import com.boardgamegeek.provider.BggContract.Companion.PATH_MECHANICS
@@ -19,6 +20,7 @@ class MechanicsProvider : BasicProvider() {
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
+            .mapToTable(BaseColumns._ID, table)
             .mapToTable(Mechanics.Columns.MECHANIC_ID, table)
         if (projection.orEmpty().contains(Mechanics.Columns.ITEM_COUNT)) {
             builder

@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import android.provider.BaseColumns
 
 import com.boardgamegeek.provider.BggContract.Categories
 import com.boardgamegeek.provider.BggContract.Companion.PATH_CATEGORIES
@@ -19,6 +20,7 @@ class CategoriesProvider : BasicProvider() {
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
+            .mapToTable(BaseColumns._ID, table)
             .mapToTable(Categories.Columns.CATEGORY_ID, table)
         if (projection.orEmpty().contains(Categories.Columns.ITEM_COUNT)) {
             builder
