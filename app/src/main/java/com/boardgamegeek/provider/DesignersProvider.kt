@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.Companion.PATH_DESIGNERS
 import com.boardgamegeek.provider.BggContract.Designers
 import com.boardgamegeek.provider.BggDatabase.Tables
@@ -18,6 +19,7 @@ class DesignersProvider : BasicProvider() {
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
+            .mapToTable(BaseColumns._ID, table)
             .mapToTable(Designers.Columns.DESIGNER_ID, table)
             .mapToTable(Designers.Columns.UPDATED, table)
         if (projection.orEmpty().contains(Designers.Columns.ITEM_COUNT)) {

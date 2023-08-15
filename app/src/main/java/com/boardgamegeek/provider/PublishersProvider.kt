@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.Companion.PATH_PUBLISHERS
 import com.boardgamegeek.provider.BggContract.Publishers
 import com.boardgamegeek.provider.BggDatabase.Tables
@@ -18,6 +19,7 @@ class PublishersProvider : BasicProvider() {
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
+            .mapToTable(BaseColumns._ID, table)
             .mapToTable(Publishers.Columns.PUBLISHER_ID, table)
             .mapToTable(Publishers.Columns.UPDATED, table)
         if (projection.orEmpty().contains(Publishers.Columns.ITEM_COUNT)) {

@@ -2,7 +2,6 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.content.contentValuesOf
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
@@ -10,8 +9,10 @@ import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.mapToArtistEntity
+import com.boardgamegeek.mappers.mapToArtistImages
+import com.boardgamegeek.mappers.mapToArtistBasic
 import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.provider.BggContract.Artists
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -23,48 +24,37 @@ class ArtistRepository(
     private val dao = ArtistDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadArtists(sortBy: ArtistDao.SortType) = dao.loadArtists(sortBy)
+    suspend fun loadArtists(sortBy: ArtistDao.SortType) = dao.loadArtists(sortBy).map { it.mapToArtistEntity() }
 
-    suspend fun loadArtist(artistId: Int) = dao.loadArtist(artistId)
+    suspend fun loadArtist(artistId: Int) = dao.loadArtist(artistId)?.mapToArtistEntity()
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) = dao.loadCollection(id, sortBy)
 
     suspend fun delete() = dao.delete()
 
-    suspend fun refreshArtist(artistId: Int): PersonEntity = withContext(Dispatchers.IO) {
+    suspend fun refreshArtist(artistId: Int): Int = withContext(Dispatchers.IO) {
+        val timestamp = System.currentTimeMillis()
         val response = api.person(BggService.PersonType.ARTIST, artistId)
-        if (!response.name.isNullOrBlank()) {
-            val missingArtistMessage = "This page does not exist. You can edit this page to create it."
-            dao.upsert(
-                artistId, contentValuesOf(
-                    Artists.Columns.ARTIST_NAME to response.name,
-                    Artists.Columns.ARTIST_DESCRIPTION to (if (response.description == missingArtistMessage) "" else response.description),
-                    Artists.Columns.UPDATED to System.currentTimeMillis(),
-                )
-            )
-        }
-        response.mapToEntity(artistId)
+        response.mapToEntity(artistId, timestamp)?.let {
+            dao.upsert(it.mapToArtistBasic())
+        } ?: 0
     }
 
     suspend fun refreshImages(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
+        val timestamp = System.currentTimeMillis()
         val response = api.person(artist.id)
-        response.items.firstOrNull()?.let {
-            dao.upsert(
-                artist.id, contentValuesOf(
-                    Artists.Columns.ARTIST_THUMBNAIL_URL to it.thumbnail,
-                    Artists.Columns.ARTIST_IMAGE_URL to it.image,
-                    Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP to System.currentTimeMillis(),
-                )
-            )
-            artist.copy(thumbnailUrl = it.thumbnail.orEmpty(), imageUrl = it.image.orEmpty())
-        } ?: artist
+        val entity = response.items.firstOrNull()?.mapToEntity(artist, timestamp)
+        entity?.let {
+            dao.upsert(it.mapToArtistImages())
+        }
+        entity ?: artist
     }
 
     suspend fun refreshHeroImage(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.fetchImageUrls(artist.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
-        if (urls?.isNotEmpty()  == true) {
-            dao.upsert(artist.id, contentValuesOf(Artists.Columns.ARTIST_HERO_IMAGE_URL to urls.first()))
+        if (urls?.isNotEmpty() == true) {
+            dao.updateHeroImageUrl(artist.id, urls.first())
             artist.copy(heroImageUrl = urls.first())
         } else artist
     }
@@ -83,20 +73,10 @@ class ArtistRepository(
     suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
         val collection = dao.loadCollection(artistId)
         val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
-        updateWhitmoreScore(artistId, statsEntity.whitmoreScore, whitmoreScore)
-        statsEntity
-    }
-
-    private suspend fun updateWhitmoreScore(artistId: Int, newScore: Int, oldScore: Int = -1) = withContext(Dispatchers.IO) {
-        val realOldScore = if (oldScore == -1) dao.loadArtist(artistId)?.whitmoreScore ?: 0 else oldScore
-        if (newScore != realOldScore) {
-            dao.upsert(
-                artistId,
-                contentValuesOf(
-                    Artists.Columns.WHITMORE_SCORE to newScore,
-                    Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
-                )
-            )
+        val realOldScore = if (whitmoreScore == -1) dao.loadArtist(artistId)?.whitmoreScore ?: 0 else whitmoreScore
+        if (statsEntity.whitmoreScore != realOldScore) {
+            dao.updateWhitmoreScore(artistId, statsEntity.whitmoreScore)
         }
+        statsEntity
     }
 }

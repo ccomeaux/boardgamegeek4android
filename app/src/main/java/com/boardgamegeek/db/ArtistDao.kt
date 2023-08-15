@@ -2,10 +2,15 @@ package com.boardgamegeek.db
 
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
+import android.provider.BaseColumns
+import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.db.model.ArtistBasic
+import com.boardgamegeek.db.model.ArtistImages
+import com.boardgamegeek.db.model.ArtistLocal
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Artists
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +24,7 @@ class ArtistDao(private val context: Context) {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    suspend fun loadArtists(sortBy: SortType): List<PersonEntity> = withContext(Dispatchers.IO) {
+    suspend fun loadArtists(sortBy: SortType): List<ArtistLocal> = withContext(Dispatchers.IO) {
         val sortByName = Artists.Columns.ARTIST_NAME.collateNoCase().ascending()
         val sortOrder = when (sortBy) {
             SortType.NAME -> sortByName
@@ -28,68 +33,89 @@ class ArtistDao(private val context: Context) {
         }
         context.contentResolver.loadList(
             Artists.CONTENT_URI,
-            arrayOf(
-                Artists.Columns.ARTIST_ID,
-                Artists.Columns.ARTIST_NAME,
-                Artists.Columns.ARTIST_DESCRIPTION,
-                Artists.Columns.UPDATED,
-                Artists.Columns.ARTIST_THUMBNAIL_URL,
-                Artists.Columns.ARTIST_HERO_IMAGE_URL,
-                Artists.Columns.ITEM_COUNT,
-                Artists.Columns.WHITMORE_SCORE,
-                Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP,
-            ),
+            projection(),
             sortOrder = sortOrder
         ) {
-            PersonEntity(
-                id = it.getInt(0),
-                name = it.getStringOrNull(1).orEmpty(),
-                description = it.getStringOrNull(2).orEmpty(),
-                updatedTimestamp = it.getLongOrNull(3) ?: 0L,
-                thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                heroImageUrl = it.getStringOrNull(5).orEmpty(),
-                itemCount = it.getIntOrNull(6) ?: 0,
-                whitmoreScore = it.getIntOrNull(7) ?: 0,
-                statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
-            )
+            buildFromCursor(it)
         }
     }
 
-    suspend fun loadArtist(id: Int): PersonEntity? = withContext(Dispatchers.IO) {
+    suspend fun loadArtist(id: Int): ArtistLocal? = withContext(Dispatchers.IO) {
         context.contentResolver.loadEntity(
             Artists.buildArtistUri(id),
-            arrayOf(
-                Artists.Columns.ARTIST_ID,
-                Artists.Columns.ARTIST_NAME,
-                Artists.Columns.ARTIST_DESCRIPTION,
-                Artists.Columns.UPDATED,
-                Artists.Columns.WHITMORE_SCORE,
-                Artists.Columns.ARTIST_THUMBNAIL_URL,
-                Artists.Columns.ARTIST_IMAGE_URL,
-                Artists.Columns.ARTIST_HERO_IMAGE_URL,
-                Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP,
-                Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP,
-            )
+            projection()
         ) {
-            PersonEntity(
-                id = it.getInt(0),
-                name = it.getStringOrNull(1).orEmpty(),
-                description = it.getStringOrNull(2).orEmpty(),
-                updatedTimestamp = it.getLongOrNull(3) ?: 0L,
-                whitmoreScore = it.getIntOrNull(4) ?: 0,
-                thumbnailUrl = it.getStringOrNull(5).orEmpty(),
-                imageUrl = it.getStringOrNull(6).orEmpty(),
-                heroImageUrl = it.getStringOrNull(7).orEmpty(),
-                statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
-                imagesUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
-            )
+            buildFromCursor(it)
         }
     }
+
+    private fun projection() = arrayOf(
+        Artists.Columns.ARTIST_ID,
+        Artists.Columns.ARTIST_NAME,
+        Artists.Columns.ARTIST_DESCRIPTION,
+        Artists.Columns.UPDATED,
+        Artists.Columns.WHITMORE_SCORE,
+        Artists.Columns.ARTIST_THUMBNAIL_URL,
+        Artists.Columns.ARTIST_IMAGE_URL,
+        Artists.Columns.ARTIST_HERO_IMAGE_URL,
+        Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP,
+        Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP,
+        BaseColumns._ID,
+        Artists.Columns.ITEM_COUNT,
+    )
+
+    private fun buildFromCursor(it: Cursor) = ArtistLocal(
+        internalId = it.getInt(10),
+        artistId = it.getInt(0),
+        artistName = it.getStringOrNull(1).orEmpty(),
+        artistDescription = it.getStringOrNull(2),
+        updatedTimestamp = it.getLongOrNull(3),
+        whitmoreScore = it.getIntOrNull(4),
+        artistThumbnailUrl = it.getStringOrNull(5),
+        artistImageUrl = it.getStringOrNull(6),
+        artistHeroImageUrl = it.getStringOrNull(7),
+        statsUpdatedTimestamp = it.getLongOrNull(8),
+        imagesUpdatedTimestamp = it.getLongOrNull(9),
+        itemCount = it.getIntOrNull(11),
+    )
 
     suspend fun loadCollection(artistId: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING) =
         collectionDao.loadLinkedCollection(Artists.buildArtistCollectionUri(artistId), sortBy)
 
-    suspend fun upsert(artistId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
+    suspend fun upsert(artist: ArtistBasic): Int = withContext(Dispatchers.IO) {
+        val values = contentValuesOf(
+            Artists.Columns.ARTIST_NAME to artist.artistName,
+            Artists.Columns.ARTIST_DESCRIPTION to artist.artistDescription,
+            Artists.Columns.UPDATED to artist.updatedTimestamp,
+        )
+        upsert(artist.artistId, values)
+    }
+
+    suspend fun upsert(artist: ArtistImages): Int = withContext(Dispatchers.IO) {
+        val values = contentValuesOf(
+            Artists.Columns.ARTIST_IMAGE_URL to artist.imageUrl,
+            Artists.Columns.ARTIST_THUMBNAIL_URL to artist.thumbnailUrl,
+            Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP to artist.updatedTimestamp,
+        )
+        upsert(artist.artistId, values)
+    }
+
+    suspend fun updateHeroImageUrl(artistId: Int, url: String): Int = withContext(Dispatchers.IO) {
+        val values = contentValuesOf(
+            Artists.Columns.ARTIST_HERO_IMAGE_URL to url,
+        )
+        upsert(artistId, values)
+    }
+
+    suspend fun updateWhitmoreScore(artistId: Int, score: Int): Int = withContext(Dispatchers.IO) {
+        val values = contentValuesOf(
+            Artists.Columns.WHITMORE_SCORE to score,
+            Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
+        )
+        upsert(artistId, values)
+    }
+
+    private suspend fun upsert(artistId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
         val resolver = context.contentResolver
         val uri = Artists.buildArtistUri(artistId)
         if (resolver.rowExists(uri)) {

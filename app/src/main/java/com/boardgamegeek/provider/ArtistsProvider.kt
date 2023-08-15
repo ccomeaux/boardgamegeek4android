@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import android.provider.BaseColumns
 
 import com.boardgamegeek.provider.BggContract.Artists
 import com.boardgamegeek.provider.BggContract.Companion.PATH_ARTISTS
@@ -19,6 +20,7 @@ class ArtistsProvider : BasicProvider() {
 
     override fun buildExpandedSelection(uri: Uri, projection: Array<String>?): SelectionBuilder {
         val builder = SelectionBuilder()
+            .mapToTable(BaseColumns._ID, table)
             .mapToTable(Artists.Columns.ARTIST_ID, table)
             .mapToTable(Artists.Columns.UPDATED, table)
         if (projection.orEmpty().contains(Artists.Columns.ITEM_COUNT)) {
