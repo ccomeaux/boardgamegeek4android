@@ -37,14 +37,17 @@ class DesignersActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(
+        val text = menu.findItem(
             when (sortBy) {
                 SortType.NAME -> R.id.menu_sort_name
                 SortType.ITEM_COUNT -> R.id.menu_sort_item_count
                 SortType.WHITMORE_SCORE -> R.id.menu_sort_whitmore_score
             }
-        )?.isChecked = true
-        menu.setActionBarCount(R.id.menu_list_count, numberOfDesigners, getString(R.string.by_prefix, title))
+        )?.let {
+            it.isChecked = true
+            getString(R.string.by_prefix, it.title)
+        }
+        menu.setActionBarCount(R.id.menu_list_count, numberOfDesigners, text)
         return true
     }
 

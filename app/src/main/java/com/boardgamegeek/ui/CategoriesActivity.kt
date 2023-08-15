@@ -36,11 +36,14 @@ class CategoriesActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(when (sortBy) {
+        val text = menu.findItem(when (sortBy) {
             SortType.NAME -> R.id.menu_sort_name
             SortType.ITEM_COUNT -> R.id.menu_sort_item_count
-        })?.isChecked = true
-        menu.setActionBarCount(R.id.menu_list_count, numberOfCategories, getString(R.string.by_prefix, title))
+        })?.let {
+            it.isChecked = true
+            getString(R.string.by_prefix, it.title)
+        }
+        menu.setActionBarCount(R.id.menu_list_count, numberOfCategories, text)
         return true
     }
 

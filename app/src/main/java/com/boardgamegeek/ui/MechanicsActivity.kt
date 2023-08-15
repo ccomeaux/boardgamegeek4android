@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
+import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel.SortType
 import dagger.hilt.android.AndroidEntryPoint
@@ -37,11 +38,14 @@ class MechanicsActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        menu.findItem(when (sortBy) {
+        val text = menu.findItem(when (sortBy) {
             SortType.NAME -> R.id.menu_sort_name
             SortType.ITEM_COUNT -> R.id.menu_sort_item_count
-        })?.isChecked = true
-        menu.setActionBarCount(R.id.menu_list_count, numberOfMechanics, getString(R.string.by_prefix, title))
+        })?.let {
+            it.isChecked = true
+            getString(R.string.by_prefix, it.title)
+        }
+        menu.setActionBarCount(R.id.menu_list_count, numberOfMechanics, text)
         return true
     }
 
