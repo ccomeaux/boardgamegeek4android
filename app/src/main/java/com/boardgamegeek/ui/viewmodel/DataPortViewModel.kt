@@ -74,8 +74,8 @@ class DataPortViewModel @Inject constructor(
                 1,
                 _collectionViewProgress,
                 views,
-            ) { record: CollectionView, writer: JsonWriter ->
-                gson.toJson(record, CollectionView::class.java, writer)
+            ) { record: CollectionViewForExport, writer: JsonWriter ->
+                gson.toJson(record, CollectionViewForExport::class.java, writer)
             }
         }
     }
@@ -185,8 +185,8 @@ class DataPortViewModel @Inject constructor(
                 uri,
                 Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION,
                 _collectionViewProgress,
-                { reader -> gson.fromJson(reader, CollectionView::class.java) },
-                { item: CollectionView, _ -> collectionViewRepository.insertView(item.mapToEntity()) },
+                { reader -> gson.fromJson(reader, CollectionViewForExport::class.java) },
+                { item: CollectionViewForExport, _ -> collectionViewRepository.insertView(item.mapToEntity()) },
                 { collectionViewRepository.delete() },
             )
         }

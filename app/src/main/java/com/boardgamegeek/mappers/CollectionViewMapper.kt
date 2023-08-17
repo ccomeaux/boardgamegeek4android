@@ -4,20 +4,20 @@ import com.boardgamegeek.db.model.CollectionViewFilterLocal
 import com.boardgamegeek.db.model.CollectionViewLocal
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
-import com.boardgamegeek.export.model.CollectionView
-import com.boardgamegeek.export.model.Filter
+import com.boardgamegeek.export.model.CollectionViewForExport
+import com.boardgamegeek.export.model.CollectionViewFilterForExport
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorterFactory
 
-fun CollectionViewEntity.mapToExportable() = CollectionView(
+fun CollectionViewEntity.mapToExportable() = CollectionViewForExport(
     name = this.name,
     sortType = this.sortType,
     starred = this.starred,
-    filters = this.filters?.map { Filter(it.type, it.data) }.orEmpty(),
+    filters = this.filters?.map { CollectionViewFilterForExport(it.type, it.data) }.orEmpty(),
 )
 
-fun CollectionView.mapToEntity() = CollectionViewEntity(
+fun CollectionViewForExport.mapToEntity() = CollectionViewEntity(
     id = BggContract.INVALID_ID,
     name = name,
     sortType = sortType,
@@ -27,7 +27,8 @@ fun CollectionView.mapToEntity() = CollectionViewEntity(
     filters = filters.map { it.mapToEntity() },
 )
 
-fun Filter.mapToEntity() = CollectionViewFilterEntity(
+fun CollectionViewFilterForExport.mapToEntity() = CollectionViewFilterEntity(
+    id = BggContract.INVALID_ID,
     type = this.type,
     data = this.data
 )
@@ -53,12 +54,13 @@ fun CollectionViewEntity.mapToLocal() = CollectionViewLocal(
 )
 
 fun CollectionViewFilterLocal.mapToEntity() = CollectionViewFilterEntity(
-    type = type ?: CollectionFiltererFactory.TYPE_UNKNOWN, // TODO
+    id = id,
+    type = type ?: CollectionFiltererFactory.TYPE_UNKNOWN,
     data = data.orEmpty(),
 )
 
 fun CollectionViewFilterEntity.mapToLocal(viewId: Int) = CollectionViewFilterLocal(
-    id = 0, // TODO
+    id = id,
     viewId = viewId,
     type = type,
     data = data,

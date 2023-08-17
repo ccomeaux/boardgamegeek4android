@@ -254,7 +254,7 @@ class CollectionViewViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             // inflate filters
             val loadedFilters = mutableListOf<CollectionFilterer>()
-            for ((type, data) in loadedView?.filters.orEmpty()) {
+            for ((_, type, data) in loadedView?.filters.orEmpty()) {
                 val filter = collectionFiltererFactory.create(type)
                 filter?.inflate(data)
                 if (filter?.isValid == true) {
@@ -331,7 +331,7 @@ class CollectionViewViewModel @Inject constructor(
             val view = CollectionViewEntity(
                 name = name,
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
+                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(BggContract.INVALID_ID, it.type, it.deflate()) },
             )
             val viewId = viewRepository.insertView(view)
             logAction("Insert", name)
@@ -348,7 +348,7 @@ class CollectionViewViewModel @Inject constructor(
                 id = _selectedViewId.value ?: BggContract.INVALID_ID,
                 name = selectedViewName.value.orEmpty(),
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
+                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(BggContract.INVALID_ID, it.type, it.deflate()) },
             )
             viewRepository.updateView(view)
             logAction("Update", name)
