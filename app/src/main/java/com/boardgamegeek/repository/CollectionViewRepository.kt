@@ -6,7 +6,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.extensions.CollectionView
-import com.boardgamegeek.sorter.CollectionSorterFactory
+import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToLocal
 import com.boardgamegeek.ui.CollectionActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,38 +18,37 @@ class CollectionViewRepository(val context: Context) {
     private val defaultView = CollectionViewEntity(
         id = CollectionView.DEFAULT_DEFAULT_ID,
         name = context.getString(R.string.title_collection),
-        sortType = CollectionSorterFactory.TYPE_DEFAULT
     )
 
     suspend fun load(includeDefault: Boolean = true, includeFilters: Boolean = false): List<CollectionViewEntity> {
-        val list = dao.load(includeFilters)
+        val list = dao.load(includeFilters).map { it.mapToEntity() }
         return if (includeDefault) listOf(defaultView) + list else list
     }
 
-    suspend fun load(viewId: Long): CollectionViewEntity {
-        return dao.load(viewId) ?: defaultView
+    suspend fun load(viewId: Int): CollectionViewEntity {
+        return dao.load(viewId)?.mapToEntity() ?: defaultView
     }
 
-    suspend fun insertView(view: CollectionViewEntity): Long {
-        return dao.insert(view)
+    suspend fun insertView(view: CollectionViewEntity): Int {
+        return dao.insert(view.mapToLocal())
     }
 
     suspend fun updateView(view: CollectionViewEntity) {
-        dao.update(view)
+        dao.update(view.mapToLocal())
     }
 
     suspend fun delete() = dao.delete()
 
-    suspend fun deleteView(viewId: Long) = dao.delete(viewId)
+    suspend fun deleteView(viewId: Int) = dao.delete(viewId)
 
-    suspend fun updateShortcuts(viewId: Long) = withContext(Dispatchers.Default) {
+    suspend fun updateShortcuts(viewId: Int) = withContext(Dispatchers.Default) {
         if (viewId > 0) {
             dao.updateShortcutCount(viewId)
             ShortcutManagerCompat.reportShortcutUsed(context, CollectionActivity.createShortcutName(viewId))
-            val shortcuts = dao.loadShortcuts()
-                .filter { it.name.isNotBlank() }
+            val shortcuts = dao.load(false)
+                .filterNot { it.name.isNullOrBlank() }
                 .take(SHORTCUT_COUNT)
-                .map { entity -> CollectionActivity.createShortcutInfo(context, entity.viewId, entity.name) }
+                .map { entity -> CollectionActivity.createShortcutInfo(context, entity.id, entity.name.orEmpty()) }
             ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
         }
     }

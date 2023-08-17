@@ -44,7 +44,7 @@ class SaveViewDialogFragment : DialogFragment() {
             .setPositiveButton(R.string.save) { _, _ ->
                 val name = binding.nameView.text?.trim()?.toString().orEmpty()
                 val isDefault = binding.defaultViewCheckBox.isChecked
-                if (viewModel.findViewId(name) > 0L) {
+                if (viewModel.findViewId(name) > 0) {
                     requireContext().createThemedBuilder()
                         .setTitle(R.string.title_collection_view_name_in_use)
                         .setMessage(R.string.msg_collection_view_name_in_use)

@@ -33,8 +33,8 @@ class DeleteViewDialogFragment : DialogFragment() {
                         .setMessage(getString(R.string.are_you_sure_delete_collection_view, viewName))
                         .setCancelable(true)
                         .setPositiveButton(R.string.yes) { _, _ ->
-                            val viewId = views.find { it.name == viewName }?.id ?: BggContract.INVALID_ID.toLong()
-                            if (viewId > 0L) {
+                            val viewId = views.find { it.name == viewName }?.id ?: BggContract.INVALID_ID
+                            if (viewId > 0) {
                                 viewModel.deleteView(viewId)
                                 toast.show()
                                 firebaseAnalytics.logEvent("DataManipulation") {

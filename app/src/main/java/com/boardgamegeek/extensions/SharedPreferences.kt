@@ -44,7 +44,7 @@ fun SharedPreferences.remove(key: String) {
 
 object CollectionView {
     const val PREFERENCES_KEY_DEFAULT_ID = "viewDefaultId"
-    const val DEFAULT_DEFAULT_ID: Long = -1L
+    const val DEFAULT_DEFAULT_ID: Int = -1
 }
 
 object AccountPreferences {

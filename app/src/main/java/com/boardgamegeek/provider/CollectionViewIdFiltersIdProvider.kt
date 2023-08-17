@@ -1,6 +1,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.CollectionViewFilters
 import com.boardgamegeek.provider.BggContract.CollectionViews
 import com.boardgamegeek.provider.BggContract.Companion.PATH_COLLECTION_VIEWS
@@ -24,6 +25,7 @@ class CollectionViewIdFiltersIdProvider : BaseProvider() {
         val filterId = CollectionViews.getViewId(uri).toLong()
         val type = CollectionViewFilters.getFilterType(uri)
         return SelectionBuilder().table(table)
+            .mapToTable(BaseColumns._ID, table)
             .where("${CollectionViewFilters.Columns.VIEW_ID}=?", filterId.toString())
             .where("${CollectionViewFilters.Columns.TYPE}=?", type.toString())
     }

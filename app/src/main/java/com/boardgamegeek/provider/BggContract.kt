@@ -760,9 +760,9 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionview"
         const val DEFAULT_SORT = "${Columns.STARRED} DESC, ${Columns.NAME}$COLLATE_NOCASE ASC"
 
-        fun buildViewUri(viewId: Long): Uri = builder(viewId).build()
+        fun buildViewUri(viewId: Int): Uri = builder(viewId).build()
 
-        fun builder(viewId: Long): Uri.Builder = CONTENT_URI.buildUpon().appendPath(viewId.toString())
+        fun builder(viewId: Int): Uri.Builder = CONTENT_URI.buildUpon().appendPath(viewId.toString())
 
         fun getViewId(uri: Uri) = uri.getPathValueAsInt(PATH_COLLECTION_VIEWS)
     }
@@ -778,11 +778,11 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionviewfilter"
         const val DEFAULT_SORT = "${CollectionViews.Columns.STARRED} DESC, ${CollectionViews.Columns.NAME}$COLLATE_NOCASE ASC, ${Columns.TYPE} ASC"
 
-        fun buildViewFilterUri(viewId: Long): Uri = build(viewId).build()
+        fun buildViewFilterUri(viewId: Int): Uri = build(viewId).build()
 
-        fun buildViewFilterUri(viewId: Long, filterId: Long): Uri = build(viewId).appendPath(filterId.toString()).build()
+        fun buildViewFilterUri(viewId: Int, filterId: Long): Uri = build(viewId).appendPath(filterId.toString()).build()
 
-        private fun build(viewId: Long) = CollectionViews.builder(viewId).appendPath(PATH_FILTERS)
+        private fun build(viewId: Int) = CollectionViews.builder(viewId).appendPath(PATH_FILTERS)
 
         fun getFilterType(uri: Uri) = uri.getPathValueAsInt(PATH_FILTERS)
     }

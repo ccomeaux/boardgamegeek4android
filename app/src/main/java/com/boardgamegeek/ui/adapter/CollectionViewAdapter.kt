@@ -17,12 +17,12 @@ class CollectionViewAdapter(context: Context) :
             position < 0 -> CollectionView.DEFAULT_DEFAULT_ID
             position >= count -> CollectionView.DEFAULT_DEFAULT_ID
             else -> super.getItem(position)?.id ?: CollectionView.DEFAULT_DEFAULT_ID
-        }
+        }.toLong()
     }
 
-    fun findIndexOf(viewId: Long): Int {
+    fun findIndexOf(viewId: Int): Int {
         for (i in 0..count) {
-            if (getItemId(i) == viewId) {
+            if (getItemId(i) == viewId.toLong()) {
                 return i
             }
         }

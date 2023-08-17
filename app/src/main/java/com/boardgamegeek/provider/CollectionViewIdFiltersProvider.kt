@@ -19,29 +19,25 @@ class CollectionViewIdFiltersProvider : BaseProvider() {
     override val defaultSortOrder = CollectionViewFilters.DEFAULT_SORT
 
     override fun buildSimpleSelection(uri: Uri): SelectionBuilder {
-        return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS, CollectionViewFilters.Columns.VIEW_ID)
+        return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS)
     }
 
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
-        return buildSelection(
-            uri,
-            Tables.COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS,
-            "${Tables.COLLECTION_VIEWS}.${BaseColumns._ID}"
-        )
+        return buildSelection(uri, Tables.COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS)
     }
 
     @Suppress("RedundantNullableReturnType")
     override fun insert(context: Context, db: SQLiteDatabase, uri: Uri, values: ContentValues): Uri? {
-        val filterId = CollectionViews.getViewId(uri).toLong()
-        values.put(CollectionViewFilters.Columns.VIEW_ID, filterId)
+        val viewId = CollectionViews.getViewId(uri)
+        values.put(CollectionViewFilters.Columns.VIEW_ID, viewId)
         val rowId = db.insertOrThrow(Tables.COLLECTION_VIEW_FILTERS, null, values)
-        return CollectionViewFilters.buildViewFilterUri(filterId, rowId)
+        return CollectionViewFilters.buildViewFilterUri(viewId, rowId)
     }
 
-    private fun buildSelection(uri: Uri, table: String, idColumnName: String): SelectionBuilder {
+    private fun buildSelection(uri: Uri, table: String): SelectionBuilder {
         val filterId = CollectionViews.getViewId(uri).toLong()
         return SelectionBuilder().table(table)
-            .mapIfNull(BaseColumns._ID, "0", Tables.COLLECTION_VIEW_FILTERS)
-            .where("$idColumnName=?", filterId.toString())
+            .mapToTable(BaseColumns._ID, Tables.COLLECTION_VIEW_FILTERS)
+            .where("${CollectionViewFilters.Columns.VIEW_ID}=?", filterId.toString())
     }
 }

@@ -60,7 +60,7 @@ class SelectionBuilder {
      * using `AND`.
      */
     fun where(selection: String?, vararg selectionArgs: String?): SelectionBuilder {
-        if (selection == null || selection.isEmpty()) {
+        if (selection.isNullOrEmpty()) {
             require(selectionArgs.isEmpty()) { "Valid selection required when including arguments=" }
             // Shortcut when clause is empty
             return this
@@ -110,9 +110,6 @@ class SelectionBuilder {
         projectionMap[column] = "$table.$column AS $alias"
         return this
     }
-
-    @Suppress("SpellCheckingInspection")
-    fun mapIfNull(column: String, nullDefault: String, table: String? = null) = map(column, "IFNULL(${column.withTable(table)},$nullDefault)")
 
     fun mapAsSum(aliasColumn: String, sumColumn: String, table: String? = null) = map(aliasColumn, "SUM(${sumColumn.withTable(table)})")
 

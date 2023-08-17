@@ -97,8 +97,8 @@ class CollectionViewViewModel @Inject constructor(
         list.any { workInfo -> !workInfo.state.isFinished }
     }
 
-    private val _selectedViewId = MutableLiveData<Long>()
-    val selectedViewId: LiveData<Long>
+    private val _selectedViewId = MutableLiveData<Int>()
+    val selectedViewId: LiveData<Int>
         get() = _selectedViewId
 
     val views: LiveData<List<CollectionViewEntity>> = viewsTimestamp.switchMap {
@@ -165,7 +165,7 @@ class CollectionViewViewModel @Inject constructor(
         }
     }
 
-    fun selectView(viewId: Long) {
+    fun selectView(viewId: Int) {
         if (_selectedViewId.value != viewId) {
             _isFiltering.postValue(true)
             viewModelScope.launch { viewRepository.updateShortcuts(viewId) }
@@ -173,7 +173,7 @@ class CollectionViewViewModel @Inject constructor(
         }
     }
 
-    fun findViewId(viewName: String) = views.value?.find { it.name == viewName }?.id ?: BggContract.INVALID_ID.toLong()
+    fun findViewId(viewName: String) = views.value?.find { it.name == viewName }?.id ?: BggContract.INVALID_ID
 
     fun setSort(sortType: Int) {
         val type = when (sortType) {
@@ -323,7 +323,6 @@ class CollectionViewViewModel @Inject constructor(
     fun insert(name: String, isDefault: Boolean) {
         viewModelScope.launch {
             val view = CollectionViewEntity(
-                id = 0L, //ignored
                 name = name,
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
                 filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
@@ -338,7 +337,7 @@ class CollectionViewViewModel @Inject constructor(
     fun update(isDefault: Boolean) {
         viewModelScope.launch {
             val view = CollectionViewEntity(
-                id = _selectedViewId.value ?: BggContract.INVALID_ID.toLong(),
+                id = _selectedViewId.value ?: BggContract.INVALID_ID,
                 name = selectedViewName.value.orEmpty(),
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
                 filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
@@ -349,7 +348,7 @@ class CollectionViewViewModel @Inject constructor(
         }
     }
 
-    fun deleteView(viewId: Long) {
+    fun deleteView(viewId: Int) {
         viewModelScope.launch {
             viewRepository.deleteView(viewId)
             refreshViews()
@@ -381,7 +380,7 @@ class CollectionViewViewModel @Inject constructor(
         _errorMessage.value = Event(exception?.message.orEmpty())
     }
 
-    private fun setOrRemoveDefault(viewId: Long, isDefault: Boolean) {
+    private fun setOrRemoveDefault(viewId: Int, isDefault: Boolean) {
         if (isDefault) {
             prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID] = viewId
         } else if (viewId == defaultViewId) {
@@ -392,7 +391,7 @@ class CollectionViewViewModel @Inject constructor(
     fun createShortcut() {
         viewModelScope.launch(Dispatchers.Default) {
             val context = getApplication<BggApplication>().applicationContext
-            val viewId = _selectedViewId.value ?: BggContract.INVALID_ID.toLong()
+            val viewId = _selectedViewId.value ?: BggContract.INVALID_ID
             val viewName = selectedViewName.value.orEmpty()
             if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
                 val info = CollectionActivity.createShortcutInfo(context, viewId, viewName)
