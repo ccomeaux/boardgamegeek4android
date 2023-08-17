@@ -1,6 +1,6 @@
 package com.boardgamegeek.db.model
 
-class MechanicLocal(
+data class MechanicLocal(
     val internalId: Int,
     val id: Int,
     val name: String,

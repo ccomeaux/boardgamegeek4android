@@ -1,7 +1,6 @@
 package com.boardgamegeek.db
 
 import android.content.Context
-import com.boardgamegeek.BggApplication
 import com.boardgamegeek.provider.BggContract.Avatars
 import com.boardgamegeek.provider.BggContract.Thumbnails
 import kotlinx.coroutines.Dispatchers

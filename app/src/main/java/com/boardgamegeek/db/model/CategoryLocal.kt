@@ -1,6 +1,6 @@
 package com.boardgamegeek.db.model
 
-class CategoryLocal(
+data class CategoryLocal(
     val internalId: Int,
     val id: Int,
     val name: String,
