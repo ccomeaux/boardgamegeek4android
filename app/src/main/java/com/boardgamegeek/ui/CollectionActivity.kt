@@ -59,6 +59,11 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 }
             }
         }
+        viewModel.toastMessage.observe(this) {
+            it.getContentIfNotHandled()?.let { message ->
+                toast(message)
+            }
+        }
         viewModel.loggedPlayResult.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
                 notifyLoggedPlay(it)

@@ -15,10 +15,7 @@ import com.boardgamegeek.extensions.CollectionView
 import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
-import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -37,7 +34,6 @@ class SaveViewDialogFragment : DialogFragment() {
             description = it.getString(KEY_DESCRIPTION)
         }
 
-        val firebaseAnalytics = FirebaseAnalytics.getInstance(requireContext())
         val builder = requireContext().createThemedBuilder()
             .setTitle(R.string.title_save_view)
             .setView(binding.root)
@@ -49,24 +45,14 @@ class SaveViewDialogFragment : DialogFragment() {
                         .setTitle(R.string.title_collection_view_name_in_use)
                         .setMessage(R.string.msg_collection_view_name_in_use)
                         .setPositiveButton(R.string.update) { _, _ ->
-                            context?.let {
-                                toast(it.getString(R.string.msg_collection_view_updated, name))
-                            }
-                            logAction(firebaseAnalytics, "Update", name)
-                            viewModel.update(isDefault)
+                            viewModel.update(name, isDefault)
                         }
                         .setNegativeButton(R.string.create) { _, _ ->
-                            context?.let {
-                                toast(it.getString(R.string.msg_collection_view_inserted, name))
-                            }
-                            logAction(firebaseAnalytics, "Insert", name)
                             viewModel.insert(name, isDefault)
                         }
                         .create()
                         .show()
                 } else {
-                    requireContext().toast(getString(R.string.msg_collection_view_inserted, name))
-                    logAction(firebaseAnalytics, "Insert", name)
                     viewModel.insert(name, isDefault)
                 }
             }
@@ -92,14 +78,6 @@ class SaveViewDialogFragment : DialogFragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun logAction(firebaseAnalytics: FirebaseAnalytics, action: String, name: String) {
-        firebaseAnalytics.logEvent("DataManipulation") {
-            param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
-            param("Action", action)
-            param("Name", name)
-        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

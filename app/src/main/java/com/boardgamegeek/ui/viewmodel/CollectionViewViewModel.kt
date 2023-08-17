@@ -7,6 +7,7 @@ import androidx.core.os.bundleOf
 import androidx.lifecycle.*
 import androidx.work.WorkManager
 import com.boardgamegeek.BggApplication
+import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionViewEntity
 import com.boardgamegeek.entities.CollectionViewFilterEntity
@@ -24,6 +25,7 @@ import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionActivity
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -79,6 +81,10 @@ class CollectionViewViewModel @Inject constructor(
     private val _errorMessage = MediatorLiveData<Event<String>>()
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
+
+    private val _toastMessage = MediatorLiveData<Event<String>>()
+    val toastMessage: LiveData<Event<String>>
+        get() = _toastMessage
 
     private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
     val loggedPlayResult: LiveData<Event<PlayUploadResult>>
@@ -328,13 +334,15 @@ class CollectionViewViewModel @Inject constructor(
                 filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
             )
             val viewId = viewRepository.insertView(view)
+            logAction("Insert", name)
+            postToastMessage(R.string.msg_collection_view_updated, name)
             refreshViews()
             setOrRemoveDefault(viewId, isDefault)
             selectView(viewId)
         }
     }
 
-    fun update(isDefault: Boolean) {
+    fun update(name: String, isDefault: Boolean) {
         viewModelScope.launch {
             val view = CollectionViewEntity(
                 id = _selectedViewId.value ?: BggContract.INVALID_ID,
@@ -343,18 +351,31 @@ class CollectionViewViewModel @Inject constructor(
                 filters = effectiveFilters.value?.map { CollectionViewFilterEntity(it.type, it.deflate()) },
             )
             viewRepository.updateView(view)
+            logAction("Update", name)
+            postToastMessage(R.string.msg_collection_view_updated, name)
             refreshViews()
             setOrRemoveDefault(view.id, isDefault)
         }
     }
 
-    fun deleteView(viewId: Int) {
+    fun deleteView(viewId: Int, name: String) {
+        if (viewId <= 0) return
         viewModelScope.launch {
             viewRepository.deleteView(viewId)
+            logAction("Delete", name)
+            postToastMessage(R.string.msg_collection_view_deleted, name)
             refreshViews()
             if (viewId == _selectedViewId.value) {
                 selectView(defaultViewId)
             }
+        }
+    }
+
+    private fun logAction(action: String, name: String) {
+        firebaseAnalytics.logEvent("DataManipulation") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "CollectionView")
+            param("Action", action)
+            param("Name", name)
         }
     }
 
@@ -378,6 +399,10 @@ class CollectionViewViewModel @Inject constructor(
 
     private fun postError(exception: Throwable?) {
         _errorMessage.value = Event(exception?.message.orEmpty())
+    }
+
+    private fun postToastMessage(resId: Int, name: String) {
+        _toastMessage.value = Event(getApplication<BggApplication>().getString(resId, name))
     }
 
     private fun setOrRemoveDefault(viewId: Int, isDefault: Boolean) {
