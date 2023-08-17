@@ -25,8 +25,8 @@ data class CollectionItemEntity(
     val gameImageUrl: String = "",
     val gameThumbnailUrl: String = "",
     val gameHeroImageUrl: String = "",
-    val averageRating: Double = 0.0,
-    val rating: Double = 0.0,
+    val averageRating: Double = UNRATED,
+    val rating: Double = UNRATED,
     val own: Boolean = false,
     val previouslyOwned: Boolean = false,
     val forTrade: Boolean = false,
@@ -70,8 +70,8 @@ data class CollectionItemEntity(
     val playingTime: Int = 0,
     val minimumAge: Int = 0,
     val rank: Int = RANK_UNKNOWN,
-    val geekRating: Double = 0.0,
-    val averageWeight: Double = 0.0,
+    val geekRating: Double = UNRATED,
+    val averageWeight: Double = UNRATED,
     val isFavorite: Boolean = false,
     val lastPlayDate: Long = 0L,
     val arePlayersCustomSorted: Boolean = false,
@@ -152,5 +152,6 @@ data class CollectionItemEntity(
         const val WISHLIST_PRIORITY_UNKNOWN = 0
         const val RANK_UNKNOWN = GameRankEntity.RANK_UNKNOWN
         const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
+        const val UNRATED = GameEntity.UNRATED
     }
 }

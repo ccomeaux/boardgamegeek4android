@@ -21,10 +21,10 @@ data class GameEntity(
     val minimumAge: Int = 0,
     val hasStatistics: Boolean = false,
     val numberOfRatings: Int = 0,
-    val rating: Double = 0.0,
-    val bayesAverage: Double = 0.0,
+    val rating: Double = UNRATED,
+    val bayesAverage: Double = UNRATED,
     val standardDeviation: Double = 0.0,
-    val median: Double = 0.0,
+    val median: Double = UNRATED,
     val numberOfUsersOwned: Int = 0,
     val numberOfUsersTrading: Int = 0,
     val numberOfUsersWanting: Int = 0,
@@ -91,5 +91,6 @@ data class GameEntity(
 
     companion object {
         const val YEAR_UNKNOWN = 0
+        const val UNRATED = 0.0
     }
 }
