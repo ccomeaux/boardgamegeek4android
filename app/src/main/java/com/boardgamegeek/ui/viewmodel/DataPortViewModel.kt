@@ -100,7 +100,7 @@ class DataPortViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val buddies = userRepository.loadAllUsers().map {
                 val colors = playRepository.loadUserColors(it.userName).filter { color -> color.description.isNotBlank() }
-                User(it.userName, colors.map { color -> PlayerColor(color.sortOrder, color.description) })
+                UserForExport(it.userName, colors.map { color -> PlayerColor(color.sortOrder, color.description) })
             }.filter { it.colors.isNotEmpty() }
             export(
                 uri,
@@ -108,8 +108,8 @@ class DataPortViewModel @Inject constructor(
                 1,
                 _userProgress,
                 buddies,
-            ) { record: User, writer: JsonWriter ->
-                gson.toJson(record, User::class.java, writer)
+            ) { record: UserForExport, writer: JsonWriter ->
+                gson.toJson(record, UserForExport::class.java, writer)
             }
         }
     }
@@ -210,8 +210,8 @@ class DataPortViewModel @Inject constructor(
                 uri,
                 Constants.TYPE_USERS_DESCRIPTION,
                 _userProgress,
-                { reader: JsonReader -> gson.fromJson(reader, User::class.java) },
-                { item: User, _ -> userRepository.updateColors(item.name, item.colors.map { it.sort to it.color }) },
+                { reader: JsonReader -> gson.fromJson(reader, UserForExport::class.java) },
+                { item: UserForExport, _ -> userRepository.updateColors(item.name, item.colors.map { it.sort to it.color }) },
             )
         }
     }

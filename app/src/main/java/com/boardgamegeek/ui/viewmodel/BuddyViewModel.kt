@@ -63,10 +63,10 @@ class BuddyViewModel @Inject constructor(
                                 isRefreshing.compareAndSet(false, true)
                             ) {
                                 emit(RefreshableResource.refreshing(loadedUser))
-                                val user = userRepository.refresh(username).also {
-                                    isRefreshing.set(false)
-                                }
-                                loadedUser?.let { user.copy(playNickname = it.playNickname) } ?: user
+                                userRepository.refresh(username)
+                                val user = userRepository.load(username)
+                                isRefreshing.set(false)
+                                user
                             } else loadedUser
                             emit(RefreshableResource.success(refreshedUser))
                         } ?: emit(RefreshableResource.success(null))

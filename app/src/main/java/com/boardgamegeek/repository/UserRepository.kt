@@ -2,7 +2,6 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.content.contentValuesOf
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.db.UserDao
@@ -10,11 +9,12 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.mapForBuddyUpsert
+import com.boardgamegeek.mappers.mapForUpsert
 import com.boardgamegeek.mappers.mapToEntities
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
-import com.boardgamegeek.provider.BggContract.Buddies
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.work.SyncUsersWorker
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -32,12 +32,13 @@ class UserRepository(
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
     suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
-        userDao.loadUser(username)
+        userDao.loadUser(username)?.mapToEntity()
     }
 
-    suspend fun refresh(username: String): UserEntity = withContext(Dispatchers.IO) {
+    suspend fun refresh(username: String) = withContext(Dispatchers.IO) {
+        val timestamp = System.currentTimeMillis()
         val response = api.user(username)
-        val user = response.mapToEntity()
+        val user = response.mapForUpsert(timestamp)
         userDao.saveUser(user)
     }
 
@@ -57,11 +58,11 @@ class UserRepository(
         }
 
     suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<UserEntity> = withContext(Dispatchers.IO) {
-        userDao.loadUsers(sortBy, buddiesOnly = true)
+        userDao.loadUsers(sortBy, buddiesOnly = true).map { it.mapToEntity() }
     }
 
     suspend fun loadAllUsers(): List<UserEntity> = withContext(Dispatchers.IO) {
-        userDao.loadUsers(buddiesOnly = false)
+        userDao.loadUsers(buddiesOnly = false).map { it.mapToEntity() }
     }
 
     suspend fun refreshBuddies(timestamp: Long): Pair<Int, Int> = withContext(Dispatchers.IO) {
@@ -70,21 +71,20 @@ class UserRepository(
 
         val response = api.user(accountName, 1, 1)
 
-        val userEntity = response.mapToEntity()
-        userDao.saveUser(userEntity, timestamp)
+        userDao.saveUser(response.mapForUpsert(timestamp))
 
         val downloadedCount = response.buddies?.buddies?.size ?: 0
         var savedCount = 0
         response.buddies?.buddies.orEmpty()
-            .map { it.mapToEntity(timestamp) }
-            .filter { it.id != INVALID_ID && it.userName.isNotBlank() }
+            .map { it.mapForBuddyUpsert(timestamp) }
+            .filter { it.buddyId != INVALID_ID && it.userName.isNotBlank() }
             .forEach {
                 userDao.saveBuddy(it)
                 savedCount++
             }
         Timber.d("Downloaded $downloadedCount users, saved $savedCount users")
 
-        val deletedCount = userDao.deleteUsersAsOf(timestamp)
+        val deletedCount = userDao.deleteBuddiesAsOf(timestamp)
         Timber.d("Deleted $deletedCount users")
 
         savedCount to deletedCount
@@ -92,14 +92,11 @@ class UserRepository(
 
     suspend fun validateUsername(username: String): Boolean = withContext(Dispatchers.IO) {
         val response = api.user(username)
-        val user = response.mapToEntity()
-        user.userName == username
+        response.name == username
     }
 
     suspend fun updateNickName(username: String, nickName: String) {
-        if (username.isNotBlank()) {
-            userDao.upsert(contentValuesOf(Buddies.Columns.PLAY_NICKNAME to nickName), username)
-        }
+        userDao.updateNickname(username, nickName)
     }
 
     fun updateSelf(user: UserEntity?) {
