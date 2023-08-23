@@ -1,7 +1,11 @@
 package com.boardgamegeek.mappers
 
+import com.boardgamegeek.db.model.PlayerColorsLocal
+import com.boardgamegeek.db.model.PlayerLocal
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.entities.PlayerColorEntity
+import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.io.model.Play
 import com.boardgamegeek.io.model.Player
@@ -82,3 +86,16 @@ fun PlayEntity.mapToFormBodyForUpsert(): FormBody.Builder {
 }
 
 private fun createIndexedKey(index: Int, key: String) = "players[$index][$key]"
+
+fun PlayerLocal.mapToEntity() = PlayerEntity(
+    name = name,
+    username = username,
+    playCount = playCount ?: 0,
+    winCount = winCount ?: 0,
+    avatarUrl = if (avatar == "N/A") "" else avatar.orEmpty(),
+)
+
+fun PlayerColorsLocal.mapToEntity() = PlayerColorEntity(
+    description = playerColor,
+    sortOrder = playerColorSortOrder,
+)

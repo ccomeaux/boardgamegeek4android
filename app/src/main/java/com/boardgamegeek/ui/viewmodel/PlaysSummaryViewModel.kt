@@ -68,7 +68,7 @@ class PlaysSummaryViewModel @Inject constructor(
 
     val players: LiveData<List<PlayerEntity>> = plays.switchMap {
         liveData {
-            emit(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT))
+            emit(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT, false))
         }
     }.map { p ->
         p.filter { it.username != username.value }.take(ITEMS_TO_DISPLAY)

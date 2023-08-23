@@ -31,7 +31,7 @@ class PlayersViewModel @Inject constructor(
 
     val players: LiveData<List<PlayerEntity>> = sort.switchMap {
         liveData {
-            emit(playRepository.loadPlayers(it.sortBy))
+            emit(playRepository.loadPlayers(it.sortBy, false))
         }
     }
 

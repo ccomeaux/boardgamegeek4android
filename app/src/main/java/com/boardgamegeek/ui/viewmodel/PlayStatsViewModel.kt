@@ -42,8 +42,8 @@ class PlayStatsViewModel @Inject constructor(
 
     val players: LiveData<PlayerStatsEntity> =
         liveData {
-            val x = playRepository.loadPlayersForStats(includeIncomplete.value ?: false)
-            val entity = PlayerStatsEntity(x)
+            val players = playRepository.loadPlayersForStats(includeIncomplete.value ?: false)
+            val entity = PlayerStatsEntity(players)
             emit(entity)
             playRepository.updatePlayerHIndex(entity.hIndex)
         }

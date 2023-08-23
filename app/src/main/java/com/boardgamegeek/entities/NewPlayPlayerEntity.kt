@@ -17,7 +17,7 @@ data class NewPlayPlayerEntity(
     var favoriteColor: String? = null,
     private val rawAvatarUrl: String = "",
 ) {
-    constructor(player: PlayerEntity) : this(player.name, player.username, rawAvatarUrl = player.rawAvatarUrl)
+    constructor(player: PlayerEntity) : this(player.name, player.username, rawAvatarUrl = player.avatarUrl)
 
     val id: String
         get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"

@@ -1,5 +1,6 @@
 package com.boardgamegeek.entities
 
+import com.boardgamegeek.provider.BggContract
 import java.util.*
 
 data class PlayerEntity(
@@ -7,14 +8,10 @@ data class PlayerEntity(
     val username: String,
     val playCount: Int = 0,
     val winCount: Int = 0,
-    val rawAvatarUrl: String = "",
+    val avatarUrl: String = "",
 ) {
-
     val id: String
         get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"
-
-    val avatarUrl: String = rawAvatarUrl
-        get() = if (field == "N/A") "" else field
 
     val description: String = if (isUser()) "$name ($username)" else name
 
@@ -39,6 +36,15 @@ data class PlayerEntity(
                 otherPlayerEntity.username.isBlank() && name == otherPlayerEntity.name
             }
             else -> username == otherPlayerEntity.username
+        }
+    }
+
+    companion object {
+        fun create(name: String, type: Int): PlayerEntity {
+            return if (type == BggContract.PlayerColors.TYPE_USER)
+                PlayerEntity(name = "", username = name)
+            else
+                PlayerEntity(name = name, username = "")
         }
     }
 }
