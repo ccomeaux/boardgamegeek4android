@@ -362,7 +362,7 @@ class PlayRepository(
         arrayOf("", playerName)
     )
 
-    suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy)
+    suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy).map { it.mapToEntity() }
 
     suspend fun logQuickPlay(gameId: Int, gameName: String): Result<PlayUploadResult> {
         val playEntity = PlayEntity(

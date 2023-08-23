@@ -1,11 +1,9 @@
 package com.boardgamegeek.mappers
 
+import com.boardgamegeek.db.model.LocationBasic
 import com.boardgamegeek.db.model.PlayerColorsLocal
 import com.boardgamegeek.db.model.PlayerLocal
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayPlayerEntity
-import com.boardgamegeek.entities.PlayerColorEntity
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.io.model.Play
 import com.boardgamegeek.io.model.Player
@@ -98,4 +96,9 @@ fun PlayerLocal.mapToEntity() = PlayerEntity(
 fun PlayerColorsLocal.mapToEntity() = PlayerColorEntity(
     description = playerColor,
     sortOrder = playerColorSortOrder,
+)
+
+fun LocationBasic.mapToEntity() = LocationEntity(
+    name = name,
+    playCount = playCount,
 )

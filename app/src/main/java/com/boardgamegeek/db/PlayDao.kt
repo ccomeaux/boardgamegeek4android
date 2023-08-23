@@ -12,6 +12,7 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
+import com.boardgamegeek.db.model.LocationBasic
 import com.boardgamegeek.db.model.PlayerColorsLocal
 import com.boardgamegeek.db.model.PlayerLocal
 import com.boardgamegeek.entities.*
@@ -454,7 +455,7 @@ class PlayDao(private val context: Context) {
         NAME, PLAY_COUNT
     }
 
-    suspend fun loadLocations(sortBy: LocationSortBy = LocationSortBy.NAME): List<LocationEntity> =
+    suspend fun loadLocations(sortBy: LocationSortBy = LocationSortBy.NAME): List<LocationBasic> =
         withContext(Dispatchers.IO) {
             val sortOrder = when (sortBy) {
                 LocationSortBy.NAME -> ""
@@ -463,15 +464,14 @@ class PlayDao(private val context: Context) {
             context.contentResolver.loadList(
                 Plays.buildLocationsUri(),
                 arrayOf(
-                    BaseColumns._ID,
                     Plays.Columns.LOCATION,
                     Plays.Columns.SUM_QUANTITY
                 ),
                 sortOrder = sortOrder
             ) {
-                LocationEntity(
-                    name = it.getStringOrNull(1).orEmpty(),
-                    playCount = it.getIntOrNull(2) ?: 0,
+                LocationBasic(
+                    name = it.getStringOrNull(0).orEmpty(),
+                    playCount = it.getIntOrNull(1) ?: 0,
                 )
             }
         }
