@@ -341,11 +341,11 @@ class PlayDao(private val context: Context) {
 
     //region Player Colors
 
-    suspend fun loadPlayerColors() = loadColors(PlayerColors.CONTENT_URI)
+    suspend fun loadAllPlayerColors() = loadColors(PlayerColors.CONTENT_URI)
 
-    suspend fun loadColorsForPlayer(playerName: String) = loadColors(PlayerColors.buildPlayerUri(playerName))
+    suspend fun loadUserColors(username: String) = loadColors(PlayerColors.buildUserUri(username))
 
-    suspend fun loadColorsForUser(username: String) = loadColors(PlayerColors.buildUserUri(username))
+    suspend fun loadNonUserColors(playerName: String) = loadColors(PlayerColors.buildPlayerUri(playerName))
 
     private suspend fun loadColors(uri: Uri): List<PlayerColorsLocal> {
         return withContext(Dispatchers.IO) {
@@ -378,12 +378,12 @@ class PlayDao(private val context: Context) {
         context.contentResolver.delete(PlayerColors.buildPlayerUri(playerName), null, null)
     }
 
-    suspend fun savePlayerColors(playerName: String, colors: List<String>?) {
-        saveColorsForPlayer(PlayerColors.buildPlayerUri(playerName), colors)
-    }
-
     suspend fun saveUserColors(username: String, colors: List<String>?) {
         saveColorsForPlayer(PlayerColors.buildUserUri(username), colors)
+    }
+
+    suspend fun saveNonUserColors(playerName: String, colors: List<String>?) {
+        saveColorsForPlayer(PlayerColors.buildPlayerUri(playerName), colors)
     }
 
     private suspend fun saveColorsForPlayer(uri: Uri, colors: List<String>?) = withContext(Dispatchers.IO) {
@@ -428,24 +428,29 @@ class PlayDao(private val context: Context) {
         } ?: false
     }
 
-    suspend fun loadPlayerDetail(uri: Uri, selection: String, selectionArgs: Array<String>): List<PlayerDetailEntity> = withContext(Dispatchers.IO) {
+    suspend fun loadUserPlayerDetail(username: String) = loadPlayerUsedColors(
+        "${PlayPlayers.Columns.USER_NAME}=?",
+        arrayOf(username)
+    )
+
+    suspend fun loadNonUserPlayerDetail(playerName: String) = loadPlayerUsedColors(
+        "${PlayPlayers.Columns.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.Columns.NAME}=?",
+        arrayOf("", playerName)
+    )
+
+    private suspend fun loadPlayerUsedColors(selection: String, selectionArgs: Array<String>): List<String> = withContext(Dispatchers.IO) {
         context.contentResolver.loadList(
-            uri,
+            Plays.buildPlayerUri(),
             arrayOf(
                 BaseColumns._ID,
                 PlayPlayers.Columns.NAME,
                 PlayPlayers.Columns.USER_NAME,
-                PlayPlayers.Columns.COLOR
+                PlayPlayers.Columns.COLOR,
             ),
             selection,
             selectionArgs
         ) {
-            PlayerDetailEntity(
-                id = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
-                name = it.getStringOrNull(1).orEmpty(),
-                username = it.getStringOrNull(2).orEmpty(),
-                color = it.getStringOrNull(3).orEmpty(),
-            )
+            it.getStringOrNull(3).orEmpty()
         }
     }
 
@@ -495,7 +500,7 @@ class PlayDao(private val context: Context) {
     /**
      * Load all non-blank colors/teams in the specified game's logged plays.
      */
-    suspend fun loadPlayerColors(gameId: Int) = withContext(Dispatchers.IO) {
+    suspend fun loadPlayerColorsForGame(gameId: Int) = withContext(Dispatchers.IO) {
         context.contentResolver.queryStrings(
             Plays.buildPlayersByColor(),
             PlayPlayers.Columns.COLOR,

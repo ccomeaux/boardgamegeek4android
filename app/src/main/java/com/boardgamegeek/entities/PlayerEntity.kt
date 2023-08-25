@@ -40,11 +40,7 @@ data class PlayerEntity(
     }
 
     companion object {
-        fun create(name: String, type: Int): PlayerEntity {
-            return if (type == BggContract.PlayerColors.TYPE_USER)
-                PlayerEntity(name = "", username = name)
-            else
-                PlayerEntity(name = name, username = "")
-        }
+        fun createUser(name: String) = PlayerEntity(name = "", username = name)
+        fun createNonUser(name: String) = PlayerEntity(name = name, username = "")
     }
 }

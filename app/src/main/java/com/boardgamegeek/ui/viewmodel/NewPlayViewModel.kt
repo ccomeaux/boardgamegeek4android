@@ -227,7 +227,7 @@ class NewPlayViewModel @Inject constructor(
                 playerFavoriteColorMap[player.id] = if (player.isUser()) {
                     playRepository.loadUserColors(player.username)
                 } else {
-                    playRepository.loadPlayerColors(player.name)
+                    playRepository.loadNonUserColors(player.name)
                 }
                 assemblePlayers()
 

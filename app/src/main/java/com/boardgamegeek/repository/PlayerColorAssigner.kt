@@ -35,7 +35,7 @@ class PlayerColorAssigner(
                 PlayerColorChoices(
                     player.name,
                     PlayerType.NON_USER,
-                    playRepository.loadPlayerColors(player.name).filter { colorsAvailable.contains(it.description) })
+                    playRepository.loadNonUserColors(player.name).filter { colorsAvailable.contains(it.description) })
             }
 
         // process

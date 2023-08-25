@@ -115,7 +115,7 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun computePlayColors(gameId: Int) {
-        val colors = playDao.loadPlayerColors(gameId)
+        val colors = playDao.loadPlayerColorsForGame(gameId)
         dao.insertColors(gameId, colors)
     }
 

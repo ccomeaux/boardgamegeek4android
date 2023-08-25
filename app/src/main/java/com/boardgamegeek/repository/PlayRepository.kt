@@ -325,14 +325,23 @@ class PlayRepository(
     suspend fun loadPlayersByGame(gameId: Int) = playDao.loadPlayersByGame(gameId)
 
     suspend fun loadPlayerFavoriteColors(): Map<PlayerEntity, String> {
-        return playDao.loadPlayerColors().filter { it.playerColorSortOrder == 1 }.associate {
-            PlayerEntity.create(it.playerName, it.playerType) to it.playerColor
+        return playDao.loadAllPlayerColors().filter { it.playerColorSortOrder == 1 }.associate {
+            val entity = if (it.playerType == PlayerColors.TYPE_USER)
+                PlayerEntity.createUser(it.playerName)
+            else
+                PlayerEntity.createNonUser(it.playerName)
+            entity to it.playerColor
         }
     }
 
-    suspend fun loadUserPlayer(username: String) = playDao.loadUserPlayer(username)?.mapToEntity()
-
-    suspend fun loadNonUserPlayer(playerName: String) = playDao.loadNonUserPlayer(playerName)?.mapToEntity()
+    suspend fun loadPlayer(name: String?, type: PlayerType): PlayerEntity? {
+        return when {
+            name.isNullOrBlank() -> null
+            type == PlayerType.USER -> playDao.loadUserPlayer(name)?.mapToEntity()
+            type == PlayerType.NON_USER -> playDao.loadNonUserPlayer(name)?.mapToEntity()
+            else -> null
+        }
+    }
 
     suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
         val username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
@@ -342,25 +351,43 @@ class PlayRepository(
             .map { it.mapToEntity() }
     }
 
-    suspend fun loadUserColors(username: String) = playDao.loadColorsForUser(username).map { it.mapToEntity() }
+    enum class PlayerType {
+        USER,
+        NON_USER,
+    }
 
-    suspend fun loadPlayerColors(playerName: String) = playDao.loadColorsForPlayer(playerName).map { it.mapToEntity() }
+    suspend fun loadPlayerColors(name: String, type: PlayerType): List<PlayerColorEntity> {
+        return when (type) {
+            PlayerType.USER -> loadUserColors(name)
+            PlayerType.NON_USER -> loadNonUserColors(name)
+        }
+    }
 
-    suspend fun saveUserColors(username: String, colors: List<String>?) = playDao.saveUserColors(username, colors)
+    suspend fun loadUserColors(username: String) = playDao.loadUserColors(username).map { it.mapToEntity() }
 
-    suspend fun savePlayerColors(playerName: String, colors: List<String>?) = playDao.savePlayerColors(playerName, colors)
+    suspend fun loadNonUserColors(playerName: String) = playDao.loadNonUserColors(playerName).map { it.mapToEntity() }
 
-    suspend fun loadUserPlayerDetail(username: String) = playDao.loadPlayerDetail(
-        Plays.buildPlayerUri(),
-        "${PlayPlayers.Columns.USER_NAME}=?",
-        arrayOf(username)
-    )
+    suspend fun saveNonUserColors(name: String?, type: PlayerType, colors: List<String>?) {
+        if (!name.isNullOrBlank()) {
+            when (type) {
+                PlayerType.USER -> saveUserColors(name, colors)
+                PlayerType.NON_USER -> saveNonUserColors(name, colors)
+            }
+        }
+    }
 
-    suspend fun loadNonUserPlayerDetail(playerName: String) = playDao.loadPlayerDetail(
-        Plays.buildPlayerUri(),
-        "${PlayPlayers.Columns.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.Columns.NAME}=?",
-        arrayOf("", playerName)
-    )
+    private suspend fun saveUserColors(username: String, colors: List<String>?) = playDao.saveUserColors(username, colors)
+
+    private suspend fun saveNonUserColors(playerName: String, colors: List<String>?) = playDao.saveNonUserColors(playerName, colors)
+
+    suspend fun loadPlayerUsedColors(name: String?, type: PlayerType): List<String> {
+        return when {
+            name.isNullOrBlank() -> emptyList()
+            type == PlayerType.USER -> playDao.loadUserPlayerDetail(name)
+            type == PlayerType.NON_USER -> playDao.loadNonUserPlayerDetail(name)
+            else -> emptyList()
+        }
+    }
 
     suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy).map { it.mapToEntity() }
 
@@ -523,8 +550,8 @@ class PlayRepository(
                 if (play.dirtyTimestamp == 0L) dirtyPlayIds += play.internalId
             }
         }
-        val colors = loadPlayerColors(oldName).sortedByDescending { it.sortOrder }.map { it.description }
-        savePlayerColors(newName, colors)
+        val colors = loadNonUserColors(oldName).sortedByDescending { it.sortOrder }.map { it.description }
+        saveNonUserColors(newName, colors)
         playDao.deleteColorsForPlayer(oldName)
         dirtyPlayIds
     }
@@ -537,7 +564,7 @@ class PlayRepository(
                 if (play.dirtyTimestamp == 0L) dirtyPlayIds += play.internalId
             }
         }
-        val colors = loadPlayerColors(playerName).sortedByDescending { it.sortOrder }.map { it.description }
+        val colors = loadNonUserColors(playerName).sortedByDescending { it.sortOrder }.map { it.description }
         saveUserColors(username, colors)
         playDao.deleteColorsForPlayer(playerName)
         dirtyPlayIds

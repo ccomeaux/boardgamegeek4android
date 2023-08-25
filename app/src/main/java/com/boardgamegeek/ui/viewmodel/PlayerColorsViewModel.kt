@@ -9,7 +9,6 @@ import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.repository.PlayRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
-import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -23,9 +22,7 @@ class PlayerColorsViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
 
-    private val _user = MutableLiveData<Pair<String?, Int>>()
-    val user: LiveData<Pair<String?, Int>>
-        get() = _user
+    private val user = MutableLiveData<Pair<String?, PlayRepository.PlayerType>>()
 
     private val _colors = MutableLiveData<List<String>>()
     val colors: LiveData<List<String>>
@@ -37,81 +34,58 @@ class PlayerColorsViewModel @Inject constructor(
 
     private fun load() {
         viewModelScope.launch {
-            user.value?.let {
-                val name = it.first
-                val loadedColors = when {
-                    name == null || name.isBlank() -> null
-                    it.second == TYPE_USER -> playRepository.loadUserColors(name)
-                    it.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
-                    else -> null
-                }
-                _colors.postValue(loadedColors?.map { entity -> entity.description } ?: emptyList())
+            user.value?.let { (name, type) ->
+                val loadedColors = playRepository.loadPlayerColors(name.orEmpty(), type)
+                _colors.postValue(loadedColors.map { entity -> entity.description })
             }
         }
     }
 
     fun setUsername(name: String?) {
-        if (_user.value?.first != name) _user.value = (name to TYPE_USER)
+        if (user.value?.first != name) user.value = (name to PlayRepository.PlayerType.USER)
         load()
     }
 
     fun setPlayerName(name: String?) {
-        if (_user.value?.first != name) _user.value = (name to TYPE_PLAYER)
+        if (user.value?.first != name) user.value = (name to PlayRepository.PlayerType.NON_USER)
         load()
     }
 
     fun generate() {
         viewModelScope.launch {
-            val availableColors = BggColors.standardColorList.toMutableList()
-            val playerDetail = user.value?.let {
-                val name = it.first
-                when {
-                    name == null || name.isBlank() -> null
-                    it.second == TYPE_USER -> playRepository.loadUserPlayerDetail(name)
-                    it.second == TYPE_PLAYER -> playRepository.loadNonUserPlayerDetail(name)
-                    else -> null
-                }
-            }
             withContext(Dispatchers.Default) {
-                val newColors = mutableListOf<String>()
-                if (playerDetail != null) {
-                    val colorNames = availableColors.map { it.first }
-                    val playedColors = playerDetail.asSequence()
-                        .filter { colorNames.contains(it.color) } // only include known colors
-                        .groupBy { it.color }
+                val availableColors = BggColors.standardColorList.map { it.first }.toMutableList()
+                val rankedColors = mutableListOf<String>()
+
+                user.value?.let { (name, type) ->
+                    val playedColors =  playRepository.loadPlayerUsedColors(name, type)
+                    val sortedColors = playedColors.asSequence()
+                        .filter { availableColors.contains(it) } // only include available colors
+                        .groupBy { it }
                         .map { it.key to it.value.size }
                         .sortedByDescending { it.second }
                         .map { it.first }
                         .toMutableList()
-                    while (playedColors.isNotEmpty()) {
-                        val description = playedColors.removeAt(0)
-                        availableColors.remove(availableColors.find { it.first == description })
-                        newColors.add(description)
+                    while (sortedColors.isNotEmpty()) {
+                        val description = sortedColors.removeAt(0)
+                        availableColors.remove(availableColors.find { it == description })
+                        rankedColors.add(description)
                     }
                 }
 
                 if (availableColors.isNotEmpty()) {
-                    availableColors.shuffle()
-                    for (color in availableColors) {
-                        newColors += color.first
-                    }
+                    rankedColors.addAll(availableColors.shuffled())
                 }
 
-                _colors.postValue(newColors)
+                _colors.postValue(rankedColors)
             }
-            firebaseAnalytics.logEvent("DataManipulation") {
-                param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
-                param("Action", "Generate")
-            }
+            logEvent("Generate")
         }
     }
 
     fun clear() {
         _colors.value = emptyList()
-        firebaseAnalytics.logEvent("DataManipulation") {
-            param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
-            param("Action", "Clear")
-        }
+        logEvent("Clear")
     }
 
     fun add(color: String) {
@@ -122,11 +96,7 @@ class PlayerColorsViewModel @Inject constructor(
                 _colors.value = list
             }
         }
-        firebaseAnalytics.logEvent("DataManipulation") {
-            param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
-            param("Action", "Add")
-            param("Color", color)
-        }
+        logEvent("Add", color)
     }
 
     fun add(color: String, index: Int) {
@@ -137,11 +107,7 @@ class PlayerColorsViewModel @Inject constructor(
                 _colors.value = list
             }
         }
-        firebaseAnalytics.logEvent("DataManipulation") {
-            param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
-            param("Action", "AddAtIndex")
-            param("Color", color)
-        }
+        logEvent("AddAtIndex", color)
     }
 
     fun remove(color: String) {
@@ -152,11 +118,7 @@ class PlayerColorsViewModel @Inject constructor(
                 _colors.value = list
             }
         }
-        firebaseAnalytics.logEvent("DataManipulation") {
-            param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
-            param("Action", "Delete")
-            param("Color", color)
-        }
+        logEvent("Delete", color)
     }
 
     fun move(fromPosition: Int, toPosition: Int): Boolean {
@@ -171,21 +133,18 @@ class PlayerColorsViewModel @Inject constructor(
     }
 
     fun save() {
-        _user.value?.let {
-            viewModelScope.launch {
-                val name = it.first.orEmpty()
-                if (name.isNotBlank()) {
-                    when (it.second) {
-                        TYPE_USER -> playRepository.saveUserColors(name, colors.value)
-                        TYPE_PLAYER -> playRepository.savePlayerColors(name, colors.value)
-                    }
-                }
+        viewModelScope.launch {
+            user.value?.let { (name, type) ->
+                playRepository.saveNonUserColors(name, type, colors.value)
             }
         }
     }
 
-    companion object {
-        const val TYPE_USER = 1
-        const val TYPE_PLAYER = 2
+    private fun logEvent(action: String, color: String? = null) {
+        firebaseAnalytics.logEvent("DataManipulation") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "PlayerColors")
+            param("Action", action)
+            color?.let { param("Color", it) }
+        }
     }
 }

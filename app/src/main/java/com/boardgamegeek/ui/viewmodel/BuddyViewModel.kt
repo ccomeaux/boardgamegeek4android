@@ -28,9 +28,7 @@ class BuddyViewModel @Inject constructor(
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
     private val isRefreshing = AtomicBoolean()
 
-    private val _userTypeAndName = MutableLiveData<Pair<String?, Int>>()
-    val user: LiveData<Pair<String?, Int>>
-        get() = _userTypeAndName
+    private val user = MutableLiveData<Pair<String?, PlayRepository.PlayerType>>()
 
     private val _updateMessage = MutableLiveData<Event<String>>()
     val updateMessage: LiveData<Event<String>>
@@ -41,23 +39,39 @@ class BuddyViewModel @Inject constructor(
         get() = _isUsernameValid
 
     fun setUsername(name: String?) {
-        if (_userTypeAndName.value?.first != name) _userTypeAndName.value = (name to TYPE_USER)
+        if (user.value?.first != name) user.value = (name to PlayRepository.PlayerType.USER)
     }
 
     fun setPlayerName(name: String?) {
-        if (_userTypeAndName.value?.first != name) _userTypeAndName.value = (name to TYPE_PLAYER)
+        if (user.value?.first != name) user.value = (name to PlayRepository.PlayerType.NON_USER)
     }
 
     fun refresh() {
-        _userTypeAndName.value?.let { _userTypeAndName.value = it }
+        user.value?.let { user.value = it }
     }
 
-    val buddy: LiveData<RefreshableResource<UserEntity>> = _userTypeAndName.switchMap { userTypeAndName ->
+    val username = user.map {
+        when (it.second) {
+            PlayRepository.PlayerType.USER -> it.first
+            PlayRepository.PlayerType.NON_USER -> null
+        }
+    }.distinctUntilChanged()
+
+    val playerName = user.map {
+        when (it.second) {
+            PlayRepository.PlayerType.USER -> null
+            PlayRepository.PlayerType.NON_USER -> it.first
+        }
+    }.distinctUntilChanged()
+
+    val buddy: LiveData<RefreshableResource<UserEntity>> = user.switchMap { (username, type) ->
         liveData {
             try {
-                when (userTypeAndName.second) {
-                    TYPE_USER -> {
-                        userTypeAndName.first?.let { username ->
+                when (type) {
+                    PlayRepository.PlayerType.USER -> {
+                        if (username.isNullOrBlank()) {
+                            emit(RefreshableResource.success(null))
+                        } else {
                             val loadedUser = userRepository.load(username)
                             val refreshedUser = if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0.days)) &&
                                 isRefreshing.compareAndSet(false, true)
@@ -69,9 +83,9 @@ class BuddyViewModel @Inject constructor(
                                 user
                             } else loadedUser
                             emit(RefreshableResource.success(refreshedUser))
-                        } ?: emit(RefreshableResource.success(null))
+                        }
                     }
-                    TYPE_PLAYER -> emit(RefreshableResource.success(null))
+                    PlayRepository.PlayerType.NON_USER -> emit(RefreshableResource.success(null))
                 }
             } catch (e: Exception) {
                 isRefreshing.set(false)
@@ -80,39 +94,24 @@ class BuddyViewModel @Inject constructor(
         }
     }
 
-    val player: LiveData<PlayerEntity?> = _userTypeAndName.switchMap { user ->
+    val player: LiveData<PlayerEntity?> = user.switchMap { user ->
         liveData {
-            val name = user.first
-            emit(
-                when {
-                    name.isNullOrBlank() -> null
-                    user.second == TYPE_USER -> playRepository.loadUserPlayer(name)
-                    user.second == TYPE_PLAYER -> playRepository.loadNonUserPlayer(name)
-                    else -> null
-                }
-            )
+            emit(playRepository.loadPlayer(user.first, user.second))
         }
     }
 
-    val colors = _userTypeAndName.switchMap { user ->
+    val colors = user.switchMap { user ->
         liveData {
-            val name = user.first
-            emit(
-                when {
-                    name.isNullOrBlank() -> emptyList()
-                    user.second == TYPE_USER -> playRepository.loadUserColors(name)
-                    user.second == TYPE_PLAYER -> playRepository.loadPlayerColors(name)
-                    else -> emptyList()
-                }
-            )
+            user.first?.let {
+                emit(playRepository.loadPlayerColors(it, user.second))
+            }
         }
     }
 
     fun updateNickName(nickName: String, updatePlays: Boolean) {
         viewModelScope.launch {
-            if (user.value?.second == TYPE_USER) {
-                val username = user.value?.first
-                if (!username.isNullOrBlank()) {
+            user.value?.let { (username, type) ->
+                if (type == PlayRepository.PlayerType.USER && !username.isNullOrBlank()) {
                     userRepository.updateNickName(username, nickName)
                     refresh()
 
@@ -123,7 +122,13 @@ class BuddyViewModel @Inject constructor(
                         } else {
                             val internalIds = playRepository.updatePlaysWithNickName(username, newNickName)
                             playRepository.enqueueUploadRequest(internalIds)
-                            getApplication<BggApplication>().resources.getQuantityString(R.plurals.msg_updated_plays_buddy_nickname, internalIds.size, internalIds.size, username, newNickName)
+                            getApplication<BggApplication>().resources.getQuantityString(
+                                R.plurals.msg_updated_plays_buddy_nickname,
+                                internalIds.size,
+                                internalIds.size,
+                                username,
+                                newNickName
+                            )
                         }
                     } else {
                         getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName)
@@ -140,12 +145,13 @@ class BuddyViewModel @Inject constructor(
 
     fun renamePlayer(newName: String) {
         viewModelScope.launch {
-            val oldName = user.value?.first
-            if (user.value?.second == TYPE_PLAYER && newName.isNotBlank() && !oldName.isNullOrBlank()) {
-                val internalIds = playRepository.renamePlayer(oldName, newName)
-                playRepository.enqueueUploadRequest(internalIds)
-                setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_player_change, oldName, newName))
-                setPlayerName(newName)
+            user.value?.let { (oldName, type) ->
+                if (type == PlayRepository.PlayerType.NON_USER && newName.isNotBlank() && !oldName.isNullOrBlank()) {
+                    val internalIds = playRepository.renamePlayer(oldName, newName)
+                    playRepository.enqueueUploadRequest(internalIds)
+                    setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_player_change, oldName, newName))
+                    setPlayerName(newName)
+                }
             }
         }
     }
@@ -162,24 +168,18 @@ class BuddyViewModel @Inject constructor(
 
     fun addUsernameToPlayer(username: String) {
         viewModelScope.launch {
-            val playerName = user.value?.first
-            if (user.value?.second == TYPE_PLAYER &&
-                username.isNotBlank() && !playerName.isNullOrBlank()
-            ) {
-                val internalIds = playRepository.addUsernameToPlayer(playerName, username)
-                playRepository.enqueueUploadRequest(internalIds)
-                setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_player_add_username, username, playerName))
-                setUsername(username)
+            user.value?.let { (playerName, type) ->
+                if (type == PlayRepository.PlayerType.NON_USER && username.isNotBlank() && !playerName.isNullOrBlank()) {
+                    val internalIds = playRepository.addUsernameToPlayer(playerName, username)
+                    playRepository.enqueueUploadRequest(internalIds)
+                    setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_player_add_username, username, playerName))
+                    setUsername(username)
+                }
             }
         }
     }
 
     private fun setUpdateMessage(message: String) {
         _updateMessage.postValue(Event(message))
-    }
-
-    companion object {
-        const val TYPE_USER = 1
-        const val TYPE_PLAYER = 2
     }
 }
