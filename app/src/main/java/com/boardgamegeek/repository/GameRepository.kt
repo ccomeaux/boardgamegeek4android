@@ -93,7 +93,7 @@ class GameRepository @Inject constructor(
 
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
 
-    suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId)
+    suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId).map { it.mapToEntity() }
 
     /**
      * Returns a map of all game IDs with player colors.

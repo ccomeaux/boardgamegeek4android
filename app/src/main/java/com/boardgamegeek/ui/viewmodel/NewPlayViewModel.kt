@@ -526,7 +526,7 @@ class NewPlayViewModel @Inject constructor(
             val play = PlayEntity(
                 BggContract.INVALID_ID.toLong(),
                 BggContract.INVALID_ID,
-                PlayEntity.millisToRawDate(playDate.value ?: System.currentTimeMillis()),
+                playDate.value ?: System.currentTimeMillis(),
                 gameId.value ?: BggContract.INVALID_ID,
                 gameName.value.orEmpty(),
                 quantity = 1,

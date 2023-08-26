@@ -94,7 +94,7 @@ class PlaysViewModel @Inject constructor(
                 SortType.LENGTH -> PlayRepository.SortBy.LENGTH
             }
             when (it.filter) {
-                FilterType.ALL -> playRepository.getPlays(sortType)
+                FilterType.ALL -> playRepository.loadPlays(sortType)
                 FilterType.DIRTY -> playRepository.getDraftPlays()
                 FilterType.PENDING -> playRepository.getPendingPlays()
             }

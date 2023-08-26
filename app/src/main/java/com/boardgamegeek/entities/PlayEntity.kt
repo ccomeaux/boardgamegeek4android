@@ -5,13 +5,11 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
-import java.text.SimpleDateFormat
-import java.util.*
 
 data class PlayEntity(
     val internalId: Long = BggContract.INVALID_ID.toLong(),
     val playId: Int = BggContract.INVALID_ID,
-    private val rawDate: String,
+    val dateInMillis: Long,
     val gameId: Int,
     val gameName: String,
     val quantity: Int = 1,
@@ -39,10 +37,6 @@ data class PlayEntity(
 
     val isSynced
         get() = playId > 0
-
-    val dateInMillis: Long by lazy {
-        rawDate.toMillis(SimpleDateFormat(dateFormatPattern, Locale.US), UNKNOWN_DATE)
-    }
 
     val heroImageUrls = listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }
 
@@ -120,15 +114,6 @@ data class PlayEntity(
     }
 
     companion object {
-        private const val dateFormatPattern = "yyyy-MM-dd"
         const val UNKNOWN_DATE: Long = -1L
-
-        fun currentDate(): String {
-            return millisToRawDate(Calendar.getInstance().timeInMillis)
-        }
-
-        fun millisToRawDate(millis: Long): String {
-            return SimpleDateFormat(dateFormatPattern, Locale.US).format(millis)
-        }
     }
 }

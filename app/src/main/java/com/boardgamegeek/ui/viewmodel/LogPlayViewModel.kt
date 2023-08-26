@@ -515,7 +515,7 @@ class LogPlayViewModel @Inject constructor(
     ) = PlayEntity(
         internalId = _internalId.value ?: INVALID_ID.toLong(),
         playId = _playId,
-        rawDate = _dateInMillis.value?.let { PlayEntity.millisToRawDate(it) } ?: PlayEntity.currentDate(),
+        dateInMillis = _dateInMillis.value ?: Calendar.getInstance().timeInMillis,
         gameId = _game.value?.first ?: INVALID_ID,
         gameName = _game.value?.second.orEmpty(),
         location = _location.value.orEmpty(),

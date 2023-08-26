@@ -32,6 +32,7 @@ import com.boardgamegeek.work.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 import kotlin.math.min
 
@@ -53,7 +54,7 @@ class PlayRepository(
         LENGTH(PlayDao.PlaysSortBy.LENGTH),
     }
 
-    suspend fun loadPlay(internalId: Long) = playDao.loadPlay(internalId)
+    suspend fun loadPlay(internalId: Long) = playDao.loadPlay(internalId)?.mapToEntity()
 
     suspend fun refreshPlay(
         internalId: Long,
@@ -158,23 +159,23 @@ class PlayRepository(
         }
     }
 
-    suspend fun getPlays(sortBy: SortBy = SortBy.DATE) = playDao.loadPlays(sortBy.daoSortBy)
+    suspend fun loadPlays(sortBy: SortBy = SortBy.DATE) = playDao.loadPlays(sortBy.daoSortBy).map { it.mapToEntity() }
 
-    suspend fun getPendingPlays() = playDao.loadPendingPlays()
+    suspend fun getPendingPlays() = playDao.loadPendingPlays().map { it.mapToEntity() }
 
-    suspend fun getDraftPlays() = playDao.loadDraftPlays()
+    suspend fun getDraftPlays() = playDao.loadDraftPlays().map { it.mapToEntity() }
+// TODO use getPendingPlays and apply an in-memory filter
+    suspend fun getUpdatingPlays() = playDao.loadPlays(selection = playDao.createPendingUpdatePlaySelectionAndArgs(), includePlayers = true).map { it.mapToEntity() }
+// TODO use getPendingPlays and apply an in-memory filter
+    suspend fun getDeletingPlays() = playDao.loadPlays(selection = playDao.createPendingDeletePlaySelectionAndArgs(), includePlayers = true).map { it.mapToEntity() }
 
-    suspend fun getUpdatingPlays() = playDao.loadPlays(selection = playDao.createPendingUpdatePlaySelectionAndArgs(), includePlayers = true)
+    suspend fun loadPlaysByGame(gameId: Int) = playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE).map { it.mapToEntity() }
 
-    suspend fun getDeletingPlays() = playDao.loadPlays(selection = playDao.createPendingDeletePlaySelectionAndArgs(), includePlayers = true)
+    suspend fun loadPlaysByLocation(location: String) = playDao.loadPlaysByLocation(location).map { it.mapToEntity() }
 
-    suspend fun loadPlaysByGame(gameId: Int) = playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE)
+    suspend fun loadPlaysByUsername(username: String) = playDao.loadPlaysByUsername(username).map { it.mapToEntity() }
 
-    suspend fun loadPlaysByLocation(location: String) = playDao.loadPlaysByLocation(location)
-
-    suspend fun loadPlaysByUsername(username: String) = playDao.loadPlaysByUsername(username)
-
-    suspend fun loadPlaysByPlayerName(playerName: String) = playDao.loadPlaysByPlayerName(playerName)
+    suspend fun loadPlaysByPlayerName(playerName: String) = playDao.loadPlaysByPlayerName(playerName).map { it.mapToEntity() }
 
     suspend fun loadPlaysByPlayer(name: String, gameId: Int, isUser: Boolean) = playDao.loadPlaysByPlayerAndGame(name, gameId, isUser)
 
@@ -293,7 +294,7 @@ class PlayRepository(
             // We can't respect the expansion/accessory flags, so we include them all
             val allPlays = playDao.loadPlays()
             val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
-            val gameMap = plays.groupingBy { it.gameId to it.gameName }.fold(0) { accumulator, element ->
+            val gameMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
                 accumulator + element.quantity
             }
             gameMap.map {
@@ -322,7 +323,7 @@ class PlayRepository(
     suspend fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME, includeDeletedPlays: Boolean = true) =
         playDao.loadPlayers(sortBy, includeDeletedPlays).map { it.mapToEntity() }
 
-    suspend fun loadPlayersByGame(gameId: Int) = playDao.loadPlayersByGame(gameId)
+    suspend fun loadPlayersByGame(gameId: Int) = playDao.loadPlayersByGame(gameId).map { it.mapToEntity() }
 
     suspend fun loadPlayerFavoriteColors(): Map<PlayerEntity, String> {
         return playDao.loadAllPlayerColors().filter { it.playerColorSortOrder == 1 }.associate {
@@ -383,8 +384,8 @@ class PlayRepository(
     suspend fun loadPlayerUsedColors(name: String?, type: PlayerType): List<String> {
         return when {
             name.isNullOrBlank() -> emptyList()
-            type == PlayerType.USER -> playDao.loadUserPlayerDetail(name)
-            type == PlayerType.NON_USER -> playDao.loadNonUserPlayerDetail(name)
+            type == PlayerType.USER -> playDao.loadUserUsedColors(name)
+            type == PlayerType.NON_USER -> playDao.loadNonUserUsedColors(name)
             else -> emptyList()
         }
     }
@@ -395,7 +396,7 @@ class PlayRepository(
         val playEntity = PlayEntity(
             gameId = gameId,
             gameName = gameName,
-            rawDate = PlayEntity.currentDate(),
+            dateInMillis = Calendar.getInstance().timeInMillis,
             updateTimestamp = System.currentTimeMillis()
         )
         val internalId = playDao.upsert(playEntity)
@@ -523,7 +524,7 @@ class PlayRepository(
         val internalIds = mutableListOf<Long>()
         val plays = playDao.loadPlaysByUsername(username, true)
         plays.forEach { play ->
-            play.players.find { it.username == username && it.name != nickName }?.let { player ->
+            play.players?.find { it.username == username && it.name != nickName }?.let { player ->
                 val batch = arrayListOf<ContentProviderOperation>()
                 if (play.updateTimestamp == 0L && play.dirtyTimestamp == 0L) {
                     batch += ContentProviderOperation
@@ -578,9 +579,9 @@ class PlayRepository(
 
         val plays = playDao.loadPlaysByLocation(oldLocationName)
         plays.forEach { play ->
-            if (play.dirtyTimestamp > 0) {
+            if ((play.dirtyTimestamp ?: 0) > 0) {
                 playDao.update(play.internalId, contentValuesOf(Plays.Columns.LOCATION to newLocationName))
-            } else if (play.updateTimestamp > 0) {
+            } else if ((play.updateTimestamp ?: 0) > 0) {
                 if (playDao.update(play.internalId, contentValuesOf(Plays.Columns.LOCATION to newLocationName)))
                     internalIds += play.internalId
             } else {

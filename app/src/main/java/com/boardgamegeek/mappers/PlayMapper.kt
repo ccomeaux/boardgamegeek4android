@@ -1,21 +1,22 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.db.model.LocationBasic
-import com.boardgamegeek.db.model.PlayerColorsLocal
-import com.boardgamegeek.db.model.PlayerLocal
+import com.boardgamegeek.db.model.*
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.asDateForApi
+import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.Play
 import com.boardgamegeek.io.model.Player
 import com.boardgamegeek.provider.BggContract
 import okhttp3.FormBody
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 fun List<Play>?.mapToEntity(syncTimestamp: Long = System.currentTimeMillis()) = this?.map { it.mapToEntity(syncTimestamp) }.orEmpty()
 
 private fun Play.mapToEntity(syncTimestamp: Long) = PlayEntity(
     internalId = BggContract.INVALID_ID.toLong(),
     playId = id,
-    rawDate = date,
+    dateInMillis = date.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), PlayEntity.UNKNOWN_DATE),
     gameId = objectid,
     gameName = name,
     location = location,
@@ -85,6 +86,44 @@ fun PlayEntity.mapToFormBodyForUpsert(): FormBody.Builder {
 
 private fun createIndexedKey(index: Int, key: String) = "players[$index][$key]"
 
+fun PlayLocal.mapToEntity() = PlayEntity(
+    internalId = internalId,
+    playId = playId ?: BggContract.INVALID_ID,
+    dateInMillis = date.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), PlayEntity.UNKNOWN_DATE),
+    gameId = objectId,
+    gameName = itemName,
+    quantity = quantity,
+    length = length,
+    location = location.orEmpty(),
+    incomplete = incomplete,
+    noWinStats = noWinStats,
+    comments = comments.orEmpty(),
+    syncTimestamp = syncTimestamp,
+    initialPlayerCount = 0, // TODO
+    startTime = startTime ?: 0L,
+    dirtyTimestamp = dirtyTimestamp ?: 0L,
+    deleteTimestamp = deleteTimestamp ?: 0L,
+    updateTimestamp = updateTimestamp ?: 0L,
+    imageUrl = gameImageUrl.orEmpty(),
+    thumbnailUrl = gameThumbnailUrl.orEmpty(),
+    heroImageUrl = gameHeroImageUrl.orEmpty(),
+    _players = players?.map { it.mapToEntity() },
+)
+
+fun PlayPlayerLocal.mapToEntity() = PlayPlayerEntity(
+    internalId = internalId,
+    playId = internalPlayId,
+    username = username.orEmpty(),
+    userId = userId,
+    name = name.orEmpty(),
+    startingPosition = startingPosition.orEmpty(),
+    color = color.orEmpty(),
+    score = score.orEmpty(),
+    isNew = isNew ?: false,
+    rating = rating ?: 0.0,
+    isWin = isWin ?: false,
+)
+
 fun PlayerLocal.mapToEntity() = PlayerEntity(
     name = name,
     username = username,
@@ -102,3 +141,5 @@ fun LocationBasic.mapToEntity() = LocationEntity(
     name = name,
     playCount = playCount,
 )
+
+private const val DATE_FORMAT_PATTERN = "yyyy-MM-dd"
