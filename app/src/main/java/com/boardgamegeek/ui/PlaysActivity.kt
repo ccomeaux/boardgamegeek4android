@@ -63,7 +63,7 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
             invalidateOptionsMenu()
         }
 
-        viewModel.setFilter(PlaysViewModel.FilterType.ALL)
+        viewModel.setAll()
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -73,7 +73,7 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
 
-        val playCount = viewModel.plays.value?.data?.sumOf { play -> play.quantity } ?: 0
+        val playCount = viewModel.plays.value?.sumOf { play -> play.quantity } ?: 0
         val sortName = when (viewModel.sortType.value) {
             PlaysViewModel.SortType.DATE -> getString(R.string.menu_plays_sort_date)
             PlaysViewModel.SortType.LOCATION -> getString(R.string.menu_plays_sort_location)
@@ -179,6 +179,6 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        viewModel.syncPlaysByDate(GregorianCalendar(year, month, day).timeInMillis)
+        viewModel.refreshPlaysByDate(GregorianCalendar(year, month, day).timeInMillis)
     }
 }

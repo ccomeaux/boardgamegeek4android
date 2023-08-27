@@ -16,17 +16,14 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlaysBinding
 import com.boardgamegeek.databinding.RowPlayBinding
 import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 open class PlaysFragment : Fragment(), ActionMode.Callback {
@@ -45,7 +42,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
     private var showGameName = true
     private var actionMode: ActionMode? = null
 
-    @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentPlaysBinding.inflate(inflater, container, false)
         return binding.root
@@ -88,26 +84,23 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
-        viewModel.syncingStatus.observe(viewLifecycleOwner) {
-            showSyncingState(it)
+        viewModel.isRefreshing.observe(viewLifecycleOwner) {
+            it?.let { binding.swipeRefreshLayout.isRefreshing = it }
         }
 
         viewModel.plays.observe(viewLifecycleOwner) {
-            showSyncingState(it.status == Status.REFRESHING)
-            adapter.items = it.data.orEmpty()
-            binding.recyclerView.addHeader(adapter)
-            binding.progressBar.hide()
-            binding.emptyContainer.isVisible = it.data.isNullOrEmpty()
-            binding.recyclerView.isVisible = !it.data.isNullOrEmpty()
+            it?.let { list ->
+                adapter.items = list
+                binding.recyclerView.addHeader(adapter)
+                binding.progressBar.hide()
+                binding.emptyContainer.isVisible = list.isEmpty()
+                binding.recyclerView.isVisible = list.isNotEmpty()
+            }
         }
 
         viewModel.filterType.observe(viewLifecycleOwner) {
             updateEmptyText()
         }
-    }
-
-    private fun showSyncingState(it: Boolean?) {
-        binding.swipeRefreshLayout.isRefreshing = it ?: false
     }
 
     private fun updateEmptyText() {
@@ -124,8 +117,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         )
     }
 
-    internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), AutoUpdatableAdapter,
-        RecyclerSectionItemDecoration.SectionCallback {
+    internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), RecyclerSectionItemDecoration.SectionCallback {
         private val selectedItems = SparseBooleanArray()
 
         val selectedItemCount: Int
@@ -140,11 +132,12 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             setHasStableIds(true)
         }
 
-        var items: List<PlayEntity> by Delegates.observable(emptyList()) { _, old, new ->
-            autoNotify(old, new) { o, n ->
-                o.internalId == n.internalId
+        var items: List<PlayEntity> = emptyList()
+            @SuppressLint("NotifyDataSetChanged")
+            set(value) {
+                field = value
+                notifyDataSetChanged()
             }
-        }
 
         fun getItem(position: Int): PlayEntity? {
             return items.getOrNull(position)

@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
@@ -32,8 +31,6 @@ class PlaysViewModel @Inject constructor(
         val mode: Mode,
         val name: String = "",
         val id: Int = BggContract.INVALID_ID,
-        val filter: FilterType = FilterType.ALL,
-        val sort: SortType = SortType.DATE
     )
 
     enum class Mode {
@@ -57,64 +54,76 @@ class PlaysViewModel @Inject constructor(
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<Event<String>> = _errorMessage.map { Event(it) }
 
-    private val _syncingStatus = MutableLiveData<Boolean>()
-    val syncingStatus: LiveData<Boolean>
-        get() = _syncingStatus
+    private val _isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = playInfo.switchMap {
+    private val _plays = MediatorLiveData<List<PlayEntity>>()
+    val plays: LiveData<List<PlayEntity>>
+        get() = _plays
+
+    private val _filterType = MutableLiveData<FilterType>()
+    val filterType: LiveData<FilterType>
+        get() = _filterType
+
+    private val _sortType = MutableLiveData<SortType>()
+    val sortType: LiveData<SortType>
+        get() = _sortType
+
+    private val allPlays: LiveData<List<PlayEntity>> = playInfo.switchMap {
         liveData {
-            try {
-                val list = loadPlays(it)
-                val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(it.id)) {
-                    emit(RefreshableResource.refreshing(list))
-                    when (it.mode) {
-                        Mode.GAME -> playRepository.refreshPlaysForGame(it.id)
-                        else -> playRepository.refreshPlays()
-                    }
-                    loadPlays(it)
-                } else list
-                emit(RefreshableResource.success(refreshedList))
-            } catch (e: Exception) {
-                playsRateLimiter.reset(0)
-                emit(RefreshableResource.error(e, getApplication()))
+            val list = when (it.mode) {
+                Mode.ALL -> playRepository.loadPlays()
+                Mode.GAME -> gameRepository.getPlays(it.id)
+                Mode.LOCATION -> playRepository.loadPlaysByLocation(it.name)
+                Mode.BUDDY -> playRepository.loadPlaysByUsername(it.name)
+                Mode.PLAYER -> playRepository.loadPlaysByPlayerName(it.name)
             }
+            emit(list)
+        }
+    }
+    init {
+        _plays.addSource(allPlays) { list ->
+            filterAndSortPlays(list, sortType.value, filterType.value)
+        }
+        _plays.addSource(sortType) {
+            filterAndSortPlays(allPlays.value, it, filterType.value)
+        }
+        _plays.addSource(filterType) {
+            filterAndSortPlays(allPlays.value, sortType.value, it)
         }
     }
 
-    fun refresh() {
-        playInfo.value.let { playInfo.value = it }
-    }
-
-    private suspend fun loadPlays(it: PlayInfo) = when (it.mode) {
-        Mode.ALL -> {
-            val sortType = when (it.sort) {
-                SortType.DATE -> PlayRepository.SortBy.DATE
-                SortType.LOCATION -> PlayRepository.SortBy.LOCATION
-                SortType.GAME -> PlayRepository.SortBy.GAME
-                SortType.LENGTH -> PlayRepository.SortBy.LENGTH
-            }
-            when (it.filter) {
-                FilterType.ALL -> playRepository.loadPlays(sortType)
-                FilterType.DIRTY -> playRepository.getDraftPlays()
-                FilterType.PENDING -> playRepository.getPendingPlays()
-            }
+    private fun filterAndSortPlays(
+        list: List<PlayEntity>?,
+        sortType: SortType?,
+        filterType: FilterType?,
+    ) {
+        if (list == null) return
+        val filteredList = when (filterType) {
+            FilterType.ALL -> list.filter { it.deleteTimestamp == 0L }
+            FilterType.DIRTY -> list.filter { it.dirtyTimestamp > 0L }
+            FilterType.PENDING -> list.filter { it.updateTimestamp > 0L || it.deleteTimestamp > 0L }
+            null -> list
         }
-        Mode.GAME -> gameRepository.getPlays(it.id)
-        Mode.LOCATION -> playRepository.loadPlaysByLocation(it.name)
-        Mode.BUDDY -> playRepository.loadPlaysByUsername(it.name)
-        Mode.PLAYER -> playRepository.loadPlaysByPlayerName(it.name)
-    }
-
-    val filterType: LiveData<FilterType> = playInfo.map {
-        it.filter
-    }
-
-    val sortType: LiveData<SortType> = playInfo.map {
-        it.sort
+        val sortedList = when (sortType) {
+            SortType.DATE -> filteredList.sortedByDescending { it.dateInMillis }
+            SortType.LOCATION -> filteredList.sortedBy { it.location }
+            SortType.GAME -> filteredList.sortedBy { it.gameName }
+            SortType.LENGTH -> filteredList.sortedByDescending { it.length }
+            null -> filteredList.sortedByDescending { it.dateInMillis }
+        }
+        _plays.postValue(sortedList)
     }
 
     val location: LiveData<String> = playInfo.map {
         if (it.mode == Mode.LOCATION) it.name else ""
+    }
+
+    fun setAll() {
+        setFilter(FilterType.ALL)
+        setSort(SortType.DATE)
+        playInfo.value = PlayInfo(Mode.ALL)
     }
 
     fun setGame(gameId: Int) {
@@ -134,14 +143,14 @@ class PlaysViewModel @Inject constructor(
     }
 
     fun setFilter(type: FilterType) {
-        if (playInfo.value?.filter != type) {
-            playInfo.value = PlayInfo(Mode.ALL, filter = type, sort = playInfo.value?.sort ?: SortType.DATE)
+        if (_filterType.value != type) {
+            _filterType.value = type
         }
     }
 
     fun setSort(type: SortType) {
-        if (playInfo.value?.sort != type) {
-            playInfo.value = PlayInfo(Mode.ALL, filter = playInfo.value?.filter ?: FilterType.ALL, sort = type)
+        if (sortType.value != type) {
+            _sortType.value = type
         }
     }
 
@@ -162,16 +171,37 @@ class PlaysViewModel @Inject constructor(
         }
     }
 
-    fun syncPlaysByDate(timeInMillis: Long) {
+    fun refresh() {
         viewModelScope.launch {
             try {
-                _syncingStatus.postValue(true)
+                _isRefreshing.postValue(true)
+                val id = playInfo.value?.id ?: 0
+                if (syncPlays.value == true && playsRateLimiter.shouldProcess(id)) {
+                    when (playInfo.value?.mode) {
+                        Mode.GAME -> playRepository.refreshPlaysForGame(id)
+                        else -> playRepository.refreshPlays()
+                    }
+                }
+            } catch (e: Exception) {
+                _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
+                playsRateLimiter.reset(0)
+            } finally {
+                playInfo.value.let { playInfo.value = it }
+                _isRefreshing.postValue(false)
+            }
+        }
+    }
+
+    fun refreshPlaysByDate(timeInMillis: Long) {
+        viewModelScope.launch {
+            try {
+                _isRefreshing.postValue(true)
                 playRepository.refreshPlaysForDate(timeInMillis)
-                refresh()
             } catch (e: Exception) {
                 _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
             } finally {
-                _syncingStatus.postValue(false)
+                playInfo.value.let { playInfo.value = it }
+                _isRefreshing.postValue(false)
             }
         }
     }

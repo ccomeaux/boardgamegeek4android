@@ -48,7 +48,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
             setSubtitle()
         }
         viewModel.plays.observe(this) {
-            playCount = it.data?.sumOf { play -> play.quantity } ?: 0
+            playCount = it?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         }
         viewModel.updateMessage.observe(this) {

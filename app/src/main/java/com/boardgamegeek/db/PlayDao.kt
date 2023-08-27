@@ -42,7 +42,7 @@ class PlayDao(private val context: Context) {
         } else null
     }
 
-    suspend fun loadPlays(sortBy: PlaysSortBy) = loadPlays(Plays.CONTENT_URI, Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull() to emptyArray(), sortBy)
+    suspend fun loadPlays() = loadPlays(Plays.CONTENT_URI)
 
     suspend fun loadPendingPlays() = loadPlays(Plays.CONTENT_URI, "${Plays.Columns.DELETE_TIMESTAMP}>0 OR ${Plays.Columns.UPDATE_TIMESTAMP}>0" to emptyArray())
 
@@ -246,7 +246,7 @@ class PlayDao(private val context: Context) {
         internalId = it.getLong(11),
     )
 
-   enum class PlayerSortBy {
+    enum class PlayerSortBy {
         NAME, PLAY_COUNT, WIN_COUNT
     }
 
@@ -420,7 +420,7 @@ class PlayDao(private val context: Context) {
 
     //endregion
 
-   //region Locations
+    //region Locations
 
     enum class LocationSortBy {
         NAME, PLAY_COUNT

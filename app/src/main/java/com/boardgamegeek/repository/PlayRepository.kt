@@ -47,13 +47,6 @@ class PlayRepository(
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
 
-    enum class SortBy(val daoSortBy: PlayDao.PlaysSortBy) {
-        DATE(PlayDao.PlaysSortBy.DATE),
-        LOCATION(PlayDao.PlaysSortBy.LOCATION),
-        GAME(PlayDao.PlaysSortBy.GAME),
-        LENGTH(PlayDao.PlaysSortBy.LENGTH),
-    }
-
     suspend fun loadPlay(internalId: Long) = playDao.loadPlay(internalId)?.mapToEntity()
 
     suspend fun refreshPlay(
@@ -159,11 +152,8 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadPlays(sortBy: SortBy = SortBy.DATE) = playDao.loadPlays(sortBy.daoSortBy).map { it.mapToEntity() }
+    suspend fun loadPlays() = playDao.loadPlays().map { it.mapToEntity() }
 
-    suspend fun getPendingPlays() = playDao.loadPendingPlays().map { it.mapToEntity() }
-
-    suspend fun getDraftPlays() = playDao.loadDraftPlays().map { it.mapToEntity() }
 // TODO use getPendingPlays and apply an in-memory filter
     suspend fun getUpdatingPlays() = playDao.loadPlays(selection = playDao.createPendingUpdatePlaySelectionAndArgs(), includePlayers = true).map { it.mapToEntity() }
 // TODO use getPendingPlays and apply an in-memory filter
@@ -292,7 +282,7 @@ class PlayRepository(
         val games = if (!syncPrefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
             // If played games aren't synced, count the plays instead
             // We can't respect the expansion/accessory flags, so we include them all
-            val allPlays = playDao.loadPlays()
+            val allPlays = playDao.loadPlays().filter { it.deleteTimestamp == 0L }
             val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
             val gameMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
                 accumulator + element.quantity

@@ -39,7 +39,7 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
 
         viewModel.setUsername(buddyName)
         viewModel.plays.observe(this) {
-            numberOfPlays = it.data?.sumOf { play -> play.quantity } ?: 0
+            numberOfPlays = it?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         }
     }
