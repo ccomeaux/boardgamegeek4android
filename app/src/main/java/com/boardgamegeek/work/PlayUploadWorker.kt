@@ -9,7 +9,6 @@ import androidx.work.workDataOf
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.PlayUploadResult
-import com.boardgamegeek.extensions.NotificationChannels
 import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.notifyLoggedPlay
 import com.boardgamegeek.provider.BggContract
@@ -54,12 +53,12 @@ class PlayUploadWorker @AssistedInject constructor(
             }
         } else if (requestedGameId != BggContract.INVALID_ID) {
             Timber.i("Uploading all plays for game ID=$requestedGameId marked for deletion or updating")
-            playsToDelete += playRepository.getDeletingPlays().filter { it.gameId == requestedGameId }
-            playsToUpsert += playRepository.getUpdatingPlays().filter { it.gameId == requestedGameId }
+            playsToDelete += playRepository.loadDeletingPlays().filter { it.gameId == requestedGameId }
+            playsToUpsert += playRepository.loadUpdatingPlays().filter { it.gameId == requestedGameId }
         } else {
             Timber.i("Uploading all plays marked for deletion or updating")
-            playsToDelete += playRepository.getDeletingPlays()
-            playsToUpsert += playRepository.getUpdatingPlays()
+            playsToDelete += playRepository.loadDeletingPlays()
+            playsToUpsert += playRepository.loadUpdatingPlays()
         }
 
         Timber.i("Found ${playsToDelete.count()} play(s) marked for deletion")

@@ -44,9 +44,9 @@ class PlayDao(private val context: Context) {
 
     suspend fun loadPlays() = loadPlays(Plays.CONTENT_URI)
 
-    suspend fun loadPendingPlays() = loadPlays(Plays.CONTENT_URI, "${Plays.Columns.DELETE_TIMESTAMP}>0 OR ${Plays.Columns.UPDATE_TIMESTAMP}>0" to emptyArray())
+    suspend fun loadUpdatingPlays() = loadPlays(selection = "${Plays.Columns.UPDATE_TIMESTAMP}>0" to emptyArray(), includePlayers = true)
 
-    suspend fun loadDraftPlays() = loadPlays(Plays.CONTENT_URI, "${Plays.Columns.DIRTY_TIMESTAMP}>0" to emptyArray())
+    suspend fun loadDeletingPlays() = loadPlays(selection = "${Plays.Columns.DELETE_TIMESTAMP}>0" to emptyArray(), includePlayers = true)
 
     suspend fun loadPlaysByGame(gameId: Int, sortBy: PlaysSortBy = PlaysSortBy.DATE): List<PlayLocal> {
         return if (gameId == INVALID_ID) emptyList()
@@ -76,7 +76,7 @@ class PlayDao(private val context: Context) {
         }
     }
 
-    suspend fun loadPlays(
+    private suspend fun loadPlays(
         uri: Uri = Plays.CONTENT_URI,
         selection: Pair<String?, Array<String>?> = null to null,
         sortBy: PlaysSortBy = PlaysSortBy.DATE,
@@ -163,10 +163,6 @@ class PlayDao(private val context: Context) {
     )
 
     //endregion
-
-    fun createPendingUpdatePlaySelectionAndArgs() = "${Plays.Columns.UPDATE_TIMESTAMP}>0" to emptyArray<String>()
-
-    fun createPendingDeletePlaySelectionAndArgs() = "${Plays.Columns.DELETE_TIMESTAMP}>0" to emptyArray<String>()
 
     private fun createGamePlaySelectionAndArgs(gameId: Int) =
         "${Plays.Columns.OBJECT_ID}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(gameId.toString())

@@ -154,10 +154,9 @@ class PlayRepository(
 
     suspend fun loadPlays() = playDao.loadPlays().map { it.mapToEntity() }
 
-// TODO use getPendingPlays and apply an in-memory filter
-    suspend fun getUpdatingPlays() = playDao.loadPlays(selection = playDao.createPendingUpdatePlaySelectionAndArgs(), includePlayers = true).map { it.mapToEntity() }
-// TODO use getPendingPlays and apply an in-memory filter
-    suspend fun getDeletingPlays() = playDao.loadPlays(selection = playDao.createPendingDeletePlaySelectionAndArgs(), includePlayers = true).map { it.mapToEntity() }
+    suspend fun loadUpdatingPlays() = playDao.loadUpdatingPlays().map { it.mapToEntity() }
+
+    suspend fun loadDeletingPlays() = playDao.loadDeletingPlays().map { it.mapToEntity() }
 
     suspend fun loadPlaysByGame(gameId: Int) = playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE).map { it.mapToEntity() }
 
