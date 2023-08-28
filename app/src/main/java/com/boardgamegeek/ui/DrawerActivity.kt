@@ -20,7 +20,6 @@ import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
-import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,8 +34,7 @@ abstract class DrawerActivity : BaseActivity() {
     private lateinit var toolbar: Toolbar
     var rootContainer: ViewGroup? = null
 
-    private val viewModel by viewModels<SelfUserViewModel>()
-    private val syncViewModel by viewModels<SyncViewModel>()
+    private val selfUserViewModel by viewModels<SelfUserViewModel>()
 
     protected open val navigationItemId: Int
         get() = 0
@@ -77,13 +75,9 @@ abstract class DrawerActivity : BaseActivity() {
             it.setOnClickListener { startActivity<LoginActivity>() }
         }
 
-        viewModel.user.observe(this) {
+        selfUserViewModel.user.observe(this) {
             navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
             refreshHeader(it?.data)
-        }
-
-        syncViewModel.username.observe(this) {
-            viewModel.setUsername(it)
         }
     }
 
@@ -146,8 +140,6 @@ abstract class DrawerActivity : BaseActivity() {
                 secondaryView.text = ""
                 primaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
                 secondaryView.setOnClickListener { }
-            } else {
-                Authenticator.getAccount(this)?.let { viewModel.setUsername(it.name) }
             }
             if (user.avatarUrl.isBlank()) {
                 imageView.isVisible = false

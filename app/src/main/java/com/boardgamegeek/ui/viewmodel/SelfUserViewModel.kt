@@ -5,7 +5,9 @@ import androidx.lifecycle.*
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -16,17 +18,7 @@ class SelfUserViewModel @Inject constructor(
     application: Application,
     private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
-    private val username = MutableLiveData<String?>()
-
-    init {
-        username.value = if (Authenticator.isSignedIn(getApplication())) {
-            Authenticator.getAccount(application)?.name.orEmpty()
-        } else ""
-    }
-
-    fun setUsername(newUsername: String?) {
-        if (username.value != newUsername) username.value = newUsername
-    }
+    val username: LiveSharedPreference<String> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
 
     val user: LiveData<RefreshableResource<UserEntity>> = username.switchMap { username ->
         liveData {

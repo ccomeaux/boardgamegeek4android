@@ -14,7 +14,7 @@ import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.DrawerActivity
-import com.boardgamegeek.ui.viewmodel.SyncViewModel
+import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.work.SyncCollectionWorker
 import com.boardgamegeek.work.SyncPlaysWorker
 import com.boardgamegeek.work.SyncUsersWorker
@@ -71,14 +71,14 @@ class SettingsActivity : DrawerActivity() {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()
         private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
-        private val syncViewModel by activityViewModels<SyncViewModel>()
+        private val selfUserViewModel by activityViewModels<SelfUserViewModel>()
         private var needsCollectionSync = false
         private var needsPlaysSync = false
         private var needsUsersSync = false
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            syncViewModel.username.observe(this) {
+            selfUserViewModel.username.observe(this) {
                 if (it.isNullOrBlank()) {
                     toast(R.string.msg_sign_out_success)
                     updateAccountPrefs("")

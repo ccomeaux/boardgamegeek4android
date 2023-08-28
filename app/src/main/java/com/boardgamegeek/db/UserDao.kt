@@ -135,6 +135,9 @@ class UserDao(private val context: Context) {
             count == 1
         } else {
             values.put(Buddies.Columns.BUDDY_NAME, username)
+            if (!values.containsKey(Buddies.Columns.UPDATED_LIST)) {
+                values.put(Buddies.Columns.UPDATED_LIST, System.currentTimeMillis())
+            }
             val insertedUri = context.contentResolver.insert(Buddies.CONTENT_URI, values)
             Timber.d("Inserted user at %s", insertedUri)
             username == insertedUri?.lastPathSegment
