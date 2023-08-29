@@ -13,7 +13,7 @@ data class PlayLocal(
     val noWinStats: Boolean,
     val comments: String?,
     val syncTimestamp: Long,
-    val initialPlayerCount: Int?,
+    val playerCount: Int?,
     val syncHashCode: Int?,
     val gameUpdatedPlaysTimestamp: Long?,
     val dirtyTimestamp: Long?,

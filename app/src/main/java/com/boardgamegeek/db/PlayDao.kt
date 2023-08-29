@@ -13,7 +13,6 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.db.model.*
-import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -122,7 +121,7 @@ class PlayDao(private val context: Context) {
         noWinStats = it.getBoolean(9),
         comments = it.getStringOrNull(10),
         syncTimestamp = it.getLong(11),
-        initialPlayerCount = it.getIntOrNull(12) ?: 0,
+        playerCount = it.getIntOrNull(12),
         dirtyTimestamp = it.getLongOrNull(13),
         updateTimestamp = it.getLongOrNull(14),
         deleteTimestamp = it.getLongOrNull(15),
@@ -130,7 +129,7 @@ class PlayDao(private val context: Context) {
         gameImageUrl = it.getStringOrNull(17),
         gameThumbnailUrl = it.getStringOrNull(18),
         gameHeroImageUrl = it.getStringOrNull(19),
-        gameUpdatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
+        gameUpdatedPlaysTimestamp = it.getLongOrNull(20),
         syncHashCode = it.getIntOrNull(22),
         gameIsCustomSorted = it.getBooleanOrNull(21),
         players = players,
@@ -485,45 +484,34 @@ class PlayDao(private val context: Context) {
         } ?: false
     }
 
-    suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
-        if (internalId == INVALID_ID.toLong())
-            false
-        else
-            context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
-    }
-
     enum class SaveStatus {
         UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
     }
 
-    suspend fun save(play: PlayEntity, startTime: Long = System.currentTimeMillis()): SaveStatus = withContext(Dispatchers.IO) {
+    suspend fun saveFromSync(play: PlayBasic): SaveStatus = withContext(Dispatchers.IO) {
         val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
         when {
-            !play.isSynced -> {
+            (play.playId == null || play.playId == 0) -> {
                 Timber.i("Can't sync a play without a play ID.")
                 SaveStatus.ERROR
             }
-
             candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
                 upsert(play, INVALID_ID.toLong())
                 SaveStatus.INSERTED
             }
-
             candidate.isDirty -> {
                 Timber.i("Not saving during the sync; local play is modified.")
                 SaveStatus.DIRTY
             }
-
             candidate.syncHashCode == play.generateSyncHashCode() -> {
                 context.contentResolver.update(
                     Plays.buildPlayUri(candidate.internalId),
-                    contentValuesOf(Plays.Columns.SYNC_TIMESTAMP to startTime),
+                    contentValuesOf(Plays.Columns.SYNC_TIMESTAMP to play.syncTimestamp),
                     null,
                     null
                 )
                 SaveStatus.UNCHANGED
             }
-
             else -> {
                 upsert(play, candidate.internalId)
                 SaveStatus.UPDATED
@@ -531,23 +519,23 @@ class PlayDao(private val context: Context) {
         }
     }
 
-    suspend fun upsert(play: PlayEntity, internalId: Long = play.internalId): Long = withContext(Dispatchers.IO) {
+    suspend fun upsert(play: PlayBasic, internalId: Long = play.internalId): Long = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
 
         val values = contentValuesOf(
             Plays.Columns.PLAY_ID to play.playId,
-            Plays.Columns.DATE to play.dateForDatabase(),
-            Plays.Columns.ITEM_NAME to play.gameName,
-            Plays.Columns.OBJECT_ID to play.gameId,
+            Plays.Columns.DATE to play.date,
+            Plays.Columns.ITEM_NAME to play.itemName,
+            Plays.Columns.OBJECT_ID to play.objectId,
             Plays.Columns.QUANTITY to play.quantity,
             Plays.Columns.LENGTH to play.length,
             Plays.Columns.INCOMPLETE to play.incomplete,
             Plays.Columns.NO_WIN_STATS to play.noWinStats,
             Plays.Columns.LOCATION to play.location,
             Plays.Columns.COMMENTS to play.comments,
-            Plays.Columns.PLAYER_COUNT to play.players.size,
+            Plays.Columns.PLAYER_COUNT to (play.players?.size ?: 0),
             Plays.Columns.SYNC_TIMESTAMP to play.syncTimestamp,
-            Plays.Columns.START_TIME to if (play.length > 0) 0 else play.startTime,
+            Plays.Columns.START_TIME to play.startTime,
             Plays.Columns.SYNC_HASH_CODE to play.generateSyncHashCode(),
             Plays.Columns.DELETE_TIMESTAMP to play.deleteTimestamp,
             Plays.Columns.UPDATE_TIMESTAMP to play.updateTimestamp,
@@ -566,7 +554,9 @@ class PlayDao(private val context: Context) {
             addPlayersToBatch(play, existingPlayerIds, internalId, batch)
             removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
 
-            if (play.isSynced || play.updateTimestamp > 0) {
+            if ((play.playId != null && play.playId > 0) ||
+                (play.updateTimestamp != null && play.updateTimestamp > 0)
+            ) {
                 // Do these when a new play is ready to be synced
                 saveGamePlayerSortOrderToBatch(play, batch)
                 updateColorsInBatch(play, batch)
@@ -586,15 +576,11 @@ class PlayDao(private val context: Context) {
         }
     }
 
-    suspend fun updateAllPlays(contentValues: ContentValues): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.update(Plays.CONTENT_URI, contentValues, null, null)
-    }
-
     private fun deletePlayerWithEmptyUserNameInBatch(internalId: Long, batch: ArrayList<ContentProviderOperation>) {
         if (internalId == INVALID_ID.toLong()) return
         batch += ContentProviderOperation
             .newDelete(Plays.buildPlayerUri(internalId))
-            .withSelection(String.format("%1\$s IS NULL OR %1\$s=''", PlayPlayers.Columns.USER_NAME), null)
+            .withSelection(PlayPlayers.Columns.USER_NAME.whereNullOrBlank(), null)
             .build()
     }
 
@@ -628,12 +614,12 @@ class PlayDao(private val context: Context) {
     }
 
     private fun addPlayersToBatch(
-        play: PlayEntity,
+        play: PlayBasic,
         playerUserNames: MutableList<String>,
         internalId: Long,
         batch: ArrayList<ContentProviderOperation>
     ) {
-        for (player in play.players) {
+        play.players?.forEach { player ->
             val userName = player.username
             val values = contentValuesOf(
                 PlayPlayers.Columns.USER_NAME to userName,
@@ -685,15 +671,13 @@ class PlayDao(private val context: Context) {
     /**
      * Determine if the players are custom sorted or not, and save it to the game.
      */
-    private suspend fun saveGamePlayerSortOrderToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        // We can't determine the sort order without players
-        if (play.playerCount > 0) {
-            // We can't save the sort order if we aren't storing the game
-            val gameUri = Games.buildGameUri(play.gameId)
+    private suspend fun saveGamePlayerSortOrderToBatch(play: PlayBasic, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
+        play.arePlayersCustomSorted()?.let {
+            val gameUri = Games.buildGameUri(play.objectId)
             if (context.contentResolver.rowExists(gameUri)) {
                 batch += ContentProviderOperation
                     .newUpdate(gameUri)
-                    .withValue(Games.Columns.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted())
+                    .withValue(Games.Columns.CUSTOM_PLAYER_SORT, it)
                     .build()
             }
         }
@@ -702,19 +686,15 @@ class PlayDao(private val context: Context) {
     /**
      * Add the current players' team/colors to the permanent list for the game.
      */
-    private suspend fun updateColorsInBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        // There are no players, so there are no colors to save
-        if (play.playerCount > 0) {
-            // We can't save the colors if we aren't storing the game
-            if (context.contentResolver.rowExists(Games.buildGameUri(play.gameId))) {
-                val insertUri = Games.buildColorsUri(play.gameId)
-                play.players.filter { it.color.isNotBlank() }.distinctBy { it.color }.forEach {
-                    if (!context.contentResolver.rowExists(Games.buildColorsUri(play.gameId, it.color))) {
-                        batch += ContentProviderOperation
-                            .newInsert(insertUri)
-                            .withValue(GameColors.Columns.COLOR, it.color)
-                            .build()
-                    }
+    private suspend fun updateColorsInBatch(play: PlayBasic, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
+        if (context.contentResolver.rowExists(Games.buildGameUri(play.objectId))) {
+            play.players?.distinctBy { it.color }?.forEach {
+                if (it.color != null &&
+                    !context.contentResolver.rowExists(Games.buildColorsUri(play.objectId, it.color))) {
+                    batch += ContentProviderOperation
+                        .newInsert(Games.buildColorsUri(play.objectId))
+                        .withValue(GameColors.Columns.COLOR, it.color)
+                        .build()
                 }
             }
         }
@@ -723,24 +703,35 @@ class PlayDao(private val context: Context) {
     /**
      * Update GeekBuddies' nicknames with the names used here.
      */
-    private suspend fun saveBuddyNicknamesToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        play.players.filter { it.username.isNotBlank() && it.name.isNotBlank() }.forEach { player ->
-            val uri = Buddies.buildBuddyUri(player.username)
-            if (context.contentResolver.rowExists(uri)) {
-                val nickname = context.contentResolver.queryString(uri, Buddies.Columns.PLAY_NICKNAME)
-                if (nickname.isNullOrBlank()) {
-                    batch += ContentProviderOperation
-                        .newUpdate(Buddies.CONTENT_URI)
-                        .withSelection("${Buddies.Columns.BUDDY_NAME}=?", arrayOf(player.username))
-                        .withValue(Buddies.Columns.PLAY_NICKNAME, player.name)
-                        .build()
+    private suspend fun saveBuddyNicknamesToBatch(play: PlayBasic, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
+        play.players?.forEach { player ->
+            if (!player.username.isNullOrBlank() && !player.name.isNullOrBlank()) {
+                val uri = Buddies.buildBuddyUri(player.username)
+                if (context.contentResolver.rowExists(uri)) {
+                    val nickname = context.contentResolver.queryString(uri, Buddies.Columns.PLAY_NICKNAME)
+                    if (nickname.isNullOrBlank()) {
+                        batch += ContentProviderOperation
+                            .newUpdate(Buddies.CONTENT_URI)
+                            .withSelection("${Buddies.Columns.BUDDY_NAME}=?", arrayOf(player.username))
+                            .withValue(Buddies.Columns.PLAY_NICKNAME, player.name)
+                            .build()
+                    }
                 }
             }
         }
     }
 
-    suspend fun deletePlays(): Int = withContext(Dispatchers.IO) {
+    //region Deletes
+
+    suspend fun deleteAllPlays(): Int = withContext(Dispatchers.IO) {
         context.contentResolver.delete(Plays.CONTENT_URI, null, null)
+    }
+
+    suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
+        if (internalId == INVALID_ID.toLong())
+            false
+        else
+            context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
     }
 
     suspend fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int = withContext(Dispatchers.IO) {
@@ -773,7 +764,68 @@ class PlayDao(private val context: Context) {
         return selection to selectionArgs
     }
 
-    suspend fun update(internalId: Long, values: ContentValues): Boolean = withContext(Dispatchers.IO) {
+    //endregion
+
+    //region Upserts
+
+    suspend fun clearSyncHashCodes(): Int = withContext(Dispatchers.IO) {
+        context.contentResolver.update(Plays.CONTENT_URI, contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0), null, null)
+    }
+
+    suspend fun markAsSynced(internalId: Long, playId: Int): Boolean {
+        return update(
+            internalId,
+            contentValuesOf(
+                Plays.Columns.PLAY_ID to playId,
+                Plays.Columns.DIRTY_TIMESTAMP to 0,
+                Plays.Columns.UPDATE_TIMESTAMP to 0,
+                Plays.Columns.DELETE_TIMESTAMP to 0,
+            )
+        )
+    }
+
+    suspend fun markAsDiscarded(internalId: Long): Boolean {
+        return update(
+            internalId,
+            contentValuesOf(
+                Plays.Columns.DELETE_TIMESTAMP to 0,
+                Plays.Columns.UPDATE_TIMESTAMP to 0,
+                Plays.Columns.DIRTY_TIMESTAMP to 0,
+            )
+        )
+    }
+
+    suspend fun markAsUpdated(internalId: Long): Boolean {
+        return update(
+            internalId,
+            contentValuesOf(
+                Plays.Columns.UPDATE_TIMESTAMP to System.currentTimeMillis(),
+                Plays.Columns.DELETE_TIMESTAMP to 0,
+                Plays.Columns.DIRTY_TIMESTAMP to 0,
+            )
+        )
+    }
+
+    suspend fun markAsDeleted(internalId: Long): Boolean {
+        return update(
+            internalId,
+            contentValuesOf(
+                Plays.Columns.DELETE_TIMESTAMP to System.currentTimeMillis(),
+                Plays.Columns.UPDATE_TIMESTAMP to 0,
+                Plays.Columns.DIRTY_TIMESTAMP to 0,
+            )
+        )
+    }
+
+    suspend fun updateLocation(internalId: Long, locationName: String?, dirtyTimestamp: Long, updateTimestamp: Long): Boolean {
+        val values = contentValuesOf(Plays.Columns.LOCATION to locationName)
+        if (dirtyTimestamp > 0 || updateTimestamp > 0) {
+            values.put(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
+        }
+        return update(internalId, values)
+    }
+
+    private suspend fun update(internalId: Long, values: ContentValues): Boolean = withContext(Dispatchers.IO) {
         val rowsUpdated = context.contentResolver.update(Plays.buildPlayUri(internalId), values, null, null)
         if (rowsUpdated == 1) {
             Timber.d("Updated play internal ID=$internalId")
@@ -783,6 +835,8 @@ class PlayDao(private val context: Context) {
             false
         }
     }
+
+    //endregion
 
     data class PlaySyncCandidate(
         val internalId: Long = INVALID_ID.toLong(),
@@ -795,8 +849,8 @@ class PlayDao(private val context: Context) {
             get() = dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0
 
         companion object {
-            suspend fun find(resolver: ContentResolver, playId: Int): PlaySyncCandidate? = withContext(Dispatchers.IO) {
-                if (playId <= 0) {
+            suspend fun find(resolver: ContentResolver, playId: Int?): PlaySyncCandidate? = withContext(Dispatchers.IO) {
+                if (playId == null || playId <= 0) {
                     Timber.i("Can't sync a play without a play ID.")
                     null
                 } else {

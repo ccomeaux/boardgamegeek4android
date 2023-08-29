@@ -99,7 +99,7 @@ fun PlayLocal.mapToEntity() = PlayEntity(
     noWinStats = noWinStats,
     comments = comments.orEmpty(),
     syncTimestamp = syncTimestamp,
-    initialPlayerCount = 0, // TODO
+    initialPlayerCount = playerCount ?: 0,
     startTime = startTime ?: 0L,
     dirtyTimestamp = dirtyTimestamp ?: 0L,
     deleteTimestamp = deleteTimestamp ?: 0L,
@@ -140,6 +140,42 @@ fun PlayerColorsLocal.mapToEntity() = PlayerColorEntity(
 fun LocationBasic.mapToEntity() = LocationEntity(
     name = name,
     playCount = playCount,
+)
+
+fun PlayEntity.mapToEntity(syncTimestamp: Long = 0L) = PlayBasic(
+    internalId = internalId,
+    playId = playId,
+    date = dateForDatabase(),
+    objectId = gameId,
+    itemName = gameName,
+    quantity = quantity,
+    length = length,
+    location = location,
+    incomplete = incomplete,
+    noWinStats = noWinStats,
+    comments = comments,
+    syncTimestamp = syncTimestamp,
+    initialPlayerCount = players.size,
+    syncHashCode = null,
+    dirtyTimestamp = dirtyTimestamp,
+    updateTimestamp = updateTimestamp,
+    deleteTimestamp = deleteTimestamp,
+    startTime = startTime,
+    players = players.map { it.mapToEntity() },
+)
+
+fun PlayPlayerEntity.mapToEntity() = PlayPlayerLocal(
+    internalId = internalId,
+    internalPlayId = playId,
+    username = username,
+    userId = userId,
+    name = name,
+    startingPosition = startingPosition,
+    color = color,
+    score = score,
+    isNew = isNew,
+    rating = rating,
+    isWin = isWin,
 )
 
 private const val DATE_FORMAT_PATTERN = "yyyy-MM-dd"

@@ -388,7 +388,7 @@ class PlayRepository(
             dateInMillis = Calendar.getInstance().timeInMillis,
             updateTimestamp = System.currentTimeMillis()
         )
-        val internalId = playDao.upsert(playEntity)
+        val internalId = playDao.upsert(playEntity.mapToEntity())
         return logPlay(playEntity.copy(internalId = internalId))
     }
 
@@ -426,15 +426,16 @@ class PlayRepository(
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
-    suspend fun saveFromSync(plays: List<PlayEntity>, startTime: Long) {
+    suspend fun saveFromSync(plays: List<PlayEntity>, syncTimestamp: Long) {
         Timber.i("Saving %d plays", plays.size)
         var updateCount = 0
         var insertCount = 0
         var unchangedCount = 0
         var dirtyCount = 0
         var errorCount = 0
-        plays.forEach { play ->
-            when (playDao.save(play, startTime)) {
+        plays.forEach {
+            val play = it.mapToEntity(syncTimestamp)
+            when (playDao.saveFromSync(play)) {
                 PlayDao.SaveStatus.UPDATED -> updateCount++
                 PlayDao.SaveStatus.INSERTED -> insertCount++
                 PlayDao.SaveStatus.DIRTY -> dirtyCount++
@@ -455,49 +456,14 @@ class PlayRepository(
 
     private suspend fun markAsSynced(internalId: Long, playId: Int): Boolean {
         if (playId == INVALID_ID) return false
-        return playDao.update(
-            internalId,
-            contentValuesOf(
-                Plays.Columns.PLAY_ID to playId,
-                Plays.Columns.DIRTY_TIMESTAMP to 0,
-                Plays.Columns.UPDATE_TIMESTAMP to 0,
-                Plays.Columns.DELETE_TIMESTAMP to 0,
-            )
-        )
+        return playDao.markAsSynced(internalId, playId)
     }
 
-    suspend fun markAsDiscarded(internalId: Long): Boolean {
-        return playDao.update(
-            internalId,
-            contentValuesOf(
-                Plays.Columns.DELETE_TIMESTAMP to 0,
-                Plays.Columns.UPDATE_TIMESTAMP to 0,
-                Plays.Columns.DIRTY_TIMESTAMP to 0,
-            )
-        )
-    }
+    suspend fun markAsDiscarded(internalId: Long) = playDao.markAsDiscarded(internalId)
 
-    suspend fun markAsUpdated(internalId: Long): Boolean {
-        return playDao.update(
-            internalId,
-            contentValuesOf(
-                Plays.Columns.UPDATE_TIMESTAMP to System.currentTimeMillis(),
-                Plays.Columns.DELETE_TIMESTAMP to 0,
-                Plays.Columns.DIRTY_TIMESTAMP to 0,
-            )
-        )
-    }
+    suspend fun markAsUpdated(internalId: Long) = playDao.markAsUpdated(internalId)
 
-    suspend fun markAsDeleted(internalId: Long): Boolean {
-        return playDao.update(
-            internalId,
-            contentValuesOf(
-                Plays.Columns.DELETE_TIMESTAMP to System.currentTimeMillis(),
-                Plays.Columns.UPDATE_TIMESTAMP to 0,
-                Plays.Columns.DIRTY_TIMESTAMP to 0,
-            )
-        )
-    }
+    suspend fun markAsDeleted(internalId: Long) = playDao.markAsDeleted(internalId)
 
     suspend fun updateGamePlayCount(gameId: Int) = withContext(Dispatchers.Default) {
         val allPlays = playDao.loadPlaysByGame(gameId)
@@ -565,26 +531,16 @@ class PlayRepository(
         newLocationName: String,
     ): List<Long> = withContext(Dispatchers.IO) {
         val internalIds = mutableListOf<Long>()
-
         val plays = playDao.loadPlaysByLocation(oldLocationName)
         plays.forEach { play ->
-            if ((play.dirtyTimestamp ?: 0) > 0) {
-                playDao.update(play.internalId, contentValuesOf(Plays.Columns.LOCATION to newLocationName))
-            } else if ((play.updateTimestamp ?: 0) > 0) {
-                if (playDao.update(play.internalId, contentValuesOf(Plays.Columns.LOCATION to newLocationName)))
-                    internalIds += play.internalId
-            } else {
-                val values = contentValuesOf(Plays.Columns.LOCATION to newLocationName, Plays.Columns.UPDATE_TIMESTAMP to System.currentTimeMillis())
-                if (playDao.update(play.internalId, values))
-                    internalIds += play.internalId
-            }
+            if (playDao.updateLocation(play.internalId, newLocationName, play.dirtyTimestamp ?: 0L, play.updateTimestamp ?: 0L))
+                internalIds += play.internalId
         }
-
         internalIds
     }
 
     suspend fun save(play: PlayEntity): Long {
-        val id = playDao.upsert(play)
+        val id = playDao.upsert(play.mapToEntity())
 
         // remember details about the play if it's being uploaded for the first time
         if (!play.isSynced && (play.updateTimestamp > 0)) {
@@ -605,14 +561,14 @@ class PlayRepository(
     suspend fun resetPlays() {
         // resets the sync timestamps, removes the plays' hashcode, and request a sync
         syncPrefs.clearPlaysTimestamps()
-        val count = playDao.updateAllPlays(contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0))
+        val count = playDao.clearSyncHashCodes()
         Timber.i("Cleared the hashcode from %,d plays.", count)
         SyncPlaysWorker.requestSync(context)
     }
 
     suspend fun deletePlays() {
         syncPrefs.clearPlaysTimestamps()
-        playDao.deletePlays()
+        playDao.deleteAllPlays()
         gameDao.resetPlaySync()
     }
 
