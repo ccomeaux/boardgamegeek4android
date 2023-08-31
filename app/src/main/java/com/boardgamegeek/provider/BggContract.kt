@@ -170,7 +170,7 @@ class BggContract {
             return getUriBuilder(gameId, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS).build()
         }
 
-        fun buildSuggestedPlayerCountPollResultsUri(gameId: Int, playerCount: String?): Uri {
+        fun buildSuggestedPlayerCountPollResultsUri(gameId: Int, playerCount: String): Uri {
             return getUriBuilder(gameId, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS).appendPath(playerCount).build()
         }
 

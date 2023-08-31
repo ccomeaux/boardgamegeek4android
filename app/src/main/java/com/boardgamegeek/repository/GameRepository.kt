@@ -8,6 +8,7 @@ import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.mapForUpsert
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -25,7 +26,7 @@ class GameRepository @Inject constructor(
     private val dao = GameDao(context)
     private val playDao = PlayDao(context)
 
-    suspend fun loadGame(gameId: Int) = dao.load(gameId)
+    suspend fun loadGame(gameId: Int) = dao.load(gameId)?.mapToEntity()
 
     suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0) = dao.loadOldestUpdatedGames(gamesPerFetch)
 
@@ -35,12 +36,13 @@ class GameRepository @Inject constructor(
 
     suspend fun refreshGame(vararg gameId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val gameEntities = fetchGame(*gameId)
-        gameEntities.forEach { gameEntity ->
-            dao.save(gameEntity, timestamp)
-            Timber.d("Synced game ${gameEntity.name} [${gameEntity.id}]")
+        val games = api.thing(gameId.first(), 1).games
+        games?.forEach { game ->
+            val gameForUpsert = game.mapForUpsert(timestamp)
+            dao.save(gameForUpsert)
+            Timber.d("Synced game $gameForUpsert")
         }
-        gameEntities.size
+        games?.size ?: 0
     }
 
     suspend fun fetchGame(vararg gameId: Int): List<GameEntity> = withContext(Dispatchers.IO) {

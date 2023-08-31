@@ -106,8 +106,6 @@ fun String?.asCurrency(): String {
     }
 }
 
-fun String?.toThingSubtype() = BggService.ThingSubtype.values().find { this == it.code }
-
 fun String?.toSubtype() = GameEntity.Subtype.values().find { this == it.code }
 
 @Suppress("NOTHING_TO_INLINE")

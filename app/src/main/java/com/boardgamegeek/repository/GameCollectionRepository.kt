@@ -261,14 +261,14 @@ class GameCollectionRepository(
             putWishList(statuses, wishListPriority, values)
 
             val gameName = gameDao.load(gameId)?.let { game ->
-                values.put(Collection.Columns.COLLECTION_NAME, game.name)
-                values.put(Collection.Columns.COLLECTION_SORT_NAME, game.sortName)
+                values.put(Collection.Columns.COLLECTION_NAME, game.gameName)
+                values.put(Collection.Columns.COLLECTION_SORT_NAME, game.gameSortName)
                 values.put(Collection.Columns.COLLECTION_YEAR_PUBLISHED, game.yearPublished)
                 values.put(Collection.Columns.COLLECTION_IMAGE_URL, game.imageUrl)
                 values.put(Collection.Columns.COLLECTION_THUMBNAIL_URL, game.thumbnailUrl)
                 values.put(Collection.Columns.COLLECTION_HERO_IMAGE_URL, game.heroImageUrl)
                 values.put(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, System.currentTimeMillis())
-                game.name
+                game.gameName
             }
 
             val internalId = dao.upsertItem(values)
