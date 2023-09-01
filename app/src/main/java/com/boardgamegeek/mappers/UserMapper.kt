@@ -14,7 +14,7 @@ fun UserLocal.mapToEntity() = UserEntity(
     userName = buddyName,
     firstName = buddyFirstName.orEmpty(),
     lastName = buddyLastName.orEmpty(),
-    avatarUrl = if (avatarUrl == BggContract.INVALID_URL) "" else avatarUrl.orEmpty(), // TODO do we store "N/A" in the database?
+    avatarUrl = if (avatarUrl == BggContract.INVALID_URL) "" else avatarUrl.orEmpty(),
     playNickname = playNickname.orEmpty(),
     updatedTimestamp = updatedTimestamp ?: 0L,
 )
