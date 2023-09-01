@@ -1,6 +1,7 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.*
+import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.io.model.Person
 import com.boardgamegeek.io.model.PersonItem
@@ -43,6 +44,18 @@ fun ArtistLocal.mapToArtistEntity() = PersonEntity(
     whitmoreScore = whitmoreScore ?: 0,
     statsUpdatedTimestamp = statsUpdatedTimestamp ?: 0L,
     itemCount = itemCount ?: 0,
+)
+
+fun DesignerBrief.mapToGameDetail() = GameDetailEntity(
+    id = designerId,
+    name = designerName,
+    thumbnailUrl = designerThumbnailUrl.orEmpty(),
+)
+
+fun ArtistBrief.mapToGameDetail() = GameDetailEntity(
+    id = artistId,
+    name = artistName,
+    thumbnailUrl = artistThumbnailUrl.orEmpty(),
 )
 
 fun PersonEntity.mapToArtistBasic() = ArtistBasic(

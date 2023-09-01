@@ -11,10 +11,7 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.db.model.GameForUpsert
-import com.boardgamegeek.db.model.GameLocal
-import com.boardgamegeek.db.model.GameRankLocal
-import com.boardgamegeek.db.model.GameSuggestedPlayerCountPollResultsLocal
+import com.boardgamegeek.db.model.*
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
@@ -273,72 +270,102 @@ class GameDao(private val context: Context) {
         games
     }
 
-    suspend fun loadDesigners(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildDesignersUri(gameId),
-            arrayOf(
-                Designers.Columns.DESIGNER_ID,
-                Designers.Columns.DESIGNER_NAME,
-                Designers.Columns.DESIGNER_THUMBNAIL_URL,
-            )
-        )
-    }
-
-    suspend fun loadArtists(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildArtistsUri(gameId),
-            arrayOf(
-                Artists.Columns.ARTIST_ID,
-                Artists.Columns.ARTIST_NAME,
-                Artists.Columns.ARTIST_THUMBNAIL_URL,
-            )
-        )
-    }
-
-    suspend fun loadPublishers(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildPublishersUri(gameId),
-            arrayOf(
-                Publishers.Columns.PUBLISHER_ID,
-                Publishers.Columns.PUBLISHER_NAME,
-                Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
-            )
-        )
-    }
-
-    suspend fun loadCategories(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildCategoriesUri(gameId),
-            arrayOf(
-                Categories.Columns.CATEGORY_ID,
-                Categories.Columns.CATEGORY_NAME,
-            )
-        )
-    }
-
-    suspend fun loadMechanics(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildMechanicsUri(gameId),
-            arrayOf(
-                Mechanics.Columns.MECHANIC_ID,
-                Mechanics.Columns.MECHANIC_NAME,
-            )
-        )
-    }
-
-    private suspend fun loadDetails(gameId: Int, uri: Uri, projection: Array<String>): List<GameDetailEntity> = withContext(Dispatchers.IO) {
+    suspend fun loadDesigners(gameId: Int): List<DesignerBrief> = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(uri, projection) {
-                val url = if (projection.size > 2) it.getString(2).orEmpty() else ""
-                GameDetailEntity(
+            context.contentResolver.loadList(
+                Games.buildDesignersUri(gameId),
+                arrayOf(
+                    BaseColumns._ID,
+                    Designers.Columns.DESIGNER_ID,
+                    Designers.Columns.DESIGNER_NAME,
+                    Designers.Columns.DESIGNER_THUMBNAIL_URL,
+                )
+            ) {
+                DesignerBrief(
+                    it.getLong(0),
+                    it.getInt(1),
+                    it.getString(2),
+                    it.getStringOrNull(3),
+                )
+            }
+        } else emptyList()
+    }
+
+    suspend fun loadArtists(gameId: Int): List<ArtistBrief> = withContext(Dispatchers.IO) {
+        if (gameId != INVALID_ID) {
+            context.contentResolver.loadList(
+                Games.buildArtistsUri(gameId),
+                arrayOf(
+                     BaseColumns._ID,
+                    Artists.Columns.ARTIST_ID,
+                    Artists.Columns.ARTIST_NAME,
+                    Artists.Columns.ARTIST_THUMBNAIL_URL,
+                )
+            ) {
+                ArtistBrief(
+                    it.getLong(0),
+                    it.getInt(1),
+                    it.getString(2),
+                    it.getStringOrNull(3),
+                )
+            }
+        } else emptyList()
+    }
+
+    suspend fun loadPublishers(gameId: Int): List<PublisherBrief> = withContext(Dispatchers.IO) {
+        if (gameId != INVALID_ID) {
+            context.contentResolver.loadList(
+                Games.buildPublishersUri(gameId),
+                arrayOf(
+                    BaseColumns._ID,
+                    Publishers.Columns.PUBLISHER_ID,
+                    Publishers.Columns.PUBLISHER_NAME,
+                    Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
+                )
+            ) {
+                PublisherBrief(
+                    it.getLong(0),
+                    it.getInt(1),
+                    it.getString(2),
+                    it.getString(3),
+                )
+            }
+        } else emptyList()
+    }
+
+    suspend fun loadCategories(gameId: Int): List<CategoryLocal> = withContext(Dispatchers.IO) {
+        if (gameId != INVALID_ID) {
+            context.contentResolver.loadList(
+                Games.buildCategoriesUri(gameId),
+                arrayOf(
+                    BaseColumns._ID,
+                    Categories.Columns.CATEGORY_ID,
+                    Categories.Columns.CATEGORY_NAME,
+                )
+            ) {
+                CategoryLocal(
                     it.getInt(0),
-                    it.getString(1),
-                    thumbnailUrl = url,
+                    it.getInt(1),
+                    it.getString(2),
+                )
+            }
+        } else emptyList()
+    }
+
+    suspend fun loadMechanics(gameId: Int): List<MechanicLocal> = withContext(Dispatchers.IO) {
+        if (gameId != INVALID_ID) {
+            context.contentResolver.loadList(
+                Games.buildMechanicsUri(gameId),
+                arrayOf(
+                    BaseColumns._ID,
+                    Mechanics.Columns.MECHANIC_ID,
+                    Mechanics.Columns.MECHANIC_NAME,
+                )
+            ) {
+                MechanicLocal(
+                    it.getInt(0),
+                    it.getInt(1),
+                    it.getString(2),
                 )
             }
         } else emptyList()

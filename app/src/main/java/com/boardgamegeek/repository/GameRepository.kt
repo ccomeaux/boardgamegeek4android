@@ -7,9 +7,7 @@ import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapForUpsert
-import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.mappers.mapToRatingEntities
+import com.boardgamegeek.mappers.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -79,15 +77,15 @@ class GameRepository @Inject constructor(
 
     suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId)
 
-    suspend fun getDesigners(gameId: Int) = dao.loadDesigners(gameId)
+    suspend fun getDesigners(gameId: Int) = dao.loadDesigners(gameId).map { it.mapToGameDetail() }
 
-    suspend fun getArtists(gameId: Int) = dao.loadArtists(gameId)
+    suspend fun getArtists(gameId: Int) = dao.loadArtists(gameId).map { it.mapToGameDetail() }
 
-    suspend fun getPublishers(gameId: Int) = dao.loadPublishers(gameId)
+    suspend fun getPublishers(gameId: Int) = dao.loadPublishers(gameId).map { it.mapToGameDetailEntity() }
 
-    suspend fun getCategories(gameId: Int) = dao.loadCategories(gameId)
+    suspend fun getCategories(gameId: Int) = dao.loadCategories(gameId).map { it.mapToGameDetailEntity() }
 
-    suspend fun getMechanics(gameId: Int) = dao.loadMechanics(gameId)
+    suspend fun getMechanics(gameId: Int) = dao.loadMechanics(gameId).map { it.mapToGameDetailEntity() }
 
     suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId)
 
