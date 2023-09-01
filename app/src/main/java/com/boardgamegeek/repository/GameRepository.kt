@@ -1,7 +1,6 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
-import androidx.core.content.contentValuesOf
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
@@ -12,7 +11,6 @@ import com.boardgamegeek.mappers.mapForUpsert
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToRatingEntities
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -57,10 +55,10 @@ class GameRepository @Inject constructor(
     suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.getImageUrls(game.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
-        if (urls?.isNotEmpty() == true) {
-            dao.update(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to urls.first()))
-            game.copy(heroImageUrl = urls.first())
-        } else game
+        urls?.firstOrNull()?.let { url ->
+            dao.updateHeroUrl(game.id, url)
+            game.copy(heroImageUrl = url)
+        } ?: game
     }
 
     suspend fun loadComments(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
@@ -123,7 +121,7 @@ class GameRepository @Inject constructor(
 
     suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
         if (gameId != INVALID_ID) {
-            dao.update(gameId, contentValuesOf(Games.Columns.LAST_VIEWED to lastViewed))
+            dao.updateLastViewed(gameId, lastViewed)
         }
     }
 
@@ -136,24 +134,14 @@ class GameRepository @Inject constructor(
         allPlaysColor: Int
     ) {
         if (gameId != INVALID_ID) {
-            val values = contentValuesOf(
-                Games.Columns.ICON_COLOR to iconColor,
-                Games.Columns.DARK_COLOR to darkColor,
-                Games.Columns.WINS_COLOR to winsColor,
-                Games.Columns.WINNABLE_PLAYS_COLOR to winnablePlaysColor,
-                Games.Columns.ALL_PLAYS_COLOR to allPlaysColor,
-            )
-            val numberOfRowsModified = dao.update(gameId, values)
-            Timber.d(numberOfRowsModified.toString())
+            dao.updateGameColors(gameId, iconColor, darkColor, winsColor, winnablePlaysColor, allPlaysColor)
         }
     }
 
     suspend fun updateColors(gameId: Int, colors: List<String>) = dao.updateColors(gameId, colors)
 
     suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
-        if (gameId != INVALID_ID) {
-            dao.update(gameId, contentValuesOf(Games.Columns.STARRED to if (isFavorite) 1 else 0))
-        }
+        if (gameId != INVALID_ID) dao.updateStarred(gameId, isFavorite)
     }
 
     suspend fun delete(gameId: Int) = dao.delete(gameId)

@@ -489,10 +489,6 @@ class GameDao(private val context: Context) {
         }
     }
 
-    suspend fun update(gameId: Int, values: ContentValues) = withContext(Dispatchers.IO) {
-        resolver.update(Games.buildGameUri(gameId), values, null, null)
-    }
-
     suspend fun save(game: GameForUpsert) = withContext(Dispatchers.IO) {
         if (game.gameName.isBlank()) {
             Timber.w("Missing name from game ID=${game.gameId}")
@@ -586,18 +582,6 @@ class GameDao(private val context: Context) {
         values.putAll(statsValues)
         return values
     }
-
-    // TODO
-//        val isStarred: Boolean?,
-//        val updatedPlays: Long?,
-//        val customPlayerSort: Boolean?,
-//        val heroImageUrl: String?,
-//        val iconColor: Int?,
-//        val darkColor: Int?,
-//        val winsColor: Int?,
-//        val winnablePlaysColor: Int?,
-//        val allPlaysColor: Int?,
-
 
     private suspend fun shouldClearHeroImageUrl(game: GameForUpsert): Boolean = withContext(Dispatchers.IO) {
         resolver.load(Games.buildGameUri(game.gameId), arrayOf(Games.Columns.IMAGE_URL, Games.Columns.THUMBNAIL_URL))?.use {
@@ -815,6 +799,48 @@ class GameDao(private val context: Context) {
         }
         // remove unused associations
         return existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, uriPath, it)).build() }
+    }
+
+    suspend fun updateLastViewed(gameId: Int, lastViewed: Long) {
+        update(gameId, contentValuesOf(Games.Columns.LAST_VIEWED to lastViewed))
+    }
+
+    suspend fun updateHeroUrl(gameId: Int, url: String) {
+        update(gameId, contentValuesOf(Games.Columns.HERO_IMAGE_URL to url))
+    }
+
+    suspend fun updateStarred(gameId: Int, isStarred: Boolean) {
+        update(gameId, contentValuesOf(Games.Columns.STARRED to isStarred))
+    }
+
+    suspend fun updateGameColors(
+        gameId: Int,
+        iconColor: Int,
+        darkColor: Int,
+        winsColor: Int,
+        winnablePlaysColor: Int,
+        allPlaysColor: Int
+    ): Int {
+        val values = contentValuesOf(
+            Games.Columns.ICON_COLOR to iconColor,
+            Games.Columns.DARK_COLOR to darkColor,
+            Games.Columns.WINS_COLOR to winsColor,
+            Games.Columns.WINNABLE_PLAYS_COLOR to winnablePlaysColor,
+            Games.Columns.ALL_PLAYS_COLOR to allPlaysColor,
+        )
+        return update(gameId, values)
+    }
+
+    suspend fun updateGamePlayCount(gameId: Int, playCount: Int) = withContext(Dispatchers.Default) {
+        update(gameId, contentValuesOf(Games.Columns.NUM_PLAYS to playCount))
+    }
+
+    suspend fun updatePlaysSyncedTimestamp(gameId: Int, timestamp: Long) {
+        update(gameId, contentValuesOf(Games.Columns.UPDATED_PLAYS to timestamp))
+    }
+
+    private suspend fun update(gameId: Int, values: ContentValues) = withContext(Dispatchers.IO) {
+        resolver.update(Games.buildGameUri(gameId), values, null, null)
     }
 
     suspend fun updateColors(gameId: Int, colors: List<String>) = withContext(Dispatchers.IO) {

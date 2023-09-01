@@ -7,7 +7,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.StringRes
-import androidx.core.content.contentValuesOf
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -89,7 +88,7 @@ class PlayRepository(
             } while (response.hasMorePages())
 
             playDao.deleteUnupdatedPlays(gameId, timestamp)
-            gameDao.update(gameId, contentValuesOf(Games.Columns.UPDATED_PLAYS to System.currentTimeMillis()))
+            gameDao.updatePlaysSyncedTimestamp(gameId, timestamp)
             calculatePlayStats()
         }
     }
@@ -466,11 +465,12 @@ class PlayRepository(
     suspend fun markAsDeleted(internalId: Long) = playDao.markAsDeleted(internalId)
 
     suspend fun updateGamePlayCount(gameId: Int) = withContext(Dispatchers.Default) {
+        if (gameId == INVALID_ID) return@withContext
         val allPlays = playDao.loadPlaysByGame(gameId)
         val playCount = allPlays
             .filter { it.deleteTimestamp == 0L }
             .sumOf { it.quantity }
-        gameDao.update(gameId, contentValuesOf(Games.Columns.NUM_PLAYS to playCount))
+        gameDao.updateGamePlayCount(gameId, playCount)
     }
 
     suspend fun loadPlayersByLocation(location: String = "") = playDao.loadPlayersByLocation(location).map { it.mapToEntity() }
