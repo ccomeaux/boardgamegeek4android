@@ -14,6 +14,7 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.db.model.GameForUpsert
 import com.boardgamegeek.db.model.GameLocal
+import com.boardgamegeek.db.model.GameRankLocal
 import com.boardgamegeek.db.model.GameSuggestedPlayerCountPollResultsLocal
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
@@ -138,30 +139,33 @@ class GameDao(private val context: Context) {
         } else null
     }
 
-    suspend fun loadRanks(gameId: Int): List<GameRankEntity> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            val uri = Games.buildRanksUri(gameId)
-            context.contentResolver.loadList(
-                uri,
-                arrayOf(
-                    GameRanks.Columns.GAME_RANK_ID,
-                    GameRanks.Columns.GAME_RANK_TYPE,
-                    GameRanks.Columns.GAME_RANK_NAME,
-                    GameRanks.Columns.GAME_RANK_FRIENDLY_NAME,
-                    GameRanks.Columns.GAME_RANK_VALUE,
-                    GameRanks.Columns.GAME_RANK_BAYES_AVERAGE,
-                )
-            ) {
-                GameRankEntity(
-                    id = it.getIntOrNull(0) ?: INVALID_ID,
-                    type = it.getStringOrNull(1).orEmpty(),
-                    name = it.getStringOrNull(2).orEmpty(),
-                    friendlyName = it.getStringOrNull(3).orEmpty(),
-                    value = it.getIntOrNull(4) ?: GameRankEntity.RANK_UNKNOWN,
-                    bayesAverage = it.getDoubleOrNull(5) ?: 0.0,
-                )
-            }
-        } else emptyList()
+    suspend fun loadRanks(gameId: Int): List<GameRankLocal> = withContext(Dispatchers.IO) {
+        if (gameId == INVALID_ID) return@withContext emptyList()
+        val uri = Games.buildRanksUri(gameId)
+        context.contentResolver.loadList(
+            uri,
+            arrayOf(
+                GameRanks.Columns.GAME_RANK_ID,
+                GameRanks.Columns.GAME_RANK_TYPE,
+                GameRanks.Columns.GAME_RANK_NAME,
+                GameRanks.Columns.GAME_RANK_FRIENDLY_NAME,
+                GameRanks.Columns.GAME_RANK_VALUE,
+                GameRanks.Columns.GAME_RANK_BAYES_AVERAGE,
+                GameRanks.Columns.GAME_ID,
+                BaseColumns._ID,
+            )
+        ) {
+            GameRankLocal(
+                internalId = it.getLong(7),
+                gameId = it.getInt(6),
+                gameRankId = it.getIntOrNull(0) ?: INVALID_ID,
+                gameRankType = it.getStringOrNull(1).orEmpty(),
+                gameRankName = it.getStringOrNull(2).orEmpty(),
+                gameFriendlyRankName = it.getStringOrNull(3).orEmpty(),
+                gameRankValue = it.getIntOrNull(4) ?: GameRankLocal.RANK_UNKNOWN,
+                gameRankBayesAverage = it.getDoubleOrNull(5) ?: 0.0,
+            )
+        }
     }
 
     enum class PollType(val code: String) {

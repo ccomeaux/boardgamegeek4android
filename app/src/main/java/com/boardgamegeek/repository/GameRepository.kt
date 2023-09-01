@@ -71,7 +71,7 @@ class GameRepository @Inject constructor(
         response.games.firstOrNull()?.mapToRatingEntities()
     }
 
-    suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId)
+    suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId).map { it.mapToEntity() }
 
     suspend fun getLanguagePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.LANGUAGE_DEPENDENCE)
 

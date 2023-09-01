@@ -111,10 +111,6 @@ class GameFragment : Fragment() {
 
         gameName = game.name
 
-        binding.ranksInclude.rankView.text = game.overallRank.asRank(requireContext(), game.subtype?.code.orEmpty())
-        binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
-        binding.ranksInclude.root.isVisible = true
-
         binding.ratingsInclude.ratingView.text = game.rating.asBoundedRating(context, DecimalFormat("#0.0"), R.string.unrated)
         binding.ratingsInclude.ratingView.setTextViewBackground(game.rating.toColor(BggColors.ratingColors))
         val numberOfRatings = requireContext().getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings)
@@ -164,9 +160,13 @@ class GameFragment : Fragment() {
     }
 
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>) {
+        binding.ranksInclude.rankView.text = gameRanks.find { it.type == GameRankEntity.RankType.Subtype }?.describe(requireContext())
+        binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
+        binding.ranksInclude.root.isVisible = true
+
         val descriptions = gameRanks
-            .filter { it.isFamilyType }
-            .map { it.value.asRank(requireContext(), it.name, it.type) }
+            .filter { it.type == GameRankEntity.RankType.Family }
+            .map { it.describe(requireContext()) }
         binding.ranksInclude.subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
     }
 

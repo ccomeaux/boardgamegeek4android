@@ -11,11 +11,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogGameRanksBinding
+import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameRankRow
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
 class GameRanksDialogFragment : DialogFragment() {
@@ -59,27 +59,22 @@ class GameRanksDialogFragment : DialogFragment() {
             var unRankedSubtype = getText(R.string.game)
 
             gameRankEntities?.forEach { rank ->
-                if (rank.value.isRankValid()) {
-                    val row = GameRankRow(requireContext(), rank.isFamilyType).apply {
-                        setRank(rank.value)
-                        setName(rank.name.asRankDescription(requireContext(), rank.type))
-                        setRatingView(rank.bayesAverage)
-                    }
-                    when {
-                        rank.isSubType -> {
+                if (rank.isRankValid()) {
+                    val row = GameRankRow(requireContext(), rank)
+                    when (rank.type) {
+                        GameRankEntity.RankType.Subtype -> {
                             binding.subtypesView.addView(row)
                             binding.subtypesView.isVisible = true
                             binding.unRankedView.isVisible = false
                             hasRankedSubtype = true
                         }
-                        rank.isFamilyType -> {
+                        GameRankEntity.RankType.Family -> {
                             binding.familiesView.addView(row)
                             binding.familiesView.isVisible = true
                         }
-                        else -> Timber.i("Invalid rank type: ${rank.type}")
                     }
-                } else if (rank.isSubType) {
-                    unRankedSubtype = rank.name.asRankDescription(requireContext(), rank.type)
+                } else if (rank.type == GameRankEntity.RankType.Subtype) {
+                    unRankedSubtype = rank.describeType(requireContext())
                 }
             }
             if (!hasRankedSubtype && unRankedSubtype.isNotEmpty()) {

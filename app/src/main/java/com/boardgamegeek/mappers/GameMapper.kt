@@ -62,20 +62,15 @@ private fun findPrimaryName(from: Game): Pair<String, Int> {
     return (from.names?.find { "primary" == it.type } ?: from.names?.firstOrNull())?.let { it.value to it.sortindex } ?: ("" to 0)
 }
 
-private fun createRanks(from: Game): List<GameRankEntity> {
-    val ranks = mutableListOf<GameRankEntity>()
-    from.statistics?.ranks?.mapTo(ranks) {
-        GameRankEntity(
-            it.id,
-            it.type,
-            it.name,
-            it.friendlyname,
-            it.value.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
-            it.bayesaverage.toDoubleOrNull() ?: 0.0
-        )
-    }
-    return ranks
-}
+private fun createRanks(from: Game) = from.statistics?.ranks?.map {
+    GameRankEntity(
+        if (it.type == BggService.RANK_TYPE_FAMILY) GameRankEntity.RankType.Family else GameRankEntity.RankType.Subtype,
+        it.name,
+        it.friendlyname,
+        it.value.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
+        it.bayesaverage.toDoubleOrNull() ?: 0.0
+    )
+}.orEmpty()
 
 private fun BggService.ThingSubtype?.mapToEntitySubtype(): GameEntity.Subtype? = when (this) {
     BggService.ThingSubtype.BOARDGAME -> GameEntity.Subtype.BOARDGAME
@@ -123,6 +118,14 @@ private fun createPlayerPoll(from: Game): GamePlayerPollEntity? {
     }
     return null
 }
+
+fun GameRankLocal.mapToEntity() = GameRankEntity(
+    if (gameRankType == BggService.RANK_TYPE_FAMILY) GameRankEntity.RankType.Family else GameRankEntity.RankType.Subtype,
+    name = gameRankName,
+    friendlyName = gameFriendlyRankName,
+    value = gameRankValue,
+    bayesAverage = gameRankBayesAverage,
+)
 
 fun Game.mapToRatingEntities(): GameCommentsEntity {
     val list = comments.comments.map {

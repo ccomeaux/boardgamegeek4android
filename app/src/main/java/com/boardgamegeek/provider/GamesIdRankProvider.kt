@@ -4,6 +4,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
 import com.boardgamegeek.provider.BggContract.Companion.PATH_RANKS
@@ -25,6 +26,8 @@ class GamesIdRankProvider : BaseProvider() {
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         return SelectionBuilder()
             .table(Tables.GAMES_RANKS_JOIN_GAMES)
+            .mapToTable(BaseColumns._ID, Tables.GAME_RANKS)
+            .mapToTable(GameRanks.Columns.GAME_ID, Tables.GAME_RANKS)
             .whereEquals("${Tables.GAME_RANKS}.${GameRanks.Columns.GAME_ID}", Games.getGameId(uri))
     }
 
