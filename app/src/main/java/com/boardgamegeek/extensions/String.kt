@@ -1,12 +1,7 @@
 package com.boardgamegeek.extensions
 
-import android.content.Context
 import android.net.Uri
-import androidx.annotation.StringRes
-import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.io.BggService
 import timber.log.Timber
 import java.text.DateFormat
 import java.util.*
