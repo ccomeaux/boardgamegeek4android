@@ -64,7 +64,6 @@ class BggContract {
             const val PLAYER_COUNTS_NOT_RECOMMENDED = "player_count_nots_recommended"
             const val UPDATED = COL_UPDATED
             const val UPDATED_LIST = COL_UPDATED_LIST
-            const val POLLS_COUNT = "polls_count"
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build()

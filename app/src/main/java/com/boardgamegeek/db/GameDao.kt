@@ -79,7 +79,6 @@ class GameDao(private val context: Context) {
                     Games.Columns.PLAYER_COUNTS_BEST,
                     Games.Columns.PLAYER_COUNTS_RECOMMENDED,
                     Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED,
-                    // TODO what about pollsCount?
                 )
             ) {
                 GameLocal(

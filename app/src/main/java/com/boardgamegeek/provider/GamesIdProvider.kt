@@ -14,10 +14,8 @@ class GamesIdProvider : BaseProvider() {
     private val provider = GamesProvider()
     override fun buildExpandedSelection(uri: Uri): SelectionBuilder {
         val gameId = Games.getGameId(uri)
-        val gamePollsCount = "(SELECT COUNT(${GamePolls.Columns.POLL_NAME}) FROM ${Tables.GAME_POLLS} WHERE ${Tables.GAME_POLLS}.${GamePolls.Columns.GAME_ID}=${Tables.GAMES}.${Games.Columns.GAME_ID})"
         return SelectionBuilder()
             .table(Tables.GAMES)
-            .map(Games.Columns.POLLS_COUNT, gamePollsCount)
             .whereEquals("${Tables.GAMES}.${Games.Columns.GAME_ID}", gameId)
     }
 
