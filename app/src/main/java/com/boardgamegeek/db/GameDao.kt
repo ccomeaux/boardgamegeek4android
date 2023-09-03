@@ -376,13 +376,14 @@ class GameDao(private val context: Context) {
         } else emptyList()
     }
 
-    suspend fun loadExpansions(gameId: Int, inbound: Boolean = false): List<GameExpansionsEntity> =
+    suspend fun loadExpansions(gameId: Int, inbound: Boolean = false): List<GamesExpansionLocal> =
         withContext(Dispatchers.IO) {
-            val results = arrayListOf<GameExpansionsEntity>()
             if (gameId != INVALID_ID) {
                 val briefResults = context.contentResolver.loadList(
                     Games.buildExpansionsUri(gameId),
                     arrayOf(
+                        BaseColumns._ID,
+                        GamesExpansions.Columns.GAME_ID,
                         GamesExpansions.Columns.EXPANSION_ID,
                         GamesExpansions.Columns.EXPANSION_NAME,
                         Games.Columns.THUMBNAIL_URL,
@@ -390,54 +391,16 @@ class GameDao(private val context: Context) {
                     selection = "${GamesExpansions.Columns.INBOUND}=?",
                     selectionArgs = arrayOf(if (inbound) "1" else "0")
                 ) {
-                    GameExpansionsEntity(
-                        it.getInt(0),
-                        it.getString(1),
-                        it.getString(2).orEmpty(),
+                    GamesExpansionLocal(
+                        it.getLong(0),
+                        it.getInt(1),
+                        it.getInt(2),
+                        it.getString(3),
+                        it.getBooleanOrNull(4),
                     )
                 }
-                for (result in briefResults) {
-                    val resultsWithCollectionInfo = context.contentResolver.loadList(
-                        Collection.CONTENT_URI,
-                        projection = arrayOf(
-                            Collection.Columns.STATUS_OWN,
-                            Collection.Columns.STATUS_PREVIOUSLY_OWNED,
-                            Collection.Columns.STATUS_PREORDERED,
-                            Collection.Columns.STATUS_FOR_TRADE,
-                            Collection.Columns.STATUS_WANT,
-                            Collection.Columns.STATUS_WANT_TO_PLAY,
-                            Collection.Columns.STATUS_WANT_TO_BUY,
-                            Collection.Columns.STATUS_WISHLIST,
-                            Collection.Columns.STATUS_WISHLIST_PRIORITY,
-                            Games.Columns.NUM_PLAYS,
-                            Collection.Columns.RATING,
-                            Collection.Columns.COMMENT
-                        ),
-                        selection = "collection.${Collection.Columns.GAME_ID}=?",
-                        selectionArgs = arrayOf(result.id.toString())
-                    ) {
-                        result.copy(
-                            own = it.getBoolean(0),
-                            previouslyOwned = it.getBoolean(1),
-                            preOrdered = it.getBoolean(2),
-                            forTrade = it.getBoolean(3),
-                            wantInTrade = it.getBoolean(4),
-                            wantToPlay = it.getBoolean(5),
-                            wantToBuy = it.getBoolean(6),
-                            wishList = it.getBoolean(7),
-                            wishListPriority = it.getIntOrNull(8) ?: GameExpansionsEntity.WISHLIST_PRIORITY_UNKNOWN,
-                            numberOfPlays = it.getIntOrNull(9) ?: 0,
-                            rating = it.getDoubleOrNull(10) ?: 0.0,
-                            comment = it.getStringOrNull(11).orEmpty(),
-                        )
-                    }
-                    if (resultsWithCollectionInfo.isEmpty())
-                        results += result
-                    else
-                        results += resultsWithCollectionInfo
-                }
-            }
-            results
+                briefResults
+            } else emptyList()
         }
 
     suspend fun loadPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {

@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
@@ -22,6 +23,7 @@ class GameRepository @Inject constructor(
 ) {
     private val dao = GameDao(context)
     private val playDao = PlayDao(context)
+    private val collectionDao = CollectionDao(context)
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)?.mapToEntity()
 
@@ -88,9 +90,15 @@ class GameRepository @Inject constructor(
 
     suspend fun getMechanics(gameId: Int) = dao.loadMechanics(gameId).map { it.mapToGameDetailEntity() }
 
-    suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId)
+    suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId).map { entity ->
+        val items = collectionDao.loadByGame(entity.expansionId)
+        entity.mapToEntity(items)
+    }
 
-    suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
+    suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true).map { entity ->
+        val items = collectionDao.loadByGame(entity.expansionId)
+        entity.mapToEntity(items)
+    }
 
     suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId).map { it.mapToEntity() }
 

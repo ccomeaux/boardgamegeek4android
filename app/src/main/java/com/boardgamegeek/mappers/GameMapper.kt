@@ -192,6 +192,24 @@ fun GameSuggestedPlayerCountPollResultsLocal.mapToEntity() = GamePlayerPollResul
     recommendation = recommendation ?: GamePlayerPollResultsEntity.NOT_RECOMMENDED,
 )
 
+fun GamesExpansionLocal.mapToEntity(items: List<CollectionItemEntity>) = GameExpansionsEntity(
+    id = expansionId,
+    name = expansionName,
+    thumbnailUrl = items.firstOrNull()?.gameThumbnailUrl.orEmpty(),
+    own = items.any { it.own },
+    previouslyOwned = items.any { it.previouslyOwned },
+    preOrdered = items.any { it.preOrdered },
+    forTrade = items.any { it.forTrade },
+    wantInTrade = items.any { it.wantInTrade },
+    wantToPlay = items.any { it.wantToPlay },
+    wantToBuy = items.any { it.wantToBuy },
+    wishList = items.any { it.wishList },
+    wishListPriority = if (items.isEmpty()) GameExpansionsEntity.WISHLIST_PRIORITY_UNKNOWN else items.minOf { it.wishListPriority },
+    numberOfPlays = items.firstOrNull()?.numberOfPlays ?: 0,
+    rating = if (items.isEmpty()) GameExpansionsEntity.UNRATED else items.maxOf { it.rating },
+    comment = items.firstOrNull()?.comment.orEmpty(),
+)
+
 @Suppress("SpellCheckingInspection")
 fun Game.mapForUpsert(updated: Long): GameForUpsert {
     val (primaryName, sortIndex) = findPrimaryName(this)

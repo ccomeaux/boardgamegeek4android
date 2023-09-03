@@ -52,6 +52,8 @@ class CollectionDao(private val context: Context) {
         }
     }
 
+    suspend fun loadByGame(gameId: Int) = load("collection.${Collection.Columns.GAME_ID}=?", arrayOf(gameId.toString()))
+
     private fun entityFromCursor(cursor: Cursor): CollectionItemEntity {
         val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val acquisitionDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
