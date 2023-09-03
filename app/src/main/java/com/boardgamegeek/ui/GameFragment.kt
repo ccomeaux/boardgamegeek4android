@@ -66,7 +66,9 @@ class GameFragment : Fragment() {
                 viewModel.ranks.observe(viewLifecycleOwner) { it?.let { onRankQueryComplete(it) } }
                 viewModel.languagePoll.observe(viewLifecycleOwner) { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) }
                 viewModel.agePoll.observe(viewLifecycleOwner) { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) }
-                viewModel.playerPoll.observe(viewLifecycleOwner) { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) }
+                viewModel.playerPoll.observe(viewLifecycleOwner) {
+                    it?.let { onPlayerCountQueryComplete(it) }
+                }
             }
         }
     }
@@ -131,6 +133,9 @@ class GameFragment : Fragment() {
         binding.playerRangeInclude.playerCountView.text =
             requireContext().getQuantityText(R.plurals.player_range_suffix, game.minPlayers, (game.minPlayers to game.maxPlayers).asRange())
         binding.playerRangeInclude.root.isVisible = true
+        binding.playerRangeInclude.playerCountContainer.setOrClearOnClickListener(game.suggestedPlayerCountPollVoteTotal > 0) {
+            GameSuggestedPlayerCountPollDialogFragment.launch(this)
+        }
 
         binding.agesInclude.playerAgeView.text = game.minimumAge.asAge(context)
         binding.agesInclude.root.isVisible = true
@@ -203,14 +208,9 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun onPlayerCountQueryComplete(entity: GamePlayerPollEntity?) {
-        val bestCounts = entity?.results
-            ?.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST }
-            ?.toSet() ?: emptySet()
-        val goodCounts = entity?.results
-            ?.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST || it.calculatedRecommendation == GamePlayerPollResultsEntity.RECOMMENDED }
-            ?.toSet() ?: emptySet()
-        val voteCount = entity?.totalVotes ?: 0
+    private fun onPlayerCountQueryComplete(entity: List<GamePlayerPollResultsEntity>) {
+        val bestCounts = entity.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST }.toSet()
+        val goodCounts = entity.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST || it.calculatedRecommendation == GamePlayerPollResultsEntity.RECOMMENDED }.toSet()
 
         val best = requireContext().getText(R.string.best_prefix, bestCounts.toList().asRange())
         val good = requireContext().getText(R.string.recommended_prefix, goodCounts.toList().asRange())
@@ -221,9 +221,6 @@ class GameFragment : Fragment() {
             else -> ""
         }
         binding.playerRangeInclude.playerCountCommunityView.setTextOrHide(communityText)
-        binding.playerRangeInclude.playerCountContainer.setOrClearOnClickListener(voteCount > 0) {
-            GameSuggestedPlayerCountPollDialogFragment.launch(this)
-        }
     }
 
     private fun List<GamePlayerPollResultsEntity>.asRange(comma: String = ", ", dash: String = " - "): String {

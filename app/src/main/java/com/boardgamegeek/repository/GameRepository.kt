@@ -5,6 +5,7 @@ import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.GameCommentsEntity
 import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.*
@@ -71,11 +72,11 @@ class GameRepository @Inject constructor(
 
     suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId).map { it.mapToEntity() }
 
-    suspend fun getLanguagePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.LANGUAGE_DEPENDENCE)
+    suspend fun getLanguagePoll(gameId: Int) = GamePollEntity(dao.loadPoll(gameId, GameDao.PollType.LANGUAGE_DEPENDENCE).map { it.mapToEntity() })
 
-    suspend fun getAgePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.SUGGESTED_PLAYER_AGE)
+    suspend fun getAgePoll(gameId: Int) = GamePollEntity(dao.loadPoll(gameId, GameDao.PollType.SUGGESTED_PLAYER_AGE).map { it.mapToEntity() })
 
-    suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId)
+    suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId).map { it.mapToEntity() }
 
     suspend fun getDesigners(gameId: Int) = dao.loadDesigners(gameId).map { it.mapToGameDetail() }
 

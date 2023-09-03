@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.SQLException
 import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.provider.BaseColumns
 import com.boardgamegeek.provider.BggContract.Companion.PATH_GAMES
 import com.boardgamegeek.provider.BggContract.Companion.PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS
 import com.boardgamegeek.provider.BggContract.GameSuggestedPlayerCountPollPollResults
@@ -31,6 +32,8 @@ class GamesIdSuggestedPlayerCountPollResultsProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         return SelectionBuilder()
             .table(Tables.POLLS_JOIN_GAMES)
+            .mapToTable(BaseColumns._ID, Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
+            .mapToTable(GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID, Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
             .whereEquals("${Tables.GAMES}.${Games.Columns.GAME_ID}", gameId)
     }
 
@@ -38,8 +41,8 @@ class GamesIdSuggestedPlayerCountPollResultsProvider : BaseProvider() {
         val gameId = Games.getGameId(uri)
         values.put(GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID, gameId)
         try {
-            val roeId = db.insertOrThrow(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, null, values)
-            if (roeId != -1L) {
+            val rowId = db.insertOrThrow(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, null, values)
+            if (rowId != -1L) {
                 return Games.buildSuggestedPlayerCountPollResultsUri(gameId, values.getAsString(PLAYER_COUNT))
             }
         } catch (e: SQLException) {

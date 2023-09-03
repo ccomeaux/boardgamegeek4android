@@ -26,6 +26,7 @@ class GameSuggestedPlayerCountPollDialogFragment : DialogFragment() {
     private var _binding: FragmentPollSuggestedPlayerCountBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
+    private var totalVoteCount = 0
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -42,39 +43,40 @@ class GameSuggestedPlayerCountPollDialogFragment : DialogFragment() {
         addKeyRow(R.color.recommended, R.string.recommended)
         addKeyRow(R.color.not_recommended, R.string.not_recommended)
 
+        viewModel.game.observe(viewLifecycleOwner) {
+            totalVoteCount = it.data?.suggestedPlayerCountPollVoteTotal ?: 0
+            binding.totalVoteView.text = resources.getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount)
+
+            binding.pollList.isVisible = totalVoteCount > 0
+            binding.keyContainer.isVisible = totalVoteCount > 0
+            binding.noVotesSwitch.isVisible = totalVoteCount > 0
+        }
+
         viewModel.playerPoll.observe(viewLifecycleOwner) {
             it?.let { entity ->
-                val totalVoteCount = entity.totalVotes
-                binding.totalVoteView.text = resources.getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount)
-
-                binding.pollList.isVisible = totalVoteCount > 0
-                binding.keyContainer.isVisible = totalVoteCount > 0
-                binding.noVotesSwitch.isVisible = totalVoteCount > 0
-                if (totalVoteCount > 0) {
-                    binding.pollList.removeAllViews()
-                    for ((_, playerCount, bestVoteCount, recommendedVoteCount, notRecommendedVoteCount) in entity.results) {
-                        val row = PlayerNumberRow(requireContext()).apply {
-                            setText(playerCount)
-                            setVotes(bestVoteCount, recommendedVoteCount, notRecommendedVoteCount, totalVoteCount)
-                            setOnClickListener { view ->
-                                binding.pollList.children.forEach { v ->
-                                    (v as? PlayerNumberRow)?.clearHighlight()
-                                }
-                                (view as? PlayerNumberRow)?.let { playerNumberRow ->
-                                    playerNumberRow.setHighlight()
-                                    binding.keyContainer.children.forEachIndexed { index, view ->
-                                        view.findViewById<TextView>(R.id.infoView).text = playerNumberRow.votes[index].toString()
-                                    }
+                binding.pollList.removeAllViews()
+                for ((_, playerCount, bestVoteCount, recommendedVoteCount, notRecommendedVoteCount) in entity) {
+                    val row = PlayerNumberRow(requireContext()).apply {
+                        setText(playerCount)
+                        setVotes(bestVoteCount, recommendedVoteCount, notRecommendedVoteCount, totalVoteCount)
+                        setOnClickListener { view ->
+                            binding.pollList.children.forEach { v ->
+                                (v as? PlayerNumberRow)?.clearHighlight()
+                            }
+                            (view as? PlayerNumberRow)?.let { playerNumberRow ->
+                                playerNumberRow.setHighlight()
+                                binding.keyContainer.children.forEachIndexed { index, view ->
+                                    view.findViewById<TextView>(R.id.infoView).text = playerNumberRow.votes[index].toString()
                                 }
                             }
                         }
-                        binding.pollList.addView(row)
                     }
+                    binding.pollList.addView(row)
+                }
 
-                    binding.noVotesSwitch.setOnClickListener {
-                        binding.pollList.children.forEach { row ->
-                            (row as? PlayerNumberRow)?.showNoVotes(binding.noVotesSwitch.isChecked)
-                        }
+                binding.noVotesSwitch.setOnClickListener {
+                    binding.pollList.children.forEach { row ->
+                        (row as? PlayerNumberRow)?.showNoVotes(binding.noVotesSwitch.isChecked)
                     }
                 }
 

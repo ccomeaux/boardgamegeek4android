@@ -102,11 +102,10 @@ private fun createPolls(from: Game): List<GameEntity.Poll> {
     return polls
 }
 
-private fun createPlayerPoll(from: Game): GamePlayerPollEntity? {
-    from.polls?.find { it.name == PLAYER_POLL_NAME }?.let { poll ->
-        val results = mutableListOf<GamePlayerPollResultsEntity>()
-        poll.results.forEach { playerCount ->
-            results += GamePlayerPollResultsEntity(
+private fun createPlayerPoll(from: Game): List<GamePlayerPollResultsEntity> {
+    return from.polls?.find { it.name == PLAYER_POLL_NAME }?.let { poll ->
+        poll.results.map { playerCount ->
+            GamePlayerPollResultsEntity(
                 totalVotes = poll.totalvotes,
                 playerCount = playerCount.numplayers,
                 bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0,
@@ -114,9 +113,7 @@ private fun createPlayerPoll(from: Game): GamePlayerPollEntity? {
                 notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0,
             )
         }
-        return GamePlayerPollEntity(results)
-    }
-    return null
+    } ?: emptyList()
 }
 
 fun GameRankLocal.mapToEntity() = GameRankEntity(
@@ -178,6 +175,21 @@ fun GameLocal.mapToEntity() = GameEntity(
     winsColor = winsColor ?: Color.TRANSPARENT,
     winnablePlaysColor = winnablePlaysColor ?: Color.TRANSPARENT,
     allPlaysColor = allPlaysColor ?: Color.TRANSPARENT,
+)
+
+fun GamePollResultsResultLocal.mapToEntity() = GamePollResultEntity(
+    level = pollResultsResultLevel ?: BggContract.INVALID_ID,
+    value = pollResultsResultValue,
+    numberOfVotes = pollResultsResultVotes,
+)
+
+fun GameSuggestedPlayerCountPollResultsLocal.mapToEntity() = GamePlayerPollResultsEntity(
+    totalVotes = 0,
+    playerCount = playerCount,
+    bestVoteCount = bestVoteCount,
+    recommendedVoteCount = recommendedVoteCount,
+    notRecommendedVoteCount = notRecommendedVoteCount,
+    recommendation = recommendation ?: GamePlayerPollResultsEntity.NOT_RECOMMENDED,
 )
 
 @Suppress("SpellCheckingInspection")
@@ -265,9 +277,9 @@ fun Game.mapForUpsert(updated: Long): GameForUpsert {
         numberOfUsersWeighting = statistics?.numweights?.toIntOrNull(),
         averageWeight = statistics?.averageweight?.toDoubleOrNull(),
         suggestedPlayerCountPollVoteTotal = this.polls.find { it.name == PLAYER_POLL_NAME }?.totalvotes,
-        playerCountsBest = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.BEST }?.map { it.playerCount }.orEmpty().toSet().forDatabase(GamePlayerPollEntity.separator),
-        playerCountsRecommended = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.RECOMMENDED }?.map { it.playerCount }.orEmpty().toSet().forDatabase(GamePlayerPollEntity.separator),
-        playerCountsNotRecommended = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.NOT_RECOMMENDED }?.map { it.playerCount }.orEmpty().toSet().forDatabase(GamePlayerPollEntity.separator),
+        playerCountsBest = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.BEST }?.map { it.playerCount }.orEmpty().toSet().forDatabase(),
+        playerCountsRecommended = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.RECOMMENDED }?.map { it.playerCount }.orEmpty().toSet().forDatabase(),
+        playerCountsNotRecommended = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.NOT_RECOMMENDED }?.map { it.playerCount }.orEmpty().toSet().forDatabase(),
         ranks = ranks,
         polls = polls,
         playerPoll = playerPoll,
@@ -281,3 +293,5 @@ fun Game.mapForUpsert(updated: Long): GameForUpsert {
 }
 
 fun String?.toThingSubtype() = BggService.ThingSubtype.values().find { this == it.code }
+
+fun <T> Iterable<T>.forDatabase(delimiter: String = "|") = this.joinToString(delimiter, prefix = delimiter, postfix = delimiter)

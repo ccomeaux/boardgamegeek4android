@@ -169,50 +169,56 @@ class GameDao(private val context: Context) {
         SUGGESTED_PLAYER_AGE("suggested_playerage"),
     }
 
-    suspend fun loadPoll(gameId: Int, pollType: PollType): GamePollEntity? = withContext(Dispatchers.IO) {
+    suspend fun loadPoll(gameId: Int, pollType: PollType): List<GamePollResultsResultLocal> = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
-            val results = context.contentResolver.loadList(
+            context.contentResolver.loadList(
                 Games.buildPollResultsResultUri(gameId, pollType.code),
                 arrayOf(
+                    BaseColumns._ID,
+                    GamePollResultsResult.Columns.POLL_RESULTS_ID,
                     GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL,
                     GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE,
                     GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES,
+                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_SORT_INDEX,
                 )
             ) {
-                GamePollResultEntity(
-                    level = it.getIntOrNull(0) ?: 0,
-                    value = it.getStringOrNull(1).orEmpty(),
-                    numberOfVotes = it.getIntOrNull(2) ?: 0,
+                GamePollResultsResultLocal(
+                    internalId = it.getLong(0),
+                    pollResultsId = it.getInt(1),
+                    pollResultsResultLevel = it.getInt(2),
+                    pollResultsResultValue = it.getString(3),
+                    pollResultsResultVotes = it.getInt(4),
+                    pollResultsResulSortIndex = it.getInt(5),
                 )
             }
-            GamePollEntity(results)
-        } else null
+        } else emptyList()
     }
 
-    suspend fun loadPlayerPoll(gameId: Int): GamePlayerPollEntity? = withContext(Dispatchers.IO) {
+    suspend fun loadPlayerPoll(gameId: Int): List<GameSuggestedPlayerCountPollResultsLocal> = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
-            val results = context.contentResolver.loadList(
+            context.contentResolver.loadList(
                 Games.buildSuggestedPlayerCountPollResultsUri(gameId),
                 arrayOf(
-                    Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                    GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID,
                     GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT,
                     GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT,
                     GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT,
                     GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT,
-                    GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION,
+                    BaseColumns._ID,
+                    GameSuggestedPlayerCountPollPollResults.Columns.SORT_INDEX,
                 )
             ) {
-                GamePlayerPollResultsEntity(
-                    totalVotes = it.getIntOrNull(0) ?: 0,
+                GameSuggestedPlayerCountPollResultsLocal(
+                    internalId = it.getLong(5),
+                    gameId = it.getInt(0),
                     playerCount = it.getStringOrNull(1).orEmpty(),
+                    sortIndex = it.getInt(6),
                     bestVoteCount = it.getIntOrNull(2) ?: 0,
                     recommendedVoteCount = it.getIntOrNull(3) ?: 0,
                     notRecommendedVoteCount = it.getIntOrNull(4) ?: 0,
-                    recommendation = it.getIntOrNull(5) ?: GamePlayerPollResultsEntity.UNKNOWN,
                 )
             }
-            GamePlayerPollEntity(results)
-        } else null
+        } else emptyList()
     }
 
     suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> = withContext(Dispatchers.IO) {

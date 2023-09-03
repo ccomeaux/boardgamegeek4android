@@ -46,7 +46,7 @@ data class GameEntity(
     val winnablePlaysColor: Int = Color.TRANSPARENT,
     val allPlaysColor: Int = Color.TRANSPARENT,
     val polls: List<Poll> = emptyList(),
-    val playerPoll: GamePlayerPollEntity? = null,
+    val playerPoll: List<GamePlayerPollResultsEntity> = emptyList(),
     val designers: List<Pair<Int, String>> = emptyList(),
     val artists: List<Pair<Int, String>> = emptyList(),
     val publishers: List<Pair<Int, String>> = emptyList(),

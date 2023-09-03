@@ -151,7 +151,10 @@ class GameViewModel @Inject constructor(
     val playerPoll = game.switchMap {
         liveData {
             emit(it.data?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getPlayerPoll(it.id)
+                if (it.id == BggContract.INVALID_ID)
+                    emptyList()
+                else
+                    gameRepository.getPlayerPoll(it.id)
             })
         }.distinctUntilChanged()
     }
