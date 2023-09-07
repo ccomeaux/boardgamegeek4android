@@ -277,7 +277,9 @@ class PlayRepository(
         includeExpansions: Boolean,
         includeAccessories: Boolean
     ): List<GameForPlayStatEntity> = withContext(Dispatchers.IO) {
-        val games = if (!syncPrefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
+        val games = if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
+            gameDao.loadGamesForPlayStats(includeIncompletePlays, includeExpansions, includeAccessories).filter { it.playCount > 0 }
+        } else {
             // If played games aren't synced, count the plays instead
             // We can't respect the expansion/accessory flags, so we include them all
             val allPlays = playDao.loadPlays().filter { it.deleteTimestamp == 0L }
@@ -292,7 +294,7 @@ class PlayRepository(
                     playCount = it.value,
                 )
             }
-        } else gameDao.loadGamesForPlayStats(includeIncompletePlays, includeExpansions, includeAccessories).filter { it.playCount > 0 }
+        }
         if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_OWN)) {
             val items = collectionDao.load()
             games.map {
@@ -300,7 +302,7 @@ class PlayRepository(
                 if (it.bggRank == GameRankEntity.RANK_UNKNOWN) {
                     items.find { item -> item.gameId == it.id && item.own }?.let { item ->
                         it.copy(isOwned = isOwned, bggRank = item.rank)
-                    } ?: it
+                    } ?: it.copy(isOwned = isOwned)
                 } else {
                     it.copy(isOwned = isOwned)
                 }

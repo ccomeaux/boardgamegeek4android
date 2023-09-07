@@ -55,11 +55,13 @@ fun Double.toColor(colors: List<Int>, defaultColor: Int = Color.TRANSPARENT): In
     }
 }
 
+// exponential distribution cumulative distribution function
 fun Double.cdf(lambda: Double): Double {
     return 1.0 - exp(-1.0 * lambda * this)
 }
 
-fun Double.invcdf(lambda: Double): Double {
+// inverse exponential distribution cumulative distribution function
+fun Double.inverseCdf(lambda: Double): Double {
     return -ln(1.0 - this) / lambda
 }
 

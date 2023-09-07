@@ -1,7 +1,7 @@
 package com.boardgamegeek.entities
 
 import com.boardgamegeek.extensions.cdf
-import com.boardgamegeek.extensions.invcdf
+import com.boardgamegeek.extensions.inverseCdf
 import kotlin.math.ln
 
 class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private val isOwnedSynced: Boolean) {
@@ -10,7 +10,7 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
         const val INVALID_UTILIZATION = -1.0
         const val INVALID_CFM = -1.0
         private const val PLAY_COUNT_TO_EARN_KEEP = 10
-        val lambda = ln(0.1) / -10
+        private val lambda = ln(0.1) / -10
     }
 
     val numberOfPlays: Int by lazy {
@@ -55,26 +55,31 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
     }
 
     val friendless: Int by lazy {
+        val numberOfOwnedGamesThatHaveEarnedTheirKeep = ownedGames.filter { it.playCount >= PLAY_COUNT_TO_EARN_KEEP }.size
+        val numberOfOwnedUnplayedGames = ownedGames.filter { it.playCount == 0 }.size
         when {
             !isOwnedSynced -> INVALID_FRIENDLESS
             numberOfOwnedGames == 0 -> 0
-            numberOfOwnedGamesThatHaveEarnedTheirKeep >= ownedGamePlayCountsSorted.size -> ownedGamePlayCountsSorted.last().playCount
+            numberOfOwnedGamesThatHaveEarnedTheirKeep >= ownedGames.size -> ownedGames.minOfOrNull { it.playCount } ?: 0
             else -> {
-                val friendless = ownedGamePlayCountsSorted[ownedGamePlayCountsSorted.lastIndex - numberOfOwnedGamesThatHaveEarnedTheirKeep].playCount
+                val friendless = ownedGames.sortedByDescending { it.playCount }[ownedGames.lastIndex - numberOfOwnedGamesThatHaveEarnedTheirKeep].playCount
                 if (friendless == 0) numberOfOwnedGamesThatHaveEarnedTheirKeep - numberOfOwnedUnplayedGames else friendless
             }
         }
     }
 
     val cfm: Double by lazy {
+        // continuous Friendless metric
         when {
             !isOwnedSynced -> INVALID_CFM
             numberOfOwnedGames == 0 -> 0.0
-            else -> (totalCdf / numberOfOwnedGames).invcdf(lambda)
+            else -> (totalCdf / numberOfOwnedGames).inverseCdf(lambda)
         }
     }
 
     val utilization: Double by lazy {
+        // “the amount of novelty you've gained from that game compared to all the novelty that can ever be had”
+        // every 10 plays utilizes another 90%
         when {
             !isOwnedSynced -> INVALID_UTILIZATION
             numberOfOwnedGames == 0 -> 0.0
@@ -82,23 +87,15 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
         }
     }
 
-    private val numberOfOwnedGames: Int by lazy {
-        games.filter { it.isOwned }.size
-    }
-
-    private val numberOfOwnedGamesThatHaveEarnedTheirKeep: Int by lazy {
-        games.filter { it.isOwned && it.playCount >= PLAY_COUNT_TO_EARN_KEEP }.size
-    }
-
-    private val numberOfOwnedUnplayedGames: Int by lazy {
-        games.filter { it.isOwned && it.playCount == 0 }.size
-    }
-
-    private val ownedGamePlayCountsSorted: List<GameForPlayStatEntity> by lazy {
+    private val ownedGames: List<GameForPlayStatEntity> by lazy {
         games.filter { it.isOwned }
     }
 
+    private val numberOfOwnedGames: Int by lazy {
+        ownedGames.size
+    }
+
     private val totalCdf: Double by lazy {
-        games.asSequence().filter { it.isOwned }.sumOf { it.playCount.toDouble().cdf(lambda) }
+        ownedGames.sumOf { it.playCount.toDouble().cdf(lambda) }
     }
 }
