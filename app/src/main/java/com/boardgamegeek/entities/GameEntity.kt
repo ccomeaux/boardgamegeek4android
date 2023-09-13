@@ -54,6 +54,12 @@ data class GameEntity(
     val mechanics: List<Pair<Int, String>> = emptyList(),
     val expansions: List<Triple<Int, String, Boolean>> = emptyList(),
     val families: List<Pair<Int, String>> = emptyList(),
+    val playerCountsBest: String?,
+    val playerCountsRecommended: String?,
+    val playerCountsNotRecommended: String?,
+    val lastViewedTimestamp: Long,
+    val lastPlayTimestamp: Long?,
+    val numberOfPlays: Int,
 ) {
     class Poll {
         var name: String = ""

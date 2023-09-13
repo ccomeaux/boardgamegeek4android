@@ -1,7 +1,10 @@
 package com.boardgamegeek.mappers
 
+import android.graphics.Color
+import com.boardgamegeek.db.model.CollectionItemLocal
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
+import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
@@ -167,3 +170,79 @@ private fun CollectionItemEntity.mapToFormBodyBuilder(): FormBody.Builder {
     if (collectionId != BggContract.INVALID_ID) builder.add("collid", collectionId.toString())
     return builder
 }
+
+fun CollectionItemLocal.mapToEntity(gameEntity: GameEntity?) = CollectionItemEntity(
+    internalId = internalId,
+    gameId = gameId,
+    gameName = gameEntity?.name.orEmpty(),
+    collectionId = collectionId,
+    collectionName = collectionName,
+    sortName = collectionSortName,
+    gameYearPublished = gameEntity?.yearPublished ?: CollectionItemEntity.YEAR_UNKNOWN,
+    collectionYearPublished = collectionYearPublished ?: CollectionItemEntity.YEAR_UNKNOWN,
+    imageUrl = collectionImageUrl.orEmpty(),
+    thumbnailUrl = collectionThumbnailUrl.orEmpty(),
+    heroImageUrl = collectionHeroImageUrl.orEmpty(),
+    gameImageUrl = gameEntity?.imageUrl.orEmpty(),
+    gameThumbnailUrl = gameEntity?.thumbnailUrl.orEmpty(),
+    gameHeroImageUrl = gameEntity?.heroImageUrl.orEmpty(),
+    averageRating = gameEntity?.rating ?: CollectionItemEntity.UNRATED,
+    rating = rating ?: CollectionItemEntity.UNRATED,
+    own = statusOwn == 1,
+    previouslyOwned = statusPreviouslyOwned == 1,
+    forTrade = statusForTrade == 1,
+    wantInTrade = statusWant == 1,
+    wantToPlay = statusWantToPlay == 1,
+    wantToBuy = statusWantToBuy == 1,
+    wishList = statusWishlist == 1,
+    wishListPriority = statusWishlistPriority ?: CollectionItemEntity.WISHLIST_PRIORITY_UNKNOWN,
+    preOrdered = statusPreordered == 1,
+    lastModifiedDate = lastModified ?: 0L,
+    lastViewedDate = gameEntity?.lastViewedTimestamp ?: 0L,
+    numberOfPlays = gameEntity?.numberOfPlays ?: 0,
+    pricePaidCurrency = privateInfoPricePaidCurrency.orEmpty(),
+    pricePaid = privateInfoPricePaid ?: 0.0,
+    currentValueCurrency = privateInfoCurrentValueCurrency.orEmpty(),
+    currentValue = privateInfoCurrentValue ?: 0.0,
+    quantity = privateInfoQuantity ?: 1,
+    acquisitionDate = privateInfoAcquisitionDate.toMillis(SimpleDateFormat("yyyy-MM-dd", Locale.US)),
+    acquiredFrom = privateInfoAcquiredFrom.orEmpty(),
+    privateComment = privateInfoComment.orEmpty(),
+    inventoryLocation = privateInfoInventoryLocation.orEmpty(),
+    comment = comment.orEmpty(),
+    conditionText = condition.orEmpty(),
+    wantPartsList = wantpartsList.orEmpty(),
+    hasPartsList = haspartsList.orEmpty(),
+    wishListComment = wishlistComment.orEmpty(),
+    syncTimestamp = updatedTimestamp ?: 0L,
+    deleteTimestamp = collectionDeleteTimestamp ?: 0L,
+    dirtyTimestamp = collectionDirtyTimestamp ?: 0L,
+    statusDirtyTimestamp = statusDirtyTimestamp ?: 0L,
+    ratingDirtyTimestamp = ratingDirtyTimestamp ?: 0L,
+    commentDirtyTimestamp = commentDirtyTimestamp ?: 0L,
+    privateInfoDirtyTimestamp = privateInfoDirtyTimestamp ?: 0L,
+    wishListCommentDirtyTimestamp = wishlistCommentDirtyTimestamp ?: 0L,
+    tradeConditionDirtyTimestamp = tradeConditionDirtyTimestamp ?: 0L,
+    hasPartsDirtyTimestamp = hasPartsDirtyTimestamp ?: 0L,
+    wantPartsDirtyTimestamp = wantPartsDirtyTimestamp ?: 0L,
+    winsColor = gameEntity?.winsColor ?: Color.TRANSPARENT,
+    winnablePlaysColor = gameEntity?.winnablePlaysColor ?: Color.TRANSPARENT,
+    allPlaysColor = gameEntity?.allPlaysColor ?: Color.TRANSPARENT,
+    playingTime = gameEntity?.playingTime ?: 0,
+    minimumAge = gameEntity?.minimumAge ?: 0,
+    rank = gameEntity?.overallRank ?: CollectionItemEntity.RANK_UNKNOWN,
+    geekRating = gameEntity?.bayesAverage ?: CollectionItemEntity.UNRATED,
+    averageWeight = gameEntity?.averageWeight ?: 0.0,
+    isFavorite = gameEntity?.isFavorite ?: false,
+    lastPlayDate = gameEntity?.lastPlayTimestamp ?: 0L,
+    arePlayersCustomSorted = gameEntity?.customPlayerSort ?: false,
+    minPlayerCount = gameEntity?.minPlayers ?: 0,
+    maxPlayerCount = gameEntity?.maxPlayers ?: 0,
+    subtype = gameEntity?.subtype,
+    bestPlayerCounts = gameEntity?.playerCountsBest.orEmpty(),
+    recommendedPlayerCounts = gameEntity?.playerCountsRecommended.orEmpty(),
+    numberOfUsersOwned = gameEntity?.numberOfUsersOwned ?: 0,
+    numberOfUsersWanting = gameEntity?.numberOfUsersWanting ?: 0,
+    numberOfUsersRating = gameEntity?.numberOfRatings ?: 0,
+    standardDeviation = gameEntity?.standardDeviation ?: 0.0,
+)

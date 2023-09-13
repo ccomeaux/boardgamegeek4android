@@ -79,6 +79,7 @@ class GameDao(private val context: Context) {
                     Games.Columns.PLAYER_COUNTS_BEST,
                     Games.Columns.PLAYER_COUNTS_RECOMMENDED,
                     Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED,
+                    Plays.Columns.MAX_DATE, //45
                 )
             ) {
                 GameLocal(
@@ -100,7 +101,7 @@ class GameDao(private val context: Context) {
                     average = it.getDoubleOrNull(14),
                     numberOfRatings = it.getIntOrNull(15),
                     numberOfComments = it.getIntOrNull(16),
-                    overallRank = it.getIntOrNull(19),
+                    gameRank = it.getIntOrNull(19),
                     standardDeviation = it.getDoubleOrNull(20),
                     bayesAverage = it.getDoubleOrNull(21),
                     averageWeight = it.getDoubleOrNull(22),
@@ -127,6 +128,7 @@ class GameDao(private val context: Context) {
                     playerCountsBest = it.getStringOrNull(42),
                     playerCountsRecommended = it.getStringOrNull(43),
                     playerCountsNotRecommended = it.getStringOrNull(44),
+                    lastPlayDate = it.getStringOrNull(45),
                 )
             }
         } else null

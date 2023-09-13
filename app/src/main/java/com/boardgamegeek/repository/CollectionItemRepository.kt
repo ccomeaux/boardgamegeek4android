@@ -7,6 +7,7 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntities
+import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.work.SyncCollectionWorker
@@ -22,7 +23,11 @@ class CollectionItemRepository(
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
-    suspend fun load(): List<CollectionItemEntity> = dao.load()
+    suspend fun loadAll(): List<CollectionItemEntity> = dao.loadAll()
+        .filter { (it.second.collectionDeleteTimestamp ?: 0L) == 0L }
+        .map {
+            it.second.mapToEntity(it.first.mapToEntity())
+        }
 
     suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
         syncPrefs.clearCollection()

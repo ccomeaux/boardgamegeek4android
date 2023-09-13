@@ -8,6 +8,8 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.Game
 import com.boardgamegeek.provider.BggContract
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Suppress("SpellCheckingInspection")
 fun Game.mapToEntity(): GameEntity {
@@ -34,6 +36,12 @@ fun Game.mapToEntity(): GameEntity {
         mechanics = this.links.filter { it.type == "boardgamemechanic" }.map { it.id to it.value },
         expansions = this.links.filter { it.type == "boardgameexpansion" }.map { Triple(it.id, it.value, it.inbound == "true") },
         families = this.links.filter { it.type == "boardgamefamily" }.map { it.id to it.value },
+        playerCountsBest = null,
+        playerCountsRecommended = null,
+        playerCountsNotRecommended = null,
+        lastViewedTimestamp = 0L,
+        lastPlayTimestamp = null,
+        numberOfPlays = 0,
     )
     return if (this.statistics != null) {
         game.copy(
@@ -135,47 +143,56 @@ fun Game.mapToRatingEntities(): GameCommentsEntity {
     return GameCommentsEntity(this.comments.totalitems, list)
 }
 
-fun GameLocal.mapToEntity() = GameEntity(
-    id = gameId,
-    name = gameName,
-    sortName = gameSortName,
-    updated = updated ?: 0L,
-    subtype = subtype.toSubtype(),
-    thumbnailUrl = thumbnailUrl.orEmpty(),
-    imageUrl = imageUrl.orEmpty(),
-    heroImageUrl = heroImageUrl.orEmpty(),
-    description = description.orEmpty(),
-    yearPublished = yearPublished ?: GameEntity.YEAR_UNKNOWN,
-    minPlayers = minPlayers ?: 0,
-    maxPlayers = maxPlayers ?: 0,
-    playingTime = playingTime ?: 0,
-    minPlayingTime = minPlayingTime ?: 0,
-    maxPlayingTime = maxPlayingTime ?: 0,
-    minimumAge = minimumAge ?: 0,
-    hasStatistics = false, // TODO
-    numberOfRatings = numberOfRatings ?: 0,
-    rating = average ?: GameEntity.UNRATED,
-    bayesAverage = bayesAverage ?: GameEntity.UNRATED,
-    standardDeviation = standardDeviation ?: 0.0,
-    median = median ?: GameEntity.UNRATED,
-    numberOfUsersOwned = numberOfUsersOwned ?: 0,
-    numberOfUsersTrading = numberOfUsersTrading ?: 0,
-    numberOfUsersWanting = numberOfUsersWanting ?: 0,
-    numberOfUsersWishListing = numberOfUsersWishListing ?: 0,
-    numberOfComments = numberOfComments ?: 0,
-    numberOfUsersWeighting = numberOfUsersWeighting ?: 0,
-    averageWeight = averageWeight ?: 0.0,
-    overallRank = overallRank ?: GameRankEntity.RANK_UNKNOWN,
-    updatedPlays = updatedPlays ?: 0L,
-    customPlayerSort = customPlayerSort ?: false,
-    isFavorite = isStarred ?: false,
-    suggestedPlayerCountPollVoteTotal = suggestedPlayerCountPollVoteTotal ?: 0,
-    iconColor = iconColor ?: Color.TRANSPARENT,
-    darkColor = darkColor ?: Color.TRANSPARENT,
-    winsColor = winsColor ?: Color.TRANSPARENT,
-    winnablePlaysColor = winnablePlaysColor ?: Color.TRANSPARENT,
-    allPlaysColor = allPlaysColor ?: Color.TRANSPARENT,
-)
+fun GameLocal.mapToEntity(): GameEntity {
+    val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return GameEntity(
+        id = gameId,
+        name = gameName,
+        sortName = gameSortName,
+        updated = updated ?: 0L,
+        subtype = subtype.toSubtype(),
+        thumbnailUrl = thumbnailUrl.orEmpty(),
+        imageUrl = imageUrl.orEmpty(),
+        heroImageUrl = heroImageUrl.orEmpty(),
+        description = description.orEmpty(),
+        yearPublished = yearPublished ?: GameEntity.YEAR_UNKNOWN,
+        minPlayers = minPlayers ?: 0,
+        maxPlayers = maxPlayers ?: 0,
+        playingTime = playingTime ?: 0,
+        minPlayingTime = minPlayingTime ?: 0,
+        maxPlayingTime = maxPlayingTime ?: 0,
+        minimumAge = minimumAge ?: 0,
+        hasStatistics = false, // TODO
+        numberOfRatings = numberOfRatings ?: 0,
+        rating = average ?: GameEntity.UNRATED,
+        bayesAverage = bayesAverage ?: GameEntity.UNRATED,
+        standardDeviation = standardDeviation ?: 0.0,
+        median = median ?: GameEntity.UNRATED,
+        numberOfUsersOwned = numberOfUsersOwned ?: 0,
+        numberOfUsersTrading = numberOfUsersTrading ?: 0,
+        numberOfUsersWanting = numberOfUsersWanting ?: 0,
+        numberOfUsersWishListing = numberOfUsersWishListing ?: 0,
+        numberOfComments = numberOfComments ?: 0,
+        numberOfUsersWeighting = numberOfUsersWeighting ?: 0,
+        averageWeight = averageWeight ?: 0.0,
+        overallRank = gameRank ?: GameRankEntity.RANK_UNKNOWN,
+        updatedPlays = updatedPlays ?: 0L,
+        customPlayerSort = customPlayerSort ?: false,
+        isFavorite = isStarred ?: false,
+        suggestedPlayerCountPollVoteTotal = suggestedPlayerCountPollVoteTotal ?: 0,
+        iconColor = iconColor ?: Color.TRANSPARENT,
+        darkColor = darkColor ?: Color.TRANSPARENT,
+        winsColor = winsColor ?: Color.TRANSPARENT,
+        winnablePlaysColor = winnablePlaysColor ?: Color.TRANSPARENT,
+        allPlaysColor = allPlaysColor ?: Color.TRANSPARENT,
+        playerCountsBest = playerCountsBest,
+        playerCountsRecommended = playerCountsRecommended,
+        playerCountsNotRecommended = playerCountsNotRecommended,
+        lastViewedTimestamp = lastViewedTimestamp ?: 0L,
+        lastPlayTimestamp = lastPlayDate.toMillis(playDateFormat),
+        numberOfPlays = numberOfPlays ?: 0,
+    )
+}
 
 fun GamePollResultsResultLocal.mapToEntity() = GamePollResultEntity(
     level = pollResultsResultLevel ?: BggContract.INVALID_ID,

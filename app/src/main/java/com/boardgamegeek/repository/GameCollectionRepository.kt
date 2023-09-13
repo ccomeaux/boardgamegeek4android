@@ -34,7 +34,9 @@ class GameCollectionRepository(
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadCollectionItem(internalId: Long) = dao.load(internalId)
+    suspend fun loadCollectionItem(internalId: Long) = dao.load(internalId)?.map {
+        it.second.mapToEntity(it.first.mapToEntity())
+    }?.firstOrNull()
 
     suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: GameEntity.Subtype?): CollectionItemEntity? =
         withContext(Dispatchers.IO) {
@@ -75,7 +77,9 @@ class GameCollectionRepository(
         } else item
     }
 
-    suspend fun loadCollectionItems(gameId: Int) = dao.load("collection.${Collection.Columns.GAME_ID}=?", arrayOf(gameId.toString()))
+    suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId).map {
+        it.second.mapToEntity(it.first.mapToEntity())
+    }
 
     suspend fun refreshCollectionItems(gameId: Int, subtype: GameEntity.Subtype? = null): List<CollectionItemEntity>? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
@@ -138,22 +142,16 @@ class GameCollectionRepository(
 
     suspend fun loadInventoryLocation() = dao.loadInventoryLocation()
 
-    suspend fun loadItemsPendingDeletion() = dao.load(Collection.Columns.COLLECTION_DELETE_TIMESTAMP.greaterThanZero(), includeDeletedItems = true)
+    suspend fun loadItemsPendingDeletion() = dao.loadItemsPendingDeletion().map {
+        it.second.mapToEntity(it.first.mapToEntity())
+    }
 
-    suspend fun loadItemsPendingInsert() = dao.load("${Collection.Columns.COLLECTION_DIRTY_TIMESTAMP.greaterThanZero()} AND ${Collection.Columns.COLLECTION_ID.whereNullOrBlank()}")
+    suspend fun loadItemsPendingInsert() = dao.loadItemsPendingInsert().map {
+        it.second.mapToEntity(it.first.mapToEntity())
+    }
 
-    suspend fun loadItemsPendingUpdate(): List<CollectionItemEntity> {
-        val columns = listOf(
-            Collection.Columns.STATUS_DIRTY_TIMESTAMP,
-            Collection.Columns.RATING_DIRTY_TIMESTAMP,
-            Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
-            Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
-            Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
-            Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
-            Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
-            Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP,
-        ).map { it.greaterThanZero() }
-        return dao.load("${columns.joinTo(" OR ")}")
+    suspend fun loadItemsPendingUpdate() = dao.loadItemsPendingUpdate().map {
+        it.second.mapToEntity(it.first.mapToEntity())
     }
 
     suspend fun uploadDeletedItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {

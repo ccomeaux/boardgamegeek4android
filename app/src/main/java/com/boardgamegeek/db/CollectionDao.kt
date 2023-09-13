@@ -5,16 +5,15 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
 import android.database.Cursor
-import android.graphics.Color
 import android.net.Uri
 import android.provider.BaseColumns
 import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.entities.BriefGameEntity
-import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.CollectionItemGameEntity
+import com.boardgamegeek.db.model.CollectionItemLocal
+import com.boardgamegeek.db.model.GameLocal
+import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Collection
@@ -23,111 +22,240 @@ import com.boardgamegeek.util.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.text.SimpleDateFormat
-import java.util.*
 
 class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun load(internalId: Long): CollectionItemEntity? = withContext(Dispatchers.IO) {
+    suspend fun load(internalId: Long) = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
-            resolver.loadEntity(
-                Collection.buildUri(internalId),
-                projection(),
-            ) {
-                entityFromCursor(it)
-            }
+            loadPairs(Collection.buildUri(internalId))
         } else null
     }
 
-    suspend fun load(
-        selection: String? = null,
-        selectionArgs: Array<String>? = null,
-        includeDeletedItems: Boolean = false
-    ): List<CollectionItemEntity> = withContext(Dispatchers.IO) {
-        resolver.loadList(Collection.CONTENT_URI, projection(), selection, selectionArgs) {
-            val item = entityFromCursor(it)
-            if (includeDeletedItems || item.deleteTimestamp == 0L) item else null
-        }
+    suspend fun loadAll() = loadPairs()
+
+    suspend fun loadByGame(gameId: Int) =
+        loadPairs(selection = "collection.${Collection.Columns.GAME_ID}=?", selectionArgs = arrayOf(gameId.toString()))
+
+    suspend fun loadItemsPendingDeletion() = loadPairs(selection = Collection.Columns.COLLECTION_DELETE_TIMESTAMP.greaterThanZero())
+
+    suspend fun loadItemsPendingInsert() =
+        loadPairs(selection = "${Collection.Columns.COLLECTION_DIRTY_TIMESTAMP.greaterThanZero()} AND ${Collection.Columns.COLLECTION_ID.whereNullOrBlank()}")
+
+    suspend fun loadItemsPendingUpdate(): List<Pair<GameLocal, CollectionItemLocal>> {
+        val columns = listOf(
+            Collection.Columns.STATUS_DIRTY_TIMESTAMP,
+            Collection.Columns.RATING_DIRTY_TIMESTAMP,
+            Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
+            Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
+            Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
+            Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
+            Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
+            Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP,
+        ).map { it.greaterThanZero() }
+        return loadPairs(selection = "${columns.joinTo(" OR ")}")
     }
 
-    suspend fun loadByGame(gameId: Int) = load("collection.${Collection.Columns.GAME_ID}=?", arrayOf(gameId.toString()))
-
-    private fun entityFromCursor(cursor: Cursor): CollectionItemEntity {
-        val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val acquisitionDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return CollectionItemEntity(
-            internalId = cursor.getLong(COLUMN_ID),
-            gameId = cursor.getInt(COLUMN_GAME_ID),
-            collectionId = cursor.getIntOrNull(COLUMN_COLLECTION_ID) ?: INVALID_ID,
-            collectionName = cursor.getStringOrNull(COLUMN_COLLECTION_NAME).orEmpty(),
-            sortName = cursor.getStringOrNull(COLUMN_COLLECTION_SORT_NAME).orEmpty(),
-            gameName = cursor.getStringOrNull(COLUMN_GAME_NAME).orEmpty(),
-            gameYearPublished = cursor.getIntOrNull(COLUMN_YEAR_PUBLISHED) ?: CollectionItemEntity.YEAR_UNKNOWN,
-            collectionYearPublished = cursor.getIntOrNull(COLUMN_COLLECTION_YEAR_PUBLISHED) ?: CollectionItemEntity.YEAR_UNKNOWN,
-            imageUrl = cursor.getStringOrNull(COLUMN_COLLECTION_IMAGE_URL).orEmpty(),
-            thumbnailUrl = cursor.getStringOrNull(COLUMN_COLLECTION_THUMBNAIL_URL).orEmpty(),
-            heroImageUrl = cursor.getStringOrNull(COLUMN_COLLECTION_HERO_IMAGE_URL).orEmpty(),
-            comment = cursor.getStringOrNull(COLUMN_COMMENT).orEmpty(),
-            numberOfPlays = cursor.getIntOrNull(COLUMN_NUM_PLAYS) ?: 0,
-            averageRating = cursor.getDoubleOrNull(COLUMN_STATS_AVERAGE) ?: 0.0,
-            rating = cursor.getDoubleOrNull(COLUMN_RATING) ?: 0.0,
-            syncTimestamp = cursor.getLongOrNull(COLUMN_UPDATED) ?: 0L,
-            lastModifiedDate = cursor.getLongOrNull(COLUMN_LAST_MODIFIED) ?: 0L,
-            lastViewedDate = cursor.getLongOrNull(COLUMN_LAST_VIEWED) ?: 0L,
-            deleteTimestamp = cursor.getLongOrNull(COLUMN_COLLECTION_DELETE_TIMESTAMP) ?: 0L,
-            own = cursor.getBoolean(COLUMN_STATUS_OWN),
-            previouslyOwned = cursor.getBoolean(COLUMN_STATUS_PREVIOUSLY_OWNED),
-            preOrdered = cursor.getBoolean(COLUMN_STATUS_PRE_ORDERED),
-            forTrade = cursor.getBoolean(COLUMN_STATUS_FOR_TRADE),
-            wantInTrade = cursor.getBoolean(COLUMN_STATUS_WANT),
-            wantToPlay = cursor.getBoolean(COLUMN_STATUS_WANT_TO_PLAY),
-            wantToBuy = cursor.getBoolean(COLUMN_STATUS_WANT_TO_BUY),
-            wishList = cursor.getBoolean(COLUMN_STATUS_WISHLIST),
-            wishListPriority = cursor.getIntOrNull(COLUMN_STATUS_WISHLIST_PRIORITY) ?: CollectionItemEntity.WISHLIST_PRIORITY_UNKNOWN,
-            dirtyTimestamp = cursor.getLongOrNull(COLUMN_COLLECTION_DIRTY_TIMESTAMP) ?: 0L,
-            statusDirtyTimestamp = cursor.getLongOrNull(COLUMN_STATUS_DIRTY_TIMESTAMP) ?: 0L,
-            ratingDirtyTimestamp = cursor.getLongOrNull(COLUMN_RATING_DIRTY_TIMESTAMP) ?: 0L,
-            commentDirtyTimestamp = cursor.getLongOrNull(COLUMN_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
-            privateInfoDirtyTimestamp = cursor.getLongOrNull(COLUMN_PRIVATE_INFO_DIRTY_TIMESTAMP) ?: 0L,
-            wishListCommentDirtyTimestamp = cursor.getLongOrNull(COLUMN_WISHLIST_COMMENT_DIRTY_TIMESTAMP) ?: 0L,
-            tradeConditionDirtyTimestamp = cursor.getLongOrNull(COLUMN_TRADE_CONDITION_DIRTY_TIMESTAMP) ?: 0L,
-            hasPartsDirtyTimestamp = cursor.getLongOrNull(COLUMN_HAS_PARTS_DIRTY_TIMESTAMP) ?: 0L,
-            wantPartsDirtyTimestamp = cursor.getLongOrNull(COLUMN_WANT_PARTS_DIRTY_TIMESTAMP) ?: 0L,
-            quantity = cursor.getIntOrNull(COLUMN_PRIVATE_INFO_QUANTITY) ?: 0,
-            pricePaid = cursor.getDoubleOrNull(COLUMN_PRIVATE_INFO_PRICE_PAID) ?: 0.0,
-            pricePaidCurrency = cursor.getString(COLUMN_PRIVATE_INFO_PRICE_PAID_CURRENCY).orEmpty(),
-            currentValue = cursor.getDoubleOrNull(COLUMN_PRIVATE_INFO_CURRENT_VALUE) ?: 0.0,
-            currentValueCurrency = cursor.getString(COLUMN_PRIVATE_INFO_CURRENT_VALUE_CURRENCY).orEmpty(),
-            acquisitionDate = cursor.getString(COLUMN_PRIVATE_INFO_ACQUISITION_DATE).orEmpty().toMillis(acquisitionDateFormat),
-            acquiredFrom = cursor.getString(COLUMN_PRIVATE_INFO_ACQUIRED_FROM).orEmpty(),
-            inventoryLocation = cursor.getString(COLUMN_PRIVATE_INFO_INVENTORY_LOCATION).orEmpty(),
-            privateComment = cursor.getString(COLUMN_PRIVATE_INFO_COMMENT).orEmpty(),
-            wishListComment = cursor.getString(COLUMN_WISHLIST_COMMENT).orEmpty(),
-            wantPartsList = cursor.getString(COLUMN_WANT_PARTS_LIST).orEmpty(),
-            hasPartsList = cursor.getString(COLUMN_HAS_PARTS_LIST).orEmpty(),
-            conditionText = cursor.getString(COLUMN_CONDITION).orEmpty(),
-            playingTime = cursor.getIntOrNull(COLUMN_PLAYING_TIME) ?: 0,
-            minimumAge = cursor.getIntOrNull(COLUMN_MINIMUM_AGE) ?: 0,
-            rank = cursor.getIntOrNull(COLUMN_GAME_RANK) ?: CollectionItemEntity.RANK_UNKNOWN,
-            geekRating = cursor.getDoubleOrNull(COLUMN_STATS_BAYES_AVERAGE) ?: 0.0,
-            averageWeight = cursor.getDoubleOrNull(COLUMN_STATS_AVERAGE_WEIGHT) ?: 0.0,
-            isFavorite = cursor.getBoolean(COLUMN_STARRED),
-            lastPlayDate = cursor.getString(COLUMN_MAX_DATE).orEmpty().toMillis(playDateFormat),
-            minPlayerCount = cursor.getIntOrNull(COLUMN_MIN_PLAYERS) ?: 0,
-            maxPlayerCount = cursor.getIntOrNull(COLUMN_MAX_PLAYERS) ?: 0,
-            subtype = cursor.getString(COLUMN_SUBTYPE).toSubtype(),
-            bestPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_BEST).orEmpty(),
-            recommendedPlayerCounts = cursor.getString(COLUMN_PLAYER_COUNTS_RECOMMENDED).orEmpty(),
-            gameImageUrl = cursor.getString(COLUMN_GAME_IMAGE_URL).orEmpty(),
-            gameThumbnailUrl = cursor.getString(COLUMN_GAME_THUMBNAIL_URL).orEmpty(),
-            gameHeroImageUrl = cursor.getString(COLUMN_GAME_HERO_IMAGE_URL).orEmpty(),
-            winsColor = cursor.getIntOrNull(COLUMN_WINS_COLOR) ?: Color.TRANSPARENT,
-            winnablePlaysColor = cursor.getIntOrNull(COLUMN_WINNABLE_PLAYS_COLOR) ?: Color.TRANSPARENT,
-            allPlaysColor = cursor.getIntOrNull(COLUMN_ALL_PLAYS_COLOR) ?: Color.TRANSPARENT,
-            arePlayersCustomSorted = cursor.getBoolean(COLUMN_CUSTOM_PLAYER_SORT),
-        )
+    private suspend fun loadPairs(
+        uri: Uri = Collection.CONTENT_URI,
+        selection: String? = null,
+        selectionArgs: Array<String>? = null,
+    ) = withContext(Dispatchers.IO) {
+        resolver.loadList(
+            uri,
+            arrayOf(
+                Games.Columns.GAME_ID,
+                Games.Columns.GAME_NAME,
+                Games.Columns.DESCRIPTION,
+                Games.Columns.SUBTYPE,
+                Games.Columns.THUMBNAIL_URL,
+                Games.Columns.IMAGE_URL, // 5
+                Games.Columns.YEAR_PUBLISHED,
+                Games.Columns.MIN_PLAYERS,
+                Games.Columns.MAX_PLAYERS,
+                Games.Columns.PLAYING_TIME,
+                Games.Columns.MIN_PLAYING_TIME, // 10
+                Games.Columns.MAX_PLAYING_TIME,
+                Games.Columns.MINIMUM_AGE,
+                Games.Columns.HERO_IMAGE_URL,
+                Games.Columns.STATS_AVERAGE,
+                Games.Columns.STATS_USERS_RATED, // 15
+                Games.Columns.STATS_NUMBER_COMMENTS,
+                Games.Columns.UPDATED,
+                Games.Columns.UPDATED_PLAYS,
+                Games.Columns.GAME_RANK,
+                Games.Columns.STATS_STANDARD_DEVIATION, // 20
+                Games.Columns.STATS_BAYES_AVERAGE,
+                Games.Columns.STATS_AVERAGE_WEIGHT,
+                Games.Columns.STATS_NUMBER_WEIGHTS,
+                Games.Columns.STATS_NUMBER_OWNED,
+                Games.Columns.STATS_NUMBER_TRADING, // 25
+                Games.Columns.STATS_NUMBER_WANTING,
+                Games.Columns.STATS_NUMBER_WISHING,
+                Games.Columns.CUSTOM_PLAYER_SORT,
+                Games.Columns.STARRED,
+                BaseColumns._ID, // 30
+                Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
+                Games.Columns.ICON_COLOR,
+                Games.Columns.DARK_COLOR,
+                Games.Columns.WINS_COLOR,
+                Games.Columns.WINNABLE_PLAYS_COLOR, // 35
+                Games.Columns.ALL_PLAYS_COLOR,
+                Games.Columns.GAME_SORT_NAME,
+                Games.Columns.STATS_MEDIAN,
+                Games.Columns.NUM_PLAYS,
+                Games.Columns.UPDATED_LIST, //40
+                Games.Columns.LAST_VIEWED,
+                Games.Columns.PLAYER_COUNTS_BEST,
+                Games.Columns.PLAYER_COUNTS_RECOMMENDED,
+                Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED,
+                Collection.Columns.COLLECTION_ID, // 45
+                Collection.Columns.COLLECTION_ID,
+                Collection.Columns.COLLECTION_NAME,
+                Collection.Columns.COLLECTION_SORT_NAME,
+                Collection.Columns.STATUS_OWN,
+                Collection.Columns.STATUS_PREVIOUSLY_OWNED, // 50
+                Collection.Columns.STATUS_FOR_TRADE,
+                Collection.Columns.STATUS_WANT,
+                Collection.Columns.STATUS_WANT_TO_PLAY,
+                Collection.Columns.STATUS_WANT_TO_BUY,
+                Collection.Columns.STATUS_WISHLIST, // 55
+                Collection.Columns.STATUS_WISHLIST_PRIORITY,
+                Collection.Columns.STATUS_PREORDERED,
+                Collection.Columns.COMMENT,
+                Collection.Columns.LAST_MODIFIED,
+                Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY, // 60
+                Collection.Columns.PRIVATE_INFO_PRICE_PAID,
+                Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY,
+                Collection.Columns.PRIVATE_INFO_CURRENT_VALUE,
+                Collection.Columns.PRIVATE_INFO_QUANTITY,
+                Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE, // 65
+                Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM,
+                Collection.Columns.PRIVATE_INFO_COMMENT,
+                Collection.Columns.CONDITION,
+                Collection.Columns.WANTPARTS_LIST,
+                Collection.Columns.HASPARTS_LIST, // 70
+                Collection.Columns.WISHLIST_COMMENT,
+                Collection.Columns.COLLECTION_YEAR_PUBLISHED,
+                Collection.Columns.RATING,
+                Collection.Columns.COLLECTION_THUMBNAIL_URL,
+                Collection.Columns.COLLECTION_IMAGE_URL, // 75
+                Collection.Columns.STATUS_DIRTY_TIMESTAMP,
+                Collection.Columns.RATING_DIRTY_TIMESTAMP,
+                Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
+                Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
+                Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, // 80
+                Collection.Columns.COLLECTION_DELETE_TIMESTAMP,
+                Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
+                Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
+                Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
+                Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP, // 85
+                Collection.Columns.COLLECTION_HERO_IMAGE_URL,
+                Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION,
+                Plays.Columns.MAX_DATE,
+            ),
+            selection,
+            selectionArgs,
+        ) {
+            val game = GameLocal(
+                internalId = it.getLong(30),
+                gameId = it.getInt(0),
+                gameName = it.getString(1).orEmpty(),
+                description = it.getStringOrNull(2).orEmpty(),
+                subtype = it.getStringOrNull(3),
+                thumbnailUrl = it.getStringOrNull(4),
+                imageUrl = it.getStringOrNull(5),
+                yearPublished = it.getIntOrNull(6),
+                minPlayers = it.getIntOrNull(7) ?: 0,
+                maxPlayers = it.getIntOrNull(8) ?: 0,
+                playingTime = it.getIntOrNull(9) ?: 0,
+                minPlayingTime = it.getIntOrNull(10),
+                maxPlayingTime = it.getIntOrNull(11),
+                minimumAge = it.getIntOrNull(12),
+                heroImageUrl = it.getStringOrNull(13),
+                average = it.getDoubleOrNull(14),
+                numberOfRatings = it.getIntOrNull(15),
+                numberOfComments = it.getIntOrNull(16),
+                gameRank = it.getIntOrNull(19),
+                standardDeviation = it.getDoubleOrNull(20),
+                bayesAverage = it.getDoubleOrNull(21),
+                averageWeight = it.getDoubleOrNull(22),
+                numberOfUsersWeighting = it.getIntOrNull(23),
+                numberOfUsersOwned = it.getIntOrNull(24),
+                numberOfUsersTrading = it.getIntOrNull(25),
+                numberOfUsersWanting = it.getIntOrNull(26),
+                numberOfUsersWishListing = it.getIntOrNull(27),
+                updated = it.getLongOrNull(17),
+                updatedPlays = it.getLongOrNull(18),
+                customPlayerSort = it.getBoolean(28),
+                isStarred = it.getBoolean(29),
+                suggestedPlayerCountPollVoteTotal = it.getIntOrNull(31) ?: 0,
+                iconColor = it.getIntOrNull(32),
+                darkColor = it.getIntOrNull(33),
+                winsColor = it.getIntOrNull(34),
+                winnablePlaysColor = it.getIntOrNull(35),
+                allPlaysColor = it.getIntOrNull(36),
+                gameSortName = it.getString(37),
+                median = it.getDoubleOrNull(38),
+                numberOfPlays = it.getIntOrNull(39),
+                updatedList = it.getLong(40),
+                lastViewedTimestamp = it.getLongOrNull(41),
+                playerCountsBest = it.getStringOrNull(42),
+                playerCountsRecommended = it.getStringOrNull(43),
+                playerCountsNotRecommended = it.getStringOrNull(44),
+                lastPlayDate = it.getStringOrNull(88),
+            )
+            val item = CollectionItemLocal(
+                internalId = INVALID_ID.toLong(),
+                updatedTimestamp = it.getLong(17),
+                updatedListTimestamp = it.getLong(40),
+                gameId = it.getInt(0),
+                collectionId = it.getInt(46),
+                collectionName = it.getString(47),
+                collectionSortName = it.getString(48),
+                statusOwn = it.getInt(49),
+                statusPreviouslyOwned = it.getInt(50),
+                statusForTrade = it.getInt(51),
+                statusWant = it.getInt(52),
+                statusWantToPlay = it.getInt(53),
+                statusWantToBuy = it.getInt(54),
+                statusWishlist = it.getInt(55),
+                statusWishlistPriority = it.getIntOrNull(56),
+                statusPreordered = it.getInt(57),
+                comment = it.getStringOrNull(58),
+                lastModified = it.getLongOrNull(59),
+                privateInfoPricePaidCurrency = it.getStringOrNull(60),
+                privateInfoPricePaid = it.getDoubleOrNull(61),
+                privateInfoCurrentValueCurrency = it.getStringOrNull(62),
+                privateInfoCurrentValue = it.getDoubleOrNull(63),
+                privateInfoQuantity = it.getIntOrNull(64),
+                privateInfoAcquisitionDate = it.getStringOrNull(65),
+                privateInfoAcquiredFrom = it.getStringOrNull(66),
+                privateInfoComment = it.getStringOrNull(67),
+                condition = it.getStringOrNull(68),
+                wantpartsList = it.getStringOrNull(69),
+                haspartsList = it.getStringOrNull(70),
+                wishlistComment = it.getStringOrNull(71),
+                collectionYearPublished = it.getIntOrNull(72),
+                rating = it.getDoubleOrNull(73),
+                collectionThumbnailUrl = it.getStringOrNull(74),
+                collectionImageUrl = it.getStringOrNull(75),
+                statusDirtyTimestamp = it.getLongOrNull(76),
+                ratingDirtyTimestamp = it.getLongOrNull(77),
+                commentDirtyTimestamp = it.getLongOrNull(78),
+                privateInfoDirtyTimestamp = it.getLongOrNull(79),
+                collectionDirtyTimestamp = it.getLongOrNull(80),
+                collectionDeleteTimestamp = it.getLongOrNull(81),
+                wishlistCommentDirtyTimestamp = it.getLongOrNull(82),
+                tradeConditionDirtyTimestamp = it.getLongOrNull(83),
+                wantPartsDirtyTimestamp = it.getLongOrNull(84),
+                hasPartsDirtyTimestamp = it.getLongOrNull(85),
+                collectionHeroImageUrl = it.getStringOrNull(86),
+                privateInfoInventoryLocation = it.getStringOrNull(87),
+            )
+            game to item
+        }
     }
 
     enum class SortType {
@@ -536,151 +664,7 @@ class CollectionDao(private val context: Context) {
         }
     }
 
-    private fun projection(): Array<String> {
-        return arrayOf(
-            BaseColumns._ID,
-            Games.Columns.GAME_ID,
-            Collection.Columns.COLLECTION_ID,
-            Collection.Columns.COLLECTION_NAME,
-            Collection.Columns.COLLECTION_SORT_NAME,
-            Collection.Columns.COLLECTION_YEAR_PUBLISHED,
-            Collection.Columns.COLLECTION_THUMBNAIL_URL,
-            Collection.Columns.COLLECTION_IMAGE_URL,
-            Collection.Columns.COLLECTION_HERO_IMAGE_URL,
-            Collection.Columns.STATUS_OWN,
-            Collection.Columns.STATUS_PREVIOUSLY_OWNED, // 10
-            Collection.Columns.STATUS_FOR_TRADE,
-            Collection.Columns.STATUS_WANT,
-            Collection.Columns.STATUS_WANT_TO_BUY,
-            Collection.Columns.STATUS_WISHLIST,
-            Collection.Columns.STATUS_WANT_TO_PLAY,
-            Collection.Columns.STATUS_PREORDERED,
-            Collection.Columns.STATUS_WISHLIST_PRIORITY,
-            Games.Columns.NUM_PLAYS,
-            Collection.Columns.COMMENT,
-            Games.Columns.YEAR_PUBLISHED, // 20
-            Games.Columns.STATS_AVERAGE,
-            Collection.Columns.RATING,
-            Games.Columns.IMAGE_URL,
-            Collection.Columns.UPDATED,
-            Games.Columns.GAME_NAME,
-            Collection.Columns.COLLECTION_DELETE_TIMESTAMP,
-            Collection.Columns.COLLECTION_DIRTY_TIMESTAMP,
-            Collection.Columns.STATUS_DIRTY_TIMESTAMP,
-            Collection.Columns.RATING_DIRTY_TIMESTAMP,
-            Collection.Columns.COMMENT_DIRTY_TIMESTAMP, // 30
-            Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
-            Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
-            Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
-            Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP,
-            Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
-            Collection.Columns.LAST_MODIFIED,
-            Games.Columns.LAST_VIEWED,
-            Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY,
-            Collection.Columns.PRIVATE_INFO_PRICE_PAID,
-            Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY, // 40
-            Collection.Columns.PRIVATE_INFO_CURRENT_VALUE,
-            Collection.Columns.PRIVATE_INFO_QUANTITY,
-            Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE,
-            Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM,
-            Collection.Columns.PRIVATE_INFO_COMMENT,
-            Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION,
-            Collection.Columns.WISHLIST_COMMENT,
-            Collection.Columns.WANTPARTS_LIST,
-            Collection.Columns.HASPARTS_LIST,
-            Collection.Columns.CONDITION, // 50
-            Games.Columns.PLAYING_TIME,
-            Games.Columns.MINIMUM_AGE,
-            Games.Columns.GAME_RANK,
-            Games.Columns.STATS_BAYES_AVERAGE,
-            Games.Columns.STATS_AVERAGE_WEIGHT,
-            Games.Columns.STARRED,
-            Plays.Columns.MAX_DATE,
-            Games.Columns.MIN_PLAYERS,
-            Games.Columns.MAX_PLAYERS,
-            Games.Columns.SUBTYPE, // 60
-            Games.Columns.PLAYER_COUNTS_BEST,
-            Games.Columns.PLAYER_COUNTS_RECOMMENDED,
-            Games.Columns.THUMBNAIL_URL,
-            Games.Columns.HERO_IMAGE_URL,
-            Games.Columns.WINS_COLOR,
-            Games.Columns.WINNABLE_PLAYS_COLOR,
-            Games.Columns.ALL_PLAYS_COLOR,
-            Games.Columns.CUSTOM_PLAYER_SORT,
-        )
-    }
-
     companion object {
         private const val NOT_DIRTY = 0L
-
-        private const val COLUMN_ID = 0
-        private const val COLUMN_GAME_ID = 1
-        private const val COLUMN_COLLECTION_ID = 2
-        private const val COLUMN_COLLECTION_NAME = 3
-        private const val COLUMN_COLLECTION_SORT_NAME = 4
-        private const val COLUMN_COLLECTION_YEAR_PUBLISHED = 5
-        private const val COLUMN_COLLECTION_THUMBNAIL_URL = 6
-        private const val COLUMN_COLLECTION_IMAGE_URL = 7
-        private const val COLUMN_COLLECTION_HERO_IMAGE_URL = 8
-        private const val COLUMN_STATUS_OWN = 9
-        private const val COLUMN_STATUS_PREVIOUSLY_OWNED = 10
-        private const val COLUMN_STATUS_FOR_TRADE = 11
-        private const val COLUMN_STATUS_WANT = 12
-        private const val COLUMN_STATUS_WANT_TO_BUY = 13
-        private const val COLUMN_STATUS_WISHLIST = 14
-        private const val COLUMN_STATUS_WANT_TO_PLAY = 15
-        private const val COLUMN_STATUS_PRE_ORDERED = 16
-        private const val COLUMN_STATUS_WISHLIST_PRIORITY = 17
-        private const val COLUMN_NUM_PLAYS = 18
-        private const val COLUMN_COMMENT = 19
-        private const val COLUMN_YEAR_PUBLISHED = 20
-        private const val COLUMN_STATS_AVERAGE = 21
-        private const val COLUMN_RATING = 22
-        private const val COLUMN_GAME_IMAGE_URL = 23
-        private const val COLUMN_UPDATED = 24
-        private const val COLUMN_GAME_NAME = 25
-        private const val COLUMN_COLLECTION_DELETE_TIMESTAMP = 26
-        private const val COLUMN_COLLECTION_DIRTY_TIMESTAMP = 27
-        private const val COLUMN_STATUS_DIRTY_TIMESTAMP = 28
-        private const val COLUMN_RATING_DIRTY_TIMESTAMP = 29
-        private const val COLUMN_COMMENT_DIRTY_TIMESTAMP = 30
-        private const val COLUMN_PRIVATE_INFO_DIRTY_TIMESTAMP = 31
-        private const val COLUMN_WISHLIST_COMMENT_DIRTY_TIMESTAMP = 32
-        private const val COLUMN_TRADE_CONDITION_DIRTY_TIMESTAMP = 33
-        private const val COLUMN_HAS_PARTS_DIRTY_TIMESTAMP = 34
-        private const val COLUMN_WANT_PARTS_DIRTY_TIMESTAMP = 35
-        private const val COLUMN_LAST_MODIFIED = 36
-        private const val COLUMN_LAST_VIEWED = 37
-        private const val COLUMN_PRIVATE_INFO_PRICE_PAID_CURRENCY = 38
-        private const val COLUMN_PRIVATE_INFO_PRICE_PAID = 39
-        private const val COLUMN_PRIVATE_INFO_CURRENT_VALUE_CURRENCY = 40
-        private const val COLUMN_PRIVATE_INFO_CURRENT_VALUE = 41
-        private const val COLUMN_PRIVATE_INFO_QUANTITY = 42
-        private const val COLUMN_PRIVATE_INFO_ACQUISITION_DATE = 43
-        private const val COLUMN_PRIVATE_INFO_ACQUIRED_FROM = 44
-        private const val COLUMN_PRIVATE_INFO_COMMENT = 45
-        private const val COLUMN_PRIVATE_INFO_INVENTORY_LOCATION = 46
-        private const val COLUMN_WISHLIST_COMMENT = 47
-        private const val COLUMN_WANT_PARTS_LIST = 48
-        private const val COLUMN_HAS_PARTS_LIST = 49
-        private const val COLUMN_CONDITION = 50
-        private const val COLUMN_PLAYING_TIME = 51
-        private const val COLUMN_MINIMUM_AGE = 52
-        private const val COLUMN_GAME_RANK = 53
-        private const val COLUMN_STATS_BAYES_AVERAGE = 54
-        private const val COLUMN_STATS_AVERAGE_WEIGHT = 55
-        private const val COLUMN_STARRED = 56
-        private const val COLUMN_MAX_DATE = 57
-        private const val COLUMN_MIN_PLAYERS = 58
-        private const val COLUMN_MAX_PLAYERS = 59
-        private const val COLUMN_SUBTYPE = 60
-        private const val COLUMN_PLAYER_COUNTS_BEST = 61
-        private const val COLUMN_PLAYER_COUNTS_RECOMMENDED = 62
-        private const val COLUMN_GAME_THUMBNAIL_URL = 63
-        private const val COLUMN_GAME_HERO_IMAGE_URL = 64
-        private const val COLUMN_WINS_COLOR = 65
-        private const val COLUMN_WINNABLE_PLAYS_COLOR = 66
-        private const val COLUMN_ALL_PLAYS_COLOR = 67
-        private const val COLUMN_CUSTOM_PLAYER_SORT = 68
     }
 }

@@ -276,7 +276,7 @@ class PlayRepository(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
-    ): List<GameForPlayStatEntity> = withContext(Dispatchers.IO) {
+    ): List<GameForPlayStatEntity> = withContext(Dispatchers.Default) {
         val games = if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
             gameDao.loadGamesForPlayStats(includeIncompletePlays, includeExpansions, includeAccessories).filter { it.playCount > 0 }
         } else {
@@ -296,16 +296,15 @@ class PlayRepository(
             }
         }
         if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_OWN)) {
-            val items = collectionDao.load()
-            games.map {
-                val isOwned = items.any { item -> item.gameId == it.id && item.own }
-                if (it.bggRank == GameRankEntity.RANK_UNKNOWN) {
-                    items.find { item -> item.gameId == it.id && item.own }?.let { item ->
-                        it.copy(isOwned = isOwned, bggRank = item.rank)
-                    } ?: it.copy(isOwned = isOwned)
-                } else {
-                    it.copy(isOwned = isOwned)
-                }
+            val items = collectionDao.loadAll().map {
+                 it.second.mapToEntity(it.first.mapToEntity())
+            }
+            games.map { game ->
+                val itemPairs = items.filter { it.gameId == game.id }
+                game.copy(
+                    isOwned = itemPairs.any { it.own },
+                    bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItemEntity.RANK_UNKNOWN
+                )
             }
         } else games
     }

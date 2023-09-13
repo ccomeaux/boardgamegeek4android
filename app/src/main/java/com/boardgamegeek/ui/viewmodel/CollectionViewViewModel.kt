@@ -71,7 +71,7 @@ class CollectionViewViewModel @Inject constructor(
     private val _allItems: LiveData<List<CollectionItemEntity>> = syncTimestamp.switchMap {
         liveData {
             try {
-                emit(itemRepository.load())
+                emit(itemRepository.loadAll())
             } catch (e: Exception) {
                 _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
             }

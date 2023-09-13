@@ -33,7 +33,7 @@ data class GameLocal(
     val isStarred: Boolean?,
     val updatedPlays: Long?,
     val customPlayerSort: Boolean?,
-    val overallRank: Int?,
+    val gameRank: Int?,
     val suggestedPlayerCountPollVoteTotal: Int?,
     val heroImageUrl: String?,
     val iconColor: Int?,
@@ -46,4 +46,5 @@ data class GameLocal(
     val playerCountsNotRecommended: String?,
     val updated: Long?,
     val updatedList: Long,
+    val lastPlayDate: String?, // ignore
 )
