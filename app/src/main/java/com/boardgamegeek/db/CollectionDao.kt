@@ -6,6 +6,7 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
+import androidx.core.content.contentValuesOf
 import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
@@ -268,15 +269,20 @@ class CollectionDao(private val context: Context) {
         NAME, RATING
     }
 
-    suspend fun loadCollectionForArtist(artistId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Artists.buildArtistCollectionUri(artistId), sortBy = sortBy)
+    suspend fun loadCollectionForArtist(artistId: Int, sortBy: SortType = SortType.RATING) =
+        loadPairs(Artists.buildArtistCollectionUri(artistId), sortBy = sortBy)
 
-    suspend fun loadCollectionForDesigner(designerId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Designers.buildDesignerCollectionUri(designerId), sortBy = sortBy)
+    suspend fun loadCollectionForDesigner(designerId: Int, sortBy: SortType = SortType.RATING) =
+        loadPairs(Designers.buildDesignerCollectionUri(designerId), sortBy = sortBy)
 
-    suspend fun loadCollectionForPublisher(publisherId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Publishers.buildCollectionUri(publisherId), sortBy = sortBy)
+    suspend fun loadCollectionForPublisher(publisherId: Int, sortBy: SortType = SortType.RATING) =
+        loadPairs(Publishers.buildCollectionUri(publisherId), sortBy = sortBy)
 
-    suspend fun loadCollectionForCategory(categoryId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Categories.buildCollectionUri(categoryId), sortBy = sortBy)
+    suspend fun loadCollectionForCategory(categoryId: Int, sortBy: SortType = SortType.RATING) =
+        loadPairs(Categories.buildCollectionUri(categoryId), sortBy = sortBy)
 
-    suspend fun loadCollectionForMechanic(mechanicId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Mechanics.buildCollectionUri(mechanicId), sortBy = sortBy)
+    suspend fun loadCollectionForMechanic(mechanicId: Int, sortBy: SortType = SortType.RATING) =
+        loadPairs(Mechanics.buildCollectionUri(mechanicId), sortBy = sortBy)
 
     suspend fun loadUnupdatedItems(gamesPerFetch: Int = 0) = withContext(Dispatchers.IO) {
         val games = mutableMapOf<Int, String>()
@@ -301,7 +307,123 @@ class CollectionDao(private val context: Context) {
         resolver.queryStrings(Collection.buildInventoryLocationUri(), Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION).filterNot { it.isBlank() }
     }
 
-    suspend fun update(internalId: Long, values: ContentValues): Int = withContext(Dispatchers.IO) {
+    suspend fun updateHeroImageUrl(internalId: Long, url: String) =
+        update(internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to url))
+
+    suspend fun updateRating(internalId: Long, rating: Double): Int =
+        update(
+            internalId, contentValuesOf(
+                Collection.Columns.RATING to rating,
+                Collection.Columns.RATING_DIRTY_TIMESTAMP to System.currentTimeMillis()
+            )
+        )
+
+    suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int): Int {
+        val values = contentValuesOf(
+            Collection.Columns.STATUS_DIRTY_TIMESTAMP to System.currentTimeMillis(),
+            Collection.Columns.STATUS_OWN to statuses.contains(Collection.Columns.STATUS_OWN),
+            Collection.Columns.STATUS_PREVIOUSLY_OWNED to statuses.contains(Collection.Columns.STATUS_PREVIOUSLY_OWNED),
+            Collection.Columns.STATUS_PREORDERED to statuses.contains(Collection.Columns.STATUS_PREORDERED),
+            Collection.Columns.STATUS_FOR_TRADE to statuses.contains(Collection.Columns.STATUS_FOR_TRADE),
+            Collection.Columns.STATUS_WANT to statuses.contains(Collection.Columns.STATUS_WANT),
+            Collection.Columns.STATUS_WANT_TO_BUY to statuses.contains(Collection.Columns.STATUS_WANT_TO_BUY),
+            Collection.Columns.STATUS_WANT_TO_PLAY to statuses.contains(Collection.Columns.STATUS_WANT_TO_PLAY),
+            Collection.Columns.STATUS_WISHLIST to statuses.contains(Collection.Columns.STATUS_WISHLIST),
+        )
+        if (statuses.contains(Collection.Columns.STATUS_WISHLIST)) {
+            values.put(Collection.Columns.STATUS_WISHLIST_PRIORITY, wishlistPriority.coerceIn(1..5))
+        }
+        return update(internalId, values)
+    }
+
+    suspend fun updatePrivateInfo(
+        internalId: Long, priceCurrency: String?,
+        price: Double?,
+        currentValueCurrency: String?,
+        currentValue: Double?,
+        quantity: Int?,
+        acquisitionDate: Long?,
+        acquiredFrom: String?,
+        inventoryLocation: String?,
+    ): Int = update(
+        internalId, contentValuesOf(
+            Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP to System.currentTimeMillis(),
+            Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY to priceCurrency,
+            Collection.Columns.PRIVATE_INFO_PRICE_PAID to price,
+            Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY to currentValueCurrency,
+            Collection.Columns.PRIVATE_INFO_CURRENT_VALUE to currentValue,
+            Collection.Columns.PRIVATE_INFO_QUANTITY to quantity,
+            Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE to acquisitionDate.asDateForApi(),
+            Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM to acquiredFrom,
+            Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION to inventoryLocation
+        )
+    )
+
+    suspend fun markAsDeleted(internalId: Long) =
+        update(internalId, contentValuesOf(Collection.Columns.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis()))
+
+    suspend fun resetTimestamps(internalId: Long) =
+        update(
+            internalId, contentValuesOf(
+                Collection.Columns.COLLECTION_DIRTY_TIMESTAMP to 0,
+                Collection.Columns.STATUS_DIRTY_TIMESTAMP to 0,
+                Collection.Columns.COMMENT_DIRTY_TIMESTAMP to 0,
+                Collection.Columns.RATING_DIRTY_TIMESTAMP to 0,
+                Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
+                Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
+                Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
+                Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP to 0,
+                Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP to 0,
+            )
+        )
+
+    suspend fun updateComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.COMMENT, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+
+    suspend fun updatePrivateComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.PRIVATE_INFO_COMMENT, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+
+    suspend fun updateWishlistComment(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.WISHLIST_COMMENT, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+
+    suspend fun updateCondition(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.CONDITION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+
+    suspend fun updateHasParts(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.HASPARTS_LIST, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+
+    suspend fun updateWantParts(internalId: Long, text: String): Int =
+        updateText(internalId, text, Collection.Columns.WANTPARTS_LIST, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+
+    private suspend fun updateText(internalId: Long, text: String, textColumn: String, timestampColumn: String): Int =
+        update(
+            internalId, contentValuesOf(
+                textColumn to text,
+                timestampColumn to System.currentTimeMillis()
+            )
+        )
+
+    suspend fun clearDirtyTimestamp(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.COLLECTION_DIRTY_TIMESTAMP)
+
+    suspend fun clearStatusTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.STATUS_DIRTY_TIMESTAMP)
+
+    suspend fun clearRatingTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.RATING_DIRTY_TIMESTAMP)
+
+    suspend fun clearCommentTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+
+    suspend fun clearTradeConditionTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+
+    suspend fun clearPrivateInfoTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+
+    suspend fun clearWishListTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+
+    suspend fun clearWantPartsTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+
+    suspend fun clearHasPartsTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+
+    private suspend fun clearTimestampColumn(internalId: Long, timestampColumn: String) = update(internalId, contentValuesOf(timestampColumn to 0))
+
+    private suspend fun update(internalId: Long, values: ContentValues): Int = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
             resolver.update(Collection.buildUri(internalId), values, null, null)
         } else 0

@@ -71,10 +71,10 @@ class GameCollectionRepository(
     suspend fun refreshHeroImage(item: CollectionItemEntity): CollectionItemEntity = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.getImageUrls(item.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
-        if (urls?.isNotEmpty() == true) {
-            dao.update(item.internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to urls.first()))
-            item.copy(heroImageUrl = urls.first())
-        } else item
+        urls?.firstOrNull()?.let {
+            dao.updateHeroImageUrl(item.internalId, it)
+            item.copy(heroImageUrl = it)
+        } ?: item
     }
 
     suspend fun loadCollectionItems(gameId: Int) = dao.loadByGame(gameId).map {
@@ -175,10 +175,7 @@ class GameCollectionRepository(
         } else if (!response.error.isNullOrBlank()) {
             Result.failure(Exception(response.error))
         } else {
-            val count = dao.update(
-                item.internalId,
-                contentValuesOf(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP to 0)
-            )
+            val count = dao.clearDirtyTimestamp(item.internalId)
             if (count == 1)
                 Result.success(CollectionItemUploadResult.insert(item))
             else
@@ -187,28 +184,65 @@ class GameCollectionRepository(
     }
 
     suspend fun uploadUpdatedItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
-        val statusResult = updateItemField(item.statusDirtyTimestamp, item.mapToFormBodyForStatusUpdate(), item, Collection.Columns.STATUS_DIRTY_TIMESTAMP)
+        val statusResult =
+            updateItemField(
+                item.statusDirtyTimestamp,
+                item.mapToFormBodyForStatusUpdate(),
+                item,
+            ) { dao.clearStatusTimestampColumn(it.internalId) }
         if (statusResult.isFailure) return statusResult
 
-        val ratingResult = updateItemField(item.ratingDirtyTimestamp, item.mapToFormBodyForRatingUpdate(), item, Collection.Columns.RATING_DIRTY_TIMESTAMP)
+        val ratingResult =
+            updateItemField(
+                item.ratingDirtyTimestamp,
+                item.mapToFormBodyForRatingUpdate(),
+                item,
+            ) { dao.clearRatingTimestampColumn(it.internalId) }
         if (ratingResult.isFailure) return ratingResult
 
-        val commentResult = updateItemField(item.commentDirtyTimestamp, item.mapToFormBodyForCommentUpdate(), item, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+        val commentResult =
+            updateItemField(
+                item.commentDirtyTimestamp,
+                item.mapToFormBodyForCommentUpdate(),
+                item,
+            ) { dao.clearCommentTimestampColumn(it.internalId) }
         if (commentResult.isFailure) return commentResult
 
-        val privateInfoResult = updateItemField(item.privateInfoDirtyTimestamp, item.mapToFormBodyForPrivateInfoUpdate(), item, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+        val privateInfoResult = updateItemField(
+            item.privateInfoDirtyTimestamp,
+            item.mapToFormBodyForPrivateInfoUpdate(),
+            item,
+        ) { dao.clearPrivateInfoTimestampColumn(it.internalId) }
         if (privateInfoResult.isFailure) return privateInfoResult
 
-        val wishlistCommentResult = updateItemField(item.wishListCommentDirtyTimestamp, item.mapToFormBodyForWishlistCommentUpdate(), item, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+        val wishlistCommentResult = updateItemField(
+            item.wishListCommentDirtyTimestamp,
+            item.mapToFormBodyForWishlistCommentUpdate(),
+            item,
+        ) { dao.clearWishListTimestampColumn(it.internalId) }
         if (wishlistCommentResult.isFailure) return wishlistCommentResult
 
-        val tradeConditionResult = updateItemField(item.tradeConditionDirtyTimestamp, item.mapToFormBodyForTradeConditionUpdate(), item, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+        val tradeConditionResult = updateItemField(
+            item.tradeConditionDirtyTimestamp,
+            item.mapToFormBodyForTradeConditionUpdate(),
+            item,
+        ) { dao.clearTradeConditionTimestampColumn(it.internalId) }
         if (tradeConditionResult.isFailure) return tradeConditionResult
 
-        val wantPartsResult = updateItemField(item.wantPartsDirtyTimestamp, item.mapToFormBodyForWantPartsUpdate(), item, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+        val wantPartsResult =
+            updateItemField(
+                item.wantPartsDirtyTimestamp,
+                item.mapToFormBodyForWantPartsUpdate(),
+                item,
+            ) { dao.clearWantPartsTimestampColumn(it.internalId) }
         if (wantPartsResult.isFailure) return wantPartsResult
 
-        val hasPartsResult = updateItemField(item.hasPartsDirtyTimestamp, item.mapToFormBodyForHasPartsUpdate(), item, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+        val hasPartsResult =
+            updateItemField(
+                item.hasPartsDirtyTimestamp,
+                item.mapToFormBodyForHasPartsUpdate(),
+                item,
+            ) { dao.clearHasPartsTimestampColumn(it.internalId) }
         if (hasPartsResult.isFailure) return hasPartsResult
 
         return Result.success(CollectionItemUploadResult.update(item))
@@ -218,7 +252,7 @@ class GameCollectionRepository(
         timestamp: Long,
         formBody: FormBody,
         item: CollectionItemEntity,
-        timestampColumn: String
+        clearTimestamp: suspend (CollectionItemEntity) -> Int
     ): Result<CollectionItemUploadResult> {
         return if (timestamp > 0L) {
             val response = phpApi.collection(formBody)
@@ -228,7 +262,7 @@ class GameCollectionRepository(
             } else if (!response.error.isNullOrBlank()) {
                 Result.failure(Exception(response.error))
             } else {
-                val count = dao.update(item.internalId, contentValuesOf(timestampColumn to 0))
+                val count = clearTimestamp(item)
                 if (count != 1)
                     Result.failure(Exception("Error inserting into database"))
                 else
@@ -303,104 +337,38 @@ class GameCollectionRepository(
         acquisitionDate: Long?,
         acquiredFrom: String?,
         inventoryLocation: String?,
-    ): Int = withContext(Dispatchers.IO) {
-        if (internalId != INVALID_ID.toLong()) {
-            val values = contentValuesOf(
-                Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP to System.currentTimeMillis(),
-                Collection.Columns.PRIVATE_INFO_PRICE_PAID_CURRENCY to priceCurrency,
-                Collection.Columns.PRIVATE_INFO_PRICE_PAID to price,
-                Collection.Columns.PRIVATE_INFO_CURRENT_VALUE_CURRENCY to currentValueCurrency,
-                Collection.Columns.PRIVATE_INFO_CURRENT_VALUE to currentValue,
-                Collection.Columns.PRIVATE_INFO_QUANTITY to quantity,
-                Collection.Columns.PRIVATE_INFO_ACQUISITION_DATE to acquisitionDate.asDateForApi(),
-                Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM to acquiredFrom,
-                Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION to inventoryLocation
-            )
-            dao.update(internalId, values)
-        } else 0
-    }
+    ) = dao.updatePrivateInfo(
+        internalId,
+        priceCurrency,
+        price,
+        currentValueCurrency,
+        currentValue,
+        quantity,
+        acquisitionDate,
+        acquiredFrom,
+        inventoryLocation
+    )
 
-    suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int): Int =
-        withContext(Dispatchers.IO) {
-            if (internalId != INVALID_ID.toLong()) {
-                val values = contentValuesOf(
-                    Collection.Columns.STATUS_DIRTY_TIMESTAMP to System.currentTimeMillis(),
-                    Collection.Columns.STATUS_OWN to statuses.contains(Collection.Columns.STATUS_OWN),
-                    Collection.Columns.STATUS_PREVIOUSLY_OWNED to statuses.contains(Collection.Columns.STATUS_PREVIOUSLY_OWNED),
-                    Collection.Columns.STATUS_PREORDERED to statuses.contains(Collection.Columns.STATUS_PREORDERED),
-                    Collection.Columns.STATUS_FOR_TRADE to statuses.contains(Collection.Columns.STATUS_FOR_TRADE),
-                    Collection.Columns.STATUS_WANT to statuses.contains(Collection.Columns.STATUS_WANT),
-                    Collection.Columns.STATUS_WANT_TO_BUY to statuses.contains(Collection.Columns.STATUS_WANT_TO_BUY),
-                    Collection.Columns.STATUS_WANT_TO_PLAY to statuses.contains(Collection.Columns.STATUS_WANT_TO_PLAY),
-                    Collection.Columns.STATUS_WISHLIST to statuses.contains(Collection.Columns.STATUS_WISHLIST),
-                )
-                if (statuses.contains(Collection.Columns.STATUS_WISHLIST)) {
-                    values.put(Collection.Columns.STATUS_WISHLIST_PRIORITY, wishlistPriority.coerceIn(1..5))
-                }
-                dao.update(internalId, values)
-            } else 0
-        }
+    suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int) =
+        dao.updateStatuses(internalId, statuses, wishlistPriority)
 
-    suspend fun updateRating(internalId: Long, rating: Double): Int = withContext(Dispatchers.IO) {
-        if (internalId != INVALID_ID.toLong()) {
-            val values = contentValuesOf(
-                Collection.Columns.RATING to rating,
-                Collection.Columns.RATING_DIRTY_TIMESTAMP to System.currentTimeMillis()
-            )
-            dao.update(internalId, values)
-        } else 0
-    }
+    suspend fun updateRating(internalId: Long, rating: Double): Int = dao.updateRating(internalId, rating)
 
-    suspend fun updateComment(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.COMMENT, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
+    suspend fun updateComment(internalId: Long, text: String): Int = dao.updateComment(internalId, text)
 
-    suspend fun updatePrivateComment(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.PRIVATE_INFO_COMMENT, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
+    suspend fun updatePrivateComment(internalId: Long, text: String): Int = dao.updatePrivateComment(internalId, text)
 
-    suspend fun updateWishlistComment(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.WISHLIST_COMMENT, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
+    suspend fun updateWishlistComment(internalId: Long, text: String): Int = dao.updateWishlistComment(internalId, text)
 
-    suspend fun updateCondition(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.CONDITION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
+    suspend fun updateCondition(internalId: Long, text: String): Int = dao.updateCondition(internalId, text)
 
-    suspend fun updateHasParts(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.HASPARTS_LIST, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
+    suspend fun updateHasParts(internalId: Long, text: String): Int = dao.updateHasParts(internalId, text)
 
-    suspend fun updateWantParts(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.WANTPARTS_LIST, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
+    suspend fun updateWantParts(internalId: Long, text: String): Int = dao.updateWantParts(internalId, text)
 
-    private suspend fun updateText(internalId: Long, text: String, textColumn: String, timestampColumn: String): Int =
-        withContext(Dispatchers.IO) {
-            if (internalId != INVALID_ID.toLong()) {
-                val values = contentValuesOf(
-                    textColumn to text,
-                    timestampColumn to System.currentTimeMillis()
-                )
-                dao.update(internalId, values)
-            } else 0
-        }
+    suspend fun markAsDeleted(internalId: Long): Int = dao.markAsDeleted(internalId)
 
-    suspend fun markAsDeleted(internalId: Long): Int = withContext(Dispatchers.IO) {
-        dao.update(internalId, contentValuesOf(Collection.Columns.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis()))
-    }
-
-    suspend fun resetTimestamps(internalId: Long): Int =
-        withContext(Dispatchers.IO) {
-            if (internalId != INVALID_ID.toLong()) {
-                val values = contentValuesOf(
-                    Collection.Columns.COLLECTION_DIRTY_TIMESTAMP to 0,
-                    Collection.Columns.STATUS_DIRTY_TIMESTAMP to 0,
-                    Collection.Columns.COMMENT_DIRTY_TIMESTAMP to 0,
-                    Collection.Columns.RATING_DIRTY_TIMESTAMP to 0,
-                    Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
-                    Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
-                    Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
-                    Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP to 0,
-                    Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP to 0,
-                )
-                dao.update(internalId, values)
-            } else 0
-        }
+    suspend fun resetTimestamps(internalId: Long): Int = dao.resetTimestamps(internalId)
 
     fun enqueueUploadRequest(gameId: Int) {
         WorkManager.getInstance(context).enqueue(CollectionUploadWorker.buildRequest(context, gameId))
@@ -408,7 +376,7 @@ class GameCollectionRepository(
 
     fun enqueueRefreshRequest(workName: String) {
         WorkManager.getInstance(context)
-            .beginUniqueWork(workName, ExistingWorkPolicy.KEEP,  CollectionUploadWorker.buildRequest(context))
+            .beginUniqueWork(workName, ExistingWorkPolicy.KEEP, CollectionUploadWorker.buildRequest(context))
             .then(SyncCollectionWorker.buildQuickRequest(context))
             .enqueue()
     }
