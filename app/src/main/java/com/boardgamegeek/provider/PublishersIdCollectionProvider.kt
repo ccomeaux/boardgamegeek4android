@@ -15,6 +15,8 @@ class PublishersIdCollectionProvider : BaseProvider() {
         return SelectionBuilder()
             .mapToTable(_ID, Tables.COLLECTION)
             .mapToTable(Games.Columns.GAME_ID, Tables.GAMES)
+            .mapToTable(BggContract.Collection.Columns.UPDATED, Tables.COLLECTION)
+            .mapToTable(BggContract.Collection.Columns.UPDATED_LIST, Tables.COLLECTION)
             .table(Tables.PUBLISHER_JOIN_GAMES_JOIN_COLLECTION)
             .whereEquals(Publishers.Columns.PUBLISHER_ID, publisherId)
     }

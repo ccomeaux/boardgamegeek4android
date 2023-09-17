@@ -18,8 +18,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class ArtistDao(private val context: Context) {
-    private val collectionDao = CollectionDao(context)
-
     enum class SortType {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
@@ -78,9 +76,6 @@ class ArtistDao(private val context: Context) {
         imagesUpdatedTimestamp = it.getLongOrNull(9),
         itemCount = it.getIntOrNull(11),
     )
-
-    suspend fun loadCollection(artistId: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING) =
-        collectionDao.loadLinkedCollection(Artists.buildArtistCollectionUri(artistId), sortBy)
 
     suspend fun upsert(artist: ArtistBasic): Int = withContext(Dispatchers.IO) {
         val values = contentValuesOf(

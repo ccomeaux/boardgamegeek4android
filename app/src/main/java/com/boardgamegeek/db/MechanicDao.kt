@@ -5,7 +5,6 @@ import android.provider.BaseColumns
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.db.model.MechanicLocal
-import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.extensions.ascending
 import com.boardgamegeek.extensions.collateNoCase
 import com.boardgamegeek.extensions.descending
@@ -15,8 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class MechanicDao(private val context: Context) {
-    private val collectionDao = CollectionDao(context)
-
     enum class SortType {
         NAME, ITEM_COUNT
     }
@@ -45,9 +42,6 @@ class MechanicDao(private val context: Context) {
             )
         }
     }
-
-    suspend fun loadCollection(mechanicId: Int, sortBy: CollectionDao.SortType) =
-        collectionDao.loadLinkedCollection(Mechanics.buildCollectionUri(mechanicId), sortBy)
 
     suspend fun delete(): Int = withContext(Dispatchers.IO) {
         context.contentResolver.delete(Mechanics.CONTENT_URI, null, null)

@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
+import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
@@ -18,22 +19,27 @@ class DesignerRepository(
     private val api: BggService,
     private val imageRepository: ImageRepository,
 ) {
-    private val dao = DesignerDao(context)
+    private val designerDao = DesignerDao(context)
+    private val collectionDao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadDesigners(sortBy: DesignerDao.SortType) = dao.loadDesigners(sortBy).map { it.mapToDesignerEntity() }
+    suspend fun loadDesigners(sortBy: DesignerDao.SortType) = designerDao.loadDesigners(sortBy).map { it.mapToDesignerEntity() }
 
-    suspend fun loadDesigner(designerId: Int) = dao.loadDesigner(designerId)?.mapToDesignerEntity()
+    suspend fun loadDesigner(designerId: Int) = designerDao.loadDesigner(designerId)?.mapToDesignerEntity()
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) = dao.loadCollection(id, sortBy)
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
+        collectionDao.loadCollectionForDesigner(id, sortBy)
+            .map { it.mapToEntity() }
+            .filter { it.deleteTimestamp == 0L }
+            .filter { it.filterBySyncedStatues(context) }
 
-    suspend fun delete() = dao.delete()
+    suspend fun delete() = designerDao.delete()
 
     suspend fun refreshDesigner(designerId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = api.person(BggService.PersonType.DESIGNER, designerId)
         response.mapToEntity(designerId, timestamp)?.let {
-            dao.upsert(it.mapToDesignerBasic())
+            designerDao.upsert(it.mapToDesignerBasic())
         } ?: 0
     }
 
@@ -42,7 +48,7 @@ class DesignerRepository(
         val response = api.person(designer.id)
         val entity = response.items.firstOrNull()?.mapToEntity(designer, timestamp)
         entity?.let {
-            dao.upsert(it.mapToDesignerImages())
+            designerDao.upsert(it.mapToDesignerImages())
         }
         entity ?: designer
     }
@@ -51,7 +57,7 @@ class DesignerRepository(
         val urlMap = imageRepository.getImageUrls(designer.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         if (urls?.isNotEmpty() == true) {
-            dao.updateHeroImageUrl(designer.id, urls.first())
+            designerDao.updateHeroImageUrl(designer.id, urls.first())
             designer.copy(heroImageUrl = urls.first())
         } else designer
     }
@@ -68,11 +74,12 @@ class DesignerRepository(
     }
 
     suspend fun calculateStats(designerId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
-        val collection = dao.loadCollection(designerId)
+        val collection = collectionDao.loadCollectionForDesigner(designerId)
+            .map { it.second.mapToEntity(it.first.mapToEntity()) }
         val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
-        val realOldScore = if (whitmoreScore == -1) dao.loadDesigner(designerId)?.whitmoreScore ?: 0 else whitmoreScore
+        val realOldScore = if (whitmoreScore == -1) designerDao.loadDesigner(designerId)?.whitmoreScore ?: 0 else whitmoreScore
         if (statsEntity.whitmoreScore != realOldScore) {
-            dao.updateWhitmoreScore(designerId, statsEntity.whitmoreScore)
+            designerDao.updateWhitmoreScore(designerId, statsEntity.whitmoreScore)
         }
         statsEntity
     }

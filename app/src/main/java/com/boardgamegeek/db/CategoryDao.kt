@@ -14,8 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class CategoryDao(private val context: Context) {
-    private val collectionDao = CollectionDao(context)
-
     enum class SortType {
         NAME, ITEM_COUNT
     }
@@ -44,9 +42,6 @@ class CategoryDao(private val context: Context) {
             )
         }
     }
-
-    suspend fun loadCollection(categoryId: Int, sortBy: CollectionDao.SortType) =
-        collectionDao.loadLinkedCollection(Categories.buildCollectionUri(categoryId), sortBy)
 
     suspend fun delete(): Int = withContext(Dispatchers.IO) {
         context.contentResolver.delete(Categories.CONTENT_URI, null, null)

@@ -15,6 +15,8 @@ class ArtistsIdCollectionProvider : BaseProvider() {
         return SelectionBuilder()
             .mapToTable(BaseColumns._ID, Tables.COLLECTION)
             .mapToTable(Artists.Columns.GAME_ID, Tables.GAMES)
+            .mapToTable(BggContract.Collection.Columns.UPDATED, Tables.COLLECTION)
+            .mapToTable(BggContract.Collection.Columns.UPDATED_LIST, Tables.COLLECTION)
             .table(Tables.ARTIST_JOIN_GAMES_JOIN_COLLECTION)
             .whereEquals(Artists.Columns.ARTIST_ID, artistId)
     }

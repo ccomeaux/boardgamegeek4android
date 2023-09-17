@@ -2,6 +2,7 @@ package com.boardgamegeek.mappers
 
 import android.graphics.Color
 import com.boardgamegeek.db.model.CollectionItemLocal
+import com.boardgamegeek.db.model.GameLocal
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.CollectionItemGameEntity
 import com.boardgamegeek.entities.GameEntity
@@ -246,3 +247,5 @@ fun CollectionItemLocal.mapToEntity(gameEntity: GameEntity?) = CollectionItemEnt
     numberOfUsersRating = gameEntity?.numberOfRatings ?: 0,
     standardDeviation = gameEntity?.standardDeviation ?: 0.0,
 )
+
+fun Pair<GameLocal, CollectionItemLocal>.mapToEntity() = second.mapToEntity(first.mapToEntity())

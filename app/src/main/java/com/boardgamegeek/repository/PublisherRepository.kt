@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
+import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
@@ -19,22 +20,27 @@ class PublisherRepository(
     private val api: BggService,
     private val imageRepository: ImageRepository,
 ) {
-    private val dao = PublisherDao(context)
+    private val publisherDao = PublisherDao(context)
+    private val collectionDao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadPublishers(sortBy: PublisherDao.SortType) = dao.loadPublishers(sortBy).map { it.mapToEntity() }
+    suspend fun loadPublishers(sortBy: PublisherDao.SortType) = publisherDao.loadPublishers(sortBy).map { it.mapToEntity() }
 
-    suspend fun loadPublisher(publisherId: Int) = dao.loadPublisher(publisherId)?.mapToEntity()
+    suspend fun loadPublisher(publisherId: Int) = publisherDao.loadPublisher(publisherId)?.mapToEntity()
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) = dao.loadCollection(id, sortBy)
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
+        collectionDao.loadCollectionForPublisher(id, sortBy)
+            .map { it.mapToEntity() }
+            .filter { it.deleteTimestamp == 0L }
+            .filter { it.filterBySyncedStatues(context) }
 
-    suspend fun delete() = dao.delete()
+    suspend fun delete() = publisherDao.delete()
 
     suspend fun refreshPublisher(publisherId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = api.company(publisherId)
         response.items.firstOrNull()?.mapToEntity(timestamp)?.let {
-            dao.upsert(it.mapToPublisherBasic())
+            publisherDao.upsert(it.mapToPublisherBasic())
         } ?: 0
     }
 
@@ -42,7 +48,7 @@ class PublisherRepository(
         val urlMap = imageRepository.getImageUrls(publisher.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         urls?.firstOrNull()?.let {
-            dao.updateHeroImageUrl(publisher.id, it)
+            publisherDao.updateHeroImageUrl(publisher.id, it)
             publisher.copy(heroImageUrl = it)
         } ?: publisher
     }
@@ -60,11 +66,11 @@ class PublisherRepository(
         }
 
     suspend fun calculateStats(publisherId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
-        val collection = dao.loadCollection(publisherId)
+        val collection = collectionDao.loadCollectionForPublisher(publisherId).map { it.mapToEntity() }
         val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
-        val realOldScore = if (whitmoreScore == -1) dao.loadPublisher(publisherId)?.whitmoreScore ?: 0 else whitmoreScore
+        val realOldScore = if (whitmoreScore == -1) publisherDao.loadPublisher(publisherId)?.whitmoreScore ?: 0 else whitmoreScore
         if (statsEntity.whitmoreScore != realOldScore) {
-            dao.updateWhitmoreScore(publisherId, statsEntity.whitmoreScore)
+            publisherDao.updateWhitmoreScore(publisherId, statsEntity.whitmoreScore)
         }
         statsEntity
     }

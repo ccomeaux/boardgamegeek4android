@@ -11,14 +11,11 @@ class PersonStatsEntity(
     val whitmoreScore: Int,
     val whitmoreScoreWithExpansions: Int,
     val playCount: Int,
-    val hIndex: HIndexEntity
+    val hIndex: HIndexEntity,
 ) {
     companion object {
-        fun fromLinkedCollection(collection: List<BriefGameEntity>, context: Context): PersonStatsEntity {
+        fun fromLinkedCollection(collection: List<CollectionItemEntity>, context: Context): PersonStatsEntity {
             val baseGameCollection = collection.filter { it.subtype == GameEntity.Subtype.BOARDGAME }
-
-            val ratedGames = baseGameCollection.filter { it.personalRating > 0.0 }
-            val averageRating = if (ratedGames.isEmpty()) 0.0 else (ratedGames.sumOf { it.personalRating }) / ratedGames.size
 
             val whitmoreScore = calculateWhitmoreScore(baseGameCollection)
             val whitmoreScoreWithExpansions = calculateWhitmoreScore(collection.filter { it.subtype != GameEntity.Subtype.BOARDGAME_ACCESSORY })
@@ -33,18 +30,20 @@ class PersonStatsEntity(
                 else -> baseGameCollection
             }
                 .distinctBy { it.gameId }
-                .map { it.playCount }
+                .map { it.numberOfPlays }
 
-            val playCount = playCountsByGame.sum()
-
-            val hIndex = HIndexEntity.fromList(playCountsByGame)
-
-            return PersonStatsEntity(averageRating, whitmoreScore, whitmoreScoreWithExpansions, playCount, hIndex)
+            return PersonStatsEntity(
+                baseGameCollection.filter { it.rating > 0.0 }.map { it.rating }.average(),
+                whitmoreScore,
+                whitmoreScoreWithExpansions,
+                playCountsByGame.sum(),
+                HIndexEntity.fromList(playCountsByGame)
+            )
         }
 
-        private fun calculateWhitmoreScore(games: List<BriefGameEntity>, neutralRating: Double = 6.5) = games
-            .filter { it.personalRating > neutralRating }
-            .sumOf { (it.personalRating - neutralRating) * 2.0 }
+        private fun calculateWhitmoreScore(games: List<CollectionItemEntity>, neutralRating: Double = 6.5) = games
+            .filter { it.rating > neutralRating }
+            .sumOf { (it.rating - neutralRating) * 2.0 }
             .toInt()
     }
 }

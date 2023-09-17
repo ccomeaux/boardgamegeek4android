@@ -5,9 +5,7 @@ import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.format.DateUtils
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.appendBold
-import com.boardgamegeek.extensions.asMoney
-import com.boardgamegeek.extensions.formatDateTime
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 
 data class CollectionItemEntity(
@@ -153,5 +151,22 @@ data class CollectionItemEntity(
         const val RANK_UNKNOWN = GameRankEntity.RANK_UNKNOWN
         const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
         const val UNRATED = GameEntity.UNRATED
+
+        fun CollectionItemEntity.filterBySyncedStatues(context: Context): Boolean {
+            val syncedStatuses = context.preferences().getSyncStatusesOrDefault()
+            return (syncedStatuses.contains(COLLECTION_STATUS_OWN) && own) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_PREVIOUSLY_OWNED) && previouslyOwned) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_PREORDERED) && preOrdered) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_FOR_TRADE) && forTrade) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_WANT_IN_TRADE) && wantInTrade) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_WANT_TO_BUY) && wantToBuy) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_WANT_TO_PLAY) && wantToPlay) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_WISHLIST) && wishList) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_RATED) && rating != UNRATED) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_PLAYED) && numberOfPlays > 0) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_COMMENTED) && comment.isNotBlank()) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_HAS_PARTS) && hasPartsList.isNotBlank()) ||
+                    (syncedStatuses.contains(COLLECTION_STATUS_WANT_PARTS) && wantPartsList.isNotBlank())
+        }
     }
 }

@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.PersonStatsEntity
 import com.boardgamegeek.extensions.*
@@ -21,22 +22,27 @@ class ArtistRepository(
     private val api: BggService,
     private val imageRepository: ImageRepository,
 ) {
-    private val dao = ArtistDao(context)
+    private val artistDao = ArtistDao(context)
+    private val collectionDao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadArtists(sortBy: ArtistDao.SortType) = dao.loadArtists(sortBy).map { it.mapToArtistEntity() }
+    suspend fun loadArtists(sortBy: ArtistDao.SortType) = artistDao.loadArtists(sortBy).map { it.mapToArtistEntity() }
 
-    suspend fun loadArtist(artistId: Int) = dao.loadArtist(artistId)?.mapToArtistEntity()
+    suspend fun loadArtist(artistId: Int) = artistDao.loadArtist(artistId)?.mapToArtistEntity()
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) = dao.loadCollection(id, sortBy)
+    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
+        collectionDao.loadCollectionForArtist(id, sortBy)
+            .map { it.mapToEntity() }
+            .filter { it.deleteTimestamp == 0L }
+            .filter { it.filterBySyncedStatues(context) }
 
-    suspend fun delete() = dao.delete()
+    suspend fun delete() = artistDao.delete()
 
     suspend fun refreshArtist(artistId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = api.person(BggService.PersonType.ARTIST, artistId)
         response.mapToEntity(artistId, timestamp)?.let {
-            dao.upsert(it.mapToArtistBasic())
+            artistDao.upsert(it.mapToArtistBasic())
         } ?: 0
     }
 
@@ -45,7 +51,7 @@ class ArtistRepository(
         val response = api.person(artist.id)
         val entity = response.items.firstOrNull()?.mapToEntity(artist, timestamp)
         entity?.let {
-            dao.upsert(it.mapToArtistImages())
+            artistDao.upsert(it.mapToArtistImages())
         }
         entity ?: artist
     }
@@ -54,7 +60,7 @@ class ArtistRepository(
         val urlMap = imageRepository.fetchImageUrls(artist.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         if (urls?.isNotEmpty() == true) {
-            dao.updateHeroImageUrl(artist.id, urls.first())
+            artistDao.updateHeroImageUrl(artist.id, urls.first())
             artist.copy(heroImageUrl = urls.first())
         } else artist
     }
@@ -71,11 +77,11 @@ class ArtistRepository(
     }
 
     suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
-        val collection = dao.loadCollection(artistId)
+        val collection = collectionDao.loadCollectionForArtist(artistId).map { it.mapToEntity() }
         val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
-        val realOldScore = if (whitmoreScore == -1) dao.loadArtist(artistId)?.whitmoreScore ?: 0 else whitmoreScore
+        val realOldScore = if (whitmoreScore == -1) artistDao.loadArtist(artistId)?.whitmoreScore ?: 0 else whitmoreScore
         if (statsEntity.whitmoreScore != realOldScore) {
-            dao.updateWhitmoreScore(artistId, statsEntity.whitmoreScore)
+            artistDao.updateWhitmoreScore(artistId, statsEntity.whitmoreScore)
         }
         statsEntity
     }

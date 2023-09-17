@@ -16,6 +16,8 @@ class MechanicsIdCollectionProvider : BaseProvider() {
         return SelectionBuilder()
             .mapToTable(BaseColumns._ID, Tables.COLLECTION)
             .mapToTable(Games.Columns.GAME_ID, Tables.GAMES)
+            .mapToTable(BggContract.Collection.Columns.UPDATED, Tables.COLLECTION)
+            .mapToTable(BggContract.Collection.Columns.UPDATED_LIST, Tables.COLLECTION)
             .table(Tables.MECHANIC_JOIN_GAMES_JOIN_COLLECTION)
             .whereEquals(Mechanics.Columns.MECHANIC_ID, mechanicId)
     }

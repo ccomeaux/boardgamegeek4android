@@ -16,6 +16,8 @@ class DesignersIdCollectionProvider : BaseProvider() {
         return SelectionBuilder()
             .mapToTable(BaseColumns._ID, Tables.COLLECTION)
             .mapToTable(Games.Columns.GAME_ID, Tables.GAMES)
+            .mapToTable(BggContract.Collection.Columns.UPDATED, Tables.COLLECTION)
+            .mapToTable(BggContract.Collection.Columns.UPDATED_LIST, Tables.COLLECTION)
             .table(Tables.DESIGNER_JOIN_GAMES_JOIN_COLLECTION)
             .whereEquals(Designers.Columns.DESIGNER_ID, designerId)
     }

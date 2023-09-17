@@ -3,7 +3,6 @@ package com.boardgamegeek.db
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
-import android.content.SharedPreferences
 import android.database.Cursor
 import android.net.Uri
 import android.provider.BaseColumns
@@ -25,7 +24,6 @@ import timber.log.Timber
 
 class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
-    private val prefs: SharedPreferences by lazy { context.preferences() }
 
     suspend fun load(internalId: Long) = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
@@ -61,7 +59,15 @@ class CollectionDao(private val context: Context) {
         uri: Uri = Collection.CONTENT_URI,
         selection: String? = null,
         selectionArgs: Array<String>? = null,
+        sortBy: SortType = SortType.NAME,
     ) = withContext(Dispatchers.IO) {
+        val sortByName = Games.Columns.GAME_SORT_NAME.collateNoCase().ascending()
+        val sortOrder = when (sortBy) {
+            SortType.NAME -> sortByName
+            SortType.RATING -> Collection.Columns.RATING.descending()
+                .plus(", ${Games.Columns.STARRED}").descending()
+                .plus(", $sortByName")
+        }
         resolver.loadList(
             uri,
             arrayOf(
@@ -262,72 +268,15 @@ class CollectionDao(private val context: Context) {
         NAME, RATING
     }
 
-    suspend fun loadLinkedCollection(uri: Uri, sortBy: SortType = SortType.RATING): List<BriefGameEntity> =
-        withContext(Dispatchers.IO) {
-            val selection = prefs.getSyncStatusesOrDefault().map {
-                when (it) {
-                    COLLECTION_STATUS_OWN -> Collection.Columns.STATUS_OWN.isTrue()
-                    COLLECTION_STATUS_PREVIOUSLY_OWNED -> Collection.Columns.STATUS_PREVIOUSLY_OWNED.isTrue()
-                    COLLECTION_STATUS_PREORDERED -> Collection.Columns.STATUS_PREORDERED.isTrue()
-                    COLLECTION_STATUS_FOR_TRADE -> Collection.Columns.STATUS_FOR_TRADE.isTrue()
-                    COLLECTION_STATUS_WANT_IN_TRADE -> Collection.Columns.STATUS_WANT.isTrue()
-                    COLLECTION_STATUS_WANT_TO_BUY -> Collection.Columns.STATUS_WANT_TO_BUY.isTrue()
-                    COLLECTION_STATUS_WANT_TO_PLAY -> Collection.Columns.STATUS_WANT_TO_PLAY.isTrue()
-                    COLLECTION_STATUS_WISHLIST -> Collection.Columns.STATUS_WISHLIST.isTrue()
-                    COLLECTION_STATUS_RATED -> Collection.Columns.RATING.greaterThanZero()
-                    COLLECTION_STATUS_PLAYED -> Games.Columns.NUM_PLAYS.greaterThanZero()
-                    COLLECTION_STATUS_COMMENTED -> Collection.Columns.COMMENT.notBlank()
-                    COLLECTION_STATUS_HAS_PARTS -> Collection.Columns.HASPARTS_LIST.notBlank()
-                    COLLECTION_STATUS_WANT_PARTS -> Collection.Columns.WANTPARTS_LIST.notBlank()
-                    else -> ""
-                }
-            }.filter { it.isNotBlank() }.joinToString(" OR ")
+    suspend fun loadCollectionForArtist(artistId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Artists.buildArtistCollectionUri(artistId), sortBy = sortBy)
 
-            val sortByName = Games.Columns.GAME_SORT_NAME.collateNoCase().ascending()
-            val sortOrder = when (sortBy) {
-                SortType.NAME -> sortByName
-                SortType.RATING -> Collection.Columns.RATING.descending()
-                    .plus(", ${Games.Columns.STARRED}").descending()
-                    .plus(", $sortByName")
-            }
-            context.contentResolver.loadList(
-                uri,
-                arrayOf(
-                    BaseColumns._ID,
-                    Collection.Columns.GAME_ID,
-                    Games.Columns.GAME_NAME,
-                    Collection.Columns.COLLECTION_NAME,
-                    Games.Columns.YEAR_PUBLISHED,
-                    Collection.Columns.COLLECTION_YEAR_PUBLISHED,
-                    Collection.Columns.COLLECTION_THUMBNAIL_URL,
-                    Games.Columns.THUMBNAIL_URL,
-                    Games.Columns.HERO_IMAGE_URL,
-                    Collection.Columns.RATING,
-                    Games.Columns.STARRED,
-                    Games.Columns.SUBTYPE,
-                    Games.Columns.NUM_PLAYS,
-                ),
-                selection,
-                emptyArray(),
-                sortOrder
-            ) {
-                BriefGameEntity(
-                    it.getLong(0),
-                    it.getInt(1),
-                    it.getStringOrNull(2).orEmpty(),
-                    it.getStringOrNull(3).orEmpty(),
-                    it.getIntOrNull(4) ?: BriefGameEntity.YEAR_UNKNOWN,
-                    it.getIntOrNull(5) ?: BriefGameEntity.YEAR_UNKNOWN,
-                    it.getStringOrNull(6).orEmpty(),
-                    it.getStringOrNull(7).orEmpty(),
-                    it.getStringOrNull(8).orEmpty(),
-                    it.getDoubleOrNull(9) ?: 0.0,
-                    it.getBoolean(10),
-                    it.getStringOrNull(11).toSubtype(),
-                    it.getIntOrNull(12) ?: 0
-                )
-            }
-        }
+    suspend fun loadCollectionForDesigner(designerId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Designers.buildDesignerCollectionUri(designerId), sortBy = sortBy)
+
+    suspend fun loadCollectionForPublisher(publisherId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Publishers.buildCollectionUri(publisherId), sortBy = sortBy)
+
+    suspend fun loadCollectionForCategory(categoryId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Categories.buildCollectionUri(categoryId), sortBy = sortBy)
+
+    suspend fun loadCollectionForMechanic(mechanicId: Int, sortBy: SortType = SortType.RATING) = loadPairs(Mechanics.buildCollectionUri(mechanicId), sortBy = sortBy)
 
     suspend fun loadUnupdatedItems(gamesPerFetch: Int = 0) = withContext(Dispatchers.IO) {
         val games = mutableMapOf<Int, String>()
