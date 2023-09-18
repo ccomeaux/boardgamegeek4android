@@ -429,6 +429,10 @@ class CollectionDao(private val context: Context) {
         } else 0
     }
 
+    suspend fun delete(internalId: Long) = withContext(Dispatchers.IO) {
+        context.contentResolver.delete(Collection.buildUri(internalId), null, null)
+    }
+
     /**
      * Remove all collection items belonging to a game, except the ones in the specified list.
      *
