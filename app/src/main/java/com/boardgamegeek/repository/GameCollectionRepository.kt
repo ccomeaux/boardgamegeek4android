@@ -1,9 +1,7 @@
 package com.boardgamegeek.repository
 
-import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.content.contentValuesOf
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -274,57 +272,18 @@ class GameCollectionRepository(
     suspend fun addCollectionItem(
         gameId: Int,
         statuses: List<String>,
-        wishListPriority: Int?,
+        wishListPriority: Int,
         timestamp: Long = System.currentTimeMillis()
     ) {
         if (gameId != INVALID_ID) {
-            val values = contentValuesOf(
-                Collection.Columns.GAME_ID to gameId,
-                Collection.Columns.STATUS_DIRTY_TIMESTAMP to timestamp
-            )
-            putValue(statuses, values, Collection.Columns.STATUS_OWN)
-            putValue(statuses, values, Collection.Columns.STATUS_PREORDERED)
-            putValue(statuses, values, Collection.Columns.STATUS_FOR_TRADE)
-            putValue(statuses, values, Collection.Columns.STATUS_WANT)
-            putValue(statuses, values, Collection.Columns.STATUS_WANT_TO_PLAY)
-            putValue(statuses, values, Collection.Columns.STATUS_WANT_TO_BUY)
-            putValue(statuses, values, Collection.Columns.STATUS_WISHLIST)
-            putValue(statuses, values, Collection.Columns.STATUS_PREVIOUSLY_OWNED)
-            putWishList(statuses, wishListPriority, values)
-
-            val gameName = gameDao.load(gameId)?.let { game ->
-                values.put(Collection.Columns.COLLECTION_NAME, game.gameName)
-                values.put(Collection.Columns.COLLECTION_SORT_NAME, game.gameSortName)
-                values.put(Collection.Columns.COLLECTION_YEAR_PUBLISHED, game.yearPublished)
-                values.put(Collection.Columns.COLLECTION_IMAGE_URL, game.imageUrl)
-                values.put(Collection.Columns.COLLECTION_THUMBNAIL_URL, game.thumbnailUrl)
-                values.put(Collection.Columns.COLLECTION_HERO_IMAGE_URL, game.heroImageUrl)
-                values.put(Collection.Columns.COLLECTION_DIRTY_TIMESTAMP, System.currentTimeMillis())
-                game.gameName
-            }
-
-            val internalId = dao.upsertItem(values)
+            val game = gameDao.load(gameId)
+            val internalId = dao.addNewCollectionItem(gameId, game, statuses, wishListPriority, timestamp)
             if (internalId == INVALID_ID.toLong()) {
-                Timber.d("Collection item for game %s (%s) not added", gameName, gameId)
+                Timber.d("Collection item for game %s (%s) not added", game?.gameName.orEmpty(), gameId)
             } else {
-                Timber.d("Collection item added for game %s (%s) (internal ID = %s)", gameName, gameId, internalId)
+                Timber.d("Collection item added for game %s (%s) (internal ID = %s)", game?.gameName.orEmpty(), gameId, internalId)
                 enqueueUploadRequest(gameId)
             }
-        }
-    }
-
-    private fun putValue(statuses: List<String>, values: ContentValues, statusColumn: String) {
-        values.put(statusColumn, if (statuses.contains(statusColumn)) 1 else 0)
-    }
-
-    private fun putWishList(statuses: List<String>, wishListPriority: Int?, values: ContentValues) {
-        if (statuses.contains(Collection.Columns.STATUS_WISHLIST)) {
-            values.put(Collection.Columns.STATUS_WISHLIST, 1)
-            values.put(
-                Collection.Columns.STATUS_WISHLIST_PRIORITY, wishListPriority ?: 3 // like to have
-            )
-        } else {
-            values.put(Collection.Columns.STATUS_WISHLIST, 0)
         }
     }
 

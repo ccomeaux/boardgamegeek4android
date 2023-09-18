@@ -601,7 +601,51 @@ class CollectionDao(private val context: Context) {
         return values
     }
 
-    suspend fun upsertItem(
+    suspend fun addNewCollectionItem(
+        gameId: Int,
+        game: GameLocal?,
+        statuses: List<String>,
+        wishListPriority: Int,
+        timestamp: Long = System.currentTimeMillis(),
+    ): Long {
+        return if (gameId != INVALID_ID) {
+            val values = contentValuesOf(
+                Collection.Columns.GAME_ID to gameId,
+                Collection.Columns.COLLECTION_DIRTY_TIMESTAMP to timestamp,
+                Collection.Columns.STATUS_DIRTY_TIMESTAMP to timestamp,
+            )
+            values.putStatusValue(statuses, Collection.Columns.STATUS_OWN)
+            values.putStatusValue(statuses, Collection.Columns.STATUS_PREORDERED)
+            values.putStatusValue(statuses, Collection.Columns.STATUS_FOR_TRADE)
+            values.putStatusValue(statuses, Collection.Columns.STATUS_WANT)
+            values.putStatusValue(statuses, Collection.Columns.STATUS_WANT_TO_PLAY)
+            values.putStatusValue(statuses, Collection.Columns.STATUS_WANT_TO_BUY)
+            values.putStatusValue(statuses, Collection.Columns.STATUS_WISHLIST)
+            values.putStatusValue(statuses, Collection.Columns.STATUS_PREVIOUSLY_OWNED)
+            if (statuses.contains(Collection.Columns.STATUS_WISHLIST)) {
+                values.put(Collection.Columns.STATUS_WISHLIST, 1)
+                values.put(Collection.Columns.STATUS_WISHLIST_PRIORITY, wishListPriority)
+            } else {
+                values.put(Collection.Columns.STATUS_WISHLIST, 0)
+            }
+            game?.let {
+                values.put(Collection.Columns.COLLECTION_NAME, it.gameName)
+                values.put(Collection.Columns.COLLECTION_SORT_NAME, it.gameSortName)
+                values.put(Collection.Columns.COLLECTION_YEAR_PUBLISHED, it.yearPublished)
+                values.put(Collection.Columns.COLLECTION_IMAGE_URL, it.imageUrl)
+                values.put(Collection.Columns.COLLECTION_THUMBNAIL_URL, it.thumbnailUrl)
+                values.put(Collection.Columns.COLLECTION_HERO_IMAGE_URL, it.heroImageUrl)
+                it.gameName
+            }
+            upsertItem(values)
+        } else INVALID_ID.toLong()
+    }
+
+    private fun ContentValues.putStatusValue(statuses: List<String>, statusColumn: String) {
+        put(statusColumn, if (statuses.contains(statusColumn)) 1 else 0)
+    }
+
+    private suspend fun upsertItem(
         values: ContentValues,
         isBrief: Boolean = false,
         candidate: SyncCandidate = SyncCandidate()
