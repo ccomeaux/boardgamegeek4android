@@ -5,7 +5,7 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Path;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
-public class User {
+public class UserRemote {
 	@Attribute public String id;
 	@Attribute public String name;
 

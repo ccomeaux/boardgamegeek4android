@@ -5,7 +5,7 @@ import com.boardgamegeek.db.model.UserLocal
 import com.boardgamegeek.db.model.UserAsBuddyForUpsert
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.io.model.Buddy
-import com.boardgamegeek.io.model.User
+import com.boardgamegeek.io.model.UserRemote
 import com.boardgamegeek.provider.BggContract
 
 fun UserLocal.mapToEntity() = UserEntity(
@@ -19,7 +19,7 @@ fun UserLocal.mapToEntity() = UserEntity(
     updatedTimestamp = updatedTimestamp ?: 0L,
 )
 
-fun User.mapForUpsert(timestamp: Long) = UserForUpsert(
+fun UserRemote.mapForUpsert(timestamp: Long) = UserForUpsert(
     buddyId = id.toIntOrNull() ?: BggContract.INVALID_ID,
     buddyName = name,
     buddyFirstName = firstName,
