@@ -6,7 +6,8 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToEntities
+import com.boardgamegeek.mappers.mapToCollectionItemEntity
+import com.boardgamegeek.mappers.mapToCollectionItemGameEntity
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
@@ -40,9 +41,10 @@ class CollectionItemRepository(
         if (!username.isNullOrBlank()) {
             val response = api.collection(username, options)
             response.items?.forEach {
-                val (item, game) = it.mapToEntities()
+                val item = it.mapToCollectionItemEntity()
                 if (isItemStatusSetToSync(item)) {
-                    val (collectionId, _) = dao.saveItem(item, game, updatedTimestamp)
+                    val game = it.mapToCollectionItemGameEntity(updatedTimestamp)
+                    val (collectionId, _) = dao.saveItem(item.mapToEntity(updatedTimestamp), game)
                     if (collectionId != BggContract.INVALID_ID) count++
                 } else {
                     Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")

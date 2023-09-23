@@ -1,10 +1,10 @@
 package com.boardgamegeek.mappers
 
 import android.graphics.Color
+import com.boardgamegeek.db.model.CollectionItemGameEntity
 import com.boardgamegeek.db.model.CollectionItemLocal
 import com.boardgamegeek.db.model.GameLocal
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.CollectionItemGameEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
@@ -16,68 +16,115 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun CollectionItem.mapToEntities(): Pair<CollectionItemEntity, CollectionItemGameEntity> {
-    val item = CollectionItemEntity(
-        gameId = objectid,
-        gameName = if (originalname.isNullOrBlank()) name else originalname,
-        collectionId = collid.toIntOrNull() ?: BggContract.INVALID_ID,
-        collectionName = name,
-        sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
-        gameYearPublished = yearpublished?.toIntOrNull() ?: CollectionItemEntity.YEAR_UNKNOWN,
-        collectionYearPublished = yearpublished?.toIntOrNull() ?: CollectionItemEntity.YEAR_UNKNOWN,
-        imageUrl = image.orEmpty(),
-        thumbnailUrl = thumbnail.orEmpty(),
-        rating = stats?.rating?.toDoubleOrNull() ?: 0.0,
-        numberOfPlays = numplays,
-        comment = comment.orEmpty(),
-        wantPartsList = wantpartslist.orEmpty(),
-        conditionText = conditiontext.orEmpty(),
-        hasPartsList = haspartslist.orEmpty(),
-        wishListComment = wishlistcomment.orEmpty(),
-        own = own?.equals("1") ?: false,
-        previouslyOwned = prevowned?.equals("1") ?: false,
-        forTrade = fortrade?.equals("1") ?: false,
-        wantInTrade = want?.equals("1") ?: false,
-        wantToPlay = wanttoplay?.equals("1") ?: false,
-        wantToBuy = wanttobuy?.equals("1") ?: false,
-        wishList = wishlist?.equals("1") ?: false,
-        wishListPriority = wishlistpriority,
-        preOrdered = preordered?.equals("1") ?: false,
-        lastModifiedDate = lastmodified.toMillis(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)),
-        pricePaidCurrency = pp_currency.orEmpty(),
-        pricePaid = pricepaid?.toDoubleOrNull() ?: 0.0,
-        currentValueCurrency = cv_currency.orEmpty(),
-        currentValue = currvalue?.toDoubleOrNull() ?: 0.0,
-        quantity = quantity?.toIntOrNull() ?: 1,
-        acquisitionDate = acquisitiondate.toMillis(SimpleDateFormat("yyyy-MM-dd", Locale.US)),
-        acquiredFrom = acquiredfrom.orEmpty(),
-        privateComment = privatecomment.orEmpty(),
-        inventoryLocation = inventorylocation.orEmpty()
-    )
+fun CollectionItem.mapToCollectionItemEntity() = CollectionItemEntity(
+    gameId = objectid,
+    gameName = if (originalname.isNullOrBlank()) name else originalname,
+    collectionId = collid.toIntOrNull() ?: BggContract.INVALID_ID,
+    collectionName = name,
+    sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
+    gameYearPublished = yearpublished?.toIntOrNull() ?: CollectionItemEntity.YEAR_UNKNOWN,
+    collectionYearPublished = yearpublished?.toIntOrNull() ?: CollectionItemEntity.YEAR_UNKNOWN,
+    imageUrl = image.orEmpty(),
+    thumbnailUrl = thumbnail.orEmpty(),
+    rating = stats?.rating?.toDoubleOrNull() ?: 0.0,
+    numberOfPlays = numplays,
+    comment = comment.orEmpty(),
+    wantPartsList = wantpartslist.orEmpty(),
+    conditionText = conditiontext.orEmpty(),
+    hasPartsList = haspartslist.orEmpty(),
+    wishListComment = wishlistcomment.orEmpty(),
+    own = own?.equals("1") ?: false,
+    previouslyOwned = prevowned?.equals("1") ?: false,
+    forTrade = fortrade?.equals("1") ?: false,
+    wantInTrade = want?.equals("1") ?: false,
+    wantToPlay = wanttoplay?.equals("1") ?: false,
+    wantToBuy = wanttobuy?.equals("1") ?: false,
+    wishList = wishlist?.equals("1") ?: false,
+    wishListPriority = wishlistpriority,
+    preOrdered = preordered?.equals("1") ?: false,
+    lastModifiedDate = lastmodified.toMillis(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)),
+    pricePaidCurrency = pp_currency.orEmpty(),
+    pricePaid = pricepaid?.toDoubleOrNull() ?: 0.0,
+    currentValueCurrency = cv_currency.orEmpty(),
+    currentValue = currvalue?.toDoubleOrNull() ?: 0.0,
+    quantity = quantity?.toIntOrNull() ?: 1,
+    acquisitionDate = acquisitiondate.toMillis(SimpleDateFormat("yyyy-MM-dd", Locale.US)),
+    acquiredFrom = acquiredfrom.orEmpty(),
+    privateComment = privatecomment.orEmpty(),
+    inventoryLocation = inventorylocation.orEmpty()
+)
 
-    val game = CollectionItemGameEntity(
-        gameId = objectid,
-        gameName = if (originalname.isNullOrBlank()) name else originalname,
-        sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
-        yearPublished = yearpublished?.toIntOrNull() ?: CollectionItemGameEntity.YEAR_UNKNOWN,
-        imageUrl = image.orEmpty(),
-        thumbnailUrl = thumbnail.orEmpty(),
-        minNumberOfPlayers = stats?.minplayers ?: 0,
-        maxNumberOfPlayers = stats?.maxplayers ?: 0,
-        minPlayingTime = stats?.minplaytime ?: 0,
-        maxPlayingTime = stats?.maxplaytime ?: 0,
-        playingTime = stats?.playingtime ?: 0,
-        numberOwned = stats?.numowned?.toIntOrNull() ?: 0,
-        numberOfUsersRated = stats?.usersrated?.toIntOrNull() ?: 0,
-        rating = stats?.rating?.toDoubleOrNull() ?: 0.0,
-        average = stats?.average?.toDoubleOrNull() ?: 0.0,
-        bayesAverage = stats?.bayesaverage?.toDoubleOrNull() ?: 0.0,
-        standardDeviation = stats?.stddev?.toDoubleOrNull() ?: 0.0,
-        median = stats?.median?.toDoubleOrNull() ?: 0.0,
-        numberOfPlays = numplays
-    )
-    return item to game
-}
+fun CollectionItem.mapToCollectionItemGameEntity(updatedTimestamp: Long) = CollectionItemGameEntity(
+    gameId = objectid,
+    gameName = if (originalname.isNullOrBlank()) name else originalname,
+    sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
+    yearPublished = yearpublished?.toIntOrNull() ?: CollectionItemGameEntity.YEAR_UNKNOWN,
+    imageUrl = image.orEmpty(),
+    thumbnailUrl = thumbnail.orEmpty(),
+    minNumberOfPlayers = stats?.minplayers ?: 0,
+    maxNumberOfPlayers = stats?.maxplayers ?: 0,
+    minPlayingTime = stats?.minplaytime ?: 0,
+    maxPlayingTime = stats?.maxplaytime ?: 0,
+    playingTime = stats?.playingtime ?: 0,
+    numberOwned = stats?.numowned?.toIntOrNull() ?: 0,
+    numberOfUsersRated = stats?.usersrated?.toIntOrNull() ?: 0,
+    rating = stats?.rating?.toDoubleOrNull() ?: 0.0,
+    average = stats?.average?.toDoubleOrNull() ?: 0.0,
+    bayesAverage = stats?.bayesaverage?.toDoubleOrNull() ?: 0.0,
+    standardDeviation = stats?.stddev?.toDoubleOrNull() ?: 0.0,
+    median = stats?.median?.toDoubleOrNull() ?: 0.0,
+    numberOfPlays = numplays,
+    updatedListTimestamp = updatedTimestamp,
+)
+
+fun CollectionItemEntity.mapToEntity(updatedTimestamp: Long) = CollectionItemLocal(
+    internalId = internalId,
+    updatedTimestamp = updatedTimestamp,
+    updatedListTimestamp = updatedTimestamp,
+    gameId = gameId,
+    collectionId = collectionId,
+    collectionName = collectionName,
+    collectionSortName = sortName,
+    statusOwn = if (own) 1 else 0,
+    statusPreviouslyOwned = if (previouslyOwned) 1 else 0,
+    statusForTrade = if (forTrade) 1 else 0,
+    statusWant = if (wantInTrade) 1 else 0,
+    statusWantToPlay = if (wantToPlay) 1 else 0,
+    statusWantToBuy = if (wantToBuy) 1 else 0,
+    statusWishlist = if (wishList) 1 else 0,
+    statusWishlistPriority = wishListPriority,
+    statusPreordered = if (preOrdered) 1 else 0,
+    comment = comment,
+    lastModified = lastModifiedDate,
+    privateInfoPricePaidCurrency = pricePaidCurrency,
+    privateInfoPricePaid = pricePaid,
+    privateInfoCurrentValueCurrency = currentValueCurrency,
+    privateInfoCurrentValue = currentValue,
+    privateInfoQuantity = quantity,
+    privateInfoAcquisitionDate = acquisitionDate.asDateForApi(),
+    privateInfoAcquiredFrom = acquiredFrom,
+    privateInfoComment = privateComment,
+    privateInfoInventoryLocation = inventoryLocation,
+    condition = conditionText,
+    wantpartsList = wantPartsList,
+    haspartsList = hasPartsList,
+    wishlistComment = wishListComment,
+    collectionYearPublished = collectionYearPublished,
+    rating = rating,
+    collectionImageUrl = imageUrl,
+    collectionThumbnailUrl = thumbnailUrl,
+    collectionHeroImageUrl = null, // TODO
+    statusDirtyTimestamp = statusDirtyTimestamp,
+    ratingDirtyTimestamp = ratingDirtyTimestamp,
+    commentDirtyTimestamp = commentDirtyTimestamp,
+    privateInfoDirtyTimestamp = privateInfoDirtyTimestamp,
+    collectionDirtyTimestamp = dirtyTimestamp,
+    collectionDeleteTimestamp = deleteTimestamp,
+    wishlistCommentDirtyTimestamp = wishListCommentDirtyTimestamp,
+    tradeConditionDirtyTimestamp = tradeConditionDirtyTimestamp,
+    wantPartsDirtyTimestamp = wantPartsDirtyTimestamp,
+    hasPartsDirtyTimestamp = hasPartsDirtyTimestamp,
+)
 
 fun CollectionItemEntity.mapToFormBodyForDeletion(): FormBody {
     return mapToFormBodyBuilder()

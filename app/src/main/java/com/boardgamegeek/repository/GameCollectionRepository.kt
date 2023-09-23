@@ -55,9 +55,10 @@ class GameCollectionRepository(
                 val collectionIds = mutableListOf<Int>()
                 var entity: CollectionItemEntity? = null
                 response.items?.forEach { collectionItem ->
-                    val (item, game) = collectionItem.mapToEntities()
-                    val (id, internalId) = collectionDao.saveItem(item, game, timestamp)
-                    collectionIds.add(id)
+                    val item = collectionItem.mapToCollectionItemEntity()
+                    val game = collectionItem.mapToCollectionItemGameEntity(timestamp)
+                    val (id, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
+                    collectionIds += id
                     if (item.collectionId == collectionId) {
                         entity = item.copy(internalId = internalId, syncTimestamp = timestamp)
                     }
@@ -90,8 +91,9 @@ class GameCollectionRepository(
             options.addSubtype(subtype)
             val response = api.collection(username, options)
             response.items?.forEach { collectionItem ->
-                val (item, game) = collectionItem.mapToEntities()
-                val (collectionId, internalId) = collectionDao.saveItem(item, game, timestamp)
+                val item = collectionItem.mapToCollectionItemEntity()
+                val game = collectionItem.mapToCollectionItemGameEntity(timestamp)
+                val (collectionId, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
                 list += item.copy(internalId = internalId, syncTimestamp = timestamp)
                 collectionIds += collectionId
             }
@@ -107,8 +109,9 @@ class GameCollectionRepository(
                 playedOptions.addSubtype(subtype)
                 val playedResponse = api.collection(username, playedOptions)
                 playedResponse.items?.forEach { collectionItem ->
-                    val (item, game) = collectionItem.mapToEntities()
-                    val (collectionId, internalId) = collectionDao.saveItem(item, game, timestamp)
+                    val item = collectionItem.mapToCollectionItemEntity()
+                    val game = collectionItem.mapToCollectionItemGameEntity(timestamp)
+                    val (collectionId, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
                     list += item.copy(internalId = internalId, syncTimestamp = timestamp)
                     collectionIds += collectionId
                 }

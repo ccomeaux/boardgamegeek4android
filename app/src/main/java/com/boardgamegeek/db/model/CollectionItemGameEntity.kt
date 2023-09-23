@@ -1,5 +1,6 @@
-package com.boardgamegeek.entities
+package com.boardgamegeek.db.model
 
+import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.provider.BggContract
 
 data class CollectionItemGameEntity(
@@ -21,7 +22,8 @@ data class CollectionItemGameEntity(
     val bayesAverage: Double = 0.0,
     val standardDeviation: Double = 0.0,
     val median: Double = 0.0,
-    val numberOfPlays: Int = 0
+    val numberOfPlays: Int = 0,
+    val updatedListTimestamp: Long,
 ) {
     companion object {
         const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN

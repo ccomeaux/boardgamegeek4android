@@ -9,10 +9,7 @@ import com.boardgamegeek.entities.CollectionItemEntity
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapForBuddyUpsert
-import com.boardgamegeek.mappers.mapForUpsert
-import com.boardgamegeek.mappers.mapToEntities
-import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -52,7 +49,7 @@ class UserRepository(
                 )
             )
             response.items?.forEach {
-                items += it.mapToEntities().first
+                items += it.mapToCollectionItemEntity()
             }
             items
         }
