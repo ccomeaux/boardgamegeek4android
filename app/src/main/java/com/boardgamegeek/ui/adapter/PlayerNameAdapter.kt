@@ -6,14 +6,14 @@ import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.extensions.setTextOrHide
 
 class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
     private var playerList = listOf<PlayerEntity>()
-    private var userList = listOf<UserEntity>()
+    private var userList = listOf<User>()
     private var resultsFiltered = listOf<Result>()
 
     class Result(
@@ -45,7 +45,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
         notifyDataSetChanged()
     }
 
-    fun addUsers(list: List<UserEntity>) {
+    fun addUsers(list: List<User>) {
         userList = list.sortedBy { it.userName }
         notifyDataSetChanged()
     }

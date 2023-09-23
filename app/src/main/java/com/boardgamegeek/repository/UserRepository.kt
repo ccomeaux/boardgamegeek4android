@@ -6,7 +6,7 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.*
@@ -28,8 +28,8 @@ class UserRepository(
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
-    suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
-        userDao.loadUser(username)?.mapToEntity()
+    suspend fun load(username: String): User? = withContext(Dispatchers.IO) {
+        userDao.loadUser(username)?.mapToModel()
     }
 
     suspend fun refresh(username: String) = withContext(Dispatchers.IO) {
@@ -54,12 +54,12 @@ class UserRepository(
             items
         }
 
-    suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<UserEntity> = withContext(Dispatchers.IO) {
-        userDao.loadUsers(sortBy, buddiesOnly = true).map { it.mapToEntity() }
+    suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<User> = withContext(Dispatchers.IO) {
+        userDao.loadUsers(sortBy, buddiesOnly = true).map { it.mapToModel() }
     }
 
-    suspend fun loadAllUsers(): List<UserEntity> = withContext(Dispatchers.IO) {
-        userDao.loadUsers(buddiesOnly = false).map { it.mapToEntity() }
+    suspend fun loadAllUsers(): List<User> = withContext(Dispatchers.IO) {
+        userDao.loadUsers(buddiesOnly = false).map { it.mapToModel() }
     }
 
     suspend fun refreshBuddies(timestamp: Long): Pair<Int, Int> = withContext(Dispatchers.IO) {
@@ -96,7 +96,7 @@ class UserRepository(
         userDao.updateNickname(username, nickName)
     }
 
-    fun updateSelf(user: UserEntity?) {
+    fun updateSelf(user: User?) {
         Authenticator.putUserId(context, user?.id ?: INVALID_ID)
         if (!user?.userName.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.userName.hashCode().toString())
         prefs[AccountPreferences.KEY_USERNAME] = user?.userName.orEmpty()

@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.isOlderThan
@@ -42,7 +42,7 @@ class BuddiesViewModel @Inject constructor(
         sort(SortType.USERNAME)
     }
 
-    val buddies: LiveData<RefreshableResource<List<UserEntity>>> = sort.switchMap {
+    val buddies: LiveData<RefreshableResource<List<User>>> = sort.switchMap {
         liveData {
             try {
                 val buddies = userRepository.loadBuddies(it.sortBy)
@@ -75,7 +75,7 @@ class BuddiesViewModel @Inject constructor(
         }
     }
 
-    fun getSectionHeader(user: UserEntity?): String? {
+    fun getSectionHeader(user: User?): String? {
         return sort.value?.getSectionHeader(user)
     }
 
@@ -87,12 +87,12 @@ class BuddiesViewModel @Inject constructor(
     sealed class BuddiesSort {
         abstract val sortType: SortType
         abstract val sortBy: UserDao.UsersSortBy
-        abstract fun getSectionHeader(user: UserEntity?): String
+        abstract fun getSectionHeader(user: User?): String
 
         class ByUsername : BuddiesSort() {
             override val sortType = SortType.USERNAME
             override val sortBy = UserDao.UsersSortBy.USERNAME
-            override fun getSectionHeader(user: UserEntity?): String {
+            override fun getSectionHeader(user: User?): String {
                 return user?.userName.firstChar()
             }
         }
@@ -100,7 +100,7 @@ class BuddiesViewModel @Inject constructor(
         class ByFirstName : BuddiesSort() {
             override val sortType = SortType.FIRST_NAME
             override val sortBy = UserDao.UsersSortBy.FIRST_NAME
-            override fun getSectionHeader(user: UserEntity?): String {
+            override fun getSectionHeader(user: User?): String {
                 return user?.firstName.firstChar()
             }
         }
@@ -108,7 +108,7 @@ class BuddiesViewModel @Inject constructor(
         class ByLastName : BuddiesSort() {
             override val sortType = SortType.LAST_NAME
             override val sortBy = UserDao.UsersSortBy.LAST_NAME
-            override fun getSectionHeader(user: UserEntity?): String {
+            override fun getSectionHeader(user: User?): String {
                 return user?.lastName.firstChar()
             }
         }

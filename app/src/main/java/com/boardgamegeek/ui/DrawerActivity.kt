@@ -16,7 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.ActivityDrawerBaseBinding
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
@@ -121,7 +121,7 @@ abstract class DrawerActivity : BaseActivity() {
         drawerLayout.closeDrawer(navigationView)
     }
 
-    private fun refreshHeader(user: UserEntity?) {
+    private fun refreshHeader(user: User?) {
         val view = navigationView.getHeaderView(0)
         val primaryView = view.findViewById<TextView>(R.id.accountInfoPrimaryView)
         val secondaryView = view.findViewById<TextView>(R.id.accountInfoSecondaryView)

@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class UserEntity(
+data class User(
     val internalId: Int,
     val id: Int,
     val userName: String,

@@ -13,7 +13,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentBuddiesBinding
 import com.boardgamegeek.databinding.RowBuddyBinding
 import com.boardgamegeek.entities.Status
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
@@ -70,7 +70,7 @@ class BuddiesFragment : Fragment() {
         binding.coordinatorLayout.indefiniteSnackbar(message ?: getString(R.string.msg_error_buddies))
     }
 
-    private fun showData(buddies: List<UserEntity>) {
+    private fun showData(buddies: List<User>) {
         adapter.buddies = buddies
         if (buddies.isEmpty()) {
             binding.recyclerView.isVisible = false
@@ -104,7 +104,7 @@ class BuddiesFragment : Fragment() {
 
     class BuddiesAdapter(private val viewModel: BuddiesViewModel) :
         RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
-        var buddies: List<UserEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var buddies: List<User> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
             }
@@ -142,7 +142,7 @@ class BuddiesFragment : Fragment() {
         inner class BuddyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowBuddyBinding.bind(itemView)
 
-            fun bind(buddy: UserEntity?) {
+            fun bind(buddy: User?) {
                 buddy?.let { b ->
                     binding.avatarView.loadThumbnail(b.avatarUrl, R.drawable.person_image_empty)
                     if (b.fullName.isBlank()) {

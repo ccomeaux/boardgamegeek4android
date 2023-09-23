@@ -6,7 +6,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository
@@ -64,7 +64,7 @@ class BuddyViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    val buddy: LiveData<RefreshableResource<UserEntity>> = user.switchMap { (username, type) ->
+    val buddy: LiveData<RefreshableResource<User>> = user.switchMap { (username, type) ->
         liveData {
             try {
                 when (type) {

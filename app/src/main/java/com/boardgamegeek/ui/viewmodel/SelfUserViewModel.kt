@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.LiveSharedPreference
@@ -20,14 +20,14 @@ class SelfUserViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     val username: LiveSharedPreference<String> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
 
-    val user: LiveData<RefreshableResource<UserEntity>> = username.switchMap { username ->
+    val user: LiveData<RefreshableResource<User>> = username.switchMap { username ->
         liveData {
             when {
                 !username.isNullOrBlank() -> {
                     try {
                         emit(RefreshableResource.refreshing(latestValue?.data))
-                        val entity = userRepository.load(username)
-                        if (entity == null || entity.updatedTimestamp.isOlderThan(1.days)) {
+                        val localUser = userRepository.load(username)
+                        if (localUser == null || localUser.updatedTimestamp.isOlderThan(1.days)) {
                             userRepository.refresh(username)
                             val refreshedUser = userRepository.load(username)
                             emit(RefreshableResource.success(refreshedUser))
@@ -35,7 +35,7 @@ class SelfUserViewModel @Inject constructor(
                                 userRepository.updateSelf(refreshedUser)
                             }
                         } else {
-                            emit(RefreshableResource.success(entity))
+                            emit(RefreshableResource.success(localUser))
                         }
                     } catch (e: Exception) {
                         emit(RefreshableResource.error(e, application))

@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.entities.User
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
@@ -31,7 +31,7 @@ class LogPlayerViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    val buddies: LiveData<List<UserEntity>> = _gameId.switchMap {
+    val buddies: LiveData<List<User>> = _gameId.switchMap {
         liveData {
             emit(userRepository.loadBuddies(UserDao.UsersSortBy.USERNAME))
         }
