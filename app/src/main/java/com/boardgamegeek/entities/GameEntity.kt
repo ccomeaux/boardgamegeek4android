@@ -19,7 +19,6 @@ data class GameEntity(
     val minPlayingTime: Int = 0,
     val maxPlayingTime: Int = 0,
     val minimumAge: Int = 0,
-    val hasStatistics: Boolean = false,
     val numberOfRatings: Int = 0,
     val rating: Double = UNRATED,
     val bayesAverage: Double = UNRATED,

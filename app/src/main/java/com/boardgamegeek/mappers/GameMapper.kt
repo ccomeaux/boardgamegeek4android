@@ -45,7 +45,6 @@ fun Game.mapToEntity(): GameEntity {
     )
     return if (this.statistics != null) {
         game.copy(
-            hasStatistics = true,
             numberOfRatings = this.statistics.usersrated?.toIntOrNull() ?: 0,
             rating = this.statistics.average?.toDoubleOrNull() ?: 0.0,
             bayesAverage = this.statistics.bayesaverage?.toDoubleOrNull() ?: 0.0,
@@ -162,7 +161,6 @@ fun GameLocal.mapToEntity(): GameEntity {
         minPlayingTime = minPlayingTime ?: 0,
         maxPlayingTime = maxPlayingTime ?: 0,
         minimumAge = minimumAge ?: 0,
-        hasStatistics = false, // TODO
         numberOfRatings = numberOfRatings ?: 0,
         rating = average ?: GameEntity.UNRATED,
         bayesAverage = bayesAverage ?: GameEntity.UNRATED,

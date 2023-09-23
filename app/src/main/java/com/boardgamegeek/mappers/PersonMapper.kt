@@ -22,7 +22,7 @@ fun Person.mapToEntity(id: Int, timestamp: Long = System.currentTimeMillis()): P
 }
 
 fun PersonItem.mapToEntity(entity: PersonEntity, timestamp: Long = System.currentTimeMillis()): PersonEntity? {
-    return if (id != entity.id.toString()) null // TODO: test type
+    return if (id != entity.id.toString()) null
     else
         entity.copy(
             imageUrl = image,
