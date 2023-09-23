@@ -1,7 +1,6 @@
 package com.boardgamegeek.repository
 
 import android.app.PendingIntent
-import android.content.ContentProviderOperation
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -480,19 +479,7 @@ class PlayRepository(
         val internalIds = mutableListOf<Long>()
         val plays = playDao.loadPlaysByUsername(username, true)
         plays.forEach { play ->
-            play.players?.find { it.username == username && it.name != nickName }?.let { player ->
-                val batch = arrayListOf<ContentProviderOperation>()
-                if (play.updateTimestamp == 0L && play.dirtyTimestamp == 0L) {
-                    batch += ContentProviderOperation
-                        .newUpdate(Plays.buildPlayUri(play.internalId))
-                        .withValue(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
-                        .build()
-                }
-                batch += ContentProviderOperation
-                    .newUpdate(Plays.buildPlayerUri(play.internalId, player.internalId))
-                    .withValue(PlayPlayers.Columns.NAME, nickName)
-                    .build()
-                context.contentResolver.applyBatch(batch)
+            if (playDao.modifyPlayNicknames(play, username, nickName)){
                 if (play.dirtyTimestamp == 0L) internalIds += play.internalId
             }
         }

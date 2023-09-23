@@ -484,6 +484,24 @@ class PlayDao(private val context: Context) {
         } ?: false
     }
 
+    suspend fun modifyPlayNicknames(play: PlayLocal, username: String, nickName: String) = withContext(Dispatchers.IO) {
+        play.players?.find { it.username == username && it.name != nickName }?.let { player ->
+            val batch = arrayListOf<ContentProviderOperation>()
+            if (play.updateTimestamp == 0L && play.dirtyTimestamp == 0L) {
+                batch += ContentProviderOperation
+                    .newUpdate(Plays.buildPlayUri(play.internalId))
+                    .withValue(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
+                    .build()
+            }
+            batch += ContentProviderOperation
+                .newUpdate(Plays.buildPlayerUri(play.internalId, player.internalId))
+                .withValue(PlayPlayers.Columns.NAME, nickName)
+                .build()
+            context.contentResolver.applyBatch(batch)
+            true
+        } ?: false
+    }
+
     enum class SaveStatus {
         UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
     }
