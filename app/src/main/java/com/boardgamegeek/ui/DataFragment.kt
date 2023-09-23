@@ -152,8 +152,8 @@ class DataFragment : Fragment() {
         }
     }
 
-    class ImportFileContract : ActivityResultContract<Unit, Uri?>() {
-        override fun createIntent(context: Context, input: Unit): Intent {
+    class ImportFileContract : ActivityResultContract<Unit?, Uri?>() {
+        override fun createIntent(context: Context, input: Unit?): Intent {
             return Intent(Intent.ACTION_OPEN_DOCUMENT)
                 .addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("application/*")

@@ -7,4 +7,4 @@ data class CollectionViewForExport(
     @Expose val sortType: Int,
     @Expose val starred: Boolean,
     @Expose val filters: List<CollectionViewFilterForExport>
-) : Model()
+) : ExportModel()

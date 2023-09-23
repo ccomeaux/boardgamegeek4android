@@ -10,7 +10,7 @@ import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorterFactory
 
-fun CollectionViewEntity.mapToExportable() = CollectionViewForExport(
+fun CollectionViewEntity.mapForExport() = CollectionViewForExport(
     name = this.name,
     sortType = this.sortType,
     starred = this.starred,
