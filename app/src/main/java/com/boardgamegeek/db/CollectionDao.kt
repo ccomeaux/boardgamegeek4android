@@ -160,11 +160,16 @@ class CollectionDao(private val context: Context) {
                 Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP, // 85
                 Collection.Columns.COLLECTION_HERO_IMAGE_URL,
                 Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION,
-                Plays.Columns.MAX_DATE,
+                //Plays.Columns.MAX_DATE,
             ),
             selection,
             selectionArgs,
+            sortOrder,
         ) {
+            val internalId = it.getLong(30)
+            if (internalId == 0L)
+                null// Handles where a GAME record exists without a COLLECTION row
+            else {
                 val game = GameLocal(
                     internalId = it.getLong(30),
                     gameId = it.getInt(0),
@@ -211,7 +216,7 @@ class CollectionDao(private val context: Context) {
                     playerCountsBest = it.getStringOrNull(42),
                     playerCountsRecommended = it.getStringOrNull(43),
                     playerCountsNotRecommended = it.getStringOrNull(44),
-                lastPlayDate = it.getStringOrNull(88),
+                    lastPlayDate = null, //it.getStringOrNull(88),
                 )
                 val item = CollectionItemLocal(
                     internalId = INVALID_ID.toLong(),
@@ -264,6 +269,7 @@ class CollectionDao(private val context: Context) {
                 game to item
             }
         }
+    }
 
     enum class SortType {
         NAME, RATING
