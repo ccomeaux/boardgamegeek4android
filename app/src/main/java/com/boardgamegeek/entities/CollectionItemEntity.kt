@@ -78,6 +78,10 @@ data class CollectionItemEntity(
     val subtype: GameEntity.Subtype? = null,
     val bestPlayerCounts: String = "",
     val recommendedPlayerCounts: String = "",
+    val numberOfUsersOwned: Int = 0,
+    val numberOfUsersWanting: Int = 0,
+    val numberOfUsersRating: Int = 0,
+    val standardDeviation: Double = 0.0,
 ) {
     val isDirty: Boolean by lazy {
         when {
