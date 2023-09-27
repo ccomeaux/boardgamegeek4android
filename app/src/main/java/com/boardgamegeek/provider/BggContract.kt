@@ -483,30 +483,29 @@ class BggContract {
         fun getId(uri: Uri) = uri.getPathValueAsLong(PATH_COLLECTION)
     }
 
-    object Buddies {
+    object Users {
         object Columns {
-            const val BUDDY_ID = "buddy_id"
-            const val BUDDY_NAME = "buddy_name"
-            const val BUDDY_FIRSTNAME = "buddy_firtname"
-            const val BUDDY_LASTNAME = "buddy_lastname"
+            const val USERNAME = "username"
+            const val FIRST_NAME = "first_name"
+            const val LAST_NAME = "last_name"
             const val AVATAR_URL = "avatar_url"
             const val PLAY_NICKNAME = "play_nickname"
             const val BUDDY_FLAG = "buddy_flag"
             const val SYNC_HASH_CODE = "sync_hash_code"
-            const val UPDATED = COL_UPDATED
-            const val UPDATED_LIST = COL_UPDATED_LIST
+            const val UPDATED_DETAIL_TIMESTAMP = "updated_detail_timestamp"
+            const val UPDATED_LIST_TIMESTAMP = "updated_list_timestamp"
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_BUDDIES).build()
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.buddy"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.buddy"
-        const val DEFAULT_SORT = "${Columns.BUDDY_LASTNAME}$COLLATE_NOCASE ASC, ${Columns.BUDDY_FIRSTNAME}$COLLATE_NOCASE ASC"
+        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build()
+        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.user"
+        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.user"
+        const val DEFAULT_SORT = "${Columns.LAST_NAME}$COLLATE_NOCASE ASC, ${Columns.FIRST_NAME}$COLLATE_NOCASE ASC"
 
-        fun buildBuddyUri(buddyName: String): Uri {
-            return CONTENT_URI.buildUpon().appendPath(buddyName).build()
+        fun buildUserUri(username: String): Uri {
+            return CONTENT_URI.buildUpon().appendPath(username).build()
         }
 
-        fun getBuddyName(uri: Uri) = uri.getPathValue(PATH_BUDDIES)
+        fun getUsername(uri: Uri) = uri.getPathValue(PATH_USERS)
     }
 
     object PlayerColors {
@@ -807,7 +806,6 @@ class BggContract {
         const val PATH_CATEGORIES = "categories"
         const val PATH_EXPANSIONS = "expansions"
         const val PATH_COLLECTION = "collection"
-        const val PATH_BUDDIES = "buddies"
         const val PATH_USERS = "users"
         const val PATH_POLLS = "polls"
         const val PATH_POLL_RESULTS = "results"

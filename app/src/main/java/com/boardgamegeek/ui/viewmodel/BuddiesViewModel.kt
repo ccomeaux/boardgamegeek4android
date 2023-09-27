@@ -93,7 +93,7 @@ class BuddiesViewModel @Inject constructor(
             override val sortType = SortType.USERNAME
             override val sortBy = UserDao.UsersSortBy.USERNAME
             override fun getSectionHeader(user: User?): String {
-                return user?.userName.firstChar()
+                return user?.username.firstChar()
             }
         }
 

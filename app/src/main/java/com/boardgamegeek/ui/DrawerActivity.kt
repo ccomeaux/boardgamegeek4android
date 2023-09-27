@@ -130,15 +130,15 @@ abstract class DrawerActivity : BaseActivity() {
         val signInButton = view.findViewById<Button>(R.id.signInButton)
 
         if (Authenticator.isSignedIn(this) && user != null) {
-            if (user.fullName.isNotBlank() && user.userName.isNotBlank()) {
+            if (user.fullName.isNotBlank() && user.username.isNotBlank()) {
                 primaryView.text = user.fullName
-                secondaryView.text = user.userName
+                secondaryView.text = user.username
                 primaryView.setOnClickListener { }
-                secondaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
-            } else if (user.userName.isNotBlank()) {
-                primaryView.text = user.userName
+                secondaryView.setOnClickListener { linkToBgg("user/${user.username}") }
+            } else if (user.username.isNotBlank()) {
+                primaryView.text = user.username
                 secondaryView.text = ""
-                primaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
+                primaryView.setOnClickListener { linkToBgg("user/${user.username}") }
                 secondaryView.setOnClickListener { }
             }
             if (user.avatarUrl.isBlank()) {

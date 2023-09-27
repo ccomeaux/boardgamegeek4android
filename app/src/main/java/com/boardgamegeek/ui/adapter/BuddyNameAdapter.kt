@@ -49,7 +49,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
     }
 
     fun addUsers(list: List<User>) {
-        userList = list.sortedBy { it.userName }
+        userList = list.sortedBy { it.username }
         notifyDataSetChanged()
     }
 
@@ -62,7 +62,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
             }
 
             val userListFiltered = if (filter.isEmpty()) userList else {
-                userList.filter { it.userName.startsWith(filter, ignoreCase = true) }
+                userList.filter { it.username.startsWith(filter, ignoreCase = true) }
             }
 
             val playerResults = playerListFiltered.map { player ->
@@ -77,13 +77,13 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
             val userResults = userListFiltered
                 .asSequence()
                 .filterNot {
-                    usernames.contains(it.userName)
+                    usernames.contains(it.username)
                 }
                 .map {
                     Result(
                         it.fullName,
-                        it.userName,
-                        it.userName,
+                        it.username,
+                        it.username,
                         it.avatarUrl,
                     )
                 }

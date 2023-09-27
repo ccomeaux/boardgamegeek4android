@@ -66,7 +66,6 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         const val GAMES_CATEGORIES = "games_categories"
         const val GAMES_EXPANSIONS = "games_expansions"
         const val COLLECTION = "collection"
-        const val BUDDIES = "buddies"
         const val GAME_POLLS = "game_polls"
         const val GAME_POLL_RESULTS = "game_poll_results"
         const val GAME_POLL_RESULTS_RESULT = "game_poll_results_result"
@@ -77,6 +76,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         const val COLLECTION_VIEWS = "collection_filters"
         const val COLLECTION_VIEW_FILTERS = "collection_filters_details"
         const val PLAYER_COLORS = "player_colors"
+        const val USERS = "users"
 
         val GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.Columns.GAME_ID)
         val GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.Columns.DESIGNER_ID)
@@ -96,7 +96,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         val PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID)
         val PLAY_PLAYERS_JOIN_PLAYS_JOIN_USERS = PLAY_PLAYERS +
                 createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID) +
-                createJoinSuffix(PLAY_PLAYERS, BUDDIES, PlayPlayers.Columns.USER_NAME, Buddies.Columns.BUDDY_NAME)
+                createJoinSuffix(PLAY_PLAYERS, USERS, PlayPlayers.Columns.USER_NAME, Users.Columns.USERNAME)
         val PLAY_PLAYERS_JOIN_PLAYS_JOIN_GAMES = PLAY_PLAYERS +
                 createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID) +
                 createJoinSuffix(PLAYS, GAMES, Plays.Columns.OBJECT_ID, Games.Columns.GAME_ID)
@@ -165,7 +165,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
 
             buildCollectionTable().create(it)
 
-            buildBuddiesTable().create(it)
+            buildUsersTable().create(it)
             buildPlayerColorsTable().create(it)
 
             buildCollectionViewsTable().create(it)
@@ -194,7 +194,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         buildPlaysTable().create(db)
                         buildPlayPlayersTable().create(db)
                     }
-                    VER_PLAY_NICKNAME -> addColumn(db, Tables.BUDDIES, Buddies.Columns.PLAY_NICKNAME, ColumnType.TEXT)
+                    VER_PLAY_NICKNAME -> addColumn(db, "buddies", "play_nickname", ColumnType.TEXT)
                     VER_PLAY_SYNC_STATUS -> {
                         addColumn(db, Tables.PLAYS, "sync_status", ColumnType.INTEGER)
                         addColumn(db, Tables.PLAYS, "updated", ColumnType.INTEGER)
@@ -265,9 +265,9 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                     VER_GAMES_SUBTYPE -> addColumn(db, Tables.GAMES, Games.Columns.SUBTYPE, ColumnType.TEXT)
                     VER_COLLECTION_ID_NULLABLE -> buildCollectionTable().replace(db)
                     VER_GAME_CUSTOM_PLAYER_SORT -> addColumn(db, Tables.GAMES, Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
-                    VER_BUDDY_FLAG -> addColumn(db, Tables.BUDDIES, Buddies.Columns.BUDDY_FLAG, ColumnType.INTEGER)
+                    VER_BUDDY_FLAG -> addColumn(db, "buddies", "buddy_flag", ColumnType.INTEGER)
                     VER_GAME_RANK -> addColumn(db, Tables.GAMES, Games.Columns.GAME_RANK, ColumnType.INTEGER)
-                    VER_BUDDY_SYNC_HASH_CODE -> addColumn(db, Tables.BUDDIES, Buddies.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+                    VER_BUDDY_SYNC_HASH_CODE -> addColumn(db, "buddies", "sync_hash_code", ColumnType.INTEGER)
                     VER_PLAY_SYNC_HASH_CODE -> addColumn(db, Tables.PLAYS, Plays.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
                     VER_PLAYER_COLORS -> buildPlayerColorsTable().create(db)
                     VER_RATING_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.RATING_DIRTY_TIMESTAMP, ColumnType.INTEGER)
@@ -389,6 +389,16 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         addColumn(db, Tables.GAMES, Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED, ColumnType.TEXT)
                         db.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
                         needsCollectionSync = true
+                    }
+                    VER_USERS_TABLE -> {
+                        buildUsersTable().create(db)
+                        db.execSQL(
+                            """
+                            INSERT INTO users (username, first_name, last_name, avatar_url, play_nickname, buddy_flag, sync_hash_code, updated_detail_timestamp, updated_list_timestamp)
+                            SELECT buddy_name, buddy_firtname, buddy_lastname, avatar_url, play_nickname, buddy_flag, sync_hash_code, updated, updated_list FROM buddies
+                            """.trimIndent()
+                        )
+                        db.dropTable("buddies")
                     }
                 }
             }
@@ -828,17 +838,16 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION, ColumnType.TEXT)
         .setConflictResolution(ConflictResolution.ABORT)
 
-    private fun buildBuddiesTable() = TableBuilder().setTable(Tables.BUDDIES).useDefaultPrimaryKey()
-        .addColumn(Buddies.Columns.UPDATED, ColumnType.INTEGER)
-        .addColumn(Buddies.Columns.UPDATED_LIST, ColumnType.INTEGER, true)
-        .addColumn(Buddies.Columns.BUDDY_ID, ColumnType.INTEGER, notNull = true, unique = true)
-        .addColumn(Buddies.Columns.BUDDY_NAME, ColumnType.TEXT, true)
-        .addColumn(Buddies.Columns.BUDDY_FIRSTNAME, ColumnType.TEXT)
-        .addColumn(Buddies.Columns.BUDDY_LASTNAME, ColumnType.TEXT)
-        .addColumn(Buddies.Columns.AVATAR_URL, ColumnType.TEXT)
-        .addColumn(Buddies.Columns.PLAY_NICKNAME, ColumnType.TEXT)
-        .addColumn(Buddies.Columns.BUDDY_FLAG, ColumnType.INTEGER)
-        .addColumn(Buddies.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+    private fun buildUsersTable() = TableBuilder().setTable(Tables.USERS)
+        .setPrimaryKey(Users.Columns.USERNAME, ColumnType.TEXT)
+        .addColumn(Users.Columns.FIRST_NAME, ColumnType.TEXT)
+        .addColumn(Users.Columns.LAST_NAME, ColumnType.TEXT)
+        .addColumn(Users.Columns.AVATAR_URL, ColumnType.TEXT)
+        .addColumn(Users.Columns.PLAY_NICKNAME, ColumnType.TEXT)
+        .addColumn(Users.Columns.BUDDY_FLAG, ColumnType.INTEGER)
+        .addColumn(Users.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+        .addColumn(Users.Columns.UPDATED_DETAIL_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Users.Columns.UPDATED_LIST_TIMESTAMP, ColumnType.INTEGER)
 
     private fun buildPlayerColorsTable() = TableBuilder().setTable(Tables.PLAYER_COLORS)
         .setConflictResolution(ConflictResolution.REPLACE)
@@ -887,7 +896,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         db.dropTable(Tables.GAMES_CATEGORIES)
         db.dropTable(Tables.GAMES_EXPANSIONS)
         db.dropTable(Tables.COLLECTION)
-        db.dropTable(Tables.BUDDIES)
+        db.dropTable("buddies")
         db.dropTable(Tables.GAME_POLLS)
         db.dropTable(Tables.GAME_POLL_RESULTS)
         db.dropTable(Tables.GAME_POLL_RESULTS_RESULT)
@@ -968,6 +977,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         private const val VER_WHITMORE_SCORE = 55
         private const val VER_DAP_STATS_UPDATED_TIMESTAMP = 56
         private const val VER_RECOMMENDED_PLAYER_COUNTS = 57
-        private const val DATABASE_VERSION = VER_RECOMMENDED_PLAYER_COUNTS
+        private const val VER_USERS_TABLE = 58
+        private const val DATABASE_VERSION = VER_USERS_TABLE
     }
 }

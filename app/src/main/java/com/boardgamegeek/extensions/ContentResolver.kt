@@ -70,12 +70,12 @@ fun ContentResolver.applyBatch(batch: ArrayList<ContentProviderOperation>?, debu
     return arrayOf()
 }
 
-fun ContentResolver.rowExists(uri: Uri): Boolean {
-    return getCount(uri) > 0
+fun ContentResolver.rowExists(uri: Uri, columnName: String = BaseColumns._ID): Boolean {
+    return getCount(uri, columnName) > 0
 }
 
-fun ContentResolver.getCount(uri: Uri): Int {
-    query(uri, arrayOf(BaseColumns._ID), null, null, null)?.use {
+fun ContentResolver.getCount(uri: Uri, columnName: String = BaseColumns._ID): Int {
+    query(uri, arrayOf(columnName), null, null, null)?.use {
         if (it.moveToFirst()) return it.count
     }
     return 0

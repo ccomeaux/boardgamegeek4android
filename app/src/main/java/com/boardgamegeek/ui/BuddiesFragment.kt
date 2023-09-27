@@ -106,7 +106,7 @@ class BuddiesFragment : Fragment() {
         RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
         var buddies: List<User> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
-                old.id == new.id
+                old.username == new.username
             }
         }
 
@@ -116,7 +116,7 @@ class BuddiesFragment : Fragment() {
 
         override fun getItemCount() = buddies.size
 
-        override fun getItemId(position: Int) = buddies.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
+        override fun getItemId(position: Int) = buddies.getOrNull(position)?.username?.hashCode()?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BuddyViewHolder {
             return BuddyViewHolder(parent.inflate(R.layout.row_buddy))
@@ -146,14 +146,14 @@ class BuddiesFragment : Fragment() {
                 buddy?.let { b ->
                     binding.avatarView.loadThumbnail(b.avatarUrl, R.drawable.person_image_empty)
                     if (b.fullName.isBlank()) {
-                        binding.fullNameView.text = b.userName
+                        binding.fullNameView.text = b.username
                         binding.usernameView.isVisible = false
                     } else {
                         binding.fullNameView.text = b.fullName
-                        binding.usernameView.setTextOrHide(b.userName)
+                        binding.usernameView.setTextOrHide(b.username)
                     }
                     itemView.setOnClickListener {
-                        BuddyActivity.start(itemView.context, b.userName, b.fullName)
+                        BuddyActivity.start(itemView.context, b.username, b.fullName)
                     }
                 }
             }

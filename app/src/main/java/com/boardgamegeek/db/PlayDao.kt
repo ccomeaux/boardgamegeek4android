@@ -306,7 +306,7 @@ class PlayDao(private val context: Context) {
         PlayPlayers.Columns.USER_NAME,
         Plays.Columns.SUM_QUANTITY,
         Plays.Columns.SUM_WINS,
-        Buddies.Columns.AVATAR_URL,
+        Users.Columns.AVATAR_URL,
         PlayPlayers.Columns.UNIQUE_NAME,
     )
 
@@ -724,14 +724,14 @@ class PlayDao(private val context: Context) {
     private suspend fun saveBuddyNicknamesToBatch(play: PlayBasic, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
         play.players?.forEach { player ->
             if (!player.username.isNullOrBlank() && !player.name.isNullOrBlank()) {
-                val uri = Buddies.buildBuddyUri(player.username)
-                if (context.contentResolver.rowExists(uri)) {
-                    val nickname = context.contentResolver.queryString(uri, Buddies.Columns.PLAY_NICKNAME)
+                val uri = Users.buildUserUri(player.username)
+                if (context.contentResolver.rowExists(uri, Users.Columns.USERNAME)) {
+                    val nickname = context.contentResolver.queryString(uri, Users.Columns.PLAY_NICKNAME)
                     if (nickname.isNullOrBlank()) {
                         batch += ContentProviderOperation
-                            .newUpdate(Buddies.CONTENT_URI)
-                            .withSelection("${Buddies.Columns.BUDDY_NAME}=?", arrayOf(player.username))
-                            .withValue(Buddies.Columns.PLAY_NICKNAME, player.name)
+                            .newUpdate(Users.CONTENT_URI)
+                            .withSelection("${Users.Columns.USERNAME}=?", arrayOf(player.username))
+                            .withValue(Users.Columns.PLAY_NICKNAME, player.name)
                             .build()
                     }
                 }

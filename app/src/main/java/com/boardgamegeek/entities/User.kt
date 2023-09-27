@@ -1,9 +1,7 @@
 package com.boardgamegeek.entities
 
 data class User(
-    val internalId: Int,
-    val id: Int,
-    val userName: String,
+    val username: String,
     val firstName: String,
     val lastName: String,
     val avatarUrl: String,
@@ -13,5 +11,5 @@ data class User(
 ) {
     val fullName = "$firstName $lastName".trim()
 
-    val description = if (userName.isBlank()) fullName else "$fullName ($userName)"
+    val description = if (username.isBlank()) fullName else "$fullName ($username)"
 }

@@ -5,20 +5,17 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.Cursor
 import android.net.Uri
-import android.provider.BaseColumns
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.model.UserForUpsert
 import com.boardgamegeek.db.model.UserLocal
 import com.boardgamegeek.db.model.UserAsBuddyForUpsert
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Avatars
-import com.boardgamegeek.provider.BggContract.Buddies
+import com.boardgamegeek.provider.BggContract.Users
 import com.boardgamegeek.provider.BggContract.Companion.COLLATE_NOCASE
-import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.util.FileUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,7 +29,7 @@ class UserDao(private val context: Context) {
     suspend fun loadUser(username: String): UserLocal? = withContext(Dispatchers.IO) {
         if (username.isBlank()) return@withContext null
         context.contentResolver.loadEntity(
-            Buddies.buildBuddyUri(username),
+            Users.buildUserUri(username),
             projection(),
         ) {
             fromCursor(it)
@@ -42,16 +39,16 @@ class UserDao(private val context: Context) {
     suspend fun loadUsers(sortBy: UsersSortBy = UsersSortBy.USERNAME, buddiesOnly: Boolean): List<UserLocal> =
         withContext(Dispatchers.IO) {
             val sortOrder = when (sortBy) {
-                UsersSortBy.USERNAME -> Buddies.Columns.BUDDY_NAME
-                UsersSortBy.FIRST_NAME -> Buddies.Columns.BUDDY_FIRSTNAME
-                UsersSortBy.LAST_NAME -> Buddies.Columns.BUDDY_LASTNAME
-                UsersSortBy.UPDATED -> Buddies.Columns.UPDATED
+                UsersSortBy.USERNAME -> Users.Columns.USERNAME
+                UsersSortBy.FIRST_NAME -> Users.Columns.FIRST_NAME
+                UsersSortBy.LAST_NAME -> Users.Columns.LAST_NAME
+                UsersSortBy.UPDATED -> Users.Columns.UPDATED_DETAIL_TIMESTAMP
             }.plus(" $COLLATE_NOCASE ASC")
             context.contentResolver.loadList(
-                Buddies.CONTENT_URI,
+                Users.CONTENT_URI,
                 projection(),
-                if (buddiesOnly) "${Buddies.Columns.BUDDY_ID}!=? AND ${Buddies.Columns.BUDDY_FLAG}=1" else null,
-                if (buddiesOnly) arrayOf(Authenticator.getUserId(context)) else null,
+                if (buddiesOnly) "${Users.Columns.BUDDY_FLAG}=1" else null,
+                null,
                 sortOrder
             ) {
                 fromCursor(it)
@@ -59,95 +56,88 @@ class UserDao(private val context: Context) {
         }
 
     private fun projection() = arrayOf(
-        BaseColumns._ID,
-        Buddies.Columns.BUDDY_ID,
-        Buddies.Columns.BUDDY_NAME,
-        Buddies.Columns.BUDDY_FIRSTNAME,
-        Buddies.Columns.BUDDY_LASTNAME,
-        Buddies.Columns.AVATAR_URL,
-        Buddies.Columns.PLAY_NICKNAME,
-        Buddies.Columns.UPDATED,
-        Buddies.Columns.UPDATED_LIST,
-        Buddies.Columns.BUDDY_FLAG,
-        Buddies.Columns.SYNC_HASH_CODE,
+        Users.Columns.USERNAME,
+        Users.Columns.FIRST_NAME,
+        Users.Columns.LAST_NAME,
+        Users.Columns.AVATAR_URL,
+        Users.Columns.PLAY_NICKNAME,
+        Users.Columns.UPDATED_DETAIL_TIMESTAMP,
+        Users.Columns.UPDATED_LIST_TIMESTAMP,
+        Users.Columns.BUDDY_FLAG,
+        Users.Columns.SYNC_HASH_CODE,
     )
 
     private fun fromCursor(it: Cursor) = UserLocal(
-        internalId = it.getInt(0),
-        buddyId = it.getInt(1),
-        buddyName = it.getString(2),
-        buddyFirstName = it.getStringOrNull(3),
-        buddyLastName = it.getStringOrNull(4),
-        avatarUrl = it.getStringOrNull(5),
-        playNickname = it.getStringOrNull(6),
-        updatedTimestamp = it.getLongOrNull(7),
-        updatedListTimestamp = it.getLong(8),
-        buddyFlag = it.getBooleanOrNull(9),
-        syncHashCode = it.getInt(10),
+        username = it.getString(0),
+        firstName = it.getStringOrNull(1),
+        lastName = it.getStringOrNull(2),
+        avatarUrl = it.getStringOrNull(3),
+        playNickname = it.getStringOrNull(4),
+        updatedDetailTimestamp = it.getLongOrNull(5),
+        updatedListTimestamp = it.getLong(6),
+        buddyFlag = it.getBooleanOrNull(7),
+        syncHashCode = it.getInt(8),
     )
 
     suspend fun saveUser(user: UserForUpsert): Boolean = withContext(Dispatchers.IO) {
-        if (user.buddyName.isNotBlank()) {
-            val values = contentValuesOf(Buddies.Columns.UPDATED to user.updatedTimestamp)
-            val oldSyncHashCode = context.contentResolver.queryInt(Buddies.buildBuddyUri(user.buddyName), Buddies.Columns.SYNC_HASH_CODE)
+        if (user.username.isNotBlank()) {
+            val values = contentValuesOf(Users.Columns.UPDATED_DETAIL_TIMESTAMP to user.updatedDetailTimestamp)
+            val oldSyncHashCode = context.contentResolver.queryInt(Users.buildUserUri(user.username), Users.Columns.SYNC_HASH_CODE)
             val newSyncHashCode = user.generateSyncHashCode()
             if (oldSyncHashCode != newSyncHashCode) {
-                values.put(Buddies.Columns.BUDDY_ID, user.buddyId)
-                values.put(Buddies.Columns.BUDDY_NAME, user.buddyName)
-                values.put(Buddies.Columns.BUDDY_FIRSTNAME, user.buddyFirstName)
-                values.put(Buddies.Columns.BUDDY_LASTNAME, user.buddyLastName)
-                values.put(Buddies.Columns.AVATAR_URL, user.avatarUrl)
-                values.put(Buddies.Columns.SYNC_HASH_CODE, newSyncHashCode)
+                values.put(Users.Columns.USERNAME, user.username)
+                values.put(Users.Columns.FIRST_NAME, user.firstName)
+                values.put(Users.Columns.LAST_NAME, user.lastName)
+                values.put(Users.Columns.AVATAR_URL, user.avatarUrl)
+                values.put(Users.Columns.SYNC_HASH_CODE, newSyncHashCode)
             }
-            upsert(values, user.buddyName)
+            upsert(values, user.username)
         } else false
     }
 
     suspend fun saveBuddy(buddy: UserAsBuddyForUpsert): Boolean = withContext(Dispatchers.IO) {
-        if (buddy.buddyId != INVALID_ID && buddy.userName.isNotBlank()) {
+        if (buddy.username.isNotBlank()) {
             val values = contentValuesOf(
-                Buddies.Columns.BUDDY_ID to buddy.buddyId,
-                Buddies.Columns.BUDDY_NAME to buddy.userName,
-                Buddies.Columns.BUDDY_FLAG to true,
-                Buddies.Columns.UPDATED_LIST to buddy.updatedTimestamp
+                Users.Columns.USERNAME to buddy.username,
+                Users.Columns.BUDDY_FLAG to true,
+                Users.Columns.UPDATED_LIST_TIMESTAMP to buddy.updatedTimestamp
             )
-            upsert(values, buddy.userName)
+            upsert(values, buddy.username)
         } else {
-            Timber.i("Un-savable buddy %s (%d)", buddy.userName, buddy.buddyId)
+            Timber.i("Un-savable buddy %s", buddy.username)
             false
         }
     }
 
     suspend fun updateNickname(username: String, nickName: String) = withContext(Dispatchers.IO) {
         if (username.isNotBlank()) {
-            upsert(contentValuesOf(Buddies.Columns.PLAY_NICKNAME to nickName), username)
+            upsert(contentValuesOf(Users.Columns.PLAY_NICKNAME to nickName), username)
         } else false
     }
 
     suspend fun upsert(values: ContentValues, username: String): Boolean = withContext(Dispatchers.IO) {
-        val uri = Buddies.buildBuddyUri(username)
-        val internalId = context.contentResolver.queryInt(uri, BaseColumns._ID, INVALID_ID)
-        if (internalId != INVALID_ID) {
-            values.remove(Buddies.Columns.BUDDY_NAME)
+        val uri = Users.buildUserUri(username)
+        if (context.contentResolver.getCount(uri, Users.Columns.USERNAME) > 0) {
+            values.remove(Users.Columns.USERNAME)
             val count = context.contentResolver.update(uri, values, null, null)
             Timber.d("Updated %,d user rows at %s", count, uri)
             maybeDeleteAvatar(values, uri)
             count == 1
         } else {
-            values.put(Buddies.Columns.BUDDY_NAME, username)
-            if (!values.containsKey(Buddies.Columns.UPDATED_LIST)) {
-                values.put(Buddies.Columns.UPDATED_LIST, System.currentTimeMillis())
+            values.put(Users.Columns.USERNAME, username)
+            if (!values.containsKey(Users.Columns.UPDATED_LIST_TIMESTAMP)) {
+                values.put(Users.Columns.UPDATED_LIST_TIMESTAMP, System.currentTimeMillis())
             }
-            val insertedUri = context.contentResolver.insert(Buddies.CONTENT_URI, values)
+            val insertedUri = context.contentResolver.insert(Users.CONTENT_URI, values)
             Timber.d("Inserted user at %s", insertedUri)
             username == insertedUri?.lastPathSegment
         }
     }
 
     private suspend fun maybeDeleteAvatar(values: ContentValues, uri: Uri) = withContext(Dispatchers.IO) {
-        if (values.containsKey(Buddies.Columns.AVATAR_URL)) {
-            val newAvatarUrl: String = values.getAsString(Buddies.Columns.AVATAR_URL).orEmpty()
-            val oldAvatarUrl = context.contentResolver.queryString(uri, Buddies.Columns.AVATAR_URL)
+        if (values.containsKey(Users.Columns.AVATAR_URL)) {
+            val newAvatarUrl: String = values.getAsString(Users.Columns.AVATAR_URL).orEmpty()
+            val oldAvatarUrl = context.contentResolver.queryString(uri, Users.Columns.AVATAR_URL)
             if (newAvatarUrl != oldAvatarUrl) {
                 val avatarFileName = FileUtils.getFileNameFromUrl(oldAvatarUrl)
                 if (avatarFileName.isNotBlank()) {
@@ -158,19 +148,19 @@ class UserDao(private val context: Context) {
     }
 
     suspend fun deleteUsers(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Buddies.CONTENT_URI, null, null)
+        context.contentResolver.delete(Users.CONTENT_URI, null, null)
     }
 
     suspend fun deleteBuddiesAsOf(updateTimestamp: Long): Int = withContext(Dispatchers.IO) {
         context.contentResolver.delete(
-            Buddies.CONTENT_URI,
-            "${Buddies.Columns.BUDDY_FLAG}=1 AND ${Buddies.Columns.UPDATED_LIST}<?",
+            Users.CONTENT_URI,
+            "${Users.Columns.BUDDY_FLAG}=1 AND ${Users.Columns.UPDATED_LIST_TIMESTAMP}<?",
             arrayOf(updateTimestamp.toString())
         )
     }
 
     suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = withContext(Dispatchers.IO) {
-        if (context.contentResolver.rowExists(Buddies.buildBuddyUri(username))) {
+        if (context.contentResolver.rowExists(Users.buildUserUri(username))) {
             val batch = arrayListOf<ContentProviderOperation>()
             colors.filter { it.second.isNotBlank() }.forEach { (sort, color) ->
                 val builder = if (context.contentResolver.rowExists(BggContract.PlayerColors.buildUserUri(username, sort))) {

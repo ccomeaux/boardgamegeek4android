@@ -65,7 +65,7 @@ class SyncUsersWorker @AssistedInject constructor(
         var updatedBuddyCount = 0
         val allUsers = userRepository.loadBuddies(sortBy = UserDao.UsersSortBy.UPDATED)
 
-        val staleBuddies = allUsers.filter { it.updatedTimestamp > 0L }.map { it.userName }
+        val staleBuddies = allUsers.filter { it.updatedTimestamp > 0L }.map { it.username }
         val limit = (staleBuddies.size / buddySyncSliceCount.coerceAtLeast(1)).coerceAtMost(buddySyncSliceMaxSize)
         Timber.i("Updating $limit buddies; ${staleBuddies.size} total buddies cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
         for (username in staleBuddies.take(limit)) {
@@ -76,7 +76,7 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Syncing unupdated buddies")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_unupdated)))
 
-        val unupdatedBuddies = allUsers.filter { it.updatedTimestamp == 0L }.map { it.userName }
+        val unupdatedBuddies = allUsers.filter { it.updatedTimestamp == 0L }.map { it.username }
         Timber.i("Found ${unupdatedBuddies.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
         for (username in unupdatedBuddies.take(buddySyncSliceMaxSize)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during unupdated buddy update"))

@@ -12,7 +12,6 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
-import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.work.SyncUsersWorker
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
@@ -55,7 +54,10 @@ class UserRepository(
         }
 
     suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<User> = withContext(Dispatchers.IO) {
-        userDao.loadUsers(sortBy, buddiesOnly = true).map { it.mapToModel() }
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        userDao.loadUsers(sortBy, buddiesOnly = true)
+            .filter { it.username != username }
+            .map { it.mapToModel() }
     }
 
     suspend fun loadAllUsers(): List<User> = withContext(Dispatchers.IO) {
@@ -74,7 +76,7 @@ class UserRepository(
         var savedCount = 0
         response.buddies?.buddies.orEmpty()
             .map { it.mapForBuddyUpsert(timestamp) }
-            .filter { it.buddyId != INVALID_ID && it.userName.isNotBlank() }
+            .filter { it.username.isNotBlank() }
             .forEach {
                 userDao.saveBuddy(it)
                 savedCount++
@@ -97,9 +99,8 @@ class UserRepository(
     }
 
     fun updateSelf(user: User?) {
-        Authenticator.putUserId(context, user?.id ?: INVALID_ID)
-        if (!user?.userName.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.userName.hashCode().toString())
-        prefs[AccountPreferences.KEY_USERNAME] = user?.userName.orEmpty()
+        if (!user?.username.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.username.hashCode().toString())
+        prefs[AccountPreferences.KEY_USERNAME] = user?.username.orEmpty()
         prefs[AccountPreferences.KEY_FULL_NAME] = user?.fullName.orEmpty()
         prefs[AccountPreferences.KEY_AVATAR_URL] = user?.avatarUrl.orEmpty()
     }

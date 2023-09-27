@@ -46,7 +46,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
     }
 
     fun addUsers(list: List<User>) {
-        userList = list.sortedBy { it.userName }
+        userList = list.sortedBy { it.username }
         notifyDataSetChanged()
     }
 
@@ -61,7 +61,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
 
             val userListFiltered = if (filter.isEmpty()) userList else {
                 userList.filter {
-                    it.userName.contains(filter, ignoreCase = true) ||
+                    it.username.contains(filter, ignoreCase = true) ||
                             it.firstName.contains(filter, ignoreCase = true) ||
                             it.lastName.contains(filter, ignoreCase = true) ||
                             it.playNickname.contains(filter, ignoreCase = true)
@@ -78,12 +78,12 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             }
             val usernames = playerResults.map { it.username }
             val userResults = userListFiltered.filterNot {
-                usernames.contains(it.userName)
+                usernames.contains(it.username)
             }.map {
                 Result(
                     it.playNickname.ifBlank { it.fullName },
-                    if (it.playNickname.isBlank()) it.userName else "${it.fullName} (${it.userName})",
-                    it.userName,
+                    if (it.playNickname.isBlank()) it.username else "${it.fullName} (${it.username})",
+                    it.username,
                     it.avatarUrl,
                 )
             }

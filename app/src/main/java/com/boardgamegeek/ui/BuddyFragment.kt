@@ -51,7 +51,7 @@ class BuddyFragment : Fragment() {
 
                 binding.swipeRefresh.isEnabled = false
             } else {
-                buddyName = it.data.userName
+                buddyName = it.data.username
                 binding.avatarView.loadImage(it.data.avatarUrl, R.drawable.person_image_empty)
                 binding.fullNameView.text = it.data.fullName
                 binding.usernameView.text = buddyName

@@ -99,8 +99,8 @@ class DataPortViewModel @Inject constructor(
         // TODO export non-users
         viewModelScope.launch(Dispatchers.IO) {
             val buddies = userRepository.loadAllUsers().map {
-                val colors = playRepository.loadUserColors(it.userName).filter { color -> color.description.isNotBlank() }
-                UserForExport(it.userName, colors.map { color -> PlayerColorForExport(color.sortOrder, color.description) })
+                val colors = playRepository.loadUserColors(it.username).filter { color -> color.description.isNotBlank() }
+                UserForExport(it.username, colors.map { color -> PlayerColorForExport(color.sortOrder, color.description) })
             }.filter { it.colors.isNotEmpty() }
             export(
                 uri,
