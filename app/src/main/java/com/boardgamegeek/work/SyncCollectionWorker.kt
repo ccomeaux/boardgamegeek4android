@@ -6,6 +6,7 @@ import android.text.format.DateUtils
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
+import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.*
@@ -38,6 +39,8 @@ class SyncCollectionWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         quickSync = inputData.getBoolean(QUICK_SYNC, false)
+        if (!Authenticator.isSignedIn(applicationContext))
+            return Result.success()
 
         refreshCollection()
         if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after refreshing collection"))
