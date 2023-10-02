@@ -3,7 +3,7 @@ package com.boardgamegeek.db.model
 data class GameSuggestedPlayerCountPollResultsLocal(
     val internalId: Long,
     val gameId: Int,
-    val playerCount: String, // TODO defined in the database as an Int
+    val playerCount: String,
     val sortIndex: Int?,
     val bestVoteCount: Int,
     val recommendedVoteCount: Int,
