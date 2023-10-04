@@ -172,6 +172,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
 
                 buildCollectionViewsTable().create(it)
                 buildCollectionViewFiltersTable().create(it)
+
+                createIndices(db)
             }
         } catch (e: Exception) {
             Timber.e(e)
@@ -437,6 +439,9 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
 
                         recreateTable(db, Tables.COLLECTION_VIEWS, ::buildCollectionViewsTable)
                         recreateTable(db, Tables.COLLECTION_VIEW_FILTERS, ::buildCollectionViewFiltersTable)
+                    }
+                    VER_INDICES -> {
+                        createIndices(db)
                     }
                 }
             }
@@ -929,6 +934,15 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         db.execSQL("ALTER TABLE $tempTableName RENAME TO $tableName")
     }
 
+    private fun createIndices(db: SQLiteDatabase){
+        db.execSQL("CREATE UNIQUE INDEX index_games_game_id ON games(game_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_designers_designer_id ON designers(designer_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_artists_artist_id ON artists(artist_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_publishers_publisher_id ON publishers(publisher_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_categories_category_id ON categories(category_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_mechanics_mechanic_id ON mechanics(mechanic_id)")
+    }
+
     private fun recreateDatabase(db: SQLiteDatabase?) {
         if (db == null) return
         db.dropTable(Tables.DESIGNERS)
@@ -1028,6 +1042,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         private const val VER_RECOMMENDED_PLAYER_COUNTS = 57
         private const val VER_USERS_TABLE = 58
         private const val VER_NOT_NULL_INTERNAL_ID = 59
-        private const val DATABASE_VERSION = VER_NOT_NULL_INTERNAL_ID
+        private const val VER_INDICES = 60
+        private const val DATABASE_VERSION = VER_INDICES
     }
 }
