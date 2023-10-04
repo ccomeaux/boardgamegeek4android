@@ -533,7 +533,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Games.Columns.STATS_AVERAGE, ColumnType.REAL)
         .addColumn(Games.Columns.STATS_BAYES_AVERAGE, ColumnType.REAL)
         .addColumn(Games.Columns.STATS_STANDARD_DEVIATION, ColumnType.REAL)
-        .addColumn(Games.Columns.STATS_MEDIAN, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_MEDIAN, ColumnType.REAL)
         .addColumn(Games.Columns.STATS_NUMBER_OWNED, ColumnType.INTEGER)
         .addColumn(Games.Columns.STATS_NUMBER_TRADING, ColumnType.INTEGER)
         .addColumn(Games.Columns.STATS_NUMBER_WANTING, ColumnType.INTEGER)
