@@ -2,9 +2,9 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.MechanicLocal
 import com.boardgamegeek.entities.GameDetailEntity
-import com.boardgamegeek.entities.MechanicEntity
+import com.boardgamegeek.entities.Mechanic
 
-fun MechanicLocal.mapToEntity() = MechanicEntity(
+fun MechanicLocal.mapToModel() = Mechanic(
     id = id,
     name = name,
     itemCount = itemCount,

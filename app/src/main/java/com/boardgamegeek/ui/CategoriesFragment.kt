@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCategoriesBinding
 import com.boardgamegeek.databinding.RowCategoryBinding
-import com.boardgamegeek.entities.CategoryEntity
+import com.boardgamegeek.entities.Category
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
@@ -54,7 +54,7 @@ class CategoriesFragment : Fragment() {
     }
 
     class CategoriesAdapter : RecyclerView.Adapter<CategoriesAdapter.CategoryViewHolder>(), AutoUpdatableAdapter {
-        var categories: List<CategoryEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var categories: List<Category> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
             }
@@ -79,7 +79,7 @@ class CategoriesFragment : Fragment() {
         inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowCategoryBinding.bind(itemView)
 
-            fun bind(category: CategoryEntity?) {
+            fun bind(category: Category?) {
                 category?.let { c ->
                     binding.nameView.text = c.name
                     binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, c.itemCount, c.itemCount)

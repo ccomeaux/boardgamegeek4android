@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentMechanicsBinding
 import com.boardgamegeek.databinding.RowMechanicBinding
-import com.boardgamegeek.entities.MechanicEntity
+import com.boardgamegeek.entities.Mechanic
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
@@ -54,7 +54,7 @@ class MechanicsFragment : Fragment() {
     }
 
     class MechanicsAdapter : RecyclerView.Adapter<MechanicsAdapter.MechanicViewHolder>(), AutoUpdatableAdapter {
-        var mechanics: List<MechanicEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var mechanics: List<Mechanic> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
             }
@@ -79,7 +79,7 @@ class MechanicsFragment : Fragment() {
         inner class MechanicViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowMechanicBinding.bind(itemView)
 
-            fun bind(mechanic: MechanicEntity?) {
+            fun bind(mechanic: Mechanic?) {
                 mechanic?.let { m ->
                     binding.nameView.text = m.name
                     binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, m.itemCount, m.itemCount)
