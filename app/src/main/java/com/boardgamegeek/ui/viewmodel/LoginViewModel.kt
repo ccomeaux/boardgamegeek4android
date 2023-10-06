@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.boardgamegeek.entities.AuthEntity
+import com.boardgamegeek.entities.AuthToken
 import com.boardgamegeek.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,8 +24,8 @@ class LoginViewModel @Inject constructor(
     val isAuthenticating: LiveData<Boolean>
         get() = _isAuthenticating
 
-    private val _authenticationResult = MutableLiveData<AuthEntity?>()
-    val authenticationResult: LiveData<AuthEntity?>
+    private val _authenticationResult = MutableLiveData<AuthToken?>()
+    val authenticationResult: LiveData<AuthToken?>
         get() = _authenticationResult
 
     fun login(username: String?, password: String?) {

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.os.bundleOf
 import com.boardgamegeek.auth.BggCookieJar
-import com.boardgamegeek.entities.AuthEntity
+import com.boardgamegeek.entities.AuthToken
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -23,7 +23,7 @@ class AuthRepository(
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    fun authenticate(username: String, password: String, method: String): AuthEntity? {
+    fun authenticate(username: String, password: String, method: String): AuthToken? {
         return try {
             tryAuthenticate(username, password, method)
         } catch (e: IOException) {
@@ -35,13 +35,13 @@ class AuthRepository(
     }
 
     @Throws(IOException::class)
-    private fun tryAuthenticate(username: String, password: String, method: String): AuthEntity? {
+    private fun tryAuthenticate(username: String, password: String, method: String): AuthToken? {
         val cookieJar = BggCookieJar()
         val client = httpClient.newBuilder().cookieJar(cookieJar).build()
         val response = client.newCall(buildRequest(username, password)).execute()
         return if (response.isSuccessful && !cookieJar.authToken.isNullOrBlank()) {
             log(method)
-            AuthEntity(
+            AuthToken(
                 cookieJar.authToken,
                 cookieJar.authTokenExpiry,
             )
