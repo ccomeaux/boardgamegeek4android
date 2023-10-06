@@ -1,13 +1,13 @@
 package com.boardgamegeek.entities
 
-data class ForumEntity(
+data class Forum(
     val id: Int,
     val title: String,
     val numberOfThreads: Int,
     val lastPostDateTime: Long,
     val isHeader: Boolean
 ) {
-    enum class ForumType {
+    enum class Type {
         REGION,
         GAME,
         ARTIST,

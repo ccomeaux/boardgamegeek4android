@@ -9,7 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentArticleBinding
-import com.boardgamegeek.entities.ArticleEntity
+import com.boardgamegeek.entities.Article
 import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.extensions.toFormattedString
@@ -25,7 +25,7 @@ class ArticleFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val article = arguments?.getParcelableCompat(KEY_ARTICLE) ?: ArticleEntity()
+        val article = arguments?.getParcelableCompat(KEY_ARTICLE) ?: Article()
 
         binding.usernameView.text = article.username
         binding.postDateView.timestamp = article.postTicks
@@ -48,7 +48,7 @@ class ArticleFragment : Fragment() {
     companion object {
         private const val KEY_ARTICLE = "ARTICLE"
 
-        fun newInstance(article: ArticleEntity): ArticleFragment {
+        fun newInstance(article: Article): ArticleFragment {
             return ArticleFragment().apply {
                 arguments = bundleOf(KEY_ARTICLE to article)
             }

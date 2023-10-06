@@ -5,7 +5,7 @@ import com.boardgamegeek.provider.BggContract
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class ArticleEntity(
+data class Article(
     val id: Int = BggContract.INVALID_ID,
     val username: String = "",
     val link: String = "",

@@ -8,20 +8,20 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowForumBinding
 import com.boardgamegeek.databinding.RowHeaderBinding
-import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.entities.Forum
 import com.boardgamegeek.ui.ForumActivity
 import java.text.NumberFormat
 
 class ForumsRecyclerViewAdapter(
     private val objectId: Int,
     private val objectName: String,
-    private val objectType: ForumEntity.ForumType
+    private val objectType: Forum.Type,
 ) : RecyclerView.Adapter<ForumsRecyclerViewAdapter.ForumViewHolder>() {
     init {
         setHasStableIds(true)
     }
 
-    var forums: List<ForumEntity> = emptyList()
+    var forums: List<Forum> = emptyList()
         @SuppressLint("NotifyDataSetChanged")
         set(value) {
             field = value
@@ -62,7 +62,7 @@ class ForumsRecyclerViewAdapter(
         class ForumItemViewHolder(itemView: View) : ForumViewHolder(itemView) {
             private val binding = RowForumBinding.bind(itemView)
 
-            fun bind(forum: ForumEntity?, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
+            fun bind(forum: Forum?, objectId: Int, objectName: String, objectType: Forum.Type) {
                 if (forum == null) return
                 binding.titleView.text = forum.title
                 binding.numberOfThreadsView.text = numberFormat.format(forum.numberOfThreads.toLong())
@@ -74,7 +74,7 @@ class ForumsRecyclerViewAdapter(
         class HeaderViewHolder(itemView: View) : ForumViewHolder(itemView) {
             private val binding = RowHeaderBinding.bind(itemView)
 
-            fun bind(forum: ForumEntity?) {
+            fun bind(forum: Forum?) {
                 binding.headerView.text = forum?.title
             }
         }

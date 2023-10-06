@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "forum")
-public class Forum {
+public class ForumRemote {
 	@Attribute public int id;
 	@Attribute public int groupid;
 	@Attribute public String title;

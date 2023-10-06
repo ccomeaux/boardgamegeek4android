@@ -6,8 +6,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowThreadArticleBinding
-import com.boardgamegeek.entities.ArticleEntity
-import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.entities.Article
+import com.boardgamegeek.entities.Forum
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.provider.BggContract
@@ -21,14 +21,14 @@ class ThreadRecyclerViewAdapter(
     private val forumTitle: String,
     private val objectId: Int,
     private val objectName: String,
-    private val objectType: ForumEntity.ForumType
+    private val objectType: Forum.Type,
 ) : RecyclerView.Adapter<ArticleViewHolder>(), AutoUpdatableAdapter {
 
     var threadId: Int = BggContract.INVALID_ID
     var threadSubject: String = ""
     val tagHandler = XmlApi2TagHandler()
 
-    var articles: List<ArticleEntity> by Delegates.observable(emptyList()) { _, old, new ->
+    var articles: List<Article> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n ->
             o == n
         }
@@ -59,22 +59,22 @@ class ThreadRecyclerViewAdapter(
     inner class ArticleViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowThreadArticleBinding.bind(itemView)
 
-        fun bind(entity: ArticleEntity?) {
-            entity?.let { article ->
-                if (article.postTicks > 0L) {
+        fun bind(article: Article?) {
+            article?.let {
+                if (it.postTicks > 0L) {
                     binding.rowHeaderView.isVisible = true
-                    binding.usernameView.text = article.username
-                    binding.usernameView.isVisible = article.username.isNotBlank()
-                    binding.postDateView.timestamp = article.postTicks
-                    binding.editDateView.timestamp = article.editTicks
-                    binding.editDateView.isVisible = article.editTicks != article.postTicks
-                    binding.dateDivider.isVisible = article.editTicks != article.postTicks
+                    binding.usernameView.text = it.username
+                    binding.usernameView.isVisible = it.username.isNotBlank()
+                    binding.postDateView.timestamp = it.postTicks
+                    binding.editDateView.timestamp = it.editTicks
+                    binding.editDateView.isVisible = it.editTicks != it.postTicks
+                    binding.dateDivider.isVisible = it.editTicks != it.postTicks
                 } else {
                     binding.rowHeaderView.isVisible = false
                 }
-                binding.bodyView.setTextMaybeHtml(article.body.trim(), tagHandler = tagHandler)
+                binding.bodyView.setTextMaybeHtml(it.body.trim(), tagHandler = tagHandler)
                 binding.viewButton.setOnClickListener { v: View ->
-                    ArticleActivity.start(v.context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType, article)
+                    ArticleActivity.start(v.context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType, it)
                 }
             }
         }

@@ -6,7 +6,7 @@ import org.simpleframework.xml.Root;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "article")
-public class ArticleElement {
+public class ArticleRemote {
 	@Attribute public int id;
 	@Attribute(required = false) public String username;
 	@Attribute public String link;

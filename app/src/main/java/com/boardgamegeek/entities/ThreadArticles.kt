@@ -1,7 +1,7 @@
 package com.boardgamegeek.entities
 
-data class ThreadArticlesEntity(
+data class ThreadArticles(
     val threadId: Int,
     val subject: String,
-    val articles: List<ArticleEntity>
+    val articles: List<Article>
 )

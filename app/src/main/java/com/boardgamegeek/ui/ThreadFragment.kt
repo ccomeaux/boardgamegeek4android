@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentThreadBinding
-import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.entities.Forum
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
@@ -32,7 +32,7 @@ class ThreadFragment : Fragment() {
     private var forumTitle = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
-    private var objectType = ForumEntity.ForumType.REGION
+    private var objectType = Forum.Type.REGION
 
     private var currentAdapterPosition = 0
     private var latestArticleId: Int = INVALID_ARTICLE_ID
@@ -57,7 +57,7 @@ class ThreadFragment : Fragment() {
             forumTitle = it.getString(KEY_FORUM_TITLE).orEmpty()
             objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
             objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
-            objectType = it.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
+            objectType = it.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
         }
 
         requireActivity().addMenuProvider(object : MenuProvider {
@@ -181,7 +181,7 @@ class ThreadFragment : Fragment() {
             forumTitle: String?,
             objectId: Int,
             objectName: String?,
-            objectType: ForumEntity.ForumType?,
+            objectType: Forum.Type?,
         ): ThreadFragment {
             return ThreadFragment().apply {
                 arguments = bundleOf(

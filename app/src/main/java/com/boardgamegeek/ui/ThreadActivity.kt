@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.entities.Forum
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -21,7 +21,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
     private var forumTitle: String = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
-    private var objectType = ForumEntity.ForumType.REGION
+    private var objectType = Forum.Type.REGION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +50,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
-        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -112,7 +112,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: ForumEntity.ForumType
+            objectType: Forum.Type
         ) {
             context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType))
         }
@@ -125,7 +125,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: ForumEntity.ForumType
+            objectType: Forum.Type
         ) {
             context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType).clearTop())
         }
@@ -138,7 +138,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: ForumEntity.ForumType,
+            objectType: Forum.Type,
         ): Intent {
             return context.intentFor<ThreadActivity>(
                 KEY_THREAD_ID to threadId,

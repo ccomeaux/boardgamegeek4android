@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class ThreadEntity(
+data class Thread(
     val threadId: Int,
     val subject: String,
     val author: String,
