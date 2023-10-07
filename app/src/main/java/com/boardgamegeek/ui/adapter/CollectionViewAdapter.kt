@@ -3,11 +3,11 @@ package com.boardgamegeek.ui.adapter
 import android.content.Context
 import android.widget.ArrayAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionViewEntity
+import com.boardgamegeek.entities.CollectionView
 import com.boardgamegeek.extensions.CollectionView
 
 class CollectionViewAdapter(context: Context) :
-    ArrayAdapter<CollectionViewEntity>(context, R.layout.actionbar_spinner_item, mutableListOf<CollectionViewEntity>()) {
+    ArrayAdapter<com.boardgamegeek.entities.CollectionView>(context, R.layout.actionbar_spinner_item, mutableListOf<com.boardgamegeek.entities.CollectionView>()) {
     init {
         setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
     }

@@ -2,48 +2,48 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.CollectionViewFilterLocal
 import com.boardgamegeek.db.model.CollectionViewLocal
-import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.entities.CollectionViewFilterEntity
+import com.boardgamegeek.entities.CollectionView
+import com.boardgamegeek.entities.CollectionViewFilter
 import com.boardgamegeek.export.model.CollectionViewForExport
 import com.boardgamegeek.export.model.CollectionViewFilterForExport
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorterFactory
 
-fun CollectionViewEntity.mapForExport() = CollectionViewForExport(
+fun CollectionView.mapForExport() = CollectionViewForExport(
     name = this.name,
     sortType = this.sortType,
     starred = this.starred,
     filters = this.filters?.map { CollectionViewFilterForExport(it.type, it.data) }.orEmpty(),
 )
 
-fun CollectionViewForExport.mapToEntity() = CollectionViewEntity(
+fun CollectionViewForExport.mapToModel() = CollectionView(
     id = BggContract.INVALID_ID,
     name = name,
     sortType = sortType,
     count = 0,
     timestamp = 0L,
     starred = starred,
-    filters = filters.map { it.mapToEntity() },
+    filters = filters.map { it.mapToModel() },
 )
 
-fun CollectionViewFilterForExport.mapToEntity() = CollectionViewFilterEntity(
+private fun CollectionViewFilterForExport.mapToModel() = CollectionViewFilter(
     id = BggContract.INVALID_ID,
     type = this.type,
     data = this.data
 )
 
-fun CollectionViewLocal.mapToEntity() = CollectionViewEntity(
+fun CollectionViewLocal.mapToModel() = CollectionView(
     id = id,
     name = name.orEmpty(),
     sortType = sortType ?: CollectionSorterFactory.TYPE_UNKNOWN,
     count = selectedCount ?: 0,
     timestamp = selectedTimestamp ?: 0L,
     starred = starred == true,
-    filters = filters?.map { it.mapToEntity() },
+    filters = filters?.map { it.mapToModel() },
 )
 
-fun CollectionViewEntity.mapToLocal() = CollectionViewLocal(
+fun CollectionView.mapToLocal() = CollectionViewLocal(
     id = id,
     name = name,
     sortType = sortType,
@@ -53,13 +53,13 @@ fun CollectionViewEntity.mapToLocal() = CollectionViewLocal(
     filters = filters?.map { it.mapToLocal(this.id) },
 )
 
-fun CollectionViewFilterLocal.mapToEntity() = CollectionViewFilterEntity(
+fun CollectionViewFilterLocal.mapToModel() = CollectionViewFilter(
     id = id,
     type = type ?: CollectionFiltererFactory.TYPE_UNKNOWN,
     data = data.orEmpty(),
 )
 
-fun CollectionViewFilterEntity.mapToLocal(viewId: Int) = CollectionViewFilterLocal(
+fun CollectionViewFilter.mapToLocal(viewId: Int) = CollectionViewFilterLocal(
     id = id,
     viewId = viewId,
     type = type,

@@ -14,7 +14,7 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionViewEntity
+import com.boardgamegeek.entities.CollectionView
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
@@ -99,7 +99,7 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 }
             }
             it.adapter = adapter
-            viewModel.views.observe(this) { collectionViews: List<CollectionViewEntity?> ->
+            viewModel.views.observe(this) { collectionViews: List<CollectionView?> ->
                 if (collectionViews.isNotEmpty()) {
                     adapter.clear()
                     adapter.addAll(collectionViews)

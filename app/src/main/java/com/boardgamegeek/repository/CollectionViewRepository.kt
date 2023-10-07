@@ -4,9 +4,9 @@ import android.content.Context
 import androidx.core.content.pm.ShortcutManagerCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
-import com.boardgamegeek.entities.CollectionViewEntity
+import com.boardgamegeek.entities.CollectionView
 import com.boardgamegeek.extensions.CollectionView
-import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToLocal
 import com.boardgamegeek.ui.CollectionActivity
 import kotlinx.coroutines.Dispatchers
@@ -15,25 +15,25 @@ import kotlinx.coroutines.withContext
 class CollectionViewRepository(val context: Context) {
     private val dao = CollectionViewDao(context)
 
-    private val defaultView = CollectionViewEntity(
+    private val defaultView = com.boardgamegeek.entities.CollectionView(
         id = CollectionView.DEFAULT_DEFAULT_ID,
         name = context.getString(R.string.title_collection),
     )
 
-    suspend fun load(includeDefault: Boolean = true, includeFilters: Boolean = false): List<CollectionViewEntity> {
-        val list = dao.load(includeFilters).map { it.mapToEntity() }
+    suspend fun load(includeDefault: Boolean = true, includeFilters: Boolean = false): List<com.boardgamegeek.entities.CollectionView> {
+        val list = dao.load(includeFilters).map { it.mapToModel() }
         return if (includeDefault) listOf(defaultView) + list else list
     }
 
-    suspend fun load(viewId: Int): CollectionViewEntity {
-        return dao.load(viewId)?.mapToEntity() ?: defaultView
+    suspend fun load(viewId: Int): com.boardgamegeek.entities.CollectionView {
+        return dao.load(viewId)?.mapToModel() ?: defaultView
     }
 
-    suspend fun insertView(view: CollectionViewEntity): Int {
+    suspend fun insertView(view: com.boardgamegeek.entities.CollectionView): Int {
         return dao.insert(view.mapToLocal())
     }
 
-    suspend fun updateView(view: CollectionViewEntity) {
+    suspend fun updateView(view: com.boardgamegeek.entities.CollectionView) {
         dao.update(view.mapToLocal())
     }
 
@@ -48,7 +48,7 @@ class CollectionViewRepository(val context: Context) {
             val shortcuts = dao.load(false)
                 .filterNot { it.name.isNullOrBlank() }
                 .take(SHORTCUT_COUNT)
-                .map { entity -> CollectionActivity.createShortcutInfo(context, entity.id, entity.name.orEmpty()) }
+                .map { view -> CollectionActivity.createShortcutInfo(context, view.id, view.name.orEmpty()) }
             ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
         }
     }

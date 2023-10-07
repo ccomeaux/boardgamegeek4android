@@ -9,8 +9,8 @@ import androidx.work.WorkManager
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.CollectionViewEntity
-import com.boardgamegeek.entities.CollectionViewFilterEntity
+import com.boardgamegeek.entities.CollectionView
+import com.boardgamegeek.entities.CollectionViewFilter
 import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
@@ -107,11 +107,11 @@ class CollectionViewViewModel @Inject constructor(
     val selectedViewId: LiveData<Int>
         get() = _selectedViewId
 
-    val views: LiveData<List<CollectionViewEntity>> = viewsTimestamp.switchMap {
+    val views: LiveData<List<CollectionView>> = viewsTimestamp.switchMap {
         liveData { emit(viewRepository.load()) }
     }
 
-    private val selectedView: LiveData<CollectionViewEntity> = _selectedViewId.switchMap {
+    private val selectedView: LiveData<CollectionView> = _selectedViewId.switchMap {
         liveData {
             _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
             _addedFilters.value = emptyList()
@@ -247,7 +247,7 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     private fun createEffectiveFilters(
-        loadedView: CollectionViewEntity?,
+        loadedView: CollectionView?,
         addedFilters: List<CollectionFilterer>,
         removedFilterTypes: List<Int>
     ) {
@@ -276,7 +276,7 @@ class CollectionViewViewModel @Inject constructor(
         }
     }
 
-    private fun createEffectiveSort(loadedView: CollectionViewEntity?, sortType: Int?) {
+    private fun createEffectiveSort(loadedView: CollectionView?, sortType: Int?) {
         _effectiveSortType.value = if (sortType == null || sortType == CollectionSorterFactory.TYPE_UNKNOWN) {
             loadedView?.sortType ?: CollectionSorterFactory.TYPE_DEFAULT
         } else {
@@ -328,10 +328,10 @@ class CollectionViewViewModel @Inject constructor(
 
     fun insert(name: String, isDefault: Boolean) {
         viewModelScope.launch {
-            val view = CollectionViewEntity(
+            val view = CollectionView(
                 name = name,
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(BggContract.INVALID_ID, it.type, it.deflate()) },
+                filters = effectiveFilters.value?.map { CollectionViewFilter(BggContract.INVALID_ID, it.type, it.deflate()) },
             )
             val viewId = viewRepository.insertView(view)
             logAction("Insert", name)
@@ -344,11 +344,11 @@ class CollectionViewViewModel @Inject constructor(
 
     fun update(name: String, isDefault: Boolean) {
         viewModelScope.launch {
-            val view = CollectionViewEntity(
+            val view = CollectionView(
                 id = _selectedViewId.value ?: BggContract.INVALID_ID,
                 name = selectedViewName.value.orEmpty(),
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                filters = effectiveFilters.value?.map { CollectionViewFilterEntity(BggContract.INVALID_ID, it.type, it.deflate()) },
+                filters = effectiveFilters.value?.map { CollectionViewFilter(BggContract.INVALID_ID, it.type, it.deflate()) },
             )
             viewRepository.updateView(view)
             logAction("Update", name)

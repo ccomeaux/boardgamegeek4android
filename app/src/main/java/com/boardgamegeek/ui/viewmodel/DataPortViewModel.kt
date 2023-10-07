@@ -15,7 +15,7 @@ import com.boardgamegeek.export.model.*
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.ProgressData
 import com.boardgamegeek.livedata.ProgressLiveData
-import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapForExport
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameRepository
@@ -186,7 +186,7 @@ class DataPortViewModel @Inject constructor(
                 Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION,
                 _collectionViewProgress,
                 { reader -> gson.fromJson(reader, CollectionViewForExport::class.java) },
-                { item: CollectionViewForExport, _ -> collectionViewRepository.insertView(item.mapToEntity()) },
+                { item: CollectionViewForExport, _ -> collectionViewRepository.insertView(item.mapToModel()) },
                 { collectionViewRepository.delete() },
             )
         }
