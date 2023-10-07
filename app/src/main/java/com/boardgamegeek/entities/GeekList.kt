@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class GeekListEntity(
+data class GeekList(
     val id: Int,
     val title: String,
     val username: String,
@@ -9,6 +9,6 @@ data class GeekListEntity(
     val numberOfThumbs: Int = 0,
     val postTicks: Long = 0L,
     val editTicks: Long = 0L,
-    val items: List<GeekListItemEntity> = emptyList(),
-    val comments: List<GeekListCommentEntity> = emptyList()
+    val items: List<GeekListItem> = emptyList(),
+    val comments: List<GeekListComment> = emptyList()
 )

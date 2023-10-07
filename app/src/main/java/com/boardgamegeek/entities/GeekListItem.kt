@@ -8,7 +8,7 @@ import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class GeekListItemEntity(
+data class GeekListItem(
     val id: Long = BggContract.INVALID_ID.toLong(),
     val objectId: Int = BggContract.INVALID_ID,
     val objectName: String = "",
@@ -20,7 +20,7 @@ data class GeekListItemEntity(
     val numberOfThumbs: Int = 0,
     val postDateTime: Long = 0L,
     val editDateTime: Long = 0L,
-    val comments: List<GeekListCommentEntity> = emptyList(),
+    val comments: List<GeekListComment> = emptyList(),
     val thumbnailUrls: List<String>? = null,
     val heroImageUrls: List<String>? = null,
 ) : Parcelable {

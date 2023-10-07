@@ -7,8 +7,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.GeekListEntity
-import com.boardgamegeek.entities.GeekListItemEntity
+import com.boardgamegeek.entities.GeekList
+import com.boardgamegeek.entities.GeekListItem
 import com.boardgamegeek.extensions.link
 import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.startActivity
@@ -21,7 +21,7 @@ class GeekListItemActivity : HeroTabActivity() {
     private var geekListId = 0
     private var geekListTitle = ""
     private var order = 0
-    private var geekListItemEntity = GeekListItemEntity()
+    private var geekListItem = GeekListItem()
 
     private val adapter: GeekListItemPagerAdapter by lazy {
         GeekListItemPagerAdapter(this)
@@ -32,19 +32,19 @@ class GeekListItemActivity : HeroTabActivity() {
         geekListTitle = intent.getStringExtra(KEY_TITLE).orEmpty()
         geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID)
         order = intent.getIntExtra(KEY_ORDER, 0)
-        geekListItemEntity = intent.getParcelableCompat(KEY_ITEM) ?: GeekListItemEntity()
+        geekListItem = intent.getParcelableCompat(KEY_ITEM) ?: GeekListItem()
 
         initializeViewPager()
 
-        safelySetTitle(geekListItemEntity.objectName)
-        if (savedInstanceState == null && geekListItemEntity.objectId != BggContract.INVALID_ID) {
+        safelySetTitle(geekListItem.objectName)
+        if (savedInstanceState == null && geekListItem.objectId != BggContract.INVALID_ID) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekListItem")
-                param(FirebaseAnalytics.Param.ITEM_ID, geekListItemEntity.objectId.toString())
-                param(FirebaseAnalytics.Param.ITEM_NAME, geekListItemEntity.objectName)
+                param(FirebaseAnalytics.Param.ITEM_ID, geekListItem.objectId.toString())
+                param(FirebaseAnalytics.Param.ITEM_NAME, geekListItem.objectName)
             }
         }
-        loadToolbarImage(geekListItemEntity.heroImageUrls)
+        loadToolbarImage(geekListItem.heroImageUrls)
     }
 
     override val optionsMenuId = R.menu.view
@@ -59,14 +59,14 @@ class GeekListItemActivity : HeroTabActivity() {
                 true
             }
             R.id.menu_view -> {
-                if (geekListItemEntity.isBoardGame) {
-                    if (geekListItemEntity.objectId == BggContract.INVALID_ID || geekListItemEntity.objectName.isBlank()) false else {
-                        start(this, geekListItemEntity.objectId, geekListItemEntity.objectName)
+                if (geekListItem.isBoardGame) {
+                    if (geekListItem.objectId == BggContract.INVALID_ID || geekListItem.objectName.isBlank()) false else {
+                        start(this, geekListItem.objectId, geekListItem.objectName)
                         true
                     }
                 } else {
-                    if (geekListItemEntity.objectUrl.isBlank()) false else {
-                        link(geekListItemEntity.objectUrl)
+                    if (geekListItem.objectUrl.isBlank()) false else {
+                        link(geekListItem.objectUrl)
                         true
                     }
                 }
@@ -89,8 +89,8 @@ class GeekListItemActivity : HeroTabActivity() {
         FragmentStateAdapter(activity) {
         override fun createFragment(position: Int): Fragment {
             return when (position) {
-                0 -> GeekListItemFragment.newInstance(order, geekListTitle, geekListItemEntity)
-                1 -> GeekListItemCommentsFragment.newInstance(geekListItemEntity.comments)
+                0 -> GeekListItemFragment.newInstance(order, geekListTitle, geekListItem)
+                1 -> GeekListItemCommentsFragment.newInstance(geekListItem.comments)
                 else -> ErrorFragment()
             }
         }
@@ -104,7 +104,7 @@ class GeekListItemActivity : HeroTabActivity() {
         private const val KEY_TITLE = "GEEK_LIST_TITLE"
         private const val KEY_ITEM = "GEEK_LIST_ITEM"
 
-        fun start(context: Context, geekList: GeekListEntity, item: GeekListItemEntity, order: Int) {
+        fun start(context: Context, geekList: GeekList, item: GeekListItem, order: Int) {
             context.startActivity<GeekListItemActivity>(
                 KEY_ID to geekList.id,
                 KEY_TITLE to geekList.title,

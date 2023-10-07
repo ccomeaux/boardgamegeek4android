@@ -6,7 +6,7 @@ import org.simpleframework.xml.Text;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "comment")
-public class GeekListComment {
+public class GeekListCommentRemote {
 	@Attribute public String date;
 	@Attribute public String editdate;
 	@Attribute public String postdate;

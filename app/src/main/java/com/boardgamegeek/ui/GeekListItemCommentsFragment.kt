@@ -9,7 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.databinding.FragmentGeeklistCommentsBinding
-import com.boardgamegeek.entities.GeekListCommentEntity
+import com.boardgamegeek.entities.GeekListComment
 import com.boardgamegeek.extensions.getParcelableArrayListCompat
 import com.boardgamegeek.ui.adapter.GeekListCommentsRecyclerViewAdapter
 
@@ -30,7 +30,7 @@ class GeekListItemCommentsFragment : Fragment() {
         binding.recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = adapter
 
-        val comments = arguments?.getParcelableArrayListCompat<GeekListCommentEntity>(KEY_COMMENTS).orEmpty()
+        val comments = arguments?.getParcelableArrayListCompat<GeekListComment>(KEY_COMMENTS).orEmpty()
 
         adapter.comments = comments
         binding.emptyView.isVisible = comments.isEmpty()
@@ -46,7 +46,7 @@ class GeekListItemCommentsFragment : Fragment() {
     companion object {
         private const val KEY_COMMENTS = "GEEK_LIST_COMMENTS"
 
-        fun newInstance(comments: List<GeekListCommentEntity>?): GeekListItemCommentsFragment {
+        fun newInstance(comments: List<GeekListComment>?): GeekListItemCommentsFragment {
             return GeekListItemCommentsFragment().apply {
                 arguments = bundleOf(KEY_COMMENTS to comments)
             }

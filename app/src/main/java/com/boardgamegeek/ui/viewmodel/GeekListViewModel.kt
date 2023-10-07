@@ -2,8 +2,8 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.GeekListEntity
-import com.boardgamegeek.entities.GeekListItemEntity
+import com.boardgamegeek.entities.GeekList
+import com.boardgamegeek.entities.GeekListItem
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
@@ -25,7 +25,7 @@ class GeekListViewModel @Inject constructor(
         if (_geekListId.value != geekListId) _geekListId.value = geekListId
     }
 
-    val geekList: LiveData<RefreshableResource<GeekListEntity>> = _geekListId.switchMap { id ->
+    val geekList: LiveData<RefreshableResource<GeekList>> = _geekListId.switchMap { id ->
         liveData {
             emit(RefreshableResource.refreshing(latestValue?.data))
             if (id == BggContract.INVALID_ID) {
@@ -34,7 +34,7 @@ class GeekListViewModel @Inject constructor(
                 try {
                     val geekList = geekListRepository.getGeekList(id)
                     emit(RefreshableResource.refreshing(geekList))
-                    val itemsWithImages = mutableListOf<GeekListItemEntity>()
+                    val itemsWithImages = mutableListOf<GeekListItem>()
                     geekList.items.forEach {
                         itemsWithImages += if (it.thumbnailUrls == null || it.heroImageUrls == null) {
                             val urlPair = if (it.imageId == 0) {

@@ -9,7 +9,7 @@ import java.util.List;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "item")
-public class GeekListItem {
+public class GeekListItemRemote {
 	@Attribute public String id;
 	@Attribute public String imageid;
 	@Attribute public String objectid;
@@ -22,5 +22,5 @@ public class GeekListItem {
 	@Attribute public String username;
 	@Element(required = false) public String body;
 	@ElementList(name = "comment", inline = true, required = false)
-	public List<GeekListComment> comments;
+	public List<GeekListCommentRemote> comments;
 }

@@ -4,7 +4,7 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-data class GeekListCommentEntity(
+data class GeekListComment(
     val postDate: Long,
     val editDate: Long,
     val numberOfThumbs: Int,

@@ -7,15 +7,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowGeeklistBinding
-import com.boardgamegeek.entities.GeekListEntity
+import com.boardgamegeek.entities.GeekList
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GeekListActivity
 
-class GeekListsPagedListAdapter : PagingDataAdapter<GeekListEntity, GeekListsPagedListAdapter.GeekListsViewHolder>(diffCallback) {
+class GeekListsPagedListAdapter : PagingDataAdapter<GeekList, GeekListsPagedListAdapter.GeekListsViewHolder>(diffCallback) {
     companion object {
-        val diffCallback = object : DiffUtil.ItemCallback<GeekListEntity>() {
-            override fun areItemsTheSame(oldItem: GeekListEntity, newItem: GeekListEntity): Boolean = oldItem.id == newItem.id
-            override fun areContentsTheSame(oldItem: GeekListEntity, newItem: GeekListEntity): Boolean = oldItem == newItem
+        val diffCallback = object : DiffUtil.ItemCallback<GeekList>() {
+            override fun areItemsTheSame(oldItem: GeekList, newItem: GeekList): Boolean = oldItem.id == newItem.id
+            override fun areContentsTheSame(oldItem: GeekList, newItem: GeekList): Boolean = oldItem == newItem
         }
     }
 
@@ -30,13 +30,13 @@ class GeekListsPagedListAdapter : PagingDataAdapter<GeekListEntity, GeekListsPag
     inner class GeekListsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowGeeklistBinding.bind(itemView)
 
-        fun bind(entity: GeekListEntity?) {
-            if (entity == null) return
-            binding.titleView.text = entity.title
-            binding.creatorView.text = entity.username
-            binding.numberOfItemsView.text = entity.numberOfItems.toString()
-            binding.numberOfThumbsView.text = entity.numberOfThumbs.toString()
-            itemView.setOnClickListener { v -> GeekListActivity.start(v.context, entity.id, entity.title) }
+        fun bind(geekList: GeekList?) {
+            if (geekList == null) return
+            binding.titleView.text = geekList.title
+            binding.creatorView.text = geekList.username
+            binding.numberOfItemsView.text = geekList.numberOfItems.toString()
+            binding.numberOfThumbsView.text = geekList.numberOfThumbs.toString()
+            itemView.setOnClickListener { v -> GeekListActivity.start(v.context, geekList.id, geekList.title) }
         }
     }
 }
