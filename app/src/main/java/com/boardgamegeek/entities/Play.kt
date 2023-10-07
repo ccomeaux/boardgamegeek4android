@@ -6,7 +6,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 
-data class PlayEntity(
+data class Play(
     val internalId: Long = BggContract.INVALID_ID.toLong(),
     val playId: Int = BggContract.INVALID_ID,
     val dateInMillis: Long,
@@ -30,7 +30,7 @@ data class PlayEntity(
     val updatedPlaysTimestamp: Long = 0L,
     val gameIsCustomSorted: Boolean = false,
     val subtypes: List<String> = emptyList(),
-    private val _players: List<PlayPlayerEntity>? = null,
+    private val _players: List<PlayPlayer>? = null,
 ) {
     val players
         get() = _players.orEmpty()
@@ -66,7 +66,7 @@ data class PlayEntity(
         return false
     }
 
-    fun getPlayerAtSeat(seat: Int): PlayPlayerEntity? {
+    fun getPlayerAtSeat(seat: Int): PlayPlayer? {
         return players.find { it.seat == seat }
     }
 

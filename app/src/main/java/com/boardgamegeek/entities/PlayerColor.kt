@@ -2,7 +2,7 @@ package com.boardgamegeek.entities
 
 import com.boardgamegeek.extensions.asColorRgb
 
-data class PlayerColorEntity(
+data class PlayerColor(
     val description: String,
     var sortOrder: Int = 0
 ) {

@@ -1,9 +1,8 @@
 package com.boardgamegeek.entities
 
-import com.boardgamegeek.provider.BggContract
 import java.util.*
 
-data class PlayerEntity(
+data class Player(
     val name: String,
     val username: String,
     val playCount: Int = 0,
@@ -29,18 +28,18 @@ data class PlayerEntity(
     }
 
     override fun equals(other: Any?): Boolean {
-        val otherPlayerEntity = other as? PlayerEntity
+        val otherPlayer = other as? Player
         return when {
-            otherPlayerEntity == null -> return false
+            otherPlayer == null -> return false
             username.isBlank() -> {
-                otherPlayerEntity.username.isBlank() && name == otherPlayerEntity.name
+                otherPlayer.username.isBlank() && name == otherPlayer.name
             }
-            else -> username == otherPlayerEntity.username
+            else -> username == otherPlayer.username
         }
     }
 
     companion object {
-        fun createUser(name: String) = PlayerEntity(name = "", username = name)
-        fun createNonUser(name: String) = PlayerEntity(name = name, username = "")
+        fun createUser(name: String) = Player(name = "", username = name)
+        fun createNonUser(name: String) = Player(name = name, username = "")
     }
 }

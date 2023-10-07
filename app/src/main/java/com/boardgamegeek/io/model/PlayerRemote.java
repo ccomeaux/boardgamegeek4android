@@ -5,7 +5,7 @@ import org.simpleframework.xml.Root;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "player")
-public class Player {
+public class PlayerRemote {
 	@Attribute public String username;
 	@Attribute public int userid;
 	@Attribute public String name;

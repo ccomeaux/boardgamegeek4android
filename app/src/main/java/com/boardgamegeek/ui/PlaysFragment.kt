@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlaysBinding
 import com.boardgamegeek.databinding.RowPlayBinding
-import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.Play
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
@@ -132,14 +132,14 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             setHasStableIds(true)
         }
 
-        var items: List<PlayEntity> = emptyList()
+        var items: List<Play> = emptyList()
             @SuppressLint("NotifyDataSetChanged")
             set(value) {
                 field = value
                 notifyDataSetChanged()
             }
 
-        fun getItem(position: Int): PlayEntity? {
+        fun getItem(position: Int): Play? {
             return items.getOrNull(position)
         }
 
@@ -182,7 +182,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowPlayBinding.bind(itemView)
 
-            fun bind(play: PlayEntity?, position: Int) {
+            fun bind(play: Play?, position: Int) {
                 if (play == null) return
 
                 binding.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
@@ -235,7 +235,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             val play = items.getOrNull(position) ?: return "-"
             return when (viewModel.sortType.value ?: PlaysViewModel.SortType.DATE) {
                 PlaysViewModel.SortType.DATE -> {
-                    if (play.dateInMillis == PlayEntity.UNKNOWN_DATE)
+                    if (play.dateInMillis == Play.UNKNOWN_DATE)
                         getString(R.string.text_unknown)
                     else
                         dateFormat.format(play.dateInMillis)

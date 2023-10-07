@@ -10,7 +10,7 @@ import java.util.List;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "play")
-public class Play {
+public class PlayRemote {
 	@Attribute public int id;
 	@Attribute public String date;
 	@Attribute public int quantity;
@@ -22,8 +22,8 @@ public class Play {
 	@Path("item") @Attribute public int objectid;
 	@Path("item") @Attribute public String objecttype;
 	@Element(required = false) public String comments;
-	@ElementList(required = false) public List<Player> players;
-	@Path("item") @ElementList public List<Play.Subtype> subtypes;
+	@ElementList(required = false) public List<PlayerRemote> players;
+	@Path("item") @ElementList public List<PlayRemote.Subtype> subtypes;
 	@Root(name = "subtype")
 	public static class Subtype {
 		@Attribute public String value;

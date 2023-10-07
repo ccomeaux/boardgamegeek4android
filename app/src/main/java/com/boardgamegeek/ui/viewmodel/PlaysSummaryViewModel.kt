@@ -22,8 +22,8 @@ class PlaysSummaryViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val playsRateLimiter = RateLimiter<Int>(10.minutes)
     private val syncTimestamp = MutableLiveData<Long>()
-    private val h = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX)
-    private val n = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX + PlayStats.KEY_H_INDEX_N_SUFFIX)
+    private val h = LiveSharedPreference<Int>(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX)
+    private val n = LiveSharedPreference<Int>(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX)
     private val username = LiveSharedPreference<String>(getApplication(), AccountPreferences.KEY_USERNAME)
 
     init {
@@ -58,15 +58,15 @@ class PlaysSummaryViewModel @Inject constructor(
         list.data?.sumOf { it.quantity } ?: 0
     }
 
-    val playsInProgress: LiveData<List<PlayEntity>> = plays.map { list ->
+    val playsInProgress: LiveData<List<Play>> = plays.map { list ->
         list.data?.filter { it.dirtyTimestamp > 0L }.orEmpty()
     }
 
-    val playsNotInProgress: LiveData<List<PlayEntity>> = plays.map { list ->
+    val playsNotInProgress: LiveData<List<Play>> = plays.map { list ->
         list.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY).orEmpty()
     }
 
-    val players: LiveData<List<PlayerEntity>> = plays.switchMap {
+    val players: LiveData<List<Player>> = plays.switchMap {
         liveData {
             emit(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT, false))
         }
@@ -74,7 +74,7 @@ class PlaysSummaryViewModel @Inject constructor(
         p.filter { it.username != username.value }.take(ITEMS_TO_DISPLAY)
     }
 
-    val locations: LiveData<List<LocationEntity>> = plays.switchMap {
+    val locations: LiveData<List<Location>> = plays.switchMap {
         liveData {
             emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
         }
@@ -82,19 +82,19 @@ class PlaysSummaryViewModel @Inject constructor(
         p.filter { it.name.isNotBlank() }.take(ITEMS_TO_DISPLAY)
     }
 
-    val colors: LiveData<List<PlayerColorEntity>> = liveData {
+    val colors: LiveData<List<PlayerColor>> = liveData {
         emit(
             if (username.value.isNullOrBlank()) emptyList()
             else playRepository.loadUserColors(username.value.orEmpty())
         )
     }
 
-    val hIndex = MediatorLiveData<HIndexEntity>().apply {
+    val hIndex = MediatorLiveData<HIndex>().apply {
         addSource(h) {
-            value = HIndexEntity(it ?: HIndexEntity.INVALID_H_INDEX, n.value ?: 0)
+            value = HIndex(it ?: HIndex.INVALID_H_INDEX, n.value ?: 0)
         }
         addSource(n) {
-            value = HIndexEntity(h.value ?: HIndexEntity.INVALID_H_INDEX, it ?: 0)
+            value = HIndex(h.value ?: HIndex.INVALID_H_INDEX, it ?: 0)
         }
     }
 

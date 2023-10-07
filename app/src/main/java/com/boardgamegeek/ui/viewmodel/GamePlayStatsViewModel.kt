@@ -47,7 +47,7 @@ class GamePlayStatsViewModel @Inject constructor(
         }
     }
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = _gameId.switchMap { gameId ->
+    val plays: LiveData<RefreshableResource<List<Play>>> = _gameId.switchMap { gameId ->
         liveData {
             val list = when (gameId) {
                 BggContract.INVALID_ID -> null
@@ -57,7 +57,7 @@ class GamePlayStatsViewModel @Inject constructor(
         }
     }
 
-    val players: LiveData<List<PlayPlayerEntity>> = _gameId.switchMap { gameId ->
+    val players: LiveData<List<PlayPlayer>> = _gameId.switchMap { gameId ->
         liveData {
             val list = when (gameId) {
                 BggContract.INVALID_ID -> emptyList()

@@ -1,8 +1,8 @@
 package com.boardgamegeek.entities
 
-data class PlayerStatsEntity(private val players: List<PlayerEntity>) {
-    val hIndex: HIndexEntity by lazy {
-        HIndexEntity.fromList(players.map { it.playCount })
+data class PlayerStats(private val players: List<Player>) {
+    val hIndex: HIndex by lazy {
+        HIndex.fromList(players.map { it.playCount })
     }
 
     fun getHIndexPlayers(): List<Pair<String, Int>> {

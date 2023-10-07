@@ -3,7 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.work.WorkManager
-import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.Play
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
@@ -23,7 +23,7 @@ class PlayViewModel @Inject constructor(
     private val forceRefresh = AtomicBoolean()
     private val internalId = MutableLiveData<Long>()
 
-    val play: LiveData<RefreshableResource<PlayEntity>> = internalId.switchMap { id ->
+    val play: LiveData<RefreshableResource<Play>> = internalId.switchMap { id ->
         liveData {
             try {
                 latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }

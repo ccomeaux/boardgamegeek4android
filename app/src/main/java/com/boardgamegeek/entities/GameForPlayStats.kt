@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class GameForPlayStatEntity(
+data class GameForPlayStats(
     val id: Int,
     val name: String,
     val playCount: Int,

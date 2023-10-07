@@ -5,9 +5,9 @@ import android.content.SharedPreferences
 import android.text.format.DateUtils
 import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayPlayerEntity
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.Play
+import com.boardgamegeek.entities.PlayPlayer
+import com.boardgamegeek.entities.Player
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameRepository
@@ -31,7 +31,7 @@ class LogPlayViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val prefs: SharedPreferences by lazy { application.preferences() }
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
-    private var originalPlay: PlayEntity? = null
+    private var originalPlay: Play? = null
     private val scoreFormat = DecimalFormat("0.#########")
     private var internalIdToDelete: Long = INVALID_ID.toLong()
 
@@ -79,8 +79,8 @@ class LogPlayViewModel @Inject constructor(
     val comments: LiveData<String>
         get() = _comments
 
-    private val _players = MutableLiveData<List<PlayPlayerEntity>>()
-    val players: LiveData<List<PlayPlayerEntity>>
+    private val _players = MutableLiveData<List<PlayPlayer>>()
+    val players: LiveData<List<PlayPlayer>>
         get() = _players
 
     private val _startTime = MutableLiveData<Long>()
@@ -101,8 +101,8 @@ class LogPlayViewModel @Inject constructor(
         emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
     }
 
-    private val _playersByLocation = MediatorLiveData<List<PlayerEntity>>()
-    val playersByLocation: LiveData<List<PlayerEntity>>
+    private val _playersByLocation = MediatorLiveData<List<Player>>()
+    val playersByLocation: LiveData<List<Player>>
         get() = _playersByLocation
 
     init {
@@ -125,7 +125,7 @@ class LogPlayViewModel @Inject constructor(
 
     private fun filterPlayersByLocation(
         location: String = _location.value.orEmpty(),
-        currentPlayers: List<PlayPlayerEntity> = players.value.orEmpty(),
+        currentPlayers: List<PlayPlayer> = players.value.orEmpty(),
     ) {
         viewModelScope.launch(Dispatchers.Default) {
             val allPlayers = playRepository.loadPlayersByLocation(location)
@@ -158,14 +158,14 @@ class LogPlayViewModel @Inject constructor(
                 val recentlyPlayed = (prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L).howManyHoursOld() < 12
                 if (recentlyPlayed) {
                     _location.postValue(prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty())
-                    val players = prefs.getLastPlayPlayerEntities()
-                    val seatedPlayers: List<PlayPlayerEntity> = if (gameSupportsCustomSort)
-                        players.map { PlayPlayerEntity(name = it.name, username = it.username) }
+                    val players = prefs.getLastPlayPlayers()
+                    val seatedPlayers: List<PlayPlayer> = if (gameSupportsCustomSort)
+                        players.map { PlayPlayer(name = it.name, username = it.username) }
                     else
-                        assignSeats(players.map { PlayPlayerEntity(name = it.name, username = it.username) })
+                        assignSeats(players.map { PlayPlayer(name = it.name, username = it.username) })
                     _players.postValue(seatedPlayers)
                 }
-                originalPlay = buildPlayEntity().copy()
+                originalPlay = buildPlay().copy()
             } else {
                 playRepository.loadPlay(internalId)?.let { play ->
                     if (originalPlay == null) originalPlay = play.copy()
@@ -295,19 +295,19 @@ class LogPlayViewModel @Inject constructor(
         } ?: false
     }
 
-    fun addPlayers(players: List<PlayerEntity>) {
+    fun addPlayers(players: List<Player>) {
         val newPlayers = _players.value.orEmpty().toMutableList()
         val initialPosition = _players.value?.size ?: 0
-        newPlayers += players.mapIndexed { index, entity ->
+        newPlayers += players.mapIndexed { index, player ->
             if (customPlayerSort.value != true) {
-                PlayPlayerEntity(name = entity.name, username = entity.username, startingPosition = (initialPosition + 1 + index).toString())
-            } else PlayPlayerEntity(name = entity.name, username = entity.username)
+                PlayPlayer(name = player.name, username = player.username, startingPosition = (initialPosition + 1 + index).toString())
+            } else PlayPlayer(name = player.name, username = player.username)
         }
         if (customPlayerSort.value != true) newPlayers.sortBy { it.seat }
         _players.value = newPlayers
     }
 
-    fun editPlayer(player: PlayPlayerEntity = PlayPlayerEntity(), position: Int? = null) {
+    fun editPlayer(player: PlayPlayer = PlayPlayer(), position: Int? = null) {
         players.value?.let {
             val players = it.toMutableList()
             if (position in it.indices) {
@@ -320,7 +320,7 @@ class LogPlayViewModel @Inject constructor(
         }
     }
 
-    fun addPlayer(player: PlayPlayerEntity = PlayPlayerEntity()) {
+    fun addPlayer(player: PlayPlayer = PlayPlayer()) {
         val players = _players.value.orEmpty().toMutableList()
         val newPlayers = if (customPlayerSort.value != true) {
             assignSeats(players + player).toMutableList()
@@ -330,7 +330,7 @@ class LogPlayViewModel @Inject constructor(
         _players.value = newPlayers
     }
 
-    fun removePlayer(player: PlayPlayerEntity) {
+    fun removePlayer(player: PlayPlayer) {
         players.value?.let {
             if (it.isNotEmpty()) {
                 val newPlayers = it.toMutableList()
@@ -407,9 +407,9 @@ class LogPlayViewModel @Inject constructor(
     /**
      * Return the list of players, with seats assigned from 1 to N, starting at the specified index and re-sorted to begin at seat 1.
      */
-    private fun assignSeats(players: List<PlayPlayerEntity>, playerIndex: Int = 0): List<PlayPlayerEntity> {
-        return players.mapIndexed { index, playPlayerEntity ->
-            playPlayerEntity.copy(startingPosition = ((index - playerIndex).mod(players.size) + 1).toString())
+    private fun assignSeats(players: List<PlayPlayer>, playerIndex: Int = 0): List<PlayPlayer> {
+        return players.mapIndexed { index, player ->
+            player.copy(startingPosition = ((index - playerIndex).mod(players.size) + 1).toString())
         }.sortedBy { player -> player.seat }
     }
 
@@ -423,7 +423,7 @@ class LogPlayViewModel @Inject constructor(
                     gameRepository,
                     playRepository,
                 ).execute()
-                val newPlayers = mutableListOf<PlayPlayerEntity>()
+                val newPlayers = mutableListOf<PlayPlayer>()
                 existingPlayers.forEach { ppe ->
                     val result = if (ppe.username.isEmpty()) {
                         results.find { it.type == PlayerColorAssigner.PlayerType.NON_USER && it.name == ppe.name }
@@ -465,13 +465,13 @@ class LogPlayViewModel @Inject constructor(
         modifyPlayerAtIndex(playerIndex) { it.copy(isNew = isNew) }
     }
 
-    private fun modifyPlayers(indexFunction: (PlayPlayerEntity) -> PlayPlayerEntity) {
+    private fun modifyPlayers(indexFunction: (PlayPlayer) -> PlayPlayer) {
         players.value?.let {
             _players.value = it.map { players -> indexFunction(players) }
         }
     }
 
-    private fun modifyPlayerAtIndex(playerIndex: Int, indexFunction: (PlayPlayerEntity) -> PlayPlayerEntity) {
+    private fun modifyPlayerAtIndex(playerIndex: Int, indexFunction: (PlayPlayer) -> PlayPlayer) {
         players.value?.let {
             _players.value = it.mapIndexed { i, player ->
                 if (i == playerIndex) indexFunction(player) else player.copy()
@@ -481,7 +481,7 @@ class LogPlayViewModel @Inject constructor(
 
     fun logPlay() {
         viewModelScope.launch {
-            val play = buildPlayEntity(updateTimestamp = System.currentTimeMillis(), dirtyTimestamp = System.currentTimeMillis())
+            val play = buildPlay(updateTimestamp = System.currentTimeMillis(), dirtyTimestamp = System.currentTimeMillis())
             val internalId = playRepository.save(play)
             playRepository.enqueueUploadRequest(internalId)
             _internalId.postValue(internalId)
@@ -495,24 +495,24 @@ class LogPlayViewModel @Inject constructor(
 
     fun saveDraft(wantToFinish: Boolean = true) {
         viewModelScope.launch {
-            _internalId.postValue(playRepository.save(buildPlayEntity(dirtyTimestamp = System.currentTimeMillis())))
+            _internalId.postValue(playRepository.save(buildPlay(dirtyTimestamp = System.currentTimeMillis())))
             if (wantToFinish) _canFinish.postValue(true)
         }
     }
 
     fun deletePlay() {
         viewModelScope.launch {
-            val play = buildPlayEntity(deleteTimestamp = System.currentTimeMillis())
+            val play = buildPlay(deleteTimestamp = System.currentTimeMillis())
             playRepository.enqueueUploadRequest(play.internalId)
             _canFinish.postValue(true)
         }
     }
 
-    private fun buildPlayEntity(
+    private fun buildPlay(
         dirtyTimestamp: Long = 0L,
         updateTimestamp: Long = 0L,
         deleteTimestamp: Long = 0L,
-    ) = PlayEntity(
+    ) = Play(
         internalId = _internalId.value ?: INVALID_ID.toLong(),
         playId = _playId,
         dateInMillis = _dateInMillis.value ?: Calendar.getInstance().timeInMillis,

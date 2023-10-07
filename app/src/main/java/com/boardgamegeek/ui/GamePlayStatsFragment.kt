@@ -25,9 +25,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding
-import com.boardgamegeek.entities.HIndexEntity
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.entities.HIndex
+import com.boardgamegeek.entities.Play
+import com.boardgamegeek.entities.PlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel
@@ -39,8 +39,6 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
-import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -71,8 +69,8 @@ class GamePlayStatsFragment : Fragment() {
     private val prefs: SharedPreferences by lazy { requireContext().preferences() }
     private val viewModel by viewModels<GamePlayStatsViewModel>()
 
-    private var playEntities = listOf<PlayEntity>()
-    private var playerEntities = listOf<PlayPlayerEntity>()
+    private var plays = listOf<Play>()
+    private var players = listOf<PlayPlayer>()
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -158,9 +156,9 @@ class GamePlayStatsFragment : Fragment() {
                             binding.dataView.fadeOut()
                             binding.emptyView.fadeIn()
                         } else {
-                            playEntities = data.sortedByDescending { it.dateInMillis }
+                            plays = data.sortedByDescending { it.dateInMillis }
                             viewModel.players.observe(viewLifecycleOwner) {
-                                playerEntities = it
+                                players = it
 
                                 val stats = Stats()
                                 stats.calculate()
@@ -314,7 +312,7 @@ class GamePlayStatsFragment : Fragment() {
             }
             binding.players.playersList.addView(view)
         }
-        binding.players.playersCard.isVisible = playerEntities.isNotEmpty()
+        binding.players.playersCard.isVisible = players.isNotEmpty()
 
         // endregion PLAYERS
 
@@ -396,7 +394,7 @@ class GamePlayStatsFragment : Fragment() {
             ).setInfoText(R.string.play_stat_utilization_info)
         }
         val hIndexOffset = stats.hIndexOffset
-        if (hIndexOffset == HIndexEntity.INVALID_H_INDEX) {
+        if (hIndexOffset == HIndex.INVALID_H_INDEX) {
             addPlayStat(binding.advanced.advancedTable, "", R.string.play_stat_game_h_index_offset_in)
         } else {
             addPlayStat(binding.advanced.advancedTable, hIndexOffset.toString(), R.string.play_stat_game_h_index_offset_out)
@@ -482,7 +480,7 @@ class GamePlayStatsFragment : Fragment() {
             highScore = Int.MIN_VALUE.toDouble()
             lowScore = Int.MAX_VALUE.toDouble()
 
-            playCountIncomplete = playEntities.sumOf { it.quantity }
+            playCountIncomplete = this@GamePlayStatsFragment.plays.sumOf { it.quantity }
 
             firstPlayDate = plays.first().date
             firstPlayDateInMillis = plays.first().dateInMillis
@@ -525,7 +523,7 @@ class GamePlayStatsFragment : Fragment() {
                     playerCountSumWithLength += play.playerCount * play.quantity
                 }
 
-                for (player in playerEntities.filter { it.playId == play.playId }) {
+                for (player in players.filter { it.playId == play.playId }) {
                     if (player.description.isNotEmpty()) {
                         val playerStats = playerStats[player.id] ?: PlayerStats()
                         playerStats.add(play, player)
@@ -546,7 +544,7 @@ class GamePlayStatsFragment : Fragment() {
             }
         }
 
-        val plays: List<PlayEntity> = playEntities.filter { prefs[PlayStats.LOG_PLAY_STATS_INCOMPLETE, false] ?: false || !it.incomplete }.reversed()
+        val plays: List<Play> = this@GamePlayStatsFragment.plays.filter { prefs[PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE, false] ?: false || !it.incomplete }.reversed()
 
         val playCount: Int by lazy { plays.sumOf { it.quantity } }
 
@@ -644,9 +642,9 @@ class GamePlayStatsFragment : Fragment() {
 
         val hIndexOffset: Int
             get() {
-                val hIndex = prefs[PlayStats.KEY_GAME_H_INDEX, 0] ?: 0
+                val hIndex = prefs[PlayStatPrefs.KEY_GAME_H_INDEX, 0] ?: 0
                 return if (playCount >= hIndex) {
-                    HIndexEntity.INVALID_H_INDEX
+                    HIndex.INVALID_H_INDEX
                 } else {
                     hIndex - playCount
                 }
@@ -733,7 +731,7 @@ class GamePlayStatsFragment : Fragment() {
 
         val invalidScore = Int.MIN_VALUE.toDouble()
 
-        fun add(play: PlayEntity, player: PlayPlayerEntity) {
+        fun add(play: Play, player: PlayPlayer) {
             username = player.username
             description = player.description
             numberOfPlays += play.quantity
@@ -788,16 +786,16 @@ class GamePlayStatsFragment : Fragment() {
             get() = if (numberOfPlaysWonWithScore == 0) invalidScore else winningScore / numberOfPlaysWonWithScore
     }
 
-    val PlayEntity.date: String
+    val Play.date: String
         get() = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(this.dateInMillis)
 
-//    val PlayEntity.year: String
+//    val Play.year: String
 //        get() = this.date.substring(0, 4)
 
-    val PlayEntity.yearAndMonth: String
+    val Play.yearAndMonth: String
         get() = this.date.substring(0, 7)
 
-    val PlayEntity.isWinnable: Boolean
+    val Play.isWinnable: Boolean
         get() {
             return when {
                 noWinStats -> false

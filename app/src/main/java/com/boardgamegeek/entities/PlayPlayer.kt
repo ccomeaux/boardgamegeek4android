@@ -9,7 +9,7 @@ import java.text.ParseException
 import java.util.*
 
 @Parcelize
-data class PlayPlayerEntity(
+data class PlayPlayer(
     val name: String = "",
     val username: String = "",
     val startingPosition: String = "",

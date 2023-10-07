@@ -9,9 +9,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogPlayStatsSettingsIncludeBinding
-import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_ACCESSORIES
-import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_EXPANSIONS
-import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_INCOMPLETE
+import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES
+import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_EXPANSIONS
+import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE
 import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences

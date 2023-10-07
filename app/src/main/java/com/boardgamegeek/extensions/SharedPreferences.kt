@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayPlayerEntity
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.PlayPlayer
+import com.boardgamegeek.entities.Player
 import java.util.*
 
 /**
@@ -195,7 +195,7 @@ private fun SharedPreferences.showLogPlayField(key: String, oldKey: String, defa
 
 // region PLAY STATS
 
-object PlayStats {
+object PlayStatPrefs {
     private const val LOG_PLAY_STATS_PREFIX = "logPlayStats"
     const val LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete"
     const val LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions"
@@ -227,14 +227,14 @@ private const val SEPARATOR_RECORD = "OV=I=XrecordX=I=VO"
 @Suppress("SpellCheckingInspection")
 private const val SEPARATOR_FIELD = "OV=I=XfieldX=I=VO"
 
-fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity> {
+fun SharedPreferences.getLastPlayPlayers(): List<Player> {
     return this[KEY_LAST_PLAY_PLAYERS, ""]?.split(SEPARATOR_RECORD)?.filter { it.isNotBlank() }?.map {
         val x = it.split(SEPARATOR_FIELD)
-        PlayerEntity(x[0], x.getOrNull(1).orEmpty())
+        Player(x[0], x.getOrNull(1).orEmpty())
     }.orEmpty()
 }
 
-fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>?) {
+fun SharedPreferences.putLastPlayPlayers(players: List<PlayPlayer>?) {
     players?.let { list ->
         this[KEY_LAST_PLAY_PLAYERS] = list.joinToString(SEPARATOR_RECORD) {
             it.name + SEPARATOR_FIELD + it.username

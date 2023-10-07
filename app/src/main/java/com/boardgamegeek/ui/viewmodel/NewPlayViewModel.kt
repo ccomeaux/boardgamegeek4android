@@ -57,33 +57,33 @@ class NewPlayViewModel @Inject constructor(
         get() = _location
 
     // Locations
-    val locations = MediatorLiveData<List<LocationEntity>>()
+    val locations = MediatorLiveData<List<Location>>()
     private var locationFilter = ""
-    private val rawLocations: LiveData<List<LocationEntity>> = liveData {
+    private val rawLocations: LiveData<List<Location>> = liveData {
         emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
     }
 
     // Players
-    val availablePlayers = MediatorLiveData<List<PlayerEntity>>()
+    val availablePlayers = MediatorLiveData<List<Player>>()
     private val _allPlayers = liveData { emit(playRepository.loadPlayersByLocation()) }
-    private val playersByLocation: LiveData<List<PlayerEntity>> = location.switchMap {
+    private val playersByLocation: LiveData<List<Player>> = location.switchMap {
         liveData {
             emit(playRepository.loadPlayersByLocation(it))
         }
     }
-    private val playerFavoriteColors: LiveData<Map<PlayerEntity, String>> = liveData {
+    private val playerFavoriteColors: LiveData<Map<Player, String>> = liveData {
         emit(playRepository.loadPlayerFavoriteColors())
     }
     private val playerFilter = MutableLiveData<String>()
-    private val _addedPlayers = MutableLiveData<MutableList<PlayerEntity>>()
-    val addedPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
+    private val _addedPlayers = MutableLiveData<MutableList<Player>>()
+    val addedPlayers = MediatorLiveData<List<NewPlayPlayer>>()
     private val playerColorMap = MutableLiveData<MutableMap<String, String>>()
-    private val playerFavoriteColorMap = mutableMapOf<String, List<PlayerColorEntity>>()
+    private val playerFavoriteColorMap = mutableMapOf<String, List<PlayerColor>>()
     val selectedColors = MediatorLiveData<List<String>>()
     private val playerSortMap = MutableLiveData<MutableMap<String, Int>>()
     private val playerMightBeNewMap = mutableMapOf<String, Boolean>()
     private val playerIsNewMap = MutableLiveData<MutableMap<String, Boolean>>()
-    val mightBeNewPlayers = MediatorLiveData<List<NewPlayPlayerEntity>>()
+    val mightBeNewPlayers = MediatorLiveData<List<NewPlayPlayer>>()
     private val playerWinMap = MutableLiveData<MutableMap<String, Boolean>>()
     private val playerScoresMap = MutableLiveData<MutableMap<String, String>>()
 
@@ -202,7 +202,7 @@ class NewPlayViewModel @Inject constructor(
         addStep(Step.LOCATION)
     }
 
-    private fun filterLocations(list: List<LocationEntity>?, filter: String): List<LocationEntity> {
+    private fun filterLocations(list: List<Location>?, filter: String): List<Location> {
         val newList = (list?.filter { it.name.isNotBlank() }.orEmpty()).toMutableList()
         if (isLastPlayRecent()) {
             newList.find { it.name == prefs[KEY_LAST_PLAY_LOCATION, ""] }?.let {
@@ -218,7 +218,7 @@ class NewPlayViewModel @Inject constructor(
         addStep(Step.ADD_PLAYERS)
     }
 
-    fun addPlayer(player: PlayerEntity) {
+    fun addPlayer(player: Player) {
         val newList = _addedPlayers.value ?: mutableListOf()
         if (!newList.contains(player)) {
             viewModelScope.launch {
@@ -244,8 +244,8 @@ class NewPlayViewModel @Inject constructor(
         }
     }
 
-    fun removePlayer(player: NewPlayPlayerEntity) {
-        val removedPlayer = PlayerEntity(player.name, player.username)
+    fun removePlayer(player: NewPlayPlayer) {
+        val removedPlayer = Player(player.name, player.username)
 
         val newList = _addedPlayers.value ?: mutableListOf()
         newList.remove(removedPlayer).let { _addedPlayers.value = newList }
@@ -299,9 +299,9 @@ class NewPlayViewModel @Inject constructor(
         val sortMap = mutableMapOf<String, Int>()
         val playerCount = _addedPlayers.value?.size ?: 0
         val collection = (1..playerCount).toMutableSet()
-        _addedPlayers.value?.forEach { playerEntity ->
+        _addedPlayers.value?.forEach { player ->
             val sortOrder = collection.random()
-            sortMap[playerEntity.id] = sortOrder
+            sortMap[player.id] = sortOrder
             collection.remove(sortOrder)
         }
         playerSortMap.value = sortMap
@@ -311,8 +311,8 @@ class NewPlayViewModel @Inject constructor(
         val sortMap = mutableMapOf<String, Int>()
         val playerCount = _addedPlayers.value?.size ?: 0
         var sortOrder = (1..playerCount).random()
-        _addedPlayers.value?.forEach { playerEntity ->
-            sortMap[playerEntity.id] = sortOrder
+        _addedPlayers.value?.forEach { player ->
+            sortMap[player.id] = sortOrder
             sortOrder += 1
             if (sortOrder > playerCount) sortOrder -= playerCount
         }
@@ -327,8 +327,8 @@ class NewPlayViewModel @Inject constructor(
                 sortMap[it.key] = (it.value + playerCount - index - 1) % playerCount + 1
             }
         } else {
-            _addedPlayers.value?.forEachIndexed { i, playerEntity ->
-                sortMap[playerEntity.id] = (i + playerCount - index) % playerCount + 1
+            _addedPlayers.value?.forEachIndexed { i, player ->
+                sortMap[player.id] = (i + playerCount - index) % playerCount + 1
             }
         }
         playerSortMap.value = sortMap
@@ -398,20 +398,20 @@ class NewPlayViewModel @Inject constructor(
     }
 
     private fun assembleAvailablePlayers(
-        allPlayers: List<PlayerEntity>? = _allPlayers.value,
-        locationPlayers: List<PlayerEntity>? = playersByLocation.value,
-        addedPlayers: List<PlayerEntity>? = _addedPlayers.value,
+        allPlayers: List<Player>? = _allPlayers.value,
+        locationPlayers: List<Player>? = playersByLocation.value,
+        addedPlayers: List<Player>? = _addedPlayers.value,
         filter: String? = playerFilter.value,
-        favoriteColors: Map<PlayerEntity, String>? = playerFavoriteColors.value,
-    ): List<PlayerEntity> {
-        val newList = mutableListOf<PlayerEntity>()
+        favoriteColors: Map<Player, String>? = playerFavoriteColors.value,
+    ): List<Player> {
+        val newList = mutableListOf<Player>()
         // show players in this order:
         // 1. me
         val self = allPlayers?.find { it.username == prefs[AccountPreferences.KEY_USERNAME, ""] }
         self?.let { newList.add(it) }
         //  2. last played at this location
         if (isLastPlayRecent() && location.value == prefs[KEY_LAST_PLAY_LOCATION, ""]) {
-            val lastPlayers = prefs.getLastPlayPlayerEntities()
+            val lastPlayers = prefs.getLastPlayPlayers()
             lastPlayers.forEach { lastPlayer ->
                 allPlayers?.find { it == lastPlayer && !newList.contains(it) }?.let {
                     newList.add(it)
@@ -448,18 +448,18 @@ class NewPlayViewModel @Inject constructor(
     }
 
     private fun assemblePlayers(
-        addedPlayers: List<PlayerEntity> = _addedPlayers.value.orEmpty(),
+        addedPlayers: List<Player> = _addedPlayers.value.orEmpty(),
         playerColors: Map<String, String> = playerColorMap.value.orEmpty(),
-        favoriteColorsMap: Map<String, List<PlayerColorEntity>> = playerFavoriteColorMap,
+        favoriteColorsMap: Map<String, List<PlayerColor>> = playerFavoriteColorMap,
         playerSort: Map<String, Int> = playerSortMap.value.orEmpty(),
         playerIsNew: Map<String, Boolean> = playerIsNewMap.value.orEmpty(),
         playerWin: Map<String, Boolean> = playerWinMap.value.orEmpty(),
         playerScores: Map<String, String> = playerScoresMap.value.orEmpty(),
         gameColorList: List<String> = gameColors.value.orEmpty(),
     ) {
-        val players = mutableListOf<NewPlayPlayerEntity>()
-        addedPlayers.forEach { playerEntity ->
-            val newPlayer = NewPlayPlayerEntity(playerEntity).apply {
+        val players = mutableListOf<NewPlayPlayer>()
+        addedPlayers.forEach { player ->
+            val newPlayer = NewPlayPlayer(player).apply {
                 color = playerColors[id].orEmpty()
                 val favoriteForPlayer = favoriteColorsMap[id]?.map { it.description }.orEmpty()
                 val rankedChoices = favoriteForPlayer
@@ -482,7 +482,7 @@ class NewPlayViewModel @Inject constructor(
     }
 
     private fun assembleMightBeNewPlayers(
-        players: List<NewPlayPlayerEntity> = mightBeNewPlayers.value.orEmpty(),
+        players: List<NewPlayPlayer> = mightBeNewPlayers.value.orEmpty(),
         newMap: MutableMap<String, Boolean> = playerMightBeNewMap
     ) {
         mightBeNewPlayers.value = players.filter { newMap[it.id] ?: false }
@@ -513,7 +513,7 @@ class NewPlayViewModel @Inject constructor(
         viewModelScope.launch {
             val startTime = startTime.value ?: 0L
             val players = _addedPlayers.value.orEmpty().map { player ->
-                PlayPlayerEntity(
+                PlayPlayer(
                     player.name,
                     player.username,
                     (playerSortMap.value.orEmpty())[player.id]?.toString().orEmpty(),
@@ -523,7 +523,7 @@ class NewPlayViewModel @Inject constructor(
                     score = (playerScoresMap.value.orEmpty())[player.id].orEmpty(),
                 )
             }
-            val play = PlayEntity(
+            val play = Play(
                 BggContract.INVALID_ID.toLong(),
                 BggContract.INVALID_ID,
                 playDate.value ?: System.currentTimeMillis(),

@@ -422,7 +422,7 @@ class GameDao(private val context: Context) {
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
-    ): List<GameForPlayStatEntity> = withContext(Dispatchers.IO) {
+    ): List<GameForPlayStats> = withContext(Dispatchers.IO) {
         context.contentResolver.loadList(
             Games.CONTENT_PLAYS_URI,
             arrayOf(
@@ -453,7 +453,7 @@ class GameDao(private val context: Context) {
             }.toTypedArray(),
             sortOrder = "${Plays.Columns.SUM_QUANTITY} DESC, ${Games.Columns.GAME_SORT_NAME} ASC"
         ) {
-            GameForPlayStatEntity(
+            GameForPlayStats(
                 id = it.getIntOrNull(0) ?: INVALID_ID,
                 name = it.getStringOrNull(1).orEmpty(),
                 playCount = it.getIntOrNull(3) ?: 0,

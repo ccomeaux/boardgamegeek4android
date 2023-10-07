@@ -17,7 +17,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityLogplayerBinding
-import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.entities.PlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.BuddyNameAdapter
@@ -41,8 +41,8 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
 
     private var gameName = ""
     private var position = 0
-    private var player = PlayPlayerEntity()
-    private var originalPlayer: PlayPlayerEntity? = null
+    private var player = PlayPlayer()
+    private var originalPlayer: PlayPlayer? = null
 
     private var userHasShownTeamColor = false
     private var userHasShownPosition = false
@@ -50,7 +50,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     private var userHasShownRating = false
     private var userHasShownNew = false
     private var userHasShownWin = false
-    private var autoPosition = PlayPlayerEntity.SEAT_UNKNOWN
+    private var autoPosition = PlayPlayer.SEAT_UNKNOWN
     private var isNewPlayer = false
     private var usedColors: ArrayList<String>? = null
     private val colors = arrayListOf<String>()
@@ -98,7 +98,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         val heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
-        autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, PlayPlayerEntity.SEAT_UNKNOWN)
+        autoPosition = intent.getIntExtra(KEY_AUTO_POSITION, PlayPlayer.SEAT_UNKNOWN)
         val usedColors = intent.getStringArrayExtra(KEY_USED_COLORS)
 
         viewModel.colors.observe(this) {
@@ -126,11 +126,11 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         binding.fab.colorize(intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)))
         if (savedInstanceState == null) {
             position = intent.getIntExtra(KEY_POSITION, INVALID_POSITION)
-            player = intent.getParcelableCompat(KEY_PLAYER) ?: PlayPlayerEntity()
+            player = intent.getParcelableCompat(KEY_PLAYER) ?: PlayPlayer()
             if (hasAutoPosition()) player = player.copy(startingPosition = autoPosition.toString())
             originalPlayer = player.copy()
         } else {
-            player = savedInstanceState.getParcelableCompat(KEY_PLAYER) ?: PlayPlayerEntity()
+            player = savedInstanceState.getParcelableCompat(KEY_PLAYER) ?: PlayPlayer()
             userHasShownTeamColor = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_TEAM_COLOR)
             userHasShownPosition = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_POSITION)
             userHasShownScore = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_SCORE)
@@ -201,7 +201,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         binding.teamColorView.setTextKeepState(player.color)
         binding.positionView.setTextKeepState(player.startingPosition)
         binding.scoreView.setTextKeepState(player.score)
-        binding.ratingView.setTextKeepState(if (player.rating == PlayPlayerEntity.DEFAULT_RATING) "" else player.rating.toString())
+        binding.ratingView.setTextKeepState(if (player.rating == PlayPlayer.DEFAULT_RATING) "" else player.rating.toString())
         binding.newView.isChecked = player.isNew
         binding.winView.isChecked = player.isWin
     }
@@ -222,7 +222,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
     }
 
     private fun hasAutoPosition(): Boolean {
-        return autoPosition != PlayPlayerEntity.SEAT_UNKNOWN
+        return autoPosition != PlayPlayer.SEAT_UNKNOWN
     }
 
     private fun addField() {
@@ -325,7 +325,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         val autoPosition: Int,
     )
 
-    class AddPlayerContract : ActivityResultContract<LaunchInput, PlayPlayerEntity?>() {
+    class AddPlayerContract : ActivityResultContract<LaunchInput, PlayPlayer?>() {
         override fun createIntent(context: Context, input: LaunchInput): Intent {
             return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.gameId)
@@ -339,15 +339,15 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             }
         }
 
-        override fun parseResult(resultCode: Int, intent: Intent?): PlayPlayerEntity? {
+        override fun parseResult(resultCode: Int, intent: Intent?): PlayPlayer? {
             return if (resultCode == RESULT_OK) {
-                intent?.getParcelableCompat(KEY_PLAYER) as? PlayPlayerEntity
+                intent?.getParcelableCompat(KEY_PLAYER) as? PlayPlayer
             } else null
         }
     }
 
-    class EditPlayerContract : ActivityResultContract<Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>, Pair<Int, PlayPlayerEntity?>>() {
-        override fun createIntent(context: Context, input: Pair<LaunchInput, Pair<Int, PlayPlayerEntity>>): Intent {
+    class EditPlayerContract : ActivityResultContract<Pair<LaunchInput, Pair<Int, PlayPlayer>>, Pair<Int, PlayPlayer?>>() {
+        override fun createIntent(context: Context, input: Pair<LaunchInput, Pair<Int, PlayPlayer>>): Intent {
             return Intent(context, LogPlayerActivity::class.java).apply {
                 putExtra(KEY_GAME_ID, input.first.gameId)
                 putExtra(KEY_GAME_NAME, input.first.gameName)
@@ -362,10 +362,10 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             }
         }
 
-        override fun parseResult(resultCode: Int, intent: Intent?): Pair<Int, PlayPlayerEntity?> {
+        override fun parseResult(resultCode: Int, intent: Intent?): Pair<Int, PlayPlayer?> {
             return if (resultCode == RESULT_OK) {
                 val position = intent?.getIntExtra(KEY_POSITION, INVALID_POSITION) ?: INVALID_POSITION
-                val player = intent?.getParcelableCompat(KEY_PLAYER) as? PlayPlayerEntity
+                val player = intent?.getParcelableCompat(KEY_PLAYER) as? PlayPlayer
                 position to player
             } else INVALID_POSITION to null
         }

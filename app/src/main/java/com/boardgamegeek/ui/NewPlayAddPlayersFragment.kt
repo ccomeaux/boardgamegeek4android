@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayAddPlayersBinding
 import com.boardgamegeek.databinding.RowNewPlayAddPlayerBinding
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.Player
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
@@ -64,7 +64,7 @@ class NewPlayAddPlayersFragment : Fragment() {
 
         binding.nextOrAddButton.setOnClickListener {
             if (binding.filterEditText.text?.isNotBlank() == true) {
-                viewModel.addPlayer(PlayerEntity(binding.filterEditText.text.toString(), ""))
+                viewModel.addPlayer(Player(binding.filterEditText.text.toString(), ""))
                 binding.filterEditText.setText("")
             } else {
                 viewModel.finishAddingPlayers()
@@ -136,7 +136,7 @@ class NewPlayAddPlayersFragment : Fragment() {
 
     private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val filterView: TextView) :
         RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
-        var players: List<PlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var players: List<Player> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name && old.username == new.username && old.avatarUrl == new.avatarUrl
             }
@@ -155,7 +155,7 @@ class NewPlayAddPlayersFragment : Fragment() {
         inner class PlayersViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowNewPlayAddPlayerBinding.bind(itemView)
 
-            fun bind(player: PlayerEntity?) {
+            fun bind(player: Player?) {
                 player?.let { p ->
                     binding.nameView.text = p.name
                     binding.usernameView.text = p.username
@@ -180,7 +180,7 @@ class NewPlayAddPlayersFragment : Fragment() {
             }
 
             @RequiresApi(Build.VERSION_CODES.Q)
-            private fun tintPlayer(p: PlayerEntity) {
+            private fun tintPlayer(p: Player) {
                 binding.avatarView.imageTintBlendMode = BlendMode.COLOR_BURN
                 binding.avatarView.imageTintList = ColorStateList.valueOf(p.favoriteColor ?: Color.TRANSPARENT)
             }

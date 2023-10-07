@@ -5,7 +5,7 @@ import com.boardgamegeek.extensions.asScore
 import java.text.DecimalFormat
 import java.util.*
 
-data class NewPlayPlayerEntity(
+data class NewPlayPlayer(
     val name: String,
     val username: String,
     var isNew: Boolean = false,
@@ -17,7 +17,7 @@ data class NewPlayPlayerEntity(
     var favoriteColor: String? = null,
     private val rawAvatarUrl: String = "",
 ) {
-    constructor(player: PlayerEntity) : this(player.name, player.username, rawAvatarUrl = player.avatarUrl)
+    constructor(player: Player) : this(player.name, player.username, rawAvatarUrl = player.avatarUrl)
 
     val id: String
         get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"

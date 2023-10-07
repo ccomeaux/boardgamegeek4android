@@ -10,8 +10,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayBinding
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.entities.Play
+import com.boardgamegeek.entities.PlayPlayer
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -33,7 +33,7 @@ class PlayFragment : Fragment() {
     private val viewModel by activityViewModels<PlayViewModel>()
     private val adapter: PlayPlayerAdapter by lazy { PlayPlayerAdapter() }
     private val markupConverter by lazy { XmlApiMarkupConverter(requireContext()) }
-    private var play: PlayEntity? = null
+    private var play: Play? = null
     private var hasBeenNotified = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,7 +107,7 @@ class PlayFragment : Fragment() {
         binding.listContainer.isVisible = false
     }
 
-    private fun showData(play: PlayEntity) {
+    private fun showData(play: Play) {
         binding.thumbnailView.loadImage(
             LinkedList(play.heroImageUrls),
             callback = object : ImageLoadCallback {
@@ -289,7 +289,7 @@ class PlayFragment : Fragment() {
                             )
                             val sb = StringBuilder()
                             sb.append(getString(R.string.play_description_game_segment, it.gameName))
-                            if (it.dateInMillis != PlayEntity.UNKNOWN_DATE) sb.append(
+                            if (it.dateInMillis != Play.UNKNOWN_DATE) sb.append(
                                 getString(
                                     R.string.play_description_date_segment,
                                     it.dateInMillis.formatDateTime(
@@ -345,9 +345,9 @@ class PlayFragment : Fragment() {
         })
     }
 
-    private fun describePlayer(player: PlayPlayerEntity): String {
+    private fun describePlayer(player: PlayPlayer): String {
         val sb = StringBuilder()
-        if (player.seat != PlayPlayerEntity.SEAT_UNKNOWN) sb.append(getString(R.string.player_description_starting_position_segment, player.seat))
+        if (player.seat != PlayPlayer.SEAT_UNKNOWN) sb.append(getString(R.string.player_description_starting_position_segment, player.seat))
         sb.append(player.name)
         if (player.username.isNotEmpty()) sb.append(getString(R.string.player_description_username_segment, player.username))
         if (player.isNew) sb.append(getString(R.string.player_description_new_segment))

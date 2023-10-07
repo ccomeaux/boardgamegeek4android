@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayPlayerWinBinding
 import com.boardgamegeek.databinding.RowNewPlayPlayerWinBinding
-import com.boardgamegeek.entities.NewPlayPlayerEntity
+import com.boardgamegeek.entities.NewPlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.NewPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
@@ -44,8 +44,8 @@ class NewPlayPlayerWinFragment : Fragment() {
 
         binding.recyclerView.adapter = adapter
 
-        viewModel.addedPlayers.observe(viewLifecycleOwner) { entity ->
-            adapter.players = entity.sortedBy { it.seat }
+        viewModel.addedPlayers.observe(viewLifecycleOwner) { players ->
+            adapter.players = players.sortedBy { it.seat }
         }
 
         binding.nextButton.setOnClickListener {
@@ -67,7 +67,7 @@ class NewPlayPlayerWinFragment : Fragment() {
     private class PlayersAdapter(private val activity: FragmentActivity, private val viewModel: NewPlayViewModel) :
         RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>() {
 
-        var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, _, _ ->
+        var players: List<NewPlayPlayer> by Delegates.observable(emptyList()) { _, _, _ ->
             // using a DiffUtil causes too many crashes
             notifyDataSetChanged()
         }
@@ -94,8 +94,7 @@ class NewPlayPlayerWinFragment : Fragment() {
             val binding = RowNewPlayPlayerWinBinding.bind(itemView)
 
             fun bind(position: Int) {
-                val entity = players.getOrNull(position)
-                entity?.let { player ->
+                players.getOrNull(position)?.let { player ->
                     binding.nameView.text = player.name
                     binding.usernameView.setTextOrHide(player.username)
 
@@ -141,7 +140,7 @@ class NewPlayPlayerWinFragment : Fragment() {
             }
         }
 
-        private fun score(player: NewPlayPlayerEntity) {
+        private fun score(player: NewPlayPlayer) {
             NewPlayerScoreNumberPadDialogFragment.newInstance(
                 player.id,
                 player.score,

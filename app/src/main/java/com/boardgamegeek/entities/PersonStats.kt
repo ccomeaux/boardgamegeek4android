@@ -1,8 +1,8 @@
 package com.boardgamegeek.entities
 
 import android.content.Context
-import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_ACCESSORIES
-import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_EXPANSIONS
+import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES
+import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_EXPANSIONS
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 
@@ -11,7 +11,7 @@ class PersonStats(
     val whitmoreScore: Int,
     val whitmoreScoreWithExpansions: Int,
     val playCount: Int,
-    val hIndex: HIndexEntity,
+    val hIndex: HIndex,
 ) {
     companion object {
         fun fromLinkedCollection(collection: List<CollectionItemEntity>, context: Context): PersonStats {
@@ -37,7 +37,7 @@ class PersonStats(
                 whitmoreScore,
                 whitmoreScoreWithExpansions,
                 playCountsByGame.sum(),
-                HIndexEntity.fromList(playCountsByGame)
+                HIndex.fromList(playCountsByGame)
             )
         }
 

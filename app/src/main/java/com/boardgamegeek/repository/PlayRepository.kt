@@ -13,10 +13,12 @@ import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.entities.PlayStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToFormBodyForDelete
 import com.boardgamegeek.mappers.mapToFormBodyForUpsert
 import com.boardgamegeek.pref.SyncPrefs
@@ -45,14 +47,14 @@ class PlayRepository(
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
 
-    suspend fun loadPlay(internalId: Long) = playDao.loadPlay(internalId)?.mapToEntity()
+    suspend fun loadPlay(internalId: Long) = playDao.loadPlay(internalId)?.mapToModel()
 
     suspend fun refreshPlay(
         internalId: Long,
         playId: Int,
         gameId: Int,
         timestamp: Long = System.currentTimeMillis()
-    ): PlayEntity? =
+    ): Play? =
         withContext(Dispatchers.IO) {
             val username = prefs[AccountPreferences.KEY_USERNAME, ""]
             if (username.isNullOrBlank() ||
@@ -63,10 +65,10 @@ class PlayRepository(
                 null
             } else {
                 var page = 1
-                var returnedPlay: PlayEntity?
+                var returnedPlay: Play?
                 do {
                     val result = api.playsByGame(username, gameId, page++)
-                    val plays = result.plays.mapToEntity(timestamp)
+                    val plays = result.plays.mapToModel(timestamp)
                     saveFromSync(plays, timestamp)
                     Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
                     returnedPlay = plays.find { it.playId == playId }
@@ -82,7 +84,7 @@ class PlayRepository(
             var page = 1
             do {
                 val response = api.playsByGame(username, gameId, page++)
-                val playsPage = response.plays.mapToEntity(timestamp)
+                val playsPage = response.plays.mapToModel(timestamp)
                 saveFromSync(playsPage, timestamp)
             } while (response.hasMorePages())
 
@@ -97,7 +99,7 @@ class PlayRepository(
         if (!username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             val response = api.playsByGame(username, gameId, 1)
-            val plays = response.plays.mapToEntity(timestamp)
+            val plays = response.plays.mapToModel(timestamp)
             saveFromSync(plays, timestamp)
             calculatePlayStats()
         }
@@ -107,7 +109,7 @@ class PlayRepository(
      * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
      * an error message if not.
      */
-    suspend fun upsertPlay(play: PlayEntity): Result<PlayUploadResult> {
+    suspend fun upsertPlay(play: Play): Result<PlayUploadResult> {
         if (play.updateTimestamp == 0L)
             Result.success(PlayUploadResult.noOp(play))
         val response = phpApi.play(play.mapToFormBodyForUpsert().build())
@@ -124,7 +126,7 @@ class PlayRepository(
         }
     }
 
-    suspend fun deletePlay(play: PlayEntity): Result<PlayUploadResult> {
+    suspend fun deletePlay(play: Play): Result<PlayUploadResult> {
         if (play.deleteTimestamp == 0L)
             return Result.success(PlayUploadResult.noOp(play))
         if (play.internalId == INVALID_ID.toLong())
@@ -150,19 +152,19 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadPlays() = playDao.loadPlays().map { it.mapToEntity() }
+    suspend fun loadPlays() = playDao.loadPlays().map { it.mapToModel() }
 
-    suspend fun loadUpdatingPlays() = playDao.loadUpdatingPlays().map { it.mapToEntity() }
+    suspend fun loadUpdatingPlays() = playDao.loadUpdatingPlays().map { it.mapToModel() }
 
-    suspend fun loadDeletingPlays() = playDao.loadDeletingPlays().map { it.mapToEntity() }
+    suspend fun loadDeletingPlays() = playDao.loadDeletingPlays().map { it.mapToModel() }
 
-    suspend fun loadPlaysByGame(gameId: Int) = playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE).map { it.mapToEntity() }
+    suspend fun loadPlaysByGame(gameId: Int) = playDao.loadPlaysByGame(gameId, PlayDao.PlaysSortBy.DATE).map { it.mapToModel() }
 
-    suspend fun loadPlaysByLocation(location: String) = playDao.loadPlaysByLocation(location).map { it.mapToEntity() }
+    suspend fun loadPlaysByLocation(location: String) = playDao.loadPlaysByLocation(location).map { it.mapToModel() }
 
-    suspend fun loadPlaysByUsername(username: String) = playDao.loadPlaysByUsername(username).map { it.mapToEntity() }
+    suspend fun loadPlaysByUsername(username: String) = playDao.loadPlaysByUsername(username).map { it.mapToModel() }
 
-    suspend fun loadPlaysByPlayerName(playerName: String) = playDao.loadPlaysByPlayerName(playerName).map { it.mapToEntity() }
+    suspend fun loadPlaysByPlayerName(playerName: String) = playDao.loadPlaysByPlayerName(playerName).map { it.mapToModel() }
 
     suspend fun loadPlaysByPlayer(name: String, gameId: Int, isUser: Boolean) = playDao.loadPlaysByPlayerAndGame(name, gameId, isUser)
 
@@ -177,7 +179,7 @@ class PlayRepository(
         var page = 1
         do {
             val response = api.plays(username, minDate, null, page++)
-            val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
+            val plays = response.plays.mapToModel(syncInitiatedTimestamp)
             saveFromSync(plays, syncInitiatedTimestamp)
 
             plays.maxOfOrNull { it.dateInMillis }?.let {
@@ -207,7 +209,7 @@ class PlayRepository(
             val maxDate = if (oldestTimestamp == Long.MAX_VALUE) null else oldestTimestamp.asDateForApi()
             do {
                 val response = api.plays(username, null, maxDate, page++)
-                val plays = response.plays.mapToEntity(syncInitiatedTimestamp)
+                val plays = response.plays.mapToModel(syncInitiatedTimestamp)
                 saveFromSync(plays, syncInitiatedTimestamp)
 
                 plays.minOfOrNull { it.dateInMillis }?.let {
@@ -243,7 +245,7 @@ class PlayRepository(
         if (timeInMillis <= 0L && !username.isNullOrBlank()) {
             emptyList()
         } else {
-            val plays = mutableListOf<PlayEntity>()
+            val plays = mutableListOf<Play>()
             val timestamp = System.currentTimeMillis()
             var page = 1
             do {
@@ -264,10 +266,10 @@ class PlayRepository(
         val to = if (toDate > 0L) toDate.asDateForApi() else null
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         if (username.isNullOrBlank()) {
-            emptyList<PlayEntity>() to false
+            emptyList<Play>() to false
         } else {
             val response = api.plays(username, from, to, page)
-            response.plays.mapToEntity(timestamp) to response.hasMorePages()
+            response.plays.mapToModel(timestamp) to response.hasMorePages()
         }
     }
 
@@ -275,7 +277,7 @@ class PlayRepository(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
-    ): List<GameForPlayStatEntity> = withContext(Dispatchers.Default) {
+    ): List<GameForPlayStats> = withContext(Dispatchers.Default) {
         val games = if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
             gameDao.loadGamesForPlayStats(includeIncompletePlays, includeExpansions, includeAccessories).filter { it.playCount > 0 }
         } else {
@@ -287,7 +289,7 @@ class PlayRepository(
                 accumulator + element.quantity
             }
             gameMap.map {
-                GameForPlayStatEntity(
+                GameForPlayStats(
                     id = it.key.first,
                     name = it.key.second,
                     playCount = it.value,
@@ -309,35 +311,35 @@ class PlayRepository(
     }
 
     suspend fun loadPlayers(sortBy: PlayDao.PlayerSortBy = PlayDao.PlayerSortBy.NAME, includeDeletedPlays: Boolean = true) =
-        playDao.loadPlayers(sortBy, includeDeletedPlays).map { it.mapToEntity() }
+        playDao.loadPlayers(sortBy, includeDeletedPlays).map { it.mapToModel() }
 
-    suspend fun loadPlayersByGame(gameId: Int) = playDao.loadPlayersByGame(gameId).map { it.mapToEntity() }
+    suspend fun loadPlayersByGame(gameId: Int) = playDao.loadPlayersByGame(gameId).map { it.mapToModel() }
 
-    suspend fun loadPlayerFavoriteColors(): Map<PlayerEntity, String> {
+    suspend fun loadPlayerFavoriteColors(): Map<Player, String> {
         return playDao.loadAllPlayerColors().filter { it.playerColorSortOrder == 1 }.associate {
-            val entity = if (it.playerType == PlayerColors.TYPE_USER)
-                PlayerEntity.createUser(it.playerName)
+            val player = if (it.playerType == PlayerColors.TYPE_USER)
+                Player.createUser(it.playerName)
             else
-                PlayerEntity.createNonUser(it.playerName)
-            entity to it.playerColor
+                Player.createNonUser(it.playerName)
+            player to it.playerColor
         }
     }
 
-    suspend fun loadPlayer(name: String?, type: PlayerType): PlayerEntity? {
+    suspend fun loadPlayer(name: String?, type: PlayerType): Player? {
         return when {
             name.isNullOrBlank() -> null
-            type == PlayerType.USER -> playDao.loadUserPlayer(name)?.mapToEntity()
-            type == PlayerType.NON_USER -> playDao.loadNonUserPlayer(name)?.mapToEntity()
+            type == PlayerType.USER -> playDao.loadUserPlayer(name)?.mapToModel()
+            type == PlayerType.NON_USER -> playDao.loadNonUserPlayer(name)?.mapToModel()
             else -> null
         }
     }
 
-    suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
+    suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<Player> {
         val username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
         return playDao
             .loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT, false, includeIncompletePlays)
             .filterNot { it.username == username }
-            .map { it.mapToEntity() }
+            .map { it.mapToModel() }
     }
 
     enum class PlayerType {
@@ -345,16 +347,16 @@ class PlayRepository(
         NON_USER,
     }
 
-    suspend fun loadPlayerColors(name: String, type: PlayerType): List<PlayerColorEntity> {
+    suspend fun loadPlayerColors(name: String, type: PlayerType): List<PlayerColor> {
         return when (type) {
             PlayerType.USER -> loadUserColors(name)
             PlayerType.NON_USER -> loadNonUserColors(name)
         }
     }
 
-    suspend fun loadUserColors(username: String) = playDao.loadUserColors(username).map { it.mapToEntity() }
+    suspend fun loadUserColors(username: String) = playDao.loadUserColors(username).map { it.mapToModel() }
 
-    suspend fun loadNonUserColors(playerName: String) = playDao.loadNonUserColors(playerName).map { it.mapToEntity() }
+    suspend fun loadNonUserColors(playerName: String) = playDao.loadNonUserColors(playerName).map { it.mapToModel() }
 
     suspend fun saveNonUserColors(name: String?, type: PlayerType, colors: List<String>?) {
         if (!name.isNullOrBlank()) {
@@ -378,10 +380,10 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy).map { it.mapToEntity() }
+    suspend fun loadLocations(sortBy: PlayDao.LocationSortBy = PlayDao.LocationSortBy.NAME) = playDao.loadLocations(sortBy).map { it.mapToModel() }
 
     suspend fun logQuickPlay(gameId: Int, gameName: String): Result<PlayUploadResult> {
-        val playEntity = PlayEntity(
+        val playEntity = Play(
             gameId = gameId,
             gameName = gameName,
             dateInMillis = Calendar.getInstance().timeInMillis,
@@ -391,16 +393,16 @@ class PlayRepository(
         return logPlay(playEntity.copy(internalId = internalId))
     }
 
-    suspend fun logPlay(playEntity: PlayEntity): Result<PlayUploadResult> {
+    suspend fun logPlay(play: Play): Result<PlayUploadResult> {
         return try {
-            val result = upsertPlay(playEntity)
+            val result = upsertPlay(play)
             if (result.isSuccess) {
-                updateGamePlayCount(playEntity.gameId)
+                updateGamePlayCount(play.gameId)
                 calculatePlayStats()
             }
             result
         } catch (ex: Exception) {
-            enqueueUploadRequest(playEntity.internalId)
+            enqueueUploadRequest(play.internalId)
             return Result.failure(Exception(context.getString(R.string.msg_play_queued_for_upload), ex))
         }
     }
@@ -425,7 +427,7 @@ class PlayRepository(
         WorkManager.getInstance(context).enqueue(workRequest)
     }
 
-    suspend fun saveFromSync(plays: List<PlayEntity>, syncTimestamp: Long) {
+    suspend fun saveFromSync(plays: List<Play>, syncTimestamp: Long) {
         Timber.i("Saving %d plays", plays.size)
         var updateCount = 0
         var insertCount = 0
@@ -473,7 +475,7 @@ class PlayRepository(
         gameDao.updateGamePlayCount(gameId, playCount)
     }
 
-    suspend fun loadPlayersByLocation(location: String = "") = playDao.loadPlayersByLocation(location).map { it.mapToEntity() }
+    suspend fun loadPlayersByLocation(location: String = "") = playDao.loadPlayersByLocation(location).map { it.mapToModel() }
 
     suspend fun updatePlaysWithNickName(username: String, nickName: String): Collection<Long> = withContext(Dispatchers.IO) {
         val internalIds = mutableListOf<Long>()
@@ -527,7 +529,7 @@ class PlayRepository(
         internalIds
     }
 
-    suspend fun save(play: PlayEntity): Long {
+    suspend fun save(play: Play): Long {
         val id = playDao.upsert(play.mapToEntity())
 
         // remember details about the play if it's being uploaded for the first time
@@ -539,7 +541,7 @@ class PlayRepository(
             if (isToday) {
                 prefs[KEY_LAST_PLAY_TIME] = System.currentTimeMillis()
                 prefs[KEY_LAST_PLAY_LOCATION] = play.location
-                prefs.putLastPlayPlayerEntities(play.players)
+                prefs.putLastPlayPlayers(play.players)
             }
         }
 
@@ -562,35 +564,35 @@ class PlayRepository(
 
     suspend fun calculatePlayStats() = withContext(Dispatchers.Default) {
         if ((syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE] ?: Long.MAX_VALUE) == 0L) {
-            val includeIncompletePlays = prefs[PlayStats.LOG_PLAY_STATS_INCOMPLETE, false] ?: false
-            val includeExpansions = prefs[PlayStats.LOG_PLAY_STATS_EXPANSIONS, false] ?: false
-            val includeAccessories = prefs[PlayStats.LOG_PLAY_STATS_ACCESSORIES, false] ?: false
+            val includeIncompletePlays = prefs[PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE, false] ?: false
+            val includeExpansions = prefs[PlayStatPrefs.LOG_PLAY_STATS_EXPANSIONS, false] ?: false
+            val includeAccessories = prefs[PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES, false] ?: false
 
-            val playStats = loadForStats(includeIncompletePlays, includeExpansions, includeAccessories)
-            val playStatsEntity = PlayStatsEntity(playStats, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
-            updateGameHIndex(playStatsEntity.hIndex)
+            val games = loadForStats(includeIncompletePlays, includeExpansions, includeAccessories)
+            val playStats = PlayStats(games, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
+            updateGameHIndex(playStats.hIndex)
 
-            val playerStats = loadPlayersForStats(includeIncompletePlays)
-            val playerStatsEntity = PlayerStatsEntity(playerStats)
-            updatePlayerHIndex(playerStatsEntity.hIndex)
+            val players = loadPlayersForStats(includeIncompletePlays)
+            val playerStats = PlayerStats(players)
+            updatePlayerHIndex(playerStats.hIndex)
         }
     }
 
-    fun updateGameHIndex(hIndex: HIndexEntity) {
+    fun updateGameHIndex(hIndex: HIndex) {
         updateHIndex(
             context,
             hIndex,
-            PlayStats.KEY_GAME_H_INDEX,
+            PlayStatPrefs.KEY_GAME_H_INDEX,
             R.string.game,
             NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX
         )
     }
 
-    fun updatePlayerHIndex(hIndex: HIndexEntity) {
+    fun updatePlayerHIndex(hIndex: HIndex) {
         updateHIndex(
             context,
             hIndex,
-            PlayStats.KEY_PLAYER_H_INDEX,
+            PlayStatPrefs.KEY_PLAYER_H_INDEX,
             R.string.player,
             NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX
         )
@@ -598,16 +600,16 @@ class PlayRepository(
 
     private fun updateHIndex(
         context: Context,
-        hIndex: HIndexEntity,
+        hIndex: HIndex,
         key: String,
         @StringRes typeResId: Int,
         notificationId: Int
     ) {
-        if (hIndex.h != HIndexEntity.INVALID_H_INDEX) {
-            val old = HIndexEntity(prefs[key, 0] ?: 0, prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
+        if (hIndex.h != HIndex.INVALID_H_INDEX) {
+            val old = HIndex(prefs[key, 0] ?: 0, prefs[key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
             if (old != hIndex) {
                 prefs[key] = hIndex.h
-                prefs[key + PlayStats.KEY_H_INDEX_N_SUFFIX] = hIndex.n
+                prefs[key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX] = hIndex.n
                 @StringRes val messageId =
                     if (hIndex.h > old.h || hIndex.h == old.h && hIndex.n < old.n) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
                 context.notify(

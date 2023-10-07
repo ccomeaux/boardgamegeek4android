@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.Player
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.isOlderThan
@@ -94,7 +94,7 @@ class BuddyViewModel @Inject constructor(
         }
     }
 
-    val player: LiveData<PlayerEntity?> = user.switchMap { user ->
+    val player: LiveData<Player?> = user.switchMap { user ->
         liveData {
             emit(playRepository.loadPlayer(user.first, user.second))
         }

@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlaysBinding
-import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.Play
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -89,7 +89,7 @@ class GamePlaysFragment : Fragment() {
         _binding = null
     }
 
-    private fun bindTotalPlays(plays: List<PlayEntity>) {
+    private fun bindTotalPlays(plays: List<Play>) {
         val playCount = plays.sumOf { it.quantity }
         val (count, description, color) = playCount.asPlayCount(requireContext())
         binding.playCountIcon.text = count.toString()
@@ -109,7 +109,7 @@ class GamePlaysFragment : Fragment() {
         }
     }
 
-    private fun bindPlaysInProgress(plays: List<PlayEntity>) {
+    private fun bindPlaysInProgress(plays: List<Play>) {
         val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
         if (inProgressPlays.isNotEmpty()) {
             binding.inProgressPlaysList.removeAllViews()
@@ -132,7 +132,7 @@ class GamePlaysFragment : Fragment() {
         }
     }
 
-    private fun bindLastPlay(plays: List<PlayEntity>) {
+    private fun bindLastPlay(plays: List<Play>) {
         val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
         if (lastPlay != null) {
             binding.lastPlayViews.isVisible = true
@@ -146,7 +146,7 @@ class GamePlaysFragment : Fragment() {
         }
     }
 
-    private fun bindStats(plays: List<PlayEntity>) {
+    private fun bindStats(plays: List<Play>) {
         binding.playStatsViews.isVisible = plays.isNotEmpty()
         binding.playStatsContainer.setOnClickListener {
             if (gameId != BggContract.INVALID_ID)
@@ -179,7 +179,7 @@ class GamePlaysFragment : Fragment() {
         attrs: AttributeSet? = null,
         defStyleAttr: Int = android.R.attr.textViewStyle,
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
-        var play: PlayEntity? = null
+        var play: Play? = null
 
         override fun updateText() {
             play?.let {

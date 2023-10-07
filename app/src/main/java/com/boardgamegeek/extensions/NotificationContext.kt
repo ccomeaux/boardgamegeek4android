@@ -17,7 +17,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.Play
 import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.*
@@ -203,7 +203,7 @@ fun Context.notifyLoggedPlay(result: PlayUploadResult) {
     loader.executeInBackground()
 }
 
-private fun createRematchAction(context: Context, play: PlayEntity): NotificationCompat.Action? {
+private fun createRematchAction(context: Context, play: Play): NotificationCompat.Action? {
     return if (play.internalId != INVALID_ID.toLong()) {
         val intent = LogPlayActivity.createRematchIntent(
             context,

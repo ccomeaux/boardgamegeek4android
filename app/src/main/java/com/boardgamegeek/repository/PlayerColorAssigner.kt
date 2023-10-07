@@ -1,14 +1,14 @@
 package com.boardgamegeek.repository
 
-import com.boardgamegeek.entities.PlayPlayerEntity
-import com.boardgamegeek.entities.PlayerColorEntity
+import com.boardgamegeek.entities.PlayPlayer
+import com.boardgamegeek.entities.PlayerColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class PlayerColorAssigner(
     private val gameId: Int,
-    private val players: List<PlayPlayerEntity>,
+    private val players: List<PlayPlayer>,
     private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
 ) {
@@ -138,14 +138,14 @@ class PlayerColorAssigner(
     private inner class PlayerColorChoices(
         val name: String,
         val type: PlayerType,
-        initialColors: List<PlayerColorEntity>,
+        initialColors: List<PlayerColor>,
     ) {
-        private val colors: MutableList<PlayerColorEntity> = initialColors.toMutableList()
+        private val colors: MutableList<PlayerColor> = initialColors.toMutableList()
 
         /**
          * Gets the player's top remaining color choice, or `null` if they have no choices left.
          */
-        val topChoice: PlayerColorEntity?
+        val topChoice: PlayerColor?
             get() = colors.minByOrNull { it.sortOrder }
 
         fun removeChoice(color: String) = colors.removeAll { it.description == color }

@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.db.UserDao
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.Player
 import com.boardgamegeek.entities.User
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -25,7 +25,7 @@ class LogPlayerViewModel @Inject constructor(
         if (_gameId.value != gameId) _gameId.value = gameId
     }
 
-    val players: LiveData<List<PlayerEntity>> = _gameId.switchMap {
+    val players: LiveData<List<Player>> = _gameId.switchMap {
         liveData {
             emit(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT))
         }

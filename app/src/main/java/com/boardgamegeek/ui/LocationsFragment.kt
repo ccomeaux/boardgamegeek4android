@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentLocationsBinding
 import com.boardgamegeek.databinding.RowLocationBinding
-import com.boardgamegeek.entities.LocationEntity
+import com.boardgamegeek.entities.Location
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
@@ -62,7 +62,7 @@ class LocationsFragment : Fragment() {
 
     private class LocationsAdapter(val viewModel: LocationsViewModel) :
         RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), AutoUpdatableAdapter, SectionCallback {
-        var locations: List<LocationEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var locations: List<Location> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name
             }
@@ -98,7 +98,7 @@ class LocationsFragment : Fragment() {
         inner class LocationsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowLocationBinding.bind(itemView)
 
-            fun bind(location: LocationEntity?) {
+            fun bind(location: Location?) {
                 location?.let { l ->
                     binding.nameView.text = l.name.ifBlank { itemView.context.getString(R.string.no_location) }
                     binding.quantityView.text = itemView.resources.getQuantityString(R.plurals.plays_suffix, l.playCount, l.playCount)

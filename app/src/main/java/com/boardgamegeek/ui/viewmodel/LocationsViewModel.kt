@@ -3,7 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.LocationEntity
+import com.boardgamegeek.entities.Location
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.PlayRepository
@@ -27,7 +27,7 @@ class LocationsViewModel @Inject constructor(
         sort(SortType.NAME)
     }
 
-    val locations: LiveData<List<LocationEntity>> = sort.switchMap {
+    val locations: LiveData<List<Location>> = sort.switchMap {
         liveData {
             emit(playRepository.loadLocations(it.sortBy))
         }
@@ -44,25 +44,25 @@ class LocationsViewModel @Inject constructor(
         }
     }
 
-    fun getSectionHeader(location: LocationEntity?): String {
+    fun getSectionHeader(location: Location?): String {
         return sort.value?.getSectionHeader(location) ?: ""
     }
 
     sealed class LocationsSort {
         abstract val sortType: SortType
         abstract val sortBy: PlayDao.LocationSortBy
-        abstract fun getSectionHeader(location: LocationEntity?): String
+        abstract fun getSectionHeader(location: Location?): String
 
         class ByName : LocationsSort() {
             override val sortType = SortType.NAME
             override val sortBy = PlayDao.LocationSortBy.NAME
-            override fun getSectionHeader(location: LocationEntity?) = location?.name.firstChar()
+            override fun getSectionHeader(location: Location?) = location?.name.firstChar()
         }
 
         class ByPlayCount : LocationsSort() {
             override val sortType = SortType.PLAY_COUNT
             override val sortBy = PlayDao.LocationSortBy.PLAY_COUNT
-            override fun getSectionHeader(location: LocationEntity?) = (location?.playCount ?: 0).orderOfMagnitude()
+            override fun getSectionHeader(location: Location?) = (location?.playCount ?: 0).orderOfMagnitude()
         }
     }
 }

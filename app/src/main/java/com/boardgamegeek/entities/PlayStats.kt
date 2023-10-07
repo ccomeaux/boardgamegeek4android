@@ -4,7 +4,7 @@ import com.boardgamegeek.extensions.cdf
 import com.boardgamegeek.extensions.inverseCdf
 import kotlin.math.ln
 
-class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private val isOwnedSynced: Boolean) {
+class PlayStats(private val games: List<GameForPlayStats>, private val isOwnedSynced: Boolean) {
     companion object {
         const val INVALID_FRIENDLESS = Integer.MIN_VALUE
         const val INVALID_UTILIZATION = -1.0
@@ -45,8 +45,8 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
         games.filter { it.playCount > 0 }.filter { it.bggRank in 1..100 }.size
     }
 
-    val hIndex: HIndexEntity by lazy {
-        HIndexEntity.fromList(games.map { it.playCount })
+    val hIndex: HIndex by lazy {
+        HIndex.fromList(games.map { it.playCount })
     }
 
     fun getHIndexGames(): List<Pair<String, Int>> {
@@ -87,7 +87,7 @@ class PlayStatsEntity(private val games: List<GameForPlayStatEntity>, private va
         }
     }
 
-    private val ownedGames: List<GameForPlayStatEntity> by lazy {
+    private val ownedGames: List<GameForPlayStats> by lazy {
         games.filter { it.isOwned }
     }
 

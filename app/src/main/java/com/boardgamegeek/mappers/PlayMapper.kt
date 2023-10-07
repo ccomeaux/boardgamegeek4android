@@ -4,19 +4,19 @@ import com.boardgamegeek.db.model.*
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.toMillis
-import com.boardgamegeek.io.model.Play
-import com.boardgamegeek.io.model.Player
+import com.boardgamegeek.io.model.PlayRemote
+import com.boardgamegeek.io.model.PlayerRemote
 import com.boardgamegeek.provider.BggContract
 import okhttp3.FormBody
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-fun List<Play>?.mapToEntity(syncTimestamp: Long = System.currentTimeMillis()) = this?.map { it.mapToEntity(syncTimestamp) }.orEmpty()
+fun List<PlayRemote>?.mapToModel(syncTimestamp: Long = System.currentTimeMillis()) = this?.map { it.mapToModel(syncTimestamp) }.orEmpty()
 
-private fun Play.mapToEntity(syncTimestamp: Long) = PlayEntity(
+private fun PlayRemote.mapToModel(syncTimestamp: Long) = Play(
     internalId = BggContract.INVALID_ID.toLong(),
     playId = id,
-    dateInMillis = date.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), PlayEntity.UNKNOWN_DATE),
+    dateInMillis = date.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), Play.UNKNOWN_DATE),
     gameId = objectid,
     gameName = name,
     location = location,
@@ -28,10 +28,10 @@ private fun Play.mapToEntity(syncTimestamp: Long) = PlayEntity(
     syncTimestamp = syncTimestamp,
     initialPlayerCount = players?.size ?: 0,
     subtypes = subtypes.map { it.value },
-    _players = players?.map { it.mapToEntity() },
+    _players = players?.map { it.mapToModel() },
 )
 
-private fun Player.mapToEntity() = PlayPlayerEntity(
+private fun PlayerRemote.mapToModel() = PlayPlayer(
     username = username,
     name = name,
     startingPosition = startposition,
@@ -43,7 +43,6 @@ private fun Player.mapToEntity() = PlayPlayerEntity(
     isWin = win == 1,
 )
 
-
 @Suppress("SpellCheckingInspection")
 fun Int.mapToFormBodyForDelete() = FormBody.Builder()
     .add("ajax", "1")
@@ -52,7 +51,7 @@ fun Int.mapToFormBodyForDelete() = FormBody.Builder()
     .add("finalize", "1")
 
 @Suppress("SpellCheckingInspection")
-fun PlayEntity.mapToFormBodyForUpsert(): FormBody.Builder {
+fun Play.mapToFormBodyForUpsert(): FormBody.Builder {
     val bodyBuilder = FormBody.Builder()
         .add("ajax", "1")
         .add("action", "save")
@@ -86,10 +85,10 @@ fun PlayEntity.mapToFormBodyForUpsert(): FormBody.Builder {
 
 private fun createIndexedKey(index: Int, key: String) = "players[$index][$key]"
 
-fun PlayLocal.mapToEntity() = PlayEntity(
+fun PlayLocal.mapToModel() = Play(
     internalId = internalId,
     playId = playId ?: BggContract.INVALID_ID,
-    dateInMillis = date.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), PlayEntity.UNKNOWN_DATE),
+    dateInMillis = date.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), Play.UNKNOWN_DATE),
     gameId = objectId,
     gameName = itemName,
     quantity = quantity,
@@ -107,10 +106,10 @@ fun PlayLocal.mapToEntity() = PlayEntity(
     imageUrl = gameImageUrl.orEmpty(),
     thumbnailUrl = gameThumbnailUrl.orEmpty(),
     heroImageUrl = gameHeroImageUrl.orEmpty(),
-    _players = players?.map { it.mapToEntity() },
+    _players = players?.map { it.mapToModel() },
 )
 
-fun PlayPlayerLocal.mapToEntity() = PlayPlayerEntity(
+fun PlayPlayerLocal.mapToModel() = PlayPlayer(
     internalId = internalId,
     playId = internalPlayId,
     username = username.orEmpty(),
@@ -124,7 +123,7 @@ fun PlayPlayerLocal.mapToEntity() = PlayPlayerEntity(
     isWin = isWin ?: false,
 )
 
-fun PlayerLocal.mapToEntity() = PlayerEntity(
+fun PlayerLocal.mapToModel() = Player(
     name = name,
     username = username,
     playCount = playCount ?: 0,
@@ -132,17 +131,17 @@ fun PlayerLocal.mapToEntity() = PlayerEntity(
     avatarUrl = if (avatar == "N/A") "" else avatar.orEmpty(),
 )
 
-fun PlayerColorsLocal.mapToEntity() = PlayerColorEntity(
+fun PlayerColorsLocal.mapToModel() = PlayerColor(
     description = playerColor,
     sortOrder = playerColorSortOrder,
 )
 
-fun LocationBasic.mapToEntity() = LocationEntity(
+fun LocationBasic.mapToModel() = Location(
     name = name,
     playCount = playCount,
 )
 
-fun PlayEntity.mapToEntity(syncTimestamp: Long = 0L) = PlayBasic(
+fun Play.mapToEntity(syncTimestamp: Long = 0L) = PlayBasic(
     internalId = internalId,
     playId = playId,
     date = dateForDatabase(),
@@ -164,7 +163,7 @@ fun PlayEntity.mapToEntity(syncTimestamp: Long = 0L) = PlayBasic(
     players = players.map { it.mapToEntity() },
 )
 
-fun PlayPlayerEntity.mapToEntity() = PlayPlayerLocal(
+fun PlayPlayer.mapToEntity() = PlayPlayerLocal(
     internalId = internalId,
     internalPlayId = playId,
     username = username,

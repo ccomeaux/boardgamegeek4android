@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class HIndexEntity(val h: Int, val n: Int) {
+data class HIndex(val h: Int, val n: Int) {
     private val rational: Double
         get() = if (h == INVALID_H_INDEX) 0.0 else h + 1 - n.toDouble() / (2 * h + 1)
 
@@ -10,7 +10,7 @@ data class HIndexEntity(val h: Int, val n: Int) {
     companion object {
         const val INVALID_H_INDEX = -1
 
-        fun fromList(list: List<Int>): HIndexEntity {
+        fun fromList(list: List<Int>): HIndex {
             val counts = list.filter { it > 0 }.sortedDescending()
 
             var hIndexCounter = 0
@@ -35,7 +35,7 @@ data class HIndexEntity(val h: Int, val n: Int) {
             }
             if (counts.size == h) n += nextH
 
-            return HIndexEntity(h, n)
+            return HIndex(h, n)
         }
     }
 }

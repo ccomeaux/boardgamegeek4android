@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.Play
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
@@ -58,8 +58,8 @@ class PlaysViewModel @Inject constructor(
     val isRefreshing: LiveData<Boolean>
         get() = _isRefreshing
 
-    private val _plays = MediatorLiveData<List<PlayEntity>>()
-    val plays: LiveData<List<PlayEntity>>
+    private val _plays = MediatorLiveData<List<Play>>()
+    val plays: LiveData<List<Play>>
         get() = _plays
 
     private val _filterType = MutableLiveData<FilterType>()
@@ -70,7 +70,7 @@ class PlaysViewModel @Inject constructor(
     val sortType: LiveData<SortType>
         get() = _sortType
 
-    private val allPlays: LiveData<List<PlayEntity>> = playInfo.switchMap {
+    private val allPlays: LiveData<List<Play>> = playInfo.switchMap {
         liveData {
             val list = when (it.mode) {
                 Mode.ALL -> playRepository.loadPlays()
@@ -95,7 +95,7 @@ class PlaysViewModel @Inject constructor(
     }
 
     private fun filterAndSortPlays(
-        list: List<PlayEntity>?,
+        list: List<Play>?,
         sortType: SortType?,
         filterType: FilterType?,
     ) {
@@ -206,7 +206,7 @@ class PlaysViewModel @Inject constructor(
         }
     }
 
-    fun send(plays: List<PlayEntity>) {
+    fun send(plays: List<Play>) {
         viewModelScope.launch {
             val idsToSend = mutableListOf<Long>()
             plays.forEach {
@@ -217,7 +217,7 @@ class PlaysViewModel @Inject constructor(
         }
     }
 
-    fun delete(plays: List<PlayEntity>) {
+    fun delete(plays: List<Play>) {
         viewModelScope.launch {
             val idsDeleted = mutableListOf<Long>()
             plays.forEach {

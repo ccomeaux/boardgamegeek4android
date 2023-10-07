@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayPlayerSortBinding
 import com.boardgamegeek.databinding.RowNewPlayPlayerSortBinding
-import com.boardgamegeek.entities.NewPlayPlayerEntity
+import com.boardgamegeek.entities.NewPlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -66,11 +66,11 @@ class NewPlayPlayerSortFragment : Fragment() {
 
         binding.recyclerView.adapter = adapter
 
-        viewModel.addedPlayers.observe(viewLifecycleOwner) { entity ->
-            if (entity.all { it.seat != null }) {
-                adapter.players = entity.sortedBy { it.seat }
+        viewModel.addedPlayers.observe(viewLifecycleOwner) { players ->
+            if (players.all { it.seat != null }) {
+                adapter.players = players.sortedBy { it.seat }
             } else {
-                adapter.players = entity
+                adapter.players = players
             }
         }
 
@@ -101,7 +101,7 @@ class NewPlayPlayerSortFragment : Fragment() {
         _binding = null
     }
 
-    private class Diff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
+    private class Diff(private val oldList: List<NewPlayPlayer>, private val newList: List<NewPlayPlayer>) : DiffUtil.Callback() {
         override fun getOldListSize() = oldList.size
 
         override fun getNewListSize() = newList.size
@@ -115,7 +115,7 @@ class NewPlayPlayerSortFragment : Fragment() {
         }
     }
 
-    private class DraggingDiff(private val oldList: List<NewPlayPlayerEntity>, private val newList: List<NewPlayPlayerEntity>) : DiffUtil.Callback() {
+    private class DraggingDiff(private val oldList: List<NewPlayPlayer>, private val newList: List<NewPlayPlayer>) : DiffUtil.Callback() {
         override fun getOldListSize() = oldList.size
 
         override fun getNewListSize() = newList.size
@@ -135,14 +135,14 @@ class NewPlayPlayerSortFragment : Fragment() {
         var isDraggable = false
         var isDragging = false
 
-        var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var players: List<NewPlayPlayer> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             determineDraggability(newValue)
             val diffCallback = if (isDragging) DraggingDiff(oldValue, newValue) else Diff(oldValue, newValue)
             val diffResult = DiffUtil.calculateDiff(diffCallback)
             diffResult.dispatchUpdatesTo(this)
         }
 
-        private fun determineDraggability(newValue: List<NewPlayPlayerEntity>) {
+        private fun determineDraggability(newValue: List<NewPlayPlayer>) {
             if (newValue.all { it.seat != null }) {
                 for (seat in 1..newValue.size + 1) {
                     if (newValue.find { it.seat == seat } == null) {
@@ -177,8 +177,7 @@ class NewPlayPlayerSortFragment : Fragment() {
 
             @SuppressLint("ClickableViewAccessibility")
             fun bind(position: Int) {
-                val entity = players.getOrNull(position)
-                entity?.let { player ->
+                players.getOrNull(position)?.let { player ->
                     binding.nameView.text = player.name
                     binding.usernameView.setTextOrHide(player.username)
 

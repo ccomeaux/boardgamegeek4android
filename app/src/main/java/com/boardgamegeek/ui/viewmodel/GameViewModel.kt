@@ -282,7 +282,7 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = game.switchMap { game ->
+    val plays: LiveData<RefreshableResource<List<Play>>> = game.switchMap { game ->
         liveData {
             val gameId = game.data?.id ?: BggContract.INVALID_ID
             try {

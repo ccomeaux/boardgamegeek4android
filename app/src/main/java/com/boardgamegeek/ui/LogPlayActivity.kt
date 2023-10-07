@@ -31,8 +31,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityLogplayBinding
 import com.boardgamegeek.databinding.RowLogplayPlayerBinding
-import com.boardgamegeek.entities.PlayPlayerEntity
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.entities.PlayPlayer
+import com.boardgamegeek.entities.Player
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.adapter.LocationAdapter
@@ -66,9 +66,9 @@ class LogPlayActivity : AppCompatActivity() {
     private var isChangingGame = false
     private var heroImageUrl: String = ""
 
-    private var lastRemovedPlayer: PlayPlayerEntity? = null
+    private var lastRemovedPlayer: PlayPlayer? = null
     private val gameColors = ArrayList<String>()
-    private val availablePlayers = mutableListOf<PlayerEntity>()
+    private val availablePlayers = mutableListOf<Player>()
 
     @ColorInt
     private var fabColor = Color.TRANSPARENT
@@ -777,7 +777,7 @@ class LogPlayActivity : AppCompatActivity() {
 
     private fun showPlayersToAddDialog(): Boolean {
         if (availablePlayers.isEmpty()) return false
-        val playersToAdd = mutableListOf<PlayerEntity>()
+        val playersToAdd = mutableListOf<Player>()
         AlertDialog.Builder(this)
             .setTitle(R.string.title_add_players)
             .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -865,7 +865,7 @@ class LogPlayActivity : AppCompatActivity() {
     inner class PlayerAdapter : RecyclerView.Adapter<PlayerAdapter.PlayerViewHolder>() {
         var isDragging = false
 
-        private var players = emptyList<PlayPlayerEntity>()
+        private var players = emptyList<PlayPlayer>()
         private val callback = PlayerCallback()
         var shouldCustomSortPlayers = false
             @SuppressLint("NotifyDataSetChanged")
@@ -874,7 +874,7 @@ class LogPlayActivity : AppCompatActivity() {
                 notifyDataSetChanged()
             }
 
-        private inner class Diff(private val oldList: List<PlayPlayerEntity>, private val newList: List<PlayPlayerEntity>) :
+        private inner class Diff(private val oldList: List<PlayPlayer>, private val newList: List<PlayPlayer>) :
             DiffUtil.Callback() {
             override fun getOldListSize() = oldList.size
 
@@ -894,7 +894,7 @@ class LogPlayActivity : AppCompatActivity() {
             }
         }
 
-        fun submit(players: List<PlayPlayerEntity>) {
+        fun submit(players: List<PlayPlayer>) {
             val oldPlayers = this.players
             this.players = players
             val diffResult = DiffUtil.calculateDiff(Diff(oldPlayers, this.players))
@@ -928,7 +928,7 @@ class LogPlayActivity : AppCompatActivity() {
             holder.bind(position)
         }
 
-        fun getPlayer(position: Int): PlayPlayerEntity? {
+        fun getPlayer(position: Int): PlayPlayer? {
             return players.getOrNull(position)
         }
 
@@ -954,11 +954,11 @@ class LogPlayActivity : AppCompatActivity() {
             fun bind(position: Int) {
                 binding.dragHandle.isVisible = !shouldCustomSortPlayers
 
-                val player = getPlayer(position) ?: PlayPlayerEntity()
+                val player = getPlayer(position) ?: PlayPlayer()
 
                 binding.seatView.text = player.startingPosition
                 if (player.name.isEmpty() && player.username.isEmpty()) {
-                    val name = if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN)
+                    val name = if (player.seat == PlayPlayer.SEAT_UNKNOWN)
                         resources.getString(R.string.title_player)
                     else
                         resources.getString(R.string.generic_player, player.seat)
@@ -1029,7 +1029,7 @@ class LogPlayActivity : AppCompatActivity() {
                 }
 
                 // starting position, team/color
-                if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN) {
+                if (player.seat == PlayPlayer.SEAT_UNKNOWN) {
                     binding.seatView.isVisible = false
                     binding.startingPositionView.setTextOrHide(player.startingPosition)
                 } else {

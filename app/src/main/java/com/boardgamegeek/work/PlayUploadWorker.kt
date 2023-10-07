@@ -7,7 +7,7 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayEntity
+import com.boardgamegeek.entities.Play
 import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.notifyLoggedPlay
@@ -30,8 +30,8 @@ class PlayUploadWorker @AssistedInject constructor(
 
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays_upload)))
 
-        val playsToDelete = mutableListOf<PlayEntity>()
-        val playsToUpsert = mutableListOf<PlayEntity>()
+        val playsToDelete = mutableListOf<Play>()
+        val playsToUpsert = mutableListOf<Play>()
 
         val internalId = inputData.getLong(INTERNAL_ID, BggContract.INVALID_ID.toLong())
         val internalIds = inputData.getLongArray(INTERNAL_IDS)
@@ -81,16 +81,16 @@ class PlayUploadWorker @AssistedInject constructor(
     }
 
     private suspend fun uploadList(
-        playsToUpsert: MutableList<PlayEntity>,
-        uploadItem: suspend (item: PlayEntity) -> kotlin.Result<PlayUploadResult>
+        playsToUpsert: MutableList<Play>,
+        uploadItem: suspend (item: Play) -> kotlin.Result<PlayUploadResult>
     ) : Result {
-        playsToUpsert.forEach { playEntity ->
-            val result = uploadItem(playEntity)
+        playsToUpsert.forEach { play ->
+            val result = uploadItem(play)
             if (result.isSuccess) {
                 result.getOrNull()?.let {
                     applicationContext.notifyLoggedPlay(it)
                 }
-                gameIds += playEntity.gameId
+                gameIds += play.gameId
             } else return Result.failure(workDataOf(ERROR_MESSAGE to result.exceptionOrNull()?.message))
         }
         return Result.success()
