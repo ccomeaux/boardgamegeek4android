@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class PersonEntity(
+data class Person(
     val internalId: Int,
     val id: Int,
     val name: String,

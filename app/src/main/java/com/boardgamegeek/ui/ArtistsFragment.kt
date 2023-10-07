@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentArtistsBinding
 import com.boardgamegeek.databinding.RowArtistBinding
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.entities.Person
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
@@ -70,7 +70,7 @@ class ArtistsFragment : Fragment() {
 
     class ArtistsAdapter(private val viewModel: ArtistsViewModel) : RecyclerView.Adapter<ArtistsAdapter.ArtistViewHolder>(), AutoUpdatableAdapter,
         RecyclerSectionItemDecoration.SectionCallback {
-        var artists: List<PersonEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var artists: List<Person> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
             }
@@ -112,7 +112,7 @@ class ArtistsFragment : Fragment() {
         inner class ArtistViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private val binding = RowArtistBinding.bind(itemView)
 
-            fun bind(artist: PersonEntity?) {
+            fun bind(artist: Person?) {
                 artist?.let { a ->
                     binding.avatarView.loadThumbnail(a.thumbnailUrl, R.drawable.person_image_empty)
                     binding.nameView.text = a.name

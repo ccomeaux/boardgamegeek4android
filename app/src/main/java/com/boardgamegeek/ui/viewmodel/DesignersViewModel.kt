@@ -1,10 +1,9 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.db.DesignerDao
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.entities.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,8 +20,6 @@ class DesignersViewModel @Inject constructor(
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val prefs: SharedPreferences by lazy { application.preferences() }
-
     private val _sort = MutableLiveData<DesignersSort>()
     val sort: LiveData<DesignersSort>
         get() = _sort
@@ -34,7 +31,7 @@ class DesignersViewModel @Inject constructor(
     private var isCalculating = AtomicBoolean()
 
     init {
-        val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
+        val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
             SortType.WHITMORE_SCORE
         else
             SortType.ITEM_COUNT
@@ -45,7 +42,7 @@ class DesignersViewModel @Inject constructor(
         liveData {
             val designers = designerRepository.loadDesigners(it.sortBy)
             emit(designers)
-            val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
+            val lastCalculation = application.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
@@ -70,19 +67,19 @@ class DesignersViewModel @Inject constructor(
         _sort.value?.let { _sort.value = it }
     }
 
-    fun getSectionHeader(designer: PersonEntity?): String {
+    fun getSectionHeader(designer: Person?): String {
         return _sort.value?.getSectionHeader(designer).orEmpty()
     }
 
     sealed class DesignersSort {
         abstract val sortType: SortType
         abstract val sortBy: DesignerDao.SortType
-        abstract fun getSectionHeader(designer: PersonEntity?): String
+        abstract fun getSectionHeader(designer: Person?): String
 
         class ByName : DesignersSort() {
             override val sortType = SortType.NAME
             override val sortBy = DesignerDao.SortType.NAME
-            override fun getSectionHeader(designer: PersonEntity?): String {
+            override fun getSectionHeader(designer: Person?): String {
                 return if (designer?.name == "(Uncredited)") "-"
                 else designer?.name.firstChar()
             }
@@ -91,7 +88,7 @@ class DesignersViewModel @Inject constructor(
         class ByItemCount : DesignersSort() {
             override val sortType = SortType.ITEM_COUNT
             override val sortBy = DesignerDao.SortType.ITEM_COUNT
-            override fun getSectionHeader(designer: PersonEntity?): String {
+            override fun getSectionHeader(designer: Person?): String {
                 return (designer?.itemCount ?: 0).orderOfMagnitude()
             }
         }
@@ -99,7 +96,7 @@ class DesignersViewModel @Inject constructor(
         class ByWhitmoreScore : DesignersSort() {
             override val sortType = SortType.WHITMORE_SCORE
             override val sortBy = DesignerDao.SortType.WHITMORE_SCORE
-            override fun getSectionHeader(designer: PersonEntity?): String {
+            override fun getSectionHeader(designer: Person?): String {
                 return (designer?.whitmoreScore ?: 0).orderOfMagnitude()
             }
         }

@@ -6,7 +6,7 @@ import com.boardgamegeek.extensions.PlayStats.LOG_PLAY_STATS_EXPANSIONS
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 
-class PersonStatsEntity(
+class PersonStats(
     val averageRating: Double,
     val whitmoreScore: Int,
     val whitmoreScoreWithExpansions: Int,
@@ -14,7 +14,7 @@ class PersonStatsEntity(
     val hIndex: HIndexEntity,
 ) {
     companion object {
-        fun fromLinkedCollection(collection: List<CollectionItemEntity>, context: Context): PersonStatsEntity {
+        fun fromLinkedCollection(collection: List<CollectionItemEntity>, context: Context): PersonStats {
             val baseGameCollection = collection.filter { it.subtype == GameEntity.Subtype.BOARDGAME }
 
             val whitmoreScore = calculateWhitmoreScore(baseGameCollection)
@@ -32,7 +32,7 @@ class PersonStatsEntity(
                 .distinctBy { it.gameId }
                 .map { it.numberOfPlays }
 
-            return PersonStatsEntity(
+            return PersonStats(
                 baseGameCollection.filter { it.rating > 0.0 }.map { it.rating }.average(),
                 whitmoreScore,
                 whitmoreScoreWithExpansions,

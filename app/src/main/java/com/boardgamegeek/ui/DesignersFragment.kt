@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentDesignersBinding
 import com.boardgamegeek.databinding.RowDesignerBinding
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.entities.Person
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
@@ -70,7 +70,7 @@ class DesignersFragment : Fragment() {
 
     class DesignersAdapter(private val viewModel: DesignersViewModel) : RecyclerView.Adapter<DesignersAdapter.DesignerViewHolder>(),
         AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
-        var designers: List<PersonEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var designers: List<Person> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
             }
@@ -112,7 +112,7 @@ class DesignersFragment : Fragment() {
         inner class DesignerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowDesignerBinding.bind(itemView)
 
-            fun bind(designer: PersonEntity?) {
+            fun bind(designer: Person?) {
                 designer?.let { d ->
                     binding.avatarView.loadThumbnail(d.thumbnailUrl, R.drawable.person_image_empty)
                     binding.nameView.text = d.name

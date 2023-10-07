@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.entities.Company
+import com.boardgamegeek.entities.Person
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.extensions.isOlderThan
@@ -84,7 +84,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadArtist(artistId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.entities.Person>?>.loadArtist(artistId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val artist = artistRepository.loadArtist(artistId)
         try {
@@ -109,7 +109,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadDesigner(designerId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.entities.Person>?>.loadDesigner(designerId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val designer = designerRepository.loadDesigner(designerId)
         try {
@@ -134,29 +134,29 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<PersonEntity>?>.loadPublisher(publisherId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.entities.Person>?>.loadPublisher(publisherId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val publisher = publisherRepository.loadPublisher(publisherId)
         try {
             val refreshedPublisher = if (publisher == null || publisher.updatedTimestamp.isOlderThan(1.days)) {
-                emit(RefreshableResource.refreshing(publisher.toPersonEntity()))
+                emit(RefreshableResource.refreshing(publisher.toPerson()))
                 publisherRepository.refreshPublisher(publisherId)
                 publisherRepository.loadPublisher(publisherId)
             } else publisher
             val completePublisher = refreshedPublisher?.let {
-                emit(RefreshableResource.refreshing(it.toPersonEntity()))
+                emit(RefreshableResource.refreshing(it.toPerson()))
                 if (it.heroImageUrl.getImageId() != it.thumbnailUrl.getImageId()) {
                     publisherRepository.refreshImages(it)
                 } else refreshedPublisher
             }
-            emit(RefreshableResource.success((publisherRepository.loadPublisher(publisherId) ?: completePublisher).toPersonEntity()))
+            emit(RefreshableResource.success((publisherRepository.loadPublisher(publisherId) ?: completePublisher).toPerson()))
         } catch (e: Exception) {
-            emit(RefreshableResource.error(e, application, publisher.toPersonEntity()))
+            emit(RefreshableResource.error(e, application, publisher.toPerson()))
         }
     }
 
-    private fun CompanyEntity?.toPersonEntity() = this?.let {
-        PersonEntity(
+    private fun Company?.toPerson() = this?.let {
+        Person(
             BggContract.INVALID_ID,
             it.id,
             it.name,

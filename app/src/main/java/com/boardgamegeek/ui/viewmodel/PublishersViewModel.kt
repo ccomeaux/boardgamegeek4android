@@ -4,7 +4,7 @@ import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.entities.Company
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,8 +21,6 @@ class PublishersViewModel @Inject constructor(
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val prefs: SharedPreferences by lazy { application.preferences() }
-
     private val _sort = MutableLiveData<PublishersSort>()
     val sort: LiveData<PublishersSort>
         get() = _sort
@@ -34,7 +32,7 @@ class PublishersViewModel @Inject constructor(
     private var isCalculating = AtomicBoolean()
 
     init {
-        val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
+        val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
             SortType.WHITMORE_SCORE
         else
             SortType.ITEM_COUNT
@@ -45,7 +43,7 @@ class PublishersViewModel @Inject constructor(
         liveData {
             val publishers = publisherRepository.loadPublishers(it.sortBy)
             emit(publishers)
-            val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
+            val lastCalculation = application.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
@@ -70,19 +68,19 @@ class PublishersViewModel @Inject constructor(
         _sort.value?.let { _sort.value = it }
     }
 
-    fun getSectionHeader(publisher: CompanyEntity?): String {
+    fun getSectionHeader(publisher: Company?): String {
         return _sort.value?.getSectionHeader(publisher).orEmpty()
     }
 
     sealed class PublishersSort {
         abstract val sortType: SortType
         abstract val sortBy: PublisherDao.SortType
-        abstract fun getSectionHeader(publisher: CompanyEntity?): String
+        abstract fun getSectionHeader(publisher: Company?): String
 
         class ByName : PublishersSort() {
             override val sortType = SortType.NAME
             override val sortBy = PublisherDao.SortType.NAME
-            override fun getSectionHeader(publisher: CompanyEntity?): String {
+            override fun getSectionHeader(publisher: Company?): String {
                 return when {
                     publisher == null -> ""
                     publisher.name.startsWith("(") -> "-"
@@ -94,7 +92,7 @@ class PublishersViewModel @Inject constructor(
         class ByItemCount : PublishersSort() {
             override val sortType = SortType.ITEM_COUNT
             override val sortBy = PublisherDao.SortType.ITEM_COUNT
-            override fun getSectionHeader(publisher: CompanyEntity?): String {
+            override fun getSectionHeader(publisher: Company?): String {
                 return (publisher?.itemCount ?: 0).orderOfMagnitude()
             }
         }
@@ -102,7 +100,7 @@ class PublishersViewModel @Inject constructor(
         class ByWhitmoreScore : PublishersSort() {
             override val sortType = SortType.WHITMORE_SCORE
             override val sortBy = PublisherDao.SortType.WHITMORE_SCORE
-            override fun getSectionHeader(publisher: CompanyEntity?): String {
+            override fun getSectionHeader(publisher: Company?): String {
                 return (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
             }
         }

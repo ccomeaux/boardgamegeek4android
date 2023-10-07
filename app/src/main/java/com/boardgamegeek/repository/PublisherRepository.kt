@@ -6,11 +6,12 @@ import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
-import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.entities.PersonStatsEntity
+import com.boardgamegeek.entities.Company
+import com.boardgamegeek.entities.PersonStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToPublisherBasic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,9 +25,9 @@ class PublisherRepository(
     private val collectionDao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadPublishers(sortBy: PublisherDao.SortType) = publisherDao.loadPublishers(sortBy).map { it.mapToEntity() }
+    suspend fun loadPublishers(sortBy: PublisherDao.SortType) = publisherDao.loadPublishers(sortBy).map { it.mapToModel() }
 
-    suspend fun loadPublisher(publisherId: Int) = publisherDao.loadPublisher(publisherId)?.mapToEntity()
+    suspend fun loadPublisher(publisherId: Int) = publisherDao.loadPublisher(publisherId)?.mapToModel()
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadCollectionForPublisher(id, sortBy)
@@ -39,12 +40,12 @@ class PublisherRepository(
     suspend fun refreshPublisher(publisherId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = api.company(publisherId)
-        response.items.firstOrNull()?.mapToEntity(timestamp)?.let {
+        response.items.firstOrNull()?.mapToModel(timestamp)?.let {
             publisherDao.upsert(it.mapToPublisherBasic())
         } ?: 0
     }
 
-    suspend fun refreshImages(publisher: CompanyEntity): CompanyEntity = withContext(Dispatchers.IO) {
+    suspend fun refreshImages(publisher: Company): Company = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.getImageUrls(publisher.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         urls?.firstOrNull()?.let {
@@ -53,7 +54,7 @@ class PublisherRepository(
         } ?: publisher
     }
 
-    suspend fun calculateWhitmoreScores(publishers: List<CompanyEntity>, progress: MutableLiveData<Pair<Int, Int>>) =
+    suspend fun calculateWhitmoreScores(publishers: List<Company>, progress: MutableLiveData<Pair<Int, Int>>) =
         withContext(Dispatchers.Default) {
             val sortedList = publishers.sortedBy { it.statsUpdatedTimestamp }
             val maxProgress = sortedList.size
@@ -65,13 +66,13 @@ class PublisherRepository(
             progress.postValue(0 to 0)
         }
 
-    suspend fun calculateStats(publisherId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
+    suspend fun calculateStats(publisherId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
         val collection = collectionDao.loadCollectionForPublisher(publisherId).map { it.mapToEntity() }
-        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
+        val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) publisherDao.loadPublisher(publisherId)?.whitmoreScore ?: 0 else whitmoreScore
-        if (statsEntity.whitmoreScore != realOldScore) {
-            publisherDao.updateWhitmoreScore(publisherId, statsEntity.whitmoreScore)
+        if (stats.whitmoreScore != realOldScore) {
+            publisherDao.updateWhitmoreScore(publisherId, stats.whitmoreScore)
         }
-        statsEntity
+        stats
     }
 }

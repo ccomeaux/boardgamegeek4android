@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPersonDescriptionBinding
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.entities.Person
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -76,7 +76,7 @@ class PersonDescriptionFragment : Fragment() {
         }
     }
 
-    private fun showData(person: PersonEntity) {
+    private fun showData(person: Person) {
         if (person.description.isBlank()) {
             showError(getString(R.string.empty_person_description, emptyMessageDescription))
         } else {

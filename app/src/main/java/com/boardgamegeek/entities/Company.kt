@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class CompanyEntity(
+data class Company(
     val id: Int,
     val name: String,
     val sortName: String,

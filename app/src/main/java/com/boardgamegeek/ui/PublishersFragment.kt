@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPublishersBinding
 import com.boardgamegeek.databinding.RowPublisherBinding
-import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.entities.Company
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
@@ -68,7 +68,7 @@ class PublishersFragment : Fragment() {
 
     class PublisherAdapter(private val viewModel: PublishersViewModel) : RecyclerView.Adapter<PublisherAdapter.PublisherViewHolder>(),
         AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
-        var publishers: List<CompanyEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var publishers: List<Company> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
             }
@@ -110,7 +110,7 @@ class PublishersFragment : Fragment() {
         inner class PublisherViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             private val binding = RowPublisherBinding.bind(itemView)
 
-            fun bind(publisher: CompanyEntity?) {
+            fun bind(publisher: Company?) {
                 publisher?.let { p ->
                     binding.thumbnailView.loadThumbnail(p.thumbnailUrl)
                     binding.nameView.text = p.name

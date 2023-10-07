@@ -6,11 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
-import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.PersonStatsEntity
+import com.boardgamegeek.entities.Person
+import com.boardgamegeek.entities.PersonStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToArtistEntity
+import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToArtistImages
 import com.boardgamegeek.mappers.mapToArtistBasic
 import com.boardgamegeek.mappers.mapToEntity
@@ -26,9 +26,9 @@ class ArtistRepository(
     private val collectionDao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadArtists(sortBy: ArtistDao.SortType) = artistDao.loadArtists(sortBy).map { it.mapToArtistEntity() }
+    suspend fun loadArtists(sortBy: ArtistDao.SortType) = artistDao.loadArtists(sortBy).map { it.mapToModel() }
 
-    suspend fun loadArtist(artistId: Int) = artistDao.loadArtist(artistId)?.mapToArtistEntity()
+    suspend fun loadArtist(artistId: Int) = artistDao.loadArtist(artistId)?.mapToModel()
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadCollectionForArtist(id, sortBy)
@@ -41,22 +41,22 @@ class ArtistRepository(
     suspend fun refreshArtist(artistId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = api.person(BggService.PersonType.ARTIST, artistId)
-        response.mapToEntity(artistId, timestamp)?.let {
+        response.mapToModel(artistId, timestamp)?.let {
             artistDao.upsert(it.mapToArtistBasic())
         } ?: 0
     }
 
-    suspend fun refreshImages(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
+    suspend fun refreshImages(artist: Person): Person = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
         val response = api.person(artist.id)
-        val entity = response.items.firstOrNull()?.mapToEntity(artist, timestamp)
-        entity?.let {
+        val person = response.items.firstOrNull()?.mapToModel(artist, timestamp)
+        person?.let {
             artistDao.upsert(it.mapToArtistImages())
         }
-        entity ?: artist
+        person ?: artist
     }
 
-    suspend fun refreshHeroImage(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
+    suspend fun refreshHeroImage(artist: Person): Person = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.fetchImageUrls(artist.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         if (urls?.isNotEmpty() == true) {
@@ -65,7 +65,7 @@ class ArtistRepository(
         } else artist
     }
 
-    suspend fun calculateWhitmoreScores(artists: List<PersonEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+    suspend fun calculateWhitmoreScores(artists: List<Person>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
         val sortedList = artists.sortedBy { it.statsUpdatedTimestamp }
         val maxProgress = sortedList.size
         sortedList.forEachIndexed { i, data ->
@@ -76,13 +76,13 @@ class ArtistRepository(
         progress.postValue(0 to 0)
     }
 
-    suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
+    suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
         val collection = collectionDao.loadCollectionForArtist(artistId).map { it.mapToEntity() }
-        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
+        val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) artistDao.loadArtist(artistId)?.whitmoreScore ?: 0 else whitmoreScore
-        if (statsEntity.whitmoreScore != realOldScore) {
-            artistDao.updateWhitmoreScore(artistId, statsEntity.whitmoreScore)
+        if (stats.whitmoreScore != realOldScore) {
+            artistDao.updateWhitmoreScore(artistId, stats.whitmoreScore)
         }
-        statsEntity
+        stats
     }
 }

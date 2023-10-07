@@ -3,13 +3,13 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.db.model.PublisherBasic
 import com.boardgamegeek.db.model.PublisherBrief
 import com.boardgamegeek.db.model.PublisherLocal
-import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.entities.Company
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.io.model.CompanyItem
 import com.boardgamegeek.provider.BggContract
 
-fun CompanyItem.mapToEntity(timestamp: Long) = CompanyEntity(
+fun CompanyItem.mapToModel(timestamp: Long) = Company(
     id = this.id.toIntOrNull() ?: BggContract.INVALID_ID,
     name = name,
     sortName = if (nameType == "primary") name.sortName(sortindex) else name,
@@ -19,7 +19,7 @@ fun CompanyItem.mapToEntity(timestamp: Long) = CompanyEntity(
     updatedTimestamp = timestamp,
 )
 
-fun PublisherLocal.mapToEntity() = CompanyEntity(
+fun PublisherLocal.mapToModel() = Company(
     id = publisherId,
     name = publisherName,
     sortName = "",
@@ -39,7 +39,7 @@ fun PublisherBrief.mapToGameDetailEntity() = GameDetailEntity(
     thumbnailUrl = publisherThumbnailUrl.orEmpty(),
 )
 
-fun CompanyEntity.mapToPublisherBasic() = PublisherBasic(
+fun Company.mapToPublisherBasic() = PublisherBasic(
     publisherId = id,
     publisherName = name,
     publisherDescription = description,

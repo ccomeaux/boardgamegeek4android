@@ -1,10 +1,9 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.db.ArtistDao
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.entities.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.ArtistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,8 +20,6 @@ class ArtistsViewModel @Inject constructor(
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val prefs: SharedPreferences by lazy { application.preferences() }
-
     private val _sort = MutableLiveData<ArtistsSort>()
     val sort: LiveData<ArtistsSort>
         get() = _sort
@@ -34,7 +31,7 @@ class ArtistsViewModel @Inject constructor(
     private var isCalculating = AtomicBoolean()
 
     init {
-        val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
+        val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
             SortType.WHITMORE_SCORE
         else
             SortType.ITEM_COUNT
@@ -45,7 +42,7 @@ class ArtistsViewModel @Inject constructor(
         liveData {
             val artists = artistRepository.loadArtists(it.sortBy)
             emit(artists)
-            val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L] ?: 0L
+            val lastCalculation = application.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L] ?: 0L
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
@@ -70,19 +67,19 @@ class ArtistsViewModel @Inject constructor(
         _sort.value?.let { _sort.value = it }
     }
 
-    fun getSectionHeader(artist: PersonEntity?): String {
+    fun getSectionHeader(artist: Person?): String {
         return _sort.value?.getSectionHeader(artist).orEmpty()
     }
 
     sealed class ArtistsSort {
         abstract val sortType: SortType
         abstract val sortBy: ArtistDao.SortType
-        abstract fun getSectionHeader(artist: PersonEntity?): String
+        abstract fun getSectionHeader(artist: Person?): String
 
         class ByName : ArtistsSort() {
             override val sortType = SortType.NAME
             override val sortBy = ArtistDao.SortType.NAME
-            override fun getSectionHeader(artist: PersonEntity?): String {
+            override fun getSectionHeader(artist: Person?): String {
                 return if (artist?.name == "(Uncredited)") "-"
                 else artist?.name.firstChar()
             }
@@ -91,7 +88,7 @@ class ArtistsViewModel @Inject constructor(
         class ByItemCount : ArtistsSort() {
             override val sortType = SortType.ITEM_COUNT
             override val sortBy = ArtistDao.SortType.ITEM_COUNT
-            override fun getSectionHeader(artist: PersonEntity?): String {
+            override fun getSectionHeader(artist: Person?): String {
                 return (artist?.itemCount ?: 0).orderOfMagnitude()
             }
         }
@@ -99,7 +96,7 @@ class ArtistsViewModel @Inject constructor(
         class ByWhitmoreScore : ArtistsSort() {
             override val sortType = SortType.WHITMORE_SCORE
             override val sortBy = ArtistDao.SortType.WHITMORE_SCORE
-            override fun getSectionHeader(artist: PersonEntity?): String {
+            override fun getSectionHeader(artist: Person?): String {
                 return (artist?.whitmoreScore ?: 0).orderOfMagnitude()
             }
         }
