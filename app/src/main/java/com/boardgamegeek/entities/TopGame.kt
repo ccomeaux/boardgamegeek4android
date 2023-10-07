@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class TopGameEntity(
+data class TopGame(
     val id: Int,
     val name: String,
     val rank: Int,

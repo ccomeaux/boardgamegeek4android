@@ -5,7 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.TopGameEntity
+import com.boardgamegeek.entities.TopGame
 import com.boardgamegeek.repository.TopGameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -15,7 +15,7 @@ class TopGamesViewModel @Inject constructor(
     application: Application,
     private val repository: TopGameRepository,
 ) : AndroidViewModel(application) {
-    val topGames: LiveData<RefreshableResource<List<TopGameEntity>>> = liveData {
+    val topGames: LiveData<RefreshableResource<List<TopGame>>> = liveData {
         emit(RefreshableResource.refreshing(latestValue?.data))
         emit(
             try {

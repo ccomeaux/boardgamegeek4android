@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.SearchResultEntity
+import com.boardgamegeek.entities.SearchResult
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
@@ -49,7 +49,7 @@ class SearchViewModel @Inject constructor(
         if (_query.value?.first != query || _query.value?.second != false) _query.value = query to false
     }
 
-    val searchResults: LiveData<RefreshableResource<List<SearchResultEntity>>> = _query.switchMap { q ->
+    val searchResults: LiveData<RefreshableResource<List<SearchResult>>> = _query.switchMap { q ->
         liveData {
             when {
                 q.first.isNotBlank() ->

@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class SearchResultEntity(
+data class SearchResult(
     val id: Int,
     val name: String,
     val yearPublished: Int,

@@ -6,7 +6,7 @@ import org.simpleframework.xml.Root;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "item")
-public class SearchResult {
+public class SearchResultRemote {
 	/**
 	 * Includes boardgame, boardgameexpansion, videogame, rpg, rpgitem
 	 */
