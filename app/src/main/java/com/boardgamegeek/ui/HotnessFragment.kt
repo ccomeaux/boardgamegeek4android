@@ -11,7 +11,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.FragmentHotnessBinding
 import com.boardgamegeek.databinding.RowHotnessBinding
-import com.boardgamegeek.entities.HotGameEntity
+import com.boardgamegeek.entities.HotGame
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
@@ -51,7 +51,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
             }
         }
 
-        viewModel.hotness.observe(viewLifecycleOwner) {
+        viewModel.hotGames.observe(viewLifecycleOwner) {
             it?.let { (status, data, message) ->
                 when (status) {
                     Status.REFRESHING -> binding.progressView.show()
@@ -125,7 +125,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
             setHasStableIds(true)
         }
 
-        var games: List<HotGameEntity> by Delegates.observable(emptyList()) { _, old, new ->
+        var games: List<HotGame> by Delegates.observable(emptyList()) { _, old, new ->
             autoNotify(old, new) { o, n -> o == n }
         }
 

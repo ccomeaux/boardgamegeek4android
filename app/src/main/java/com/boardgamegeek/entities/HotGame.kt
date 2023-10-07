@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class HotGameEntity(
+data class HotGame(
     val rank: Int = 0,
     val id: Int = 0,
     val name: String = "",
