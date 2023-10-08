@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 
 class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(context) {
     var playerCount = 4
@@ -40,7 +40,7 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
                 playerCount)
     }
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         val seg = "$separator$playerCount$separator" // TODO rework
         return when (recommendation) {
             BEST -> item.bestPlayerCounts.contains(seg)

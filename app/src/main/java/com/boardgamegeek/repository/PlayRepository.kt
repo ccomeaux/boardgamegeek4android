@@ -298,13 +298,13 @@ class PlayRepository(
         }
         if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_OWN)) {
             val items = collectionDao.loadAll().map {
-                 it.second.mapToEntity(it.first.mapToEntity())
+                 it.second.mapToModel(it.first.mapToEntity())
             }
             games.map { game ->
                 val itemPairs = items.filter { it.gameId == game.id }
                 game.copy(
                     isOwned = itemPairs.any { it.own },
-                    bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItemEntity.RANK_UNKNOWN
+                    bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN
                 )
             }
         } else games

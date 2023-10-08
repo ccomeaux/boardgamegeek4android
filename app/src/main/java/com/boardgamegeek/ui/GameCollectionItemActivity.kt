@@ -11,7 +11,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -29,8 +29,8 @@ class GameCollectionItemActivity : HeroActivity() {
     private var collectionName = ""
     private var thumbnailUrl = ""
     private var heroImageUrl = ""
-    private var yearPublished = CollectionItemEntity.YEAR_UNKNOWN
-    private var collectionYearPublished = CollectionItemEntity.YEAR_UNKNOWN
+    private var yearPublished = CollectionItem.YEAR_UNKNOWN
+    private var collectionYearPublished = CollectionItem.YEAR_UNKNOWN
     private var isInEditMode = false
     private var isItemUpdated = false
     private var imageUrl: String? = null
@@ -88,11 +88,11 @@ class GameCollectionItemActivity : HeroActivity() {
         viewModel.item.observe(this) { resource ->
             binding.swipeRefreshLayout.isRefreshing = (resource?.status == Status.REFRESHING)
             if (resource?.status == Status.SUCCESS) {
-                resource.data?.let { entity ->
-                    collectionName = entity.collectionName
-                    collectionYearPublished = entity.collectionYearPublished
-                    thumbnailUrl = entity.thumbnailUrl
-                    heroImageUrl = entity.heroImageUrl
+                resource.data?.let { collectionItem ->
+                    collectionName = collectionItem.collectionName
+                    collectionYearPublished = collectionItem.collectionYearPublished
+                    thumbnailUrl = collectionItem.thumbnailUrl
+                    heroImageUrl = collectionItem.heroImageUrl
                     safelySetTitle()
                     changeImage()
                 }
@@ -114,8 +114,8 @@ class GameCollectionItemActivity : HeroActivity() {
         collectionName = intent.getStringExtra(KEY_COLLECTION_NAME).orEmpty()
         thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
-        yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, CollectionItemEntity.YEAR_UNKNOWN)
-        collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, CollectionItemEntity.YEAR_UNKNOWN)
+        yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, CollectionItem.YEAR_UNKNOWN)
+        collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, CollectionItem.YEAR_UNKNOWN)
     }
 
     override fun onCreatePane(): Fragment {
@@ -159,7 +159,7 @@ class GameCollectionItemActivity : HeroActivity() {
     }
 
     private fun safelySetTitle() {
-        if (collectionYearPublished == CollectionItemEntity.YEAR_UNKNOWN || collectionYearPublished == yearPublished)
+        if (collectionYearPublished == CollectionItem.YEAR_UNKNOWN || collectionYearPublished == yearPublished)
             safelySetTitle(collectionName)
         else
             safelySetTitle("$collectionName ($collectionYearPublished)")

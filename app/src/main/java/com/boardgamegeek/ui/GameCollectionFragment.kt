@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionBinding
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.setBggColors
@@ -67,7 +67,7 @@ class GameCollectionFragment : Fragment() {
         _binding = null
     }
 
-    private fun showData(items: List<CollectionItemEntity>) {
+    private fun showData(items: List<CollectionItem>) {
         adapter.items = items
         if (items.isNotEmpty()) {
             binding.syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L

@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
-import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
+import com.boardgamegeek.entities.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.entities.Person
 import com.boardgamegeek.entities.PersonStats
 import com.boardgamegeek.extensions.*
@@ -27,7 +27,7 @@ class DesignerRepository(
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadCollectionForDesigner(id, sortBy)
-            .map { it.mapToEntity() }
+            .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
 
@@ -73,7 +73,7 @@ class DesignerRepository(
 
     suspend fun calculateStats(designerId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
         val collection = collectionDao.loadCollectionForDesigner(designerId)
-            .map { it.second.mapToEntity(it.first.mapToEntity()) }
+            .map { it.second.mapToModel(it.first.mapToEntity()) }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) designerDao.loadDesigner(designerId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {

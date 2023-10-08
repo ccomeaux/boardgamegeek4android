@@ -3,7 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 
 abstract class CollectionFilterer(protected val context: Context) {
 
@@ -22,7 +22,7 @@ abstract class CollectionFilterer(protected val context: Context) {
 
     open fun description(): String = chipText()
 
-    open fun filter(item: CollectionItemEntity): Boolean = true
+    open fun filter(item: CollectionItem): Boolean = true
 
     val isValid: Boolean
         get() = chipText().isNotEmpty()

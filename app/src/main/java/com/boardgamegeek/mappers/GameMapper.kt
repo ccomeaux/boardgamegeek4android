@@ -207,7 +207,7 @@ fun GameSuggestedPlayerCountPollResultsLocal.mapToEntity() = GamePlayerPollResul
     recommendation = recommendation ?: GamePlayerPollResultsEntity.NOT_RECOMMENDED,
 )
 
-fun GamesExpansionLocal.mapToEntity(items: List<CollectionItemEntity>) = GameExpansionsEntity(
+fun GamesExpansionLocal.mapToEntity(items: List<CollectionItem>) = GameExpansionsEntity(
     id = expansionId,
     name = expansionName,
     thumbnailUrl = items.firstOrNull()?.gameThumbnailUrl.orEmpty(),

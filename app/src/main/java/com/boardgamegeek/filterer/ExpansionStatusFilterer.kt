@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 
 class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
     var selectedSubtype = ALL
@@ -20,7 +20,7 @@ class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun chipText() = getFromArray(R.array.expansion_status_filter)
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         val value = getFromArray(R.array.expansion_status_filter_values)
         return if (value.isNotEmpty()) item.subtype?.code == value else true
     }

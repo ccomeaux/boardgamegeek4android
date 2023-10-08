@@ -3,9 +3,8 @@ package com.boardgamegeek.repository
 import android.content.Context
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.MechanicDao
-import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
+import com.boardgamegeek.entities.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.entities.Mechanic
-import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToModel
 
 class MechanicRepository(val context: Context) {
@@ -18,7 +17,7 @@ class MechanicRepository(val context: Context) {
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadCollectionForMechanic(id, sortBy)
-            .map { it.mapToEntity() }
+            .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
 

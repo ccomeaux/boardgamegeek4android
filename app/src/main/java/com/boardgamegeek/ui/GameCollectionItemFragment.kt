@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionItemBinding
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -234,7 +234,7 @@ class GameCollectionItemFragment : Fragment() {
         viewModel.updateStatuses(statuses, wishlistPriority)
     }
 
-    private fun updateUi(item: CollectionItemEntity) {
+    private fun updateUi(item: CollectionItem) {
         bindMainContainer(item)
         bindWishlist(item)
         bindTrade(item)
@@ -243,7 +243,7 @@ class GameCollectionItemFragment : Fragment() {
         bindVisibility()
     }
 
-    private fun bindMainContainer(item: CollectionItemEntity) {
+    private fun bindMainContainer(item: CollectionItem) {
         // view
         val statusDescription = getStatusDescription(item)
         binding.statusView.setTextOrHide(statusDescription)
@@ -259,7 +259,7 @@ class GameCollectionItemFragment : Fragment() {
         binding.commentView.setContent(item.comment, item.commentDirtyTimestamp)
     }
 
-    private fun bindWishlist(item: CollectionItemEntity) {
+    private fun bindWishlist(item: CollectionItem) {
         // view
         if (item.wishList) {
             binding.wishlistStatusView.setTextOrHide(item.wishListPriority.asWishListPriority(context))
@@ -277,7 +277,7 @@ class GameCollectionItemFragment : Fragment() {
         binding.wishlistCommentView.setContent(item.wishListComment, item.wishListCommentDirtyTimestamp)
     }
 
-    private fun bindTrade(item: CollectionItemEntity) {
+    private fun bindTrade(item: CollectionItem) {
         // view
         val statusDescriptions = mutableListOf<String>()
         if (item.forTrade) statusDescriptions += getString(R.string.collection_status_for_trade)
@@ -295,7 +295,7 @@ class GameCollectionItemFragment : Fragment() {
         binding.hasPartsView.setContent(item.hasPartsList, item.hasPartsDirtyTimestamp)
     }
 
-    private fun bindPrivateInfo(item: CollectionItemEntity) {
+    private fun bindPrivateInfo(item: CollectionItem) {
         // view
         binding.viewPrivateInfoView.setTextOrHide(item.getPrivateInfo(requireContext()))
         setVisibleTag(binding.viewPrivateInfoView, hasPrivateInfo(item))
@@ -317,7 +317,7 @@ class GameCollectionItemFragment : Fragment() {
         binding.privateInfoCommentView.setContent(item.privateComment, item.privateInfoDirtyTimestamp)
     }
 
-    private fun bindFooter(item: CollectionItemEntity) {
+    private fun bindFooter(item: CollectionItem) {
         binding.lastModifiedView.timestamp = when {
             item.dirtyTimestamp > 0 -> item.dirtyTimestamp
             item.statusDirtyTimestamp > 0 -> item.statusDirtyTimestamp
@@ -332,7 +332,7 @@ class GameCollectionItemFragment : Fragment() {
         }
     }
 
-    private fun getStatusDescription(item: CollectionItemEntity): String {
+    private fun getStatusDescription(item: CollectionItem): String {
         val statusDescriptions = mutableListOf<String>()
         if (item.own) statusDescriptions += getString(R.string.collection_status_own)
         if (item.previouslyOwned) statusDescriptions += getString(R.string.collection_status_prev_owned)
@@ -382,7 +382,7 @@ class GameCollectionItemFragment : Fragment() {
             return view.getTag(R.id.visibility) as? Boolean ?: false
         }
 
-        fun hasPrivateInfo(item: CollectionItemEntity): Boolean {
+        fun hasPrivateInfo(item: CollectionItem): Boolean {
             return item.quantity > 1 ||
                     item.acquisitionDate > 0L ||
                     item.acquiredFrom.isNotEmpty() ||

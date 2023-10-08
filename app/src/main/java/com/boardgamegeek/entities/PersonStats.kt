@@ -14,7 +14,7 @@ class PersonStats(
     val hIndex: HIndex,
 ) {
     companion object {
-        fun fromLinkedCollection(collection: List<CollectionItemEntity>, context: Context): PersonStats {
+        fun fromLinkedCollection(collection: List<CollectionItem>, context: Context): PersonStats {
             val baseGameCollection = collection.filter { it.subtype == GameEntity.Subtype.BOARDGAME }
 
             val whitmoreScore = calculateWhitmoreScore(baseGameCollection)
@@ -41,7 +41,7 @@ class PersonStats(
             )
         }
 
-        private fun calculateWhitmoreScore(games: List<CollectionItemEntity>, neutralRating: Double = 6.5) = games
+        private fun calculateWhitmoreScore(games: List<CollectionItem>, neutralRating: Double = 6.5) = games
             .filter { it.rating > neutralRating }
             .sumOf { (it.rating - neutralRating) * 2.0 }
             .toInt()

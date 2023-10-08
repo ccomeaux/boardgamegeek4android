@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.extensions.DoubleIntervalDelegate
 import java.util.*
 
@@ -48,7 +48,7 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
         else -> String.format(Locale.getDefault(), "%.1f$rangeDelimiter%.1f", min, max)
     }
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         return when {
             item.averageWeight == 0.0 -> includeUndefined
             ignoreRange -> false

@@ -42,7 +42,7 @@ fun SharedPreferences.remove(key: String) {
     edit { remove(key) }
 }
 
-object CollectionView {
+object CollectionViewPrefs {
     const val PREFERENCES_KEY_DEFAULT_ID = "viewDefaultId"
     const val DEFAULT_DEFAULT_ID: Int = -1
 }

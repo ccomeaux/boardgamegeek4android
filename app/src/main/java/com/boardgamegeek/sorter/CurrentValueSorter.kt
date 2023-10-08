@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 
 class CurrentValueSorter(context: Context) : MoneySorter(context) {
     override val ascendingSortTypeResId: Int
@@ -18,7 +18,7 @@ class CurrentValueSorter(context: Context) : MoneySorter(context) {
         @StringRes
         get() = R.string.collection_sort_current_value
 
-    override fun amount(item: CollectionItemEntity) = item.currentValue
+    override fun amount(item: CollectionItem) = item.currentValue
 
-    override fun currency(item: CollectionItemEntity) = item.currentValueCurrency
+    override fun currency(item: CollectionItem) = item.currentValueCurrency
 }

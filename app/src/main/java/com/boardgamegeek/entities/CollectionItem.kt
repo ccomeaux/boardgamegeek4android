@@ -8,7 +8,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 
-data class CollectionItemEntity(
+data class CollectionItem(
     val internalId: Long = BggContract.INVALID_ID.toLong(),
     val gameId: Int = BggContract.INVALID_ID,
     val gameName: String = "",
@@ -156,7 +156,7 @@ data class CollectionItemEntity(
         const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
         const val UNRATED = GameEntity.UNRATED
 
-        fun CollectionItemEntity.filterBySyncedStatues(context: Context): Boolean {
+        fun CollectionItem.filterBySyncedStatues(context: Context): Boolean {
             val syncedStatuses = context.preferences().getSyncStatusesOrDefault()
             return (syncedStatuses.contains(COLLECTION_STATUS_OWN) && own) ||
                     (syncedStatuses.contains(COLLECTION_STATUS_PREVIOUSLY_OWNED) && previouslyOwned) ||

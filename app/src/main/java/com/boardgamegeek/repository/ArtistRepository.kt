@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
+import com.boardgamegeek.entities.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.entities.Person
 import com.boardgamegeek.entities.PersonStats
 import com.boardgamegeek.extensions.*
@@ -13,7 +13,6 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToArtistImages
 import com.boardgamegeek.mappers.mapToArtistBasic
-import com.boardgamegeek.mappers.mapToEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -32,7 +31,7 @@ class ArtistRepository(
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadCollectionForArtist(id, sortBy)
-            .map { it.mapToEntity() }
+            .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
 
@@ -77,7 +76,7 @@ class ArtistRepository(
     }
 
     suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
-        val collection = collectionDao.loadCollectionForArtist(artistId).map { it.mapToEntity() }
+        val collection = collectionDao.loadCollectionForArtist(artistId).map { it.mapToModel() }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) artistDao.loadArtist(artistId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {

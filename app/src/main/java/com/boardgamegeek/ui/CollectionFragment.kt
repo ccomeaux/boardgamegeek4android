@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionBinding
 import com.boardgamegeek.databinding.RowCollectionBinding
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer
@@ -50,7 +50,7 @@ import java.text.NumberFormat
 class CollectionFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
-    private var viewId = CollectionView.DEFAULT_DEFAULT_ID
+    private var viewId = CollectionViewPrefs.DEFAULT_DEFAULT_ID
     private var viewName = ""
     private var sorter: Pair<CollectionSorter, Boolean>? = null
     private val filters = mutableListOf<CollectionFilterer>()
@@ -154,7 +154,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         viewModel.refresh()
     }
 
-    private fun showData(items: List<CollectionItemEntity>) {
+    private fun showData(items: List<CollectionItem>) {
         adapter.items = items
         binding.footerToolbar.menu.apply {
             findItem(R.id.menu_collection_random_game)?.isEnabled = items.isNotEmpty()
@@ -360,7 +360,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     }
 
     inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>(), SectionCallback {
-        var items: List<CollectionItemEntity> = emptyList()
+        var items: List<CollectionItem> = emptyList()
             @SuppressLint("NotifyDataSetChanged")
             set(value) {
                 field = value
@@ -417,7 +417,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         inner class CollectionItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val binding = RowCollectionBinding.bind(itemView)
 
-            fun bindView(item: CollectionItemEntity?, position: Int) {
+            fun bindView(item: CollectionItem?, position: Int) {
                 if (item == null) return
                 binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
                 binding.nameView.text = item.collectionName

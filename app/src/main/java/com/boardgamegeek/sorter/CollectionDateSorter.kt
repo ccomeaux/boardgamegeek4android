@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -14,10 +14,10 @@ abstract class CollectionDateSorter(context: Context) : CollectionSorter(context
         @StringRes
         get() = R.string.text_unknown
 
-    override fun getHeaderText(item: CollectionItemEntity): String {
+    override fun getHeaderText(item: CollectionItem): String {
         val time =  getTimestamp(item)
         return if (time == 0L) context.getString(defaultValueResId) else headerDateFormat.format(time)
     }
 
-    override fun getDisplayInfo(item: CollectionItemEntity) = ""
+    override fun getDisplayInfo(item: CollectionItem) = ""
 }

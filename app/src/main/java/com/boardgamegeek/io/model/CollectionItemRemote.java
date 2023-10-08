@@ -13,7 +13,7 @@ import java.util.List;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "item")
-public class CollectionItem {
+public class CollectionItemRemote {
 	@Attribute private String objecttype; // "thing"
 	@Attribute public int objectid;
 	@Attribute private String subtype; // boardgame, boardgameexpansion, videogame, rpg, rpgitem

@@ -4,8 +4,7 @@ import android.content.Context
 import com.boardgamegeek.db.CategoryDao
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.Category
-import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
-import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.entities.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.mappers.mapToModel
 
 class CategoryRepository(val context: Context) {
@@ -18,7 +17,7 @@ class CategoryRepository(val context: Context) {
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadCollectionForCategory(id, sortBy)
-            .map { it.mapToEntity() }
+            .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
 

@@ -3,12 +3,13 @@ package com.boardgamegeek.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToCollectionItemEntity
-import com.boardgamegeek.mappers.mapToCollectionItemGameEntity
+import com.boardgamegeek.mappers.mapToCollectionItem
+import com.boardgamegeek.mappers.mapToCollectionItemGame
 import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.work.SyncCollectionWorker
@@ -24,10 +25,10 @@ class CollectionItemRepository(
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
-    suspend fun loadAll(): List<CollectionItemEntity> = dao.loadAll()
+    suspend fun loadAll(): List<CollectionItem> = dao.loadAll()
         .filter { (it.second.collectionDeleteTimestamp ?: 0L) == 0L }
         .map {
-            it.second.mapToEntity(it.first.mapToEntity())
+            it.second.mapToModel(it.first.mapToEntity())
         }
 
     suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
@@ -41,9 +42,9 @@ class CollectionItemRepository(
         if (!username.isNullOrBlank()) {
             val response = api.collection(username, options)
             response.items?.forEach {
-                val item = it.mapToCollectionItemEntity()
+                val item = it.mapToCollectionItem()
                 if (isItemStatusSetToSync(item)) {
-                    val game = it.mapToCollectionItemGameEntity(updatedTimestamp)
+                    val game = it.mapToCollectionItemGame(updatedTimestamp)
                     val (collectionId, _) = dao.saveItem(item.mapToEntity(updatedTimestamp), game)
                     if (collectionId != BggContract.INVALID_ID) count++
                 } else {
@@ -58,7 +59,7 @@ class CollectionItemRepository(
 
     suspend fun deleteUnupdatedItems(timestamp: Long) = dao.deleteUnupdatedItems(timestamp)
 
-    private fun isItemStatusSetToSync(item: CollectionItemEntity): Boolean {
+    private fun isItemStatusSetToSync(item: CollectionItem): Boolean {
         val statusesToSync = prefs.getSyncStatusesOrDefault()
         if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true
         if (item.previouslyOwned && COLLECTION_STATUS_PREVIOUSLY_OWNED in statusesToSync) return true

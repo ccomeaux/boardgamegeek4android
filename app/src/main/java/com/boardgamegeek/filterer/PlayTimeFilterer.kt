@@ -3,7 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.extensions.IntervalDelegate
 import com.boardgamegeek.extensions.andLess
 import com.boardgamegeek.extensions.andMore
@@ -47,7 +47,7 @@ class PlayTimeFilterer(context: Context) : CollectionFilterer(context) {
         else -> "${min.asTime()}$delimiter${max.asTime()}"
     }
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         return when {
             item.playingTime == 0 -> includeUndefined
             min == lowerBound -> item.playingTime <= max

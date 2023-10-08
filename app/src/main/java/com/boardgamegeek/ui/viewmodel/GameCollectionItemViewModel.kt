@@ -3,7 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.extensions.getIconColor
 import com.boardgamegeek.extensions.getImageId
@@ -57,7 +57,7 @@ class GameCollectionItemViewModel @Inject constructor(
         _isEditMode.value = false
     }
 
-    val item: LiveData<RefreshableResource<CollectionItemEntity>> = _internalId.switchMap { internalId ->
+    val item: LiveData<RefreshableResource<CollectionItem>> = _internalId.switchMap { internalId ->
         liveData {
             try {
                 latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }

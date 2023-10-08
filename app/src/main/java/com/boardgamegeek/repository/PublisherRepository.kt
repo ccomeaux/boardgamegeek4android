@@ -5,12 +5,11 @@ import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.CollectionItemEntity.Companion.filterBySyncedStatues
+import com.boardgamegeek.entities.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.entities.Company
 import com.boardgamegeek.entities.PersonStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToPublisherBasic
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +30,7 @@ class PublisherRepository(
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
         collectionDao.loadCollectionForPublisher(id, sortBy)
-            .map { it.mapToEntity() }
+            .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
 
@@ -67,7 +66,7 @@ class PublisherRepository(
         }
 
     suspend fun calculateStats(publisherId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
-        val collection = collectionDao.loadCollectionForPublisher(publisherId).map { it.mapToEntity() }
+        val collection = collectionDao.loadCollectionForPublisher(publisherId).map { it.mapToModel() }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) publisherDao.loadPublisher(publisherId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {

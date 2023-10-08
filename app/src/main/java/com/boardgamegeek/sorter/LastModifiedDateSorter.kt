@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 
 class LastModifiedDateSorter(context: Context) : CollectionDateSorter(context) {
     override val ascendingSortTypeResId: Int
@@ -18,9 +18,9 @@ class LastModifiedDateSorter(context: Context) : CollectionDateSorter(context) {
         @StringRes
         get() = R.string.collection_sort_last_modified
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.lastModifiedDate }
+    override fun sortAscending(items: Iterable<CollectionItem>) = items.sortedBy { it.lastModifiedDate }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.lastModifiedDate }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.lastModifiedDate }
 
-    override fun getTimestamp(item: CollectionItemEntity) = item.lastModifiedDate
+    override fun getTimestamp(item: CollectionItem) = item.lastModifiedDate
 }

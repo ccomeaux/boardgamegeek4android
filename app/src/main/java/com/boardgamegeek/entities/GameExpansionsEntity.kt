@@ -19,6 +19,6 @@ data class GameExpansionsEntity(
 ) {
     companion object {
         const val UNRATED = GameEntity.UNRATED
-        const val WISHLIST_PRIORITY_UNKNOWN = CollectionItemEntity.WISHLIST_PRIORITY_UNKNOWN
+        const val WISHLIST_PRIORITY_UNKNOWN = CollectionItem.WISHLIST_PRIORITY_UNKNOWN
     }
 }

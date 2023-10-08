@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 
 class LastPlayDateSorter(context: Context) : CollectionDateSorter(context) {
     override val ascendingSortTypeResId: Int
@@ -20,9 +20,9 @@ class LastPlayDateSorter(context: Context) : CollectionDateSorter(context) {
 
     override val defaultValueResId = R.string.never
 
-    override fun getTimestamp(item: CollectionItemEntity) = item.lastPlayDate
+    override fun getTimestamp(item: CollectionItem) = item.lastPlayDate
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.lastPlayDate }
+    override fun sortAscending(items: Iterable<CollectionItem>) = items.sortedBy { it.lastPlayDate }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.lastPlayDate }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.lastPlayDate }
 }

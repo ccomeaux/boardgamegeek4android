@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 
 class WishlistPrioritySorter(context: Context) : CollectionSorter(context) {
     private val priorityDescriptions = context.resources.getStringArray(R.array.wishlist_priority)
@@ -20,11 +20,11 @@ class WishlistPrioritySorter(context: Context) : CollectionSorter(context) {
         @StringRes
         get() = R.string.collection_sort_wishlist_priority
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.wishListPriority }
+    override fun sortAscending(items: Iterable<CollectionItem>) = items.sortedBy { it.wishListPriority }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.wishListPriority }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.wishListPriority }
 
-    override fun getHeaderText(item: CollectionItemEntity): String {
+    override fun getHeaderText(item: CollectionItem): String {
         return priorityDescriptions.getOrNull(item.wishListPriority) ?: priorityDescriptions[0]
     }
 }

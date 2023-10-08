@@ -3,7 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.GameRankEntity
 import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
@@ -43,7 +43,7 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
         else -> String.format(Locale.getDefault(), "%,d-%,d", min, max)
     }
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         return when {
             item.rank == GameRankEntity.RANK_UNKNOWN -> includeUnranked
             max == upperBound -> item.rank >= min

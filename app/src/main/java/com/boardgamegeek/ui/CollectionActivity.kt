@@ -75,7 +75,7 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
             }
             selectView(
-                if (hideNavigation) CollectionView.DEFAULT_DEFAULT_ID else intent.getIntExtra(KEY_VIEW_ID, viewModel.defaultViewId),
+                if (hideNavigation) CollectionViewPrefs.DEFAULT_DEFAULT_ID else intent.getIntExtra(KEY_VIEW_ID, viewModel.defaultViewId),
                 !hideNavigation
             )
         }

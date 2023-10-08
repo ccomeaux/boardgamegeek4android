@@ -3,7 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 
@@ -57,7 +57,7 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
         return range
     }
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         return when {
             ignoreRange -> false
             max == upperBound -> item.minimumAge >= min

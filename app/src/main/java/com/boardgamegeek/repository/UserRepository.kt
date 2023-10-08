@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.db.UserDao
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.User
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
@@ -38,9 +38,9 @@ class UserRepository(
         userDao.saveUser(user)
     }
 
-    suspend fun refreshCollection(username: String, status: String): List<CollectionItemEntity> =
+    suspend fun refreshCollection(username: String, status: String): List<CollectionItem> =
         withContext(Dispatchers.IO) {
-            val items = mutableListOf<CollectionItemEntity>()
+            val items = mutableListOf<CollectionItem>()
             val response = api.collection(
                 username, mapOf(
                     status to "1",
@@ -48,7 +48,7 @@ class UserRepository(
                 )
             )
             response.items?.forEach {
-                items += it.mapToCollectionItemEntity()
+                items += it.mapToCollectionItem()
             }
             items
         }

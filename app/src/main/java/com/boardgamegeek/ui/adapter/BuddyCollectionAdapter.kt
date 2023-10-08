@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowCollectionBuddyBinding
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GameActivity.Companion.start
@@ -14,7 +14,7 @@ import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import kotlin.properties.Delegates
 
 class BuddyCollectionAdapter : RecyclerView.Adapter<BuddyGameViewHolder>(), AutoUpdatableAdapter, SectionCallback {
-    var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+    var items: List<CollectionItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
         autoNotify(oldValue, newValue) { old, new ->
             old.collectionId == new.collectionId
         }
@@ -33,7 +33,7 @@ class BuddyCollectionAdapter : RecyclerView.Adapter<BuddyGameViewHolder>(), Auto
     inner class BuddyGameViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowCollectionBuddyBinding.bind(itemView)
 
-        fun bind(item: CollectionItemEntity?) {
+        fun bind(item: CollectionItem?) {
             binding.nameView.text = item?.gameName.orEmpty()
             binding.yearView.text = item?.gameId?.toString().orEmpty()
             itemView.setOnClickListener {

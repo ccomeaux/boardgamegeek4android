@@ -91,12 +91,12 @@ class GameRepository @Inject constructor(
     suspend fun getMechanics(gameId: Int) = dao.loadMechanics(gameId).map { it.mapToGameDetailEntity() }
 
     suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId).map { entity ->
-        val items = collectionDao.loadByGame(entity.expansionId).map { it.second.mapToEntity(it.first.mapToEntity()) }
+        val items = collectionDao.loadByGame(entity.expansionId).map { it.second.mapToModel(it.first.mapToEntity()) }
         entity.mapToEntity(items)
     }
 
     suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true).map { entity ->
-        val items = collectionDao.loadByGame(entity.expansionId).map { it.second.mapToEntity(it.first.mapToEntity()) }
+        val items = collectionDao.loadByGame(entity.expansionId).map { it.second.mapToModel(it.first.mapToEntity()) }
         entity.mapToEntity(items)
     }
 

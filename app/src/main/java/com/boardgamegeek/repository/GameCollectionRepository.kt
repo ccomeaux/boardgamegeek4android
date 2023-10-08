@@ -32,12 +32,12 @@ class GameCollectionRepository(
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
     suspend fun loadCollectionItem(internalId: Long) =
-        collectionDao.load(internalId)?.map { it.mapToEntity() }?.firstOrNull()
+        collectionDao.load(internalId)?.map { it.mapToModel() }?.firstOrNull()
 
     suspend fun loadCollectionItems(gameId: Int) =
-        collectionDao.loadByGame(gameId).map { it.mapToEntity() }
+        collectionDao.loadByGame(gameId).map { it.mapToModel() }
 
-    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: GameEntity.Subtype?): CollectionItemEntity? =
+    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: GameEntity.Subtype?): CollectionItem? =
         withContext(Dispatchers.IO) {
             if ((gameId != INVALID_ID || collectionId != INVALID_ID) && !username.isNullOrBlank()) {
                 val timestamp = System.currentTimeMillis()
@@ -53,10 +53,10 @@ class GameCollectionRepository(
                 val response = api.collection(username, options)
 
                 val collectionIds = mutableListOf<Int>()
-                var entity: CollectionItemEntity? = null
+                var entity: CollectionItem? = null
                 response.items?.forEach { collectionItem ->
-                    val item = collectionItem.mapToCollectionItemEntity()
-                    val game = collectionItem.mapToCollectionItemGameEntity(timestamp)
+                    val item = collectionItem.mapToCollectionItem()
+                    val game = collectionItem.mapToCollectionItemGame(timestamp)
                     val (id, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
                     collectionIds += id
                     if (item.collectionId == collectionId) {
@@ -68,7 +68,7 @@ class GameCollectionRepository(
             } else null
         }
 
-    suspend fun refreshHeroImage(item: CollectionItemEntity): CollectionItemEntity = withContext(Dispatchers.IO) {
+    suspend fun refreshHeroImage(item: CollectionItem): CollectionItem = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.getImageUrls(item.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         urls?.firstOrNull()?.let {
@@ -77,10 +77,10 @@ class GameCollectionRepository(
         } ?: item
     }
 
-    suspend fun refreshCollectionItems(gameId: Int, subtype: GameEntity.Subtype? = null): List<CollectionItemEntity>? = withContext(Dispatchers.IO) {
+    suspend fun refreshCollectionItems(gameId: Int, subtype: GameEntity.Subtype? = null): List<CollectionItem>? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
-            val list = mutableListOf<CollectionItemEntity>()
+            val list = mutableListOf<CollectionItem>()
             val collectionIds = arrayListOf<Int>()
 
             val options = mutableMapOf(
@@ -91,8 +91,8 @@ class GameCollectionRepository(
             options.addSubtype(subtype)
             val response = api.collection(username, options)
             response.items?.forEach { collectionItem ->
-                val item = collectionItem.mapToCollectionItemEntity()
-                val game = collectionItem.mapToCollectionItemGameEntity(timestamp)
+                val item = collectionItem.mapToCollectionItem()
+                val game = collectionItem.mapToCollectionItemGame(timestamp)
                 val (collectionId, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
                 list += item.copy(internalId = internalId, syncTimestamp = timestamp)
                 collectionIds += collectionId
@@ -109,8 +109,8 @@ class GameCollectionRepository(
                 playedOptions.addSubtype(subtype)
                 val playedResponse = api.collection(username, playedOptions)
                 playedResponse.items?.forEach { collectionItem ->
-                    val item = collectionItem.mapToCollectionItemEntity()
-                    val game = collectionItem.mapToCollectionItemGameEntity(timestamp)
+                    val item = collectionItem.mapToCollectionItem()
+                    val game = collectionItem.mapToCollectionItemGame(timestamp)
                     val (collectionId, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
                     list += item.copy(internalId = internalId, syncTimestamp = timestamp)
                     collectionIds += collectionId
@@ -140,13 +140,13 @@ class GameCollectionRepository(
 
     suspend fun loadInventoryLocation() = collectionDao.loadInventoryLocation()
 
-    suspend fun loadItemsPendingDeletion() = collectionDao.loadItemsPendingDeletion().map { it.mapToEntity() }
+    suspend fun loadItemsPendingDeletion() = collectionDao.loadItemsPendingDeletion().map { it.mapToModel() }
 
-    suspend fun loadItemsPendingInsert() = collectionDao.loadItemsPendingInsert().map { it.mapToEntity() }
+    suspend fun loadItemsPendingInsert() = collectionDao.loadItemsPendingInsert().map { it.mapToModel() }
 
-    suspend fun loadItemsPendingUpdate() = collectionDao.loadItemsPendingUpdate().map { it.mapToEntity() }
+    suspend fun loadItemsPendingUpdate() = collectionDao.loadItemsPendingUpdate().map { it.mapToModel() }
 
-    suspend fun uploadDeletedItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
+    suspend fun uploadDeletedItem(item: CollectionItem): Result<CollectionItemUploadResult> {
         val response = phpApi.collection(item.mapToFormBodyForDeletion())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
@@ -159,7 +159,7 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun uploadNewItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
+    suspend fun uploadNewItem(item: CollectionItem): Result<CollectionItemUploadResult> {
         val response = phpApi.collection(item.mapToFormBodyForInsert())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
@@ -175,7 +175,7 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun uploadUpdatedItem(item: CollectionItemEntity): Result<CollectionItemUploadResult> {
+    suspend fun uploadUpdatedItem(item: CollectionItem): Result<CollectionItemUploadResult> {
         val statusResult =
             updateItemField(
                 item.statusDirtyTimestamp,
@@ -243,8 +243,8 @@ class GameCollectionRepository(
     private suspend fun updateItemField(
         timestamp: Long,
         formBody: FormBody,
-        item: CollectionItemEntity,
-        clearTimestamp: suspend (CollectionItemEntity) -> Int
+        item: CollectionItem,
+        clearTimestamp: suspend (CollectionItem) -> Int
     ): Result<CollectionItemUploadResult> {
         return if (timestamp > 0L) {
             val response = phpApi.collection(formBody)

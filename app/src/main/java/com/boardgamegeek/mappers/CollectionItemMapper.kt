@@ -4,26 +4,26 @@ import android.graphics.Color
 import com.boardgamegeek.db.model.CollectionItemGameEntity
 import com.boardgamegeek.db.model.CollectionItemLocal
 import com.boardgamegeek.db.model.GameLocal
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
-import com.boardgamegeek.io.model.CollectionItem
+import com.boardgamegeek.io.model.CollectionItemRemote
 import com.boardgamegeek.provider.BggContract
 import okhttp3.FormBody
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun CollectionItem.mapToCollectionItemEntity() = CollectionItemEntity(
+fun CollectionItemRemote.mapToCollectionItem() = CollectionItem(
     gameId = objectid,
     gameName = if (originalname.isNullOrBlank()) name else originalname,
     collectionId = collid.toIntOrNull() ?: BggContract.INVALID_ID,
     collectionName = name,
     sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
-    gameYearPublished = yearpublished?.toIntOrNull() ?: CollectionItemEntity.YEAR_UNKNOWN,
-    collectionYearPublished = yearpublished?.toIntOrNull() ?: CollectionItemEntity.YEAR_UNKNOWN,
+    gameYearPublished = yearpublished?.toIntOrNull() ?: CollectionItem.YEAR_UNKNOWN,
+    collectionYearPublished = yearpublished?.toIntOrNull() ?: CollectionItem.YEAR_UNKNOWN,
     imageUrl = image.orEmpty(),
     thumbnailUrl = thumbnail.orEmpty(),
     rating = stats?.rating?.toDoubleOrNull() ?: 0.0,
@@ -54,7 +54,7 @@ fun CollectionItem.mapToCollectionItemEntity() = CollectionItemEntity(
     inventoryLocation = inventorylocation.orEmpty()
 )
 
-fun CollectionItem.mapToCollectionItemGameEntity(updatedTimestamp: Long) = CollectionItemGameEntity(
+fun CollectionItemRemote.mapToCollectionItemGame(updatedTimestamp: Long) = CollectionItemGameEntity(
     gameId = objectid,
     gameName = if (originalname.isNullOrBlank()) name else originalname,
     sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
@@ -77,7 +77,7 @@ fun CollectionItem.mapToCollectionItemGameEntity(updatedTimestamp: Long) = Colle
     updatedListTimestamp = updatedTimestamp,
 )
 
-fun CollectionItemEntity.mapToEntity(updatedTimestamp: Long) = CollectionItemLocal(
+fun CollectionItem.mapToEntity(updatedTimestamp: Long) = CollectionItemLocal(
     internalId = internalId,
     updatedTimestamp = updatedTimestamp,
     updatedListTimestamp = updatedTimestamp,
@@ -126,21 +126,21 @@ fun CollectionItemEntity.mapToEntity(updatedTimestamp: Long) = CollectionItemLoc
     hasPartsDirtyTimestamp = hasPartsDirtyTimestamp,
 )
 
-fun CollectionItemEntity.mapToFormBodyForDeletion(): FormBody {
+fun CollectionItem.mapToFormBodyForDeletion(): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "delete")
         .build()
 }
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemEntity.mapToFormBodyForInsert(): FormBody {
+fun CollectionItem.mapToFormBodyForInsert(): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "additem")
         .build()
 }
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemEntity.mapToFormBodyForStatusUpdate(): FormBody {
+fun CollectionItem.mapToFormBodyForStatusUpdate(): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "savedata")
         .add("fieldname", "status")
@@ -157,7 +157,7 @@ fun CollectionItemEntity.mapToFormBodyForStatusUpdate(): FormBody {
 }
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemEntity.mapToFormBodyForRatingUpdate(): FormBody {
+fun CollectionItem.mapToFormBodyForRatingUpdate(): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "savedata")
         .add("fieldname", "rating")
@@ -166,7 +166,7 @@ fun CollectionItemEntity.mapToFormBodyForRatingUpdate(): FormBody {
 }
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemEntity.mapToFormBodyForPrivateInfoUpdate(): FormBody {
+fun CollectionItem.mapToFormBodyForPrivateInfoUpdate(): FormBody {
     fun Double.formatCurrency(currencyFormat: DecimalFormat = DecimalFormat("0.00")): String {
         return if (this == 0.0) "" else currencyFormat.format(this)
     }
@@ -186,22 +186,22 @@ fun CollectionItemEntity.mapToFormBodyForPrivateInfoUpdate(): FormBody {
         .build()
 }
 
-fun CollectionItemEntity.mapToFormBodyForCommentUpdate() = mapToFormBodyForTextUpdate("comment", comment)
+fun CollectionItem.mapToFormBodyForCommentUpdate() = mapToFormBodyForTextUpdate("comment", comment)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemEntity.mapToFormBodyForWishlistCommentUpdate() = mapToFormBodyForTextUpdate("wishlistcomment", wishListComment)
+fun CollectionItem.mapToFormBodyForWishlistCommentUpdate() = mapToFormBodyForTextUpdate("wishlistcomment", wishListComment)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemEntity.mapToFormBodyForTradeConditionUpdate() = mapToFormBodyForTextUpdate("conditiontext", conditionText)
+fun CollectionItem.mapToFormBodyForTradeConditionUpdate() = mapToFormBodyForTextUpdate("conditiontext", conditionText)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemEntity.mapToFormBodyForWantPartsUpdate() = mapToFormBodyForTextUpdate("wantpartslist", wantPartsList)
+fun CollectionItem.mapToFormBodyForWantPartsUpdate() = mapToFormBodyForTextUpdate("wantpartslist", wantPartsList)
 
 @Suppress("SpellCheckingInspection")
-fun CollectionItemEntity.mapToFormBodyForHasPartsUpdate() = mapToFormBodyForTextUpdate("haspartslist", hasPartsList)
+fun CollectionItem.mapToFormBodyForHasPartsUpdate() = mapToFormBodyForTextUpdate("haspartslist", hasPartsList)
 
 @Suppress("SpellCheckingInspection")
-private fun CollectionItemEntity.mapToFormBodyForTextUpdate(fieldName: String, value: String): FormBody {
+private fun CollectionItem.mapToFormBodyForTextUpdate(fieldName: String, value: String): FormBody {
     return mapToFormBodyBuilder()
         .add("action", "savedata")
         .add("fieldname", fieldName)
@@ -210,7 +210,7 @@ private fun CollectionItemEntity.mapToFormBodyForTextUpdate(fieldName: String, v
 }
 
 @Suppress("SpellCheckingInspection")
-private fun CollectionItemEntity.mapToFormBodyBuilder(): FormBody.Builder {
+private fun CollectionItem.mapToFormBodyBuilder(): FormBody.Builder {
     val builder = FormBody.Builder()
         .add("ajax", "1")
         .add("objecttype", "thing")
@@ -219,23 +219,23 @@ private fun CollectionItemEntity.mapToFormBodyBuilder(): FormBody.Builder {
     return builder
 }
 
-fun CollectionItemLocal.mapToEntity(gameEntity: GameEntity?) = CollectionItemEntity(
+fun CollectionItemLocal.mapToModel(gameEntity: GameEntity?) = CollectionItem(
     internalId = internalId,
     gameId = gameId,
     gameName = gameEntity?.name.orEmpty(),
     collectionId = collectionId,
     collectionName = collectionName,
     sortName = collectionSortName,
-    gameYearPublished = gameEntity?.yearPublished ?: CollectionItemEntity.YEAR_UNKNOWN,
-    collectionYearPublished = collectionYearPublished ?: CollectionItemEntity.YEAR_UNKNOWN,
+    gameYearPublished = gameEntity?.yearPublished ?: CollectionItem.YEAR_UNKNOWN,
+    collectionYearPublished = collectionYearPublished ?: CollectionItem.YEAR_UNKNOWN,
     imageUrl = collectionImageUrl.orEmpty(),
     thumbnailUrl = collectionThumbnailUrl.orEmpty(),
     heroImageUrl = collectionHeroImageUrl.orEmpty(),
     gameImageUrl = gameEntity?.imageUrl.orEmpty(),
     gameThumbnailUrl = gameEntity?.thumbnailUrl.orEmpty(),
     gameHeroImageUrl = gameEntity?.heroImageUrl.orEmpty(),
-    averageRating = gameEntity?.rating ?: CollectionItemEntity.UNRATED,
-    rating = rating ?: CollectionItemEntity.UNRATED,
+    averageRating = gameEntity?.rating ?: CollectionItem.UNRATED,
+    rating = rating ?: CollectionItem.UNRATED,
     own = statusOwn == 1,
     previouslyOwned = statusPreviouslyOwned == 1,
     forTrade = statusForTrade == 1,
@@ -243,7 +243,7 @@ fun CollectionItemLocal.mapToEntity(gameEntity: GameEntity?) = CollectionItemEnt
     wantToPlay = statusWantToPlay == 1,
     wantToBuy = statusWantToBuy == 1,
     wishList = statusWishlist == 1,
-    wishListPriority = statusWishlistPriority ?: CollectionItemEntity.WISHLIST_PRIORITY_UNKNOWN,
+    wishListPriority = statusWishlistPriority ?: CollectionItem.WISHLIST_PRIORITY_UNKNOWN,
     preOrdered = statusPreordered == 1,
     lastModifiedDate = lastModified ?: 0L,
     lastViewedDate = gameEntity?.lastViewedTimestamp ?: 0L,
@@ -278,8 +278,8 @@ fun CollectionItemLocal.mapToEntity(gameEntity: GameEntity?) = CollectionItemEnt
     allPlaysColor = gameEntity?.allPlaysColor ?: Color.TRANSPARENT,
     playingTime = gameEntity?.playingTime ?: 0,
     minimumAge = gameEntity?.minimumAge ?: 0,
-    rank = gameEntity?.overallRank ?: CollectionItemEntity.RANK_UNKNOWN,
-    geekRating = gameEntity?.bayesAverage ?: CollectionItemEntity.UNRATED,
+    rank = gameEntity?.overallRank ?: CollectionItem.RANK_UNKNOWN,
+    geekRating = gameEntity?.bayesAverage ?: CollectionItem.UNRATED,
     averageWeight = gameEntity?.averageWeight ?: 0.0,
     isFavorite = gameEntity?.isFavorite ?: false,
     lastPlayDate = gameEntity?.lastPlayTimestamp ?: 0L,
@@ -295,4 +295,4 @@ fun CollectionItemLocal.mapToEntity(gameEntity: GameEntity?) = CollectionItemEnt
     standardDeviation = gameEntity?.standardDeviation ?: 0.0,
 )
 
-fun Pair<GameLocal, CollectionItemLocal>.mapToEntity() = second.mapToEntity(first.mapToEntity())
+fun Pair<GameLocal, CollectionItemLocal>.mapToModel() = second.mapToModel(first.mapToEntity())

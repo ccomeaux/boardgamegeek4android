@@ -2,7 +2,7 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import androidx.annotation.StringRes
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 
 abstract class CollectionSorter(protected val context: Context) {
     @get:StringRes
@@ -25,22 +25,22 @@ abstract class CollectionSorter(protected val context: Context) {
 
     fun getType(direction: Boolean) = if (direction) descendingSortType else ascendingSortType
 
-    open fun sortAscending(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> = items.toList()
+    open fun sortAscending(items: Iterable<CollectionItem>): List<CollectionItem> = items.toList()
 
-    open fun sortDescending(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> = sortAscending(items).reversed()
+    open fun sortDescending(items: Iterable<CollectionItem>): List<CollectionItem> = sortAscending(items).reversed()
 
-    fun sort(items: Iterable<CollectionItemEntity>, direction: Boolean) = if (direction) sortDescending(items) else sortAscending(items)
+    fun sort(items: Iterable<CollectionItem>, direction: Boolean) = if (direction) sortDescending(items) else sortAscending(items)
 
-    open fun getHeaderText(item: CollectionItemEntity): String = ""
+    open fun getHeaderText(item: CollectionItem): String = ""
 
     /**
      * Gets the detail text to display on each row.
      */
-    open fun getDisplayInfo(item: CollectionItemEntity) = getHeaderText(item)
+    open fun getDisplayInfo(item: CollectionItem) = getHeaderText(item)
 
-    open fun getRating(item: CollectionItemEntity): Double = 0.0
+    open fun getRating(item: CollectionItem): Double = 0.0
 
-    open fun getRatingText(item: CollectionItemEntity) = ""
+    open fun getRatingText(item: CollectionItem) = ""
 
-    open fun getTimestamp(item: CollectionItemEntity) = 0L
+    open fun getTimestamp(item: CollectionItem) = 0L
 }

@@ -8,15 +8,15 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowCollectionBinding
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.GameActivity
 
 class LinkedCollectionAdapter :
-    ListAdapter<CollectionItemEntity, LinkedCollectionAdapter.DetailViewHolder>(
-        object : DiffUtil.ItemCallback<CollectionItemEntity>() {
-            override fun areItemsTheSame(oldItem: CollectionItemEntity, newItem: CollectionItemEntity) = oldItem.gameId == newItem.gameId
-            override fun areContentsTheSame(oldItem: CollectionItemEntity, newItem: CollectionItemEntity) = oldItem == newItem
+    ListAdapter<CollectionItem, LinkedCollectionAdapter.DetailViewHolder>(
+        object : DiffUtil.ItemCallback<CollectionItem>() {
+            override fun areItemsTheSame(oldItem: CollectionItem, newItem: CollectionItem) = oldItem.gameId == newItem.gameId
+            override fun areContentsTheSame(oldItem: CollectionItem, newItem: CollectionItem) = oldItem == newItem
         }
     ) {
 
@@ -24,7 +24,7 @@ class LinkedCollectionAdapter :
         setHasStableIds(true)
     }
 
-    var items: List<CollectionItemEntity>
+    var items: List<CollectionItem>
         get() = currentList
         set(value) {
             submitList(value)
@@ -43,21 +43,21 @@ class LinkedCollectionAdapter :
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowCollectionBinding.bind(itemView)
 
-        fun bind(gameDetail: CollectionItemEntity?) {
-            gameDetail?.let { entity ->
-                binding.nameView.text = entity.collectionName.ifBlank { entity.gameName }
-                binding.yearView.text = entity.yearPublished.asYear(itemView.context)
-                binding.thumbnailView.loadThumbnail(entity.thumbnailUrl.ifBlank { entity.gameThumbnailUrl })
-                binding.favoriteView.isVisible = entity.isFavorite
-                binding.ratingView.text = entity.rating.asPersonalRating(itemView.context)
-                binding.ratingView.setTextViewBackground(entity.rating.toColor(BggColors.ratingColors))
-                itemView.setOnClickListener {
+        fun bind(collectionItem: CollectionItem?) {
+            collectionItem?.let {
+                binding.nameView.text = it.collectionName.ifBlank { it.gameName }
+                binding.yearView.text = it.yearPublished.asYear(itemView.context)
+                binding.thumbnailView.loadThumbnail(it.thumbnailUrl.ifBlank { it.gameThumbnailUrl })
+                binding.favoriteView.isVisible = it.isFavorite
+                binding.ratingView.text = it.rating.asPersonalRating(itemView.context)
+                binding.ratingView.setTextViewBackground(it.rating.toColor(BggColors.ratingColors))
+                itemView.setOnClickListener { _ ->
                     GameActivity.start(
                         itemView.context,
-                        entity.gameId,
-                        entity.gameName,
-                        entity.gameThumbnailUrl,
-                        entity.gameHeroImageUrl
+                        it.gameId,
+                        it.gameName,
+                        it.gameThumbnailUrl,
+                        it.gameHeroImageUrl
                     )
                 }
             }

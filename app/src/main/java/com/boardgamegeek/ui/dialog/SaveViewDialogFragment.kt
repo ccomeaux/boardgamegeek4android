@@ -11,7 +11,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogSaveViewBinding
-import com.boardgamegeek.extensions.CollectionView
+import com.boardgamegeek.extensions.CollectionViewPrefs
 import com.boardgamegeek.extensions.createThemedBuilder
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
@@ -84,7 +84,7 @@ class SaveViewDialogFragment : DialogFragment() {
         val viewModel = ViewModelProvider(requireActivity())[CollectionViewViewModel::class.java]
         binding.nameView.setAndSelectExistingText(name)
         binding.defaultViewCheckBox.isChecked =
-            viewModel.defaultViewId != CollectionView.DEFAULT_DEFAULT_ID && viewModel.findViewId(name) == viewModel.defaultViewId
+            viewModel.defaultViewId != CollectionViewPrefs.DEFAULT_DEFAULT_ID && viewModel.findViewId(name) == viewModel.defaultViewId
         binding.descriptionView.text = description
     }
 

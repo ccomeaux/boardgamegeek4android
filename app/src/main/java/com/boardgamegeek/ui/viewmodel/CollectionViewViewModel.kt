@@ -8,12 +8,11 @@ import androidx.lifecycle.*
 import androidx.work.WorkManager
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.CollectionView
 import com.boardgamegeek.entities.CollectionViewFilter
 import com.boardgamegeek.entities.PlayUploadResult
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.extensions.CollectionView.DEFAULT_DEFAULT_ID
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.livedata.Event
@@ -45,7 +44,7 @@ class CollectionViewViewModel @Inject constructor(
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
     val defaultViewId
-        get() = prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID, DEFAULT_DEFAULT_ID] ?: DEFAULT_DEFAULT_ID
+        get() = prefs[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID, CollectionViewPrefs.DEFAULT_DEFAULT_ID] ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID
 
     private val collectionFiltererFactory: CollectionFiltererFactory by lazy { CollectionFiltererFactory(application) }
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
@@ -64,11 +63,11 @@ class CollectionViewViewModel @Inject constructor(
     val effectiveFilters: LiveData<List<CollectionFilterer>>
         get() = _effectiveFilters
 
-    private val _items = MediatorLiveData<List<CollectionItemEntity>>()
-    val items: LiveData<List<CollectionItemEntity>>
+    private val _items = MediatorLiveData<List<CollectionItem>>()
+    val items: LiveData<List<CollectionItem>>
         get() = _items
 
-    private val _allItems: LiveData<List<CollectionItemEntity>> = syncTimestamp.switchMap {
+    private val _allItems: LiveData<List<CollectionItem>> = syncTimestamp.switchMap {
         liveData {
             try {
                 emit(itemRepository.loadAll())
@@ -285,14 +284,14 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     private fun filterAndSortItems(
-        itemList: List<CollectionItemEntity>? = _allItems.value,
+        itemList: List<CollectionItem>? = _allItems.value,
         filters: List<CollectionFilterer> = effectiveFilters.value.orEmpty(),
         sortType: Int = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
     ) {
         if (itemList == null) return
         viewModelScope.launch(Dispatchers.Default) {
             var list = itemList.asSequence()
-            if (_selectedViewId.value == DEFAULT_DEFAULT_ID && filters.none { it.type == CollectionFiltererFactory.TYPE_STATUS }) {
+            if (_selectedViewId.value == CollectionViewPrefs.DEFAULT_DEFAULT_ID && filters.none { it.type == CollectionFiltererFactory.TYPE_STATUS }) {
                 list = list.filter {
                     (prefs.isStatusSetToSync(COLLECTION_STATUS_OWN) && it.own) ||
                             (prefs.isStatusSetToSync(COLLECTION_STATUS_PREVIOUSLY_OWNED) && it.previouslyOwned) ||
@@ -407,9 +406,9 @@ class CollectionViewViewModel @Inject constructor(
 
     private fun setOrRemoveDefault(viewId: Int, isDefault: Boolean) {
         if (isDefault) {
-            prefs[CollectionView.PREFERENCES_KEY_DEFAULT_ID] = viewId
+            prefs[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID] = viewId
         } else if (viewId == defaultViewId) {
-            prefs.remove(CollectionView.PREFERENCES_KEY_DEFAULT_ID)
+            prefs.remove(CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID)
         }
     }
 

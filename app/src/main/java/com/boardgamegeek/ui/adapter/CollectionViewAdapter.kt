@@ -4,19 +4,19 @@ import android.content.Context
 import android.widget.ArrayAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionView
-import com.boardgamegeek.extensions.CollectionView
+import com.boardgamegeek.extensions.CollectionViewPrefs
 
 class CollectionViewAdapter(context: Context) :
-    ArrayAdapter<com.boardgamegeek.entities.CollectionView>(context, R.layout.actionbar_spinner_item, mutableListOf<com.boardgamegeek.entities.CollectionView>()) {
+    ArrayAdapter<CollectionView>(context, R.layout.actionbar_spinner_item, mutableListOf<CollectionView>()) {
     init {
         setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
     }
 
     override fun getItemId(position: Int): Long {
         return when {
-            position < 0 -> CollectionView.DEFAULT_DEFAULT_ID
-            position >= count -> CollectionView.DEFAULT_DEFAULT_ID
-            else -> super.getItem(position)?.id ?: CollectionView.DEFAULT_DEFAULT_ID
+            position < 0 -> CollectionViewPrefs.DEFAULT_DEFAULT_ID
+            position >= count -> CollectionViewPrefs.DEFAULT_DEFAULT_ID
+            else -> super.getItem(position)?.id ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID
         }.toLong()
     }
 

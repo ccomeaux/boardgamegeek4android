@@ -7,7 +7,7 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.entities.CollectionItemUploadResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
@@ -45,7 +45,7 @@ class CollectionUploadWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun processList(items: List<CollectionItemEntity>, resId: Int, process: suspend (item: CollectionItemEntity) -> kotlin.Result<CollectionItemUploadResult>) {
+    private suspend fun processList(items: List<CollectionItem>, resId: Int, process: suspend (item: CollectionItem) -> kotlin.Result<CollectionItemUploadResult>) {
         val list = if (requestedGameId == BggContract.INVALID_ID) items else items.filter { it.gameId == requestedGameId }
         val count = list.size
         val detail = applicationContext.resources.getQuantityString(resId, count, count)

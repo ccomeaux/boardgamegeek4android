@@ -9,7 +9,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.WidgetCollectionRowBinding
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.entities.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity
@@ -19,12 +19,12 @@ import kotlin.properties.Delegates
 class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
     private val xmlConverter by lazy { XmlApiMarkupConverter(context) }
 
-    var gameYearPublished: Int by Delegates.observable(CollectionItemEntity.YEAR_UNKNOWN) { _, oldValue, newValue ->
+    var gameYearPublished: Int by Delegates.observable(CollectionItem.YEAR_UNKNOWN) { _, oldValue, newValue ->
         @SuppressLint("NotifyDataSetChanged")
         if (oldValue != newValue) notifyDataSetChanged()
     }
 
-    var items: List<CollectionItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+    var items: List<CollectionItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
         autoNotify(oldValue, newValue) { old, new ->
             old.collectionId == new.collectionId
         }
@@ -43,7 +43,7 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
     class ViewHolder(itemView: View, private val markupConverter: XmlApiMarkupConverter) : RecyclerView.ViewHolder(itemView) {
         private val binding = WidgetCollectionRowBinding.bind(itemView)
 
-        fun bind(item: CollectionItemEntity?, gameYearPublished: Int) {
+        fun bind(item: CollectionItem?, gameYearPublished: Int) {
             if (item == null) return
             binding.thumbnail.loadThumbnail(item.thumbnailUrl)
             binding.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
@@ -52,9 +52,9 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
             binding.comment.isVisible = item.comment.isNotBlank()
 
             val description = if (item.collectionName.isNotBlank() && item.collectionName != item.gameName ||
-                item.collectionYearPublished != CollectionItemEntity.YEAR_UNKNOWN && item.collectionYearPublished != gameYearPublished
+                item.collectionYearPublished != CollectionItem.YEAR_UNKNOWN && item.collectionYearPublished != gameYearPublished
             ) {
-                if (item.collectionYearPublished == CollectionItemEntity.YEAR_UNKNOWN) {
+                if (item.collectionYearPublished == CollectionItem.YEAR_UNKNOWN) {
                     item.collectionName
                 } else {
                     "${item.collectionName} (${item.collectionYearPublished.asYear(itemView.context)})"
@@ -98,7 +98,7 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
             }
         }
 
-        private fun describeStatuses(item: CollectionItemEntity, ctx: Context): List<String> {
+        private fun describeStatuses(item: CollectionItem, ctx: Context): List<String> {
             val statuses = mutableListOf<String>()
             if (item.own) statuses.add(ctx.getString(R.string.collection_status_own))
             if (item.previouslyOwned) statuses.add(ctx.getString(R.string.collection_status_prev_owned))
