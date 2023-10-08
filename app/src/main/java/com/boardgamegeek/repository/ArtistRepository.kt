@@ -5,9 +5,9 @@ import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.CollectionItem.Companion.filterBySyncedStatues
-import com.boardgamegeek.entities.Person
-import com.boardgamegeek.entities.PersonStats
+import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
+import com.boardgamegeek.model.Person
+import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToModel

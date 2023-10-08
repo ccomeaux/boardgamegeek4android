@@ -6,8 +6,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowThreadArticleBinding
-import com.boardgamegeek.entities.Article
-import com.boardgamegeek.entities.Forum
+import com.boardgamegeek.model.Article
+import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.provider.BggContract

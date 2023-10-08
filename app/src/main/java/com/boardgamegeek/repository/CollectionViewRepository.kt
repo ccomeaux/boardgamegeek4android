@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.core.content.pm.ShortcutManagerCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
-import com.boardgamegeek.entities.CollectionView
+import com.boardgamegeek.model.CollectionView
 import com.boardgamegeek.extensions.CollectionViewPrefs
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToLocal

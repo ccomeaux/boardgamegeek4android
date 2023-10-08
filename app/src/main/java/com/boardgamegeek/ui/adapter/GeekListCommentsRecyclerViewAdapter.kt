@@ -6,7 +6,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowGeeklistCommentBinding
-import com.boardgamegeek.entities.GeekListComment
+import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.util.XmlApiMarkupConverter

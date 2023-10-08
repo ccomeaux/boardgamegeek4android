@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.os.bundleOf
 import com.boardgamegeek.auth.BggCookieJar
-import com.boardgamegeek.entities.AuthToken
+import com.boardgamegeek.model.AuthToken
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.analytics.FirebaseAnalytics

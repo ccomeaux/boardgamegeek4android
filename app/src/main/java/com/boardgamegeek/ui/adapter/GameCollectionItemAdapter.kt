@@ -9,7 +9,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.WidgetCollectionRowBinding
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity

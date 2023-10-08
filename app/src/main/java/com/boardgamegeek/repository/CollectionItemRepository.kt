@@ -3,7 +3,7 @@ package com.boardgamegeek.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToCollectionItem

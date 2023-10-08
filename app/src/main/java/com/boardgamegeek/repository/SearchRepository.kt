@@ -1,6 +1,6 @@
 package com.boardgamegeek.repository
 
-import com.boardgamegeek.entities.SearchResult
+import com.boardgamegeek.model.SearchResult
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToModel
 import kotlinx.coroutines.Dispatchers

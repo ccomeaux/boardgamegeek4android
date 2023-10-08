@@ -4,8 +4,8 @@ import android.graphics.Color
 import com.boardgamegeek.db.model.CollectionItemGame
 import com.boardgamegeek.db.model.CollectionItemLocal
 import com.boardgamegeek.db.model.GameLocal
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.Game
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis

@@ -7,8 +7,8 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.CollectionItemUploadResult
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionItemUploadResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository

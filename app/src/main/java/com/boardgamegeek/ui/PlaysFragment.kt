@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlaysBinding
 import com.boardgamegeek.databinding.RowPlayBinding
-import com.boardgamegeek.entities.Play
+import com.boardgamegeek.model.Play
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel

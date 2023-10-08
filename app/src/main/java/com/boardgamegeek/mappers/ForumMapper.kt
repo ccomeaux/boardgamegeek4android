@@ -1,6 +1,6 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.*
 import com.boardgamegeek.util.ForumXmlApiMarkupConverter

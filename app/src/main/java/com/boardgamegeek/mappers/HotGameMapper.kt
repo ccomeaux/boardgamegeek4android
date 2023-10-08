@@ -1,6 +1,6 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.entities.HotGame
+import com.boardgamegeek.model.HotGame
 import com.boardgamegeek.io.model.HotGameRemote
 
 fun HotGameRemote.mapToModel() = HotGame(

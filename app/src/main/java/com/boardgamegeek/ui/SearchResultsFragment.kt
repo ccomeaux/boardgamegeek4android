@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.FragmentSearchResultsBinding
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.Callback

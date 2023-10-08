@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.core.widget.TextViewCompat
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.GameRank
+import com.boardgamegeek.model.GameRank
 import com.boardgamegeek.extensions.*
 import java.text.DecimalFormat
 

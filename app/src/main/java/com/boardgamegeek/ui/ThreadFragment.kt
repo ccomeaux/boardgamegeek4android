@@ -11,8 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentThreadBinding
-import com.boardgamegeek.entities.Forum
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.getSerializableCompat

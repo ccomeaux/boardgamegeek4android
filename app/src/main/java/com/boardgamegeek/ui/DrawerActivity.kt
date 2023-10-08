@@ -16,7 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.ActivityDrawerBaseBinding
-import com.boardgamegeek.entities.User
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel

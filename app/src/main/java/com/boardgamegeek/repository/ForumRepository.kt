@@ -2,8 +2,8 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Forum
-import com.boardgamegeek.entities.ForumThreads
+import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.ForumThreads
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.util.ForumXmlApiMarkupConverter

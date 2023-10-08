@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.TopGame
+import com.boardgamegeek.model.RefreshableResource
+import com.boardgamegeek.model.TopGame
 import com.boardgamegeek.repository.TopGameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

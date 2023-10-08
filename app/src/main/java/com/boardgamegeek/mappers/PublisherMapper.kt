@@ -3,8 +3,8 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.db.model.PublisherBasic
 import com.boardgamegeek.db.model.PublisherBrief
 import com.boardgamegeek.db.model.PublisherLocal
-import com.boardgamegeek.entities.Company
-import com.boardgamegeek.entities.GameDetail
+import com.boardgamegeek.model.Company
+import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.io.model.CompanyItem
 import com.boardgamegeek.provider.BggContract

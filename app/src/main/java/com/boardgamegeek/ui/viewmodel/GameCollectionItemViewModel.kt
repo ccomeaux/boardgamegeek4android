@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.extensions.getIconColor
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.extensions.isOlderThan

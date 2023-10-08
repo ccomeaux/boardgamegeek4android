@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.lifecycle.*
 import com.boardgamegeek.R
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.Player
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.PlayRepository

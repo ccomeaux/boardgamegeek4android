@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowForumThreadBinding
-import com.boardgamegeek.entities.Forum
-import com.boardgamegeek.entities.Thread
+import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.Thread
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.toFormattedString
 import com.boardgamegeek.ui.ThreadActivity

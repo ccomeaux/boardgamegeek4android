@@ -17,8 +17,8 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Play
-import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.util.LargeIconLoader

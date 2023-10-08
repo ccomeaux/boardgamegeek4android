@@ -10,9 +10,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayBinding
-import com.boardgamegeek.entities.Play
-import com.boardgamegeek.entities.PlayPlayer
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayPlayer
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter

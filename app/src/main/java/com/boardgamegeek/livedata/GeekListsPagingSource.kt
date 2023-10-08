@@ -2,7 +2,7 @@ package com.boardgamegeek.livedata
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.boardgamegeek.entities.GeekList
+import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.io.BggAjaxApi
 import com.boardgamegeek.io.model.GeekListsResponse
 import com.boardgamegeek.repository.GeekListRepository

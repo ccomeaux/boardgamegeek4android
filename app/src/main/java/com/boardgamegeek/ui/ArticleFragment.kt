@@ -9,7 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentArticleBinding
-import com.boardgamegeek.entities.Article
+import com.boardgamegeek.model.Article
 import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.extensions.toFormattedString

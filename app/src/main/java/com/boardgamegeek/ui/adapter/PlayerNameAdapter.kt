@@ -5,8 +5,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Player
-import com.boardgamegeek.entities.User
+import com.boardgamegeek.model.Player
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.extensions.setTextOrHide

@@ -1,6 +1,6 @@
 package com.boardgamegeek.db.model
 
-import com.boardgamegeek.entities.Game
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.provider.BggContract
 
 data class CollectionItemGame(

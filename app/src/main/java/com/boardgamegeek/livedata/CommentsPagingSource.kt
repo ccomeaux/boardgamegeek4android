@@ -2,7 +2,7 @@ package com.boardgamegeek.livedata
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.boardgamegeek.entities.GameComment
+import com.boardgamegeek.model.GameComment
 import com.boardgamegeek.io.model.GameRemote
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository

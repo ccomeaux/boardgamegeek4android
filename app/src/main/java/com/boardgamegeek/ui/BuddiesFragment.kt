@@ -12,8 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentBuddiesBinding
 import com.boardgamegeek.databinding.RowBuddyBinding
-import com.boardgamegeek.entities.Status
-import com.boardgamegeek.entities.User
+import com.boardgamegeek.model.Status
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel

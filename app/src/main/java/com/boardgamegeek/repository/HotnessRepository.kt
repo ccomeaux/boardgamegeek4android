@@ -1,6 +1,6 @@
 package com.boardgamegeek.repository
 
-import com.boardgamegeek.entities.HotGame
+import com.boardgamegeek.model.HotGame
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToModel
 import kotlinx.coroutines.Dispatchers

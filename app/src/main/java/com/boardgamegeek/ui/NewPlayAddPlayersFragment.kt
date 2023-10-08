@@ -23,7 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayAddPlayersBinding
 import com.boardgamegeek.databinding.RowNewPlayAddPlayerBinding
-import com.boardgamegeek.entities.Player
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel

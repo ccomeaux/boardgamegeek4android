@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowForumBinding
 import com.boardgamegeek.databinding.RowHeaderBinding
-import com.boardgamegeek.entities.Forum
+import com.boardgamegeek.model.Forum
 import com.boardgamegeek.ui.ForumActivity
 import java.text.NumberFormat
 

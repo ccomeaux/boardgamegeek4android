@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 
 class InventoryLocationFilter(context: Context) : CollectionTextFilter(context) {
     override val typeResourceId = R.string.collection_filter_type_inventory_location

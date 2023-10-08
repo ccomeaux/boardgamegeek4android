@@ -2,9 +2,9 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.PlayUploadResult
-import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.SearchResult
+import com.boardgamegeek.model.PlayUploadResult
+import com.boardgamegeek.model.RefreshableResource
+import com.boardgamegeek.model.SearchResult
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository

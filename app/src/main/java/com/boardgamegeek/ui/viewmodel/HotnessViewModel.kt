@@ -7,9 +7,9 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.boardgamegeek.entities.HotGame
-import com.boardgamegeek.entities.PlayUploadResult
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.HotGame
+import com.boardgamegeek.model.PlayUploadResult
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.HotnessRepository

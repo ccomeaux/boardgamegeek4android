@@ -16,7 +16,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.ActivityLoginBinding
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.entities.AuthToken
+import com.boardgamegeek.model.AuthToken
 import com.boardgamegeek.ui.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber

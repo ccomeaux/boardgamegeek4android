@@ -4,8 +4,8 @@ import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.db.UserDao
-import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.User
+import com.boardgamegeek.model.RefreshableResource
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.isOlderThan

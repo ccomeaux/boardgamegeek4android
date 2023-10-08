@@ -3,7 +3,7 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.db.model.UserForUpsert
 import com.boardgamegeek.db.model.UserLocal
 import com.boardgamegeek.db.model.UserAsBuddyForUpsert
-import com.boardgamegeek.entities.User
+import com.boardgamegeek.model.User
 import com.boardgamegeek.io.model.Buddy
 import com.boardgamegeek.io.model.UserRemote
 import com.boardgamegeek.provider.BggContract

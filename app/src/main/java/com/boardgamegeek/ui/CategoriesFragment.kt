@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCategoriesBinding
 import com.boardgamegeek.databinding.RowCategoryBinding
-import com.boardgamegeek.entities.Category
+import com.boardgamegeek.model.Category
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel

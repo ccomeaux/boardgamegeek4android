@@ -1,7 +1,7 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.*
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.PlayRemote

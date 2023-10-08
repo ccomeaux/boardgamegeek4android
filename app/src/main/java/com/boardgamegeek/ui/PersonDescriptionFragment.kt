@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPersonDescriptionBinding
-import com.boardgamegeek.entities.Person
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Person
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setBggColors

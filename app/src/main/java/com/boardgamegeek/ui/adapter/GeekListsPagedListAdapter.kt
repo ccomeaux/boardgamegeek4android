@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowGeeklistBinding
-import com.boardgamegeek.entities.GeekList
+import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GeekListActivity
 

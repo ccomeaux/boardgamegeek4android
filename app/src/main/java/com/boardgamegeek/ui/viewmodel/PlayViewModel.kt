@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.work.WorkManager
-import com.boardgamegeek.entities.Play
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository

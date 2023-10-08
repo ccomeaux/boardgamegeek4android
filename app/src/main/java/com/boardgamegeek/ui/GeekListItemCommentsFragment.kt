@@ -9,7 +9,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.databinding.FragmentGeeklistCommentsBinding
-import com.boardgamegeek.entities.GeekListComment
+import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.extensions.getParcelableArrayListCompat
 import com.boardgamegeek.ui.adapter.GeekListCommentsRecyclerViewAdapter
 

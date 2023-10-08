@@ -24,7 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionBinding
 import com.boardgamegeek.databinding.RowCollectionBinding
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer

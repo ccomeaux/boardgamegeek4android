@@ -1,6 +1,6 @@
 package com.boardgamegeek.repository
 
-import com.boardgamegeek.entities.TopGame
+import com.boardgamegeek.model.TopGame
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

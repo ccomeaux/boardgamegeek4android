@@ -11,8 +11,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentForumsBinding
-import com.boardgamegeek.entities.Forum
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter

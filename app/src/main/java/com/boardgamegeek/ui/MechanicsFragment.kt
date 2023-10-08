@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentMechanicsBinding
 import com.boardgamegeek.databinding.RowMechanicBinding
-import com.boardgamegeek.entities.Mechanic
+import com.boardgamegeek.model.Mechanic
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel

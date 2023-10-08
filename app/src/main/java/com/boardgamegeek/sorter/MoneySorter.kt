@@ -1,7 +1,7 @@
 package com.boardgamegeek.sorter
 
 import android.content.Context
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.asMoney
 import java.text.DecimalFormat
 import kotlin.math.ceil

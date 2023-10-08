@@ -11,8 +11,8 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel

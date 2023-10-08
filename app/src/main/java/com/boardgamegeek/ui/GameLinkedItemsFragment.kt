@@ -13,8 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameLinkedItemsBinding
-import com.boardgamegeek.entities.GameDetail
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.GameDetail
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.loadIcon
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.provider.BggContract

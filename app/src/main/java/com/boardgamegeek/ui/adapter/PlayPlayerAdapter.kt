@@ -10,7 +10,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowPlayPlayerBinding
-import com.boardgamegeek.entities.PlayPlayer
+import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.BuddyActivity
 

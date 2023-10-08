@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowSearchBinding
-import com.boardgamegeek.entities.SearchResult
+import com.boardgamegeek.model.SearchResult
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.filterTrue
 import com.boardgamegeek.extensions.inflate

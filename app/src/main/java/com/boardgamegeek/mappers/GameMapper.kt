@@ -3,7 +3,7 @@ package com.boardgamegeek.mappers
 import android.graphics.Color
 import com.boardgamegeek.db.model.*
 import com.boardgamegeek.db.model.GameRankLocal.Companion.RANK_UNKNOWN
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.GameRemote

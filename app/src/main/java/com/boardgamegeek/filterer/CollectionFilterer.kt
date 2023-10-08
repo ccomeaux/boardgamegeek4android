@@ -3,7 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 
 abstract class CollectionFilterer(protected val context: Context) {
 

@@ -9,9 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionBinding
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.Game
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Game
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.extensions.toast

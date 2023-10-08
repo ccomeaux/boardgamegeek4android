@@ -7,8 +7,8 @@ import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Play
-import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.extensions.formatList
 import com.boardgamegeek.extensions.notifyLoggedPlay
 import com.boardgamegeek.provider.BggContract

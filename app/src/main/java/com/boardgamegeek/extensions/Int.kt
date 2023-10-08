@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Game
+import com.boardgamegeek.model.Game
 import java.math.BigDecimal
 import java.math.MathContext
 import java.text.NumberFormat

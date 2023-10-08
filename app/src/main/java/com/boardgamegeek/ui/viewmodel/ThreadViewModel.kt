@@ -2,8 +2,8 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.ThreadArticles
+import com.boardgamegeek.model.RefreshableResource
+import com.boardgamegeek.model.ThreadArticles
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

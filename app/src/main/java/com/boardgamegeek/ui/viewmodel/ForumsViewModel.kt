@@ -2,8 +2,8 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.Forum
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository

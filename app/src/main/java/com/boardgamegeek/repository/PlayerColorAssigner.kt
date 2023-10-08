@@ -1,7 +1,7 @@
 package com.boardgamegeek.repository
 
-import com.boardgamegeek.entities.PlayPlayer
-import com.boardgamegeek.entities.PlayerColor
+import com.boardgamegeek.model.PlayPlayer
+import com.boardgamegeek.model.PlayerColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber

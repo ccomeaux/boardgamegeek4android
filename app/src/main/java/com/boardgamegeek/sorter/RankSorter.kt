@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.SparseArray
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 import java.text.NumberFormat
 
 class RankSorter(context: Context) : CollectionSorter(context) {

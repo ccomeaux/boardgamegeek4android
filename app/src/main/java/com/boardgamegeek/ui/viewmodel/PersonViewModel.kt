@@ -3,9 +3,9 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.Company
-import com.boardgamegeek.entities.Person
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.Company
+import com.boardgamegeek.model.Person
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
@@ -84,7 +84,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.entities.Person>?>.loadArtist(artistId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.model.Person>?>.loadArtist(artistId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val artist = artistRepository.loadArtist(artistId)
         try {
@@ -109,7 +109,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.entities.Person>?>.loadDesigner(designerId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.model.Person>?>.loadDesigner(designerId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val designer = designerRepository.loadDesigner(designerId)
         try {
@@ -134,7 +134,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.entities.Person>?>.loadPublisher(publisherId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.model.Person>?>.loadPublisher(publisherId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val publisher = publisherRepository.loadPublisher(publisherId)
         try {

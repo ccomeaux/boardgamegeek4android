@@ -3,7 +3,7 @@ package com.boardgamegeek.ui.adapter
 import android.content.Context
 import android.widget.ArrayAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionView
+import com.boardgamegeek.model.CollectionView
 import com.boardgamegeek.extensions.CollectionViewPrefs
 
 class CollectionViewAdapter(context: Context) :

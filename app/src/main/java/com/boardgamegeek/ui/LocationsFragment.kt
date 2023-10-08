@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentLocationsBinding
 import com.boardgamegeek.databinding.RowLocationBinding
-import com.boardgamegeek.entities.Location
+import com.boardgamegeek.model.Location
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel

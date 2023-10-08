@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPollBinding
-import com.boardgamegeek.entities.GamePoll
+import com.boardgamegeek.model.GamePoll
 import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel

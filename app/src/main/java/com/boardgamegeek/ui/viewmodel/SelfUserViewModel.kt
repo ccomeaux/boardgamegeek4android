@@ -3,8 +3,8 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.User
+import com.boardgamegeek.model.RefreshableResource
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.LiveSharedPreference

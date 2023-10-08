@@ -2,8 +2,8 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.CollectionViewFilterLocal
 import com.boardgamegeek.db.model.CollectionViewLocal
-import com.boardgamegeek.entities.CollectionView
-import com.boardgamegeek.entities.CollectionViewFilter
+import com.boardgamegeek.model.CollectionView
+import com.boardgamegeek.model.CollectionViewFilter
 import com.boardgamegeek.export.model.CollectionViewForExport
 import com.boardgamegeek.export.model.CollectionViewFilterForExport
 import com.boardgamegeek.filterer.CollectionFiltererFactory

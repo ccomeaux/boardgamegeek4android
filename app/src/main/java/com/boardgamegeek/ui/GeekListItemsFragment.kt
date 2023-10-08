@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGeeklistItemsBinding
 import com.boardgamegeek.databinding.RowGeeklistItemBinding
-import com.boardgamegeek.entities.GeekList
-import com.boardgamegeek.entities.GeekListItem
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.GeekList
+import com.boardgamegeek.model.GeekListItem
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.provider.BggContract

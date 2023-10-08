@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowGameDetailBinding
-import com.boardgamegeek.entities.GameDetail
+import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setOrClearOnClickListener
 import com.boardgamegeek.extensions.setTextOrHide

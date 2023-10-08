@@ -11,8 +11,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.FragmentHotnessBinding
 import com.boardgamegeek.databinding.RowHotnessBinding
-import com.boardgamegeek.entities.HotGame
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.HotGame
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.HotnessViewModel

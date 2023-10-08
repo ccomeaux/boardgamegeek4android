@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayLocationsBinding
 import com.boardgamegeek.databinding.RowNewPlayLocationBinding
-import com.boardgamegeek.entities.Location
+import com.boardgamegeek.model.Location
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate

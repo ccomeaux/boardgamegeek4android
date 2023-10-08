@@ -2,7 +2,7 @@ package com.boardgamegeek.sorter
 
 import android.content.Context
 import androidx.annotation.StringRes
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 
 abstract class CollectionSorter(protected val context: Context) {
     @get:StringRes

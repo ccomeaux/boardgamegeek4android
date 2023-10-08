@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Player
-import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.User
+import com.boardgamegeek.model.Player
+import com.boardgamegeek.model.RefreshableResource
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.repository.PlayRepository

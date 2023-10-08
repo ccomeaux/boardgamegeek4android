@@ -5,9 +5,9 @@ import android.content.SharedPreferences
 import android.text.format.DateUtils
 import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.Play
-import com.boardgamegeek.entities.PlayPlayer
-import com.boardgamegeek.entities.Player
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayPlayer
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameRepository

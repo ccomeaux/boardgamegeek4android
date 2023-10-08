@@ -2,8 +2,8 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.repository.UserRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent

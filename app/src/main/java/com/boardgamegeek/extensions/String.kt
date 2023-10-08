@@ -1,7 +1,7 @@
 package com.boardgamegeek.extensions
 
 import android.net.Uri
-import com.boardgamegeek.entities.Game
+import com.boardgamegeek.model.Game
 import timber.log.Timber
 import java.text.DateFormat
 import java.util.*

@@ -3,8 +3,8 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.GameRank
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.GameRank
 import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 

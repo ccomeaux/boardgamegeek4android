@@ -1,8 +1,8 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.*
-import com.boardgamegeek.entities.GameDetail
-import com.boardgamegeek.entities.Person
+import com.boardgamegeek.model.GameDetail
+import com.boardgamegeek.model.Person
 import com.boardgamegeek.io.model.PersonResponseV1
 import com.boardgamegeek.io.model.PersonItem
 import com.boardgamegeek.provider.BggContract

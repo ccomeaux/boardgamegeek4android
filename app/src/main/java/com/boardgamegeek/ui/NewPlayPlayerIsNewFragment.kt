@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayPlayerIsNewBinding
 import com.boardgamegeek.databinding.RowNewPlayPlayerIsNewBinding
-import com.boardgamegeek.entities.NewPlayPlayer
+import com.boardgamegeek.model.NewPlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel

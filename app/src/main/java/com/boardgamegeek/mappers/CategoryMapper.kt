@@ -1,8 +1,8 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.CategoryLocal
-import com.boardgamegeek.entities.Category
-import com.boardgamegeek.entities.GameDetail
+import com.boardgamegeek.model.Category
+import com.boardgamegeek.model.GameDetail
 
 fun CategoryLocal.mapToModel() = Category(
     id = id,

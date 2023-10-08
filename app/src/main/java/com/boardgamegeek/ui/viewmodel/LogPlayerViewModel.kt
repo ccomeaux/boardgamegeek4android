@@ -4,8 +4,8 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.db.UserDao
-import com.boardgamegeek.entities.Player
-import com.boardgamegeek.entities.User
+import com.boardgamegeek.model.Player
+import com.boardgamegeek.model.User
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository

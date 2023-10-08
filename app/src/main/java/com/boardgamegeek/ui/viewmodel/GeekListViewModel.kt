@@ -2,9 +2,9 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.GeekList
-import com.boardgamegeek.entities.GeekListItem
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.GeekList
+import com.boardgamegeek.model.GeekListItem
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.GeekListRepository

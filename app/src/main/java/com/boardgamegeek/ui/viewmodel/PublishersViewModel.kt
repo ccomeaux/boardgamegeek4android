@@ -1,10 +1,9 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.Company
+import com.boardgamegeek.model.Company
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

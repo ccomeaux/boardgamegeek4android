@@ -8,10 +8,10 @@ import androidx.lifecycle.*
 import androidx.work.WorkManager
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.CollectionView
-import com.boardgamegeek.entities.CollectionViewFilter
-import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionView
+import com.boardgamegeek.model.CollectionViewFilter
+import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory

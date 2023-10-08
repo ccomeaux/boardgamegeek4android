@@ -17,7 +17,7 @@ import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityLogplayerBinding
-import com.boardgamegeek.entities.PlayPlayer
+import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.BuddyNameAdapter

@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentTopGamesBinding
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.ui.adapter.TopGamesAdapter
 import com.boardgamegeek.ui.viewmodel.TopGamesViewModel
 import dagger.hilt.android.AndroidEntryPoint

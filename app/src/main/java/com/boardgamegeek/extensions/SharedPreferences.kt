@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayPlayer
-import com.boardgamegeek.entities.Player
+import com.boardgamegeek.model.PlayPlayer
+import com.boardgamegeek.model.Player
 import java.util.*
 
 /**

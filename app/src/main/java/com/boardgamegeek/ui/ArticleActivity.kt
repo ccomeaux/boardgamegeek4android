@@ -6,8 +6,8 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Article
-import com.boardgamegeek.entities.Forum
+import com.boardgamegeek.model.Article
+import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics

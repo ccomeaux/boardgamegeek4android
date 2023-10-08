@@ -4,9 +4,9 @@ import android.content.Context
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.GameComments
-import com.boardgamegeek.entities.Game
-import com.boardgamegeek.entities.GamePoll
+import com.boardgamegeek.model.GameComments
+import com.boardgamegeek.model.Game
+import com.boardgamegeek.model.GamePoll
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.*

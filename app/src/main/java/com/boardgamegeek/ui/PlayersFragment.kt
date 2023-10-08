@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayersBinding
 import com.boardgamegeek.databinding.RowPlayersPlayerBinding
-import com.boardgamegeek.entities.Player
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel

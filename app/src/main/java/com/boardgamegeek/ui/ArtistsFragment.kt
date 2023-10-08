@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentArtistsBinding
 import com.boardgamegeek.databinding.RowArtistBinding
-import com.boardgamegeek.entities.Person
+import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter

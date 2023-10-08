@@ -13,8 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionItemBinding
-import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.dialog.*

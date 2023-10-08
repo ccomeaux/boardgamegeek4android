@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowTopGameBinding
-import com.boardgamegeek.entities.TopGame
+import com.boardgamegeek.model.TopGame
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail

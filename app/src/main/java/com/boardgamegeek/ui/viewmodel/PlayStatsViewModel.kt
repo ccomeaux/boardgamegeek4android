@@ -5,8 +5,8 @@ import android.content.SharedPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.liveData
-import com.boardgamegeek.entities.PlayStats
-import com.boardgamegeek.entities.PlayerStats
+import com.boardgamegeek.model.PlayStats
+import com.boardgamegeek.model.PlayerStats
 import com.boardgamegeek.extensions.COLLECTION_STATUS_OWN
 import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES
 import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_EXPANSIONS

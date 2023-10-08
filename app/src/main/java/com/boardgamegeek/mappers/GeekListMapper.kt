@@ -1,8 +1,8 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.entities.GeekListComment
-import com.boardgamegeek.entities.GeekList
-import com.boardgamegeek.entities.GeekListItem
+import com.boardgamegeek.model.GeekListComment
+import com.boardgamegeek.model.GeekList
+import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.*
 import com.boardgamegeek.provider.BggContract

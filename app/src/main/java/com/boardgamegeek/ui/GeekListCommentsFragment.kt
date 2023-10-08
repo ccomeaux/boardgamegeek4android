@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.databinding.FragmentGeeklistCommentsBinding
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.ui.adapter.GeekListCommentsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 

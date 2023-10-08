@@ -25,9 +25,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding
-import com.boardgamegeek.entities.HIndex
-import com.boardgamegeek.entities.Play
-import com.boardgamegeek.entities.PlayPlayer
+import com.boardgamegeek.model.HIndex
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel

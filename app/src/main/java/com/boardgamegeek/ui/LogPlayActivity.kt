@@ -31,8 +31,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityLogplayBinding
 import com.boardgamegeek.databinding.RowLogplayPlayerBinding
-import com.boardgamegeek.entities.PlayPlayer
-import com.boardgamegeek.entities.Player
+import com.boardgamegeek.model.PlayPlayer
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.adapter.LocationAdapter

@@ -3,8 +3,8 @@ package com.boardgamegeek.repository
 import android.content.Context
 import com.boardgamegeek.db.CategoryDao
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.Category
-import com.boardgamegeek.entities.CollectionItem.Companion.filterBySyncedStatues
+import com.boardgamegeek.model.Category
+import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.mappers.mapToModel
 
 class CategoryRepository(val context: Context) {

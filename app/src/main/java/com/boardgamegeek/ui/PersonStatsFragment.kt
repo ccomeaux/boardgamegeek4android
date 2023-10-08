@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPersonStatsBinding
-import com.boardgamegeek.entities.PersonStats
+import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.boardgamegeek.work.SyncCollectionWorker

@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Forum
+import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.clearTop
 import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.getSerializableCompat

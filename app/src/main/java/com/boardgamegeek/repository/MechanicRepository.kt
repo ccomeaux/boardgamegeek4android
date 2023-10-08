@@ -3,8 +3,8 @@ package com.boardgamegeek.repository
 import android.content.Context
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.MechanicDao
-import com.boardgamegeek.entities.CollectionItem.Companion.filterBySyncedStatues
-import com.boardgamegeek.entities.Mechanic
+import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
+import com.boardgamegeek.model.Mechanic
 import com.boardgamegeek.mappers.mapToModel
 
 class MechanicRepository(val context: Context) {

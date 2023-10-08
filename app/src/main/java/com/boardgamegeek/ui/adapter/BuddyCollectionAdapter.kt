@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowCollectionBuddyBinding
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GameActivity.Companion.start

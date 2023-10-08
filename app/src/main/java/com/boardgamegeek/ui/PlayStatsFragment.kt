@@ -12,9 +12,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayStatsBinding
-import com.boardgamegeek.entities.HIndex
-import com.boardgamegeek.entities.PlayStats
-import com.boardgamegeek.entities.PlayerStats
+import com.boardgamegeek.model.HIndex
+import com.boardgamegeek.model.PlayStats
+import com.boardgamegeek.model.PlayerStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel

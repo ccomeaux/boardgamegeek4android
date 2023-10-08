@@ -7,7 +7,7 @@ import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference

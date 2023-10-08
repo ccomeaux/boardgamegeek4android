@@ -7,8 +7,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.GeekList
-import com.boardgamegeek.entities.GeekListItem
+import com.boardgamegeek.model.GeekList
+import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.extensions.link
 import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.startActivity

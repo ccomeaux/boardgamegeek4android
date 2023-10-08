@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Play
+import com.boardgamegeek.model.Play
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference

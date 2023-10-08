@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowCommentBinding
-import com.boardgamegeek.entities.GameComment
+import com.boardgamegeek.model.GameComment
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.util.XmlApiMarkupConverter
 

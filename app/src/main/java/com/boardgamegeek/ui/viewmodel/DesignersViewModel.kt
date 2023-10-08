@@ -3,7 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.DesignerDao
-import com.boardgamegeek.entities.Person
+import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel

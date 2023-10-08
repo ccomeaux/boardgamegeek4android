@@ -2,7 +2,7 @@ package com.boardgamegeek.livedata
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.boardgamegeek.entities.Thread
+import com.boardgamegeek.model.Thread
 import com.boardgamegeek.io.model.ForumResponse
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository

@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPublishersBinding
 import com.boardgamegeek.databinding.RowPublisherBinding
-import com.boardgamegeek.entities.Company
+import com.boardgamegeek.model.Company
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter

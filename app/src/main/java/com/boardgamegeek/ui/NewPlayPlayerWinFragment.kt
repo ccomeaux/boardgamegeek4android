@@ -18,7 +18,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayPlayerWinBinding
 import com.boardgamegeek.databinding.RowNewPlayPlayerWinBinding
-import com.boardgamegeek.entities.NewPlayPlayer
+import com.boardgamegeek.model.NewPlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.NewPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel

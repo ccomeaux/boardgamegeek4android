@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItem
+import com.boardgamegeek.model.CollectionItem
 
 class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(context) {
     var playerCount = 4
