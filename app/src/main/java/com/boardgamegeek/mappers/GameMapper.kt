@@ -6,36 +6,36 @@ import com.boardgamegeek.db.model.GameRankLocal.Companion.RANK_UNKNOWN
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.model.Game
+import com.boardgamegeek.io.model.GameRemote
 import com.boardgamegeek.provider.BggContract
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Suppress("SpellCheckingInspection")
-fun Game.mapToEntity(): GameEntity {
+fun GameRemote.mapToModel(): Game {
     val (primaryName, sortIndex) = findPrimaryName(this)
-    val game = GameEntity(
-        id = this.id,
+    val game = Game(
+        id = id,
         name = primaryName,
         sortName = primaryName.sortName(sortIndex),
-        imageUrl = this.image.orEmpty(),
-        thumbnailUrl = this.thumbnail.orEmpty(),
-        description = this.description.replaceHtmlLineFeeds().trim(),
-        subtype = this.type.toThingSubtype().mapToEntitySubtype(),
-        yearPublished = this.yearpublished?.toIntOrNull() ?: GameEntity.YEAR_UNKNOWN,
-        minPlayers = this.minplayers?.toIntOrNull() ?: 0,
-        maxPlayers = this.maxplayers?.toIntOrNull() ?: 0,
-        playingTime = this.playingtime?.toIntOrNull() ?: 0,
-        maxPlayingTime = this.maxplaytime?.toIntOrNull() ?: 0,
-        minPlayingTime = this.minplaytime?.toIntOrNull() ?: 0,
-        minimumAge = this.minage?.toIntOrNull() ?: 0,
-        designers = this.links.filter { it.type == "boardgamedesigner" }.map { it.id to it.value },
-        artists = this.links.filter { it.type == "boardgameartist" }.map { it.id to it.value },
-        publishers = this.links.filter { it.type == "boardgamepublisher" }.map { it.id to it.value },
-        categories = this.links.filter { it.type == "boardgamecategory" }.map { it.id to it.value },
-        mechanics = this.links.filter { it.type == "boardgamemechanic" }.map { it.id to it.value },
-        expansions = this.links.filter { it.type == "boardgameexpansion" }.map { Triple(it.id, it.value, it.inbound == "true") },
-        families = this.links.filter { it.type == "boardgamefamily" }.map { it.id to it.value },
+        imageUrl = image.orEmpty(),
+        thumbnailUrl = thumbnail.orEmpty(),
+        description = description.replaceHtmlLineFeeds().trim(),
+        subtype = type.toThingSubtype().mapToEntitySubtype(),
+        yearPublished = yearpublished?.toIntOrNull() ?: Game.YEAR_UNKNOWN,
+        minPlayers = minplayers?.toIntOrNull() ?: 0,
+        maxPlayers = maxplayers?.toIntOrNull() ?: 0,
+        playingTime = playingtime?.toIntOrNull() ?: 0,
+        maxPlayingTime = maxplaytime?.toIntOrNull() ?: 0,
+        minPlayingTime = minplaytime?.toIntOrNull() ?: 0,
+        minimumAge = minage?.toIntOrNull() ?: 0,
+        designers = links.filter { it.type == "boardgamedesigner" }.map { it.id to it.value },
+        artists = links.filter { it.type == "boardgameartist" }.map { it.id to it.value },
+        publishers = links.filter { it.type == "boardgamepublisher" }.map { it.id to it.value },
+        categories = links.filter { it.type == "boardgamecategory" }.map { it.id to it.value },
+        mechanics = links.filter { it.type == "boardgamemechanic" }.map { it.id to it.value },
+        expansions = links.filter { it.type == "boardgameexpansion" }.map { Triple(it.id, it.value, it.inbound == "true") },
+        families = links.filter { it.type == "boardgamefamily" }.map { it.id to it.value },
         playerCountsBest = null,
         playerCountsRecommended = null,
         playerCountsNotRecommended = null,
@@ -57,7 +57,7 @@ fun Game.mapToEntity(): GameEntity {
             numberOfComments = this.statistics.numcomments?.toIntOrNull() ?: 0,
             numberOfUsersWeighting = this.statistics.numweights?.toIntOrNull() ?: 0,
             averageWeight = this.statistics.averageweight?.toDoubleOrNull() ?: 0.0,
-            overallRank = this.statistics.ranks.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
+            overallRank = this.statistics.ranks.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRank.RANK_UNKNOWN,
             ranks = createRanks(this),
             polls = createPolls(this),
             playerPoll = createPlayerPoll(this),
@@ -65,42 +65,42 @@ fun Game.mapToEntity(): GameEntity {
     } else game
 }
 
-private fun findPrimaryName(from: Game): Pair<String, Int> {
+private fun findPrimaryName(from: GameRemote): Pair<String, Int> {
     return (from.names?.find { "primary" == it.type } ?: from.names?.firstOrNull())?.let { it.value to it.sortindex } ?: ("" to 0)
 }
 
-private fun createRanks(from: Game) = from.statistics?.ranks?.map {
-    GameRankEntity(
-        if (it.type == BggService.RANK_TYPE_FAMILY) GameRankEntity.RankType.Family else GameRankEntity.RankType.Subtype,
+private fun createRanks(from: GameRemote) = from.statistics?.ranks?.map {
+    GameRank(
+        if (it.type == BggService.RANK_TYPE_FAMILY) GameRank.RankType.Family else GameRank.RankType.Subtype,
         it.name,
         it.friendlyname,
-        it.value.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
+        it.value.toIntOrNull() ?: GameRank.RANK_UNKNOWN,
         it.bayesaverage.toDoubleOrNull() ?: 0.0
     )
 }.orEmpty()
 
-private fun BggService.ThingSubtype?.mapToEntitySubtype(): GameEntity.Subtype? = when (this) {
-    BggService.ThingSubtype.BOARDGAME -> GameEntity.Subtype.BOARDGAME
-    BggService.ThingSubtype.BOARDGAME_EXPANSION -> GameEntity.Subtype.BOARDGAME_EXPANSION
-    BggService.ThingSubtype.BOARDGAME_ACCESSORY -> GameEntity.Subtype.BOARDGAME_ACCESSORY
+private fun BggService.ThingSubtype?.mapToEntitySubtype(): Game.Subtype? = when (this) {
+    BggService.ThingSubtype.BOARDGAME -> Game.Subtype.BOARDGAME
+    BggService.ThingSubtype.BOARDGAME_EXPANSION -> Game.Subtype.BOARDGAME_EXPANSION
+    BggService.ThingSubtype.BOARDGAME_ACCESSORY -> Game.Subtype.BOARDGAME_ACCESSORY
     null -> null
 }
 
 @Suppress("SpellCheckingInspection")
 private const val PLAYER_POLL_NAME = "suggested_numplayers"
 
-private fun createPolls(from: Game): List<GameEntity.Poll> {
-    val polls = mutableListOf<GameEntity.Poll>()
+private fun createPolls(from: GameRemote): List<Game.Poll> {
+    val polls = mutableListOf<Game.Poll>()
     from.polls?.filter { it.name != PLAYER_POLL_NAME }?.mapTo(polls) { poll ->
-        GameEntity.Poll().apply {
+        Game.Poll().apply {
             name = poll.name ?: ""
             title = poll.title ?: ""
             totalVotes = poll.totalvotes
             poll.results.forEach {
-                results += GameEntity.Results().apply {
+                results += Game.Results().apply {
                     numberOfPlayers = if (it.numplayers.isNullOrEmpty()) "X" else it.numplayers
                     it.result.forEach { gr ->
-                        result.add(GamePollResultEntity(gr.level, gr.value, gr.numvotes))
+                        result.add(GamePollResult(gr.level, gr.value, gr.numvotes))
                     }
                 }
             }
@@ -109,10 +109,10 @@ private fun createPolls(from: Game): List<GameEntity.Poll> {
     return polls
 }
 
-private fun createPlayerPoll(from: Game): List<GamePlayerPollResultsEntity> {
+private fun createPlayerPoll(from: GameRemote): List<GamePlayerPollResults> {
     return from.polls?.find { it.name == PLAYER_POLL_NAME }?.let { poll ->
         poll.results.map { playerCount ->
-            GamePlayerPollResultsEntity(
+            GamePlayerPollResults(
                 totalVotes = poll.totalvotes,
                 playerCount = playerCount.numplayers,
                 bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0,
@@ -123,28 +123,28 @@ private fun createPlayerPoll(from: Game): List<GamePlayerPollResultsEntity> {
     } ?: emptyList()
 }
 
-fun GameRankLocal.mapToEntity() = GameRankEntity(
-    if (gameRankType == BggService.RANK_TYPE_FAMILY) GameRankEntity.RankType.Family else GameRankEntity.RankType.Subtype,
+fun GameRankLocal.mapToModel() = GameRank(
+    if (gameRankType == BggService.RANK_TYPE_FAMILY) GameRank.RankType.Family else GameRank.RankType.Subtype,
     name = gameRankName,
     friendlyName = gameFriendlyRankName,
     value = gameRankValue,
     bayesAverage = gameRankBayesAverage,
 )
 
-fun Game.mapToRatingEntities(): GameCommentsEntity {
+fun GameRemote.mapToRatingModel(): GameComments {
     val list = comments.comments.map {
-        GameCommentEntity(
+        GameComment(
             username = it.username,
             rating = it.rating.toDoubleOrNull() ?: 0.0,
             comment = it.value,
         )
     }
-    return GameCommentsEntity(this.comments.totalitems, list)
+    return GameComments(this.comments.totalitems, list)
 }
 
-fun GameLocal.mapToEntity(): GameEntity {
+fun GameLocal.mapToModel(): Game {
     val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return GameEntity(
+    return Game(
         id = gameId,
         name = gameName,
         sortName = gameSortName,
@@ -154,7 +154,7 @@ fun GameLocal.mapToEntity(): GameEntity {
         imageUrl = imageUrl.orEmpty(),
         heroImageUrl = heroImageUrl.orEmpty(),
         description = description.orEmpty(),
-        yearPublished = yearPublished ?: GameEntity.YEAR_UNKNOWN,
+        yearPublished = yearPublished ?: Game.YEAR_UNKNOWN,
         minPlayers = minPlayers ?: 0,
         maxPlayers = maxPlayers ?: 0,
         playingTime = playingTime ?: 0,
@@ -162,10 +162,10 @@ fun GameLocal.mapToEntity(): GameEntity {
         maxPlayingTime = maxPlayingTime ?: 0,
         minimumAge = minimumAge ?: 0,
         numberOfRatings = numberOfRatings ?: 0,
-        rating = average ?: GameEntity.UNRATED,
-        bayesAverage = bayesAverage ?: GameEntity.UNRATED,
+        rating = average ?: Game.UNRATED,
+        bayesAverage = bayesAverage ?: Game.UNRATED,
         standardDeviation = standardDeviation ?: 0.0,
-        median = median ?: GameEntity.UNRATED,
+        median = median ?: Game.UNRATED,
         numberOfUsersOwned = numberOfUsersOwned ?: 0,
         numberOfUsersTrading = numberOfUsersTrading ?: 0,
         numberOfUsersWanting = numberOfUsersWanting ?: 0,
@@ -173,7 +173,7 @@ fun GameLocal.mapToEntity(): GameEntity {
         numberOfComments = numberOfComments ?: 0,
         numberOfUsersWeighting = numberOfUsersWeighting ?: 0,
         averageWeight = averageWeight ?: 0.0,
-        overallRank = gameRank ?: GameRankEntity.RANK_UNKNOWN,
+        overallRank = gameRank ?: GameRank.RANK_UNKNOWN,
         updatedPlays = updatedPlays ?: 0L,
         customPlayerSort = customPlayerSort ?: false,
         isFavorite = isStarred ?: false,
@@ -192,22 +192,22 @@ fun GameLocal.mapToEntity(): GameEntity {
     )
 }
 
-fun GamePollResultsResultLocal.mapToEntity() = GamePollResultEntity(
+fun GamePollResultsResultLocal.mapToModel() = GamePollResult(
     level = pollResultsResultLevel ?: BggContract.INVALID_ID,
     value = pollResultsResultValue,
     numberOfVotes = pollResultsResultVotes,
 )
 
-fun GameSuggestedPlayerCountPollResultsLocal.mapToEntity() = GamePlayerPollResultsEntity(
+fun GameSuggestedPlayerCountPollResultsLocal.mapToModel() = GamePlayerPollResults(
     totalVotes = 0,
     playerCount = playerCount,
     bestVoteCount = bestVoteCount,
     recommendedVoteCount = recommendedVoteCount,
     notRecommendedVoteCount = notRecommendedVoteCount,
-    recommendation = recommendation ?: GamePlayerPollResultsEntity.NOT_RECOMMENDED,
+    recommendation = recommendation ?: GamePlayerPollResults.NOT_RECOMMENDED,
 )
 
-fun GamesExpansionLocal.mapToEntity(items: List<CollectionItem>) = GameExpansionsEntity(
+fun GamesExpansionLocal.mapToModel(items: List<CollectionItem>) = GameExpansion(
     id = expansionId,
     name = expansionName,
     thumbnailUrl = items.firstOrNull()?.gameThumbnailUrl.orEmpty(),
@@ -219,14 +219,14 @@ fun GamesExpansionLocal.mapToEntity(items: List<CollectionItem>) = GameExpansion
     wantToPlay = items.any { it.wantToPlay },
     wantToBuy = items.any { it.wantToBuy },
     wishList = items.any { it.wishList },
-    wishListPriority = if (items.isEmpty()) GameExpansionsEntity.WISHLIST_PRIORITY_UNKNOWN else items.minOf { it.wishListPriority },
+    wishListPriority = if (items.isEmpty()) GameExpansion.WISHLIST_PRIORITY_UNKNOWN else items.minOf { it.wishListPriority },
     numberOfPlays = items.firstOrNull()?.numberOfPlays ?: 0,
-    rating = if (items.isEmpty()) GameExpansionsEntity.UNRATED else items.maxOf { it.rating },
+    rating = if (items.isEmpty()) GameExpansion.UNRATED else items.maxOf { it.rating },
     comment = items.firstOrNull()?.comment.orEmpty(),
 )
 
 @Suppress("SpellCheckingInspection")
-fun Game.mapForUpsert(updated: Long): GameForUpsert {
+fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
     val (primaryName, sortIndex) = findPrimaryName(this)
     val ranks = statistics?.ranks?.map {
         GameRankLocal(
@@ -289,14 +289,14 @@ fun Game.mapForUpsert(updated: Long): GameForUpsert {
         thumbnailUrl = thumbnail,
         description = description.replaceHtmlLineFeeds().trim(),
         subtype = type.toThingSubtype()?.code,
-        yearPublished = yearpublished?.toIntOrNull() ?: GameEntity.YEAR_UNKNOWN,
+        yearPublished = yearpublished?.toIntOrNull() ?: Game.YEAR_UNKNOWN,
         minPlayers = minplayers?.toIntOrNull(),
         maxPlayers = maxplayers?.toIntOrNull(),
         playingTime = playingtime?.toIntOrNull(),
         maxPlayingTime = maxplaytime?.toIntOrNull(),
         minPlayingTime = minplaytime?.toIntOrNull(),
         minimumAge = minage?.toIntOrNull(),
-        overallRank = statistics?.ranks?.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
+        overallRank = statistics?.ranks?.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRank.RANK_UNKNOWN,
         numberOfRatings = statistics?.usersrated?.toIntOrNull(),
         average = statistics?.average?.toDoubleOrNull(),
         bayesAverage = statistics?.bayesaverage?.toDoubleOrNull(),

@@ -1,7 +1,7 @@
 package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.*
-import com.boardgamegeek.entities.GameDetailEntity
+import com.boardgamegeek.entities.GameDetail
 import com.boardgamegeek.entities.Person
 import com.boardgamegeek.io.model.PersonResponseV1
 import com.boardgamegeek.io.model.PersonItem
@@ -46,13 +46,13 @@ fun ArtistLocal.mapToModel() = Person(
     itemCount = itemCount ?: 0,
 )
 
-fun DesignerBrief.mapToGameDetail() = GameDetailEntity(
+fun DesignerBrief.mapToGameDetail() = GameDetail(
     id = designerId,
     name = designerName,
     thumbnailUrl = designerThumbnailUrl.orEmpty(),
 )
 
-fun ArtistBrief.mapToGameDetail() = GameDetailEntity(
+fun ArtistBrief.mapToGameDetail() = GameDetail(
     id = artistId,
     name = artistName,
     thumbnailUrl = artistThumbnailUrl.orEmpty(),

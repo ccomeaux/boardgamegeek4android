@@ -15,18 +15,18 @@ class PersonStats(
 ) {
     companion object {
         fun fromLinkedCollection(collection: List<CollectionItem>, context: Context): PersonStats {
-            val baseGameCollection = collection.filter { it.subtype == GameEntity.Subtype.BOARDGAME }
+            val baseGameCollection = collection.filter { it.subtype == Game.Subtype.BOARDGAME }
 
             val whitmoreScore = calculateWhitmoreScore(baseGameCollection)
-            val whitmoreScoreWithExpansions = calculateWhitmoreScore(collection.filter { it.subtype != GameEntity.Subtype.BOARDGAME_ACCESSORY })
+            val whitmoreScoreWithExpansions = calculateWhitmoreScore(collection.filter { it.subtype != Game.Subtype.BOARDGAME_ACCESSORY })
 
             val prefs = context.preferences()
             val includeExpansions = prefs[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
             val includeAccessories = prefs[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
             val playCountsByGame = when {
                 includeExpansions && includeAccessories -> collection
-                includeAccessories -> collection.filter { it.subtype != GameEntity.Subtype.BOARDGAME_EXPANSION }
-                includeExpansions -> collection.filter { it.subtype != GameEntity.Subtype.BOARDGAME_ACCESSORY }
+                includeAccessories -> collection.filter { it.subtype != Game.Subtype.BOARDGAME_EXPANSION }
+                includeExpansions -> collection.filter { it.subtype != Game.Subtype.BOARDGAME_ACCESSORY }
                 else -> baseGameCollection
             }
                 .distinctBy { it.gameId }

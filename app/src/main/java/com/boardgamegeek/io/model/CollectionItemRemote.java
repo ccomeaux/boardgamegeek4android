@@ -1,6 +1,6 @@
 package com.boardgamegeek.io.model;
 
-import com.boardgamegeek.io.model.Game.Rank;
+import com.boardgamegeek.io.model.GameRemote.Rank;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;

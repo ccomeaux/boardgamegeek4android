@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameLinkedItemsBinding
-import com.boardgamegeek.entities.GameDetailEntity
+import com.boardgamegeek.entities.GameDetail
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.loadIcon
 import com.boardgamegeek.extensions.setBggColors
@@ -91,7 +91,7 @@ class GameLinkedItemsFragment : Fragment() {
     }
 
     private fun ChipGroup.bindData(
-        list: List<GameDetailEntity>,
+        list: List<GameDetail>,
         @DrawableRes iconResId: Int,
         @StringRes labelResId: Int,
         type: GameViewModel.ProducerType,
@@ -125,7 +125,7 @@ class GameLinkedItemsFragment : Fragment() {
         }
     }
 
-    private fun createChip(producer: GameDetailEntity): Chip {
+    private fun createChip(producer: GameDetail): Chip {
         return Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
             layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             text = producer.name

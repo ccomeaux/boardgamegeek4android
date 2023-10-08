@@ -10,7 +10,7 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionBinding
 import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.Game
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setTextOrHide
@@ -44,7 +44,7 @@ class GameCollectionFragment : Fragment() {
         binding.recyclerView.adapter = adapter
 
         viewModel.game.observe(viewLifecycleOwner) {
-            adapter.gameYearPublished = it?.data?.yearPublished ?: GameEntity.YEAR_UNKNOWN
+            adapter.gameYearPublished = it?.data?.yearPublished ?: Game.YEAR_UNKNOWN
         }
 
         viewModel.collectionItems.observe(viewLifecycleOwner) {

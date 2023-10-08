@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.GameRank
 import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 
@@ -45,7 +45,7 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun filter(item: CollectionItem): Boolean {
         return when {
-            item.rank == GameRankEntity.RANK_UNKNOWN -> includeUnranked
+            item.rank == GameRank.RANK_UNKNOWN -> includeUnranked
             max == upperBound -> item.rank >= min
             min == lowerBound -> item.rank <= max
             min == max -> item.rank == min

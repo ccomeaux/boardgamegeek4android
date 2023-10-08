@@ -1,7 +1,7 @@
 package com.boardgamegeek.entities
 
-data class GameCommentEntity(
+data class GameComment(
     val username: String,
     val rating: Double,
-    val comment: String
+    val comment: String,
 )

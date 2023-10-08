@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class GamePollEntity(val results: List<GamePollResultEntity>) {
+data class GamePoll(val results: List<GamePollResult>) {
     val modalValue: String by lazy { results.maxByOrNull { it.numberOfVotes }?.value ?: "" }
 
     val totalVotes: Int by lazy { results.sumOf { it.numberOfVotes } }

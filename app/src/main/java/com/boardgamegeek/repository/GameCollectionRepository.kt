@@ -37,7 +37,7 @@ class GameCollectionRepository(
     suspend fun loadCollectionItems(gameId: Int) =
         collectionDao.loadByGame(gameId).map { it.mapToModel() }
 
-    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: GameEntity.Subtype?): CollectionItem? =
+    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: Game.Subtype?): CollectionItem? =
         withContext(Dispatchers.IO) {
             if ((gameId != INVALID_ID || collectionId != INVALID_ID) && !username.isNullOrBlank()) {
                 val timestamp = System.currentTimeMillis()
@@ -77,7 +77,7 @@ class GameCollectionRepository(
         } ?: item
     }
 
-    suspend fun refreshCollectionItems(gameId: Int, subtype: GameEntity.Subtype? = null): List<CollectionItem>? = withContext(Dispatchers.IO) {
+    suspend fun refreshCollectionItems(gameId: Int, subtype: Game.Subtype? = null): List<CollectionItem>? = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             val list = mutableListOf<CollectionItem>()
@@ -126,12 +126,12 @@ class GameCollectionRepository(
         } else null
     }
 
-    private fun MutableMap<String, String>.addSubtype(subtype: GameEntity.Subtype?) {
+    private fun MutableMap<String, String>.addSubtype(subtype: Game.Subtype?) {
         subtype?.let {
             this += BggService.COLLECTION_QUERY_KEY_SUBTYPE to when (it) {
-                GameEntity.Subtype.BOARDGAME -> BggService.ThingSubtype.BOARDGAME
-                GameEntity.Subtype.BOARDGAME_EXPANSION -> BggService.ThingSubtype.BOARDGAME_EXPANSION
-                GameEntity.Subtype.BOARDGAME_ACCESSORY -> BggService.ThingSubtype.BOARDGAME_ACCESSORY
+                Game.Subtype.BOARDGAME -> BggService.ThingSubtype.BOARDGAME
+                Game.Subtype.BOARDGAME_EXPANSION -> BggService.ThingSubtype.BOARDGAME_EXPANSION
+                Game.Subtype.BOARDGAME_ACCESSORY -> BggService.ThingSubtype.BOARDGAME_ACCESSORY
             }.code
         }
     }

@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowGameDetailBinding
-import com.boardgamegeek.entities.GameDetailEntity
+import com.boardgamegeek.entities.GameDetail
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setOrClearOnClickListener
 import com.boardgamegeek.extensions.setTextOrHide
@@ -25,7 +25,7 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
         if (old != new) notifyDataSetChanged()
     }
 
-    var items: List<GameDetailEntity> by Delegates.observable(emptyList()) { _, old, new ->
+    var items: List<GameDetail> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n ->
             o.id == n.id
         }
@@ -46,7 +46,7 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
     inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowGameDetailBinding.bind(itemView)
 
-        fun bind(gameDetail: GameDetailEntity?) {
+        fun bind(gameDetail: GameDetail?) {
             gameDetail?.let { entity ->
                 binding.nameView.text = entity.name
                 binding.descriptionView.setTextOrHide(entity.description)

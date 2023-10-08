@@ -86,8 +86,8 @@ class GameViewModel @Inject constructor(
         if (_producerType.value != type) _producerType.value = type
     }
 
-    val game: LiveData<RefreshableResource<GameEntity>> = _gameId.switchMap { gameId ->
-        liveData<RefreshableResource<GameEntity>> {
+    val game: LiveData<RefreshableResource<Game>> = _gameId.switchMap { gameId ->
+        liveData<RefreshableResource<Game>> {
             try {
                 if (gameId == BggContract.INVALID_ID) {
                     emit(RefreshableResource.success(null))
@@ -203,7 +203,7 @@ class GameViewModel @Inject constructor(
         liveData {
             emit(it.data?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getExpansions(it.id).map { expansion ->
-                    GameDetailEntity(expansion.id, expansion.name, describeStatuses(expansion), expansion.thumbnailUrl)
+                    GameDetail(expansion.id, expansion.name, describeStatuses(expansion), expansion.thumbnailUrl)
                 }
             })
         }.distinctUntilChanged()
@@ -213,26 +213,26 @@ class GameViewModel @Inject constructor(
         liveData {
             emit(it.data?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getBaseGames(it.id).map { baseGame ->
-                    GameDetailEntity(baseGame.id, baseGame.name, describeStatuses(baseGame), baseGame.thumbnailUrl)
+                    GameDetail(baseGame.id, baseGame.name, describeStatuses(baseGame), baseGame.thumbnailUrl)
                 }
             })
         }.distinctUntilChanged()
     }
 
-    private fun describeStatuses(entity: GameExpansionsEntity): String {
+    private fun describeStatuses(expansion: GameExpansion): String {
         val ctx = getApplication<BggApplication>()
         val statuses = mutableListOf<String>()
-        if (entity.own) statuses.add(ctx.getString(R.string.collection_status_own))
-        if (entity.previouslyOwned) statuses.add(ctx.getString(R.string.collection_status_prev_owned))
-        if (entity.forTrade) statuses.add(ctx.getString(R.string.collection_status_for_trade))
-        if (entity.wantInTrade) statuses.add(ctx.getString(R.string.collection_status_want_in_trade))
-        if (entity.wantToBuy) statuses.add(ctx.getString(R.string.collection_status_want_to_buy))
-        if (entity.wantToPlay) statuses.add(ctx.getString(R.string.collection_status_want_to_play))
-        if (entity.preOrdered) statuses.add(ctx.getString(R.string.collection_status_preordered))
-        if (entity.wishList) statuses.add(entity.wishListPriority.asWishListPriority(ctx))
-        if (entity.numberOfPlays > 0) statuses.add(ctx.getString(R.string.played))
-        if (entity.rating > 0.0) statuses.add(ctx.getString(R.string.rated))
-        if (entity.comment.isNotBlank()) statuses.add(ctx.getString(R.string.commented))
+        if (expansion.own) statuses.add(ctx.getString(R.string.collection_status_own))
+        if (expansion.previouslyOwned) statuses.add(ctx.getString(R.string.collection_status_prev_owned))
+        if (expansion.forTrade) statuses.add(ctx.getString(R.string.collection_status_for_trade))
+        if (expansion.wantInTrade) statuses.add(ctx.getString(R.string.collection_status_want_in_trade))
+        if (expansion.wantToBuy) statuses.add(ctx.getString(R.string.collection_status_want_to_buy))
+        if (expansion.wantToPlay) statuses.add(ctx.getString(R.string.collection_status_want_to_play))
+        if (expansion.preOrdered) statuses.add(ctx.getString(R.string.collection_status_preordered))
+        if (expansion.wishList) statuses.add(expansion.wishListPriority.asWishListPriority(ctx))
+        if (expansion.numberOfPlays > 0) statuses.add(ctx.getString(R.string.played))
+        if (expansion.rating > 0.0) statuses.add(ctx.getString(R.string.rated))
+        if (expansion.comment.isNotBlank()) statuses.add(ctx.getString(R.string.commented))
         return statuses.formatList()
     }
 

@@ -182,7 +182,7 @@ class NewPlayViewModel @Inject constructor(
         gameName.value = name
     }
 
-    val game: LiveData<GameEntity?> = gameId.switchMap {
+    val game: LiveData<Game?> = gameId.switchMap {
         liveData {
             emit(
                 when (it) {

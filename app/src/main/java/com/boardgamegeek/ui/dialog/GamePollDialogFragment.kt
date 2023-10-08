@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPollBinding
-import com.boardgamegeek.entities.GamePollEntity
+import com.boardgamegeek.entities.GamePoll
 import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -109,11 +109,11 @@ class GamePollDialogFragment : DialogFragment() {
         _binding = null
     }
 
-    private fun showData(gamePollEntity: GamePollEntity, chartColors: List<Int>) {
-        val totalVoteCount = gamePollEntity.totalVotes
+    private fun showData(poll: GamePoll, chartColors: List<Int>) {
+        val totalVoteCount = poll.totalVotes
         if (totalVoteCount > 0) {
             val entries = mutableListOf<PieEntry>()
-            for ((_, value, numberOfVotes) in gamePollEntity.results) {
+            for ((_, value, numberOfVotes) in poll.results) {
                 entries += PieEntry(numberOfVotes.toFloat(), value)
             }
             val dataSet = PieDataSet(entries, "").apply {

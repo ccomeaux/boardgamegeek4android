@@ -3,7 +3,7 @@ package com.boardgamegeek.entities
 import android.graphics.Color
 import com.boardgamegeek.provider.BggContract
 
-data class GameEntity(
+data class Game(
     val id: Int = BggContract.INVALID_ID,
     val name: String = "",
     val sortName: String = "",
@@ -31,8 +31,8 @@ data class GameEntity(
     val numberOfComments: Int = 0,
     val numberOfUsersWeighting: Int = 0,
     val averageWeight: Double = 0.0,
-    val overallRank: Int = GameRankEntity.RANK_UNKNOWN,
-    val ranks: List<GameRankEntity> = emptyList(),
+    val overallRank: Int = GameRank.RANK_UNKNOWN,
+    val ranks: List<GameRank> = emptyList(),
     val updated: Long = 0,
     val updatedPlays: Long = 0,
     val customPlayerSort: Boolean = false,
@@ -45,7 +45,7 @@ data class GameEntity(
     val winnablePlaysColor: Int = Color.TRANSPARENT,
     val allPlaysColor: Int = Color.TRANSPARENT,
     val polls: List<Poll> = emptyList(),
-    val playerPoll: List<GamePlayerPollResultsEntity> = emptyList(),
+    val playerPoll: List<GamePlayerPollResults> = emptyList(),
     val designers: List<Pair<Int, String>> = emptyList(),
     val artists: List<Pair<Int, String>> = emptyList(),
     val publishers: List<Pair<Int, String>> = emptyList(),
@@ -69,7 +69,7 @@ data class GameEntity(
 
     class Results {
         var numberOfPlayers: String = ""
-        var result = arrayListOf<GamePollResultEntity>()
+        var result = arrayListOf<GamePollResult>()
         val key = "X"
     }
 

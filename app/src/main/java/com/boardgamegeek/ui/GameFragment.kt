@@ -108,7 +108,7 @@ class GameFragment : Fragment() {
         ).forEach { it.setOrClearColorFilter(iconColor) }
     }
 
-    private fun onGameContentChanged(game: GameEntity) {
+    private fun onGameContentChanged(game: Game) {
         colorize(game.iconColor)
 
         gameName = game.name
@@ -164,20 +164,20 @@ class GameFragment : Fragment() {
         binding.emptyMessage.isVisible = false
     }
 
-    private fun onRankQueryComplete(gameRanks: List<GameRankEntity>) {
-        binding.ranksInclude.rankView.text = gameRanks.find { it.type == GameRankEntity.RankType.Subtype }?.describe(requireContext())
+    private fun onRankQueryComplete(gameRanks: List<GameRank>) {
+        binding.ranksInclude.rankView.text = gameRanks.find { it.type == GameRank.RankType.Subtype }?.describe(requireContext())
         binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
         binding.ranksInclude.root.isVisible = true
 
         val descriptions = gameRanks
-            .filter { it.type == GameRankEntity.RankType.Family }
+            .filter { it.type == GameRank.RankType.Family }
             .map { it.describe(requireContext()) }
         binding.ranksInclude.subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
     }
 
-    private fun onLanguagePollQueryComplete(entity: GamePollEntity?) {
-        val score = entity?.calculateScore() ?: 0.0
-        val totalVotes = entity?.totalVotes ?: 0
+    private fun onLanguagePollQueryComplete(poll: GamePoll?) {
+        val score = poll?.calculateScore() ?: 0.0
+        val totalVotes = poll?.totalVotes ?: 0
 
         binding.languageInclude.languageView.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
         if (score == 0.0) {
@@ -197,10 +197,10 @@ class GameFragment : Fragment() {
         binding.languageInclude.root.isVisible = true
     }
 
-    private fun onAgePollQueryComplete(entity: GamePollEntity?) {
-        val voteCount = entity?.totalVotes ?: 0
-        val message = if (entity?.modalValue.isNullOrBlank()) ""
-        else requireContext().getText(R.string.age_community, entity?.modalValue.orEmpty())
+    private fun onAgePollQueryComplete(poll: GamePoll?) {
+        val voteCount = poll?.totalVotes ?: 0
+        val message = if (poll?.modalValue.isNullOrBlank()) ""
+        else requireContext().getText(R.string.age_community, poll?.modalValue.orEmpty())
         binding.agesInclude.playerAgePollView.setTextOrHide(message)
         binding.agesInclude.playerAgeVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, voteCount, voteCount))
         binding.agesInclude.playerAgeContainer.setOrClearOnClickListener(voteCount > 0) {
@@ -208,9 +208,9 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun onPlayerCountQueryComplete(entity: List<GamePlayerPollResultsEntity>) {
-        val bestCounts = entity.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST }.toSet()
-        val goodCounts = entity.filter { it.calculatedRecommendation == GamePlayerPollResultsEntity.BEST || it.calculatedRecommendation == GamePlayerPollResultsEntity.RECOMMENDED }.toSet()
+    private fun onPlayerCountQueryComplete(entity: List<GamePlayerPollResults>) {
+        val bestCounts = entity.filter { it.calculatedRecommendation == GamePlayerPollResults.BEST }.toSet()
+        val goodCounts = entity.filter { it.calculatedRecommendation == GamePlayerPollResults.BEST || it.calculatedRecommendation == GamePlayerPollResults.RECOMMENDED }.toSet()
 
         val best = requireContext().getText(R.string.best_prefix, bestCounts.toList().asRange())
         val good = requireContext().getText(R.string.recommended_prefix, goodCounts.toList().asRange())
@@ -223,8 +223,8 @@ class GameFragment : Fragment() {
         binding.playerRangeInclude.playerCountCommunityView.setTextOrHide(communityText)
     }
 
-    private fun List<GamePlayerPollResultsEntity>.asRange(comma: String = ", ", dash: String = " - "): String {
-       return this.sortedBy { it.playerNumber }.fold(mutableListOf<MutableList<GamePlayerPollResultsEntity>>()) { accumulator, element ->
+    private fun List<GamePlayerPollResults>.asRange(comma: String = ", ", dash: String = " - "): String {
+       return this.sortedBy { it.playerNumber }.fold(mutableListOf<MutableList<GamePlayerPollResults>>()) { accumulator, element ->
             val current = element.playerNumber
             val last = accumulator.lastOrNull()?.lastOrNull()?.playerNumber ?: Int.MAX_VALUE
             if (accumulator.isEmpty() || last != current - 1) {

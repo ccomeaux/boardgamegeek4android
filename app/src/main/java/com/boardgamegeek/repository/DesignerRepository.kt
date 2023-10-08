@@ -73,7 +73,7 @@ class DesignerRepository(
 
     suspend fun calculateStats(designerId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
         val collection = collectionDao.loadCollectionForDesigner(designerId)
-            .map { it.second.mapToModel(it.first.mapToEntity()) }
+            .map { it.second.mapToModel(it.first.mapToModel()) }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) designerDao.loadDesigner(designerId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {

@@ -4,7 +4,7 @@ import com.boardgamegeek.db.model.PublisherBasic
 import com.boardgamegeek.db.model.PublisherBrief
 import com.boardgamegeek.db.model.PublisherLocal
 import com.boardgamegeek.entities.Company
-import com.boardgamegeek.entities.GameDetailEntity
+import com.boardgamegeek.entities.GameDetail
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.io.model.CompanyItem
 import com.boardgamegeek.provider.BggContract
@@ -33,7 +33,7 @@ fun PublisherLocal.mapToModel() = Company(
     itemCount = itemCount ?: 0,
 )
 
-fun PublisherBrief.mapToGameDetailEntity() = GameDetailEntity(
+fun PublisherBrief.mapToGameDetail() = GameDetail(
     id = publisherId,
     name = publisherName,
     thumbnailUrl = publisherThumbnailUrl.orEmpty(),

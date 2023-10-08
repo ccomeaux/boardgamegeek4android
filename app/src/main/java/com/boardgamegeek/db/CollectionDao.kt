@@ -11,7 +11,7 @@ import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
-import com.boardgamegeek.db.model.CollectionItemGameEntity
+import com.boardgamegeek.db.model.CollectionItemGame
 import com.boardgamegeek.db.model.CollectionItemLocal
 import com.boardgamegeek.db.model.GameLocal
 import com.boardgamegeek.extensions.*
@@ -481,7 +481,7 @@ class CollectionDao(private val context: Context) {
         }
     }
 
-    suspend fun saveItem(item: CollectionItemLocal, game: CollectionItemGameEntity): Pair<Int, Long> = withContext(Dispatchers.IO) {
+    suspend fun saveItem(item: CollectionItemLocal, game: CollectionItemGame): Pair<Int, Long> = withContext(Dispatchers.IO) {
         var internalId = INVALID_ID.toLong()
         val candidate = SyncCandidate.find(resolver, item.collectionId, item.gameId)
         if (candidate.dirtyTimestamp != NOT_DIRTY) {
@@ -499,7 +499,7 @@ class CollectionDao(private val context: Context) {
         item.collectionId to internalId
     }
 
-    private fun CollectionItemGameEntity.toGameValues() = contentValuesOf(
+    private fun CollectionItemGame.toGameValues() = contentValuesOf(
         Games.Columns.GAME_ID to gameId,
         Games.Columns.GAME_NAME to gameName,
         Games.Columns.GAME_SORT_NAME to sortName,

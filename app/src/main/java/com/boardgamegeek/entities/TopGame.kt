@@ -8,6 +8,6 @@ data class TopGame(
     val thumbnailUrl: String,
 ) {
     companion object {
-        const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
+        const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
     }
 }

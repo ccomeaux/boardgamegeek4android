@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 
 @SuppressWarnings({ "unused", "SpellCheckingInspection" })
 @Root(name = "item")
-public class Game {
+public class GameRemote {
 	public static final int PAGE_SIZE = 100;
 
 	@Attribute public String type;

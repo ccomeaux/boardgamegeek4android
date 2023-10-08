@@ -28,7 +28,7 @@ class CollectionItemRepository(
     suspend fun loadAll(): List<CollectionItem> = dao.loadAll()
         .filter { (it.second.collectionDeleteTimestamp ?: 0L) == 0L }
         .map {
-            it.second.mapToModel(it.first.mapToEntity())
+            it.second.mapToModel(it.first.mapToModel())
         }
 
     suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {

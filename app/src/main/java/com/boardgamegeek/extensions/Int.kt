@@ -5,8 +5,7 @@ import android.graphics.Color
 import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.Game
 import java.math.BigDecimal
 import java.math.MathContext
 import java.text.NumberFormat
@@ -46,7 +45,7 @@ fun Int.asRangeDescription(quantity: Int): String {
 fun Int.asYear(context: Context?): String {
     return when {
         context == null -> this.toString()
-        this == GameEntity.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
+        this == Game.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
         this > 0 -> context.getString(R.string.year_positive, this.toString())
         else -> context.getString(R.string.year_negative, (-this).toString())
     }

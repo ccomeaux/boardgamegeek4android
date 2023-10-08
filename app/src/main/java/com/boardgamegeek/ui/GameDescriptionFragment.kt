@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameDescriptionBinding
-import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.Game
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setTextMaybeHtml
@@ -65,7 +65,7 @@ class GameDescriptionFragment : Fragment() {
         }
     }
 
-    private fun showData(game: GameEntity) {
+    private fun showData(game: Game) {
         binding.emptyMessage.isVisible = false
 
         binding.gameDescription.setTextMaybeHtml(game.description)

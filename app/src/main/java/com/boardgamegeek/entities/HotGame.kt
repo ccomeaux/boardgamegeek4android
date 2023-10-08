@@ -8,6 +8,6 @@ data class HotGame(
     val yearPublished: Int = YEAR_UNKNOWN
 ) {
     companion object {
-        const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
+        const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
     }
 }

@@ -444,11 +444,11 @@ class GameDao(private val context: Context) {
             }.joinTo(" AND ").toString(),
             selectionArgs = mutableListOf<String>().apply {
                 if (!includeExpansions && !includeAccessories) {
-                    add(GameEntity.Subtype.BOARDGAME.code)
+                    add(Game.Subtype.BOARDGAME.code)
                 } else if (!includeExpansions) {
-                    add(GameEntity.Subtype.BOARDGAME_EXPANSION.code)
+                    add(Game.Subtype.BOARDGAME_EXPANSION.code)
                 } else if (!includeAccessories) {
-                    add(GameEntity.Subtype.BOARDGAME_ACCESSORY.code)
+                    add(Game.Subtype.BOARDGAME_ACCESSORY.code)
                 }
             }.toTypedArray(),
             sortOrder = "${Plays.Columns.SUM_QUANTITY} DESC, ${Games.Columns.GAME_SORT_NAME} ASC"
@@ -457,7 +457,7 @@ class GameDao(private val context: Context) {
                 id = it.getIntOrNull(0) ?: INVALID_ID,
                 name = it.getStringOrNull(1).orEmpty(),
                 playCount = it.getIntOrNull(3) ?: 0,
-                bggRank = it.getIntOrNull(2) ?: GameRankEntity.RANK_UNKNOWN,
+                bggRank = it.getIntOrNull(2) ?: GameRank.RANK_UNKNOWN,
             )
         }
     }

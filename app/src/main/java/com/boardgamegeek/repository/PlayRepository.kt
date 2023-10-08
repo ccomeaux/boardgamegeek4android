@@ -298,7 +298,7 @@ class PlayRepository(
         }
         if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_OWN)) {
             val items = collectionDao.loadAll().map {
-                 it.second.mapToModel(it.first.mapToEntity())
+                 it.second.mapToModel(it.first.mapToModel())
             }
             games.map { game ->
                 val itemPairs = items.filter { it.gameId == game.id }

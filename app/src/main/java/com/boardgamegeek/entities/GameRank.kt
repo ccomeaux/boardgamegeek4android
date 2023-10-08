@@ -6,8 +6,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getText
 import com.boardgamegeek.extensions.toSubtype
 import com.boardgamegeek.io.BggService
-
-data class GameRankEntity(
+// TODO remove context-based methods
+data class GameRank(
     val type: RankType,
     val name: String = "",
     val friendlyName: String = "",
@@ -31,9 +31,9 @@ data class GameRankEntity(
         @StringRes val resId = when (type) {
             RankType.Subtype -> {
                 when (name.toSubtype()) {
-                    GameEntity.Subtype.BOARDGAME -> R.string.title_board_game
-                    GameEntity.Subtype.BOARDGAME_EXPANSION -> R.string.title_expansion
-                    GameEntity.Subtype.BOARDGAME_ACCESSORY -> R.string.title_accessory
+                    Game.Subtype.BOARDGAME -> R.string.title_board_game
+                    Game.Subtype.BOARDGAME_EXPANSION -> R.string.title_expansion
+                    Game.Subtype.BOARDGAME_ACCESSORY -> R.string.title_accessory
                     else -> -1
                 }
             }

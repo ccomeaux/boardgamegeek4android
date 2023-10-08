@@ -75,16 +75,16 @@ class NewPlayActivity : AppCompatActivity() {
         }
 
         viewModel.game.observe(this) {
-            it?.let { entity ->
-                gameName = entity.name
-                thumbnailUrl = entity.thumbnailUrl
-                imageUrl = entity.imageUrl
-                heroImageUrl = entity.heroImageUrl
+            it?.let { game ->
+                gameName = game.name
+                thumbnailUrl = game.thumbnailUrl
+                imageUrl = game.imageUrl
+                heroImageUrl = game.heroImageUrl
 
                 updateSummary()
 
                 val summaryView = findViewById<PlaySummary>(R.id.summaryView)
-                binding.thumbnailView.loadImage(entity.heroImageUrl, callback = object : ImageLoadCallback {
+                binding.thumbnailView.loadImage(game.heroImageUrl, callback = object : ImageLoadCallback {
                     override fun onSuccessfulImageLoad(palette: Palette?) {
                         summaryView.setBackgroundResource(R.color.black_overlay_light)
                     }

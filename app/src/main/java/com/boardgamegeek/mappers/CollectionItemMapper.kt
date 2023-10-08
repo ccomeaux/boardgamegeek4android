@@ -1,11 +1,11 @@
 package com.boardgamegeek.mappers
 
 import android.graphics.Color
-import com.boardgamegeek.db.model.CollectionItemGameEntity
+import com.boardgamegeek.db.model.CollectionItemGame
 import com.boardgamegeek.db.model.CollectionItemLocal
 import com.boardgamegeek.db.model.GameLocal
 import com.boardgamegeek.entities.CollectionItem
-import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.Game
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
@@ -54,11 +54,11 @@ fun CollectionItemRemote.mapToCollectionItem() = CollectionItem(
     inventoryLocation = inventorylocation.orEmpty()
 )
 
-fun CollectionItemRemote.mapToCollectionItemGame(updatedTimestamp: Long) = CollectionItemGameEntity(
+fun CollectionItemRemote.mapToCollectionItemGame(updatedTimestamp: Long) = CollectionItemGame(
     gameId = objectid,
     gameName = if (originalname.isNullOrBlank()) name else originalname,
     sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
-    yearPublished = yearpublished?.toIntOrNull() ?: CollectionItemGameEntity.YEAR_UNKNOWN,
+    yearPublished = yearpublished?.toIntOrNull() ?: CollectionItemGame.YEAR_UNKNOWN,
     imageUrl = image.orEmpty(),
     thumbnailUrl = thumbnail.orEmpty(),
     minNumberOfPlayers = stats?.minplayers ?: 0,
@@ -219,7 +219,7 @@ private fun CollectionItem.mapToFormBodyBuilder(): FormBody.Builder {
     return builder
 }
 
-fun CollectionItemLocal.mapToModel(gameEntity: GameEntity?) = CollectionItem(
+fun CollectionItemLocal.mapToModel(gameEntity: Game?) = CollectionItem(
     internalId = internalId,
     gameId = gameId,
     gameName = gameEntity?.name.orEmpty(),
@@ -295,4 +295,4 @@ fun CollectionItemLocal.mapToModel(gameEntity: GameEntity?) = CollectionItem(
     standardDeviation = gameEntity?.standardDeviation ?: 0.0,
 )
 
-fun Pair<GameLocal, CollectionItemLocal>.mapToModel() = second.mapToModel(first.mapToEntity())
+fun Pair<GameLocal, CollectionItemLocal>.mapToModel() = second.mapToModel(first.mapToModel())

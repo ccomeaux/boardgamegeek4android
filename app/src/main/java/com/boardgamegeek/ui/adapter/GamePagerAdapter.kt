@@ -63,14 +63,14 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
             it?.let { shouldShowPlays = it }
         }
         viewModel.game.observe(activity) { resource ->
-            resource.data?.let { entity ->
-                gameName = entity.name
-                imageUrl = entity.imageUrl
-                thumbnailUrl = entity.thumbnailUrl
-                heroImageUrl = entity.heroImageUrl
-                arePlayersCustomSorted = entity.customPlayerSort
-                iconColor = entity.iconColor
-                isFavorite = entity.isFavorite
+            resource.data?.let { game ->
+                gameName = game.name
+                imageUrl = game.imageUrl
+                thumbnailUrl = game.thumbnailUrl
+                heroImageUrl = game.heroImageUrl
+                arePlayersCustomSorted = game.customPlayerSort
+                iconColor = game.iconColor
+                isFavorite = game.isFavorite
                 updateFavIcon(isFavorite)
                 fab.colorize(iconColor)
                 fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }

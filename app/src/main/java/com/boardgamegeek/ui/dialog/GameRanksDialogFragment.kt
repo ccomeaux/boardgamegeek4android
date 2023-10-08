@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogGameRanksBinding
-import com.boardgamegeek.entities.GameRankEntity
+import com.boardgamegeek.entities.GameRank
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameRankRow
@@ -62,18 +62,18 @@ class GameRanksDialogFragment : DialogFragment() {
                 if (rank.isRankValid()) {
                     val row = GameRankRow(requireContext(), rank)
                     when (rank.type) {
-                        GameRankEntity.RankType.Subtype -> {
+                        GameRank.RankType.Subtype -> {
                             binding.subtypesView.addView(row)
                             binding.subtypesView.isVisible = true
                             binding.unRankedView.isVisible = false
                             hasRankedSubtype = true
                         }
-                        GameRankEntity.RankType.Family -> {
+                        GameRank.RankType.Family -> {
                             binding.familiesView.addView(row)
                             binding.familiesView.isVisible = true
                         }
                     }
-                } else if (rank.type == GameRankEntity.RankType.Subtype) {
+                } else if (rank.type == GameRank.RankType.Subtype) {
                     unRankedSubtype = rank.describeType(requireContext())
                 }
             }

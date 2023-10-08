@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class GamePlayerPollResultsEntity(
+data class GamePlayerPollResults(
     val totalVotes: Int = 0,
     val playerCount: String = "0",
     val bestVoteCount: Int = 0,

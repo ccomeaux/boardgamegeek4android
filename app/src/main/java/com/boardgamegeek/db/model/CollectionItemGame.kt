@@ -1,9 +1,9 @@
 package com.boardgamegeek.db.model
 
-import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.Game
 import com.boardgamegeek.provider.BggContract
 
-data class CollectionItemGameEntity(
+data class CollectionItemGame(
     val gameId: Int = BggContract.INVALID_ID,
     val gameName: String = "",
     val sortName: String = "",
@@ -26,6 +26,6 @@ data class CollectionItemGameEntity(
     val updatedListTimestamp: Long,
 ) {
     companion object {
-        const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
+        const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
     }
 }

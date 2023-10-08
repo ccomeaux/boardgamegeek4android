@@ -2,7 +2,7 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.CategoryLocal
 import com.boardgamegeek.entities.Category
-import com.boardgamegeek.entities.GameDetailEntity
+import com.boardgamegeek.entities.GameDetail
 
 fun CategoryLocal.mapToModel() = Category(
     id = id,
@@ -10,7 +10,7 @@ fun CategoryLocal.mapToModel() = Category(
     itemCount = itemCount,
 )
 
-fun CategoryLocal.mapToGameDetailEntity() = GameDetailEntity(
+fun CategoryLocal.mapToGameDetail() = GameDetail(
     id = id,
     name = name,
 )

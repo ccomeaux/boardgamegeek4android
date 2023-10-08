@@ -1,6 +1,6 @@
 package com.boardgamegeek.entities
 
-data class GameExpansionsEntity(
+data class GameExpansion(
     val id: Int,
     val name: String,
     val thumbnailUrl: String = "",
@@ -18,7 +18,7 @@ data class GameExpansionsEntity(
     val comment: String = "",
 ) {
     companion object {
-        const val UNRATED = GameEntity.UNRATED
+        const val UNRATED = Game.UNRATED
         const val WISHLIST_PRIORITY_UNKNOWN = CollectionItem.WISHLIST_PRIORITY_UNKNOWN
     }
 }

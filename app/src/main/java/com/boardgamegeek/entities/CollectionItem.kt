@@ -75,7 +75,7 @@ data class CollectionItem(
     val arePlayersCustomSorted: Boolean = false,
     val minPlayerCount: Int = 0,
     val maxPlayerCount: Int = 0,
-    val subtype: GameEntity.Subtype? = null,
+    val subtype: Game.Subtype? = null,
     val bestPlayerCounts: String = "",
     val recommendedPlayerCounts: String = "",
     val numberOfUsersOwned: Int = 0,
@@ -152,9 +152,9 @@ data class CollectionItem(
 
     companion object {
         const val WISHLIST_PRIORITY_UNKNOWN = 0
-        const val RANK_UNKNOWN = GameRankEntity.RANK_UNKNOWN
-        const val YEAR_UNKNOWN = GameEntity.YEAR_UNKNOWN
-        const val UNRATED = GameEntity.UNRATED
+        const val RANK_UNKNOWN = GameRank.RANK_UNKNOWN
+        const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
+        const val UNRATED = Game.UNRATED
 
         fun CollectionItem.filterBySyncedStatues(context: Context): Boolean {
             val syncedStatuses = context.preferences().getSyncStatusesOrDefault()

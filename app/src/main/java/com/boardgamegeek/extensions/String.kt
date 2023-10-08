@@ -1,7 +1,7 @@
 package com.boardgamegeek.extensions
 
 import android.net.Uri
-import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.entities.Game
 import timber.log.Timber
 import java.text.DateFormat
 import java.util.*
@@ -46,7 +46,7 @@ fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     }
 }
 
-fun String?.asYear(unknownYear: Int = GameEntity.YEAR_UNKNOWN): Int {
+fun String?.asYear(unknownYear: Int = Game.YEAR_UNKNOWN): Int {
     if (this.isNullOrBlank()) return unknownYear
     val l = this.toLong()
     return if (l > Integer.MAX_VALUE) {
@@ -70,7 +70,7 @@ fun String?.asCurrency(): String {
     }
 }
 
-fun String?.toSubtype() = GameEntity.Subtype.values().find { this == it.code }
+fun String?.toSubtype() = Game.Subtype.values().find { this == it.code }
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun String.andMore() = "${this}+"
