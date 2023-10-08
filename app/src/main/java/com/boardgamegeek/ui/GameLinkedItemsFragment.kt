@@ -64,8 +64,8 @@ class GameLinkedItemsFragment : Fragment() {
             }
             binding.progress.hide()
         }
-        viewModel.expansions.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
+        viewModel.expansions.observe(viewLifecycleOwner) {
+            it?.let { list ->
                 binding.expansionsHeaderView.isGone = list.isEmpty()
                 binding.expansionsChipGroup.bindData(
                     list,
@@ -76,8 +76,8 @@ class GameLinkedItemsFragment : Fragment() {
                 binding.expansionsDividerView.isGone = list.isEmpty()
             }
         }
-        viewModel.baseGames.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
+        viewModel.baseGames.observe(viewLifecycleOwner) {
+            it?.let { list ->
                 binding.baseGamesHeaderView.isGone = list.isEmpty()
                 binding.baseGamesChipGroup.bindData(
                     list,

@@ -48,7 +48,7 @@ class GameRanksDialogFragment : DialogFragment() {
             binding.standardDeviationView.isVisible = voteCount > 0
         }
 
-        viewModel.ranks.observe(viewLifecycleOwner) { gameRankEntities ->
+        viewModel.ranks.observe(viewLifecycleOwner) {
             binding.unRankedView.isVisible = false
             binding.subtypesView.removeAllViews()
             binding.subtypesView.isVisible = false
@@ -58,7 +58,7 @@ class GameRanksDialogFragment : DialogFragment() {
             var hasRankedSubtype = false
             var unRankedSubtype = getText(R.string.game)
 
-            gameRankEntities?.forEach { rank ->
+            it?.forEach { rank ->
                 if (rank.isRankValid()) {
                     val row = GameRankRow(requireContext(), rank)
                     when (rank.type) {

@@ -65,8 +65,8 @@ class GameCreditsFragment : Fragment() {
             }
             binding.progress.hide()
         }
-        viewModel.designers.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
+        viewModel.designers.observe(viewLifecycleOwner) {
+            it?.let { list ->
                 binding.designerHeaderView.isGone = list.isEmpty()
                 binding.designersChipGroup.bindData(
                     list,
@@ -77,8 +77,8 @@ class GameCreditsFragment : Fragment() {
                 binding.designersDividerView.isGone = list.isEmpty()
             }
         }
-        viewModel.artists.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
+        viewModel.artists.observe(viewLifecycleOwner) {
+            it?.let { list ->
                 binding.artistsHeaderView.isGone = list.isEmpty()
                 binding.artistsChipGroup.bindData(
                     list,
@@ -89,8 +89,8 @@ class GameCreditsFragment : Fragment() {
                 binding.artistsDividerView.isGone = list.isEmpty()
             }
         }
-        viewModel.publishers.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
+        viewModel.publishers.observe(viewLifecycleOwner) {
+            it?.let { list ->
                 binding.publishersHeaderView.isGone = list.isEmpty()
                 binding.publishersChipGroup.bindData(
                     list,
@@ -101,8 +101,8 @@ class GameCreditsFragment : Fragment() {
                 binding.publishersHeaderView.isGone = list.isEmpty()
             }
         }
-        viewModel.categories.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
+        viewModel.categories.observe(viewLifecycleOwner) {
+            it?.let { list ->
                 binding.categoriesHeaderView.isGone = list.isEmpty()
                 binding.categoriesChipGroup.bindData(
                     list,
@@ -113,8 +113,8 @@ class GameCreditsFragment : Fragment() {
                 binding.categoriesDividerView.isGone = list.isEmpty()
             }
         }
-        viewModel.mechanics.observe(viewLifecycleOwner) { entities ->
-            entities?.let { list ->
+        viewModel.mechanics.observe(viewLifecycleOwner) {
+            it?.let { list ->
                 binding.mechanicsHeaderView.isGone = list.isEmpty()
                 binding.mechanicsChipGroup.bindData(
                     list,
