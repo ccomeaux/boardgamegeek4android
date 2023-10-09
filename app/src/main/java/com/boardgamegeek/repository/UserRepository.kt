@@ -29,6 +29,10 @@ class UserRepository(
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
+    enum class UsersSortBy {
+        FIRST_NAME, LAST_NAME, USERNAME
+    }
+
     suspend fun load(username: String): User? = withContext(Dispatchers.IO) {
         userDao2.loadUser(username)?.mapToModel()
     }
@@ -55,15 +59,26 @@ class UserRepository(
             items
         }
 
-    suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<User> = withContext(Dispatchers.IO) {
+    suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<User> = withContext(Dispatchers.IO) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
-        userDao.loadUsers(sortBy, buddiesOnly = true)
-            .filter { it.username != username }
+        userDao2.loadUsers()
+            .sortedWith(
+                compareBy(
+                    String.CASE_INSENSITIVE_ORDER
+                ) {
+                    when (sortBy) {
+                        UsersSortBy.FIRST_NAME -> it.firstName
+                        UsersSortBy.LAST_NAME -> it.lastName
+                        UsersSortBy.USERNAME -> it.username
+                    }.toString()
+                }
+            )
+            .filter { it.buddyFlag == true && it.username != username }
             .map { it.mapToModel() }
     }
 
     suspend fun loadAllUsers(): List<User> = withContext(Dispatchers.IO) {
-        userDao.loadUsers(buddiesOnly = false).map { it.mapToModel() }
+        userDao2.loadUsers().map { it.mapToModel() }
     }
 
     suspend fun refreshBuddies(timestamp: Long): Pair<Int, Int> = withContext(Dispatchers.IO) {

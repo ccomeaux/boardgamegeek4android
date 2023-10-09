@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
-import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.repository.UserRepository
@@ -63,7 +62,7 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Syncing oldest buddies")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
         var updatedBuddyCount = 0
-        val allUsers = userRepository.loadBuddies(sortBy = UserDao.UsersSortBy.UPDATED)
+        val allUsers = userRepository.loadBuddies().sortedBy { it.updatedTimestamp }
 
         val staleBuddies = allUsers.filter { it.updatedTimestamp > 0L }.map { it.username }
         val limit = (staleBuddies.size / buddySyncSliceCount.coerceAtLeast(1)).coerceAtMost(buddySyncSliceMaxSize)

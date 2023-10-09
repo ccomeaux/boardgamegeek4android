@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.model.User
 import com.boardgamegeek.repository.GameRepository
@@ -33,7 +32,7 @@ class LogPlayerViewModel @Inject constructor(
 
     val buddies: LiveData<List<User>> = _gameId.switchMap {
         liveData {
-            emit(userRepository.loadBuddies(UserDao.UsersSortBy.USERNAME))
+            emit(userRepository.loadBuddies())
         }
     }.distinctUntilChanged()
 

@@ -8,4 +8,7 @@ import com.boardgamegeek.db.model.UserEntity
 interface UserDao2 {
     @Query("SELECT * FROM users WHERE username=:username")
     fun loadUser(username: String): UserEntity?
+
+    @Query("SELECT * FROM users")
+    fun loadUsers(): List<UserEntity>
 }

@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
@@ -86,12 +85,12 @@ class BuddiesViewModel @Inject constructor(
 
     sealed class BuddiesSort {
         abstract val sortType: SortType
-        abstract val sortBy: UserDao.UsersSortBy
+        abstract val sortBy: UserRepository.UsersSortBy
         abstract fun getSectionHeader(user: User?): String
 
         class ByUsername : BuddiesSort() {
             override val sortType = SortType.USERNAME
-            override val sortBy = UserDao.UsersSortBy.USERNAME
+            override val sortBy = UserRepository.UsersSortBy.USERNAME
             override fun getSectionHeader(user: User?): String {
                 return user?.username.firstChar()
             }
@@ -99,7 +98,7 @@ class BuddiesViewModel @Inject constructor(
 
         class ByFirstName : BuddiesSort() {
             override val sortType = SortType.FIRST_NAME
-            override val sortBy = UserDao.UsersSortBy.FIRST_NAME
+            override val sortBy = UserRepository.UsersSortBy.FIRST_NAME
             override fun getSectionHeader(user: User?): String {
                 return user?.firstName.firstChar()
             }
@@ -107,7 +106,7 @@ class BuddiesViewModel @Inject constructor(
 
         class ByLastName : BuddiesSort() {
             override val sortType = SortType.LAST_NAME
-            override val sortBy = UserDao.UsersSortBy.LAST_NAME
+            override val sortBy = UserRepository.UsersSortBy.LAST_NAME
             override fun getSectionHeader(user: User?): String {
                 return user?.lastName.firstChar()
             }
