@@ -1,7 +1,6 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
@@ -10,21 +9,39 @@ import com.boardgamegeek.model.Company
 import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.mapForUpsert
 import com.boardgamegeek.mappers.mapToModel
-import com.boardgamegeek.mappers.mapToPublisherBasic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 class PublisherRepository(
     val context: Context,
     private val api: BggService,
     private val imageRepository: ImageRepository,
+    private val publisherDao: PublisherDao,
 ) {
-    private val publisherDao = PublisherDao(context)
     private val collectionDao = CollectionDao(context)
-    private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadPublishers(sortBy: PublisherDao.SortType) = publisherDao.loadPublishers(sortBy).map { it.mapToModel() }
+    enum class SortType {
+        NAME, ITEM_COUNT, WHITMORE_SCORE
+    }
+
+    suspend fun loadPublishers(sortBy: SortType): List<Company> {
+        return publisherDao.loadPublishers()
+            .sortedWith(
+                compareBy(
+                    String.CASE_INSENSITIVE_ORDER
+                ) { // TODO test these options
+                    when (sortBy) {
+                        SortType.NAME -> it.publisherSortName
+                        SortType.WHITMORE_SCORE -> it.whitmoreScore
+                        SortType.ITEM_COUNT -> 0 // TODO
+                    }.toString()
+                }
+            )
+            .map { it.mapToModel() }
+    }
 
     suspend fun loadPublisher(publisherId: Int) = publisherDao.loadPublisher(publisherId)?.mapToModel()
 
@@ -34,14 +51,20 @@ class PublisherRepository(
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
 
-    suspend fun delete() = publisherDao.delete()
+    suspend fun deleteAll() = publisherDao.deleteAll()
 
-    suspend fun refreshPublisher(publisherId: Int): Int = withContext(Dispatchers.IO) {
-        val timestamp = System.currentTimeMillis()
+    suspend fun refreshPublisher(publisherId: Int) = withContext(Dispatchers.IO) {
+        val timestamp = Date()
         val response = api.company(publisherId)
         response.items.firstOrNull()?.mapToModel(timestamp)?.let {
-            publisherDao.upsert(it.mapToPublisherBasic())
-        } ?: 0
+            val publisher = publisherDao.loadPublisher(it.id)
+            if (publisher == null) {
+                publisherDao.insert(it.mapForUpsert())
+                // TODO update item count
+            } else {
+                publisherDao.update(it.mapForUpsert(publisher.internalId))
+            }
+        }
     }
 
     suspend fun refreshImages(publisher: Company): Company = withContext(Dispatchers.IO) {
@@ -61,16 +84,17 @@ class PublisherRepository(
                 progress.postValue(i to maxProgress)
                 calculateStats(data.id, data.whitmoreScore)
             }
-            prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS] = System.currentTimeMillis()
+            context.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS] = System.currentTimeMillis()
             progress.postValue(0 to 0)
         }
 
     suspend fun calculateStats(publisherId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
+        val timestamp = Date()
         val collection = collectionDao.loadCollectionForPublisher(publisherId).map { it.mapToModel() }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) publisherDao.loadPublisher(publisherId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {
-            publisherDao.updateWhitmoreScore(publisherId, stats.whitmoreScore)
+            publisherDao.updateWhitmoreScore(publisherId, stats.whitmoreScore, timestamp)
         }
         stats
     }

@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(
     tableName = "artists",
@@ -26,11 +27,11 @@ data class ArtistEntity(
     @ColumnInfo(name = "artist_hero_image_url")
     val artistHeroImageUrl: String?,
     @ColumnInfo(name = "artist_images_updated_timestamp")
-    val imagesUpdatedTimestamp: Long?,
+    val imagesUpdatedTimestamp: Date?,
     @ColumnInfo(name = "whitmore_score")
     val whitmoreScore: Int?,
     @ColumnInfo(name = "artist_stats_updated_timestamp")
-    val statsUpdatedTimestamp: Long?,
+    val statsUpdatedTimestamp: Date?,
     @ColumnInfo(name = "updated")
-    val updatedTimestamp: Long?,
+    val updatedTimestamp: Date?,
 )

@@ -88,13 +88,13 @@ class PersonViewModel @Inject constructor(
         emit(RefreshableResource.refreshing(latestValue?.data))
         val artist = artistRepository.loadArtist(artistId)
         try {
-            val refreshedArtist = if (artist == null || artist.updatedTimestamp.isOlderThan(1.days)) {
+            val refreshedArtist = if (artist?.updatedTimestamp == null || artist.updatedTimestamp.time.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(artist))
                 artistRepository.refreshArtist(artistId)
                 artistRepository.loadArtist(artistId)
             } else artist
             refreshedArtist?.let {
-                val artistWithImages = if (it.imagesUpdatedTimestamp.isOlderThan(1.days)) {
+                val artistWithImages = if ( it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(1.days)) {
                     emit(RefreshableResource.refreshing(it))
                     artistRepository.refreshImages(it)
                 } else it
@@ -113,13 +113,13 @@ class PersonViewModel @Inject constructor(
         emit(RefreshableResource.refreshing(latestValue?.data))
         val designer = designerRepository.loadDesigner(designerId)
         try {
-            val refreshedDesigner = if (designer == null || designer.updatedTimestamp.isOlderThan(1.days)) {
+            val refreshedDesigner = if (designer?.updatedTimestamp == null || designer.updatedTimestamp.time.isOlderThan(1.days)) {
                 emit(RefreshableResource.refreshing(designer))
                 designerRepository.refreshDesigner(designerId)
                 designerRepository.loadDesigner(designerId)
             } else designer
             refreshedDesigner?.let {
-                val designerWithImages = if (it.imagesUpdatedTimestamp.isOlderThan(1.days)) {
+                val designerWithImages = if (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(1.days)) {
                     emit(RefreshableResource.refreshing(it))
                     designerRepository.refreshImages(it)
                 } else it
@@ -138,7 +138,7 @@ class PersonViewModel @Inject constructor(
         emit(RefreshableResource.refreshing(latestValue?.data))
         val publisher = publisherRepository.loadPublisher(publisherId)
         try {
-            val refreshedPublisher = if (publisher == null || publisher.updatedTimestamp.isOlderThan(1.days)) {
+            val refreshedPublisher = if (publisher?.updatedTimestamp == null || publisher.updatedTimestamp.time.isOlderThan(0.days)) {
                 emit(RefreshableResource.refreshing(publisher.toPerson()))
                 publisherRepository.refreshPublisher(publisherId)
                 publisherRepository.loadPublisher(publisherId)

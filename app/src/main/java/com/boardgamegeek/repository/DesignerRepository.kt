@@ -12,16 +12,35 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Date
 
 class DesignerRepository(
     val context: Context,
     private val api: BggService,
+    private val designerDao: DesignerDao,
     private val imageRepository: ImageRepository,
 ) {
-    private val designerDao = DesignerDao(context)
     private val collectionDao = CollectionDao(context)
 
-    suspend fun loadDesigners(sortBy: DesignerDao.SortType) = designerDao.loadDesigners(sortBy).map { it.mapToModel() }
+    enum class SortType {
+        NAME, ITEM_COUNT, WHITMORE_SCORE
+    }
+
+    suspend fun loadDesigners(sortBy: SortType): List<Person> {
+        return designerDao.loadDesigners()
+            .sortedWith(
+                compareBy(
+                    String.CASE_INSENSITIVE_ORDER
+                ) {
+                    when (sortBy) {
+                        SortType.NAME -> it.designerName
+                        SortType.WHITMORE_SCORE -> it.whitmoreScore
+                        SortType.ITEM_COUNT -> 0 // TODO
+                    }.toString()
+                }
+            )
+            .map { it.mapToModel() }
+    }
 
     suspend fun loadDesigner(designerId: Int) = designerDao.loadDesigner(designerId)?.mapToModel()
 
@@ -31,22 +50,28 @@ class DesignerRepository(
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
 
-    suspend fun delete() = designerDao.delete()
+    suspend fun deleteAll() = designerDao.deleteAll()
 
-    suspend fun refreshDesigner(designerId: Int): Int = withContext(Dispatchers.IO) {
-        val timestamp = System.currentTimeMillis()
+    suspend fun refreshDesigner(designerId: Int) = withContext(Dispatchers.IO) {
+        val timestamp = Date()
         val response = api.person(BggService.PersonType.DESIGNER, designerId)
         response.mapToModel(designerId, timestamp)?.let {
-            designerDao.upsert(it.mapToDesignerBasic())
-        } ?: 0
+            val artist = designerDao.loadDesigner(it.id)
+            if (artist == null) {
+                designerDao.insert(it.mapDesignerForUpsert())
+                // TODO update item count
+            } else {
+                designerDao.update(it.mapDesignerForUpsert(artist.internalId))
+            }
+        }
     }
 
     suspend fun refreshImages(designer: Person): Person = withContext(Dispatchers.IO) {
-        val timestamp = System.currentTimeMillis()
+        val timestamp = Date()
         val response = api.person(designer.id)
         val person = response.items.firstOrNull()?.mapToModel(designer, timestamp)
         person?.let {
-            designerDao.upsert(it.mapToDesignerImages())
+            designerDao.updateImageUrls(it.id, it.imageUrl, it.thumbnailUrl, it.imagesUpdatedTimestamp ?: Date())
         }
         person ?: designer
     }
@@ -72,12 +97,12 @@ class DesignerRepository(
     }
 
     suspend fun calculateStats(designerId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
-        val collection = collectionDao.loadCollectionForDesigner(designerId)
-            .map { it.second.mapToModel(it.first.mapToModel()) }
+        val timestamp = Date()
+        val collection = collectionDao.loadCollectionForDesigner(designerId).map { it.second.mapToModel(it.first.mapToModel()) }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) designerDao.loadDesigner(designerId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {
-            designerDao.updateWhitmoreScore(designerId, stats.whitmoreScore)
+            designerDao.updateWhitmoreScore(designerId, stats.whitmoreScore, timestamp)
         }
         stats
     }

@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.model.Company
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
@@ -73,12 +72,12 @@ class PublishersViewModel @Inject constructor(
 
     sealed class PublishersSort {
         abstract val sortType: SortType
-        abstract val sortBy: PublisherDao.SortType
+        abstract val sortBy: PublisherRepository.SortType
         abstract fun getSectionHeader(publisher: Company?): String
 
         class ByName : PublishersSort() {
             override val sortType = SortType.NAME
-            override val sortBy = PublisherDao.SortType.NAME
+            override val sortBy = PublisherRepository.SortType.NAME
             override fun getSectionHeader(publisher: Company?): String {
                 return when {
                     publisher == null -> ""
@@ -90,7 +89,7 @@ class PublishersViewModel @Inject constructor(
 
         class ByItemCount : PublishersSort() {
             override val sortType = SortType.ITEM_COUNT
-            override val sortBy = PublisherDao.SortType.ITEM_COUNT
+            override val sortBy = PublisherRepository.SortType.ITEM_COUNT
             override fun getSectionHeader(publisher: Company?): String {
                 return (publisher?.itemCount ?: 0).orderOfMagnitude()
             }
@@ -98,7 +97,7 @@ class PublishersViewModel @Inject constructor(
 
         class ByWhitmoreScore : PublishersSort() {
             override val sortType = SortType.WHITMORE_SCORE
-            override val sortBy = PublisherDao.SortType.WHITMORE_SCORE
+            override val sortBy = PublisherRepository.SortType.WHITMORE_SCORE
             override fun getSectionHeader(publisher: Company?): String {
                 return (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
             }

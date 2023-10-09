@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.ArtistRepository
@@ -73,12 +72,12 @@ class ArtistsViewModel @Inject constructor(
 
     sealed class ArtistsSort {
         abstract val sortType: SortType
-        abstract val sortBy: ArtistDao.SortType
+        abstract val sortBy: ArtistRepository.SortType
         abstract fun getSectionHeader(artist: Person?): String
 
         class ByName : ArtistsSort() {
             override val sortType = SortType.NAME
-            override val sortBy = ArtistDao.SortType.NAME
+            override val sortBy = ArtistRepository.SortType.NAME
             override fun getSectionHeader(artist: Person?): String {
                 return if (artist?.name == "(Uncredited)") "-"
                 else artist?.name.firstChar()
@@ -87,7 +86,7 @@ class ArtistsViewModel @Inject constructor(
 
         class ByItemCount : ArtistsSort() {
             override val sortType = SortType.ITEM_COUNT
-            override val sortBy = ArtistDao.SortType.ITEM_COUNT
+            override val sortBy = ArtistRepository.SortType.ITEM_COUNT
             override fun getSectionHeader(artist: Person?): String {
                 return (artist?.itemCount ?: 0).orderOfMagnitude()
             }
@@ -95,7 +94,7 @@ class ArtistsViewModel @Inject constructor(
 
         class ByWhitmoreScore : ArtistsSort() {
             override val sortType = SortType.WHITMORE_SCORE
-            override val sortBy = ArtistDao.SortType.WHITMORE_SCORE
+            override val sortBy = ArtistRepository.SortType.WHITMORE_SCORE
             override fun getSectionHeader(artist: Person?): String {
                 return (artist?.whitmoreScore ?: 0).orderOfMagnitude()
             }

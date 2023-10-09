@@ -84,6 +84,6 @@ class PersonDescriptionFragment : Fragment() {
             binding.descriptionView.fadeIn()
             binding.emptyMessageView.fadeOut()
         }
-        binding.lastUpdated.timestamp = person.updatedTimestamp
+        binding.lastUpdated.timestamp = person.updatedTimestamp?.time ?: 0L
     }
 }

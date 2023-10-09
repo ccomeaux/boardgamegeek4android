@@ -1,6 +1,9 @@
 package com.boardgamegeek.di
 
 import android.content.Context
+import com.boardgamegeek.db.ArtistDao
+import com.boardgamegeek.db.DesignerDao
+import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.io.BggAjaxApi
 import com.boardgamegeek.io.BggService
@@ -21,8 +24,8 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository) =
-        ArtistRepository(context, api, imageRepository)
+    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, artistDao: ArtistDao, imageRepository: ImageRepository) =
+        ArtistRepository(context, api, artistDao, imageRepository)
 
     @Provides
     @Singleton
@@ -44,8 +47,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository) =
-        DesignerRepository(context, api, imageRepository)
+    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, designerDao: DesignerDao, imageRepository: ImageRepository) =
+        DesignerRepository(context, api, designerDao, imageRepository)
 
     @Provides
     @Singleton
@@ -83,8 +86,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository) =
-        PublisherRepository(context, api, imageRepository)
+    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository, publisherDao: PublisherDao) =
+        PublisherRepository(context, api, imageRepository, publisherDao)
 
     @Provides
     @Singleton

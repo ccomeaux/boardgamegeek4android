@@ -3,6 +3,7 @@ package com.boardgamegeek.db.model
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.util.Date
 
 @Entity(tableName = "designers")
 data class DesignerEntity(
@@ -22,11 +23,11 @@ data class DesignerEntity(
     @ColumnInfo(name = "designer_hero_image_url")
     val designerHeroImageUrl: String?,
     @ColumnInfo(name = "designer_images_updated_timestamp")
-    val imagesUpdatedTimestamp: Long?,
+    val imagesUpdatedTimestamp: Date?,
     @ColumnInfo(name = "whitmore_score")
     val whitmoreScore: Int?,
     @ColumnInfo(name = "designer_stats_updated_timestamp")
-    val statsUpdatedTimestamp: Long?,
+    val statsUpdatedTimestamp: Date?,
     @ColumnInfo(name = "updated")
-    val updatedTimestamp: Long?,
+    val updatedTimestamp: Date?,
 )

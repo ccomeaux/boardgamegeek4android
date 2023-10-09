@@ -329,10 +329,6 @@ class BggContract {
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.publisher"
         const val DEFAULT_SORT = "${Columns.PUBLISHER_NAME}$COLLATE_NOCASE ASC"
 
-        fun buildPublisherUri(publisherId: Int): Uri {
-            return CONTENT_URI.buildUpon().appendPath(publisherId.toString()).build()
-        }
-
         fun buildCollectionUri(publisherId: Int): Uri {
             return CONTENT_URI.buildUpon().appendPath(publisherId.toString()).appendPath(PATH_COLLECTION).build()
         }

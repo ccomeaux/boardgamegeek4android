@@ -6,8 +6,9 @@ import com.boardgamegeek.model.Person
 import com.boardgamegeek.io.model.PersonResponseV1
 import com.boardgamegeek.io.model.PersonItem
 import com.boardgamegeek.provider.BggContract
+import java.util.Date
 
-fun PersonResponseV1.mapToModel(id: Int, timestamp: Long = System.currentTimeMillis()): Person? {
+fun PersonResponseV1.mapToModel(id: Int, timestamp: Date): Person? {
     return if (name.isNullOrBlank()) null
     else {
         val missingDescriptionMessage = "This page does not exist. You can edit this page to create it."
@@ -21,7 +22,7 @@ fun PersonResponseV1.mapToModel(id: Int, timestamp: Long = System.currentTimeMil
     }
 }
 
-fun PersonItem.mapToModel(person: Person, timestamp: Long = System.currentTimeMillis()): Person? {
+fun PersonItem.mapToModel(person: Person, timestamp: Date): Person? {
     return if (id != person.id.toString()) null
     else
         person.copy(
@@ -31,7 +32,7 @@ fun PersonItem.mapToModel(person: Person, timestamp: Long = System.currentTimeMi
         )
 }
 
-fun ArtistLocal.mapToModel() = Person(
+fun ArtistEntity.mapToModel() = Person(
     internalId = internalId,
     id = artistId,
     name = artistName,
@@ -39,11 +40,10 @@ fun ArtistLocal.mapToModel() = Person(
     imageUrl = artistImageUrl.orEmpty(),
     thumbnailUrl = artistThumbnailUrl.orEmpty(),
     heroImageUrl = artistHeroImageUrl.orEmpty(),
-    updatedTimestamp = updatedTimestamp ?: 0L,
-    imagesUpdatedTimestamp = imagesUpdatedTimestamp ?: 0L,
+    updatedTimestamp = updatedTimestamp,
+    imagesUpdatedTimestamp = imagesUpdatedTimestamp,
     whitmoreScore = whitmoreScore ?: 0,
-    statsUpdatedTimestamp = statsUpdatedTimestamp ?: 0L,
-    itemCount = itemCount ?: 0,
+    statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
 
 fun DesignerBrief.mapToGameDetail() = GameDetail(
@@ -58,21 +58,15 @@ fun ArtistBrief.mapToGameDetail() = GameDetail(
     thumbnailUrl = artistThumbnailUrl.orEmpty(),
 )
 
-fun Person.mapToArtistBasic() = ArtistBasic(
+fun Person.mapArtistForUpsert(internalId: Int = BggContract.INVALID_ID) = ArtistForUpsert(
+    internalId = internalId,
     artistId = id,
     artistName = name,
     artistDescription = description,
     updatedTimestamp = updatedTimestamp,
 )
 
-fun Person.mapToArtistImages() = ArtistImages(
-    artistId = id,
-    imageUrl = imageUrl,
-    thumbnailUrl = thumbnailUrl,
-    updatedTimestamp = imagesUpdatedTimestamp,
-)
-
-fun DesignerLocal.mapToModel() = Person(
+fun DesignerEntity.mapToModel() = Person(
     internalId = internalId,
     id = designerId,
     name = designerName,
@@ -81,22 +75,15 @@ fun DesignerLocal.mapToModel() = Person(
     thumbnailUrl = designerThumbnailUrl.orEmpty(),
     heroImageUrl = designerHeroImageUrl.orEmpty(),
     updatedTimestamp = updatedTimestamp,
-    imagesUpdatedTimestamp = imagesUpdatedTimestamp ?: 0L,
+    imagesUpdatedTimestamp = imagesUpdatedTimestamp,
     whitmoreScore = whitmoreScore ?: 0,
-    statsUpdatedTimestamp = statsUpdatedTimestamp ?: 0L,
-    itemCount = itemCount ?: 0,
+    statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
 
-fun Person.mapToDesignerBasic() = DesignerBasic(
+fun Person.mapDesignerForUpsert(internalId: Int = BggContract.INVALID_ID) = DesignerBasic(
+    internalId = internalId,
     designerId = id,
     designerName = name,
     designerDescription = description,
     updatedTimestamp = updatedTimestamp,
-)
-
-fun Person.mapToDesignerImages() = DesignerImages(
-    designerId = id,
-    imageUrl = imageUrl,
-    thumbnailUrl = thumbnailUrl,
-    updatedTimestamp = imagesUpdatedTimestamp,
 )

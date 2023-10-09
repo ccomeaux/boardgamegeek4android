@@ -1,17 +1,13 @@
 package com.boardgamegeek.db.model
 
 import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import java.util.Date
 
-@Entity(tableName = "publishers")
-data class PublisherEntity(
-    @PrimaryKey(autoGenerate = true)
+data class PublisherForUpsert(
     @ColumnInfo(name = "_id")
     val internalId: Int,
     @ColumnInfo(name = "publisher_id")
-    val publisherId: Int, // unique
+    val publisherId: Int,
     @ColumnInfo(name = "publisher_name")
     val publisherName: String,
     @ColumnInfo(name = "publisher_sort_name")
@@ -22,12 +18,6 @@ data class PublisherEntity(
     val publisherImageUrl: String?,
     @ColumnInfo(name = "publisher_thumbnail_url")
     val publisherThumbnailUrl: String?,
-    @ColumnInfo(name = "publisher_hero_image_url")
-    val publisherHeroImageUrl: String?,
-    @ColumnInfo(name = "whitmore_score")
-    val whitmoreScore: Int?,
-    @ColumnInfo(name = "publisher_stats_updated_timestamp")
-    val statsUpdatedTimestamp: Date?,
     @ColumnInfo(name = "updated")
     val updatedTimestamp: Date?,
 )
