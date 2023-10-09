@@ -1043,6 +1043,6 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         private const val VER_USERS_TABLE = 58
         private const val VER_NOT_NULL_INTERNAL_ID = 59
         private const val VER_INDICES = 60
-        private const val DATABASE_VERSION = VER_INDICES
+        private const val DATABASE_VERSION = 61
     }
 }
