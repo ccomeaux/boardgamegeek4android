@@ -1,7 +1,7 @@
 package com.boardgamegeek.di
 
 import android.content.Context
-import com.boardgamegeek.db.UserDao2
+import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.io.BggAjaxApi
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.GeekdoApi
@@ -96,5 +96,5 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, userDao2: UserDao2) = UserRepository(context, api, userDao2)
+    fun provideUserRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, userDao: UserDao) = UserRepository(context, api, userDao)
 }
