@@ -1,10 +1,7 @@
 package com.boardgamegeek.di
 
 import android.content.Context
-import com.boardgamegeek.db.ArtistDao
-import com.boardgamegeek.db.DesignerDao
-import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.db.UserDao
+import com.boardgamegeek.db.*
 import com.boardgamegeek.io.BggAjaxApi
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.GeekdoApi
@@ -34,7 +31,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCategoryRepository(@ApplicationContext context: Context) = CategoryRepository(context)
+    fun provideCategoryRepository(@ApplicationContext context: Context, categoryDao: CategoryDao) = CategoryRepository(context, categoryDao)
 
     @Provides
     @Singleton
@@ -78,7 +75,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMechanicRepository(@ApplicationContext context: Context) = MechanicRepository(context)
+    fun provideMechanicRepository(@ApplicationContext context: Context, mechanicDao: MechanicDao) = MechanicRepository(context, mechanicDao)
 
     @Provides
     @Singleton

@@ -13,7 +13,13 @@ object DaoModule {
     fun provideArtistDao(database: BggDatabase): ArtistDao = database.artistDao()
 
     @Provides
+    fun provideCategoryDao(database: BggDatabase): CategoryDao = database.categoryDao()
+
+    @Provides
     fun provideDesignerDao(database: BggDatabase): DesignerDao = database.designerDao()
+
+    @Provides
+    fun provideMechanicDao(database: BggDatabase): MechanicDao = database.mechanicDao()
 
     @Provides
     fun providePublisherDao(database: BggDatabase): PublisherDao = database.publisherDao()

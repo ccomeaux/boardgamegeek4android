@@ -7,12 +7,25 @@ import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.model.Mechanic
 import com.boardgamegeek.mappers.mapToModel
 
-class MechanicRepository(val context: Context) {
-    private val mechanicDao = MechanicDao(context)
+class MechanicRepository(
+    val context: Context,
+    private val mechanicDao: MechanicDao,
+) {
     private val collectionDao = CollectionDao(context)
 
-    suspend fun loadMechanics(sortBy: MechanicDao.SortType = MechanicDao.SortType.NAME): List<Mechanic> {
-        return mechanicDao.loadMechanics(sortBy).map { it.mapToModel() }
+    enum class SortType {
+        NAME, ITEM_COUNT
+    }
+
+    suspend fun loadMechanics(sortBy: SortType = SortType.NAME): List<Mechanic> {
+        return mechanicDao.loadMechanics()
+            .sortedBy {
+                when (sortBy) {
+                    SortType.NAME -> it.mechanicName
+                    SortType.ITEM_COUNT -> 0 // TODO
+                }.toString()
+            }
+            .map { it.mapToModel() }
     }
 
     suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
@@ -21,5 +34,5 @@ class MechanicRepository(val context: Context) {
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
 
-    suspend fun delete() = mechanicDao.delete()
+    suspend fun deleteAll() = mechanicDao.deleteAll()
 }

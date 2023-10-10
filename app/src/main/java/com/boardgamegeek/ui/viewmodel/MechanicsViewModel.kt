@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.MechanicDao
 import com.boardgamegeek.repository.MechanicRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -45,16 +44,16 @@ class MechanicsViewModel @Inject constructor(
 
     sealed class MechanicsSort {
         abstract val sortType: SortType
-        abstract val sortBy: MechanicDao.SortType
+        abstract val sortBy: MechanicRepository.SortType
 
         class ByName : MechanicsSort() {
             override val sortType = SortType.NAME
-            override val sortBy = MechanicDao.SortType.NAME
+            override val sortBy = MechanicRepository.SortType.NAME
         }
 
         class ByItemCount : MechanicsSort() {
             override val sortType = SortType.ITEM_COUNT
-            override val sortBy = MechanicDao.SortType.ITEM_COUNT
+            override val sortBy = MechanicRepository.SortType.ITEM_COUNT
         }
     }
 }

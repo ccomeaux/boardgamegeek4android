@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.CategoryDao
 import com.boardgamegeek.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -45,16 +44,16 @@ class CategoriesViewModel @Inject constructor(
 
     sealed class CategoriesSort {
         abstract val sortType: SortType
-        abstract val sortBy: CategoryDao.SortType
+        abstract val sortBy: CategoryRepository.SortType
 
         class ByName : CategoriesSort() {
             override val sortType = SortType.NAME
-            override val sortBy = CategoryDao.SortType.NAME
+            override val sortBy = CategoryRepository.SortType.NAME
         }
 
         class ByItemCount : CategoriesSort() {
             override val sortType = SortType.ITEM_COUNT
-            override val sortBy = CategoryDao.SortType.ITEM_COUNT
+            override val sortBy = CategoryRepository.SortType.ITEM_COUNT
         }
     }
 }

@@ -38,7 +38,9 @@ import com.boardgamegeek.db.model.*
 @TypeConverters(DateConverter::class)
 abstract class BggDatabase : RoomDatabase() {
     abstract fun artistDao(): ArtistDao
+    abstract fun categoryDao(): CategoryDao
     abstract fun designerDao(): DesignerDao
+    abstract fun mechanicDao(): MechanicDao
     abstract fun publisherDao(): PublisherDao
     abstract fun userDao(): UserDao
 }
