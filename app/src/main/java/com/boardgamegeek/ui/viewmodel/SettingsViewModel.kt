@@ -31,7 +31,7 @@ class SettingsViewModel @Inject constructor(
             publisherRepository.deleteAll()
             categoryRepository.deleteAll()
             mechanicRepository.deleteAll()
-            collectionViewRepository.delete()
+            collectionViewRepository.deleteAll()
             playRepository.deletePlays()
             userRepository.deleteUsers()
             imageRepository.delete()

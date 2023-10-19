@@ -748,17 +748,6 @@ class BggContract {
             const val SELECTED_COUNT = "selected_count"
             const val SELECTED_TIMESTAMP = "selected_timestamp"
         }
-
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION_VIEWS).build()
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionview"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionview"
-        const val DEFAULT_SORT = "${Columns.STARRED} DESC, ${Columns.NAME}$COLLATE_NOCASE ASC"
-
-        fun buildViewUri(viewId: Int): Uri = builder(viewId).build()
-
-        fun builder(viewId: Int): Uri.Builder = CONTENT_URI.buildUpon().appendPath(viewId.toString())
-
-        fun getViewId(uri: Uri) = uri.getPathValueAsInt(PATH_COLLECTION_VIEWS)
     }
 
     object CollectionViewFilters {
@@ -767,18 +756,6 @@ class BggContract {
             const val TYPE = "type"
             const val DATA = "data"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collectionviewfilter"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collectionviewfilter"
-        const val DEFAULT_SORT = "${CollectionViews.Columns.STARRED} DESC, ${CollectionViews.Columns.NAME}$COLLATE_NOCASE ASC, ${Columns.TYPE} ASC"
-
-        fun buildViewFilterUri(viewId: Int): Uri = build(viewId).build()
-
-        fun buildViewFilterUri(viewId: Int, filterId: Long): Uri = build(viewId).appendPath(filterId.toString()).build()
-
-        private fun build(viewId: Int) = CollectionViews.builder(viewId).appendPath(PATH_FILTERS)
-
-        fun getFilterType(uri: Uri) = uri.getPathValueAsInt(PATH_FILTERS)
     }
 
     companion object {
@@ -816,8 +793,6 @@ class BggContract {
         const val PATH_PLAYS = "plays"
         const val PATH_PLAYERS = "players"
         const val PATH_LOCATIONS = "locations"
-        const val PATH_COLLECTION_VIEWS = "collectionviews"
-        const val PATH_FILTERS = "filters"
 
         const val QUERY_KEY_GROUP_BY = "groupby"
         const val QUERY_VALUE_NAME_NOT_USER = "namenotuser"

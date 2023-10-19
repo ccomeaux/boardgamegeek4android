@@ -65,7 +65,7 @@ class DataPortViewModel @Inject constructor(
 
     fun exportCollectionViews(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val views = collectionViewRepository.load(includeDefault = false, includeFilters = true).map { it.mapForExport() }
+            val views = collectionViewRepository.loadViews().map { it.mapForExport() }
             export(
                 uri,
                 Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION,
@@ -187,7 +187,7 @@ class DataPortViewModel @Inject constructor(
                 _collectionViewProgress,
                 { reader -> gson.fromJson(reader, CollectionViewForExport::class.java) },
                 { item: CollectionViewForExport, _ -> collectionViewRepository.insertView(item.mapToModel()) },
-                { collectionViewRepository.delete() },
+                { collectionViewRepository.deleteAll() },
             )
         }
     }

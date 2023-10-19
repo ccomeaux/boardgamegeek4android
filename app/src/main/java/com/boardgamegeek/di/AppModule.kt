@@ -40,7 +40,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCollectionViewRepository(@ApplicationContext context: Context) = CollectionViewRepository(context)
+    fun provideCollectionViewRepository(@ApplicationContext context: Context, collectionViewDao: CollectionViewDao) = CollectionViewRepository(context, collectionViewDao)
 
     @Provides
     @Singleton

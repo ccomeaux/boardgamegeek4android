@@ -107,7 +107,7 @@ class CollectionViewViewModel @Inject constructor(
         get() = _selectedViewId
 
     val views: LiveData<List<CollectionView>> = viewsTimestamp.switchMap {
-        liveData { emit(viewRepository.load()) }
+        liveData { emit(viewRepository.loadViewsWithoutFilters()) }
     }
 
     private val selectedView: LiveData<CollectionView> = _selectedViewId.switchMap {
@@ -115,7 +115,7 @@ class CollectionViewViewModel @Inject constructor(
             _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
             _addedFilters.value = emptyList()
             _removedFilterTypes.value = emptyList()
-            emit(viewRepository.load(it))
+            emit(viewRepository.loadView(it))
         }
     }
 
@@ -360,12 +360,13 @@ class CollectionViewViewModel @Inject constructor(
     fun deleteView(viewId: Int, name: String) {
         if (viewId <= 0) return
         viewModelScope.launch {
-            viewRepository.deleteView(viewId)
-            logAction("Delete", name)
-            postToastMessage(R.string.msg_collection_view_deleted, name)
-            refreshViews()
-            if (viewId == _selectedViewId.value) {
-                selectView(defaultViewId)
+            if (viewRepository.deleteView(viewId)) {
+                logAction("Delete", name)
+                postToastMessage(R.string.msg_collection_view_deleted, name)
+                refreshViews()
+                if (viewId == _selectedViewId.value) {
+                    selectView(defaultViewId)
+                }
             }
         }
     }
