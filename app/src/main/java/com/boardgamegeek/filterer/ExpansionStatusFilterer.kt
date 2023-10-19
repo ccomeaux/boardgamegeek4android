@@ -22,7 +22,10 @@ class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun filter(item: CollectionItem): Boolean {
         val value = getFromArray(R.array.expansion_status_filter_values)
-        return if (value.isNotEmpty()) item.subtype?.code == value else true
+        return if (value.isNotEmpty()) {
+            (item.subtype == null) ||
+            (item.subtype.code == value)
+        } else true
     }
 
     private fun getFromArray(resId: Int): String {
