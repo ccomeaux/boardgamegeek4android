@@ -73,7 +73,7 @@ class BuddyViewModel @Inject constructor(
                             emit(RefreshableResource.success(null))
                         } else {
                             val loadedUser = userRepository.load(username)
-                            val refreshedUser = if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(0.days)) &&
+                            val refreshedUser = if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(1.days)) &&
                                 isRefreshing.compareAndSet(false, true)
                             ) {
                                 emit(RefreshableResource.refreshing(loadedUser))
