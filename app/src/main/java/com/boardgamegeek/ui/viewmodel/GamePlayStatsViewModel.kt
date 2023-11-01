@@ -59,11 +59,7 @@ class GamePlayStatsViewModel @Inject constructor(
 
     val players: LiveData<List<PlayPlayer>> = _gameId.switchMap { gameId ->
         liveData {
-            val list = when (gameId) {
-                BggContract.INVALID_ID -> emptyList()
-                else -> playRepository.loadPlayersByGame(gameId)
-            }
-            emit(list)
+            emit(playRepository.loadPlayersByGame(gameId))
         }
     }
 }

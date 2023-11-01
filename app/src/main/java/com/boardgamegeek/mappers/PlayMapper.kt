@@ -85,7 +85,7 @@ fun Play.mapToFormBodyForUpsert(): FormBody.Builder {
 
 private fun createIndexedKey(index: Int, key: String) = "players[$index][$key]"
 
-fun PlayLocal.mapToModel() = Play(
+fun PlayEntity.mapToModel() = Play(
     internalId = internalId,
     playId = playId ?: BggContract.INVALID_ID,
     dateInMillis = date.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), Play.UNKNOWN_DATE),
@@ -103,15 +103,35 @@ fun PlayLocal.mapToModel() = Play(
     dirtyTimestamp = dirtyTimestamp ?: 0L,
     deleteTimestamp = deleteTimestamp ?: 0L,
     updateTimestamp = updateTimestamp ?: 0L,
+)
+
+fun PlayWithPlayersEntity.mapToModel() = Play(
+    internalId = play.internalId,
+    playId = play.playId ?: BggContract.INVALID_ID,
+    dateInMillis = play.date.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), Play.UNKNOWN_DATE),
+    gameId = play.objectId,
+    gameName = play.itemName,
+    quantity = play.quantity,
+    length = play.length,
+    location = play.location.orEmpty(),
+    incomplete = play.incomplete,
+    noWinStats = play.noWinStats,
+    comments = play.comments.orEmpty(),
+    syncTimestamp = play.syncTimestamp,
+    initialPlayerCount = play.playerCount ?: 0,
+    startTime = play.startTime ?: 0L,
+    dirtyTimestamp = play.dirtyTimestamp ?: 0L,
+    deleteTimestamp = play.deleteTimestamp ?: 0L,
+    updateTimestamp = play.updateTimestamp ?: 0L,
     imageUrl = gameImageUrl.orEmpty(),
     thumbnailUrl = gameThumbnailUrl.orEmpty(),
     heroImageUrl = gameHeroImageUrl.orEmpty(),
-    _players = players?.map { it.mapToModel() },
+    _players = players.map { it.mapToModel() }.sortedBy { it.seat },
 )
 
-fun PlayPlayerLocal.mapToModel() = PlayPlayer(
+fun PlayPlayerEntity.mapToModel() = PlayPlayer(
     internalId = internalId,
-    playId = internalPlayId,
+    playInternalId = internalPlayId,
     username = username.orEmpty(),
     userId = userId,
     name = name.orEmpty(),
@@ -123,20 +143,39 @@ fun PlayPlayerLocal.mapToModel() = PlayPlayer(
     isWin = isWin ?: false,
 )
 
-fun PlayerLocal.mapToModel() = Player(
-    name = name,
-    username = username,
-    playCount = playCount ?: 0,
-    winCount = winCount ?: 0,
-    avatarUrl = if (avatar == "N/A") "" else avatar.orEmpty(),
+fun PlayPlayerLocal.mapToModel() = PlayPlayer(
+    internalId = internalId,
+    playInternalId = internalPlayId,
+    username = username.orEmpty(),
+    userId = userId,
+    name = name.orEmpty(),
+    startingPosition = startingPosition.orEmpty(),
+    color = color.orEmpty(),
+    score = score.orEmpty(),
+    isNew = isNew ?: false,
+    rating = rating ?: 0.0,
+    isWin = isWin ?: false,
 )
+
+fun List<PlayerWithPlayEntity>.mapToModel() =
+    firstOrNull()?.let {
+        if (!it.player.name.isNullOrBlank() || !it.player.username.isNullOrBlank()) {
+            Player(
+                it.player.name.orEmpty(),
+                it.player.username.orEmpty(),
+                sumOf { play -> play.quantity },
+                filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
+                it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
+            )
+        } else null
+    }
 
 fun PlayerColorsLocal.mapToModel() = PlayerColor(
     description = playerColor,
     sortOrder = playerColorSortOrder,
 )
 
-fun LocationBasic.mapToModel() = Location(
+fun LocationEntity.mapToModel() = Location(
     name = name,
     playCount = playCount,
 )
@@ -165,7 +204,7 @@ fun Play.mapToEntity(syncTimestamp: Long = 0L) = PlayBasic(
 
 fun PlayPlayer.mapToEntity() = PlayPlayerLocal(
     internalId = internalId,
-    internalPlayId = playId,
+    internalPlayId = playInternalId,
     username = username,
     userId = userId,
     name = name,

@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.LiveSharedPreference
@@ -60,7 +59,7 @@ class NewPlayViewModel @Inject constructor(
     val locations = MediatorLiveData<List<Location>>()
     private var locationFilter = ""
     private val rawLocations: LiveData<List<Location>> = liveData {
-        emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
+        emit(playRepository.loadLocations())
     }
 
     // Players

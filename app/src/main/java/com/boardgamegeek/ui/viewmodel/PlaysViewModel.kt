@@ -9,7 +9,6 @@ import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +20,6 @@ import kotlin.time.Duration.Companion.minutes
 @HiltViewModel
 class PlaysViewModel @Inject constructor(
     application: Application,
-    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     private val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
@@ -74,7 +72,7 @@ class PlaysViewModel @Inject constructor(
         liveData {
             val list = when (it.mode) {
                 Mode.ALL -> playRepository.loadPlays()
-                Mode.GAME -> gameRepository.getPlays(it.id)
+                Mode.GAME -> playRepository.loadPlaysByGame(it.id)
                 Mode.LOCATION -> playRepository.loadPlaysByLocation(it.name)
                 Mode.BUDDY -> playRepository.loadPlaysByUsername(it.name)
                 Mode.PLAYER -> playRepository.loadPlaysByPlayerName(it.name)

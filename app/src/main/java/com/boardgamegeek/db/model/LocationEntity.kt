@@ -1,6 +1,6 @@
 package com.boardgamegeek.db.model
 
-data class LocationBasic(
+data class LocationEntity(
     val name: String,
-    val playCount: Int
+    val playCount: Int,
 )

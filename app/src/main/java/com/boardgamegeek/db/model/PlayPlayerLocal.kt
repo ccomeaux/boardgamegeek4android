@@ -2,7 +2,7 @@ package com.boardgamegeek.db.model
 
 data class PlayPlayerLocal(
     val internalId: Long,
-    val internalPlayId: Int,
+    val internalPlayId: Long,
     val username: String?,
     val userId: Int?,
     val name: String?,

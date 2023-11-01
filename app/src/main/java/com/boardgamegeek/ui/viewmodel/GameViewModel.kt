@@ -290,18 +290,18 @@ class GameViewModel @Inject constructor(
                     emit(RefreshableResource.success(emptyList()))
                 } else {
                     latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
-                    val plays = gameRepository.getPlays(gameId)
+                    val plays = playRepository.loadPlaysByGame(gameId)
                     if (arePlaysRefreshing.compareAndSet(false, true)) {
                         emit(RefreshableResource.refreshing(plays))
                         val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
                         val rPlays = when {
                             lastUpdated.isOlderThan(playsFullMinutes.minutes) -> {
                                 playRepository.refreshPlaysForGame(gameId)
-                                gameRepository.getPlays(gameId)
+                                playRepository.loadPlaysByGame(gameId)
                             }
                             lastUpdated.isOlderThan(playsPartialMinutes.minutes) -> {
                                 playRepository.refreshPartialPlaysForGame(gameId)
-                                gameRepository.getPlays(gameId)
+                                playRepository.loadPlaysByGame(gameId)
                             }
                             else -> plays
                         }

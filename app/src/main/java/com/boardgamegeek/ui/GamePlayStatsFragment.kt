@@ -523,7 +523,7 @@ class GamePlayStatsFragment : Fragment() {
                     playerCountSumWithLength += play.playerCount * play.quantity
                 }
 
-                for (player in players.filter { it.playId == play.playId }) {
+                for (player in players.filter { it.playInternalId == play.internalId }) {
                     if (player.description.isNotEmpty()) {
                         val playerStats = playerStats[player.id] ?: PlayerStats()
                         playerStats.add(play, player)

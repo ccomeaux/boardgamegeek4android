@@ -10,7 +10,7 @@ data class PlayPlayerEntity(
     @ColumnInfo(name = "_id")
     val internalId: Long,
     @ColumnInfo(name = "_play_id")
-    val internalPlayId: Int,
+    val internalPlayId: Long,
     @ColumnInfo(name = "user_name")
     val username: String?,
     @ColumnInfo(name = "user_id")

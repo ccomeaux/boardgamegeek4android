@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.model.Location
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
@@ -50,18 +49,18 @@ class LocationsViewModel @Inject constructor(
 
     sealed class LocationsSort {
         abstract val sortType: SortType
-        abstract val sortBy: PlayDao.LocationSortBy
+        abstract val sortBy: PlayRepository.LocationSortBy
         abstract fun getSectionHeader(location: Location?): String
 
         class ByName : LocationsSort() {
             override val sortType = SortType.NAME
-            override val sortBy = PlayDao.LocationSortBy.NAME
+            override val sortBy = PlayRepository.LocationSortBy.NAME
             override fun getSectionHeader(location: Location?) = location?.name.firstChar()
         }
 
         class ByPlayCount : LocationsSort() {
             override val sortType = SortType.PLAY_COUNT
-            override val sortBy = PlayDao.LocationSortBy.PLAY_COUNT
+            override val sortBy = PlayRepository.LocationSortBy.PLAY_COUNT
             override fun getSectionHeader(location: Location?) = (location?.playCount ?: 0).orderOfMagnitude()
         }
     }

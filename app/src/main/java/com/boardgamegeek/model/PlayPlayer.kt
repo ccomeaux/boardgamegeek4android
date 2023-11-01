@@ -19,7 +19,7 @@ data class PlayPlayer(
     val userId: Int? = INVALID_ID,
     val isNew: Boolean = false,
     val isWin: Boolean = false,
-    val playId: Int = INVALID_ID,
+    val playInternalId: Long = INVALID_ID.toLong(),
     val uiId: Long = UUID.randomUUID().toString().hashCode().toLong(),
     val internalId: Long = INVALID_ID.toLong(),
 ) : Parcelable {

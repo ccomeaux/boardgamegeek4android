@@ -79,7 +79,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi) = PlayRepository(context, api, phpApi)
+    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi, playDao2: PlayDao2) = PlayRepository(context, api, phpApi, playDao2)
 
     @Provides
     @Singleton

@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.SharedPreferences
 import android.text.format.DateUtils
 import androidx.lifecycle.*
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.model.Player
@@ -98,7 +97,7 @@ class LogPlayViewModel @Inject constructor(
     }
 
     val locations = liveData {
-        emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
+        emit(playRepository.loadLocations())
     }
 
     private val _playersByLocation = MediatorLiveData<List<Player>>()

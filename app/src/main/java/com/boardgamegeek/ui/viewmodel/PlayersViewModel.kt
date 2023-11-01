@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.*
 import com.boardgamegeek.R
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
@@ -31,7 +30,7 @@ class PlayersViewModel @Inject constructor(
 
     val players: LiveData<List<Player>> = sort.switchMap {
         liveData {
-            emit(playRepository.loadPlayers(it.sortBy, false))
+            emit(playRepository.loadPlayers(it.sortBy))
         }
     }
 
@@ -53,7 +52,7 @@ class PlayersViewModel @Inject constructor(
 
     sealed class PlayersSort {
         abstract val sortType: SortType
-        abstract val sortBy: PlayDao.PlayerSortBy
+        abstract val sortBy: PlayRepository.PlayerSortBy
         abstract fun getSectionHeader(player: Player?): String
         open fun getDisplayText(context: Context, player: Player?): String {
             val playCount = player?.playCount ?: 0
@@ -62,7 +61,7 @@ class PlayersViewModel @Inject constructor(
 
         class ByName : PlayersSort() {
             override val sortType = SortType.NAME
-            override val sortBy = PlayDao.PlayerSortBy.NAME
+            override val sortBy = PlayRepository.PlayerSortBy.NAME
             override fun getSectionHeader(player: Player?): String {
                 return player?.name.firstChar()
             }
@@ -70,7 +69,7 @@ class PlayersViewModel @Inject constructor(
 
         class ByPlayCount : PlayersSort() {
             override val sortType = SortType.PLAY_COUNT
-            override val sortBy = PlayDao.PlayerSortBy.PLAY_COUNT
+            override val sortBy = PlayRepository.PlayerSortBy.PLAY_COUNT
             override fun getSectionHeader(player: Player?): String {
                 return (player?.playCount ?: 0).orderOfMagnitude()
             }
@@ -78,7 +77,7 @@ class PlayersViewModel @Inject constructor(
 
         class ByWinCount : PlayersSort() {
             override val sortType = SortType.WIN_COUNT
-            override val sortBy = PlayDao.PlayerSortBy.WIN_COUNT
+            override val sortBy = PlayRepository.PlayerSortBy.WIN_COUNT
             override fun getSectionHeader(player: Player?): String {
                 return (player?.winCount ?: 0).orderOfMagnitude()
             }

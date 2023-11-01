@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.LiveSharedPreference
@@ -44,7 +43,6 @@ class PlaysSummaryViewModel @Inject constructor(
                     // TODO - while refreshing, the plays aren't updated in the UI. Figure out how to do that. Maybe listen to the play sync dates
                     playRepository.refreshPlays()
                     playRepository.loadPlays()
-
                 } else list
                 emit(RefreshableResource.success(refreshedList))
             } catch (e: Exception) {
@@ -68,7 +66,7 @@ class PlaysSummaryViewModel @Inject constructor(
 
     val players: LiveData<List<Player>> = plays.switchMap {
         liveData {
-            emit(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT, false))
+            emit(playRepository.loadPlayers())
         }
     }.map { p ->
         p.filter { it.username != username.value }.take(ITEMS_TO_DISPLAY)
@@ -76,7 +74,7 @@ class PlaysSummaryViewModel @Inject constructor(
 
     val locations: LiveData<List<Location>> = plays.switchMap {
         liveData {
-            emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
+            emit(playRepository.loadLocations())
         }
     }.map { p ->
         p.filter { it.name.isNotBlank() }.take(ITEMS_TO_DISPLAY)

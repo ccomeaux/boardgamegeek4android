@@ -25,6 +25,9 @@ object DaoModule {
     fun provideMechanicDao(database: BggDatabase): MechanicDao = database.mechanicDao()
 
     @Provides
+    fun providePlayDao(database: BggDatabase): PlayDao2 = database.playDao()
+
+    @Provides
     fun providePublisherDao(database: BggDatabase): PublisherDao = database.publisherDao()
 
     @Provides
