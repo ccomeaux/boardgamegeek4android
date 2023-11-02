@@ -4,8 +4,6 @@ import android.content.ContentProviderOperation
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
-import android.database.Cursor
-import android.net.Uri
 import android.provider.BaseColumns
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
@@ -21,65 +19,6 @@ import timber.log.Timber
 
 class PlayDao(private val context: Context) {
     //region Player Colors
-
-    suspend fun loadAllPlayerColors() = loadColors(PlayerColors.CONTENT_URI)
-
-    suspend fun loadUserColors(username: String) = loadColors(PlayerColors.buildUserUri(username))
-
-    suspend fun loadNonUserColors(playerName: String) = loadColors(PlayerColors.buildPlayerUri(playerName))
-
-    private suspend fun loadColors(uri: Uri): List<PlayerColorsLocal> {
-        return withContext(Dispatchers.IO) {
-            context.contentResolver.loadList(
-                uri,
-                playerColorsProjection,
-            ) {
-                playerColorsFromCursor(it)
-            }
-        }
-    }
-
-    private val playerColorsProjection = arrayOf(
-        BaseColumns._ID,
-        PlayerColors.Columns.PLAYER_COLOR,
-        PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER,
-        PlayerColors.Columns.PLAYER_TYPE,
-        PlayerColors.Columns.PLAYER_NAME,
-    )
-
-    private fun playerColorsFromCursor(it: Cursor) = PlayerColorsLocal(
-        internalId = it.getInt(0),
-        playerType = it.getInt(3),
-        playerName = it.getString(4),
-        playerColor = it.getString(1),
-        playerColorSortOrder = it.getInt(2),
-    )
-
-    suspend fun deleteColorsForPlayer(playerName: String): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(PlayerColors.buildPlayerUri(playerName), null, null)
-    }
-
-    suspend fun saveUserColors(username: String, colors: List<String>?) {
-        saveColorsForPlayer(PlayerColors.buildUserUri(username), colors)
-    }
-
-    suspend fun saveNonUserColors(playerName: String, colors: List<String>?) {
-        saveColorsForPlayer(PlayerColors.buildPlayerUri(playerName), colors)
-    }
-
-    private suspend fun saveColorsForPlayer(uri: Uri, colors: List<String>?) = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        batch += ContentProviderOperation.newDelete(uri).build()
-        var sortOrder = 1
-        colors?.filter { it.isNotBlank() }?.forEach {
-            batch += ContentProviderOperation
-                .newInsert(uri)
-                .withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, sortOrder++)
-                .withValue(PlayerColors.Columns.PLAYER_COLOR, it)
-                .build()
-        }
-        context.contentResolver.applyBatch(batch)
-    }
 
     suspend fun loadUserUsedColors(username: String) = loadPlayerUsedColors("${PlayPlayers.Columns.USER_NAME}=?", arrayOf(username))
 

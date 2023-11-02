@@ -170,7 +170,7 @@ fun List<PlayerWithPlayEntity>.mapToModel() =
         } else null
     }
 
-fun PlayerColorsLocal.mapToModel() = PlayerColor(
+fun PlayerColorsEntity.mapToModel() = PlayerColor(
     description = playerColor,
     sortOrder = playerColorSortOrder,
 )

@@ -28,6 +28,9 @@ object DaoModule {
     fun providePlayDao(database: BggDatabase): PlayDao2 = database.playDao()
 
     @Provides
+    fun providePlayerColorDao(database: BggDatabase): PlayerColorDao = database.playerColorDao()
+
+    @Provides
     fun providePublisherDao(database: BggDatabase): PublisherDao = database.publisherDao()
 
     @Provides

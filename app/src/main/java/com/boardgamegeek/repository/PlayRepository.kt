@@ -9,10 +9,10 @@ import androidx.annotation.StringRes
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.db.PlayDao2
+import com.boardgamegeek.db.*
+import com.boardgamegeek.db.PlayerColorDao.Companion.TYPE_PLAYER
+import com.boardgamegeek.db.PlayerColorDao.Companion.TYPE_USER
+import com.boardgamegeek.db.model.PlayerColorsEntity
 import com.boardgamegeek.model.*
 import com.boardgamegeek.model.PlayStats
 import com.boardgamegeek.extensions.*
@@ -42,6 +42,7 @@ class PlayRepository(
     private val api: BggService,
     private val phpApi: PhpApi,
     private val playDao2: PlayDao2,
+    private val playerColorDao: PlayerColorDao,
 ) {
     private val playDao = PlayDao(context)
     private val gameDao = GameDao(context)
@@ -335,7 +336,7 @@ class PlayRepository(
     }
 
     suspend fun loadPlayerFavoriteColors(): Map<Player, String> {
-        return playDao.loadAllPlayerColors().filter { it.playerColorSortOrder == 1 }.associate {
+        return playerColorDao.loadFavoritePlayerColors().associate {
             val player = if (it.playerType == PlayerColors.TYPE_USER)
                 Player.createUser(it.playerName)
             else
@@ -377,22 +378,26 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadUserColors(username: String) = playDao.loadUserColors(username).map { it.mapToModel() }
+    suspend fun loadUserColors(username: String) = playerColorDao.loadColorsForUser(username).map { it.mapToModel() }
 
-    suspend fun loadNonUserColors(playerName: String) = playDao.loadNonUserColors(playerName).map { it.mapToModel() }
+    suspend fun loadNonUserColors(playerName: String) = playerColorDao.loadColorsForPlayer(playerName).map { it.mapToModel() }
 
-    suspend fun saveNonUserColors(name: String?, type: PlayerType, colors: List<String>?) {
+    suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
         if (!name.isNullOrBlank()) {
-            when (type) {
-                PlayerType.USER -> saveUserColors(name, colors)
-                PlayerType.NON_USER -> saveNonUserColors(name, colors)
+            colors?.let { list ->
+                val entities = list.filter { it.isNotBlank() }.mapIndexed { index, color ->
+                    PlayerColorsEntity(
+                        internalId = 0,
+                        if (type == PlayerType.USER) TYPE_USER else TYPE_PLAYER,
+                        name,
+                        color,
+                        index + 1,
+                    )
+                }
+                playerColorDao.upsertColorsForPlayer(entities)
             }
         }
     }
-
-    private suspend fun saveUserColors(username: String, colors: List<String>?) = playDao.saveUserColors(username, colors)
-
-    private suspend fun saveNonUserColors(playerName: String, colors: List<String>?) = playDao.saveNonUserColors(playerName, colors)
 
     suspend fun loadPlayerUsedColors(name: String?, type: PlayerType): List<String> {
         return when {
@@ -553,8 +558,8 @@ class PlayRepository(
         }
 
         val colors = loadNonUserColors(oldName).sortedByDescending { it.sortOrder }.map { it.description }
-        saveNonUserColors(newName, colors)
-        playDao.deleteColorsForPlayer(oldName)
+        savePlayerColors(newName, PlayerType.NON_USER, colors)
+        playerColorDao.deleteColorsForPlayer(TYPE_PLAYER, oldName)
 
         internalIds
     }
@@ -567,8 +572,8 @@ class PlayRepository(
         }
 
         val colors = loadNonUserColors(playerName).sortedByDescending { it.sortOrder }.map { it.description }
-        saveUserColors(username, colors)
-        playDao.deleteColorsForPlayer(playerName)
+        savePlayerColors(username, PlayerType.USER, colors)
+        playerColorDao.deleteColorsForPlayer(TYPE_PLAYER, playerName)
 
         internalIds
     }

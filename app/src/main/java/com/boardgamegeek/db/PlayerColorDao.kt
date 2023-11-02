@@ -1,29 +1,35 @@
 package com.boardgamegeek.db
 
-import android.content.ContentProviderOperation
-import android.content.Context
-import com.boardgamegeek.extensions.applyBatch
-import com.boardgamegeek.extensions.rowExists
-import com.boardgamegeek.provider.BggContract
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import androidx.room.*
+import com.boardgamegeek.db.model.PlayerColorsEntity
 
-class PlayerColorDao(private val context: Context) {
-    suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = withContext(Dispatchers.IO) {
-        if (context.contentResolver.rowExists(BggContract.Users.buildUserUri(username))) {
-            val batch = arrayListOf<ContentProviderOperation>()
-            colors.filter { it.second.isNotBlank() }.forEach { (sort, color) ->
-                val builder = if (context.contentResolver.rowExists(BggContract.PlayerColors.buildUserUri(username, sort))) {
-                    ContentProviderOperation
-                        .newUpdate(BggContract.PlayerColors.buildUserUri(username, sort))
-                } else {
-                    ContentProviderOperation
-                        .newInsert(BggContract.PlayerColors.buildUserUri(username))
-                        .withValue(BggContract.PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, sort)
-                }
-                batch.add(builder.withValue(BggContract.PlayerColors.Columns.PLAYER_COLOR, color).build())
-            }
-            context.contentResolver.applyBatch(batch)
+@Dao
+interface PlayerColorDao {
+    @Query("SELECT * FROM player_colors WHERE player_color_sort=1")
+    suspend fun loadFavoritePlayerColors(): List<PlayerColorsEntity>
+
+    @Query("SELECT * FROM player_colors WHERE player_type = $TYPE_USER AND player_name = :username  ORDER BY player_color_sort ASC")
+    suspend fun loadColorsForUser(username: String): List<PlayerColorsEntity>
+
+    @Query("SELECT * FROM player_colors WHERE player_type = $TYPE_PLAYER AND player_name = :playerName ORDER BY player_color_sort ASC")
+    suspend fun loadColorsForPlayer(playerName: String): List<PlayerColorsEntity>
+
+    @Transaction
+    suspend fun upsertColorsForPlayer(colors: List<PlayerColorsEntity>): List<Long> {
+        colors.firstOrNull()?.let {
+            deleteColorsForPlayer(it.playerType, it.playerName)
         }
+        return insertPlayerColors(colors)
+    }
+
+    @Insert
+    suspend fun insertPlayerColors(colors: List<PlayerColorsEntity>): List<Long>
+
+    @Query("DELETE FROM player_colors WHERE player_type = :playerType AND player_name = :playerName")
+    suspend fun deleteColorsForPlayer(playerType: Int, playerName: String): Int
+
+    companion object {
+        const val TYPE_USER = 1
+        const val TYPE_PLAYER = 2
     }
 }

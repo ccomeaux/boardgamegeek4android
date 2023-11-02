@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.ImageDao
-import com.boardgamegeek.db.PlayerColorDao
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.User
 import com.boardgamegeek.db.UserDao
@@ -26,7 +25,6 @@ class UserRepository(
     private val api: BggService,
     private val userDao: UserDao,
 ) {
-    private val playerColorDao = PlayerColorDao(context)
     private val imageDao = ImageDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
@@ -151,9 +149,5 @@ class UserRepository(
     suspend fun resetUsers() {
         deleteUsers()
         SyncUsersWorker.requestSync(context)
-    }
-
-    suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) {
-        playerColorDao.updateColors(username, colors)
     }
 }

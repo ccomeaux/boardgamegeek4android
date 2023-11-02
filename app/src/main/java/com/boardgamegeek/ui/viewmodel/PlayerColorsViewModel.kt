@@ -135,7 +135,7 @@ class PlayerColorsViewModel @Inject constructor(
     fun save() {
         viewModelScope.launch {
             user.value?.let { (name, type) ->
-                playRepository.saveNonUserColors(name, type, colors.value)
+                playRepository.savePlayerColors(name, type, colors.value)
             }
         }
     }

@@ -211,7 +211,7 @@ class DataPortViewModel @Inject constructor(
                 Constants.TYPE_USERS_DESCRIPTION,
                 _userProgress,
                 { reader: JsonReader -> gson.fromJson(reader, UserForExport::class.java) },
-                { item: UserForExport, _ -> userRepository.updateColors(item.name, item.colors.map { it.sort to it.color }) },
+                { item: UserForExport, _ -> playRepository.savePlayerColors( item.name, PlayRepository.PlayerType.USER, item.colors.sortedBy { it.sort }.map { it.color }) },
             )
         }
     }
