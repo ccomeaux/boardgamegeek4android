@@ -332,7 +332,7 @@ class PlayRepository(
 
     suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayer> {
         if (gameId == INVALID_ID) return emptyList()
-        return playDao2.loadPlayersForGame(gameId).map { it.mapToModel() }
+        return playDao2.loadPlayersForGame(gameId).map { it.player.mapToModel() }
     }
 
     suspend fun loadPlayerFavoriteColors(): Map<Player, String> {
@@ -402,8 +402,8 @@ class PlayRepository(
     suspend fun loadPlayerUsedColors(name: String?, type: PlayerType): List<String> {
         return when {
             name.isNullOrBlank() -> emptyList()
-            type == PlayerType.USER -> playDao.loadUserUsedColors(name)
-            type == PlayerType.NON_USER -> playDao.loadNonUserUsedColors(name)
+            type == PlayerType.USER -> playDao2.loadPlayersForUser(name).mapNotNull { it.player.color }
+            type == PlayerType.NON_USER -> playDao2.loadPlayersForPlayer(name).mapNotNull { it.player.color }
             else -> emptyList()
         }
     }

@@ -8,7 +8,6 @@ import android.provider.BaseColumns
 import androidx.core.content.contentValuesOf
 import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
-import androidx.core.database.getStringOrNull
 import com.boardgamegeek.db.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
@@ -18,42 +17,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class PlayDao(private val context: Context) {
-    //region Player Colors
-
-    suspend fun loadUserUsedColors(username: String) = loadPlayerUsedColors("${PlayPlayers.Columns.USER_NAME}=?", arrayOf(username))
-
-    suspend fun loadNonUserUsedColors(playerName: String) = loadPlayerUsedColors("${PlayPlayers.Columns.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.Columns.NAME}=?", arrayOf("", playerName))
-
-    private suspend fun loadPlayerUsedColors(selection: String, selectionArgs: Array<String>): List<String> = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            Plays.buildPlayerUri(),
-            arrayOf(
-                BaseColumns._ID,
-                PlayPlayers.Columns.NAME,
-                PlayPlayers.Columns.USER_NAME,
-                PlayPlayers.Columns.COLOR,
-            ),
-            selection,
-            selectionArgs
-        ) {
-            it.getStringOrNull(3).orEmpty()
-        }
-    }
-
-    /**
-     * Load all non-blank colors/teams in the specified game's logged plays.
-     */
-    suspend fun loadPlayerColorsForGame(gameId: Int) = withContext(Dispatchers.IO) {
-        context.contentResolver.queryStrings(
-            Plays.buildPlayersByColor(),
-            PlayPlayers.Columns.COLOR,
-            "${Plays.Columns.OBJECT_ID}=?",
-            arrayOf(gameId.toString()),
-        ).filter { it.isNotBlank() }
-    }
-
-    //endregion
-
     enum class SaveStatus {
         UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
     }

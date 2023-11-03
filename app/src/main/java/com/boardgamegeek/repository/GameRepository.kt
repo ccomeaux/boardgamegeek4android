@@ -3,7 +3,7 @@ package com.boardgamegeek.repository
 import android.content.Context
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.db.PlayDao
+import com.boardgamegeek.db.PlayDao2
 import com.boardgamegeek.model.GameComments
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.GamePoll
@@ -20,9 +20,9 @@ class GameRepository @Inject constructor(
     val context: Context,
     private val api: BggService,
     private val imageRepository: ImageRepository,
+    private val playDao: PlayDao2,
 ) {
     private val dao = GameDao(context)
-    private val playDao = PlayDao(context)
     private val collectionDao = CollectionDao(context)
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)?.mapToModel()
@@ -120,8 +120,10 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun computePlayColors(gameId: Int) {
-        val colors = playDao.loadPlayerColorsForGame(gameId)
-        dao.insertColors(gameId, colors)
+        val usedColors = playDao.loadPlayersForGame(gameId).mapNotNull { it.player.color }.toSet()
+        val currentColors = dao.loadPlayColors(gameId).toSet()
+        val colors = usedColors - currentColors
+        dao.insertColors(gameId, colors.toList())
     }
 
     suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
