@@ -52,7 +52,10 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         initializeTimber()
         initializePicasso()
         migrateData()
+        initializePeriodicWorkRequests()
+    }
 
+    private fun initializePeriodicWorkRequests() {
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             SyncCollectionWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncCollectionWorker>(1, TimeUnit.DAYS)
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)
@@ -61,7 +64,7 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         )
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork(
-                PlayUploadWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(2, TimeUnit.HOURS)
+                PlayUploadWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<PlayUploadWorker>(2, TimeUnit.HOURS)
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
                     .setConstraints(createWorkConstraints(true))
                     .build()
