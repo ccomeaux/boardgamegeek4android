@@ -6,12 +6,14 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import androidx.annotation.StringRes
+import androidx.core.content.contentValuesOf
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.*
 import com.boardgamegeek.db.PlayerColorDao.Companion.TYPE_PLAYER
 import com.boardgamegeek.db.PlayerColorDao.Companion.TYPE_USER
+import com.boardgamegeek.db.model.PlayBasic
 import com.boardgamegeek.db.model.PlayerColorsEntity
 import com.boardgamegeek.model.*
 import com.boardgamegeek.model.PlayStats
@@ -43,6 +45,7 @@ class PlayRepository(
     private val phpApi: PhpApi,
     private val playDao2: PlayDao2,
     private val playerColorDao: PlayerColorDao,
+    private val userDao: UserDao,
 ) {
     private val playDao = PlayDao(context)
     private val gameDao = GameDao(context)
@@ -94,7 +97,7 @@ class PlayRepository(
                 saveFromSync(playsPage, timestamp)
             } while (response.hasMorePages())
 
-            playDao.deleteUnupdatedPlays(gameId, timestamp)
+            playDao2.deleteUnupdatedPlaysForGame(gameId, timestamp)
             gameDao.updatePlaysSyncedTimestamp(gameId, timestamp)
             calculatePlayStats()
         }
@@ -138,7 +141,7 @@ class PlayRepository(
         if (play.internalId == INVALID_ID.toLong())
             return Result.success(PlayUploadResult.noOp(play))
         if (play.playId == INVALID_ID) {
-            playDao.delete(play.internalId)
+            playDao2.delete(play.internalId)
             return Result.success(PlayUploadResult.delete(play))
         }
         val response = phpApi.play(play.playId.mapToFormBodyForDelete().build())
@@ -146,14 +149,14 @@ class PlayRepository(
             Authenticator.clearPassword(context)
             Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
         } else if (response.hasInvalidIdError()) {
-            playDao.delete(play.internalId)
+            playDao2.delete(play.internalId)
             Result.success(PlayUploadResult.delete(play))
         } else if (!response.error.isNullOrBlank()) {
             Result.failure(Exception(response.error))
         } else if (!response.success) {
             Result.failure(Exception(context.getString(R.string.msg_play_delete_unsuccessful)))
         } else {
-            playDao.delete(play.internalId)
+            playDao2.delete(play.internalId)
             Result.success(PlayUploadResult.delete(play))
         }
     }
@@ -255,10 +258,10 @@ class PlayRepository(
     }
 
     suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long) =
-        playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, ">=")
+        playDao2.deleteUnupdatedPlaysAfterDate(playDate.asDateForApi(), syncTimestamp)
 
     suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) =
-        playDao.deleteUnupdatedPlaysByDate(syncTimestamp, playDate, "<=")
+        playDao2.deleteUnupdatedPlaysBeforeDate(playDate.asDateForApi(), syncTimestamp)
 
     suspend fun refreshPlaysForDate(timeInMillis: Long) = withContext(Dispatchers.IO) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
@@ -473,12 +476,12 @@ class PlayRepository(
         var errorCount = 0
         plays.forEach {
             val play = it.mapToEntity(syncTimestamp)
-            when (playDao.saveFromSync(play)) {
-                PlayDao.SaveStatus.UPDATED -> updateCount++
-                PlayDao.SaveStatus.INSERTED -> insertCount++
-                PlayDao.SaveStatus.DIRTY -> dirtyCount++
-                PlayDao.SaveStatus.ERROR -> errorCount++
-                PlayDao.SaveStatus.UNCHANGED -> unchangedCount++
+            when (saveFromSync(play)) {
+                SaveStatus.UPDATED -> updateCount++
+                SaveStatus.INSERTED -> insertCount++
+                SaveStatus.DIRTY -> dirtyCount++
+                SaveStatus.ERROR -> errorCount++
+                SaveStatus.UNCHANGED -> unchangedCount++
             }
         }
         Timber.i(
@@ -490,6 +493,41 @@ class PlayRepository(
             dirtyCount,
             errorCount
         )
+    }
+
+    enum class SaveStatus {
+        UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
+    }
+
+    private suspend fun saveFromSync(play: PlayBasic): SaveStatus = withContext(Dispatchers.IO) {
+        val candidate = play.playId?.let { playDao2.loadPlay(it) }
+        when {
+            (play.playId == null || play.playId == 0) -> {
+                Timber.i("Can't sync a play without a play ID.")
+                SaveStatus.ERROR
+            }
+            candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
+                playDao.upsert(play, INVALID_ID.toLong())
+                SaveStatus.INSERTED
+            }
+            (((candidate.dirtyTimestamp ?: 0L) > 0L || (candidate.deleteTimestamp ?: 0L) > 0L || (candidate.updateTimestamp ?: 0L) > 0L)) -> {
+                Timber.i("Not saving during the sync; local play is modified.")
+                SaveStatus.DIRTY
+            }
+            candidate.syncHashCode == play.generateSyncHashCode() -> {
+                context.contentResolver.update(
+                    Plays.buildPlayUri(candidate.internalId),
+                    contentValuesOf(Plays.Columns.SYNC_TIMESTAMP to play.syncTimestamp),
+                    null,
+                    null
+                )
+                SaveStatus.UNCHANGED
+            }
+            else -> {
+                playDao.upsert(play, candidate.internalId)
+                SaveStatus.UPDATED
+            }
+        }
     }
 
     private suspend fun markAsSynced(internalId: Long, playId: Int): Boolean {
@@ -585,8 +623,13 @@ class PlayRepository(
         val internalIds = mutableListOf<Long>()
         val plays = loadPlaysByLocation(oldLocationName)
         plays.forEach { play ->
-            if (playDao.updateLocation(play.internalId, newLocationName, play.dirtyTimestamp, play.updateTimestamp))
-                internalIds += play.internalId
+            if (play.dirtyTimestamp > 0 || play.updateTimestamp > 0) {
+                if (playDao2.updateLocation(play.internalId, newLocationName) > 0)
+                    internalIds += play.internalId
+            } else {
+                if (playDao2.updateLocation(play.internalId, newLocationName, System.currentTimeMillis()) > 0)
+                    internalIds += play.internalId
+            }
         }
         internalIds
     }
@@ -605,6 +648,31 @@ class PlayRepository(
                 prefs[KEY_LAST_PLAY_LOCATION] = play.location
                 prefs.putLastPlayPlayers(play.players)
             }
+
+            gameDao.load(play.gameId)?.let {
+                // update game's custom sort order
+                play.arePlayersCustomSorted().let { // TODO only if players size > 0
+                    gameDao.saveGamePlayerSortOrderToBatch(play.gameId, it)
+                }
+
+                // update game colors
+                val existingColors = gameDao.loadPlayColors(play.gameId)
+                play.players.distinctBy { it.color }.forEach {// TODO, just insert it with the right CONFLICT
+                    if (!existingColors.contains(it.color))
+                        gameDao.insertColor(play.gameId, it.color)
+                }
+            }
+
+            // save nicknames for players if they don't have one already
+            play.players.forEach { player ->
+                if (player.username.isNotBlank() && player.name.isNotBlank()) {
+                    userDao.loadUser(player.username)?.let {
+                        if (it.playNickname.isNullOrBlank()) {
+                            userDao.updateNickname(player.username, player.name)
+                        }
+                    }
+                }
+            }
         }
 
         return id
@@ -613,14 +681,14 @@ class PlayRepository(
     suspend fun resetPlays() {
         // resets the sync timestamps, removes the plays' hashcode, and request a sync
         syncPrefs.clearPlaysTimestamps()
-        val count = playDao.clearSyncHashCodes()
+        val count = playDao2.clearSyncHashCodes()
         Timber.i("Cleared the hashcode from %,d plays.", count)
         SyncPlaysWorker.requestSync(context)
     }
 
     suspend fun deletePlays() {
         syncPrefs.clearPlaysTimestamps()
-        playDao.deleteAllPlays()
+        playDao2.deleteAll()
         gameDao.resetPlaySync()
     }
 

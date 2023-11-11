@@ -10,6 +10,9 @@ interface PlayDao2 {
     @Query("SELECT * FROM plays ORDER BY date DESC, play_id DESC")
     suspend fun loadPlays(): List<PlayEntity>
 
+    @Query("SELECT * FROM plays WHERE play_id = :playId")
+    suspend fun loadPlay(playId: Int): PlayEntity
+
     @Query("SELECT * FROM plays WHERE object_id = :gameId ORDER BY date DESC, play_id DESC")
     suspend fun loadPlaysForGame(gameId: Int): List<PlayEntity>
 
@@ -85,4 +88,27 @@ interface PlayDao2 {
     @Query("UPDATE plays SET play_id = :playId, delete_timestamp = 0, update_timestamp = 0, dirty_timestamp = 0 WHERE _id = :internalId")
     suspend fun markAsSynced(internalId: Long, playId: Int): Int
 
+    @Query("UPDATE plays SET sync_hash_code = 0")
+    suspend fun clearSyncHashCodes()
+
+    @Query("UPDATE plays SET location = :location WHERE _id = :internalId")
+    suspend fun updateLocation(internalId: Long, location: String): Int
+
+    @Query("UPDATE plays SET location = :location, update_timestamp = :timestamp WHERE _id = :internalId")
+    suspend fun updateLocation(internalId: Long, location: String, timestamp: Long): Int
+
+    @Query("DELETE FROM plays")
+    suspend fun deleteAll(): Int
+
+    @Query("DELETE FROM plays WHERE _id = :internalId")
+    suspend fun delete(internalId: Long): Int
+
+    @Query("DELETE FROM plays WHERE object_id = :gameId AND updated_list < :syncTimestamp AND (update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    suspend fun deleteUnupdatedPlaysForGame(gameId: Int, syncTimestamp: Long): Int
+
+    @Query("DELETE FROM plays WHERE date <= :date AND updated_list < :syncTimestamp AND (update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    suspend fun deleteUnupdatedPlaysBeforeDate(date: String, syncTimestamp: Long): Int
+
+    @Query("DELETE FROM plays WHERE date >= :date AND updated_list < :syncTimestamp AND (update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    suspend fun deleteUnupdatedPlaysAfterDate(date: String, syncTimestamp: Long): Int
 }

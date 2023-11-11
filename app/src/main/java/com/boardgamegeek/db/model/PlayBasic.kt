@@ -21,17 +21,6 @@ data class PlayBasic(
     val startTime: Long?,
     val players: List<PlayPlayerLocal>?,
 ) {
-    /**
-     * Determine if the starting positions indicate the players are custom sorted.
-     */
-    fun arePlayersCustomSorted(): Boolean? {
-        if (players.isNullOrEmpty()) return null
-        for (seat in 1..players.size) {
-            if (players.count { it.startingPosition?.toIntOrNull() == seat } != 1) return true
-        }
-        return false
-    }
-
     fun generateSyncHashCode(): Int {
         val sb = StringBuilder()
         sb.append(date).append("\n")

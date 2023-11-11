@@ -1,13 +1,8 @@
 package com.boardgamegeek.db
 
 import android.content.ContentProviderOperation
-import android.content.ContentResolver
-import android.content.ContentValues
 import android.content.Context
-import android.provider.BaseColumns
 import androidx.core.content.contentValuesOf
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
 import com.boardgamegeek.db.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
@@ -17,41 +12,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class PlayDao(private val context: Context) {
-    enum class SaveStatus {
-        UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
-    }
-
-    suspend fun saveFromSync(play: PlayBasic): SaveStatus = withContext(Dispatchers.IO) {
-        val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
-        when {
-            (play.playId == null || play.playId == 0) -> {
-                Timber.i("Can't sync a play without a play ID.")
-                SaveStatus.ERROR
-            }
-            candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
-                upsert(play, INVALID_ID.toLong())
-                SaveStatus.INSERTED
-            }
-            candidate.isDirty -> {
-                Timber.i("Not saving during the sync; local play is modified.")
-                SaveStatus.DIRTY
-            }
-            candidate.syncHashCode == play.generateSyncHashCode() -> {
-                context.contentResolver.update(
-                    Plays.buildPlayUri(candidate.internalId),
-                    contentValuesOf(Plays.Columns.SYNC_TIMESTAMP to play.syncTimestamp),
-                    null,
-                    null
-                )
-                SaveStatus.UNCHANGED
-            }
-            else -> {
-                upsert(play, candidate.internalId)
-                SaveStatus.UPDATED
-            }
-        }
-    }
-
     suspend fun upsert(play: PlayBasic, internalId: Long = play.internalId): Long = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
 
@@ -86,15 +46,6 @@ class PlayDao(private val context: Context) {
             val existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId, batch).toMutableList()
             addPlayersToBatch(play, existingPlayerIds, internalId, batch)
             removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
-
-            if ((play.playId != null && play.playId > 0) ||
-                (play.updateTimestamp != null && play.updateTimestamp > 0)
-            ) {
-                // Do these when a new play is ready to be synced
-                saveGamePlayerSortOrderToBatch(play, batch)
-                updateColorsInBatch(play, batch)
-                saveBuddyNicknamesToBatch(play, batch)
-            }
 
             val results = context.contentResolver.applyBatch(batch)
             var insertedId = internalId
@@ -198,172 +149,6 @@ class PlayDao(private val context: Context) {
                 .newDelete(Plays.buildPlayerUri(internalId))
                 .withSelection("${PlayPlayers.Columns.USER_NAME}=?", arrayOf(playerUserName))
                 .build()
-        }
-    }
-
-    /**
-     * Determine if the players are custom sorted or not, and save it to the game.
-     */
-    private suspend fun saveGamePlayerSortOrderToBatch(play: PlayBasic, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        play.arePlayersCustomSorted()?.let {
-            val gameUri = Games.buildGameUri(play.objectId)
-            if (context.contentResolver.rowExists(gameUri)) {
-                batch += ContentProviderOperation
-                    .newUpdate(gameUri)
-                    .withValue(Games.Columns.CUSTOM_PLAYER_SORT, it)
-                    .build()
-            }
-        }
-    }
-
-    /**
-     * Add the current players' team/colors to the permanent list for the game.
-     */
-    private suspend fun updateColorsInBatch(play: PlayBasic, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        if (context.contentResolver.rowExists(Games.buildGameUri(play.objectId))) {
-            play.players?.distinctBy { it.color }?.forEach {
-                if (it.color != null &&
-                    !context.contentResolver.rowExists(Games.buildColorsUri(play.objectId, it.color))) {
-                    batch += ContentProviderOperation
-                        .newInsert(Games.buildColorsUri(play.objectId))
-                        .withValue(GameColors.Columns.COLOR, it.color)
-                        .build()
-                }
-            }
-        }
-    }
-
-    /**
-     * Update GeekBuddies' nicknames with the names used here.
-     */
-    private suspend fun saveBuddyNicknamesToBatch(play: PlayBasic, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        play.players?.forEach { player ->
-            if (!player.username.isNullOrBlank() && !player.name.isNullOrBlank()) {
-                val uri = Users.buildUserUri(player.username)
-                if (context.contentResolver.rowExists(uri, Users.Columns.USERNAME)) {
-                    val nickname = context.contentResolver.queryString(uri, Users.Columns.PLAY_NICKNAME)
-                    if (nickname.isNullOrBlank()) {
-                        batch += ContentProviderOperation
-                            .newUpdate(Users.CONTENT_URI)
-                            .withSelection("${Users.Columns.USERNAME}=?", arrayOf(player.username))
-                            .withValue(Users.Columns.PLAY_NICKNAME, player.name)
-                            .build()
-                    }
-                }
-            }
-        }
-    }
-
-    //region Deletes
-
-    suspend fun deleteAllPlays(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Plays.CONTENT_URI, null, null)
-    }
-
-    suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
-        if (internalId == INVALID_ID.toLong())
-            false
-        else
-            context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
-    }
-
-    suspend fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int = withContext(Dispatchers.IO) {
-        val selection = createDeleteSelectionAndArgs(syncTimestamp)
-        context.contentResolver.delete(
-            Plays.CONTENT_URI,
-            "${selection.first} AND ${Plays.Columns.DATE}$dateComparator?",
-            selection.second + playDate.asDateForApi()
-        )
-    }
-
-    suspend fun deleteUnupdatedPlays(gameId: Int, syncTimestamp: Long) = withContext(Dispatchers.IO) {
-        val selection = createDeleteSelectionAndArgs(syncTimestamp)
-        val count = context.contentResolver.delete(
-            Plays.CONTENT_URI,
-            "${selection.first} AND ${Plays.Columns.OBJECT_ID}=?",
-            selection.second + gameId.toString()
-        )
-        Timber.d("Deleted %,d unupdated play(s) of game ID=%s", count, gameId)
-    }
-
-    private fun createDeleteSelectionAndArgs(syncTimestamp: Long): Pair<String, Array<String>> {
-        val selection = arrayOf(
-            "${Plays.Columns.SYNC_TIMESTAMP}<?",
-            Plays.Columns.UPDATE_TIMESTAMP.whereZeroOrNull(),
-            Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull(),
-            Plays.Columns.DIRTY_TIMESTAMP.whereZeroOrNull()
-        ).joinToString(" AND ")
-        val selectionArgs = arrayOf(syncTimestamp.toString())
-        return selection to selectionArgs
-    }
-
-    //endregion
-
-    //region Upserts
-
-    suspend fun clearSyncHashCodes(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.update(Plays.CONTENT_URI, contentValuesOf(Plays.Columns.SYNC_HASH_CODE to 0), null, null)
-    }
-
-    suspend fun updateLocation(internalId: Long, locationName: String?, dirtyTimestamp: Long, updateTimestamp: Long): Boolean {
-        val values = contentValuesOf(Plays.Columns.LOCATION to locationName)
-        if (dirtyTimestamp > 0 || updateTimestamp > 0) {
-            values.put(Plays.Columns.UPDATE_TIMESTAMP, System.currentTimeMillis())
-        }
-        return update(internalId, values)
-    }
-
-    private suspend fun update(internalId: Long, values: ContentValues): Boolean = withContext(Dispatchers.IO) {
-        val rowsUpdated = context.contentResolver.update(Plays.buildPlayUri(internalId), values, null, null)
-        if (rowsUpdated == 1) {
-            Timber.d("Updated play internal ID=$internalId")
-            true
-        } else {
-            Timber.w("Updated $rowsUpdated plays when trying to set internal ID=$internalId")
-            false
-        }
-    }
-
-    //endregion
-
-    data class PlaySyncCandidate(
-        val internalId: Long = INVALID_ID.toLong(),
-        val syncHashCode: Int = 0,
-        private val deleteTimestamp: Long = 0L,
-        private val updateTimestamp: Long = 0L,
-        private val dirtyTimestamp: Long = 0L,
-    ) {
-        val isDirty: Boolean
-            get() = dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0
-
-        companion object {
-            suspend fun find(resolver: ContentResolver, playId: Int?): PlaySyncCandidate? = withContext(Dispatchers.IO) {
-                if (playId == null || playId <= 0) {
-                    Timber.i("Can't sync a play without a play ID.")
-                    null
-                } else {
-                    resolver.loadEntity(
-                        Plays.CONTENT_URI,
-                        arrayOf(
-                            BaseColumns._ID,
-                            Plays.Columns.SYNC_HASH_CODE,
-                            Plays.Columns.DELETE_TIMESTAMP,
-                            Plays.Columns.UPDATE_TIMESTAMP,
-                            Plays.Columns.DIRTY_TIMESTAMP,
-                        ),
-                        "${Plays.Columns.PLAY_ID}=?",
-                        arrayOf(playId.toString()),
-                    ) {
-                        PlaySyncCandidate(
-                            internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
-                            syncHashCode = it.getIntOrNull(1) ?: 0,
-                            deleteTimestamp = it.getLongOrNull(2) ?: 0L,
-                            updateTimestamp = it.getLongOrNull(3) ?: 0L,
-                            dirtyTimestamp = it.getLongOrNull(4) ?: 0L,
-                        )
-                    }
-                }
-            }
         }
     }
 }
