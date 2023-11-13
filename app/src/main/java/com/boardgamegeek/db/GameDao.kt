@@ -853,4 +853,11 @@ class GameDao(private val context: Context) {
             }
         }
     }
+
+    suspend fun updateGameCustomPlayerSort(gameId: Int, custom: Boolean) = withContext(Dispatchers.IO) {
+        val gameUri = Games.buildGameUri(gameId)
+        if (context.contentResolver.rowExists(gameUri)) {
+            context.contentResolver.update(gameUri, contentValuesOf(Games.Columns.CUSTOM_PLAYER_SORT to custom), null, null)
+        }
+    }
 }

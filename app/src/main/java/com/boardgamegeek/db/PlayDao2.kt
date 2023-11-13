@@ -1,17 +1,40 @@
 package com.boardgamegeek.db
 
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 import com.boardgamegeek.db.model.*
 
 @Dao
 interface PlayDao2 {
+    @Transaction
+    suspend fun upsert(play: PlayEntity, players: List<PlayPlayerEntity>): Long {
+        val internalId = if (play.internalId == 0L) {
+            insertPlay(play)
+        } else {
+            updatePlay(play)
+            deletePlayers(play.internalId)
+            play.internalId
+        }
+        insertPlayers(players.map { it.copy(internalPlayId = internalId) })
+        return internalId
+    }
+
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertPlay(play: PlayEntity): Long
+
+    @Update
+    suspend fun updatePlay(play: PlayEntity)
+
+    @Query("DELETE FROM play_players WHERE _play_id = :playInternalId")
+    suspend fun deletePlayers(playInternalId: Long)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPlayers(players: List<PlayPlayerEntity>)
+
     @Query("SELECT * FROM plays ORDER BY date DESC, play_id DESC")
     suspend fun loadPlays(): List<PlayEntity>
 
     @Query("SELECT * FROM plays WHERE play_id = :playId")
-    suspend fun loadPlay(playId: Int): PlayEntity
+    suspend fun loadPlay(playId: Int): PlayEntity?
 
     @Query("SELECT * FROM plays WHERE object_id = :gameId ORDER BY date DESC, play_id DESC")
     suspend fun loadPlaysForGame(gameId: Int): List<PlayEntity>
@@ -59,13 +82,13 @@ interface PlayDao2 {
     suspend fun loadLocations(): List<LocationEntity>
 
     @Transaction
-    suspend fun updateUsername(playInternalId: Long, playerInternalId: Long, username: String){
+    suspend fun updateUsername(playInternalId: Long, playerInternalId: Long, username: String) {
         updatePlayerUsername(playerInternalId, username)
         markAsUpdated(playInternalId)
     }
 
     @Transaction
-    suspend fun updateNickname(playInternalId: Long, playerInternalId: Long, nickname: String){
+    suspend fun updateNickname(playInternalId: Long, playerInternalId: Long, nickname: String) {
         updatePlayerNickname(playerInternalId, nickname)
         markAsUpdated(playInternalId)
     }
@@ -87,6 +110,9 @@ interface PlayDao2 {
 
     @Query("UPDATE plays SET play_id = :playId, delete_timestamp = 0, update_timestamp = 0, dirty_timestamp = 0 WHERE _id = :internalId")
     suspend fun markAsSynced(internalId: Long, playId: Int): Int
+
+    @Query("UPDATE plays SET updated_list = :timestamp WHERE _id = :internalId")
+    suspend fun updateSyncTimestamp(internalId: Long, timestamp: Long): Int
 
     @Query("UPDATE plays SET sync_hash_code = 0")
     suspend fun clearSyncHashCodes()

@@ -180,8 +180,8 @@ fun LocationEntity.mapToModel() = Location(
     playCount = playCount,
 )
 
-fun Play.mapToEntity(syncTimestamp: Long = 0L) = PlayBasic(
-    internalId = internalId,
+fun Play.mapToEntity(syncTimestamp: Long = 0L) = PlayEntity(
+    internalId = if (internalId == BggContract.INVALID_ID.toLong()) 0 else internalId,
     playId = playId,
     date = dateForDatabase(),
     objectId = gameId,
@@ -193,17 +193,16 @@ fun Play.mapToEntity(syncTimestamp: Long = 0L) = PlayBasic(
     noWinStats = noWinStats,
     comments = comments,
     syncTimestamp = syncTimestamp,
-    initialPlayerCount = players.size,
-    syncHashCode = null,
+    playerCount = players.size,
+    syncHashCode = generateSyncHashCode(),
     dirtyTimestamp = dirtyTimestamp,
     updateTimestamp = updateTimestamp,
     deleteTimestamp = deleteTimestamp,
     startTime = startTime,
-    players = players.map { it.mapToEntity() },
 )
 
-fun PlayPlayer.mapToEntity() = PlayPlayerLocal(
-    internalId = internalId,
+fun PlayPlayer.mapToEntity() = PlayPlayerEntity(
+    internalId = if (internalId == BggContract.INVALID_ID.toLong()) 0 else internalId,
     internalPlayId = playInternalId,
     username = username,
     userId = userId,

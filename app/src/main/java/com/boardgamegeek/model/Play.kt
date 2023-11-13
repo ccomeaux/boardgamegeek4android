@@ -70,6 +70,29 @@ data class Play(
         return players.find { it.seat == seat }
     }
 
+    fun generateSyncHashCode(): Int {
+        val sb = StringBuilder()
+        sb.append(dateForDatabase()).append("\n")
+        sb.append(quantity).append("\n")
+        sb.append(length).append("\n")
+        sb.append(incomplete).append("\n")
+        sb.append(noWinStats).append("\n")
+        sb.append(location).append("\n")
+        sb.append(comments).append("\n")
+        players.forEach { player ->
+            sb.append(player.username).append("\n")
+            sb.append(player.userId).append("\n")
+            sb.append(player.name).append("\n")
+            sb.append(player.startingPosition).append("\n")
+            sb.append(player.color).append("\n")
+            sb.append(player.score).append("\n")
+            sb.append(player.isNew).append("\n")
+            sb.append(player.rating).append("\n")
+            sb.append(player.isWin).append("\n")
+        }
+        return sb.toString().hashCode()
+    }
+
     fun describe(context: Context, includeDate: Boolean = false): String {
         val info = StringBuilder()
         if (quantity > 1) info.append(context.resources.getQuantityString(R.plurals.play_description_quantity_segment, quantity, quantity))
