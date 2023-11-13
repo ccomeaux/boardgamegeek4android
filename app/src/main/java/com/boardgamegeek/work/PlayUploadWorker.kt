@@ -54,11 +54,11 @@ class PlayUploadWorker @AssistedInject constructor(
         } else if (requestedGameId != BggContract.INVALID_ID) {
             Timber.i("Uploading all plays for game ID=$requestedGameId marked for deletion or updating")
             playsToDelete += playRepository.loadDeletingPlays().filter { it.gameId == requestedGameId }
-            playsToUpsert += playRepository.loadUpdatingPlays().filter { it.gameId == requestedGameId }
+            playsToUpsert += playRepository.loadUpdatingPlays().filter { it.deleteTimestamp == 0L }.filter { it.gameId == requestedGameId }
         } else {
             Timber.i("Uploading all plays marked for deletion or updating")
             playsToDelete += playRepository.loadDeletingPlays()
-            playsToUpsert += playRepository.loadUpdatingPlays()
+            playsToUpsert += playRepository.loadUpdatingPlays().filter { it.deleteTimestamp == 0L }
         }
 
         Timber.i("Found ${playsToDelete.count()} play(s) marked for deletion")
@@ -73,9 +73,12 @@ class PlayUploadWorker @AssistedInject constructor(
 
         gameIds.filterNot { it == BggContract.INVALID_ID }.forEach { gameId ->
             playRepository.updateGamePlayCount(gameId)
+            Timber.i("Updated game [$gameId]'s game count")
         }
-        if (gameIds.isNotEmpty())
+        if (gameIds.isNotEmpty()) {
             playRepository.calculatePlayStats()
+            Timber.i("Recalculated game stats")
+        }
 
         return Result.success()
     }

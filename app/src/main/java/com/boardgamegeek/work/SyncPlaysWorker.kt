@@ -59,10 +59,10 @@ class SyncPlaysWorker @AssistedInject constructor(
                     Timber.i("Deleted $deletedCount unupdated plays before ${oldestDate.toDate()}")
                 }
                 syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] = 0L
-            } else Timber.i("Downloaded all past plays")
+            } else Timber.i("Already downloaded all past plays")
 
             playRepository.calculatePlayStats()
-            Timber.i("Plays synced successfully ")
+            Timber.i("Plays synced successfully")
             return Result.success()
         } catch (e: Exception) {
             return handleException(e)
