@@ -50,7 +50,7 @@ class GameRepository @Inject constructor(
         } else {
             api.things(gameId.joinToString(), 1)
         }
-        response.games.map { it.mapToModel() }
+        response.games?.map { it.mapToModel() }.orEmpty()
     }
 
     suspend fun refreshHeroImage(game: Game): Game = withContext(Dispatchers.IO) {
@@ -64,12 +64,12 @@ class GameRepository @Inject constructor(
 
     suspend fun loadComments(gameId: Int, page: Int): GameComments? = withContext(Dispatchers.IO) {
         val response = api.thingWithComments(gameId, page)
-        response.games.firstOrNull()?.mapToRatingModel()
+        response.games?.firstOrNull()?.mapToRatingModel()
     }
 
     suspend fun loadRatings(gameId: Int, page: Int): GameComments? = withContext(Dispatchers.IO) {
         val response = api.thingWithRatings(gameId, page)
-        response.games.firstOrNull()?.mapToRatingModel()
+        response.games?.firstOrNull()?.mapToRatingModel()
     }
 
     suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId).map { it.mapToModel() }
