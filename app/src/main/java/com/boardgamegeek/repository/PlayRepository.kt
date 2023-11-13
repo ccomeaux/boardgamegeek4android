@@ -41,7 +41,7 @@ class PlayRepository(
     val context: Context,
     private val api: BggService,
     private val phpApi: PhpApi,
-    private val playDao: PlayDao2,
+    private val playDao: PlayDao,
     private val playerColorDao: PlayerColorDao,
     private val userDao: UserDao,
 ) {

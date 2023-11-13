@@ -53,7 +53,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository, playDao: PlayDao2) =
+    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository, playDao: PlayDao) =
         GameRepository(context, api, imageRepository, playDao)
 
     @Provides
@@ -79,8 +79,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi, playDao2: PlayDao2, playerColorDao: PlayerColorDao, userDao: UserDao) =
-        PlayRepository(context, api, phpApi, playDao2, playerColorDao, userDao)
+    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi, playDao: PlayDao, playerColorDao: PlayerColorDao, userDao: UserDao) =
+        PlayRepository(context, api, phpApi, playDao, playerColorDao, userDao)
 
     @Provides
     @Singleton

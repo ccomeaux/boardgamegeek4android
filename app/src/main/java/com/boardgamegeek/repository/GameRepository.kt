@@ -3,7 +3,7 @@ package com.boardgamegeek.repository
 import android.content.Context
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.db.PlayDao2
+import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.model.GameComments
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.GamePoll
@@ -20,7 +20,7 @@ class GameRepository @Inject constructor(
     val context: Context,
     private val api: BggService,
     private val imageRepository: ImageRepository,
-    private val playDao: PlayDao2,
+    private val playDao: PlayDao,
 ) {
     private val dao = GameDao(context)
     private val collectionDao = CollectionDao(context)
