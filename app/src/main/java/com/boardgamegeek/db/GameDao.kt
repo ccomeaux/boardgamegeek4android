@@ -708,7 +708,7 @@ class GameDao(private val context: Context) {
             val existingRankIds = context.contentResolver.queryInts(
                 GameRanks.CONTENT_URI,
                 GameRanks.Columns.GAME_RANK_ID,
-                "${GameRanks.Columns.GAME_RANK_ID}=?",
+                "${GameRanks.Columns.GAME_ID}=?",
                 arrayOf(game.gameId.toString())
             ).toMutableList()
             for (rank in game.ranks) {
