@@ -88,7 +88,7 @@ class NewPlayViewModel @Inject constructor(
 
     val gameColors = gameId.switchMap { gameId ->
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId).filter { it.isNotBlank() })
+            emit(gameRepository.getPlayColors(gameId).filter { it.isNotBlank() })
         }
     }
 

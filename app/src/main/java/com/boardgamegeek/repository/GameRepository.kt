@@ -1,15 +1,15 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
-import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.db.PlayDao
+import com.boardgamegeek.db.*
+import com.boardgamegeek.db.model.GameColorsEntity
 import com.boardgamegeek.model.GameComments
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.GamePoll
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.*
+import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,6 +21,7 @@ class GameRepository @Inject constructor(
     private val api: BggService,
     private val imageRepository: ImageRepository,
     private val playDao: PlayDao,
+    private val gameColorDao: GameColorDao,
 ) {
     private val dao = GameDao(context)
     private val collectionDao = CollectionDao(context)
@@ -103,27 +104,35 @@ class GameRepository @Inject constructor(
     /**
      * Returns a map of all game IDs with player colors.
      */
-    suspend fun getPlayColors() = dao.loadPlayColors().groupBy({ it.first }, { it.second })
+    suspend fun getPlayColors(): Map<Int, List<GameColorsEntity>> {
+        return gameColorDao.loadColors().groupBy { it.gameId }
+    }
 
-    suspend fun getPlayColors(gameId: Int) = dao.loadPlayColors(gameId)
+    suspend fun getPlayColors(gameId: Int): List<String> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            gameColorDao.loadColorsForGame(gameId).map { it.color }
+    }
 
     suspend fun addPlayColor(gameId: Int, color: String?) {
         if (gameId != INVALID_ID && !color.isNullOrBlank()) {
-            dao.insertColor(gameId, color)
+            if (!gameColorDao.loadColorsForGame(gameId).map { it.color }.contains(color))
+                gameColorDao.insert(listOf(GameColorsEntity(internalId = 0L, gameId = gameId, color = color)))
         }
     }
 
-    suspend fun deletePlayColor(gameId: Int, color: String): Int {
-        return if (gameId != INVALID_ID && color.isNotBlank()) {
-            dao.deleteColor(gameId, color)
-        } else 0
+    suspend fun deletePlayColor(gameId: Int, color: String) {
+        if (gameId != INVALID_ID && color.isNotBlank())
+            gameColorDao.deleteColorForGame(gameId, color)
     }
 
     suspend fun computePlayColors(gameId: Int) {
         val usedColors = playDao.loadPlayersForGame(gameId).mapNotNull { it.player.color }.toSet()
-        val currentColors = dao.loadPlayColors(gameId).toSet()
+        val currentColors = gameColorDao.loadColorsForGame(gameId).map { it.color }.toSet()
         val colors = usedColors - currentColors
-        dao.insertColors(gameId, colors.toList())
+        val entities = colors.map { GameColorsEntity(internalId = 0L, gameId = gameId, color = it) }
+        gameColorDao.insert(entities)
     }
 
     suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
@@ -145,7 +154,12 @@ class GameRepository @Inject constructor(
         }
     }
 
-    suspend fun updateColors(gameId: Int, colors: List<String>) = dao.updateColors(gameId, colors)
+    suspend fun replaceColors(gameId: Int, colors: List<String>) {
+        dao.load(gameId)?.let {
+            gameColorDao.deleteColorsForGame(gameId)
+            gameColorDao.insert(colors.map { GameColorsEntity(internalId = 0L, gameId = gameId, color = it) })
+        }
+    }
 
     suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
         if (gameId != INVALID_ID) dao.updateStarred(gameId, isFavorite)

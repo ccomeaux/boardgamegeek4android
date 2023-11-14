@@ -81,7 +81,7 @@ class DataPortViewModel @Inject constructor(
     fun exportGames(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
             val colors = gameRepository.getPlayColors()
-                .map { GameForExport(it.key, it.value.map { color -> ColorForExport(color) }) }
+                .map { GameForExport(it.key, it.value.map { entity -> ColorForExport(entity.color) }) }
                 .filter { it.colors.isNotEmpty() }
             export(
                 uri,
@@ -199,7 +199,7 @@ class DataPortViewModel @Inject constructor(
                 Constants.TYPE_GAMES_DESCRIPTION,
                 _gameProgress,
                 { reader -> gson.fromJson(reader, GameForExport::class.java) },
-                { item: GameForExport, _ -> gameRepository.updateColors(item.id, item.colors.map { it.color }) },
+                { item: GameForExport, _ -> gameRepository.replaceColors(item.id, item.colors.map { it.color }) },
             )
         }
     }

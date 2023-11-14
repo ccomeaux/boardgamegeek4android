@@ -12,6 +12,7 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.*
 import com.boardgamegeek.db.PlayerColorDao.Companion.TYPE_PLAYER
 import com.boardgamegeek.db.PlayerColorDao.Companion.TYPE_USER
+import com.boardgamegeek.db.model.GameColorsEntity
 import com.boardgamegeek.db.model.PlayerColorsEntity
 import com.boardgamegeek.model.*
 import com.boardgamegeek.model.PlayStats
@@ -44,6 +45,7 @@ class PlayRepository(
     private val playDao: PlayDao,
     private val playerColorDao: PlayerColorDao,
     private val userDao: UserDao,
+    private val gameColorDao: GameColorDao,
 ) {
     private val gameDao = GameDao(context)
     private val collectionDao = CollectionDao(context)
@@ -649,10 +651,11 @@ class PlayRepository(
                 }
 
                 // update game colors
-                val existingColors = gameDao.loadPlayColors(play.gameId)
+                val existingColors = gameColorDao.loadColorsForGame(play.gameId).map { it.color }
                 play.players.distinctBy { it.color }.forEach {// TODO, just insert it with the right CONFLICT
-                    if (!existingColors.contains(it.color))
-                        gameDao.insertColor(play.gameId, it.color)
+                    if (!existingColors.contains(it.color)) {
+                        gameColorDao.insert(listOf(GameColorsEntity(internalId = 0L, gameId = play.gameId, it.color)))
+                    }
                 }
             }
 

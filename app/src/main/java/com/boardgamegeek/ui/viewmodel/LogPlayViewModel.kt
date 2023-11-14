@@ -92,7 +92,7 @@ class LogPlayViewModel @Inject constructor(
 
     val colors = _game.switchMap { game ->
         liveData {
-            emit(if (game.first == INVALID_ID) null else gameRepository.getPlayColors(game.first))
+            emit(gameRepository.getPlayColors(game.first))
         }
     }
 

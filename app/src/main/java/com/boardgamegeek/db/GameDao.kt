@@ -405,19 +405,6 @@ class GameDao(private val context: Context) {
             } else emptyList()
         }
 
-    suspend fun loadPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
-        context.contentResolver.queryStrings(Games.buildColorsUri(gameId), GameColors.Columns.COLOR).filterNot { it.isBlank() }
-    }
-
-    suspend fun loadPlayColors(): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            GameColors.CONTENT_URI,
-            arrayOf(GameColors.Columns.GAME_ID, GameColors.Columns.COLOR),
-        ) {
-            (it.getIntOrNull(0) ?: INVALID_ID) to it.getStringOrNull(1).orEmpty()
-        }
-    }
-
     suspend fun loadGamesForPlayStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
@@ -469,22 +456,6 @@ class GameDao(private val context: Context) {
 
     suspend fun delete(): Int = withContext(Dispatchers.IO) {
         context.contentResolver.delete(Games.CONTENT_URI, null, null)
-    }
-
-    suspend fun insertColor(gameId: Int, color: String) = withContext(Dispatchers.IO) {
-        context.contentResolver.insert(Games.buildColorsUri(gameId), contentValuesOf(GameColors.Columns.COLOR to color))
-    }
-
-    suspend fun deleteColor(gameId: Int, color: String): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Games.buildColorsUri(gameId, color), null, null)
-    }
-
-    suspend fun insertColors(gameId: Int, colors: List<String>): Int = withContext(Dispatchers.IO) {
-        if (colors.isEmpty()) 0
-        else {
-            val values = colors.map { contentValuesOf(GameColors.Columns.COLOR to it) }
-            context.contentResolver.bulkInsert(Games.buildColorsUri(gameId), values.toTypedArray())
-        }
     }
 
     suspend fun save(game: GameForUpsert) = withContext(Dispatchers.IO) {
@@ -841,17 +812,6 @@ class GameDao(private val context: Context) {
 
     private suspend fun update(gameId: Int, values: ContentValues) = withContext(Dispatchers.IO) {
         context.contentResolver.update(Games.buildGameUri(gameId), values, null, null)
-    }
-
-    suspend fun updateColors(gameId: Int, colors: List<String>) = withContext(Dispatchers.IO) {
-        if (context.contentResolver.rowExists(Games.buildGameUri(gameId))) {
-            val gameColorsUri = Games.buildColorsUri(gameId)
-            context.contentResolver.delete(gameColorsUri, null, null)
-            val values = colors.filter { it.isNotBlank() }.map { contentValuesOf(GameColors.Columns.COLOR to it) }
-            if (values.isNotEmpty()) {
-                context.contentResolver.bulkInsert(gameColorsUri, values.toTypedArray())
-            }
-        }
     }
 
     suspend fun updateGameCustomPlayerSort(gameId: Int, custom: Boolean) = withContext(Dispatchers.IO) {
