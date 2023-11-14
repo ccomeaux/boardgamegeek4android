@@ -162,7 +162,7 @@ class GameViewModel @Inject constructor(
     val designers = game.switchMap {
         liveData {
             emit(it.data?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getDesigners(it.id)
+                gameRepository.getDesigners(it.id)
             })
         }.distinctUntilChanged()
     }
@@ -170,7 +170,7 @@ class GameViewModel @Inject constructor(
     val artists = game.switchMap {
         liveData {
             emit(it.data?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getArtists(it.id)
+                gameRepository.getArtists(it.id)
             })
         }.distinctUntilChanged()
     }

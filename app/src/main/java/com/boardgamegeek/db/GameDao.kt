@@ -252,7 +252,6 @@ class GameDao(private val context: Context) {
         games
     }
 
-
     /**
      * Get a list of games, sorted by least recently updated, that
      * 1. have no associated collection record
@@ -275,107 +274,6 @@ class GameDao(private val context: Context) {
             games += it.getInt(0) to it.getString(1)
         }
         games
-    }
-
-    suspend fun loadDesigners(gameId: Int): List<DesignerBrief> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(
-                Games.buildDesignersUri(gameId),
-                arrayOf(
-                    BaseColumns._ID,
-                    Designers.Columns.DESIGNER_ID,
-                    Designers.Columns.DESIGNER_NAME,
-                    Designers.Columns.DESIGNER_THUMBNAIL_URL,
-                )
-            ) {
-                DesignerBrief(
-                    it.getLong(0),
-                    it.getInt(1),
-                    it.getString(2),
-                    it.getStringOrNull(3),
-                )
-            }
-        } else emptyList()
-    }
-
-    suspend fun loadArtists(gameId: Int): List<ArtistBrief> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(
-                Games.buildArtistsUri(gameId),
-                arrayOf(
-                     BaseColumns._ID,
-                    Artists.Columns.ARTIST_ID,
-                    Artists.Columns.ARTIST_NAME,
-                    Artists.Columns.ARTIST_THUMBNAIL_URL,
-                )
-            ) {
-                ArtistBrief(
-                    it.getLong(0),
-                    it.getInt(1),
-                    it.getString(2),
-                    it.getStringOrNull(3),
-                )
-            }
-        } else emptyList()
-    }
-
-    suspend fun loadPublishers(gameId: Int): List<PublisherBrief> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(
-                Games.buildPublishersUri(gameId),
-                arrayOf(
-                    BaseColumns._ID,
-                    Publishers.Columns.PUBLISHER_ID,
-                    Publishers.Columns.PUBLISHER_NAME,
-                    Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
-                )
-            ) {
-                PublisherBrief(
-                    it.getLong(0),
-                    it.getInt(1),
-                    it.getString(2),
-                    it.getString(3),
-                )
-            }
-        } else emptyList()
-    }
-
-    suspend fun loadCategories(gameId: Int): List<CategoryLocal> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(
-                Games.buildCategoriesUri(gameId),
-                arrayOf(
-                    BaseColumns._ID,
-                    Categories.Columns.CATEGORY_ID,
-                    Categories.Columns.CATEGORY_NAME,
-                )
-            ) {
-                CategoryLocal(
-                    it.getInt(0),
-                    it.getInt(1),
-                    it.getString(2),
-                )
-            }
-        } else emptyList()
-    }
-
-    suspend fun loadMechanics(gameId: Int): List<MechanicLocal> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(
-                Games.buildMechanicsUri(gameId),
-                arrayOf(
-                    BaseColumns._ID,
-                    Mechanics.Columns.MECHANIC_ID,
-                    Mechanics.Columns.MECHANIC_NAME,
-                )
-            ) {
-                MechanicLocal(
-                    it.getInt(0),
-                    it.getInt(1),
-                    it.getString(2),
-                )
-            }
-        } else emptyList()
     }
 
     suspend fun loadExpansions(gameId: Int, inbound: Boolean = false): List<GamesExpansionLocal> =

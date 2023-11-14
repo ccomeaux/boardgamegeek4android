@@ -1,6 +1,5 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.db.model.PublisherBrief
 import com.boardgamegeek.db.model.PublisherEntity
 import com.boardgamegeek.db.model.PublisherForUpsert
 import com.boardgamegeek.model.Company
@@ -33,7 +32,7 @@ fun PublisherEntity.mapToModel() = Company(
     statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
 
-fun PublisherBrief.mapToGameDetail() = GameDetail(
+fun PublisherEntity.mapToGameDetail() = GameDetail(
     id = publisherId,
     name = publisherName,
     thumbnailUrl = publisherThumbnailUrl.orEmpty(),

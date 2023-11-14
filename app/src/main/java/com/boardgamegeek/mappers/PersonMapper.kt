@@ -46,13 +46,13 @@ fun ArtistEntity.mapToModel() = Person(
     statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
 
-fun DesignerBrief.mapToGameDetail() = GameDetail(
+fun DesignerEntity.mapToGameDetail() = GameDetail(
     id = designerId,
     name = designerName,
     thumbnailUrl = designerThumbnailUrl.orEmpty(),
 )
 
-fun ArtistBrief.mapToGameDetail() = GameDetail(
+fun ArtistEntity.mapToGameDetail() = GameDetail(
     id = artistId,
     name = artistName,
     thumbnailUrl = artistThumbnailUrl.orEmpty(),

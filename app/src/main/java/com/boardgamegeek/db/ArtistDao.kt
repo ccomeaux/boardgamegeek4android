@@ -1,9 +1,6 @@
 package com.boardgamegeek.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.boardgamegeek.db.model.ArtistEntity
 import com.boardgamegeek.db.model.ArtistForUpsert
 import java.util.Date

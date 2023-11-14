@@ -41,6 +41,7 @@ abstract class BggDatabase : RoomDatabase() {
     abstract fun categoryDao(): CategoryDao
     abstract fun collectionViewDao(): CollectionViewDao
     abstract fun designerDao(): DesignerDao
+    abstract fun gameDao(): GameDaoNew
     abstract fun gameColorDao(): GameColorDao
     abstract fun mechanicDao(): MechanicDao
     abstract fun playDao(): PlayDao

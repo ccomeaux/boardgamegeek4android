@@ -22,6 +22,7 @@ class GameRepository @Inject constructor(
     private val imageRepository: ImageRepository,
     private val playDao: PlayDao,
     private val gameColorDao: GameColorDao,
+    private val gameDaoNew: GameDaoNew,
 ) {
     private val dao = GameDao(context)
     private val collectionDao = CollectionDao(context)
@@ -81,15 +82,40 @@ class GameRepository @Inject constructor(
 
     suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId).map { it.mapToModel() }
 
-    suspend fun getDesigners(gameId: Int) = dao.loadDesigners(gameId).map { it.mapToGameDetail() }
+    suspend fun getDesigners(gameId: Int): List<GameDetail> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            gameDaoNew.loadDesignersForGame(gameId)?.designers?.map { it.mapToGameDetail() }.orEmpty()
+    }
 
-    suspend fun getArtists(gameId: Int) = dao.loadArtists(gameId).map { it.mapToGameDetail() }
+    suspend fun getArtists(gameId: Int): List<GameDetail> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            gameDaoNew.loadArtistsForGame(gameId)?.artists?.map { it.mapToGameDetail() }.orEmpty()
+    }
 
-    suspend fun getPublishers(gameId: Int) = dao.loadPublishers(gameId).map { it.mapToGameDetail() }
+    suspend fun getPublishers(gameId: Int): List<GameDetail> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            gameDaoNew.loadPublishersForGame(gameId)?.publishers?.map { it.mapToGameDetail() }.orEmpty()
+    }
 
-    suspend fun getCategories(gameId: Int) = dao.loadCategories(gameId).map { it.mapToGameDetail() }
+    suspend fun getCategories(gameId: Int): List<GameDetail> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            gameDaoNew.loadCategoriesForGame(gameId)?.categories?.map { it.mapToGameDetail() }.orEmpty()
+    }
 
-    suspend fun getMechanics(gameId: Int) = dao.loadMechanics(gameId).map { it.mapToGameDetail() }
+    suspend fun getMechanics(gameId: Int): List<GameDetail> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            gameDaoNew.loadMechanicsForGame(gameId)?.mechanics?.map { it.mapToGameDetail() }.orEmpty()
+    }
 
     suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId).map { entity ->
         val items = collectionDao.loadByGame(entity.expansionId).map { it.second.mapToModel(it.first.mapToModel()) }
