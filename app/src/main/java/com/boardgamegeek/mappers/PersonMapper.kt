@@ -80,7 +80,7 @@ fun DesignerEntity.mapToModel() = Person(
     statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
 
-fun Person.mapDesignerForUpsert(internalId: Int = BggContract.INVALID_ID) = DesignerBasic(
+fun Person.mapDesignerForUpsert(internalId: Int = BggContract.INVALID_ID) = DesignerForUpsert(
     internalId = internalId,
     designerId = id,
     designerName = name,

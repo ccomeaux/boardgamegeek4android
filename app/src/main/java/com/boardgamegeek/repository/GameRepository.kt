@@ -2,7 +2,7 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import com.boardgamegeek.db.*
-import com.boardgamegeek.db.model.GameColorsEntity
+import com.boardgamegeek.db.model.*
 import com.boardgamegeek.model.GameComments
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.GamePoll
@@ -23,6 +23,11 @@ class GameRepository @Inject constructor(
     private val playDao: PlayDao,
     private val gameColorDao: GameColorDao,
     private val gameDaoNew: GameDaoNew,
+    private val artistDao: ArtistDao,
+    private val designerDao: DesignerDao,
+    private val publisherDao: PublisherDao,
+    private val categoryDao: CategoryDao,
+    private val mechanicDao: MechanicDao,
 ) {
     private val dao = GameDao(context)
     private val collectionDao = CollectionDao(context)
@@ -40,10 +45,59 @@ class GameRepository @Inject constructor(
         val games = api.thing(gameId.first(), 1).games
         games?.forEach { game ->
             val gameForUpsert = game.mapForUpsert(timestamp)
-            dao.save(gameForUpsert)
+            saveGame(gameForUpsert)
             Timber.d("Synced game $gameForUpsert")
         }
         games?.size ?: 0
+    }
+
+    private suspend fun saveGame(game: GameForUpsert) {
+        game.artists?.forEach {
+            val artist = artistDao.loadArtist(it.first)
+            val entity = ArtistBriefForUpsert(
+                internalId = artist?.internalId ?: 0,
+                artistId = it.first,
+                artistName = it.second,
+            )
+            artistDao.upsert(entity)
+        }
+        game.designers?.forEach {
+            val designer = designerDao.loadDesigner(it.first)
+            val entity = DesignerBriefForUpsert(
+                internalId = designer?.internalId ?: 0,
+                designerId = it.first,
+                designerName = it.second,
+            )
+            designerDao.upsert(entity)
+        }
+        game.publishers?.forEach {
+            val publisher = publisherDao.loadPublisher(it.first)
+            val entity = PublisherBriefForUpsert(
+                internalId = publisher?.internalId ?: 0,
+                publisherId = it.first,
+                publisherName = it.second,
+            )
+            publisherDao.upsert(entity)
+        }
+        game.categories?.forEach {
+            val category = categoryDao.loadCategory(it.first)
+            val entity = CategoryEntity(
+                internalId = category?.internalId ?: 0,
+                categoryId = it.first,
+                categoryName = it.second,
+            )
+            categoryDao.upsert(entity)
+        }
+        game.mechanics?.forEach {
+            val mechanic = mechanicDao.loadMechanic(it.first)
+            val entity = MechanicEntity(
+                internalId = mechanic?.internalId ?: 0,
+                mechanicId = it.first,
+                mechanicName = it.second,
+            )
+            mechanicDao.upsert(entity)
+        }
+        dao.save(game)
     }
 
     suspend fun fetchGame(vararg gameId: Int): List<Game> = withContext(Dispatchers.IO) {

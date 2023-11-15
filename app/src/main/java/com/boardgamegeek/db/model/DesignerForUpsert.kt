@@ -3,7 +3,7 @@ package com.boardgamegeek.db.model
 import androidx.room.ColumnInfo
 import java.util.Date
 
-data class DesignerBasic (
+data class DesignerForUpsert (
     @ColumnInfo(name = "_id")
     val internalId: Int,
     @ColumnInfo(name = "designer_id")

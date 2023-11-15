@@ -1,8 +1,7 @@
 package com.boardgamegeek.db
 
 import androidx.room.*
-import com.boardgamegeek.db.model.DesignerBasic
-import com.boardgamegeek.db.model.DesignerEntity
+import com.boardgamegeek.db.model.*
 import java.util.Date
 
 @Dao
@@ -23,10 +22,13 @@ interface DesignerDao {
     suspend fun updateWhitmoreScore(designerId: Int, score: Int, timestamp: Date)
 
     @Insert(DesignerEntity::class)
-    suspend fun insert(designer: DesignerBasic)
+    suspend fun insert(designer: DesignerForUpsert)
 
     @Update(DesignerEntity::class)
-    suspend fun update(designer: DesignerBasic)
+    suspend fun update(designer: DesignerForUpsert)
+
+    @Upsert(DesignerEntity::class)
+    suspend fun upsert(artist: DesignerBriefForUpsert)
 
     @Query("DELETE FROM designers")
     suspend fun deleteAll(): Int

@@ -1,8 +1,7 @@
 package com.boardgamegeek.db
 
 import androidx.room.*
-import com.boardgamegeek.db.model.ArtistEntity
-import com.boardgamegeek.db.model.ArtistForUpsert
+import com.boardgamegeek.db.model.*
 import java.util.Date
 
 @Dao
@@ -27,6 +26,9 @@ interface ArtistDao {
 
     @Update(ArtistEntity::class)
     suspend fun update(artist: ArtistForUpsert)
+
+    @Upsert(ArtistEntity::class)
+    suspend fun upsert(artist: ArtistBriefForUpsert)
 
     @Query("DELETE FROM artists")
     suspend fun deleteAll(): Int

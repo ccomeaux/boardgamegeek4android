@@ -3,7 +3,6 @@ package com.boardgamegeek.db
 import android.content.ContentProviderOperation
 import android.content.ContentValues
 import android.content.Context
-import android.net.Uri
 import android.provider.BaseColumns
 import android.text.format.DateUtils
 import androidx.core.content.contentValuesOf
@@ -382,12 +381,6 @@ class GameDao(private val context: Context) {
             batch += createPlayerPollBatch(game.gameId, game.playerPoll)
             batch += createExpansionsBatch(game.gameId, game.expansions)
 
-            saveReference(game.designers, Designers.CONTENT_URI, Designers.Columns.DESIGNER_ID, Designers.Columns.DESIGNER_NAME)
-            saveReference(game.artists, Artists.CONTENT_URI, Artists.Columns.ARTIST_ID, Artists.Columns.ARTIST_NAME)
-            saveReference(game.publishers, Publishers.CONTENT_URI, Publishers.Columns.PUBLISHER_ID, Publishers.Columns.PUBLISHER_NAME)
-            saveReference(game.categories, Categories.CONTENT_URI, Categories.Columns.CATEGORY_ID, Categories.Columns.CATEGORY_NAME)
-            saveReference(game.mechanics, Mechanics.CONTENT_URI, Mechanics.Columns.MECHANIC_ID, Mechanics.Columns.MECHANIC_NAME)
-
             batch += createAssociationBatch(game.gameId, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
             batch += createAssociationBatch(game.gameId, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID)
             batch += createAssociationBatch(game.gameId, game.publishers, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
@@ -625,29 +618,6 @@ class GameDao(private val context: Context) {
             // remove unused associations
             existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, PATH_EXPANSIONS, it)).build() }
         } ?: batch
-    }
-
-    /**
-     * Upsert each ID/name pair.
-     */
-    private fun saveReference(newLinks: List<Pair<Int, String>>?, baseUri: Uri, idColumn: String, nameColumn: String) {
-        if (newLinks == null) return
-        val batch = arrayListOf<ContentProviderOperation>()
-        for ((id, name) in newLinks) {
-            val uri = baseUri.buildUpon().appendPath(id.toString()).build()
-            batch += if (context.contentResolver.rowExists(uri)) {
-                ContentProviderOperation
-                    .newUpdate(uri)
-                    .withValue(nameColumn, name)
-                    .build()
-            } else {
-                ContentProviderOperation
-                    .newInsert(baseUri)
-                    .withValues(contentValuesOf(idColumn to id, nameColumn to name))
-                    .build()
-            }
-        }
-        context.contentResolver.applyBatch(batch, "Saving ${baseUri.lastPathSegment}")
     }
 
     private fun createAssociationBatch(

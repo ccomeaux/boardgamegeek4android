@@ -1,11 +1,7 @@
 package com.boardgamegeek.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
-import com.boardgamegeek.db.model.PublisherEntity
-import com.boardgamegeek.db.model.PublisherForUpsert
+import androidx.room.*
+import com.boardgamegeek.db.model.*
 import java.util.Date
 
 @Dao
@@ -27,6 +23,9 @@ interface PublisherDao {
 
     @Update(PublisherEntity::class)
     suspend fun update(publisher: PublisherForUpsert)
+
+    @Upsert(PublisherEntity::class)
+    suspend fun upsert(artist: PublisherBriefForUpsert)
 
     @Query("DELETE FROM publishers")
     suspend fun deleteAll(): Int
