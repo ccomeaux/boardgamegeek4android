@@ -108,7 +108,11 @@ class SyncCollectionWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun syncCompleteCollectionByStatus(subtype: BggService.ThingSubtype? = null, status: String, excludedStatuses: List<String>): Result {
+    private suspend fun syncCompleteCollectionByStatus(
+        subtype: BggService.ThingSubtype? = null,
+        status: String,
+        excludedStatuses: List<String>
+    ): Result {
         val statusDescription = statusDescriptions[status]
         val subtypeDescription = subtype.getDescription(applicationContext)
 
@@ -158,7 +162,11 @@ class SyncCollectionWorker @AssistedInject constructor(
             return Result.success()
         }
 
-        val contentText = applicationContext.getString(R.string.sync_notification_collection_since, subtype.getDescription(applicationContext), previousSyncTimestamp.toDateTime())
+        val contentText = applicationContext.getString(
+            R.string.sync_notification_collection_since,
+            subtype.getDescription(applicationContext),
+            previousSyncTimestamp.toDateTime()
+        )
         setForeground(createForegroundInfo(contentText))
 
         val updatedTimestamp = System.currentTimeMillis()
@@ -252,15 +260,15 @@ class SyncCollectionWorker @AssistedInject constructor(
         Timber.i("Removing games not in the collection")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_collection_missing)))
 
-        val hoursAgo = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_DELETE_VIEW_HOURS).hoursAgo()
+        val sinceTimestamp = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_DELETE_VIEW_HOURS).hoursAgo()
         val date = DateUtils.formatDateTime(
             applicationContext,
-            hoursAgo,
+            sinceTimestamp,
             DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_NUMERIC_DATE or DateUtils.FORMAT_SHOW_TIME
         )
         Timber.i("Finding games to delete that aren't in the collection and have not been viewed since $date")
 
-        val games = gameRepository.loadDeletableGames(hoursAgo, prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED))
+        val games = gameRepository.loadDeletableGames(sinceTimestamp, prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED))
         if (games.isNotEmpty()) {
             Timber.i("Found ${games.size} games to delete: ${games.map { "[${it.first}] ${it.second}" }}")
             setForeground(
@@ -294,8 +302,8 @@ class SyncCollectionWorker @AssistedInject constructor(
         Timber.i("Refreshing $maxGameCount oldest games in the collection")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_games_oldest)))
         val staleGames = gameRepository.loadOldestUpdatedGames(maxGameCount)
-        staleGames.forEach { (gameId, gameName) ->
-            Timber.i("Refreshing game $gameName [$gameId]")
+        staleGames.forEachIndexed { index, (gameId, gameName) ->
+            Timber.i("Refreshing game ${(index + 1)} of $maxGameCount: $gameName [$gameId]")
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS))
             try {
                 updatedCount += gameRepository.refreshGame(gameId)
@@ -308,8 +316,8 @@ class SyncCollectionWorker @AssistedInject constructor(
         Timber.i("Refreshing $maxGameCount games that are missing details in the collection")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_games_unupdated)))
         val games = gameRepository.loadUnupdatedGames(maxGameCount)
-        games.forEach { (gameId, gameName) ->
-            Timber.i("Refreshing game $gameName [$gameId]")
+        games.forEachIndexed { index, (gameId, gameName) ->
+            Timber.i("Refreshing game ${(index + 1)} of $maxGameCount: $gameName [$gameId]")
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS))
             try {
                 updatedCount += gameRepository.refreshGame(gameId)

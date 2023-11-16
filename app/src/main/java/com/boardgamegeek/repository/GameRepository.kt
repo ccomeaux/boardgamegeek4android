@@ -34,11 +34,21 @@ class GameRepository @Inject constructor(
 
     suspend fun loadGame(gameId: Int) = dao.load(gameId)?.mapToModel()
 
-    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0) = dao.loadOldestUpdatedGames(gamesPerFetch)
+    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> {
+        return gameDaoNew.loadOldestUpdatedGames(gamesPerFetch).map { it.gameId to it.gameName }
+    }
 
-    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0) = dao.loadUnupdatedGames(gamesPerFetch)
+    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> {
+        return gameDaoNew.loadUnupdatedGames(gamesPerFetch).map { it.gameId to it.gameName }
+    }
 
-    suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean) = dao.loadDeletableGames(hoursAgo, includeUnplayedGames)
+    suspend fun loadDeletableGames(sinceTimestamp: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> {
+        return if (includeUnplayedGames){
+            gameDaoNew.loadNonCollectionAndUnplayedGames(sinceTimestamp).map { it.gameId to it.gameName }
+        } else {
+            gameDaoNew.loadNonCollectionGames(sinceTimestamp).map { it.gameId to it.gameName }
+        }
+    }
 
     suspend fun refreshGame(vararg gameId: Int): Int = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
