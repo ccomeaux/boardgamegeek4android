@@ -19,6 +19,12 @@ interface GameDaoNew {
     @Query("SELECT games.game_id, game_name FROM games LEFT OUTER JOIN collection ON games.game_id = collection.game_id WHERE collection_id IS NULL AND last_viewed < :sinceTimestamp AND num_of_plays = 0 ORDER BY games.updated")
     suspend fun loadNonCollectionAndUnplayedGames(sinceTimestamp: Long): List<GameIdAndName>
 
+    @Query("DELETE FROM games")
+    suspend fun deleteAll(): Int
+
+    @Query("DELETE FROM games WHERE game_id = :gameId")
+    suspend fun delete(gameId: Int): Int
+
     @Transaction
     @Query("SELECT * FROM games WHERE game_id = :gameId")
     suspend fun loadDesignersForGame(gameId: Int): GameWithDesigners?

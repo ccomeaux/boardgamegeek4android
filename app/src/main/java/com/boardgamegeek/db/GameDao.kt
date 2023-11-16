@@ -291,15 +291,6 @@ class GameDao(private val context: Context) {
         }
     }
 
-    suspend fun delete(gameId: Int): Int = withContext(Dispatchers.IO) {
-        if (gameId == INVALID_ID) 0
-        else context.contentResolver.delete(Games.buildGameUri(gameId), null, null)
-    }
-
-    suspend fun delete(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Games.CONTENT_URI, null, null)
-    }
-
     suspend fun save(game: GameForUpsert) = withContext(Dispatchers.IO) {
         if (game.gameName.isBlank()) {
             Timber.w("Missing name from game ID=${game.gameId}")

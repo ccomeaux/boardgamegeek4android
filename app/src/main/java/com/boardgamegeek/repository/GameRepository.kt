@@ -255,7 +255,9 @@ class GameRepository @Inject constructor(
         if (gameId != INVALID_ID) dao.updateStarred(gameId, isFavorite)
     }
 
-    suspend fun delete(gameId: Int) = dao.delete(gameId)
+    suspend fun delete(gameId: Int): Int {
+        return if (gameId != INVALID_ID) gameDaoNew.delete(gameId) else 0
+    }
 
-    suspend fun delete() = dao.delete()
+    suspend fun deleteAll() = gameDaoNew.deleteAll()
 }

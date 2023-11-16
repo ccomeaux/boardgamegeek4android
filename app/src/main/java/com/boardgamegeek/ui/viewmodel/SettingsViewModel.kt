@@ -25,7 +25,7 @@ class SettingsViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     fun clearAllData() {
         viewModelScope.launch {
-            gameRepository.delete()
+            gameRepository.deleteAll()
             designerRepository.deleteAll()
             artistRepository.deleteAll()
             publisherRepository.deleteAll()
