@@ -46,6 +46,7 @@ class PlayRepository(
     private val playerColorDao: PlayerColorDao,
     private val userDao: UserDao,
     private val gameColorDao: GameColorDao,
+    private val gameDaoNew: GameDaoNew,
 ) {
     private val gameDao = GameDao(context)
     private val collectionDao = CollectionDao(context)
@@ -97,7 +98,7 @@ class PlayRepository(
             } while (response.hasMorePages())
 
             playDao.deleteUnupdatedPlaysForGame(gameId, timestamp)
-            gameDao.updatePlaysSyncedTimestamp(gameId, timestamp)
+            gameDaoNew.updatePlayTimestamp(gameId, timestamp)
             calculatePlayStats()
         }
     }
@@ -539,7 +540,7 @@ class PlayRepository(
         if (gameId != INVALID_ID) {
             val allPlays = loadPlaysByGame(gameId)
             val playCount = allPlays.sumOf { it.quantity }
-            gameDao.updateGamePlayCount(gameId, playCount)
+            gameDaoNew.updatePlayCount(gameId, playCount)
         }
     }
 
@@ -646,7 +647,7 @@ class PlayRepository(
                 // update game's custom sort order
                 if (play.players.isNotEmpty()) {
                     play.arePlayersCustomSorted().let {
-                        gameDao.updateGameCustomPlayerSort(play.gameId, it)
+                        gameDaoNew.updateCustomPlayerSort(play.gameId, it)
                     }
                 }
 
@@ -688,7 +689,7 @@ class PlayRepository(
     suspend fun deletePlays() {
         syncPrefs.clearPlaysTimestamps()
         playDao.deleteAll()
-        gameDao.resetPlaySync()
+        gameDaoNew.resetPlaySync()
     }
 
     suspend fun calculatePlayStats() = withContext(Dispatchers.Default) {

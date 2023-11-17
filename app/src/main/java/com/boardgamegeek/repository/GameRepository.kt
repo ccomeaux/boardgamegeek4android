@@ -123,7 +123,7 @@ class GameRepository @Inject constructor(
         val urlMap = imageRepository.getImageUrls(game.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         urls?.firstOrNull()?.let { url ->
-            dao.updateHeroUrl(game.id, url)
+            gameDaoNew.updateHeroUrl(game.id, url)
             game.copy(heroImageUrl = url)
         } ?: game
     }
@@ -226,9 +226,7 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
-        if (gameId != INVALID_ID) {
-            dao.updateLastViewed(gameId, lastViewed)
-        }
+        if (gameId != INVALID_ID) gameDaoNew.updateLastViewed(gameId, lastViewed)
     }
 
     suspend fun updateGameColors(
@@ -240,7 +238,7 @@ class GameRepository @Inject constructor(
         allPlaysColor: Int
     ) {
         if (gameId != INVALID_ID) {
-            dao.updateGameColors(gameId, iconColor, darkColor, winsColor, winnablePlaysColor, allPlaysColor)
+            gameDaoNew.updateImageColors(gameId, iconColor, darkColor, winsColor, winnablePlaysColor, allPlaysColor)
         }
     }
 
@@ -252,7 +250,7 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
-        if (gameId != INVALID_ID) dao.updateStarred(gameId, isFavorite)
+        if (gameId != INVALID_ID) gameDaoNew.updateStarred(gameId, isFavorite)
     }
 
     suspend fun delete(gameId: Int): Int {

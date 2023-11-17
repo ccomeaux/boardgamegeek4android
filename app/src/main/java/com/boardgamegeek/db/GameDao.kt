@@ -333,10 +333,6 @@ class GameDao(private val context: Context) {
         }
     }
 
-    suspend fun resetPlaySync(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.update(Games.CONTENT_URI, contentValuesOf(Games.Columns.UPDATED_PLAYS to 0), null, null)
-    }
-
     private fun toValues(game: GameForUpsert): ContentValues {
         val values = contentValuesOf(
             Games.Columns.UPDATED to game.updated,
@@ -574,54 +570,5 @@ class GameDao(private val context: Context) {
         }
         // remove unused associations
         return existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, uriPath, it)).build() }
-    }
-
-    suspend fun updateLastViewed(gameId: Int, lastViewed: Long) {
-        update(gameId, contentValuesOf(Games.Columns.LAST_VIEWED to lastViewed))
-    }
-
-    suspend fun updateHeroUrl(gameId: Int, url: String) {
-        update(gameId, contentValuesOf(Games.Columns.HERO_IMAGE_URL to url))
-    }
-
-    suspend fun updateStarred(gameId: Int, isStarred: Boolean) {
-        update(gameId, contentValuesOf(Games.Columns.STARRED to isStarred))
-    }
-
-    suspend fun updateGameColors(
-        gameId: Int,
-        iconColor: Int,
-        darkColor: Int,
-        winsColor: Int,
-        winnablePlaysColor: Int,
-        allPlaysColor: Int
-    ): Int {
-        val values = contentValuesOf(
-            Games.Columns.ICON_COLOR to iconColor,
-            Games.Columns.DARK_COLOR to darkColor,
-            Games.Columns.WINS_COLOR to winsColor,
-            Games.Columns.WINNABLE_PLAYS_COLOR to winnablePlaysColor,
-            Games.Columns.ALL_PLAYS_COLOR to allPlaysColor,
-        )
-        return update(gameId, values)
-    }
-
-    suspend fun updateGamePlayCount(gameId: Int, playCount: Int) = withContext(Dispatchers.Default) {
-        update(gameId, contentValuesOf(Games.Columns.NUM_PLAYS to playCount))
-    }
-
-    suspend fun updatePlaysSyncedTimestamp(gameId: Int, timestamp: Long) {
-        update(gameId, contentValuesOf(Games.Columns.UPDATED_PLAYS to timestamp))
-    }
-
-    private suspend fun update(gameId: Int, values: ContentValues) = withContext(Dispatchers.IO) {
-        context.contentResolver.update(Games.buildGameUri(gameId), values, null, null)
-    }
-
-    suspend fun updateGameCustomPlayerSort(gameId: Int, custom: Boolean) = withContext(Dispatchers.IO) {
-        val gameUri = Games.buildGameUri(gameId)
-        if (context.contentResolver.rowExists(gameUri)) {
-            context.contentResolver.update(gameUri, contentValuesOf(Games.Columns.CUSTOM_PLAYER_SORT to custom), null, null)
-        }
     }
 }

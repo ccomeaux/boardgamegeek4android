@@ -76,7 +76,7 @@ class GameViewModel @Inject constructor(
     fun setId(gameId: Int) {
         if (_gameId.value != gameId) {
             viewModelScope.launch {
-                gameRepository.updateLastViewed(gameId, System.currentTimeMillis())
+                gameRepository.updateLastViewed(gameId)
             }
             _gameId.value = gameId
         }
