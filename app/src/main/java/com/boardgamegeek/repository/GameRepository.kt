@@ -135,7 +135,12 @@ class GameRepository @Inject constructor(
         response.games?.firstOrNull()?.mapToRatingModel()
     }
 
-    suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId).map { it.mapToModel() }
+    suspend fun getRanks(gameId: Int): List<GameRank> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            gameDaoNew.loadRanksForGame(gameId).map { it.mapToModel() }
+    }
 
     suspend fun getLanguagePoll(gameId: Int) = GamePoll(dao.loadPoll(gameId, GameDao.PollType.LANGUAGE_DEPENDENCE).map { it.mapToModel() })
 

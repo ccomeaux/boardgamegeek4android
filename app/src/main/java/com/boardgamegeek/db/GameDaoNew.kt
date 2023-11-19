@@ -19,6 +19,9 @@ interface GameDaoNew {
     @Query("SELECT games.game_id, game_name FROM games LEFT OUTER JOIN collection ON games.game_id = collection.game_id WHERE collection_id IS NULL AND last_viewed < :sinceTimestamp AND num_of_plays = 0 ORDER BY games.updated")
     suspend fun loadNonCollectionAndUnplayedGames(sinceTimestamp: Long): List<GameIdAndName>
 
+    @Query("SELECT * FROM game_ranks WHERE game_id = :gameId")
+    suspend fun loadRanksForGame(gameId: Int): List<GameRankEntity>
+
     @Query("UPDATE games SET custom_player_sort = :isCustom WHERE game_id = :gameId")
     suspend fun updateCustomPlayerSort(gameId: Int, isCustom: Boolean): Int
 

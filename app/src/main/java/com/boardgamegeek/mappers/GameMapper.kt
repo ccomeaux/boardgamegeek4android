@@ -123,10 +123,10 @@ private fun createPlayerPoll(from: GameRemote): List<GamePlayerPollResults> {
     } ?: emptyList()
 }
 
-fun GameRankLocal.mapToModel() = GameRank(
+fun GameRankEntity.mapToModel() = GameRank(
     if (gameRankType == BggService.RANK_TYPE_FAMILY) GameRank.RankType.Family else GameRank.RankType.Subtype,
     name = gameRankName,
-    friendlyName = gameFriendlyRankName,
+    friendlyName = gameRankFriendlyName,
     value = gameRankValue,
     bayesAverage = gameRankBayesAverage,
 )

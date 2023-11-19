@@ -132,35 +132,6 @@ class GameDao(private val context: Context) {
         } else null
     }
 
-    suspend fun loadRanks(gameId: Int): List<GameRankLocal> = withContext(Dispatchers.IO) {
-        if (gameId == INVALID_ID) return@withContext emptyList()
-        val uri = Games.buildRanksUri(gameId)
-        context.contentResolver.loadList(
-            uri,
-            arrayOf(
-                GameRanks.Columns.GAME_RANK_ID,
-                GameRanks.Columns.GAME_RANK_TYPE,
-                GameRanks.Columns.GAME_RANK_NAME,
-                GameRanks.Columns.GAME_RANK_FRIENDLY_NAME,
-                GameRanks.Columns.GAME_RANK_VALUE,
-                GameRanks.Columns.GAME_RANK_BAYES_AVERAGE,
-                GameRanks.Columns.GAME_ID,
-                BaseColumns._ID,
-            )
-        ) {
-            GameRankLocal(
-                internalId = it.getLong(7),
-                gameId = it.getInt(6),
-                gameRankId = it.getIntOrNull(0) ?: INVALID_ID,
-                gameRankType = it.getStringOrNull(1).orEmpty(),
-                gameRankName = it.getStringOrNull(2).orEmpty(),
-                gameFriendlyRankName = it.getStringOrNull(3).orEmpty(),
-                gameRankValue = it.getIntOrNull(4) ?: GameRankLocal.RANK_UNKNOWN,
-                gameRankBayesAverage = it.getDoubleOrNull(5) ?: 0.0,
-            )
-        }
-    }
-
     enum class PollType(val code: String) {
         LANGUAGE_DEPENDENCE("language_dependence"),
 
