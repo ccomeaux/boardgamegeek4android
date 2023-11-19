@@ -207,10 +207,10 @@ fun GameSuggestedPlayerCountPollResultsLocal.mapToModel() = GamePlayerPollResult
     recommendation = recommendation ?: GamePlayerPollResults.NOT_RECOMMENDED,
 )
 
-fun GamesExpansionLocal.mapToModel(items: List<CollectionItem>) = GameExpansion(
-    id = expansionId,
-    name = expansionName,
-    thumbnailUrl = items.firstOrNull()?.gameThumbnailUrl.orEmpty(),
+fun GameExpansionWithGame.mapToModel(items: List<CollectionItem>) = GameExpansion(
+    id = gameExpansionEntity.expansionId,
+    name = gameExpansionEntity.expansionName,
+    thumbnailUrl = items.firstOrNull()?.gameThumbnailUrl.orEmpty().ifBlank { thumbnailUrl.orEmpty() },
     own = items.any { it.own },
     previouslyOwned = items.any { it.previouslyOwned },
     preOrdered = items.any { it.preOrdered },

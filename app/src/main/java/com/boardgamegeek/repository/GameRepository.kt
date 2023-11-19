@@ -3,13 +3,10 @@ package com.boardgamegeek.repository
 import android.content.Context
 import com.boardgamegeek.db.*
 import com.boardgamegeek.db.model.*
-import com.boardgamegeek.model.GameComments
-import com.boardgamegeek.model.Game
-import com.boardgamegeek.model.GamePoll
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.*
-import com.boardgamegeek.model.GameDetail
+import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -43,7 +40,7 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun loadDeletableGames(sinceTimestamp: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> {
-        return if (includeUnplayedGames){
+        return if (includeUnplayedGames) {
             gameDaoNew.loadNonCollectionAndUnplayedGames(sinceTimestamp).map { it.gameId to it.gameName }
         } else {
             gameDaoNew.loadNonCollectionGames(sinceTimestamp).map { it.gameId to it.gameName }
@@ -181,13 +178,13 @@ class GameRepository @Inject constructor(
             gameDaoNew.loadMechanicsForGame(gameId)?.mechanics?.map { it.mapToGameDetail() }.orEmpty()
     }
 
-    suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId).map { entity ->
-        val items = collectionDao.loadByGame(entity.expansionId).map { it.second.mapToModel(it.first.mapToModel()) }
+    suspend fun getExpansions(gameId: Int): List<GameExpansion> = gameDaoNew.loadExpansionsForGame(gameId).map { entity ->
+        val items = collectionDao.loadByGame(entity.gameExpansionEntity.expansionId).map { it.second.mapToModel(it.first.mapToModel()) }
         entity.mapToModel(items)
     }
 
-    suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true).map { entity ->
-        val items = collectionDao.loadByGame(entity.expansionId).map { it.second.mapToModel(it.first.mapToModel()) }
+    suspend fun getBaseGames(gameId: Int) = gameDaoNew.loadBaseGamesForGame(gameId).map { entity ->
+        val items = collectionDao.loadByGame(entity.gameExpansionEntity.expansionId).map { it.second.mapToModel(it.first.mapToModel()) }
         entity.mapToModel(items)
     }
 

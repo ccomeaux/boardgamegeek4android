@@ -220,33 +220,6 @@ class GameDao(private val context: Context) {
         } else emptyList()
     }
 
-    suspend fun loadExpansions(gameId: Int, inbound: Boolean = false): List<GamesExpansionLocal> =
-        withContext(Dispatchers.IO) {
-            if (gameId != INVALID_ID) {
-                val briefResults = context.contentResolver.loadList(
-                    Games.buildExpansionsUri(gameId),
-                    arrayOf(
-                        BaseColumns._ID,
-                        GamesExpansions.Columns.GAME_ID,
-                        GamesExpansions.Columns.EXPANSION_ID,
-                        GamesExpansions.Columns.EXPANSION_NAME,
-                        Games.Columns.THUMBNAIL_URL,
-                    ),
-                    selection = "${GamesExpansions.Columns.INBOUND}=?",
-                    selectionArgs = arrayOf(if (inbound) "1" else "0")
-                ) {
-                    GamesExpansionLocal(
-                        it.getLong(0),
-                        it.getInt(1),
-                        it.getInt(2),
-                        it.getString(3),
-                        it.getBooleanOrNull(4),
-                    )
-                }
-                briefResults
-            } else emptyList()
-        }
-
     suspend fun loadGamesForPlayStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
