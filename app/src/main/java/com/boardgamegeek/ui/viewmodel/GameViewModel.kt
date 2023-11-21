@@ -135,7 +135,7 @@ class GameViewModel @Inject constructor(
     val languagePoll = game.switchMap {
         liveData {
             emit(it.data?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getLanguagePoll(it.id)
+                gameRepository.getLanguagePoll(it.id)
             })
         }.distinctUntilChanged()
     }
@@ -143,7 +143,7 @@ class GameViewModel @Inject constructor(
     val agePoll = game.switchMap {
         liveData {
             emit(it.data?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getAgePoll(it.id)
+                gameRepository.getAgePoll(it.id)
             })
         }.distinctUntilChanged()
     }
@@ -151,10 +151,7 @@ class GameViewModel @Inject constructor(
     val playerPoll = game.switchMap {
         liveData {
             emit(it.data?.let {
-                if (it.id == BggContract.INVALID_ID)
-                    emptyList()
-                else
-                    gameRepository.getPlayerPoll(it.id)
+                gameRepository.getPlayerPoll(it.id)
             })
         }.distinctUntilChanged()
     }

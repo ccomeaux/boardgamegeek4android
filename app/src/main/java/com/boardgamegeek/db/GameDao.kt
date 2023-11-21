@@ -132,65 +132,6 @@ class GameDao(private val context: Context) {
         } else null
     }
 
-    enum class PollType(val code: String) {
-        LANGUAGE_DEPENDENCE("language_dependence"),
-
-        @Suppress("SpellCheckingInspection")
-        SUGGESTED_PLAYER_AGE("suggested_playerage"),
-    }
-
-    suspend fun loadPoll(gameId: Int, pollType: PollType): List<GamePollResultsResultLocal> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(
-                Games.buildPollResultsResultUri(gameId, pollType.code),
-                arrayOf(
-                    BaseColumns._ID,
-                    GamePollResultsResult.Columns.POLL_RESULTS_ID,
-                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL,
-                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE,
-                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES,
-                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_SORT_INDEX,
-                )
-            ) {
-                GamePollResultsResultLocal(
-                    internalId = it.getLong(0),
-                    pollResultsId = it.getInt(1),
-                    pollResultsResultLevel = it.getInt(2),
-                    pollResultsResultValue = it.getString(3),
-                    pollResultsResultVotes = it.getInt(4),
-                    pollResultsResulSortIndex = it.getInt(5),
-                )
-            }
-        } else emptyList()
-    }
-
-    suspend fun loadPlayerPoll(gameId: Int): List<GameSuggestedPlayerCountPollResultsLocal> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(
-                Games.buildSuggestedPlayerCountPollResultsUri(gameId),
-                arrayOf(
-                    GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID,
-                    GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT,
-                    GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT,
-                    GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT,
-                    GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT,
-                    BaseColumns._ID,
-                    GameSuggestedPlayerCountPollPollResults.Columns.SORT_INDEX,
-                )
-            ) {
-                GameSuggestedPlayerCountPollResultsLocal(
-                    internalId = it.getLong(5),
-                    gameId = it.getInt(0),
-                    playerCount = it.getStringOrNull(1).orEmpty(),
-                    sortIndex = it.getInt(6),
-                    bestVoteCount = it.getIntOrNull(2) ?: 0,
-                    recommendedVoteCount = it.getIntOrNull(3) ?: 0,
-                    notRecommendedVoteCount = it.getIntOrNull(4) ?: 0,
-                )
-            }
-        } else emptyList()
-    }
-
     suspend fun loadGamesForPlayStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,

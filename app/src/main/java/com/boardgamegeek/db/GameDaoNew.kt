@@ -19,6 +19,15 @@ interface GameDaoNew {
     @Query("SELECT games.game_id, game_name FROM games LEFT OUTER JOIN collection ON games.game_id = collection.game_id WHERE collection_id IS NULL AND last_viewed < :sinceTimestamp AND num_of_plays = 0 ORDER BY games.updated")
     suspend fun loadNonCollectionAndUnplayedGames(sinceTimestamp: Long): List<GameIdAndName>
 
+    @Query("SELECT game_poll_results_result.*, game_polls.poll_total_votes AS totalVotes FROM game_poll_results_result JOIN game_poll_results ON game_poll_results._id = game_poll_results_result.pollresults_id JOIN game_polls ON game_polls._id = game_poll_results.poll_id WHERE poll_name='suggested_playerage' AND game_id = :gameId ORDER BY pollresultsresult_sortindex")
+    suspend fun loadAgePollForGame(gameId: Int): List<GamePollResultsWithPoll>
+
+    @Query("SELECT game_poll_results_result.*, game_polls.poll_total_votes AS totalVotes FROM game_poll_results_result JOIN game_poll_results ON game_poll_results._id = game_poll_results_result.pollresults_id JOIN game_polls ON game_polls._id = game_poll_results.poll_id WHERE poll_name='language_dependence' AND game_id = :gameId ORDER BY pollresultsresult_sortindex")
+    suspend fun loadLanguagePollForGame(gameId: Int): List<GamePollResultsWithPoll>
+
+    @Query("SELECT * FROM game_suggested_player_count_poll_results WHERE game_id = :gameId")
+    suspend fun loadPlayerPollForGame(gameId: Int): List<GameSuggestedPlayerCountPollResultsEntity>
+
     @Query("SELECT * FROM game_ranks WHERE game_id = :gameId")
     suspend fun loadRanksForGame(gameId: Int): List<GameRankEntity>
 

@@ -142,11 +142,28 @@ class GameRepository @Inject constructor(
             gameDaoNew.loadRanksForGame(gameId).map { it.mapToModel() }
     }
 
-    suspend fun getLanguagePoll(gameId: Int) = GamePoll(dao.loadPoll(gameId, GameDao.PollType.LANGUAGE_DEPENDENCE).map { it.mapToModel() })
+    suspend fun getLanguagePoll(gameId: Int): GamePoll? {
+        return if (gameId == INVALID_ID)
+            null
+        else {
+            gameDaoNew.loadLanguagePollForGame(gameId).mapToModel()
+        }
+    }
 
-    suspend fun getAgePoll(gameId: Int) = GamePoll(dao.loadPoll(gameId, GameDao.PollType.SUGGESTED_PLAYER_AGE).map { it.mapToModel() })
+    suspend fun getAgePoll(gameId: Int): GamePoll? {
+        return if (gameId == INVALID_ID)
+            null
+        else {
+            gameDaoNew.loadAgePollForGame(gameId).mapToModel()
+        }
+    }
 
-    suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId).map { it.mapToModel() }
+    suspend fun getPlayerPoll(gameId: Int): List<GamePlayerPollResults> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            gameDaoNew.loadPlayerPollForGame(gameId).map { it.mapToModel() }
+    }
 
     suspend fun getDesigners(gameId: Int): List<GameDetail> {
         return if (gameId == INVALID_ID)

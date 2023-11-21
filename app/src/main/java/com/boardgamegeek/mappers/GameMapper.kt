@@ -192,18 +192,22 @@ fun GameLocal.mapToModel(): Game {
     )
 }
 
-fun GamePollResultsResultLocal.mapToModel() = GamePollResult(
-    level = pollResultsResultLevel ?: BggContract.INVALID_ID,
-    value = pollResultsResultValue,
-    numberOfVotes = pollResultsResultVotes,
+fun List<GamePollResultsWithPoll>.mapToModel() = GamePoll(
+    this.map {
+        GamePollResult(
+            level = it.results.pollResultsResultLevel ?: BggContract.INVALID_ID,
+            value = it.results.pollResultsResultValue,
+            numberOfVotes = it.results.pollResultsResultVotes,
+        )
+    }
 )
 
-fun GameSuggestedPlayerCountPollResultsLocal.mapToModel() = GamePlayerPollResults(
+fun GameSuggestedPlayerCountPollResultsEntity.mapToModel() = GamePlayerPollResults(
     totalVotes = 0,
     playerCount = playerCount,
-    bestVoteCount = bestVoteCount,
-    recommendedVoteCount = recommendedVoteCount,
-    notRecommendedVoteCount = notRecommendedVoteCount,
+    bestVoteCount = bestVoteCount ?: 0,
+    recommendedVoteCount = recommendedVoteCount ?: 0,
+    notRecommendedVoteCount = notRecommendedVoteCount ?: 0,
     recommendation = recommendation ?: GamePlayerPollResults.NOT_RECOMMENDED,
 )
 
