@@ -13,6 +13,7 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.db.model.CollectionItemGame
 import com.boardgamegeek.db.model.CollectionItemLocal
+import com.boardgamegeek.db.model.GameEntity
 import com.boardgamegeek.db.model.GameLocal
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
@@ -574,7 +575,7 @@ class CollectionDao(private val context: Context) {
 
     suspend fun addNewCollectionItem(
         gameId: Int,
-        game: GameLocal?,
+        game: GameEntity?,
         statuses: List<String>,
         wishListPriority: Int,
         timestamp: Long = System.currentTimeMillis(),

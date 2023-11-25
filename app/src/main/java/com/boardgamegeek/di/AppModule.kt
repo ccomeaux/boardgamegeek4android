@@ -58,8 +58,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, imageRepository: ImageRepository, phpApi: PhpApi) =
-        GameCollectionRepository(context, api, imageRepository, phpApi)
+    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, imageRepository: ImageRepository, phpApi: PhpApi, gameDao: GameDaoNew) =
+        GameCollectionRepository(context, api, imageRepository, phpApi, gameDao)
 
     @Provides
     @Singleton

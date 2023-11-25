@@ -29,7 +29,12 @@ class GameRepository @Inject constructor(
     private val dao = GameDao(context)
     private val collectionDao = CollectionDao(context)
 
-    suspend fun loadGame(gameId: Int) = dao.load(gameId)?.mapToModel()
+    suspend fun loadGame(gameId: Int): Game? {
+        return if (gameId == INVALID_ID) null else {
+            val game = gameDaoNew.loadGame(gameId)
+            game?.game?.mapToModel(game.lastPlayedDate)
+        }
+    }
 
     suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> {
         return gameDaoNew.loadOldestUpdatedGames(gamesPerFetch).map { it.gameId to it.gameName }
@@ -262,7 +267,7 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun replaceColors(gameId: Int, colors: List<String>) {
-        dao.load(gameId)?.let {
+        gameDaoNew.loadGame(gameId)?.let {
             gameColorDao.deleteColorsForGame(gameId)
             gameColorDao.insert(colors.map { GameColorsEntity(internalId = 0L, gameId = gameId, color = it) })
         }

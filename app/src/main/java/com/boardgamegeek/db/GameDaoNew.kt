@@ -7,6 +7,9 @@ import com.boardgamegeek.db.model.*
 
 @Dao
 interface GameDaoNew {
+    @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games JOIN plays ON games.game_id = plays.object_id WHERE game_id = :gameId")
+    suspend fun loadGame(gameId: Int): GameWithLastPlayed?
+
     @Query("SELECT game_id, game_name FROM games WHERE (updated != 0 OR updated IS NOT NULL) ORDER BY updated LIMIT :gamesPerFetch")
     suspend fun loadOldestUpdatedGames(gamesPerFetch: Int): List<GameIdAndName>
 

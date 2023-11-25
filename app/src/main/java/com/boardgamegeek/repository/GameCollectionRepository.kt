@@ -6,7 +6,7 @@ import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.db.GameDao
+import com.boardgamegeek.db.GameDaoNew
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
@@ -25,9 +25,9 @@ class GameCollectionRepository(
     private val api: BggService,
     private val imageRepository: ImageRepository,
     private val phpApi: PhpApi,
+    private val gameDao: GameDaoNew,
 ) {
     private val collectionDao = CollectionDao(context)
-    private val gameDao = GameDao(context)
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
@@ -269,13 +269,12 @@ class GameCollectionRepository(
         wishListPriority: Int,
         timestamp: Long = System.currentTimeMillis()
     ) {
-        if (gameId != INVALID_ID) {
-            val game = gameDao.load(gameId)
-            val internalId = collectionDao.addNewCollectionItem(gameId, game, statuses, wishListPriority, timestamp)
+        gameDao.loadGame(gameId)?.let { entity ->
+            val internalId = collectionDao.addNewCollectionItem(gameId, entity.game, statuses, wishListPriority, timestamp)
             if (internalId == INVALID_ID.toLong()) {
-                Timber.d("Collection item for game %s (%s) not added", game?.gameName.orEmpty(), gameId)
+                Timber.d("Collection item for game %s (%s) not added", entity.game.gameName, gameId)
             } else {
-                Timber.d("Collection item added for game %s (%s) (internal ID = %s)", game?.gameName.orEmpty(), gameId, internalId)
+                Timber.d("Collection item added for game %s (%s) (internal ID = %s)", entity.game.gameName, gameId, internalId)
                 enqueueUploadRequest(gameId)
             }
         }

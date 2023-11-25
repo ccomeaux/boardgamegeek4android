@@ -6,9 +6,7 @@ import android.content.Context
 import android.provider.BaseColumns
 import android.text.format.DateUtils
 import androidx.core.content.contentValuesOf
-import androidx.core.database.getDoubleOrNull
 import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.db.model.*
 import com.boardgamegeek.model.*
@@ -27,111 +25,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class GameDao(private val context: Context) {
-    suspend fun load(gameId: Int): GameLocal? = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadEntity(
-                Games.buildGameUri(gameId),
-                arrayOf(
-                    Games.Columns.GAME_ID,
-                    Games.Columns.GAME_NAME,
-                    Games.Columns.DESCRIPTION,
-                    Games.Columns.SUBTYPE,
-                    Games.Columns.THUMBNAIL_URL,
-                    Games.Columns.IMAGE_URL, // 5
-                    Games.Columns.YEAR_PUBLISHED,
-                    Games.Columns.MIN_PLAYERS,
-                    Games.Columns.MAX_PLAYERS,
-                    Games.Columns.PLAYING_TIME,
-                    Games.Columns.MIN_PLAYING_TIME, // 10
-                    Games.Columns.MAX_PLAYING_TIME,
-                    Games.Columns.MINIMUM_AGE,
-                    Games.Columns.HERO_IMAGE_URL,
-                    Games.Columns.STATS_AVERAGE,
-                    Games.Columns.STATS_USERS_RATED, // 15
-                    Games.Columns.STATS_NUMBER_COMMENTS,
-                    Games.Columns.UPDATED,
-                    Games.Columns.UPDATED_PLAYS,
-                    Games.Columns.GAME_RANK,
-                    Games.Columns.STATS_STANDARD_DEVIATION, // 20
-                    Games.Columns.STATS_BAYES_AVERAGE,
-                    Games.Columns.STATS_AVERAGE_WEIGHT,
-                    Games.Columns.STATS_NUMBER_WEIGHTS,
-                    Games.Columns.STATS_NUMBER_OWNED,
-                    Games.Columns.STATS_NUMBER_TRADING, // 25
-                    Games.Columns.STATS_NUMBER_WANTING,
-                    Games.Columns.STATS_NUMBER_WISHING,
-                    Games.Columns.CUSTOM_PLAYER_SORT,
-                    Games.Columns.STARRED,
-                    BaseColumns._ID, // 30
-                    Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                    Games.Columns.ICON_COLOR,
-                    Games.Columns.DARK_COLOR,
-                    Games.Columns.WINS_COLOR,
-                    Games.Columns.WINNABLE_PLAYS_COLOR, // 35
-                    Games.Columns.ALL_PLAYS_COLOR,
-                    Games.Columns.GAME_SORT_NAME,
-                    Games.Columns.STATS_MEDIAN,
-                    Games.Columns.NUM_PLAYS,
-                    Games.Columns.UPDATED_LIST, //40
-                    Games.Columns.LAST_VIEWED,
-                    Games.Columns.PLAYER_COUNTS_BEST,
-                    Games.Columns.PLAYER_COUNTS_RECOMMENDED,
-                    Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED,
-                    Plays.Columns.MAX_DATE, //45
-                )
-            ) {
-                GameLocal(
-                    internalId = it.getLong(30),
-                    gameId = it.getInt(0),
-                    gameName = it.getString(1).orEmpty(),
-                    description = it.getStringOrNull(2).orEmpty(),
-                    subtype = it.getStringOrNull(3),
-                    thumbnailUrl = it.getStringOrNull(4),
-                    imageUrl = it.getStringOrNull(5),
-                    yearPublished = it.getIntOrNull(6),
-                    minPlayers = it.getIntOrNull(7) ?: 0,
-                    maxPlayers = it.getIntOrNull(8) ?: 0,
-                    playingTime = it.getIntOrNull(9) ?: 0,
-                    minPlayingTime = it.getIntOrNull(10),
-                    maxPlayingTime = it.getIntOrNull(11),
-                    minimumAge = it.getIntOrNull(12),
-                    heroImageUrl = it.getStringOrNull(13),
-                    average = it.getDoubleOrNull(14),
-                    numberOfRatings = it.getIntOrNull(15),
-                    numberOfComments = it.getIntOrNull(16),
-                    gameRank = it.getIntOrNull(19),
-                    standardDeviation = it.getDoubleOrNull(20),
-                    bayesAverage = it.getDoubleOrNull(21),
-                    averageWeight = it.getDoubleOrNull(22),
-                    numberOfUsersWeighting = it.getIntOrNull(23),
-                    numberOfUsersOwned = it.getIntOrNull(24),
-                    numberOfUsersTrading = it.getIntOrNull(25),
-                    numberOfUsersWanting = it.getIntOrNull(26),
-                    numberOfUsersWishListing = it.getIntOrNull(27),
-                    updated = it.getLongOrNull(17),
-                    updatedPlays = it.getLongOrNull(18),
-                    customPlayerSort = it.getBoolean(28),
-                    isStarred = it.getBoolean(29),
-                    suggestedPlayerCountPollVoteTotal = it.getIntOrNull(31) ?: 0,
-                    iconColor = it.getIntOrNull(32),
-                    darkColor = it.getIntOrNull(33),
-                    winsColor = it.getIntOrNull(34),
-                    winnablePlaysColor = it.getIntOrNull(35),
-                    allPlaysColor = it.getIntOrNull(36),
-                    gameSortName = it.getString(37),
-                    median = it.getDoubleOrNull(38),
-                    numberOfPlays = it.getIntOrNull(39),
-                    updatedList = it.getLong(40),
-                    lastViewedTimestamp = it.getLongOrNull(41),
-                    playerCountsBest = it.getStringOrNull(42),
-                    playerCountsRecommended = it.getStringOrNull(43),
-                    playerCountsNotRecommended = it.getStringOrNull(44),
-                    lastPlayDate = it.getStringOrNull(45),
-                )
-            }
-        } else null
-    }
-
     suspend fun loadGamesForPlayStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,

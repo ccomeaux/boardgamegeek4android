@@ -643,7 +643,7 @@ class PlayRepository(
                 prefs.putLastPlayPlayers(play.players)
             }
 
-            gameDao.load(play.gameId)?.let {
+            gameDaoNew.loadGame(play.gameId)?.let {
                 // update game's custom sort order
                 if (play.players.isNotEmpty()) {
                     play.arePlayersCustomSorted().let {
