@@ -48,7 +48,6 @@ class PlayRepository(
     private val gameColorDao: GameColorDao,
     private val gameDaoNew: GameDaoNew,
 ) {
-    private val gameDao = GameDao(context)
     private val collectionDao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
@@ -120,7 +119,7 @@ class PlayRepository(
      */
     suspend fun upsertPlay(play: Play): Result<PlayUploadResult> {
         if (play.updateTimestamp == 0L)
-            Result.success(PlayUploadResult.noOp(play))
+            return Result.success(PlayUploadResult.noOp(play))
         val response = phpApi.play(play.mapToFormBodyForUpsert().build())
         return if (response.hasAuthError()) {
             Authenticator.clearPassword(context)
@@ -301,36 +300,30 @@ class PlayRepository(
         includeExpansions: Boolean,
         includeAccessories: Boolean
     ): List<GameForPlayStats> = withContext(Dispatchers.Default) {
-        val games = if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)) {
-            gameDao.loadGamesForPlayStats(includeIncompletePlays, includeExpansions, includeAccessories).filter { it.playCount > 0 }
-        } else {
-            // If played games aren't synced, count the plays instead
-            // We can't respect the expansion/accessory flags, so we include them all
-            val allPlays = playDao.loadPlays().filter { it.deleteTimestamp == 0L }
-            val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
-            val gameMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
-                accumulator + element.quantity
-            }
-            gameMap.map {
-                GameForPlayStats(
-                    id = it.key.first,
-                    name = it.key.second,
-                    playCount = it.value,
-                )
-            }
+        // TODO make this more efficient (I think we can get it all in 1 query)
+        val allPlays = playDao.loadPlays().filter { it.deleteTimestamp == 0L }
+        val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
+        val gameMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
+            accumulator + element.quantity
         }
-        if (syncPrefs.isStatusSetToSync(COLLECTION_STATUS_OWN)) {
-            val items = collectionDao.loadAll().map {
-                it.second.mapToModel(it.first.mapToModel())
-            }
-            games.map { game ->
-                val itemPairs = items.filter { it.gameId == game.id }
-                game.copy(
-                    isOwned = itemPairs.any { it.own },
-                    bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN
-                )
-            }
-        } else games
+        val items = collectionDao.loadAll().map {
+            it.second.mapToModel(it.first.mapToModel())
+        }
+        val filteredItems = items.filter {
+            it.subtype == null || it.subtype == Game.Subtype.BOARDGAME ||
+            (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions) ||
+            (it.subtype == Game.Subtype.BOARDGAME_ACCESSORY && includeAccessories)
+        }
+        gameMap.filterKeys { it.first in filteredItems.map { item -> item.gameId } }.map { game ->
+            val itemPairs = items.filter { it.gameId == game.key.first }
+            GameForPlayStats(
+                id = game.key.first,
+                name = game.key.second,
+                playCount = game.value,
+                isOwned = itemPairs.any { it.own },
+                bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN
+            )
+        }
     }
 
     suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayer> {
@@ -366,6 +359,7 @@ class PlayRepository(
             .groupBy { it.key() }
             .map { it.value.mapToModel() }
             .filterNotNull()
+            .sortedByDescending { it.playCount }
             .toList()
     }
 
@@ -710,30 +704,18 @@ class PlayRepository(
 
     fun updateGameHIndex(hIndex: HIndex) {
         updateHIndex(
-            context,
-            hIndex,
-            PlayStatPrefs.KEY_GAME_H_INDEX,
-            R.string.game,
-            NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX
+            context, hIndex, PlayStatPrefs.KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX
         )
     }
 
     fun updatePlayerHIndex(hIndex: HIndex) {
         updateHIndex(
-            context,
-            hIndex,
-            PlayStatPrefs.KEY_PLAYER_H_INDEX,
-            R.string.player,
-            NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX
+            context, hIndex, PlayStatPrefs.KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX
         )
     }
 
     private fun updateHIndex(
-        context: Context,
-        hIndex: HIndex,
-        key: String,
-        @StringRes typeResId: Int,
-        notificationId: Int
+        context: Context, hIndex: HIndex, key: String, @StringRes typeResId: Int, notificationId: Int
     ) {
         if (hIndex.h != HIndex.INVALID_H_INDEX) {
             val old = HIndex(prefs[key, 0] ?: 0, prefs[key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
@@ -744,21 +726,15 @@ class PlayRepository(
                     if (hIndex.h > old.h || hIndex.h == old.h && hIndex.n < old.n) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
                 context.notify(
                     context.createNotificationBuilder(
-                        R.string.title_play_stats,
-                        NotificationChannels.STATS,
-                        PlayStatsActivity::class.java
-                    )
-                        .setContentText(context.getText(messageId, context.getString(typeResId), hIndex.description))
-                        .setContentIntent(
+                        R.string.title_play_stats, NotificationChannels.STATS, PlayStatsActivity::class.java
+                    ).setContentText(context.getText(messageId, context.getString(typeResId), hIndex.description)).setContentIntent(
                             PendingIntent.getActivity(
                                 context,
                                 0,
                                 Intent(context, PlayStatsActivity::class.java),
                                 PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0,
                             )
-                        ),
-                    NotificationTags.PLAY_STATS,
-                    notificationId
+                        ), NotificationTags.PLAY_STATS, notificationId
                 )
             }
         }

@@ -6,10 +6,8 @@ import android.content.Context
 import android.provider.BaseColumns
 import android.text.format.DateUtils
 import androidx.core.content.contentValuesOf
-import androidx.core.database.getIntOrNull
 import androidx.core.database.getStringOrNull
 import com.boardgamegeek.db.model.*
-import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -25,50 +23,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class GameDao(private val context: Context) {
-    suspend fun loadGamesForPlayStats(
-        includeIncompletePlays: Boolean,
-        includeExpansions: Boolean,
-        includeAccessories: Boolean
-    ): List<GameForPlayStats> = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            Games.CONTENT_PLAYS_URI,
-            arrayOf(
-                Games.Columns.GAME_ID,
-                Games.Columns.GAME_NAME,
-                Games.Columns.GAME_RANK,
-                Plays.Columns.SUM_QUANTITY,
-            ),
-            selection = mutableListOf<String>().apply {
-                add(Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull())
-                if (!includeIncompletePlays) {
-                    add(Plays.Columns.INCOMPLETE.whereZeroOrNull())
-                }
-                if (!includeExpansions && !includeAccessories) {
-                    add(Games.Columns.SUBTYPE.whereEqualsOrNull())
-                } else if (!includeExpansions || !includeAccessories) {
-                    add(Games.Columns.SUBTYPE.whereNotEqualsOrNull())
-                }
-            }.joinTo(" AND ").toString(),
-            selectionArgs = mutableListOf<String>().apply {
-                if (!includeExpansions && !includeAccessories) {
-                    add(Game.Subtype.BOARDGAME.code)
-                } else if (!includeExpansions) {
-                    add(Game.Subtype.BOARDGAME_EXPANSION.code)
-                } else if (!includeAccessories) {
-                    add(Game.Subtype.BOARDGAME_ACCESSORY.code)
-                }
-            }.toTypedArray(),
-            sortOrder = "${Plays.Columns.SUM_QUANTITY} DESC, ${Games.Columns.GAME_SORT_NAME} ASC"
-        ) {
-            GameForPlayStats(
-                id = it.getIntOrNull(0) ?: INVALID_ID,
-                name = it.getStringOrNull(1).orEmpty(),
-                playCount = it.getIntOrNull(3) ?: 0,
-                bggRank = it.getIntOrNull(2) ?: GameRank.RANK_UNKNOWN,
-            )
-        }
-    }
-
     suspend fun save(game: GameForUpsert) = withContext(Dispatchers.IO) {
         if (game.gameName.isBlank()) {
             Timber.w("Missing name from game ID=${game.gameId}")
