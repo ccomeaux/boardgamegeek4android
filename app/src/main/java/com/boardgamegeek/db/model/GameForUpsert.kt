@@ -71,9 +71,9 @@ data class GameForUpsert(
     val playerCountsRecommended: String?,
     @ColumnInfo(name = "player_count_nots_recommended")
     val playerCountsNotRecommended: String?,
-    val ranks: List<GameRankLocal>?,
-    val polls: List<GamePollLocal>?,
-    val playerPoll: List<GameSuggestedPlayerCountPollResultsLocal>?,
+    val ranks: List<GameRankLocal>,
+    val polls: List<GamePollLocal>,
+    val playerPoll: List<GameSuggestedPlayerCountPollResultsLocal>,
     val designers: List<GameDesignerEntity>,
     val artists: List<GameArtistEntity>,
     val publishers: List<GamePublisherEntity>,

@@ -40,7 +40,7 @@ class GameDao(private val context: Context) {
 
         batch += cpoBuilder.withValues(values).withYieldAllowed(true).build()
         batch += createRanksBatch(game)
-        if (game.polls != null) batch += createPollsBatch(game)
+        batch += createPollsBatch(game)
         batch += createPlayerPollBatch(game.gameId, game.playerPoll)
         batch += createExpansionsBatch(game.gameId, game.expansions)
 
@@ -119,7 +119,7 @@ class GameDao(private val context: Context) {
             .queryStrings(Games.buildPollsUri(game.gameId), GamePolls.Columns.POLL_NAME)
             .filter { it.isNotBlank() }
             .toMutableList()
-        game.polls?.forEach { poll ->
+        game.polls.forEach { poll ->
             val values = contentValuesOf(
                 GamePolls.Columns.POLL_TITLE to poll.pollTitle,
                 GamePolls.Columns.POLL_TOTAL_VOTES to poll.pollTotalVotes,
@@ -225,30 +225,28 @@ class GameDao(private val context: Context) {
 
     private suspend fun createRanksBatch(game: GameForUpsert): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
-        game.ranks?.let {
-            val existingRankIds = context.contentResolver.queryInts(
-                GameRanks.CONTENT_URI,
-                GameRanks.Columns.GAME_RANK_ID,
-                "${GameRanks.Columns.GAME_ID}=?",
-                arrayOf(game.gameId.toString())
-            ).toMutableList()
-            for (rank in game.ranks) {
-                val values = contentValuesOf(
-                    GameRanks.Columns.GAME_RANK_TYPE to rank.gameRankType,
-                    GameRanks.Columns.GAME_RANK_NAME to rank.gameRankName,
-                    GameRanks.Columns.GAME_RANK_FRIENDLY_NAME to rank.gameFriendlyRankName,
-                    GameRanks.Columns.GAME_RANK_VALUE to rank.gameRankValue,
-                    GameRanks.Columns.GAME_RANK_BAYES_AVERAGE to rank.gameRankBayesAverage,
-                )
-                batch += if (existingRankIds.remove(rank.gameRankId)) {
-                    ContentProviderOperation.newUpdate(Games.buildRanksUri(rank.gameId, rank.gameRankId)).withValues(values).build()
-                } else {
-                    values.put(GameRanks.Columns.GAME_RANK_ID, rank.gameRankId)
-                    ContentProviderOperation.newInsert(Games.buildRanksUri(rank.gameId)).withValues(values).build()
-                }
+        val existingRankIds = context.contentResolver.queryInts(
+            GameRanks.CONTENT_URI,
+            GameRanks.Columns.GAME_RANK_ID,
+            "${GameRanks.Columns.GAME_ID}=?",
+            arrayOf(game.gameId.toString())
+        ).toMutableList()
+        for (rank in game.ranks) {
+            val values = contentValuesOf(
+                GameRanks.Columns.GAME_RANK_TYPE to rank.gameRankType,
+                GameRanks.Columns.GAME_RANK_NAME to rank.gameRankName,
+                GameRanks.Columns.GAME_RANK_FRIENDLY_NAME to rank.gameFriendlyRankName,
+                GameRanks.Columns.GAME_RANK_VALUE to rank.gameRankValue,
+                GameRanks.Columns.GAME_RANK_BAYES_AVERAGE to rank.gameRankBayesAverage,
+            )
+            batch += if (existingRankIds.remove(rank.gameRankId)) {
+                ContentProviderOperation.newUpdate(Games.buildRanksUri(rank.gameId, rank.gameRankId)).withValues(values).build()
+            } else {
+                values.put(GameRanks.Columns.GAME_RANK_ID, rank.gameRankId)
+                ContentProviderOperation.newInsert(Games.buildRanksUri(rank.gameId)).withValues(values).build()
             }
-            existingRankIds.mapTo(batch) { ContentProviderOperation.newDelete(GameRanks.buildGameRankUri(it)).build() }
-        } ?: batch
+        }
+        existingRankIds.mapTo(batch) { ContentProviderOperation.newDelete(GameRanks.buildGameRankUri(it)).build() }
     }
 
     private suspend fun createExpansionsBatch(

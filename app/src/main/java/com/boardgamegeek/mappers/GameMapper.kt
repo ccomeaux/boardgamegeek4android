@@ -293,7 +293,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
             gameRankValue = it.value.toIntOrNull() ?: RANK_UNKNOWN,
             gameRankBayesAverage = it.bayesaverage.toDoubleOrNull() ?: 0.0,
         )
-    }
+    }.orEmpty()
     val playerPoll = polls?.find { it.name == PLAYER_POLL_NAME }?.results?.mapIndexed { index, playerCount ->
         GameSuggestedPlayerCountPollResultsLocal(
             internalId = BggContract.INVALID_ID.toLong(),
@@ -304,7 +304,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
             recommendedVoteCount = playerCount.result.find { it.value == "Recommended" }?.numvotes ?: 0,
             notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0,
         )
-    }
+    }.orEmpty()
     val polls = polls?.filterNot { it.name == PLAYER_POLL_NAME }?.map { poll ->
         GamePollLocal(
             internalId = BggContract.INVALID_ID.toLong(),
@@ -332,7 +332,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
                 )
             }
         )
-    }
+    }.orEmpty()
     return GameForUpsert(
         internalId = BggContract.INVALID_ID.toLong(),
         updated = updated,
@@ -365,9 +365,9 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
         numberOfUsersWeighting = statistics?.numweights?.toIntOrNull(),
         averageWeight = statistics?.averageweight?.toDoubleOrNull(),
         suggestedPlayerCountPollVoteTotal = this.polls.find { it.name == PLAYER_POLL_NAME }?.totalvotes,
-        playerCountsBest = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.BEST }?.map { it.playerCount }.orEmpty().toSet().forDatabase(),
-        playerCountsRecommended = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.RECOMMENDED }?.map { it.playerCount }.orEmpty().toSet().forDatabase(),
-        playerCountsNotRecommended = playerPoll?.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.NOT_RECOMMENDED }?.map { it.playerCount }.orEmpty().toSet().forDatabase(),
+        playerCountsBest = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.BEST }.map { it.playerCount }.toSet().forDatabase(),
+        playerCountsRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.RECOMMENDED }.map { it.playerCount }.toSet().forDatabase(),
+        playerCountsNotRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.NOT_RECOMMENDED }.map { it.playerCount }.toSet().forDatabase(),
         ranks = ranks,
         polls = polls,
         playerPoll = playerPoll,
