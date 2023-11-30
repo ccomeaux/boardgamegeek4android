@@ -24,44 +24,39 @@ import timber.log.Timber
 
 class GameDao(private val context: Context) {
     suspend fun save(game: GameForUpsert) = withContext(Dispatchers.IO) {
-        if (game.gameName.isBlank()) {
-            Timber.w("Missing name from game ID=${game.gameId}")
+        val batch = arrayListOf<ContentProviderOperation>()
+
+        val values = toValues(game)
+        val internalId = context.contentResolver.queryLong(Games.buildGameUri(game.gameId), BaseColumns._ID, INVALID_ID.toLong())
+        val cpoBuilder = if (internalId != INVALID_ID.toLong()) {
+            values.remove(Games.Columns.GAME_ID)
+            if (shouldClearHeroImageUrl(game)) {
+                values.put(Games.Columns.HERO_IMAGE_URL, "")
+            }
+            ContentProviderOperation.newUpdate(Games.buildGameUri(game.gameId))
         } else {
-            Timber.i("Saving game $game")
+            ContentProviderOperation.newInsert(Games.CONTENT_URI)
+        }
 
-            val batch = arrayListOf<ContentProviderOperation>()
+        batch += cpoBuilder.withValues(values).withYieldAllowed(true).build()
+        batch += createRanksBatch(game)
+        if (game.polls != null) batch += createPollsBatch(game)
+        batch += createPlayerPollBatch(game.gameId, game.playerPoll)
+        batch += createExpansionsBatch(game.gameId, game.expansions)
 
-            val values = toValues(game)
-            val internalId = context.contentResolver.queryLong(Games.buildGameUri(game.gameId), BaseColumns._ID, INVALID_ID.toLong())
-            val cpoBuilder = if (internalId != INVALID_ID.toLong()) {
-                values.remove(Games.Columns.GAME_ID)
-                if (shouldClearHeroImageUrl(game)) {
-                    values.put(Games.Columns.HERO_IMAGE_URL, "")
-                }
-                ContentProviderOperation.newUpdate(Games.buildGameUri(game.gameId))
-            } else {
-                ContentProviderOperation.newInsert(Games.CONTENT_URI)
-            }
+        batch += createAssociationBatch(game.gameId, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
+        batch += createAssociationBatch(game.gameId, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID)
+        batch += createAssociationBatch(game.gameId, game.publishers, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
+        batch += createAssociationBatch(game.gameId, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
+        batch += createAssociationBatch(game.gameId, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
 
-            batch += cpoBuilder.withValues(values).withYieldAllowed(true).build()
-            batch += createRanksBatch(game)
-            if (game.polls != null) batch += createPollsBatch(game)
-            batch += createPlayerPollBatch(game.gameId, game.playerPoll)
-            batch += createExpansionsBatch(game.gameId, game.expansions)
-
-            batch += createAssociationBatch(game.gameId, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
-            batch += createAssociationBatch(game.gameId, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID)
-            batch += createAssociationBatch(game.gameId, game.publishers, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
-            batch += createAssociationBatch(game.gameId, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
-            batch += createAssociationBatch(game.gameId, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
-
-            context.contentResolver.applyBatch(batch, "Game $game")
-            val dateTime = DateUtils.formatDateTime(context, game.updated ?: System.currentTimeMillis(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-            if (internalId == INVALID_ID.toLong()) {
-                Timber.i("Inserted game $game at $dateTime")
-            } else {
-                Timber.i("Updated game $game (${internalId}) at $dateTime")
-            }
+        context.contentResolver.applyBatch(batch, "Game $game")
+        val dateTime =
+            DateUtils.formatDateTime(context, game.updated ?: System.currentTimeMillis(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        if (internalId == INVALID_ID.toLong()) {
+            Timber.i("Inserted game $game at $dateTime")
+        } else {
+            Timber.i("Updated game $game (${internalId}) at $dateTime")
         }
     }
 
@@ -89,7 +84,7 @@ class GameDao(private val context: Context) {
             Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED to game.playerCountsNotRecommended,
         )
         val statsValues = contentValuesOf(
-            Games.Columns.GAME_RANK to game.overallRank,
+            Games.Columns.GAME_RANK to game.gameRank,
             Games.Columns.STATS_AVERAGE to game.average,
             Games.Columns.STATS_BAYES_AVERAGE to game.bayesAverage,
             Games.Columns.STATS_STANDARD_DEVIATION to game.standardDeviation,

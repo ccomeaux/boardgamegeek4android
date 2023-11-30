@@ -294,12 +294,12 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
             gameRankBayesAverage = it.bayesaverage.toDoubleOrNull() ?: 0.0,
         )
     }
-    val playerPoll = polls?.find { it.name == PLAYER_POLL_NAME }?.results?.map { playerCount ->
+    val playerPoll = polls?.find { it.name == PLAYER_POLL_NAME }?.results?.mapIndexed { index, playerCount ->
         GameSuggestedPlayerCountPollResultsLocal(
             internalId = BggContract.INVALID_ID.toLong(),
             gameId = this.id,
             playerCount = playerCount.numplayers,
-            sortIndex = 0,
+            sortIndex = index + 1,
             bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0,
             recommendedVoteCount = playerCount.result.find { it.value == "Recommended" }?.numvotes ?: 0,
             notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0,
@@ -334,6 +334,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
         )
     }
     return GameForUpsert(
+        internalId = BggContract.INVALID_ID.toLong(),
         updated = updated,
         updatedList = updated,
         gameId = id,
@@ -350,7 +351,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
         maxPlayingTime = maxplaytime?.toIntOrNull(),
         minPlayingTime = minplaytime?.toIntOrNull(),
         minimumAge = minage?.toIntOrNull(),
-        overallRank = statistics?.ranks?.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRank.RANK_UNKNOWN,
+        gameRank = statistics?.ranks?.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRank.RANK_UNKNOWN,
         numberOfRatings = statistics?.usersrated?.toIntOrNull(),
         average = statistics?.average?.toDoubleOrNull(),
         bayesAverage = statistics?.bayesaverage?.toDoubleOrNull(),

@@ -109,7 +109,12 @@ class GameRepository @Inject constructor(
             )
             mechanicDao.upsert(entity)
         }
-        dao.save(game)
+        if (game.gameName.isBlank()) {
+            Timber.w("Missing name from game ID=${game.gameId}")
+        } else {
+            Timber.i("Saving game $game")
+            dao.save(game)
+        }
     }
 
     suspend fun fetchGame(vararg gameId: Int): List<Game> = withContext(Dispatchers.IO) {
