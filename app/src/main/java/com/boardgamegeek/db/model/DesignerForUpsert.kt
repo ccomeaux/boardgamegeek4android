@@ -5,7 +5,7 @@ import java.util.Date
 
 data class DesignerForUpsert (
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "designer_id")
     val designerId: Int,
     @ColumnInfo(name = "designer_name")

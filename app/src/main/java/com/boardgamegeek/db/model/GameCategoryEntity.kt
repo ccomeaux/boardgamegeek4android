@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class GameCategoryEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "game_id")
     val gameId: Int,
     @ColumnInfo(name = "category_id")

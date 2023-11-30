@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
 data class GameRankEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "game_id")
     val gameId: Int,
     @ColumnInfo(name = "gamerank_id")

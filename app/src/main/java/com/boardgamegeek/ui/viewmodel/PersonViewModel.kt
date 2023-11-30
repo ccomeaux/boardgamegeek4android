@@ -157,7 +157,7 @@ class PersonViewModel @Inject constructor(
 
     private fun Company?.toPerson() = this?.let {
         Person(
-            BggContract.INVALID_ID,
+            BggContract.INVALID_ID.toLong(),
             it.id,
             it.name,
             it.description,

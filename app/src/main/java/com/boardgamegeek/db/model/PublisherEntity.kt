@@ -9,7 +9,7 @@ import java.util.Date
 data class PublisherEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "publisher_id")
     val publisherId: Int, // unique
     @ColumnInfo(name = "publisher_name")

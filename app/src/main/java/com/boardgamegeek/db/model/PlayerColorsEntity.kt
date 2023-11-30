@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class PlayerColorsEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo("player_type")
     val playerType: Int,
     @ColumnInfo("player_name")

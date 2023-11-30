@@ -5,7 +5,6 @@ import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.io.model.PersonResponseV1
 import com.boardgamegeek.io.model.PersonItem
-import com.boardgamegeek.provider.BggContract
 import java.util.Date
 
 fun PersonResponseV1.mapToModel(id: Int, timestamp: Date): Person? {
@@ -13,7 +12,7 @@ fun PersonResponseV1.mapToModel(id: Int, timestamp: Date): Person? {
     else {
         val missingDescriptionMessage = "This page does not exist. You can edit this page to create it."
         Person(
-            internalId = BggContract.INVALID_ID,
+            internalId = 0L,
             id = id,
             name = name,
             description = if (description == missingDescriptionMessage) "" else description,
@@ -58,7 +57,7 @@ fun ArtistEntity.mapToGameDetail() = GameDetail(
     thumbnailUrl = artistThumbnailUrl.orEmpty(),
 )
 
-fun Person.mapArtistForUpsert(internalId: Int = BggContract.INVALID_ID) = ArtistForUpsert(
+fun Person.mapArtistForUpsert(internalId: Long = 0L) = ArtistForUpsert(
     internalId = internalId,
     artistId = id,
     artistName = name,
@@ -80,7 +79,7 @@ fun DesignerEntity.mapToModel() = Person(
     statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
 
-fun Person.mapDesignerForUpsert(internalId: Int = BggContract.INVALID_ID) = DesignerForUpsert(
+fun Person.mapDesignerForUpsert(internalId: Long = 0L) = DesignerForUpsert(
     internalId = internalId,
     designerId = id,
     designerName = name,

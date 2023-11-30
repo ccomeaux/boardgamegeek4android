@@ -5,7 +5,7 @@ import java.util.Date
 
 data class ArtistForUpsert (
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "artist_id")
     val artistId: Int,
     @ColumnInfo(name = "artist_name")

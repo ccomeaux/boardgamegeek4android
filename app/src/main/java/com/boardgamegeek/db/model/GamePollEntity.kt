@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
 data class GamePollEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "game_id") // TODO: add index
     val gameId: Int,
     @ColumnInfo(name = "poll_name")

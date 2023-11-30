@@ -3,7 +3,7 @@ package com.boardgamegeek.model
 import java.util.Date
 
 data class Person(
-    val internalId: Int,
+    val internalId: Long,
     val id: Int,
     val name: String,
     val description: String,

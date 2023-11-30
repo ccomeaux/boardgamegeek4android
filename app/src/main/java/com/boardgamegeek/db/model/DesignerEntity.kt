@@ -9,7 +9,7 @@ import java.util.Date
 data class DesignerEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "designer_id")
     val designerId: Int, // unique
     @ColumnInfo(name = "designer_name")

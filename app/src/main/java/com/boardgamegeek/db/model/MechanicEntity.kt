@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class MechanicEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "mechanic_id")
     val mechanicId: Int, // unique
     @ColumnInfo(name = "mechanic_name")

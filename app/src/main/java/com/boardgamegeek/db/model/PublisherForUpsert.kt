@@ -5,7 +5,7 @@ import java.util.Date
 
 data class PublisherForUpsert(
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "publisher_id")
     val publisherId: Int,
     @ColumnInfo(name = "publisher_name")

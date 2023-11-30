@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 data class CategoryEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "category_id")
     val categoryId: Int, // unique
     @ColumnInfo(name = "category_name")

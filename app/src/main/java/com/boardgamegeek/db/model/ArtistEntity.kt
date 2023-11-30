@@ -13,7 +13,7 @@ import java.util.Date
 data class ArtistEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
-    val internalId: Int,
+    val internalId: Long,
     @ColumnInfo(name = "artist_id")
     val artistId: Int, // unique
     @ColumnInfo(name = "artist_name")

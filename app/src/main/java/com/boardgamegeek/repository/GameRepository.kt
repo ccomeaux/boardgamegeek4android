@@ -67,7 +67,7 @@ class GameRepository @Inject constructor(
         game.artists?.forEach {
             val artist = artistDao.loadArtist(it.first)
             val entity = ArtistBriefForUpsert(
-                internalId = artist?.internalId ?: 0,
+                internalId = artist?.internalId ?: 0L,
                 artistId = it.first,
                 artistName = it.second,
             )
@@ -76,7 +76,7 @@ class GameRepository @Inject constructor(
         game.designers?.forEach {
             val designer = designerDao.loadDesigner(it.first)
             val entity = DesignerBriefForUpsert(
-                internalId = designer?.internalId ?: 0,
+                internalId = designer?.internalId ?: 0L,
                 designerId = it.first,
                 designerName = it.second,
             )
@@ -85,7 +85,7 @@ class GameRepository @Inject constructor(
         game.publishers?.forEach {
             val publisher = publisherDao.loadPublisher(it.first)
             val entity = PublisherBriefForUpsert(
-                internalId = publisher?.internalId ?: 0,
+                internalId = publisher?.internalId ?: 0L,
                 publisherId = it.first,
                 publisherName = it.second,
             )
@@ -94,7 +94,7 @@ class GameRepository @Inject constructor(
         game.categories?.forEach {
             val category = categoryDao.loadCategory(it.first)
             val entity = CategoryEntity(
-                internalId = category?.internalId ?: 0,
+                internalId = category?.internalId ?: 0L,
                 categoryId = it.first,
                 categoryName = it.second,
             )
@@ -103,7 +103,7 @@ class GameRepository @Inject constructor(
         game.mechanics?.forEach {
             val mechanic = mechanicDao.loadMechanic(it.first)
             val entity = MechanicEntity(
-                internalId = mechanic?.internalId ?: 0,
+                internalId = mechanic?.internalId ?: 0L,
                 mechanicId = it.first,
                 mechanicName = it.second,
             )

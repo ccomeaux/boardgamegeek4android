@@ -38,7 +38,7 @@ fun PublisherEntity.mapToGameDetail() = GameDetail(
     thumbnailUrl = publisherThumbnailUrl.orEmpty(),
 )
 
-fun Company.mapForUpsert(internalId: Int = BggContract.INVALID_ID) = PublisherForUpsert(
+fun Company.mapForUpsert(internalId: Long = 0) = PublisherForUpsert(
     internalId = internalId,
     publisherId = id,
     publisherName = name,
