@@ -44,11 +44,11 @@ class GameDao(private val context: Context) {
         batch += createPlayerPollBatch(game.gameId, game.playerPoll)
         batch += createExpansionsBatch(game.gameId, game.expansions)
 
-        batch += createAssociationBatch(game.gameId, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
-        batch += createAssociationBatch(game.gameId, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID)
-        batch += createAssociationBatch(game.gameId, game.publishers, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
-        batch += createAssociationBatch(game.gameId, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
-        batch += createAssociationBatch(game.gameId, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
+        batch += createAssociationBatch(game.gameId, game.designers.map { it.designerId }, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
+        batch += createAssociationBatch(game.gameId, game.artists.map { it.artistId }, PATH_ARTISTS, GamesArtists.ARTIST_ID)
+        batch += createAssociationBatch(game.gameId, game.publishers.map { it.publisherId }, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
+        batch += createAssociationBatch(game.gameId, game.categories.map { it.categoryId }, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
+        batch += createAssociationBatch(game.gameId, game.mechanics.map { it.mechanicId }, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
 
         context.contentResolver.applyBatch(batch, "Game $game")
         val dateTime =
@@ -253,35 +253,32 @@ class GameDao(private val context: Context) {
 
     private suspend fun createExpansionsBatch(
         gameId: Int,
-        newLinks: List<Triple<Int, String, Boolean>>?
+        entities: List<GameExpansionEntity>,
     ): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
-        newLinks?.let {
-            val pathUri = Games.buildPathUri(gameId, PATH_EXPANSIONS)
-            val existingIds = context.contentResolver.queryInts(pathUri, GamesExpansions.Columns.EXPANSION_ID).toMutableList()
-
-            for ((id, name, inbound) in newLinks) {
-                if (!existingIds.remove(id)) {
-                    // insert association row
-                    batch.add(
-                        ContentProviderOperation.newInsert(pathUri).withValues(
-                            contentValuesOf(
-                                GamesExpansions.Columns.EXPANSION_ID to id,
-                                GamesExpansions.Columns.EXPANSION_NAME to name,
-                                GamesExpansions.Columns.INBOUND to inbound,
-                            )
-                        ).build()
-                    )
-                }
+        val pathUri = Games.buildPathUri(gameId, PATH_EXPANSIONS)
+        val existingIds = context.contentResolver.queryInts(pathUri, GamesExpansions.Columns.EXPANSION_ID).toMutableList()
+        entities.forEach { entity ->
+            if (!existingIds.remove(entity.expansionId)) {
+                // insert association row
+                batch.add(
+                    ContentProviderOperation.newInsert(pathUri).withValues(
+                        contentValuesOf(
+                            GamesExpansions.Columns.EXPANSION_ID to entity.expansionId,
+                            GamesExpansions.Columns.EXPANSION_NAME to entity.expansionName,
+                            GamesExpansions.Columns.INBOUND to entity.inbound,
+                        )
+                    ).build()
+                )
             }
-            // remove unused associations
-            existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, PATH_EXPANSIONS, it)).build() }
-        } ?: batch
+        }
+        // remove unused associations
+        existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, PATH_EXPANSIONS, it)).build() }
     }
 
     private fun createAssociationBatch(
         gameId: Int,
-        newLinks: List<Pair<Int, String>>?,
+        newLinks: List<Int>?,
         uriPath: String,
         idColumn: String
     ): ArrayList<ContentProviderOperation> {
@@ -289,7 +286,7 @@ class GameDao(private val context: Context) {
         if (newLinks == null) return batch
         val associationUri = Games.buildPathUri(gameId, uriPath)
         val existingIds = context.contentResolver.queryInts(associationUri, idColumn).toMutableList()
-        for ((id, _) in newLinks) {
+        for (id in newLinks) {
             if (!existingIds.remove(id)) {
                 // insert association row
                 batch += ContentProviderOperation.newInsert(associationUri).withValue(idColumn, id).build()

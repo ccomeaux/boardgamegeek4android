@@ -371,12 +371,12 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
         ranks = ranks,
         polls = polls,
         playerPoll = playerPoll,
-        designers = links.filter { it.type == "boardgamedesigner" }.map { it.id to it.value },
-        artists = links.filter { it.type == "boardgameartist" }.map { it.id to it.value },
-        publishers = links.filter { it.type == "boardgamepublisher" }.map { it.id to it.value },
-        categories = links.filter { it.type == "boardgamecategory" }.map { it.id to it.value },
-        mechanics = links.filter { it.type == "boardgamemechanic" }.map { it.id to it.value },
-        expansions = links.filter { it.type == "boardgameexpansion" }.map { Triple(it.id, it.value, it.inbound == "true") },
+        designers = links?.filter { it.type == "boardgamedesigner" }?.map { GameDesignerEntity(0L, this.id, it.id) }.orEmpty(),
+        artists = links?.filter { it.type == "boardgameartist" }?.map { GameArtistEntity(0L, this.id, it.id) }.orEmpty(),
+        publishers = links?.filter { it.type == "boardgamepublisher" }?.map { GamePublisherEntity(0L, this.id, it.id) }.orEmpty(),
+        categories = links?.filter { it.type == "boardgamecategory" }?.map { GameCategoryEntity(0L, this.id, it.id) }.orEmpty(),
+        mechanics = links?.filter { it.type == "boardgamemechanic" }?.map { GameMechanicEntity(0L, this.id, it.id) }.orEmpty(),
+        expansions = links?.filter { it.type == "boardgameexpansion" }?.map { GameExpansionEntity(0L, this.id, it.id, it.value, it.inbound == "true") }.orEmpty(),
     )
 }
 

@@ -74,12 +74,12 @@ data class GameForUpsert(
     val ranks: List<GameRankLocal>?,
     val polls: List<GamePollLocal>?,
     val playerPoll: List<GameSuggestedPlayerCountPollResultsLocal>?,
-    val designers: List<Pair<Int, String>>?,
-    val artists: List<Pair<Int, String>>?,
-    val publishers: List<Pair<Int, String>>?,
-    val categories: List<Pair<Int, String>>?,
-    val mechanics: List<Pair<Int, String>>?,
-    val expansions: List<Triple<Int, String, Boolean>>?,
+    val designers: List<GameDesignerEntity>,
+    val artists: List<GameArtistEntity>,
+    val publishers: List<GamePublisherEntity>,
+    val categories: List<GameCategoryEntity>,
+    val mechanics: List<GameMechanicEntity>,
+    val expansions: List<GameExpansionEntity>,
 ) {
     override fun toString() = "$gameName [$gameId]"
 }
