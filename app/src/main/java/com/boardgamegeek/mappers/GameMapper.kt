@@ -333,7 +333,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
             }
         )
     }.orEmpty()
-    return GameForUpsert(
+    val header = GameForUpsertHeader(
         internalId = BggContract.INVALID_ID.toLong(),
         updated = updated,
         updatedList = updated,
@@ -368,6 +368,9 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
         playerCountsBest = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.BEST }.map { it.playerCount }.toSet().forDatabase(),
         playerCountsRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.RECOMMENDED }.map { it.playerCount }.toSet().forDatabase(),
         playerCountsNotRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsLocal.NOT_RECOMMENDED }.map { it.playerCount }.toSet().forDatabase(),
+    )
+    return GameForUpsert(
+        header = header,
         ranks = ranks,
         polls = polls,
         playerPoll = playerPoll,

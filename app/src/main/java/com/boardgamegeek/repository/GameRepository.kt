@@ -62,8 +62,8 @@ class GameRepository @Inject constructor(
             game.mapToCategories().forEach { categoryDao.upsert(it) }
             game.mapToMechanics().forEach { mechanicDao.upsert(it) }
             val gameForUpsert = game.mapForUpsert(timestamp)
-            if (gameForUpsert.gameName.isBlank()) {
-                Timber.w("Missing name from game ID=${gameForUpsert.gameId}")
+            if (gameForUpsert.header.gameName.isBlank()) {
+                Timber.w("Missing name from game ID=${gameForUpsert.header.gameId}")
             } else {
                 Timber.i("Saving game $game")
                 dao.save(gameForUpsert)

@@ -26,14 +26,14 @@ class GameDao(private val context: Context) {
     suspend fun save(game: GameForUpsert) = withContext(Dispatchers.IO) {
         val batch = arrayListOf<ContentProviderOperation>()
 
-        val values = toValues(game)
-        val internalId = context.contentResolver.queryLong(Games.buildGameUri(game.gameId), BaseColumns._ID, INVALID_ID.toLong())
+        val values = toValues(game.header)
+        val internalId = context.contentResolver.queryLong(Games.buildGameUri(game.header.gameId), BaseColumns._ID, INVALID_ID.toLong())
         val cpoBuilder = if (internalId != INVALID_ID.toLong()) {
             values.remove(Games.Columns.GAME_ID)
             if (shouldClearHeroImageUrl(game)) {
                 values.put(Games.Columns.HERO_IMAGE_URL, "")
             }
-            ContentProviderOperation.newUpdate(Games.buildGameUri(game.gameId))
+            ContentProviderOperation.newUpdate(Games.buildGameUri(game.header.gameId))
         } else {
             ContentProviderOperation.newInsert(Games.CONTENT_URI)
         }
@@ -41,18 +41,17 @@ class GameDao(private val context: Context) {
         batch += cpoBuilder.withValues(values).withYieldAllowed(true).build()
         batch += createRanksBatch(game)
         batch += createPollsBatch(game)
-        batch += createPlayerPollBatch(game.gameId, game.playerPoll)
-        batch += createExpansionsBatch(game.gameId, game.expansions)
+        batch += createPlayerPollBatch(game.header.gameId, game.playerPoll)
+        batch += createExpansionsBatch(game.header.gameId, game.expansions)
 
-        batch += createAssociationBatch(game.gameId, game.designers.map { it.designerId }, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
-        batch += createAssociationBatch(game.gameId, game.artists.map { it.artistId }, PATH_ARTISTS, GamesArtists.ARTIST_ID)
-        batch += createAssociationBatch(game.gameId, game.publishers.map { it.publisherId }, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
-        batch += createAssociationBatch(game.gameId, game.categories.map { it.categoryId }, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
-        batch += createAssociationBatch(game.gameId, game.mechanics.map { it.mechanicId }, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
+        batch += createAssociationBatch(game.header.gameId, game.designers.map { it.designerId }, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
+        batch += createAssociationBatch(game.header.gameId, game.artists.map { it.artistId }, PATH_ARTISTS, GamesArtists.ARTIST_ID)
+        batch += createAssociationBatch(game.header.gameId, game.publishers.map { it.publisherId }, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
+        batch += createAssociationBatch(game.header.gameId, game.categories.map { it.categoryId }, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
+        batch += createAssociationBatch(game.header.gameId, game.mechanics.map { it.mechanicId }, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
 
         context.contentResolver.applyBatch(batch, "Game $game")
-        val dateTime =
-            DateUtils.formatDateTime(context, game.updated ?: System.currentTimeMillis(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
+        val dateTime = DateUtils.formatDateTime(context, game.header.updated ?: System.currentTimeMillis(), DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
         if (internalId == INVALID_ID.toLong()) {
             Timber.i("Inserted game $game at $dateTime")
         } else {
@@ -60,7 +59,7 @@ class GameDao(private val context: Context) {
         }
     }
 
-    private fun toValues(game: GameForUpsert): ContentValues {
+    private fun toValues(game: GameForUpsertHeader): ContentValues {
         val values = contentValuesOf(
             Games.Columns.UPDATED to game.updated,
             Games.Columns.UPDATED_LIST to game.updatedList,
@@ -103,11 +102,11 @@ class GameDao(private val context: Context) {
     }
 
     private suspend fun shouldClearHeroImageUrl(game: GameForUpsert): Boolean = withContext(Dispatchers.IO) {
-        context.contentResolver.load(Games.buildGameUri(game.gameId), arrayOf(Games.Columns.IMAGE_URL, Games.Columns.THUMBNAIL_URL))?.use {
+        context.contentResolver.load(Games.buildGameUri(game.header.gameId), arrayOf(Games.Columns.IMAGE_URL, Games.Columns.THUMBNAIL_URL))?.use {
             if (it.moveToFirst()) {
                 val imageUrl = it.getStringOrNull(0).orEmpty()
                 val thumbnailUrl = it.getStringOrNull(1).orEmpty()
-                imageUrl != game.imageUrl || thumbnailUrl != game.thumbnailUrl
+                imageUrl != game.header.imageUrl || thumbnailUrl != game.header.thumbnailUrl
             } else false
         } ?: false
     }
@@ -116,7 +115,7 @@ class GameDao(private val context: Context) {
         val batch = arrayListOf<ContentProviderOperation>()
 
         val existingPollNames = context.contentResolver
-            .queryStrings(Games.buildPollsUri(game.gameId), GamePolls.Columns.POLL_NAME)
+            .queryStrings(Games.buildPollsUri(game.header.gameId), GamePolls.Columns.POLL_NAME)
             .filter { it.isNotBlank() }
             .toMutableList()
         game.polls.forEach { poll ->
@@ -128,13 +127,13 @@ class GameDao(private val context: Context) {
             val existingResultKeys = mutableListOf<String>()
             batch += if (existingPollNames.remove(poll.pollName)) {
                 existingResultKeys += context.contentResolver.queryStrings(
-                    Games.buildPollResultsUri(game.gameId, poll.pollName),
+                    Games.buildPollResultsUri(game.header.gameId, poll.pollName),
                     GamePollResults.Columns.POLL_RESULTS_PLAYERS
                 ).filterNot { it.isBlank() }
-                ContentProviderOperation.newUpdate(Games.buildPollsUri(game.gameId, poll.pollName))
+                ContentProviderOperation.newUpdate(Games.buildPollsUri(game.header.gameId, poll.pollName))
             } else {
                 values.put(GamePolls.Columns.POLL_NAME, poll.pollName)
-                ContentProviderOperation.newInsert(Games.buildPollsUri(game.gameId))
+                ContentProviderOperation.newInsert(Games.buildPollsUri(game.header.gameId))
             }.withValues(values).build()
 
             for (results in poll.results) {
@@ -146,13 +145,13 @@ class GameDao(private val context: Context) {
                 val existingResultsResultKeys = mutableListOf<String>()
                 batch += if (existingResultKeys.remove(results.pollResultsKey)) {
                     existingResultsResultKeys += context.contentResolver.queryStrings(
-                        Games.buildPollResultsResultUri(game.gameId, poll.pollName, results.pollResultsKey),
+                        Games.buildPollResultsResultUri(game.header.gameId, poll.pollName, results.pollResultsKey),
                         GamePollResultsResult.Columns.POLL_RESULTS_RESULT_KEY
                     ).filterNot { it.isBlank() }
-                    ContentProviderOperation.newUpdate(Games.buildPollResultsUri(game.gameId, poll.pollName, results.pollResultsKey))
+                    ContentProviderOperation.newUpdate(Games.buildPollResultsUri(game.header.gameId, poll.pollName, results.pollResultsKey))
                 } else {
                     resultsValues.put(GamePollResults.Columns.POLL_RESULTS_KEY, results.pollResultsKey)
-                    ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.gameId, poll.pollName))
+                    ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.header.gameId, poll.pollName))
                 }.withValues(resultsValues).build()
 
                 for (result in results.pollResultsResult) {
@@ -166,7 +165,7 @@ class GameDao(private val context: Context) {
                     batch += if (existingResultsResultKeys.remove(result.pollResultsResultKey)) {
                         ContentProviderOperation.newUpdate(
                             Games.buildPollResultsResultUri(
-                                game.gameId,
+                                game.header.gameId,
                                 poll.pollName,
                                 results.pollResultsKey,
                                 result.pollResultsResultKey
@@ -174,19 +173,19 @@ class GameDao(private val context: Context) {
                         )
                     } else {
                         resultsValues.put(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_KEY, result.pollResultsResultKey)
-                        ContentProviderOperation.newInsert(Games.buildPollResultsResultUri(game.gameId, poll.pollName, results.pollResultsKey))
+                        ContentProviderOperation.newInsert(Games.buildPollResultsResultUri(game.header.gameId, poll.pollName, results.pollResultsKey))
                     }.withValues(resultsResultValues).build()
                 }
 
                 existingResultsResultKeys.mapTo(batch) {
-                    ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.gameId, poll.pollName, results.pollResultsKey, it))
+                    ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.header.gameId, poll.pollName, results.pollResultsKey, it))
                         .build()
                 }
             }
 
-            existingResultKeys.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.gameId, poll.pollName, it)).build() }
+            existingResultKeys.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.header.gameId, poll.pollName, it)).build() }
         }
-        existingPollNames.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPollsUri(game.gameId, it)).build() }
+        existingPollNames.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPollsUri(game.header.gameId, it)).build() }
     }
 
     private suspend fun createPlayerPollBatch(
@@ -229,7 +228,7 @@ class GameDao(private val context: Context) {
             GameRanks.CONTENT_URI,
             GameRanks.Columns.GAME_RANK_ID,
             "${GameRanks.Columns.GAME_ID}=?",
-            arrayOf(game.gameId.toString())
+            arrayOf(game.header.gameId.toString())
         ).toMutableList()
         for (rank in game.ranks) {
             val values = contentValuesOf(
