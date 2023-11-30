@@ -56,66 +56,23 @@ class GameRepository @Inject constructor(
         val timestamp = System.currentTimeMillis()
         val games = api.thing(gameId.first(), 1).games
         games?.forEach { game ->
+            game.mapToDesigners().forEach { designerDao.upsert(it) }
+            game.mapToArtists().forEach { artistDao.upsert(it) }
+            game.mapToPublishers().forEach { publisherDao.upsert(it) }
+            game.mapToCategories().forEach { categoryDao.upsert(it) }
+            game.mapToMechanics().forEach { mechanicDao.upsert(it) }
             val gameForUpsert = game.mapForUpsert(timestamp)
-            saveGame(gameForUpsert)
+            if (gameForUpsert.gameName.isBlank()) {
+                Timber.w("Missing name from game ID=${gameForUpsert.gameId}")
+            } else {
+                Timber.i("Saving game $game")
+                dao.save(gameForUpsert)
+            }
             Timber.d("Synced game $gameForUpsert")
         }
         games?.size ?: 0
     }
 
-    private suspend fun saveGame(game: GameForUpsert) {
-        game.artists?.forEach {
-            val artist = artistDao.loadArtist(it.first)
-            val entity = ArtistBriefForUpsert(
-                internalId = artist?.internalId ?: 0L,
-                artistId = it.first,
-                artistName = it.second,
-            )
-            artistDao.upsert(entity)
-        }
-        game.designers?.forEach {
-            val designer = designerDao.loadDesigner(it.first)
-            val entity = DesignerBriefForUpsert(
-                internalId = designer?.internalId ?: 0L,
-                designerId = it.first,
-                designerName = it.second,
-            )
-            designerDao.upsert(entity)
-        }
-        game.publishers?.forEach {
-            val publisher = publisherDao.loadPublisher(it.first)
-            val entity = PublisherBriefForUpsert(
-                internalId = publisher?.internalId ?: 0L,
-                publisherId = it.first,
-                publisherName = it.second,
-            )
-            publisherDao.upsert(entity)
-        }
-        game.categories?.forEach {
-            val category = categoryDao.loadCategory(it.first)
-            val entity = CategoryEntity(
-                internalId = category?.internalId ?: 0L,
-                categoryId = it.first,
-                categoryName = it.second,
-            )
-            categoryDao.upsert(entity)
-        }
-        game.mechanics?.forEach {
-            val mechanic = mechanicDao.loadMechanic(it.first)
-            val entity = MechanicEntity(
-                internalId = mechanic?.internalId ?: 0L,
-                mechanicId = it.first,
-                mechanicName = it.second,
-            )
-            mechanicDao.upsert(entity)
-        }
-        if (game.gameName.isBlank()) {
-            Timber.w("Missing name from game ID=${game.gameId}")
-        } else {
-            Timber.i("Saving game $game")
-            dao.save(game)
-        }
-    }
 
     suspend fun fetchGame(vararg gameId: Int): List<Game> = withContext(Dispatchers.IO) {
         val response = if (gameId.size == 1) {

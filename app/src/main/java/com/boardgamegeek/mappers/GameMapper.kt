@@ -380,6 +380,36 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
     )
 }
 
+fun GameRemote.mapToDesigners() = links.filter {
+    it.type == "boardgamedesigner"
+}.map {
+    DesignerBriefForUpsert(0L, it.id, it.value)
+}
+
+fun GameRemote.mapToArtists() = links.filter {
+    it.type == "boardgameartist"
+}.map {
+    ArtistBriefForUpsert(0L, it.id, it.value)
+}
+
+fun GameRemote.mapToPublishers() = links.filter {
+    it.type == "boardgamepublisher"
+}.map {
+    PublisherBriefForUpsert(0L, it.id, it.value)
+}
+
+fun GameRemote.mapToCategories() = links.filter {
+    it.type == "boardgamecategory"
+}.map {
+    CategoryEntity(0L, it.id, it.value)
+}
+
+fun GameRemote.mapToMechanics() = links.filter {
+    it.type == "boardgamemechanic"
+}.map {
+    MechanicEntity(0L, it.id, it.value)
+}
+
 fun String?.toThingSubtype() = BggService.ThingSubtype.values().find { this == it.code }
 
 fun <T> Iterable<T>.forDatabase(delimiter: String = "|") = this.joinToString(delimiter, prefix = delimiter, postfix = delimiter)
