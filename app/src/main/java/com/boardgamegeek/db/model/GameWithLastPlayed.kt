@@ -5,5 +5,5 @@ import androidx.room.Embedded
 data class GameWithLastPlayed(
     @Embedded
     val game: GameEntity,
-    val lastPlayedDate: String,
+    val lastPlayedDate: String?,
 )

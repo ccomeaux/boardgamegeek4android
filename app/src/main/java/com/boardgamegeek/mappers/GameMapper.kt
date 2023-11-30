@@ -142,7 +142,7 @@ fun GameRemote.mapToRatingModel(): GameComments {
     return GameComments(this.comments.totalitems, list)
 }
 
-fun GameEntity.mapToModel(lastPlayDate: String = ""): Game {
+fun GameEntity.mapToModel(lastPlayDate: String?): Game {
     val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return Game(
         id = gameId,
