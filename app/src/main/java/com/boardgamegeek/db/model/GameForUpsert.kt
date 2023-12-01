@@ -2,9 +2,9 @@ package com.boardgamegeek.db.model
 
 data class GameForUpsert(
     val header: GameForUpsertHeader,
-    val ranks: List<GameRankLocal>,
-    val polls: List<GamePollLocal>,
-    val playerPoll: List<GameSuggestedPlayerCountPollResultsLocal>,
+    val ranks: List<GameRankEntity>,
+    val polls: List<GamePollForUpsert>,
+    val playerPoll: List<GameSuggestedPlayerCountPollResultsEntity>,
     val designers: List<GameDesignerEntity>,
     val artists: List<GameArtistEntity>,
     val publishers: List<GamePublisherEntity>,

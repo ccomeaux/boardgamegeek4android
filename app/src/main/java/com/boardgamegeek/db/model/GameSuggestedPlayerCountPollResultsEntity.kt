@@ -27,4 +27,11 @@ data class GameSuggestedPlayerCountPollResultsEntity(
     val notRecommendedVoteCount: Int?,
     @ColumnInfo(name = "recommendation")
     val recommendation: Int?,
-)
+) {
+    companion object {
+        const val BEST = 2
+        const val RECOMMENDED = 1
+        const val UNKNOWN = 0
+        const val NOT_RECOMMENDED = -1
+    }
+}

@@ -30,4 +30,8 @@ data class GameRankEntity(
     val gameRankValue: Int,
     @ColumnInfo(name = "gamerank_bayes_average")
     val gameRankBayesAverage: Double,
-)
+) {
+    companion object {
+        const val RANK_UNKNOWN = Integer.MAX_VALUE
+    }
+}
