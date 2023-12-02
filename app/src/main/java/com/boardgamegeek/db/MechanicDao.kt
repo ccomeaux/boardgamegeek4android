@@ -1,8 +1,6 @@
 package com.boardgamegeek.db
 
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.Upsert
+import androidx.room.*
 import com.boardgamegeek.db.model.MechanicEntity
 
 @Dao
@@ -13,8 +11,8 @@ interface MechanicDao {
     @Query("SELECT * FROM mechanics WHERE mechanic_id = :id")
     suspend fun loadMechanic(id: Int): MechanicEntity?
 
-    @Upsert
-    suspend fun upsert(mechanicEntity: MechanicEntity)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(mechanicEntity: MechanicEntity)
 
     @Query("DELETE FROM mechanics")
     suspend fun deleteAll(): Int

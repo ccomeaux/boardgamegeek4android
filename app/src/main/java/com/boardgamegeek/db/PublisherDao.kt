@@ -24,8 +24,8 @@ interface PublisherDao {
     @Update(PublisherEntity::class)
     suspend fun update(publisher: PublisherForUpsert)
 
-    @Upsert(PublisherEntity::class)
-    suspend fun upsert(artist: PublisherBriefForUpsert)
+    @Insert(PublisherEntity::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(artist: PublisherBriefForUpsert)
 
     @Query("DELETE FROM publishers")
     suspend fun deleteAll(): Int

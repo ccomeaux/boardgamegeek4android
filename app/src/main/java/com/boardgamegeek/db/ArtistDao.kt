@@ -27,8 +27,8 @@ interface ArtistDao {
     @Update(ArtistEntity::class)
     suspend fun update(artist: ArtistForUpsert)
 
-    @Upsert(ArtistEntity::class)
-    suspend fun upsert(artist: ArtistBriefForUpsert)
+    @Insert(ArtistEntity::class, onConflict = OnConflictStrategy.IGNORE) // TODO
+    suspend fun insert(artist: ArtistBriefForUpsert)
 
     @Query("DELETE FROM artists")
     suspend fun deleteAll(): Int

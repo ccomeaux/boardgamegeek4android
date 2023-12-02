@@ -27,8 +27,8 @@ interface DesignerDao {
     @Update(DesignerEntity::class)
     suspend fun update(designer: DesignerForUpsert)
 
-    @Upsert(DesignerEntity::class)
-    suspend fun upsert(artist: DesignerBriefForUpsert)
+    @Insert(DesignerEntity::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(artist: DesignerBriefForUpsert)
 
     @Query("DELETE FROM designers")
     suspend fun deleteAll(): Int

@@ -1,8 +1,6 @@
 package com.boardgamegeek.db
 
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.Upsert
+import androidx.room.*
 import com.boardgamegeek.db.model.CategoryEntity
 
 @Dao
@@ -13,8 +11,8 @@ interface CategoryDao {
     @Query("SELECT * FROM categories WHERE category_id = :id")
     suspend fun loadCategory(id: Int): CategoryEntity?
 
-    @Upsert
-    suspend fun upsert(categoryEntity: CategoryEntity)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(categoryEntity: CategoryEntity)
 
     @Query("DELETE FROM categories")
     suspend fun deleteAll(): Int
