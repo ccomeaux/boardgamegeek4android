@@ -39,6 +39,7 @@ import com.boardgamegeek.db.model.*
 abstract class BggDatabase : RoomDatabase() {
     abstract fun artistDao(): ArtistDao
     abstract fun categoryDao(): CategoryDao
+    abstract fun collectionDao(): CollectionDaoNew
     abstract fun collectionViewDao(): CollectionViewDao
     abstract fun designerDao(): DesignerDao
     abstract fun gameDao(): GameDaoNew

@@ -16,6 +16,9 @@ object DaoModule {
     fun provideCategoryDao(database: BggDatabase): CategoryDao = database.categoryDao()
 
     @Provides
+    fun provideCollectionDao(database: BggDatabase): CollectionDaoNew = database.collectionDao()
+
+    @Provides
     fun provideCollectionViewDao(database: BggDatabase): CollectionViewDao = database.collectionViewDao()
 
     @Provides

@@ -314,17 +314,6 @@ class CollectionDao(private val context: Context) {
         resolver.queryStrings(Collection.buildInventoryLocationUri(), Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION).filterNot { it.isBlank() }
     }
 
-    suspend fun updateHeroImageUrl(internalId: Long, url: String) =
-        update(internalId, contentValuesOf(Collection.Columns.COLLECTION_HERO_IMAGE_URL to url))
-
-    suspend fun updateRating(internalId: Long, rating: Double): Int =
-        update(
-            internalId, contentValuesOf(
-                Collection.Columns.RATING to rating,
-                Collection.Columns.RATING_DIRTY_TIMESTAMP to System.currentTimeMillis()
-            )
-        )
-
     suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int): Int {
         val values = contentValuesOf(
             Collection.Columns.STATUS_DIRTY_TIMESTAMP to System.currentTimeMillis(),
@@ -365,70 +354,6 @@ class CollectionDao(private val context: Context) {
             Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION to inventoryLocation
         )
     )
-
-    suspend fun markAsDeleted(internalId: Long) =
-        update(internalId, contentValuesOf(Collection.Columns.COLLECTION_DELETE_TIMESTAMP to System.currentTimeMillis()))
-
-    suspend fun resetTimestamps(internalId: Long) =
-        update(
-            internalId, contentValuesOf(
-                Collection.Columns.COLLECTION_DIRTY_TIMESTAMP to 0,
-                Collection.Columns.STATUS_DIRTY_TIMESTAMP to 0,
-                Collection.Columns.COMMENT_DIRTY_TIMESTAMP to 0,
-                Collection.Columns.RATING_DIRTY_TIMESTAMP to 0,
-                Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP to 0,
-                Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP to 0,
-                Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP to 0,
-                Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP to 0,
-                Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP to 0,
-            )
-        )
-
-    suspend fun updateComment(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.COMMENT, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
-
-    suspend fun updatePrivateComment(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.PRIVATE_INFO_COMMENT, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
-
-    suspend fun updateWishlistComment(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.WISHLIST_COMMENT, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
-
-    suspend fun updateCondition(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.CONDITION, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
-
-    suspend fun updateHasParts(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.HASPARTS_LIST, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
-
-    suspend fun updateWantParts(internalId: Long, text: String): Int =
-        updateText(internalId, text, Collection.Columns.WANTPARTS_LIST, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
-
-    private suspend fun updateText(internalId: Long, text: String, textColumn: String, timestampColumn: String): Int =
-        update(
-            internalId, contentValuesOf(
-                textColumn to text,
-                timestampColumn to System.currentTimeMillis()
-            )
-        )
-
-    suspend fun clearDirtyTimestamp(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.COLLECTION_DIRTY_TIMESTAMP)
-
-    suspend fun clearStatusTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.STATUS_DIRTY_TIMESTAMP)
-
-    suspend fun clearRatingTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.RATING_DIRTY_TIMESTAMP)
-
-    suspend fun clearCommentTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.COMMENT_DIRTY_TIMESTAMP)
-
-    suspend fun clearTradeConditionTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP)
-
-    suspend fun clearPrivateInfoTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP)
-
-    suspend fun clearWishListTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP)
-
-    suspend fun clearWantPartsTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP)
-
-    suspend fun clearHasPartsTimestampColumn(internalId: Long) = clearTimestampColumn(internalId, Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP)
-
-    private suspend fun clearTimestampColumn(internalId: Long, timestampColumn: String) = update(internalId, contentValuesOf(timestampColumn to 0))
 
     private suspend fun update(internalId: Long, values: ContentValues): Int = withContext(Dispatchers.IO) {
         if (internalId != INVALID_ID.toLong()) {
