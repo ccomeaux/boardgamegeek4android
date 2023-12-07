@@ -2,9 +2,19 @@ package com.boardgamegeek.db
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Update
+import com.boardgamegeek.db.model.CollectionItemEntity
+import com.boardgamegeek.db.model.CollectionPrivateInfoEntity
+import com.boardgamegeek.db.model.CollectionStatusEntity
 
 @Dao
 interface CollectionDaoNew {
+    @Update(CollectionItemEntity::class)
+    suspend fun updateStatuses(statuses: CollectionStatusEntity): Int
+
+    @Update(CollectionItemEntity::class)
+    suspend fun updatePrivateInfo(privateInfo: CollectionPrivateInfoEntity): Int
+
     @Query("UPDATE collection SET collection_hero_image_url = :url WHERE _id=:internalId")
     suspend fun updateHeroImageUrl(internalId: Long, url: String): Int
 

@@ -28,23 +28,23 @@ data class CollectionItemEntity(
     @ColumnInfo(name = "collection_sort_name")
     val collectionSortName: String,
     @ColumnInfo(name = "own")
-    val statusOwn: Int,
+    val statusOwn: Boolean,
     @ColumnInfo(name = "previously_owned")
-    val statusPreviouslyOwned: Int,
+    val statusPreviouslyOwned: Boolean,
     @ColumnInfo(name = "for_trade")
-    val statusForTrade: Int,
+    val statusForTrade: Boolean,
     @ColumnInfo(name = "want")
-    val statusWant: Int,
+    val statusWant: Boolean,
     @ColumnInfo(name = "want_to_play")
-    val statusWantToPlay: Int,
+    val statusWantToPlay: Boolean,
     @ColumnInfo(name = "want_to_buy")
-    val statusWantToBuy: Int,
+    val statusWantToBuy: Boolean,
     @ColumnInfo(name = "wishlist")
-    val statusWishlist: Int,
+    val statusWishlist: Boolean,
     @ColumnInfo(name = "wishlist_priority")
     val statusWishlistPriority: Int?,
     @ColumnInfo(name = "preordered")
-    val statusPreordered: Int,
+    val statusPreordered: Boolean,
     @ColumnInfo
     val comment: String?,
     @ColumnInfo(name = "last_modified")

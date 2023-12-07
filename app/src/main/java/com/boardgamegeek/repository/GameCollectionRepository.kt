@@ -8,11 +8,14 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.CollectionDaoNew
 import com.boardgamegeek.db.GameDaoNew
+import com.boardgamegeek.db.model.CollectionPrivateInfoEntity
+import com.boardgamegeek.db.model.CollectionStatusEntity
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.mappers.*
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.work.CollectionUploadWorker
 import com.boardgamegeek.work.SyncCollectionWorker
@@ -283,7 +286,8 @@ class GameCollectionRepository(
     }
 
     suspend fun updatePrivateInfo(
-        internalId: Long, priceCurrency: String?,
+        internalId: Long,
+        priceCurrency: String?,
         price: Double?,
         currentValueCurrency: String?,
         currentValue: Double?,
@@ -291,20 +295,41 @@ class GameCollectionRepository(
         acquisitionDate: Long?,
         acquiredFrom: String?,
         inventoryLocation: String?,
-    ) = collectionDao.updatePrivateInfo(
-        internalId,
-        priceCurrency,
-        price,
-        currentValueCurrency,
-        currentValue,
-        quantity,
-        acquisitionDate,
-        acquiredFrom,
-        inventoryLocation
-    )
+    ): Int {
+        val entity = CollectionPrivateInfoEntity(
+            internalId,
+            priceCurrency,
+            price,
+            currentValueCurrency,
+            currentValue,
+            quantity,
+            acquisitionDate.asDateForApi(),
+            acquiredFrom,
+            inventoryLocation,
+            System.currentTimeMillis(),
+        )
+        return collectionDaoNew.updatePrivateInfo(entity)
+    }
 
-    suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int) =
-        collectionDao.updateStatuses(internalId, statuses, wishlistPriority)
+    suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int): Int {
+        val priority = if (statuses.contains(BggContract.Collection.Columns.STATUS_WISHLIST))
+            wishlistPriority.coerceIn(1..5)
+        else null
+        val entity = CollectionStatusEntity( // TODO don't use column names!
+            internalId = internalId,
+            statusOwn = statuses.contains(BggContract.Collection.Columns.STATUS_OWN),
+            statusPreviouslyOwned = statuses.contains(BggContract.Collection.Columns.STATUS_PREVIOUSLY_OWNED),
+            statusForTrade = statuses.contains(BggContract.Collection.Columns.STATUS_FOR_TRADE),
+            statusWant = statuses.contains(BggContract.Collection.Columns.STATUS_WANT),
+            statusWantToPlay = statuses.contains(BggContract.Collection.Columns.STATUS_WANT_TO_PLAY),
+            statusWantToBuy = statuses.contains(BggContract.Collection.Columns.STATUS_WANT_TO_BUY),
+            statusWishlist = statuses.contains(BggContract.Collection.Columns.STATUS_WISHLIST),
+            statusWishlistPriority = priority,
+            statusPreordered = statuses.contains(BggContract.Collection.Columns.STATUS_PREORDERED),
+            statusDirtyTimestamp = System.currentTimeMillis(),
+        )
+        return collectionDaoNew.updateStatuses(entity)
+    }
 
     suspend fun updateRating(internalId: Long, rating: Double): Int = collectionDaoNew.updateRating(internalId, rating, System.currentTimeMillis())
 
