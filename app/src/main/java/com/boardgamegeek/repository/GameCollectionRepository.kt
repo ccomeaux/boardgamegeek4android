@@ -141,9 +141,9 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun loadAcquiredFrom() = collectionDao.loadAcquiredFrom()
+    suspend fun loadAcquiredFrom() = collectionDaoNew.loadAcquiredFrom().filterNot { it.isBlank() }
 
-    suspend fun loadInventoryLocation() = collectionDao.loadInventoryLocation()
+    suspend fun loadInventoryLocation() = collectionDaoNew.loadInventoryLocation().filterNot { it.isBlank() }
 
     suspend fun loadItemsPendingDeletion() = collectionDao.loadItemsPendingDeletion().map { it.mapToModel() }
 

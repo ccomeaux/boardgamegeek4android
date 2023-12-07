@@ -306,14 +306,6 @@ class CollectionDao(private val context: Context) {
         games.toMap()
     }
 
-    suspend fun loadAcquiredFrom(): List<String> = withContext(Dispatchers.IO) {
-        resolver.queryStrings(Collection.buildAcquiredFromUri(), Collection.Columns.PRIVATE_INFO_ACQUIRED_FROM).filterNot { it.isBlank() }
-    }
-
-    suspend fun loadInventoryLocation(): List<String> = withContext(Dispatchers.IO) {
-        resolver.queryStrings(Collection.buildInventoryLocationUri(), Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION).filterNot { it.isBlank() }
-    }
-
     suspend fun delete(internalId: Long) = withContext(Dispatchers.IO) {
         context.contentResolver.delete(Collection.buildUri(internalId), null, null)
     }
