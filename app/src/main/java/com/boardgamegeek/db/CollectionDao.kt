@@ -29,20 +29,6 @@ class CollectionDao(private val context: Context) {
 
     suspend fun loadAll() = loadPairs()
 
-    suspend fun loadItemsPendingUpdate(): List<Pair<GameLocal, CollectionItemLocal>> {
-        val columns = listOf(
-            Collection.Columns.STATUS_DIRTY_TIMESTAMP,
-            Collection.Columns.RATING_DIRTY_TIMESTAMP,
-            Collection.Columns.COMMENT_DIRTY_TIMESTAMP,
-            Collection.Columns.PRIVATE_INFO_DIRTY_TIMESTAMP,
-            Collection.Columns.WISHLIST_COMMENT_DIRTY_TIMESTAMP,
-            Collection.Columns.TRADE_CONDITION_DIRTY_TIMESTAMP,
-            Collection.Columns.WANT_PARTS_DIRTY_TIMESTAMP,
-            Collection.Columns.HAS_PARTS_DIRTY_TIMESTAMP,
-        ).map { it.greaterThanZero() }
-        return loadPairs(selection = "${columns.joinTo(" OR ")}")
-    }
-
     private suspend fun loadPairs(
         uri: Uri = Collection.CONTENT_URI,
         selection: String? = null,

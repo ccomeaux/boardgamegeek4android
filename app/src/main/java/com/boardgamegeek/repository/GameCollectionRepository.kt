@@ -157,7 +157,7 @@ class GameCollectionRepository(
 
     suspend fun loadItemsPendingInsert() = collectionDaoNew.loadItemsPendingInsert().map { it.mapToModel() }
 
-    suspend fun loadItemsPendingUpdate() = collectionDao.loadItemsPendingUpdate().map { it.mapToModel() }
+    suspend fun loadItemsPendingUpdate() = collectionDaoNew.loadItemsPendingUpdate().map { it.mapToModel() }
 
     suspend fun uploadDeletedItem(item: CollectionItem): Result<CollectionItemUploadResult> {
         val response = phpApi.collection(item.mapToFormBodyForDeletion())
