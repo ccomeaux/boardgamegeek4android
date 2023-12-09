@@ -36,8 +36,12 @@ class GameCollectionRepository(
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun loadCollectionItem(internalId: Long) =
-        collectionDao.load(internalId)?.map { it.mapToModel() }?.firstOrNull()
+    suspend fun loadCollectionItem(internalId: Long): CollectionItem? {
+        return if (internalId == INVALID_ID.toLong())
+            null
+        else
+            collectionDaoNew.load(internalId)?.mapToModel()
+    }
 
     suspend fun loadCollectionItems(gameId: Int) =
         collectionDao.loadByGame(gameId).map { it.mapToModel() }

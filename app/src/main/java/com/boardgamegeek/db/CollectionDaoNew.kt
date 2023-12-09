@@ -4,11 +4,15 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Update
 import com.boardgamegeek.db.model.CollectionItemEntity
+import com.boardgamegeek.db.model.CollectionItemWithGameEntity
 import com.boardgamegeek.db.model.CollectionPrivateInfoEntity
 import com.boardgamegeek.db.model.CollectionStatusEntity
 
 @Dao
 interface CollectionDaoNew {
+    @Query("SELECT * FROM collection WHERE _id = :internalId")
+    suspend fun load(internalId: Long): CollectionItemWithGameEntity?
+
     @Query("SELECT acquired_from FROM collection GROUP BY acquired_from")
     suspend fun loadAcquiredFrom(): List<String>
 

@@ -1,14 +1,13 @@
 package com.boardgamegeek.mappers
 
 import android.graphics.Color
-import com.boardgamegeek.db.model.CollectionItemGame
-import com.boardgamegeek.db.model.CollectionItemLocal
-import com.boardgamegeek.db.model.GameLocal
+import com.boardgamegeek.db.model.*
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
+import com.boardgamegeek.extensions.toSubtype
 import com.boardgamegeek.io.model.CollectionItemRemote
 import com.boardgamegeek.provider.BggContract
 import okhttp3.FormBody
@@ -296,3 +295,79 @@ fun CollectionItemLocal.mapToModel(gameEntity: Game?) = CollectionItem(
 )
 
 fun Pair<GameLocal, CollectionItemLocal>.mapToModel() = second.mapToModel(first.mapToModel())
+
+fun CollectionItemWithGameEntity.mapToModel() = CollectionItem(
+    internalId = item.internalId,
+    gameId = item.gameId,
+    gameName = game.gameName,
+    collectionId = item.collectionId,
+    collectionName = item.collectionName,
+    sortName = item.collectionSortName,
+    gameYearPublished = game.yearPublished ?: Game.YEAR_UNKNOWN,
+    collectionYearPublished = item.collectionYearPublished ?: CollectionItem.YEAR_UNKNOWN,
+    imageUrl = item.collectionImageUrl.orEmpty(),
+    thumbnailUrl = item.collectionThumbnailUrl.orEmpty(),
+    heroImageUrl = item.collectionHeroImageUrl.orEmpty(),
+    gameImageUrl = game.imageUrl.orEmpty(),
+    gameThumbnailUrl = game.thumbnailUrl.orEmpty(),
+    gameHeroImageUrl = game.heroImageUrl.orEmpty(),
+    averageRating = game.average ?: Game.UNRATED,
+    rating = item.rating ?: CollectionItem.UNRATED,
+    own = item.statusOwn,
+    previouslyOwned = item.statusPreviouslyOwned,
+    forTrade = item.statusForTrade,
+    wantInTrade = item.statusWant,
+    wantToPlay = item.statusWantToPlay,
+    wantToBuy = item.statusWantToBuy,
+    wishList = item.statusWishlist,
+    wishListPriority = item.statusWishlistPriority ?: CollectionItem.WISHLIST_PRIORITY_UNKNOWN,
+    preOrdered = item.statusPreordered,
+    lastModifiedDate = item.lastModified ?: 0L,
+    lastViewedDate = game.lastViewedTimestamp ?: 0L,
+    numberOfPlays = game.numberOfPlays,
+    pricePaidCurrency = item.privateInfoPricePaidCurrency.orEmpty(),
+    pricePaid = item.privateInfoPricePaid ?: 0.0,
+    currentValueCurrency = item.privateInfoCurrentValueCurrency.orEmpty(),
+    currentValue = item.privateInfoCurrentValue ?: 0.0,
+    quantity = item.privateInfoQuantity ?: 1,
+    acquisitionDate = item.privateInfoAcquisitionDate.toMillis(SimpleDateFormat("yyyy-MM-dd", Locale.US)), // TODO extract
+    acquiredFrom = item.privateInfoAcquiredFrom.orEmpty(),
+    privateComment = item.privateInfoComment.orEmpty(),
+    inventoryLocation = item.privateInfoInventoryLocation.orEmpty(),
+    comment = item.comment.orEmpty(),
+    conditionText = item.condition.orEmpty(),
+    wantPartsList = item.wantpartsList.orEmpty(),
+    hasPartsList = item.haspartsList.orEmpty(),
+    wishListComment = item.wishlistComment.orEmpty(),
+    syncTimestamp = item.updatedTimestamp ?: 0L, // item.updatedListTimestamp or game.X
+    deleteTimestamp = item.collectionDeleteTimestamp ?: 0L,
+    dirtyTimestamp = item.collectionDirtyTimestamp ?: 0L,
+    statusDirtyTimestamp = item.statusDirtyTimestamp ?: 0L,
+    ratingDirtyTimestamp = item.ratingDirtyTimestamp ?: 0L,
+    commentDirtyTimestamp = item.commentDirtyTimestamp ?: 0L,
+    privateInfoDirtyTimestamp = item.privateInfoDirtyTimestamp ?: 0L,
+    wishListCommentDirtyTimestamp = item.wishlistCommentDirtyTimestamp ?: 0L,
+    tradeConditionDirtyTimestamp = item.tradeConditionDirtyTimestamp ?: 0L,
+    hasPartsDirtyTimestamp = item.hasPartsDirtyTimestamp ?: 0L,
+    wantPartsDirtyTimestamp = item.wantPartsDirtyTimestamp ?: 0L,
+    winsColor = game.winsColor ?: Color.TRANSPARENT,
+    winnablePlaysColor = game.winnablePlaysColor ?: Color.TRANSPARENT,
+    allPlaysColor = game.allPlaysColor ?: Color.TRANSPARENT,
+    playingTime = game.playingTime ?: 0,
+    minimumAge = game.minimumAge ?: 0,
+    rank = game.gameRank ?: CollectionItem.RANK_UNKNOWN, // TODO move to game
+    geekRating = game.bayesAverage ?: Game.UNRATED,
+    averageWeight = game.averageWeight ?: 0.0, // TODO move to constant
+    isFavorite = game.isStarred ?: false,
+    lastPlayDate = 0L, // TODO
+    arePlayersCustomSorted = game.customPlayerSort ?: false,
+    minPlayerCount = game.minPlayers ?: 0,
+    maxPlayerCount = game.maxPlayers ?: 0,
+    subtype = game.subtype.toSubtype(),
+    bestPlayerCounts = game.playerCountsBest.orEmpty(),
+    recommendedPlayerCounts = game.playerCountsRecommended.orEmpty(),
+    numberOfUsersOwned = game.numberOfUsersOwned ?: 0,
+    numberOfUsersWanting = game.numberOfUsersWanting ?: 0,
+    numberOfUsersRating = game.numberOfRatings ?: 0,
+    standardDeviation = game.standardDeviation ?: 0.0,
+)

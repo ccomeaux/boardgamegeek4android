@@ -27,12 +27,6 @@ import timber.log.Timber
 class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
 
-    suspend fun load(internalId: Long) = withContext(Dispatchers.IO) {
-        if (internalId != INVALID_ID.toLong()) {
-            loadPairs(Collection.buildUri(internalId))
-        } else null
-    }
-
     suspend fun loadAll() = loadPairs()
 
     suspend fun loadByGame(gameId: Int) =
