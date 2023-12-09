@@ -27,8 +27,6 @@ import timber.log.Timber
 class CollectionDao(private val context: Context) {
     private val resolver = context.contentResolver
 
-    suspend fun loadAll() = loadPairs()
-
     private suspend fun loadPairs(
         uri: Uri = Collection.CONTENT_URI,
         selection: String? = null,

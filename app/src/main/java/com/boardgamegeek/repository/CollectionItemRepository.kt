@@ -3,6 +3,7 @@ package com.boardgamegeek.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.db.CollectionDaoNew
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
@@ -20,16 +21,15 @@ import timber.log.Timber
 class CollectionItemRepository(
     val context: Context,
     private val api: BggService,
+    private val collectionDao: CollectionDaoNew,
 ) {
     private val dao = CollectionDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
-    suspend fun loadAll(): List<CollectionItem> = dao.loadAll()
-        .filter { (it.second.collectionDeleteTimestamp ?: 0L) == 0L }
-        .map {
-            it.second.mapToModel(it.first.mapToModel())
-        }
+    suspend fun loadAll(): List<CollectionItem> = collectionDao.loadAll()
+        .map { it.mapToModel() }
+        .filter { it.deleteTimestamp == 0L }
 
     suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
         syncPrefs.clearCollection()

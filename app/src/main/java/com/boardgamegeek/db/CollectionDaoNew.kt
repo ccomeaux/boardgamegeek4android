@@ -7,6 +7,9 @@ import com.boardgamegeek.db.model.*
 
 @Dao
 interface CollectionDaoNew {
+    @Query("SELECT * FROM collection ORDER BY collection_sort_name COLLATE NOCASE")
+    suspend fun loadAll(): List<CollectionItemWithGameEntity>
+
     @Query("SELECT * FROM collection WHERE _id = :internalId")
     suspend fun load(internalId: Long): CollectionItemWithGameEntity?
 

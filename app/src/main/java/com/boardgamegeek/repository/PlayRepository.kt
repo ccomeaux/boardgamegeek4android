@@ -47,8 +47,9 @@ class PlayRepository(
     private val userDao: UserDao,
     private val gameColorDao: GameColorDao,
     private val gameDaoNew: GameDaoNew,
+    private val collectionDao: CollectionDaoNew,
 ) {
-    private val collectionDao = CollectionDao(context)
+    // TODO don't load these lazily
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
 
@@ -306,9 +307,7 @@ class PlayRepository(
         val gameMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
             accumulator + element.quantity
         }
-        val items = collectionDao.loadAll().map {
-            it.second.mapToModel(it.first.mapToModel())
-        }
+        val items = collectionDao.loadAll().map { it.mapToModel() }
         val filteredItems = items.filter {
             it.subtype == null || it.subtype == Game.Subtype.BOARDGAME ||
             (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions) ||
