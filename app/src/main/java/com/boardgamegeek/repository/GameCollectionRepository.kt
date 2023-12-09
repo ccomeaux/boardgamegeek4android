@@ -283,12 +283,14 @@ class GameCollectionRepository(
         timestamp: Long = System.currentTimeMillis()
     ) {
         gameDao.loadGame(gameId)?.let { entity ->
-            val internalId = collectionDao.addNewCollectionItem(gameId, entity.game, statuses, wishListPriority, timestamp)
-            if (internalId == INVALID_ID.toLong()) {
-                Timber.d("Collection item for game %s (%s) not added", entity.game.gameName, gameId)
-            } else {
-                Timber.d("Collection item added for game %s (%s) (internal ID = %s)", entity.game.gameName, gameId, internalId)
-                enqueueUploadRequest(gameId)
+            entity.game?.let {
+                val internalId = collectionDao.addNewCollectionItem(gameId, it, statuses, wishListPriority, timestamp)
+                if (internalId == INVALID_ID.toLong()) {
+                    Timber.d("Collection item for game %s (%s) not added", it.gameName, gameId)
+                } else {
+                    Timber.d("Collection item added for game %s (%s) (internal ID = %s)", it.gameName, gameId, internalId)
+                    enqueueUploadRequest(gameId)
+                }
             }
         }
     }
