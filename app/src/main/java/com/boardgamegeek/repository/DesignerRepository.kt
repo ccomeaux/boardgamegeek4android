@@ -56,12 +56,12 @@ class DesignerRepository(
         val timestamp = Date()
         val response = api.person(BggService.PersonType.DESIGNER, designerId)
         response.mapToModel(designerId, timestamp)?.let {
-            val artist = designerDao.loadDesigner(it.id)
-            if (artist == null) {
+            val designer = designerDao.loadDesigner(it.id)
+            if (designer == null) {
                 designerDao.insert(it.mapDesignerForUpsert())
                 // TODO update item count
             } else {
-                designerDao.update(it.mapDesignerForUpsert(artist.internalId))
+                designerDao.update(it.mapDesignerForUpsert(designer.internalId))
             }
         }
     }
