@@ -25,9 +25,9 @@ class GameRepository @Inject constructor(
     private val publisherDao: PublisherDao,
     private val categoryDao: CategoryDao,
     private val mechanicDao: MechanicDao,
+    private val collectionDao: CollectionDaoNew,
 ) {
     private val dao = GameDao(context)
-    private val collectionDao = CollectionDao(context)
 
     suspend fun loadGame(gameId: Int): Game? {
         return if (gameId == INVALID_ID) null else {
@@ -168,12 +168,12 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun getExpansions(gameId: Int): List<GameExpansion> = gameDaoNew.loadExpansionsForGame(gameId).map { entity ->
-        val items = collectionDao.loadByGame(entity.gameExpansionEntity.expansionId).map { it.second.mapToModel(it.first.mapToModel()) }
+        val items = collectionDao.loadForGame(entity.gameExpansionEntity.expansionId).map { it.mapToModel() }
         entity.mapToModel(items)
     }
 
     suspend fun getBaseGames(gameId: Int) = gameDaoNew.loadBaseGamesForGame(gameId).map { entity ->
-        val items = collectionDao.loadByGame(entity.gameExpansionEntity.expansionId).map { it.second.mapToModel(it.first.mapToModel()) }
+        val items = collectionDao.loadForGame(entity.gameExpansionEntity.expansionId).map { it.mapToModel() }
         entity.mapToModel(items)
     }
 

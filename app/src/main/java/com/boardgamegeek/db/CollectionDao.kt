@@ -29,14 +29,6 @@ class CollectionDao(private val context: Context) {
 
     suspend fun loadAll() = loadPairs()
 
-    suspend fun loadByGame(gameId: Int) =
-        loadPairs(selection = "collection.${Collection.Columns.GAME_ID}=?", selectionArgs = arrayOf(gameId.toString()))
-
-    suspend fun loadItemsPendingDeletion() = loadPairs(selection = Collection.Columns.COLLECTION_DELETE_TIMESTAMP.greaterThanZero())
-
-    suspend fun loadItemsPendingInsert() =
-        loadPairs(selection = "${Collection.Columns.COLLECTION_DIRTY_TIMESTAMP.greaterThanZero()} AND ${Collection.Columns.COLLECTION_ID.whereNullOrBlank()}")
-
     suspend fun loadItemsPendingUpdate(): List<Pair<GameLocal, CollectionItemLocal>> {
         val columns = listOf(
             Collection.Columns.STATUS_DIRTY_TIMESTAMP,

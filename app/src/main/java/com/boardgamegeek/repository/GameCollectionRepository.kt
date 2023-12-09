@@ -43,8 +43,12 @@ class GameCollectionRepository(
             collectionDaoNew.load(internalId)?.mapToModel()
     }
 
-    suspend fun loadCollectionItems(gameId: Int) =
-        collectionDao.loadByGame(gameId).map { it.mapToModel() }
+    suspend fun loadCollectionItemsForGame(gameId: Int): List<CollectionItem> {
+        return if (gameId == INVALID_ID)
+            emptyList()
+        else
+            collectionDaoNew.loadForGame(gameId).map { it.mapToModel() }
+    }
 
     suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: Game.Subtype?): CollectionItem? =
         withContext(Dispatchers.IO) {
@@ -149,9 +153,9 @@ class GameCollectionRepository(
 
     suspend fun loadInventoryLocation() = collectionDaoNew.loadInventoryLocation().filterNot { it.isBlank() }
 
-    suspend fun loadItemsPendingDeletion() = collectionDao.loadItemsPendingDeletion().map { it.mapToModel() }
+    suspend fun loadItemsPendingDeletion() = collectionDaoNew.loadItemsPendingDeletion().map { it.mapToModel() }
 
-    suspend fun loadItemsPendingInsert() = collectionDao.loadItemsPendingInsert().map { it.mapToModel() }
+    suspend fun loadItemsPendingInsert() = collectionDaoNew.loadItemsPendingInsert().map { it.mapToModel() }
 
     suspend fun loadItemsPendingUpdate() = collectionDao.loadItemsPendingUpdate().map { it.mapToModel() }
 

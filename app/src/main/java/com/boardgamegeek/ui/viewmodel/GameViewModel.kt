@@ -254,14 +254,14 @@ class GameViewModel @Inject constructor(
                     emit(RefreshableResource.success(emptyList()))
                 } else {
                     latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
-                    val items = gameCollectionRepository.loadCollectionItems(gameId)
+                    val items = gameCollectionRepository.loadCollectionItemsForGame(gameId)
                     emit(RefreshableResource.success(items))
                     val refreshedItems = if (areItemsRefreshing.compareAndSet(false, true)) {
                         val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
                         val refreshedItems = if (lastUpdated.isOlderThan(itemsRefreshMinutes.minutes)) {
                             emit(RefreshableResource.refreshing(items))
                             gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype)
-                            val newItems = gameCollectionRepository.loadCollectionItems(gameId)
+                            val newItems = gameCollectionRepository.loadCollectionItemsForGame(gameId)
                             emit(RefreshableResource.success(newItems))
                             newItems
                         } else items

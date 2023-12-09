@@ -29,9 +29,7 @@ class GamePlayStatsViewModel @Inject constructor(
 
     val game = _gameId.switchMap { gameId ->
         liveData {
-            val items =
-                if (gameId == BggContract.INVALID_ID) emptyList()
-                else gameRepository.loadCollectionItems(gameId)
+            val items = gameRepository.loadCollectionItemsForGame(gameId)
             val refreshedItems =
                 if (areItemsRefreshing.compareAndSet(false, true)) {
                     val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
