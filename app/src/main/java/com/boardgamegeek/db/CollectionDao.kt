@@ -261,21 +261,6 @@ class CollectionDao(private val context: Context) {
     suspend fun loadCollectionForMechanic(mechanicId: Int, sortBy: SortType = SortType.RATING) =
         loadPairs(Mechanics.buildCollectionUri(mechanicId), sortBy = sortBy)
 
-    suspend fun loadUnupdatedItems(gamesPerFetch: Int = 0) = withContext(Dispatchers.IO) {
-        val games = mutableMapOf<Int, String>()
-        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
-        context.contentResolver.loadList(
-            Collection.CONTENT_URI,
-            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
-            "collection.${Collection.Columns.UPDATED}".whereZeroOrNull(),
-            null,
-            "collection.${Collection.Columns.UPDATED_LIST} ASC$limit"
-        ) {
-            games[it.getInt(0)] = it.getString(1)
-        }
-        games.toMap()
-    }
-
     suspend fun delete(internalId: Long) = withContext(Dispatchers.IO) {
         context.contentResolver.delete(Collection.buildUri(internalId), null, null)
     }

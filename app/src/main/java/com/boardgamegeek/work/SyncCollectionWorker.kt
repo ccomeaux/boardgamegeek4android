@@ -188,7 +188,7 @@ class SyncCollectionWorker @AssistedInject constructor(
                 if (numberOfFetches > 0) delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS))
                 if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Unupdated collection item sync stopped during index=$numberOfFetches"))
 
-                val gameDescription = games.map { it.second }.toList().formatList()
+                val gameDescription = games.map { it.game.gameName }.toList().formatList()
                 listOf(null, BggService.ThingSubtype.BOARDGAME_ACCESSORY).forEach { subtype ->
                     val contentText = applicationContext.getString(
                         R.string.sync_notification_collection_update_games,
@@ -197,7 +197,7 @@ class SyncCollectionWorker @AssistedInject constructor(
                         gameDescription
                     )
                     setForeground(createForegroundInfo(contentText))
-                    val result = performSync(subtype = subtype, gameIds = games.map { it.first }, errorMessage = contentText)
+                    val result = performSync(subtype = subtype, gameIds = games.map { it.game.gameId }, errorMessage = contentText)
                     if (result is Result.Failure) return result
                 }
             }

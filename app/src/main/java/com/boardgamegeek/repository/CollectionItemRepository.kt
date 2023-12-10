@@ -55,7 +55,7 @@ class CollectionItemRepository(
         count
     }
 
-    suspend fun loadUnupdatedItems() = dao.loadUnupdatedItems()
+    suspend fun loadUnupdatedItems() = collectionDao.loadItemsNotUpdated()
 
     suspend fun deleteUnupdatedItems(timestamp: Long) = dao.deleteUnupdatedItems(timestamp)
 

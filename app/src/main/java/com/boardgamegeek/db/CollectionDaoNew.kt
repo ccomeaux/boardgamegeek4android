@@ -25,6 +25,9 @@ interface CollectionDaoNew {
     @Query("SELECT * FROM collection WHERE status_dirty_timestamp > 0 OR rating_dirty_timestamp > 0 OR comment_dirty_timestamp > 0 OR private_info_dirty_timestamp > 0 OR wishlist_comment_dirty_timestamp > 0 OR trade_condition_dirty_timestamp > 0 OR want_parts_dirty_timestamp > 0 OR has_parts_dirty_timestamp > 0")
     suspend fun loadItemsPendingUpdate(): List<CollectionItemWithGameEntity>
 
+    @Query("SELECT * FROM collection WHERE updated = 0 OR updated IS NULL ORDER BY updated_list ASC")
+    suspend fun loadItemsNotUpdated(): List<CollectionItemWithGameEntity>
+
     @Query("SELECT acquired_from FROM collection GROUP BY acquired_from")
     suspend fun loadAcquiredFrom(): List<String>
 
