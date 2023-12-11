@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,14 +38,11 @@ class CategoryViewModel @Inject constructor(
 
     val collection = _category.switchMap { c ->
         liveData {
-            val collection = when (c.first) {
-                BggContract.INVALID_ID -> emptyList()
-                else -> when (c.second) {
-                    CollectionSort.NAME -> repository.loadCollection(c.first, CollectionDao.SortType.NAME)
-                    CollectionSort.RATING -> repository.loadCollection(c.first, CollectionDao.SortType.RATING)
-                }
+            val sortBy = when (c.second) {
+                CollectionSort.NAME -> CategoryRepository.CollectionSortType.NAME
+                CollectionSort.RATING -> CategoryRepository.CollectionSortType.RATING
             }
-            emit(collection)
+            emit(repository.loadCollection(c.first, sortBy))
         }
     }
 }

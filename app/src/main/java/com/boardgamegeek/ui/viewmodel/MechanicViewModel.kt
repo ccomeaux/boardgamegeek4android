@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.MechanicRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -39,15 +38,11 @@ class MechanicViewModel @Inject constructor(
 
     val collection = _mechanic.switchMap { m ->
         liveData {
-            emit(
-                when (m.first) {
-                    BggContract.INVALID_ID -> emptyList()
-                    else -> when (m.second) {
-                        CollectionSort.NAME -> repository.loadCollection(m.first, CollectionDao.SortType.NAME)
-                        CollectionSort.RATING -> repository.loadCollection(m.first, CollectionDao.SortType.RATING)
-                    }
-                }
-            )
+            val sortBy = when (m.second) {
+                CollectionSort.NAME -> MechanicRepository.CollectionSortType.NAME
+                CollectionSort.RATING -> MechanicRepository.CollectionSortType.RATING
+            }
+            emit(repository.loadCollection(m.first, sortBy))
         }
     }
 }

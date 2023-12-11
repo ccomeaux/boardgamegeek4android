@@ -2,7 +2,7 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
-import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.db.CollectionDaoNew
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.model.Company
@@ -11,6 +11,8 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapForUpsert
 import com.boardgamegeek.mappers.mapToModel
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -18,13 +20,16 @@ import java.util.Date
 class PublisherRepository(
     val context: Context,
     private val api: BggService,
-    private val imageRepository: ImageRepository,
     private val publisherDao: PublisherDao,
+    private val collectionDao: CollectionDaoNew,
+    private val imageRepository: ImageRepository,
 ) {
-    private val collectionDao = CollectionDao(context)
-
     enum class SortType {
         NAME, ITEM_COUNT, WHITMORE_SCORE
+    }
+
+    enum class CollectionSortType {
+        NAME, RATING
     }
 
     suspend fun loadPublishers(sortBy: SortType): List<Company> {
@@ -45,11 +50,19 @@ class PublisherRepository(
 
     suspend fun loadPublisher(publisherId: Int) = publisherDao.loadPublisher(publisherId)?.mapToModel()
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
-        collectionDao.loadCollectionForPublisher(id, sortBy)
+    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
+        if (id == BggContract.INVALID_ID) return emptyList()
+        return collectionDao.loadForPublisher(id)
             .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
+            .sortedWith(
+                if (sortBy == CollectionSortType.RATING)
+                    compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.isFavorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                else
+                    compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+            )
+    }
 
     suspend fun deleteAll() = publisherDao.deleteAll()
 
@@ -90,7 +103,7 @@ class PublisherRepository(
 
     suspend fun calculateStats(publisherId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
         val timestamp = Date()
-        val collection = collectionDao.loadCollectionForPublisher(publisherId).map { it.mapToModel() }
+        val collection = collectionDao.loadForPublisher(publisherId).map { it.mapToModel() }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) publisherDao.loadPublisher(publisherId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {

@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.model.Company
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.model.RefreshableResource
@@ -23,7 +22,7 @@ class PersonViewModel @Inject constructor(
     private val designerRepository: DesignerRepository,
     private val publisherRepository: PublisherRepository,
 ) : AndroidViewModel(application) {
-    data class Person(
+    data class PersonInfo(
         val type: PersonType,
         val id: Int,
         val sort: CollectionSort = CollectionSort.RATING
@@ -39,37 +38,35 @@ class PersonViewModel @Inject constructor(
         NAME, RATING
     }
 
-    private val _person = MutableLiveData<Person>()
-    val person: LiveData<Person>
-        get() = _person
+    private val _personInfo = MutableLiveData<PersonInfo>()
 
     fun setArtistId(artistId: Int) {
-        if (_person.value?.type != PersonType.ARTIST || _person.value?.id != artistId) _person.value = Person(PersonType.ARTIST, artistId)
+        if (_personInfo.value?.type != PersonType.ARTIST || _personInfo.value?.id != artistId) _personInfo.value = PersonInfo(PersonType.ARTIST, artistId)
     }
 
     fun setDesignerId(designerId: Int) {
-        if (_person.value?.type != PersonType.DESIGNER || _person.value?.id != designerId) _person.value = Person(PersonType.DESIGNER, designerId)
+        if (_personInfo.value?.type != PersonType.DESIGNER || _personInfo.value?.id != designerId) _personInfo.value = PersonInfo(PersonType.DESIGNER, designerId)
     }
 
     fun setPublisherId(publisherId: Int) {
-        if (_person.value?.type != PersonType.PUBLISHER || _person.value?.id != publisherId) _person.value = Person(PersonType.PUBLISHER, publisherId)
+        if (_personInfo.value?.type != PersonType.PUBLISHER || _personInfo.value?.id != publisherId) _personInfo.value = PersonInfo(PersonType.PUBLISHER, publisherId)
     }
 
     fun sort(sortType: CollectionSort) {
-        if (_person.value?.sort != sortType) {
-            _person.value = Person(
-                _person.value?.type ?: PersonType.DESIGNER,
-                _person.value?.id ?: BggContract.INVALID_ID,
+        if (_personInfo.value?.sort != sortType) {
+            _personInfo.value = PersonInfo(
+                _personInfo.value?.type ?: PersonType.DESIGNER,
+                _personInfo.value?.id ?: BggContract.INVALID_ID,
                 sortType
             )
         }
     }
 
     fun refresh() {
-        _person.value?.let { _person.value = Person(it.type, it.id) }
+        _personInfo.value?.let { _personInfo.value = PersonInfo(it.type, it.id) }
     }
 
-    val details = _person.switchMap { person ->
+    val details = _personInfo.switchMap { person ->
         liveData {
             when (person.id) {
                 BggContract.INVALID_ID -> emit(null)
@@ -84,7 +81,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.model.Person>?>.loadArtist(artistId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<Person>?>.loadArtist(artistId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val artist = artistRepository.loadArtist(artistId)
         try {
@@ -94,7 +91,7 @@ class PersonViewModel @Inject constructor(
                 artistRepository.loadArtist(artistId)
             } else artist
             refreshedArtist?.let {
-                val artistWithImages = if ( it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(1.days)) {
+                val artistWithImages = if (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(1.days)) {
                     emit(RefreshableResource.refreshing(it))
                     artistRepository.refreshImages(it)
                 } else it
@@ -109,7 +106,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.model.Person>?>.loadDesigner(designerId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<Person>?>.loadDesigner(designerId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val designer = designerRepository.loadDesigner(designerId)
         try {
@@ -134,7 +131,7 @@ class PersonViewModel @Inject constructor(
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<com.boardgamegeek.model.Person>?>.loadPublisher(publisherId: Int, application: Application) {
+    private suspend fun LiveDataScope<RefreshableResource<Person>?>.loadPublisher(publisherId: Int, application: Application) {
         emit(RefreshableResource.refreshing(latestValue?.data))
         val publisher = publisherRepository.loadPublisher(publisherId)
         try {
@@ -167,32 +164,31 @@ class PersonViewModel @Inject constructor(
         )
     }
 
-    val collectionSort: LiveData<CollectionSort> = _person.map {
+    val type: LiveData<PersonType> = _personInfo.map {
+        it.type
+    }
+
+    val id: LiveData<Int> = _personInfo.map {
+        it.id
+    }
+
+    val collectionSort: LiveData<CollectionSort> = _personInfo.map {
         it.sort
     }
 
-    val collection = _person.switchMap { person ->
+    val collection = _personInfo.switchMap { person ->
         liveData {
-            when (person.id) {
-                BggContract.INVALID_ID -> emit(null)
-                else -> {
-                    val sortBy = when (person.sort) {
-                        CollectionSort.NAME -> CollectionDao.SortType.NAME
-                        CollectionSort.RATING -> CollectionDao.SortType.RATING
-                    }
-                    emit(
-                        when (person.type) {
-                            PersonType.ARTIST -> artistRepository.loadCollection(person.id, sortBy)
-                            PersonType.DESIGNER -> designerRepository.loadCollection(person.id, sortBy)
-                            PersonType.PUBLISHER -> publisherRepository.loadCollection(person.id, sortBy)
-                        }
-                    )
+            emit(
+                when (person.type) {
+                    PersonType.ARTIST -> artistRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) ArtistRepository.CollectionSortType.RATING else ArtistRepository.CollectionSortType.NAME)
+                    PersonType.DESIGNER -> designerRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) DesignerRepository.CollectionSortType.RATING else DesignerRepository.CollectionSortType.NAME)
+                    PersonType.PUBLISHER -> publisherRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) PublisherRepository.CollectionSortType.RATING else PublisherRepository.CollectionSortType.NAME)
                 }
-            }
+            )
         }
     }
 
-    val stats = _person.switchMap { person ->
+    val stats = _personInfo.switchMap { person ->
         liveData {
             when (person.id) {
                 BggContract.INVALID_ID -> emit(null)

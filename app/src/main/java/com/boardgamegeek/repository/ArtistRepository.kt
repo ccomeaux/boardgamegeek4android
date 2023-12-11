@@ -3,7 +3,7 @@ package com.boardgamegeek.repository
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
-import com.boardgamegeek.db.CollectionDao
+import com.boardgamegeek.db.CollectionDaoNew
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.model.PersonStats
@@ -11,6 +11,8 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapArtistForUpsert
 import com.boardgamegeek.mappers.mapToModel
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -19,12 +21,15 @@ class ArtistRepository(
     val context: Context,
     private val api: BggService,
     private val artistDao: ArtistDao,
+    private val collectionDao: CollectionDaoNew,
     private val imageRepository: ImageRepository,
 ) {
-    private val collectionDao = CollectionDao(context)
-
     enum class SortType {
         NAME, ITEM_COUNT, WHITMORE_SCORE
+    }
+
+    enum class CollectionSortType {
+        NAME, RATING
     }
 
     suspend fun loadArtists(sortBy: SortType): List<Person> {
@@ -45,11 +50,19 @@ class ArtistRepository(
 
     suspend fun loadArtist(artistId: Int) = artistDao.loadArtist(artistId)?.mapToModel()
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) =
-        collectionDao.loadCollectionForArtist(id, sortBy)
+    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
+        if (id == BggContract.INVALID_ID) return emptyList()
+        return collectionDao.loadForArtist(id)
             .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
+            .sortedWith(
+                if (sortBy == CollectionSortType.RATING)
+                    compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.isFavorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                else
+                    compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+            )
+    }
 
     suspend fun deleteAll() = artistDao.deleteAll()
 
@@ -99,7 +112,7 @@ class ArtistRepository(
 
     suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
         val timestamp = Date()
-        val collection = collectionDao.loadCollectionForArtist(artistId).map { it.mapToModel() }
+        val collection = collectionDao.loadForArtist(artistId).map { it.mapToModel() }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) artistDao.loadArtist(artistId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {

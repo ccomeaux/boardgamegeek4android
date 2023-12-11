@@ -21,8 +21,8 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, artistDao: ArtistDao, imageRepository: ImageRepository) =
-        ArtistRepository(context, api, artistDao, imageRepository)
+    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, artistDao: ArtistDao, collectionDao: CollectionDaoNew, imageRepository: ImageRepository) =
+        ArtistRepository(context, api, artistDao, collectionDao, imageRepository)
 
     @Provides
     @Singleton
@@ -31,7 +31,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCategoryRepository(@ApplicationContext context: Context, categoryDao: CategoryDao) = CategoryRepository(context, categoryDao)
+    fun provideCategoryRepository(@ApplicationContext context: Context, categoryDao: CategoryDao, collectionDao: CollectionDaoNew) = CategoryRepository(context, categoryDao, collectionDao)
 
     @Provides
     @Singleton
@@ -44,8 +44,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, designerDao: DesignerDao, imageRepository: ImageRepository) =
-        DesignerRepository(context, api, designerDao, imageRepository)
+    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, designerDao: DesignerDao, collectionDao: CollectionDaoNew, imageRepository: ImageRepository) =
+        DesignerRepository(context, api, designerDao, collectionDao, imageRepository)
 
     @Provides
     @Singleton
@@ -75,7 +75,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMechanicRepository(@ApplicationContext context: Context, mechanicDao: MechanicDao) = MechanicRepository(context, mechanicDao)
+    fun provideMechanicRepository(@ApplicationContext context: Context, mechanicDao: MechanicDao, collectionDao: CollectionDaoNew) = MechanicRepository(context, mechanicDao, collectionDao)
 
     @Provides
     @Singleton
@@ -84,8 +84,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository, publisherDao: PublisherDao) =
-        PublisherRepository(context, api, imageRepository, publisherDao)
+    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, publisherDao: PublisherDao, collectionDao: CollectionDaoNew, imageRepository: ImageRepository) =
+        PublisherRepository(context, api, publisherDao, collectionDao, imageRepository)
 
     @Provides
     @Singleton

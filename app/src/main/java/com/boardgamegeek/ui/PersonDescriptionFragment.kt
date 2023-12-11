@@ -41,14 +41,18 @@ class PersonDescriptionFragment : Fragment() {
         emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
         binding.lastUpdated.timestamp = 0L
 
-        viewModel.person.observe(viewLifecycleOwner) {
-            binding.idView.text = it.id.toString()
-            val resourceId = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> R.string.title_artist
-                PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
-                PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
+        viewModel.id.observe(viewLifecycleOwner){
+            binding.idView.text = it.toString()
+        }
+        viewModel.type.observe(viewLifecycleOwner) {
+            it?.let {
+                val resourceId = when (it) {
+                    PersonViewModel.PersonType.ARTIST -> R.string.title_artist
+                    PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
+                    PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
+                }
+                emptyMessageDescription = getString(resourceId).lowercase(Locale.getDefault())
             }
-            emptyMessageDescription = getString(resourceId).lowercase(Locale.getDefault())
         }
 
         viewModel.details.observe(viewLifecycleOwner) {

@@ -52,13 +52,15 @@ class PersonStatsFragment : Fragment() {
         bindCollectionStatusMessage()
 
         objectDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
-        viewModel.person.observe(viewLifecycleOwner) {
-            val resourceId = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> R.string.title_artist
-                PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
-                PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
+        viewModel.type.observe(viewLifecycleOwner) {
+            it?.let {
+                val resourceId = when (it) {
+                    PersonViewModel.PersonType.ARTIST -> R.string.title_artist
+                    PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
+                    PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
+                }
+                objectDescription = getString(resourceId).lowercase(Locale.getDefault())
             }
-            objectDescription = getString(resourceId).lowercase(Locale.getDefault())
         }
 
         viewModel.stats.observe(viewLifecycleOwner) {

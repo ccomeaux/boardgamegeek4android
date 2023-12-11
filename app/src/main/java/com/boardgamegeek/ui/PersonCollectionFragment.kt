@@ -63,14 +63,16 @@ class PersonCollectionFragment : Fragment() {
 
         setEmptyMessage(R.string.title_person)
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
-        viewModel.person.observe(viewLifecycleOwner) {
-            setEmptyMessage(
-                when (it.type) {
-                    PersonType.ARTIST -> R.string.title_artist
-                    PersonType.DESIGNER -> R.string.title_designer
-                    PersonType.PUBLISHER -> R.string.title_publisher
-                }
-            )
+        viewModel.type.observe(viewLifecycleOwner) {
+            it?.let {
+                setEmptyMessage(
+                    when (it) {
+                        PersonType.ARTIST -> R.string.title_artist
+                        PersonType.DESIGNER -> R.string.title_designer
+                        PersonType.PUBLISHER -> R.string.title_publisher
+                    }
+                )
+            }
         }
         viewModel.collection.observe(viewLifecycleOwner) {
             it?.let { list ->

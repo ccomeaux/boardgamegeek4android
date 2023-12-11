@@ -16,6 +16,21 @@ interface CollectionDaoNew {
     @Query("SELECT * FROM collection WHERE game_id = :gameId")
     suspend fun loadForGame(gameId: Int): List<CollectionItemWithGameEntity>
 
+    @Query("SELECT collection.* FROM games_artists INNER JOIN collection ON games_artists.game_id = collection.game_id WHERE artist_id = :artistId")
+    suspend fun loadForArtist(artistId: Int): List<CollectionItemWithGameEntity>
+
+    @Query("SELECT collection.* FROM games_designers INNER JOIN collection ON games_designers.game_id = collection.game_id WHERE designer_id = :designerId")
+    suspend fun loadForDesigner(designerId: Int): List<CollectionItemWithGameEntity>
+
+    @Query("SELECT collection.* FROM games_publishers INNER JOIN collection ON games_publishers.game_id = collection.game_id WHERE publisher_id = :publisherId")
+    suspend fun loadForPublisher(publisherId: Int): List<CollectionItemWithGameEntity>
+
+    @Query("SELECT collection.* FROM games_categories INNER JOIN collection ON games_categories.game_id = collection.game_id WHERE category_id = :categoryId")
+    suspend fun loadForCategory(categoryId: Int): List<CollectionItemWithGameEntity>
+
+    @Query("SELECT collection.* FROM games_mechanics INNER JOIN collection ON games_mechanics.game_id = collection.game_id WHERE mechanic_id = :mechanicId")
+    suspend fun loadForMechanic(mechanicId: Int): List<CollectionItemWithGameEntity>
+
     @Query("SELECT * FROM collection WHERE collection_delete_timestamp > 0")
     suspend fun loadItemsPendingDeletion(): List<CollectionItemWithGameEntity>
 
@@ -53,7 +68,7 @@ interface CollectionDaoNew {
     suspend fun updateDeletedTimestamp(internalId: Long, timestamp: Long): Int
 
     @Query("UPDATE collection SET private_comment = :text, private_info_dirty_timestamp = :timestamp WHERE _id=:internalId")
-    suspend fun updatePrivateComment(internalId: Long, text: String, timestamp: Long): Int // TODO is this the right timestamp column?
+    suspend fun updatePrivateComment(internalId: Long, text: String, timestamp: Long): Int
 
     @Query("UPDATE collection SET wishlistcomment = :text, wishlist_comment_dirty_timestamp = :timestamp WHERE _id=:internalId")
     suspend fun updateWishlistComment(internalId: Long, text: String, timestamp: Long): Int
