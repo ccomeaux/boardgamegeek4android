@@ -17,7 +17,6 @@ import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.repository.CollectionItemRepository
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -36,7 +35,6 @@ import kotlin.time.Duration.Companion.minutes
 class CollectionViewViewModel @Inject constructor(
     application: Application,
     private val viewRepository: CollectionViewRepository,
-    private val itemRepository: CollectionItemRepository,
     private val playRepository: PlayRepository,
     private val gameCollectionRepository: GameCollectionRepository,
 ) : AndroidViewModel(application) {
@@ -70,7 +68,7 @@ class CollectionViewViewModel @Inject constructor(
     private val _allItems: LiveData<List<CollectionItem>> = syncTimestamp.switchMap {
         liveData {
             try {
-                emit(itemRepository.loadAll())
+                emit(gameCollectionRepository.loadAll())
             } catch (e: Exception) {
                 _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
             }

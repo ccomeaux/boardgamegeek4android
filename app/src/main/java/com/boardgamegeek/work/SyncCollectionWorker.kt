@@ -10,7 +10,7 @@ import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.pref.*
-import com.boardgamegeek.repository.CollectionItemRepository
+import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.assisted.Assisted
@@ -26,7 +26,7 @@ import kotlin.time.Duration.Companion.days
 class SyncCollectionWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val collectionItemRepository: CollectionItemRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
     private val gameRepository: GameRepository,
 ) : CoroutineWorker(appContext, workerParams) {
     private val prefs: SharedPreferences by lazy { appContext.preferences() }
@@ -179,7 +179,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         Timber.i("Starting to sync unupdated collection")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_collection_unupdated)))
         try {
-            val gameList = collectionItemRepository.loadUnupdatedItems()
+            val gameList = gameCollectionRepository.loadUnupdatedItems()
             Timber.i("Found %,d unupdated collection items to update", gameList.size)
 
             val chunkedGames = gameList.toList().chunked(RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_GAMES_PER_FETCH))
@@ -230,7 +230,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         gameIds?.let { options[BggService.COLLECTION_QUERY_KEY_ID] = it.joinToString(",") }
 
         val result = try {
-            val count = collectionItemRepository.refresh(options, updatedTimestamp)
+            val count = gameCollectionRepository.refresh(options, updatedTimestamp)
             Timber.i(
                 "Saved $count collection ${subtype.getDescription(applicationContext).lowercase()}" +
                         if (status != null) " of status $status" else "" +
@@ -251,7 +251,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             flags = DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
         )
         Timber.i("Deleting collection items not updated since $formattedDateTime")
-        val count = collectionItemRepository.deleteUnupdatedItems(timestamp)
+        val count = gameCollectionRepository.deleteUnupdatedItems(timestamp)
         Timber.i("Deleted $count old collection items")
         // TODO: delete thumbnail images associated with this list (both collection and game)
     }

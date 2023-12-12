@@ -35,11 +35,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCollectionItemRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, collectionDao: CollectionDaoNew) =
-        CollectionItemRepository(context, api, collectionDao)
-
-    @Provides
-    @Singleton
     fun provideCollectionViewRepository(@ApplicationContext context: Context, collectionViewDao: CollectionViewDao) = CollectionViewRepository(context, collectionViewDao)
 
     @Provides

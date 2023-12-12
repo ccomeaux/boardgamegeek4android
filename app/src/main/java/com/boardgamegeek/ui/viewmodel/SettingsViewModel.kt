@@ -13,7 +13,7 @@ class SettingsViewModel @Inject constructor(
     application: Application,
     private val artistRepository: ArtistRepository,
     private val categoryRepository: CategoryRepository,
-    private val collectionItemRepository: CollectionItemRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
     private val collectionViewRepository: CollectionViewRepository,
     private val designerRepository: DesignerRepository,
     private val gameRepository: GameRepository,
@@ -40,7 +40,7 @@ class SettingsViewModel @Inject constructor(
 
     fun resetCollectionItems() {
         viewModelScope.launch {
-            collectionItemRepository.resetCollectionItems()
+            gameCollectionRepository.resetCollectionItems()
         }
     }
 

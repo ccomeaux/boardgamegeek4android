@@ -15,6 +15,8 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.mappers.*
+import com.boardgamegeek.pref.SyncPrefs
+import com.boardgamegeek.pref.clearCollection
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.work.CollectionUploadWorker
@@ -36,6 +38,15 @@ class GameCollectionRepository(
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
+    suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
+        SyncPrefs.getPrefs(context).clearCollection()
+        SyncCollectionWorker.requestSync(context)
+    }
+
+    suspend fun loadAll(): List<CollectionItem> = collectionDaoNew.loadAll()
+        .map { it.mapToModel() }
+        .filter { it.deleteTimestamp == 0L }
+
     suspend fun loadCollectionItem(internalId: Long): CollectionItem? {
         return if (internalId == INVALID_ID.toLong())
             null
@@ -48,6 +59,44 @@ class GameCollectionRepository(
             emptyList()
         else
             collectionDaoNew.loadForGame(gameId).map { it.mapToModel() }
+    }
+
+    suspend fun loadUnupdatedItems() = collectionDaoNew.loadItemsNotUpdated()
+
+    suspend fun refresh(options: Map<String, String>, updatedTimestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
+        var count = 0
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        if (!username.isNullOrBlank()) {
+            val response = api.collection(username, options)
+            response.items?.forEach {
+                val item = it.mapToCollectionItem()
+                if (isItemStatusSetToSync(item)) {
+                    val game = it.mapToCollectionItemGame(updatedTimestamp)
+                    val (collectionId, _) = collectionDao.saveItem(item.mapToEntity(updatedTimestamp), game)
+                    if (collectionId != INVALID_ID) count++
+                } else {
+                    Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
+                }
+            }
+        }
+        count
+    }
+
+    private fun isItemStatusSetToSync(item: CollectionItem): Boolean {
+        val statusesToSync = prefs.getSyncStatusesOrDefault()
+        if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true
+        if (item.previouslyOwned && COLLECTION_STATUS_PREVIOUSLY_OWNED in statusesToSync) return true
+        if (item.forTrade && COLLECTION_STATUS_FOR_TRADE in statusesToSync) return true
+        if (item.wantInTrade && COLLECTION_STATUS_WANT_IN_TRADE in statusesToSync) return true
+        if (item.wantToPlay && COLLECTION_STATUS_WANT_TO_PLAY in statusesToSync) return true
+        if (item.wantToBuy && COLLECTION_STATUS_WANT_TO_BUY in statusesToSync) return true
+        if (item.wishList && COLLECTION_STATUS_WISHLIST in statusesToSync) return true
+        if (item.preOrdered && COLLECTION_STATUS_PREORDERED in statusesToSync) return true
+        if (item.rating > 0.0 && COLLECTION_STATUS_RATED in statusesToSync) return true
+        if (item.comment.isNotEmpty() && COLLECTION_STATUS_COMMENTED in statusesToSync) return true
+        if (item.hasPartsList.isNotEmpty() && COLLECTION_STATUS_HAS_PARTS in statusesToSync) return true
+        if (item.wantPartsList.isNotEmpty() && COLLECTION_STATUS_WANT_PARTS in statusesToSync) return true
+        return item.numberOfPlays > 0 && COLLECTION_STATUS_PLAYED in statusesToSync
     }
 
     suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: Game.Subtype?): CollectionItem? =
@@ -368,6 +417,10 @@ class GameCollectionRepository(
     suspend fun markAsDeleted(internalId: Long): Int = collectionDaoNew.updateDeletedTimestamp(internalId, System.currentTimeMillis())
 
     suspend fun resetTimestamps(internalId: Long): Int = collectionDaoNew.clearDirtyTimestamps(internalId)
+
+    suspend fun deleteUnupdatedItems(timestamp: Long): Int {
+        return collectionDaoNew.deleteUnupdatedItems(timestamp).also { Timber.d("Deleted $it old collection items") }
+    }
 
     fun enqueueUploadRequest(gameId: Int) {
         WorkManager.getInstance(context).enqueue(CollectionUploadWorker.buildRequest(context, gameId))
