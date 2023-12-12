@@ -57,7 +57,9 @@ class CollectionItemRepository(
 
     suspend fun loadUnupdatedItems() = collectionDao.loadItemsNotUpdated()
 
-    suspend fun deleteUnupdatedItems(timestamp: Long) = dao.deleteUnupdatedItems(timestamp)
+    suspend fun deleteUnupdatedItems(timestamp: Long): Int {
+        return collectionDao.deleteUnupdatedItems(timestamp).also { Timber.d("Deleted $it old collection items") }
+    }
 
     private fun isItemStatusSetToSync(item: CollectionItem): Boolean {
         val statusesToSync = prefs.getSyncStatusesOrDefault()

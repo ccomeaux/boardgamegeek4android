@@ -111,4 +111,10 @@ interface CollectionDaoNew {
 
     @Query("UPDATE collection SET want_parts_dirty_timestamp=0 WHERE _id=:internalId")
     suspend fun clearWantPartsDirtyTimestamp(internalId: Long): Int
+
+    @Query("DELETE FROM collection WHERE _id = :internalId")
+    suspend fun delete(internalId: Long): Int
+
+    @Query("DELETE FROM collection WHERE updated_list < :timestamp")
+    suspend fun deleteUnupdatedItems(timestamp: Long): Int
 }

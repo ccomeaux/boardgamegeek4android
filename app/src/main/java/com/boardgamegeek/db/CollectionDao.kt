@@ -20,54 +20,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
-class CollectionDao(private val context: Context) {
+class CollectionDao(context: Context) {
     private val resolver = context.contentResolver
-
-    suspend fun delete(internalId: Long) = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Collection.buildUri(internalId), null, null)
-    }
-
-    /**
-     * Remove all collection items belonging to a game, except the ones in the specified list.
-     *
-     * @param gameId                 delete collection items with this game ID.
-     * @param protectedCollectionIds list of collection IDs not to delete.
-     * @return the number or rows deleted.
-     */
-    suspend fun delete(gameId: Int, protectedCollectionIds: List<Int> = emptyList()): Int = withContext(Dispatchers.IO) {
-        // determine the collection IDs that are no longer in the collection
-        val collectionIdsToDelete = resolver.queryInts(
-            Collection.CONTENT_URI,
-            Collection.Columns.COLLECTION_ID,
-            "collection.${Collection.Columns.GAME_ID}=?",
-            arrayOf(gameId.toString()),
-            valueIfNull = INVALID_ID,
-        ).toMutableList()
-        collectionIdsToDelete.removeAll(protectedCollectionIds.toSet())
-        collectionIdsToDelete.removeAll(setOf(INVALID_ID))
-        // delete them
-        var numberOfDeletedRows = 0
-        if (collectionIdsToDelete.isNotEmpty()) {
-            for (collectionId in collectionIdsToDelete) {
-                numberOfDeletedRows += resolver.delete(
-                    Collection.CONTENT_URI,
-                    "${Collection.Columns.COLLECTION_ID}=?",
-                    arrayOf(collectionId.toString())
-                )
-            }
-        }
-        numberOfDeletedRows
-    }
-
-    suspend fun deleteUnupdatedItems(timestamp: Long): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(
-            Collection.CONTENT_URI,
-            "${Collection.Columns.UPDATED_LIST}<?",
-            arrayOf(timestamp.toString())
-        ).also { count ->
-            Timber.d("Deleted $count old collection items")
-        }
-    }
 
     suspend fun saveItem(item: CollectionItemLocal, game: CollectionItemGame): Pair<Int, Long> = withContext(Dispatchers.IO) {
         var internalId = INVALID_ID.toLong()

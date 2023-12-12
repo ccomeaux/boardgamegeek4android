@@ -132,11 +132,21 @@ class GameCollectionRepository(
 
             Timber.i("Synced %,d collection item(s) for game '%s'", list.size, gameId)
 
-            val deleteCount = collectionDao.delete(gameId, collectionIds)
-            Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
-
+            delete(gameId, collectionIds)
             list
         } else null
+    }
+
+    private suspend fun delete(gameId: Int, protectedCollectionIds: List<Int>) {
+        val deleteCount = 0
+        val items = collectionDaoNew.loadForGame(gameId)
+        items.forEach { item ->
+            if (!protectedCollectionIds.contains(item.item.collectionId)) {
+                collectionDaoNew.delete(item.item.internalId)
+            }
+        }
+        Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
+
     }
 
     private fun MutableMap<String, String>.addSubtype(subtype: Game.Subtype?) {
@@ -167,7 +177,7 @@ class GameCollectionRepository(
         } else if (!response.error.isNullOrBlank()) {
             Result.failure(Exception(response.error))
         } else {
-            collectionDao.delete(item.internalId)
+            collectionDaoNew.delete(item.internalId)
             Result.success(CollectionItemUploadResult.delete(item))
         }
     }
