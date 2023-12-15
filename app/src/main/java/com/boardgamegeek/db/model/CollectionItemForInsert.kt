@@ -73,4 +73,8 @@ data class CollectionItemForInsert(
     val collectionImageUrl: String?,
     @ColumnInfo("inventory_location")
     val privateInfoInventoryLocation: String?,
+    @ColumnInfo("status_dirty_timestamp")
+    val statusDirtyTimestamp: Long?,
+    @ColumnInfo("collection_dirty_timestamp")
+    val collectionDirtyTimestamp: Long?,
 )

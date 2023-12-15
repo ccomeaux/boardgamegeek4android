@@ -5,9 +5,10 @@ import android.content.SharedPreferences
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.CollectionDaoNew
 import com.boardgamegeek.db.GameDaoNew
+import com.boardgamegeek.db.model.CollectionItemForInsert
+import com.boardgamegeek.db.model.CollectionItemWithGameEntity
 import com.boardgamegeek.db.model.CollectionPrivateInfoEntity
 import com.boardgamegeek.db.model.CollectionStatusEntity
 import com.boardgamegeek.model.*
@@ -36,7 +37,6 @@ class GameCollectionRepository(
     private val gameDao: GameDaoNew,
     private val collectionDaoNew: CollectionDaoNew,
 ) {
-    private val collectionDao = CollectionDao(context)
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
@@ -448,11 +448,50 @@ class GameCollectionRepository(
     ) {
         gameDao.loadGame(gameId)?.let { entity ->
             entity.game?.let {
-                val internalId = collectionDao.addNewCollectionItem(gameId, it, statuses, wishListPriority, timestamp)
+                val collectionItemForInsert = CollectionItemForInsert(
+                    internalId = 0L,
+                    updatedTimestamp = null,
+                    updatedListTimestamp = null,
+                    gameId = gameId,
+                    collectionId = INVALID_ID,
+                    collectionName = it.gameName,
+                    collectionSortName = it.gameSortName,
+                    statusOwn = statuses.contains(BggContract.Collection.Columns.STATUS_OWN),
+                    statusPreviouslyOwned = statuses.contains(BggContract.Collection.Columns.STATUS_PREVIOUSLY_OWNED),
+                    statusForTrade = statuses.contains(BggContract.Collection.Columns.STATUS_FOR_TRADE),
+                    statusWant = statuses.contains(BggContract.Collection.Columns.STATUS_WANT),
+                    statusWantToPlay = statuses.contains(BggContract.Collection.Columns.STATUS_WANT_TO_PLAY),
+                    statusWantToBuy = statuses.contains(BggContract.Collection.Columns.STATUS_WANT_TO_BUY),
+                    statusWishlist = statuses.contains(BggContract.Collection.Columns.STATUS_WISHLIST),
+                    statusWishlistPriority = wishListPriority,
+                    statusPreordered = statuses.contains(BggContract.Collection.Columns.STATUS_PREORDERED),
+                    comment = null,
+                    collectionImageUrl = it.imageUrl,
+                    collectionThumbnailUrl = it.thumbnailUrl,
+                    collectionYearPublished = it.yearPublished,
+                    condition = null,
+                    haspartsList = null,
+                    wantpartsList = null,
+                    lastModified = System.currentTimeMillis(),
+                    privateInfoCurrentValueCurrency = null,
+                    privateInfoCurrentValue = null,
+                    privateInfoPricePaidCurrency = null,
+                    privateInfoPricePaid = null,
+                    privateInfoQuantity = null,
+                    privateInfoAcquiredFrom = null,
+                    privateInfoAcquisitionDate = null,
+                    privateInfoComment = null,
+                    privateInfoInventoryLocation = null,
+                    rating = null,
+                    wishlistComment = null,
+                    collectionDirtyTimestamp = timestamp,
+                    statusDirtyTimestamp = timestamp,
+                )
+                val internalId = collectionDaoNew.insert(collectionItemForInsert)
                 if (internalId == INVALID_ID.toLong()) {
-                    Timber.d("Collection item for game %s (%s) not added", it.gameName, gameId)
+                    Timber.d("Collection item for game '${it.gameName}` ($gameId) not added")
                 } else {
-                    Timber.d("Collection item added for game %s (%s) (internal ID = %s)", it.gameName, gameId, internalId)
+                    Timber.d("Collection item added for game '${it.gameName}` ($gameId) [$internalId]")
                     enqueueUploadRequest(gameId)
                 }
             }
