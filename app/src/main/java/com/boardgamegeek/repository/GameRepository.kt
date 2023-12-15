@@ -25,7 +25,7 @@ class GameRepository @Inject constructor(
     private val publisherDao: PublisherDao,
     private val categoryDao: CategoryDao,
     private val mechanicDao: MechanicDao,
-    private val collectionDao: CollectionDaoNew,
+    private val collectionDao: CollectionDao,
 ) {
     private val dao = GameDao(context)
 

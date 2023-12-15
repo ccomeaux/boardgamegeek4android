@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.db.CollectionDaoNew
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDaoNew
 import com.boardgamegeek.db.model.CollectionItemForInsert
 import com.boardgamegeek.db.model.CollectionItemWithGameEntity
@@ -35,7 +35,7 @@ class GameCollectionRepository(
     private val imageRepository: ImageRepository,
     private val phpApi: PhpApi,
     private val gameDao: GameDaoNew,
-    private val collectionDaoNew: CollectionDaoNew,
+    private val collectionDao: CollectionDao,
 ) {
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
     private val prefs: SharedPreferences by lazy { context.preferences() }
@@ -45,7 +45,7 @@ class GameCollectionRepository(
         SyncCollectionWorker.requestSync(context)
     }
 
-    suspend fun loadAll(): List<CollectionItem> = collectionDaoNew.loadAll()
+    suspend fun loadAll(): List<CollectionItem> = collectionDao.loadAll()
         .map { it.mapToModel() }
         .filter { it.deleteTimestamp == 0L }
 
@@ -53,17 +53,17 @@ class GameCollectionRepository(
         return if (internalId == INVALID_ID.toLong())
             null
         else
-            collectionDaoNew.load(internalId)?.mapToModel()
+            collectionDao.load(internalId)?.mapToModel()
     }
 
     suspend fun loadCollectionItemsForGame(gameId: Int): List<CollectionItem> {
         return if (gameId == INVALID_ID)
             emptyList()
         else
-            collectionDaoNew.loadForGame(gameId).map { it.mapToModel() }
+            collectionDao.loadForGame(gameId).map { it.mapToModel() }
     }
 
-    suspend fun loadUnupdatedItems() = collectionDaoNew.loadItemsNotUpdated()
+    suspend fun loadUnupdatedItems() = collectionDao.loadItemsNotUpdated()
 
     suspend fun refresh(options: Map<String, String>, updatedTimestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
         var count = 0
@@ -134,7 +134,7 @@ class GameCollectionRepository(
         val urlMap = imageRepository.getImageUrls(item.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         urls?.firstOrNull()?.let {
-            collectionDaoNew.updateHeroImageUrl(item.internalId, it)
+            collectionDao.updateHeroImageUrl(item.internalId, it)
             item.copy(heroImageUrl = it)
         } ?: item
     }
@@ -198,13 +198,13 @@ class GameCollectionRepository(
 
         var candidate: CollectionItemWithGameEntity? = null
         if (itemForInsert.collectionId != INVALID_ID) {
-            candidate = collectionDaoNew.load(itemForInsert.collectionId)
+            candidate = collectionDao.load(itemForInsert.collectionId)
         }
         if (candidate == null) {
-            candidate = collectionDaoNew.loadForGame(itemForInsert.gameId).find { it.item.collectionId == INVALID_ID }
+            candidate = collectionDao.loadForGame(itemForInsert.gameId).find { it.item.collectionId == INVALID_ID }
         }
         if (candidate == null) {
-            val internalId = collectionDaoNew.insert(itemForInsert)
+            val internalId = collectionDao.insert(itemForInsert)
             Timber.i("Inserted collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId].")
             return itemForInsert.collectionId to internalId
         } else {
@@ -214,7 +214,7 @@ class GameCollectionRepository(
                 candidate.item.collectionId to INVALID_ID.toLong()
             } else {
                 Timber.i("Updating collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId]")
-                val count = collectionDaoNew.update(collectionItem.mapForUpdate(internalId, timestamp))
+                val count = collectionDao.update(collectionItem.mapForUpdate(internalId, timestamp))
                 if (count == 1) {
                     if ((candidate.item.statusDirtyTimestamp ?: 0L) == 0L) {
                         val statuses = CollectionStatusEntity(
@@ -230,16 +230,16 @@ class GameCollectionRepository(
                             statusPreordered = itemForInsert.statusPreordered,
                             statusDirtyTimestamp = 0L,
                         )
-                        collectionDaoNew.updateStatuses(statuses)
+                        collectionDao.updateStatuses(statuses)
                     } else {
                         Timber.i("Skipping dirty collection statuses")
                     }
                     if ((candidate.item.ratingDirtyTimestamp ?: 0L) == 0L)
-                        collectionDaoNew.updateRating(internalId, itemForInsert.rating ?: CollectionItem.UNRATED, 0L)
+                        collectionDao.updateRating(internalId, itemForInsert.rating ?: CollectionItem.UNRATED, 0L)
                     else
                         Timber.i("Skipping dirty collection rating")
                     if ((candidate.item.commentDirtyTimestamp ?: 0L) == 0L)
-                        collectionDaoNew.updateComment(internalId, itemForInsert.comment.orEmpty(), 0L)
+                        collectionDao.updateComment(internalId, itemForInsert.comment.orEmpty(), 0L)
                     else
                         Timber.i("Skipping dirty collection comment")
                     if ((candidate.item.privateInfoDirtyTimestamp ?: 0L) == 0L) {
@@ -255,28 +255,28 @@ class GameCollectionRepository(
                             itemForInsert.privateInfoInventoryLocation,
                             0L,
                         )
-                        collectionDaoNew.updatePrivateInfo(entity)
+                        collectionDao.updatePrivateInfo(entity)
                     } else {
                         Timber.i("Skipping dirty collection private info")
                     }
                     if ((candidate.item.wishlistCommentDirtyTimestamp ?: 0L) == 0L)
-                        collectionDaoNew.updateWishlistComment(internalId, itemForInsert.wishlistComment.orEmpty(), 0L)
+                        collectionDao.updateWishlistComment(internalId, itemForInsert.wishlistComment.orEmpty(), 0L)
                     else
                         Timber.i("Skipping dirty collection wishlist comment")
                     if ((candidate.item.tradeConditionDirtyTimestamp ?: 0L) == 0L)
-                        collectionDaoNew.updateTradeCondition(internalId, itemForInsert.condition.orEmpty(), 0L)
+                        collectionDao.updateTradeCondition(internalId, itemForInsert.condition.orEmpty(), 0L)
                     else
                         Timber.i("Skipping dirty collection trade condition")
                     if ((candidate.item.wantPartsDirtyTimestamp ?: 0L) == 0L)
-                        collectionDaoNew.updateWantParts(internalId, itemForInsert.wantpartsList.orEmpty(), 0L)
+                        collectionDao.updateWantParts(internalId, itemForInsert.wantpartsList.orEmpty(), 0L)
                     else
                         Timber.i("Skipping dirty collection want parts list")
                     if ((candidate.item.hasPartsDirtyTimestamp ?: 0L) == 0L)
-                        collectionDaoNew.updateHasParts(internalId, itemForInsert.haspartsList.orEmpty(), 0L)
+                        collectionDao.updateHasParts(internalId, itemForInsert.haspartsList.orEmpty(), 0L)
                     else
                         Timber.i("Skipping dirty collection has parts list")
                     if (candidate.item.collectionThumbnailUrl != itemForInsert.collectionThumbnailUrl) {
-                        collectionDaoNew.updateHeroImageUrl(internalId, "") // TODO update this with a new one?
+                        collectionDao.updateHeroImageUrl(internalId, "") // TODO update this with a new one?
                         val thumbnailFileName = FileUtils.getFileNameFromUrl(candidate.item.collectionThumbnailUrl)
                         if (thumbnailFileName.isNotBlank()) {
                             context.contentResolver.delete(BggContract.Thumbnails.buildUri(thumbnailFileName), null, null)
@@ -294,10 +294,10 @@ class GameCollectionRepository(
 
     private suspend fun delete(gameId: Int, protectedCollectionIds: List<Int>) {
         var deleteCount = 0
-        val items = collectionDaoNew.loadForGame(gameId)
+        val items = collectionDao.loadForGame(gameId)
         items.forEach { item ->
             if (!protectedCollectionIds.contains(item.item.collectionId)) {
-                deleteCount += collectionDaoNew.delete(item.item.internalId)
+                deleteCount += collectionDao.delete(item.item.internalId)
             }
         }
         Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
@@ -313,15 +313,15 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun loadAcquiredFrom() = collectionDaoNew.loadAcquiredFrom().filterNot { it.isBlank() }
+    suspend fun loadAcquiredFrom() = collectionDao.loadAcquiredFrom().filterNot { it.isBlank() }
 
-    suspend fun loadInventoryLocation() = collectionDaoNew.loadInventoryLocation().filterNot { it.isBlank() }
+    suspend fun loadInventoryLocation() = collectionDao.loadInventoryLocation().filterNot { it.isBlank() }
 
-    suspend fun loadItemsPendingDeletion() = collectionDaoNew.loadItemsPendingDeletion().map { it.mapToModel() }
+    suspend fun loadItemsPendingDeletion() = collectionDao.loadItemsPendingDeletion().map { it.mapToModel() }
 
-    suspend fun loadItemsPendingInsert() = collectionDaoNew.loadItemsPendingInsert().map { it.mapToModel() }
+    suspend fun loadItemsPendingInsert() = collectionDao.loadItemsPendingInsert().map { it.mapToModel() }
 
-    suspend fun loadItemsPendingUpdate() = collectionDaoNew.loadItemsPendingUpdate().map { it.mapToModel() }
+    suspend fun loadItemsPendingUpdate() = collectionDao.loadItemsPendingUpdate().map { it.mapToModel() }
 
     suspend fun uploadDeletedItem(item: CollectionItem): Result<CollectionItemUploadResult> {
         val response = phpApi.collection(item.mapToFormBodyForDeletion())
@@ -331,7 +331,7 @@ class GameCollectionRepository(
         } else if (!response.error.isNullOrBlank()) {
             Result.failure(Exception(response.error))
         } else {
-            collectionDaoNew.delete(item.internalId)
+            collectionDao.delete(item.internalId)
             Result.success(CollectionItemUploadResult.delete(item))
         }
     }
@@ -344,7 +344,7 @@ class GameCollectionRepository(
         } else if (!response.error.isNullOrBlank()) {
             Result.failure(Exception(response.error))
         } else {
-            val count = collectionDaoNew.clearItemDirtyTimestamp(item.internalId)
+            val count = collectionDao.clearItemDirtyTimestamp(item.internalId)
             if (count == 1)
                 Result.success(CollectionItemUploadResult.insert(item))
             else
@@ -358,7 +358,7 @@ class GameCollectionRepository(
                 item.statusDirtyTimestamp,
                 item.mapToFormBodyForStatusUpdate(),
                 item,
-            ) { collectionDaoNew.clearStatusDirtyTimestamp(it.internalId) }
+            ) { collectionDao.clearStatusDirtyTimestamp(it.internalId) }
         if (statusResult.isFailure) return statusResult
 
         val ratingResult =
@@ -366,7 +366,7 @@ class GameCollectionRepository(
                 item.ratingDirtyTimestamp,
                 item.mapToFormBodyForRatingUpdate(),
                 item,
-            ) { collectionDaoNew.clearRatingDirtyTimestamp(it.internalId) }
+            ) { collectionDao.clearRatingDirtyTimestamp(it.internalId) }
         if (ratingResult.isFailure) return ratingResult
 
         val commentResult =
@@ -374,28 +374,28 @@ class GameCollectionRepository(
                 item.commentDirtyTimestamp,
                 item.mapToFormBodyForCommentUpdate(),
                 item,
-            ) { collectionDaoNew.clearCommentDirtyTimestamp(it.internalId) }
+            ) { collectionDao.clearCommentDirtyTimestamp(it.internalId) }
         if (commentResult.isFailure) return commentResult
 
         val privateInfoResult = updateItemField(
             item.privateInfoDirtyTimestamp,
             item.mapToFormBodyForPrivateInfoUpdate(),
             item,
-        ) { collectionDaoNew.clearPrivateInfoDirtyTimestamp(it.internalId) }
+        ) { collectionDao.clearPrivateInfoDirtyTimestamp(it.internalId) }
         if (privateInfoResult.isFailure) return privateInfoResult
 
         val wishlistCommentResult = updateItemField(
             item.wishListCommentDirtyTimestamp,
             item.mapToFormBodyForWishlistCommentUpdate(),
             item,
-        ) { collectionDaoNew.clearWishlistCommentDirtyTimestamp(it.internalId) }
+        ) { collectionDao.clearWishlistCommentDirtyTimestamp(it.internalId) }
         if (wishlistCommentResult.isFailure) return wishlistCommentResult
 
         val tradeConditionResult = updateItemField(
             item.tradeConditionDirtyTimestamp,
             item.mapToFormBodyForTradeConditionUpdate(),
             item,
-        ) { collectionDaoNew.clearTradeConditionDirtyTimestamp(it.internalId) }
+        ) { collectionDao.clearTradeConditionDirtyTimestamp(it.internalId) }
         if (tradeConditionResult.isFailure) return tradeConditionResult
 
         val wantPartsResult =
@@ -403,7 +403,7 @@ class GameCollectionRepository(
                 item.wantPartsDirtyTimestamp,
                 item.mapToFormBodyForWantPartsUpdate(),
                 item,
-            ) { collectionDaoNew.clearWantPartsDirtyTimestamp(it.internalId) }
+            ) { collectionDao.clearWantPartsDirtyTimestamp(it.internalId) }
         if (wantPartsResult.isFailure) return wantPartsResult
 
         val hasPartsResult =
@@ -411,7 +411,7 @@ class GameCollectionRepository(
                 item.hasPartsDirtyTimestamp,
                 item.mapToFormBodyForHasPartsUpdate(),
                 item,
-            ) { collectionDaoNew.clearHasPartsDirtyTimestamp(it.internalId) }
+            ) { collectionDao.clearHasPartsDirtyTimestamp(it.internalId) }
         if (hasPartsResult.isFailure) return hasPartsResult
 
         return Result.success(CollectionItemUploadResult.update(item))
@@ -487,7 +487,7 @@ class GameCollectionRepository(
                     collectionDirtyTimestamp = timestamp,
                     statusDirtyTimestamp = timestamp,
                 )
-                val internalId = collectionDaoNew.insert(collectionItemForInsert)
+                val internalId = collectionDao.insert(collectionItemForInsert)
                 if (internalId == INVALID_ID.toLong()) {
                     Timber.d("Collection item for game '${it.gameName}` ($gameId) not added")
                 } else {
@@ -521,7 +521,7 @@ class GameCollectionRepository(
             inventoryLocation,
             System.currentTimeMillis(),
         )
-        return collectionDaoNew.updatePrivateInfo(entity)
+        return collectionDao.updatePrivateInfo(entity)
     }
 
     suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int): Int {
@@ -541,29 +541,29 @@ class GameCollectionRepository(
             statusPreordered = statuses.contains(BggContract.Collection.Columns.STATUS_PREORDERED),
             statusDirtyTimestamp = System.currentTimeMillis(),
         )
-        return collectionDaoNew.updateStatuses(entity)
+        return collectionDao.updateStatuses(entity)
     }
 
-    suspend fun updateRating(internalId: Long, rating: Double): Int = collectionDaoNew.updateRating(internalId, rating, System.currentTimeMillis())
+    suspend fun updateRating(internalId: Long, rating: Double): Int = collectionDao.updateRating(internalId, rating, System.currentTimeMillis())
 
-    suspend fun updateComment(internalId: Long, text: String): Int = collectionDaoNew.updateComment(internalId, text, System.currentTimeMillis())
+    suspend fun updateComment(internalId: Long, text: String): Int = collectionDao.updateComment(internalId, text, System.currentTimeMillis())
 
-    suspend fun updatePrivateComment(internalId: Long, text: String): Int = collectionDaoNew.updatePrivateComment(internalId, text, System.currentTimeMillis())
+    suspend fun updatePrivateComment(internalId: Long, text: String): Int = collectionDao.updatePrivateComment(internalId, text, System.currentTimeMillis())
 
-    suspend fun updateWishlistComment(internalId: Long, text: String): Int = collectionDaoNew.updateWishlistComment(internalId, text, System.currentTimeMillis())
+    suspend fun updateWishlistComment(internalId: Long, text: String): Int = collectionDao.updateWishlistComment(internalId, text, System.currentTimeMillis())
 
-    suspend fun updateCondition(internalId: Long, text: String): Int = collectionDaoNew.updateTradeCondition(internalId, text, System.currentTimeMillis())
+    suspend fun updateCondition(internalId: Long, text: String): Int = collectionDao.updateTradeCondition(internalId, text, System.currentTimeMillis())
 
-    suspend fun updateHasParts(internalId: Long, text: String): Int = collectionDaoNew.updateHasParts(internalId, text, System.currentTimeMillis())
+    suspend fun updateHasParts(internalId: Long, text: String): Int = collectionDao.updateHasParts(internalId, text, System.currentTimeMillis())
 
-    suspend fun updateWantParts(internalId: Long, text: String): Int = collectionDaoNew.updateWantParts(internalId, text, System.currentTimeMillis())
+    suspend fun updateWantParts(internalId: Long, text: String): Int = collectionDao.updateWantParts(internalId, text, System.currentTimeMillis())
 
-    suspend fun markAsDeleted(internalId: Long): Int = collectionDaoNew.updateDeletedTimestamp(internalId, System.currentTimeMillis())
+    suspend fun markAsDeleted(internalId: Long): Int = collectionDao.updateDeletedTimestamp(internalId, System.currentTimeMillis())
 
-    suspend fun resetTimestamps(internalId: Long): Int = collectionDaoNew.clearDirtyTimestamps(internalId)
+    suspend fun resetTimestamps(internalId: Long): Int = collectionDao.clearDirtyTimestamps(internalId)
 
     suspend fun deleteUnupdatedItems(timestamp: Long): Int {
-        return collectionDaoNew.deleteUnupdatedItems(timestamp).also { Timber.d("Deleted $it old collection items") }
+        return collectionDao.deleteUnupdatedItems(timestamp).also { Timber.d("Deleted $it old collection items") }
     }
 
     fun enqueueUploadRequest(gameId: Int) {

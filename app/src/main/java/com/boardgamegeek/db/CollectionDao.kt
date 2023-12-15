@@ -7,7 +7,7 @@ import androidx.room.Update
 import com.boardgamegeek.db.model.*
 
 @Dao
-interface CollectionDaoNew {
+interface CollectionDao {
     @Query("SELECT * FROM collection ORDER BY collection_sort_name COLLATE NOCASE")
     suspend fun loadAll(): List<CollectionItemWithGameEntity>
 

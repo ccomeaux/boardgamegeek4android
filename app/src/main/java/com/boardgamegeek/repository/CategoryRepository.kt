@@ -2,7 +2,7 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import com.boardgamegeek.db.CategoryDao
-import com.boardgamegeek.db.CollectionDaoNew
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.model.Category
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.mappers.mapToModel
@@ -12,7 +12,7 @@ import com.boardgamegeek.provider.BggContract
 class CategoryRepository(
     val context: Context,
     private val categoryDao: CategoryDao,
-    private val collectionDao: CollectionDaoNew,
+    private val collectionDao: CollectionDao,
 ) {
     enum class SortType {
         NAME, ITEM_COUNT

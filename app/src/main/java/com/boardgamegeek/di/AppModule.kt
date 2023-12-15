@@ -21,7 +21,7 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, artistDao: ArtistDao, collectionDao: CollectionDaoNew, imageRepository: ImageRepository) =
+    fun provideArtistRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, artistDao: ArtistDao, collectionDao: CollectionDao, imageRepository: ImageRepository) =
         ArtistRepository(context, api, artistDao, collectionDao, imageRepository)
 
     @Provides
@@ -31,7 +31,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideCategoryRepository(@ApplicationContext context: Context, categoryDao: CategoryDao, collectionDao: CollectionDaoNew) = CategoryRepository(context, categoryDao, collectionDao)
+    fun provideCategoryRepository(@ApplicationContext context: Context, categoryDao: CategoryDao, collectionDao: CollectionDao) = CategoryRepository(context, categoryDao, collectionDao)
 
     @Provides
     @Singleton
@@ -39,7 +39,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, designerDao: DesignerDao, collectionDao: CollectionDaoNew, imageRepository: ImageRepository) =
+    fun provideDesignerRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, designerDao: DesignerDao, collectionDao: CollectionDao, imageRepository: ImageRepository) =
         DesignerRepository(context, api, designerDao, collectionDao, imageRepository)
 
     @Provides
@@ -48,12 +48,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository, playDao: PlayDao, gameColorDao: GameColorDao, gameDao: GameDaoNew, artistDao: ArtistDao, designerDao: DesignerDao, publisherDao: PublisherDao, categoryDao: CategoryDao, mechanicDao: MechanicDao, collectionDao: CollectionDaoNew) =
+    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository, playDao: PlayDao, gameColorDao: GameColorDao, gameDao: GameDaoNew, artistDao: ArtistDao, designerDao: DesignerDao, publisherDao: PublisherDao, categoryDao: CategoryDao, mechanicDao: MechanicDao, collectionDao: CollectionDao) =
         GameRepository(context, api, imageRepository, playDao, gameColorDao, gameDao, artistDao, designerDao, publisherDao, categoryDao, mechanicDao, collectionDao)
 
     @Provides
     @Singleton
-    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, imageRepository: ImageRepository, phpApi: PhpApi, gameDao: GameDaoNew, collectionDao: CollectionDaoNew) =
+    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, imageRepository: ImageRepository, phpApi: PhpApi, gameDao: GameDaoNew, collectionDao: CollectionDao) =
         GameCollectionRepository(context, api, imageRepository, phpApi, gameDao, collectionDao)
 
     @Provides
@@ -70,16 +70,16 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMechanicRepository(@ApplicationContext context: Context, mechanicDao: MechanicDao, collectionDao: CollectionDaoNew) = MechanicRepository(context, mechanicDao, collectionDao)
+    fun provideMechanicRepository(@ApplicationContext context: Context, mechanicDao: MechanicDao, collectionDao: CollectionDao) = MechanicRepository(context, mechanicDao, collectionDao)
 
     @Provides
     @Singleton
-    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi, playDao: PlayDao, playerColorDao: PlayerColorDao, userDao: UserDao, gameColorDao: GameColorDao, gameDao: GameDaoNew, collectionDao: CollectionDaoNew) =
+    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi, playDao: PlayDao, playerColorDao: PlayerColorDao, userDao: UserDao, gameColorDao: GameColorDao, gameDao: GameDaoNew, collectionDao: CollectionDao) =
         PlayRepository(context, api, phpApi, playDao, playerColorDao, userDao, gameColorDao, gameDao, collectionDao)
 
     @Provides
     @Singleton
-    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, publisherDao: PublisherDao, collectionDao: CollectionDaoNew, imageRepository: ImageRepository) =
+    fun providePublisherRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, publisherDao: PublisherDao, collectionDao: CollectionDao, imageRepository: ImageRepository) =
         PublisherRepository(context, api, publisherDao, collectionDao, imageRepository)
 
     @Provides

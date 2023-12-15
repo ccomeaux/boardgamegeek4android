@@ -3,7 +3,7 @@ package com.boardgamegeek.repository
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
-import com.boardgamegeek.db.CollectionDaoNew
+import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.model.PersonStats
@@ -21,7 +21,7 @@ class ArtistRepository(
     val context: Context,
     private val api: BggService,
     private val artistDao: ArtistDao,
-    private val collectionDao: CollectionDaoNew,
+    private val collectionDao: CollectionDao,
     private val imageRepository: ImageRepository,
 ) {
     enum class SortType {

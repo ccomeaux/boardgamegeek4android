@@ -47,7 +47,7 @@ class PlayRepository(
     private val userDao: UserDao,
     private val gameColorDao: GameColorDao,
     private val gameDaoNew: GameDaoNew,
-    private val collectionDao: CollectionDaoNew,
+    private val collectionDao: CollectionDao,
 ) {
     // TODO don't load these lazily
     private val prefs: SharedPreferences by lazy { context.preferences() }
