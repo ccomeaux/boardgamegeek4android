@@ -3,7 +3,6 @@ package com.boardgamegeek.mappers
 import com.boardgamegeek.db.model.UserAsBuddyForUpsert
 import com.boardgamegeek.db.model.UserEntity
 import com.boardgamegeek.db.model.UserForUpsert
-import com.boardgamegeek.db.model.UserLocal
 import com.boardgamegeek.io.model.Buddy
 import com.boardgamegeek.io.model.UserRemote
 import com.boardgamegeek.model.User
@@ -17,15 +16,6 @@ fun UserEntity.mapToModel() = User(
     avatarUrl = if (avatarUrl == BggContract.INVALID_URL) "" else avatarUrl.orEmpty(),
     playNickname = playNickname.orEmpty(),
     updatedTimestamp = updatedDetailDate?.time ?: 0L
-)
-
-fun UserLocal.mapToModel() = User(
-    username = username,
-    firstName = firstName.orEmpty(),
-    lastName = lastName.orEmpty(),
-    avatarUrl = if (avatarUrl == BggContract.INVALID_URL) "" else avatarUrl.orEmpty(),
-    playNickname = playNickname.orEmpty(),
-    updatedTimestamp = updatedDetailTimestamp ?: 0L,
 )
 
 fun UserRemote.mapForUpsert(timestamp: Long) = UserForUpsert(

@@ -143,20 +143,6 @@ fun PlayPlayerEntity.mapToModel() = PlayPlayer(
     isWin = isWin ?: false,
 )
 
-fun PlayPlayerLocal.mapToModel() = PlayPlayer(
-    internalId = internalId,
-    playInternalId = internalPlayId,
-    username = username.orEmpty(),
-    userId = userId,
-    name = name.orEmpty(),
-    startingPosition = startingPosition.orEmpty(),
-    color = color.orEmpty(),
-    score = score.orEmpty(),
-    isNew = isNew ?: false,
-    rating = rating ?: 0.0,
-    isWin = isWin ?: false,
-)
-
 fun List<PlayerWithPlayEntity>.mapToModel() =
     firstOrNull()?.let {
         if (!it.player.name.isNullOrBlank() || !it.player.username.isNullOrBlank()) {

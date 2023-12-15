@@ -191,56 +191,6 @@ fun GameEntity.mapToModel(lastPlayDate: String?): Game {
     )
 }
 
-fun GameLocal.mapToModel(): Game {
-    val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    return Game(
-        id = gameId,
-        name = gameName,
-        sortName = gameSortName,
-        updated = updated ?: 0L,
-        subtype = subtype.toSubtype(),
-        thumbnailUrl = thumbnailUrl.orEmpty(),
-        imageUrl = imageUrl.orEmpty(),
-        heroImageUrl = heroImageUrl.orEmpty(),
-        description = description.orEmpty(),
-        yearPublished = yearPublished ?: Game.YEAR_UNKNOWN,
-        minPlayers = minPlayers ?: 0,
-        maxPlayers = maxPlayers ?: 0,
-        playingTime = playingTime ?: 0,
-        minPlayingTime = minPlayingTime ?: 0,
-        maxPlayingTime = maxPlayingTime ?: 0,
-        minimumAge = minimumAge ?: 0,
-        numberOfRatings = numberOfRatings ?: 0,
-        rating = average ?: Game.UNRATED,
-        bayesAverage = bayesAverage ?: Game.UNRATED,
-        standardDeviation = standardDeviation ?: 0.0,
-        median = median ?: Game.UNRATED,
-        numberOfUsersOwned = numberOfUsersOwned ?: 0,
-        numberOfUsersTrading = numberOfUsersTrading ?: 0,
-        numberOfUsersWanting = numberOfUsersWanting ?: 0,
-        numberOfUsersWishListing = numberOfUsersWishListing ?: 0,
-        numberOfComments = numberOfComments ?: 0,
-        numberOfUsersWeighting = numberOfUsersWeighting ?: 0,
-        averageWeight = averageWeight ?: 0.0,
-        overallRank = gameRank ?: GameRank.RANK_UNKNOWN,
-        updatedPlays = updatedPlays ?: 0L,
-        customPlayerSort = customPlayerSort ?: false,
-        isFavorite = isStarred ?: false,
-        suggestedPlayerCountPollVoteTotal = suggestedPlayerCountPollVoteTotal ?: 0,
-        iconColor = iconColor ?: Color.TRANSPARENT,
-        darkColor = darkColor ?: Color.TRANSPARENT,
-        winsColor = winsColor ?: Color.TRANSPARENT,
-        winnablePlaysColor = winnablePlaysColor ?: Color.TRANSPARENT,
-        allPlaysColor = allPlaysColor ?: Color.TRANSPARENT,
-        playerCountsBest = playerCountsBest,
-        playerCountsRecommended = playerCountsRecommended,
-        playerCountsNotRecommended = playerCountsNotRecommended,
-        lastViewedTimestamp = lastViewedTimestamp ?: 0L,
-        lastPlayTimestamp = lastPlayDate.toMillis(playDateFormat),
-        numberOfPlays = numberOfPlays ?: 0,
-    )
-}
-
 fun List<GamePollResultsWithPoll>.mapToModel() = GamePoll(
     this.map {
         GamePollResult(
