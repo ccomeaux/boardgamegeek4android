@@ -1,6 +1,7 @@
 package com.boardgamegeek.db
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.boardgamegeek.db.model.*
@@ -12,6 +13,9 @@ interface CollectionDaoNew {
 
     @Query("SELECT * FROM collection WHERE _id = :internalId")
     suspend fun load(internalId: Long): CollectionItemWithGameEntity?
+
+    @Query("SELECT * FROM collection WHERE collection_id = :collectionId")
+    suspend fun load(collectionId: Int): CollectionItemWithGameEntity?
 
     @Query("SELECT * FROM collection WHERE game_id = :gameId")
     suspend fun loadForGame(gameId: Int): List<CollectionItemWithGameEntity>
@@ -48,6 +52,12 @@ interface CollectionDaoNew {
 
     @Query("SELECT inventory_location FROM collection GROUP BY inventory_location")
     suspend fun loadInventoryLocation(): List<String>
+
+    @Insert(CollectionItemEntity::class)
+    suspend fun insert(entity: CollectionItemForInsert): Long
+
+    @Update(CollectionItemEntity::class)
+    suspend fun update(entity: CollectionItemForUpdate): Int
 
     @Update(CollectionItemEntity::class)
     suspend fun updateStatuses(statuses: CollectionStatusEntity): Int

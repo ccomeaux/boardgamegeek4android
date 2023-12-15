@@ -7,6 +7,15 @@ import com.boardgamegeek.db.model.*
 
 @Dao
 interface GameDaoNew {
+    @Upsert(GameEntity::class)
+    suspend fun upsertGame(game: CollectionGameForUpsert)
+    @Insert(GameEntity::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertGame(game: CollectionGameForUpsert): Long
+
+    @Update(GameEntity::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun updateGame(game: CollectionGameForUpsert)
+
+
     @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id WHERE game_id = :gameId")
     suspend fun loadGame(gameId: Int): GameWithLastPlayed?
 

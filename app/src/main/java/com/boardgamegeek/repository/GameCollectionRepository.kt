@@ -14,11 +14,13 @@ import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
+import com.boardgamegeek.io.model.CollectionItemRemote
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearCollection
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.work.CollectionUploadWorker
 import com.boardgamegeek.work.SyncCollectionWorker
 import kotlinx.coroutines.Dispatchers
@@ -71,8 +73,7 @@ class GameCollectionRepository(
             response.items?.forEach {
                 val item = it.mapToCollectionItem()
                 if (isItemStatusSetToSync(item)) {
-                    val game = it.mapToCollectionItemGame(updatedTimestamp)
-                    val (collectionId, _) = collectionDao.saveItem(item.mapToEntity(updatedTimestamp), game)
+                    val (collectionId, _) = upsert(it, updatedTimestamp)
                     if (collectionId != INVALID_ID) count++
                 } else {
                     Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
@@ -117,10 +118,9 @@ class GameCollectionRepository(
                 val collectionIds = mutableListOf<Int>()
                 var entity: CollectionItem? = null
                 response.items?.forEach { collectionItem ->
-                    val item = collectionItem.mapToCollectionItem()
-                    val game = collectionItem.mapToCollectionItemGame(timestamp)
-                    val (id, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
+                    val (id, internalId) = upsert(collectionItem, timestamp)
                     collectionIds += id
+                    val item = collectionItem.mapToCollectionItem()
                     if (item.collectionId == collectionId) {
                         entity = item.copy(internalId = internalId, syncTimestamp = timestamp)
                     }
@@ -153,9 +153,8 @@ class GameCollectionRepository(
             options.addSubtype(subtype)
             val response = api.collection(username, options)
             response.items?.forEach { collectionItem ->
+                val (collectionId, internalId) = upsert(collectionItem, timestamp)
                 val item = collectionItem.mapToCollectionItem()
-                val game = collectionItem.mapToCollectionItemGame(timestamp)
-                val (collectionId, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
                 list += item.copy(internalId = internalId, syncTimestamp = timestamp)
                 collectionIds += collectionId
             }
@@ -171,10 +170,8 @@ class GameCollectionRepository(
                 playedOptions.addSubtype(subtype)
                 val playedResponse = api.collection(username, playedOptions)
                 playedResponse.items?.forEach { collectionItem ->
-                    val item = collectionItem.mapToCollectionItem()
-                    val game = collectionItem.mapToCollectionItemGame(timestamp)
-                    val (collectionId, internalId) = collectionDao.saveItem(item.mapToEntity(timestamp), game)
-                    list += item.copy(internalId = internalId, syncTimestamp = timestamp)
+                    val (collectionId, internalId) = upsert(collectionItem, timestamp)
+                    list += collectionItem.mapToCollectionItem().copy(internalId = internalId, syncTimestamp = timestamp)
                     collectionIds += collectionId
                 }
             }
@@ -186,16 +183,124 @@ class GameCollectionRepository(
         } else null
     }
 
+    private suspend fun upsert(collectionItem: CollectionItemRemote, timestamp: Long): Pair<Int, Long> {
+        val itemForInsert = collectionItem.mapForInsert(timestamp)
+        val loadedGame = gameDao.loadGame(itemForInsert.gameId)
+        if (loadedGame?.game == null || loadedGame.game.gameId == INVALID_ID) {
+            val game = collectionItem.mapToCollectionGame(timestamp)
+            val internalId = gameDao.insertGame(game)
+            Timber.i("Inserted game '${game.gameName}' (${game.gameId}) [$internalId]")
+        } else {
+            val game = collectionItem.mapToCollectionGame(timestamp, loadedGame.game.internalId)
+            gameDao.updateGame(game)
+            Timber.i("Updated game '${game.gameName}' (${game.gameId}) [${game.internalId}]")
+        }
+
+        var candidate: CollectionItemWithGameEntity? = null
+        if (itemForInsert.collectionId != INVALID_ID) {
+            candidate = collectionDaoNew.load(itemForInsert.collectionId)
+        }
+        if (candidate == null) {
+            candidate = collectionDaoNew.loadForGame(itemForInsert.gameId).find { it.item.collectionId == INVALID_ID }
+        }
+        if (candidate == null) {
+            val internalId = collectionDaoNew.insert(itemForInsert)
+            Timber.i("Inserted collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId].")
+            return itemForInsert.collectionId to internalId
+        } else {
+            val internalId = candidate.item.internalId
+            return if ((candidate.item.collectionDirtyTimestamp ?: 0L) > 0L) {
+                Timber.i("Local copy of collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId] is dirty, skipping sync.")
+                candidate.item.collectionId to INVALID_ID.toLong()
+            } else {
+                Timber.i("Updating collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId]")
+                val count = collectionDaoNew.update(collectionItem.mapForUpdate(internalId, timestamp))
+                if (count == 1) {
+                    if ((candidate.item.statusDirtyTimestamp ?: 0L) == 0L) {
+                        val statuses = CollectionStatusEntity(
+                            internalId,
+                            statusOwn = itemForInsert.statusOwn,
+                            statusPreviouslyOwned = itemForInsert.statusPreviouslyOwned,
+                            statusForTrade = itemForInsert.statusForTrade,
+                            statusWant = itemForInsert.statusWant,
+                            statusWantToPlay = itemForInsert.statusWantToPlay,
+                            statusWantToBuy = itemForInsert.statusWantToBuy,
+                            statusWishlist = itemForInsert.statusWishlist,
+                            statusWishlistPriority = itemForInsert.statusWishlistPriority,
+                            statusPreordered = itemForInsert.statusPreordered,
+                            statusDirtyTimestamp = 0L,
+                        )
+                        collectionDaoNew.updateStatuses(statuses)
+                    } else {
+                        Timber.i("Skipping dirty collection statuses")
+                    }
+                    if ((candidate.item.ratingDirtyTimestamp ?: 0L) == 0L)
+                        collectionDaoNew.updateRating(internalId, itemForInsert.rating ?: CollectionItem.UNRATED, 0L)
+                    else
+                        Timber.i("Skipping dirty collection rating")
+                    if ((candidate.item.commentDirtyTimestamp ?: 0L) == 0L)
+                        collectionDaoNew.updateComment(internalId, itemForInsert.comment.orEmpty(), 0L)
+                    else
+                        Timber.i("Skipping dirty collection comment")
+                    if ((candidate.item.privateInfoDirtyTimestamp ?: 0L) == 0L) {
+                        val entity = CollectionPrivateInfoEntity(
+                            internalId,
+                            itemForInsert.privateInfoPricePaidCurrency,
+                            itemForInsert.privateInfoPricePaid,
+                            itemForInsert.privateInfoCurrentValueCurrency,
+                            itemForInsert.privateInfoCurrentValue,
+                            itemForInsert.privateInfoQuantity,
+                            itemForInsert.privateInfoAcquisitionDate,
+                            itemForInsert.privateInfoAcquiredFrom,
+                            itemForInsert.privateInfoInventoryLocation,
+                            0L,
+                        )
+                        collectionDaoNew.updatePrivateInfo(entity)
+                    } else {
+                        Timber.i("Skipping dirty collection private info")
+                    }
+                    if ((candidate.item.wishlistCommentDirtyTimestamp ?: 0L) == 0L)
+                        collectionDaoNew.updateWishlistComment(internalId, itemForInsert.wishlistComment.orEmpty(), 0L)
+                    else
+                        Timber.i("Skipping dirty collection wishlist comment")
+                    if ((candidate.item.tradeConditionDirtyTimestamp ?: 0L) == 0L)
+                        collectionDaoNew.updateTradeCondition(internalId, itemForInsert.condition.orEmpty(), 0L)
+                    else
+                        Timber.i("Skipping dirty collection trade condition")
+                    if ((candidate.item.wantPartsDirtyTimestamp ?: 0L) == 0L)
+                        collectionDaoNew.updateWantParts(internalId, itemForInsert.wantpartsList.orEmpty(), 0L)
+                    else
+                        Timber.i("Skipping dirty collection want parts list")
+                    if ((candidate.item.hasPartsDirtyTimestamp ?: 0L) == 0L)
+                        collectionDaoNew.updateHasParts(internalId, itemForInsert.haspartsList.orEmpty(), 0L)
+                    else
+                        Timber.i("Skipping dirty collection has parts list")
+                    if (candidate.item.collectionThumbnailUrl != itemForInsert.collectionThumbnailUrl) {
+                        collectionDaoNew.updateHeroImageUrl(internalId, "") // TODO update this with a new one?
+                        val thumbnailFileName = FileUtils.getFileNameFromUrl(candidate.item.collectionThumbnailUrl)
+                        if (thumbnailFileName.isNotBlank()) {
+                            context.contentResolver.delete(BggContract.Thumbnails.buildUri(thumbnailFileName), null, null)
+                        }
+                    }
+                    Timber.i("Updated collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId]")
+                    candidate.item.collectionId to internalId
+                } else {
+                    Timber.i("Failed to update collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId]")
+                    candidate.item.collectionId to INVALID_ID.toLong()
+                }
+            }
+        }
+    }
+
     private suspend fun delete(gameId: Int, protectedCollectionIds: List<Int>) {
-        val deleteCount = 0
+        var deleteCount = 0
         val items = collectionDaoNew.loadForGame(gameId)
         items.forEach { item ->
             if (!protectedCollectionIds.contains(item.item.collectionId)) {
-                collectionDaoNew.delete(item.item.internalId)
+                deleteCount += collectionDaoNew.delete(item.item.internalId)
             }
         }
         Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
-
     }
 
     private fun MutableMap<String, String>.addSubtype(subtype: Game.Subtype?) {
