@@ -276,7 +276,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
             results = poll.results.mapIndexed { sortIndex, r ->
                 GamePollResultsForUpsert(
                     internalId = 0L,
-                    pollId = BggContract.INVALID_ID, // TODO match parent
+                    pollId = 0,
                     pollResultsKey = if (r.numplayers.isNullOrEmpty()) "X" else r.numplayers,
                     pollResultsPlayers = if (r.numplayers.isNullOrEmpty()) "X" else r.numplayers,
                     pollResultsSortIndex = sortIndex,
@@ -285,7 +285,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
                         val key = level?.toString() ?: result.value.substringBefore(" ")
                         GamePollResultsResultEntity(
                             internalId = 0L,
-                            pollResultsId = BggContract.INVALID_ID, // TODO match parent
+                            pollResultsId = 0,
                             pollResultsResultKey = key,
                             pollResultsResultLevel = level,
                             pollResultsResultValue = result.value,

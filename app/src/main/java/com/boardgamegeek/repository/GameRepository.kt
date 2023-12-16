@@ -27,8 +27,6 @@ class GameRepository @Inject constructor(
     private val mechanicDao: MechanicDao,
     private val collectionDao: CollectionDao,
 ) {
-    private val dao = GameDao(context)
-
     suspend fun loadGame(gameId: Int): Game? {
         return if (gameId == INVALID_ID) null else {
             val game = gameDaoNew.loadGame(gameId)
@@ -56,23 +54,22 @@ class GameRepository @Inject constructor(
         val timestamp = System.currentTimeMillis()
         val games = api.thing(gameId.first(), 1).games
         games?.forEach { game ->
+            val gameForUpsert = game.mapForUpsert(timestamp)
+            Timber.i("Saving game ${gameForUpsert.header.gameName} (${game.id})")
             game.mapToDesigners().forEach { designerDao.insert(it) }
             game.mapToArtists().forEach { artistDao.insert(it) }
             game.mapToPublishers().forEach { publisherDao.insert(it) }
             game.mapToCategories().forEach { categoryDao.insert(it) }
             game.mapToMechanics().forEach { mechanicDao.insert(it) }
-            val gameForUpsert = game.mapForUpsert(timestamp)
             if (gameForUpsert.header.gameName.isBlank()) {
                 Timber.w("Missing name from game ID=${gameForUpsert.header.gameId}")
             } else {
-                Timber.i("Saving game $game")
-                dao.save(gameForUpsert)
+                val internalId = gameDaoNew.upsert(gameForUpsert)
+                Timber.i("Saved game ${gameForUpsert.header.gameName} (${game.id}) [$internalId]")
             }
-            Timber.d("Synced game $gameForUpsert")
         }
         games?.size ?: 0
     }
-
 
     suspend fun fetchGame(vararg gameId: Int): List<Game> = withContext(Dispatchers.IO) {
         val response = if (gameId.size == 1) {

@@ -1,20 +1,104 @@
 package com.boardgamegeek.db
 
-import androidx.room.Dao
-import androidx.room.Query
-import androidx.room.Transaction
+import androidx.room.*
 import com.boardgamegeek.db.model.*
 
 @Dao
 interface GameDaoNew {
-    @Upsert(GameEntity::class)
-    suspend fun upsertGame(game: CollectionGameForUpsert)
+    @Transaction
+    suspend fun upsert(game: GameForUpsert): Long {
+        val internalId = if (game.header.internalId == 0L) {
+            insertGame(game.header)
+        } else {
+            updateGame(game.header)
+            deleteGameRanksForGame(game.header.gameId)
+            deletePollsForGame(game.header.gameId)
+            deletePlayerPollForGame(game.header.gameId)
+            deleteDesignersForGame(game.header.gameId)
+            deleteArtistsForGame(game.header.gameId)
+            deletePublishersForGame(game.header.gameId)
+            deleteCategoriesForGame(game.header.gameId)
+            deleteMechanicsForGame(game.header.gameId)
+            deleteExpansionsForGame(game.header.gameId)
+            game.header.internalId
+        }
+        insertRanks(game.ranks)
+        insertPolls(game.polls) // TODO this doesn't work
+        insertPlayerPoll(game.playerPoll)
+        insertDesigners(game.designers)
+        insertArtists(game.artists)
+        insertPublishers(game.publishers)
+        insertCategories(game.categories)
+        insertMechanics(game.mechanics)
+        insertExpansions(game.expansions)
+        return internalId
+    }
+
+    @Insert(GameEntity::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGame(game: GameForUpsertHeader): Long
+
+    @Update(GameEntity::class)
+    suspend fun updateGame(game: GameForUpsertHeader)
+
     @Insert(GameEntity::class, onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertGame(game: CollectionGameForUpsert): Long
 
     @Update(GameEntity::class, onConflict = OnConflictStrategy.IGNORE)
     suspend fun updateGame(game: CollectionGameForUpsert)
 
+    @Insert
+    suspend fun insertRanks(ranks: List<GameRankEntity>)
+
+    @Insert(GamePollEntity::class)
+    suspend fun insertPolls(polls: List<GamePollForUpsert>)
+
+    @Insert
+    suspend fun insertPlayerPoll(pollResults: List<GameSuggestedPlayerCountPollResultsEntity>)
+
+    @Insert
+    suspend fun insertDesigners(designers: List<GameDesignerEntity>)
+
+    @Insert
+    suspend fun insertArtists(designers: List<GameArtistEntity>)
+
+    @Insert
+    suspend fun insertPublishers(designers: List<GamePublisherEntity>)
+
+    @Insert
+    suspend fun insertCategories(designers: List<GameCategoryEntity>)
+
+    @Insert
+    suspend fun insertMechanics(designers: List<GameMechanicEntity>)
+
+    @Insert
+    suspend fun insertExpansions(designers: List<GameExpansionEntity>)
+
+    @Query("DELETE FROM game_ranks WHERE game_id = :gameId") // TODO test that this cascades the delete
+    suspend fun deleteGameRanksForGame(gameId: Int)
+
+    @Query("DELETE FROM game_polls WHERE game_id = :gameId") // TODO test that this cascades the delete
+    suspend fun deletePollsForGame(gameId: Int)
+
+    @Query("DELETE FROM game_suggested_player_count_poll_results WHERE game_id = :gameId")
+    suspend fun deletePlayerPollForGame(gameId: Int)
+
+    @Query("DELETE FROM games_designers WHERE game_id = :gameId")
+    suspend fun deleteDesignersForGame(gameId: Int)
+
+    @Query("DELETE FROM games_artists WHERE game_id = :gameId")
+    suspend fun deleteArtistsForGame(gameId: Int)
+
+    @Query("DELETE FROM games_publishers WHERE game_id = :gameId")
+    suspend fun deletePublishersForGame(gameId: Int)
+
+    @Query("DELETE FROM games_categories WHERE game_id = :gameId")
+    suspend fun deleteCategoriesForGame(gameId: Int)
+
+    @Query("DELETE FROM games_mechanics WHERE game_id = :gameId")
+    suspend fun deleteMechanicsForGame(gameId: Int)
+
+    @Query("DELETE FROM games_expansions WHERE game_id = :gameId")
+    suspend fun deleteExpansionsForGame(gameId: Int)
 
     @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id WHERE game_id = :gameId")
     suspend fun loadGame(gameId: Int): GameWithLastPlayed?
