@@ -40,7 +40,6 @@ fun GameRemote.mapToModel(): Game {
         playerCountsNotRecommended = null,
         lastViewedTimestamp = 0L,
         lastPlayTimestamp = null,
-        numberOfPlays = 0,
     )
     return if (this.statistics != null) {
         game.copy(
@@ -187,7 +186,6 @@ fun GameEntity.mapToModel(lastPlayDate: String?): Game {
         playerCountsNotRecommended = playerCountsNotRecommended,
         lastViewedTimestamp = lastViewedTimestamp ?: 0L,
         lastPlayTimestamp = lastPlayDate.toMillis(playDateFormat),
-        numberOfPlays = numberOfPlays,
     )
 }
 

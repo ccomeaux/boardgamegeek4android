@@ -58,7 +58,6 @@ data class Game(
     val playerCountsNotRecommended: String?,
     val lastViewedTimestamp: Long,
     val lastPlayTimestamp: Long?,
-    val numberOfPlays: Int,
 ) {
     class Poll {
         var name: String = ""
