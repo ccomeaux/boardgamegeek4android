@@ -639,9 +639,7 @@ class PlayRepository(
             gameDaoNew.loadGame(play.gameId)?.let {
                 // update game's custom sort order
                 if (play.players.isNotEmpty()) {
-                    play.arePlayersCustomSorted().let {
-                        gameDaoNew.updateCustomPlayerSort(play.gameId, it)
-                    }
+                    gameDaoNew.updateCustomPlayerSort(play.gameId, play.arePlayersCustomSorted())
                 }
 
                 // update game colors
