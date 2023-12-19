@@ -78,64 +78,12 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         const val PLAYER_COLORS = "player_colors"
         const val USERS = "users"
 
-        val GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.Columns.GAME_ID)
-        val GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.Columns.DESIGNER_ID)
-        val GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.Columns.ARTIST_ID)
-        val GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.Columns.PUBLISHER_ID)
-        val GAMES_MECHANICS_JOIN_MECHANICS = createJoin(GAMES_MECHANICS, MECHANICS, Mechanics.Columns.MECHANIC_ID)
-        val GAMES_CATEGORIES_JOIN_CATEGORIES = createJoin(GAMES_CATEGORIES, CATEGORIES, Categories.Columns.CATEGORY_ID)
-        val GAMES_EXPANSIONS_JOIN_GAMES = createJoin(GAMES_EXPANSIONS, GAMES, GamesExpansions.Columns.EXPANSION_ID, Games.Columns.GAME_ID)
-        val GAMES_RANKS_JOIN_GAMES = createJoin(GAME_RANKS, GAMES, GameRanks.Columns.GAME_ID, Games.Columns.GAME_ID)
-        val POLLS_JOIN_POLL_RESULTS = createJoin(GAME_POLLS, GAME_POLL_RESULTS, BaseColumns._ID, GamePollResults.Columns.POLL_ID)
-        val POLLS_JOIN_GAMES = createJoin(GAMES, GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, Games.Columns.GAME_ID, GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID)
-        val POLL_RESULTS_JOIN_POLL_RESULTS_RESULT =
-            createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, BaseColumns._ID, GamePollResultsResult.Columns.POLL_RESULTS_ID)
         val COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Games.Columns.GAME_ID)
-        val GAMES_JOIN_PLAYS = GAMES + createJoinSuffix(GAMES, PLAYS, Games.Columns.GAME_ID, Plays.Columns.OBJECT_ID)
-        val PLAYS_JOIN_GAMES = PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.Columns.OBJECT_ID, Games.Columns.GAME_ID)
-        val PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID)
-        val PLAY_PLAYERS_JOIN_PLAYS_JOIN_USERS = PLAY_PLAYERS +
-                createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID) +
-                createJoinSuffix(PLAY_PLAYERS, USERS, PlayPlayers.Columns.USER_NAME, Users.Columns.USERNAME)
-        val PLAY_PLAYERS_JOIN_PLAYS_JOIN_GAMES = PLAY_PLAYERS +
-                createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID) +
-                createJoinSuffix(PLAYS, GAMES, Plays.Columns.OBJECT_ID, Games.Columns.GAME_ID)
-        val COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS =
-            createJoin(COLLECTION_VIEWS, COLLECTION_VIEW_FILTERS, BaseColumns._ID, CollectionViewFilters.Columns.VIEW_ID)
-        val POLLS_RESULTS_RESULT_JOIN_POLLS_RESULTS_JOIN_POLLS =
-            createJoin(GAME_POLL_RESULTS_RESULT, GAME_POLL_RESULTS, GamePollResultsResult.Columns.POLL_RESULTS_ID, BaseColumns._ID) +
-                    createJoinSuffix(GAME_POLL_RESULTS, GAME_POLLS, GamePollResults.Columns.POLL_ID, BaseColumns._ID)
-        val ARTIST_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_ARTISTS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val DESIGNER_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_DESIGNERS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val PUBLISHER_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_PUBLISHERS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val MECHANIC_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_MECHANICS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val CATEGORY_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_CATEGORIES, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val ARTISTS_JOIN_COLLECTION = createJoin(ARTISTS, GAMES_ARTISTS, Artists.Columns.ARTIST_ID) +
-                createInnerJoinSuffix(GAMES_ARTISTS, COLLECTION, GamesArtists.GAME_ID, Collection.Columns.GAME_ID)
-        val DESIGNERS_JOIN_COLLECTION = createJoin(DESIGNERS, GAMES_DESIGNERS, Designers.Columns.DESIGNER_ID) +
-                createInnerJoinSuffix(GAMES_DESIGNERS, COLLECTION, GamesDesigners.GAME_ID, Collection.Columns.GAME_ID)
-        val PUBLISHERS_JOIN_COLLECTION = createJoin(PUBLISHERS, GAMES_PUBLISHERS, Publishers.Columns.PUBLISHER_ID) +
-                createInnerJoinSuffix(GAMES_PUBLISHERS, COLLECTION, GamesPublishers.GAME_ID, Collection.Columns.GAME_ID)
-        val MECHANICS_JOIN_COLLECTION = createJoin(MECHANICS, GAMES_MECHANICS, Mechanics.Columns.MECHANIC_ID) +
-                createInnerJoinSuffix(GAMES_MECHANICS, COLLECTION, GamesMechanics.GAME_ID, Collection.Columns.GAME_ID)
-        val CATEGORIES_JOIN_COLLECTION = createJoin(CATEGORIES, GAMES_CATEGORIES, Categories.Columns.CATEGORY_ID) +
-                createInnerJoinSuffix(GAMES_CATEGORIES, COLLECTION, GamesCategories.GAME_ID, Collection.Columns.GAME_ID)
 
         private fun createJoin(table1: String, table2: String, column: String) = table1 + createJoinSuffix(table1, table2, column, column)
 
-        private fun createJoin(table1: String, table2: String, column1: String, column2: String) =
-            table1 + createJoinSuffix(table1, table2, column1, column2)
-
         private fun createJoinSuffix(table1: String, table2: String, column1: String, column2: String) =
             " LEFT OUTER JOIN $table2 ON $table1.$column1=$table2.$column2"
-
-        private fun createInnerJoinSuffix(table1: String, table2: String, column1: String, column2: String) =
-            " INNER JOIN $table2 ON $table1.$column1=$table2.$column2"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {

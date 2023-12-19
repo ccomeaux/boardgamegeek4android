@@ -67,160 +67,17 @@ class BggContract {
         }
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build()
-        val CONTENT_PLAYS_URI: Uri = CONTENT_URI.buildUpon().fragment(FRAGMENT_PLAYS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.game"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.game"
-        const val DEFAULT_SORT = Columns.GAME_SORT_NAME + COLLATE_NOCASE + " ASC"
 
         fun buildGameUri(gameId: Int): Uri {
             return getUriBuilder(gameId).build()
         }
 
-        fun buildRanksUri(gameId: Int): Uri {
-            return getUriBuilder(gameId, PATH_RANKS).build()
-        }
-
-        fun buildRanksUri(gameId: Int, rankId: Int): Uri {
-            return getUriBuilder(gameId, PATH_RANKS, rankId).build()
-        }
-
-        fun buildDesignersUri(gameId: Int, limitCount: Int = 0): Uri {
-            return getLimitedUriBuilder(gameId, PATH_DESIGNERS, limitCount).build()
-        }
-
-        fun buildDesignersUri(rowId: Long): Uri {
-            return getUriBuilder().appendPath(PATH_DESIGNERS).appendPath(rowId.toString()).build()
-        }
-
-        fun buildArtistsUri(gameId: Int, limitCount: Int = 0): Uri {
-            return getLimitedUriBuilder(gameId, PATH_ARTISTS, limitCount).build()
-        }
-
-        fun buildArtistUri(rowId: Long): Uri {
-            return getUriBuilder().appendPath(PATH_ARTISTS).appendPath(rowId.toString()).build()
-        }
-
-        fun buildPublishersUri(gameId: Int, limitCount: Int = 0): Uri {
-            return getLimitedUriBuilder(gameId, PATH_PUBLISHERS, limitCount).build()
-        }
-
-        fun buildPublisherUri(rowId: Long): Uri {
-            return getUriBuilder().appendPath(PATH_PUBLISHERS).appendPath(rowId.toString()).build()
-        }
-
-        fun buildMechanicsUri(gameId: Int, limitCount: Int = 0): Uri {
-            return getLimitedUriBuilder(gameId, PATH_MECHANICS, limitCount).build()
-        }
-
-        fun buildMechanicUri(rowId: Long): Uri {
-            return getUriBuilder().appendPath(PATH_MECHANICS).appendPath(rowId.toString()).build()
-        }
-
-        fun buildCategoriesUri(gameId: Int, limitCount: Int = 0): Uri {
-            return getLimitedUriBuilder(gameId, PATH_CATEGORIES, limitCount).build()
-        }
-
-        fun buildCategoryUri(rowId: Long): Uri {
-            return getUriBuilder().appendPath(PATH_CATEGORIES).appendPath(rowId.toString()).build()
-        }
-
-        fun buildExpansionsUri(gameId: Int, limitCount: Int = 0): Uri {
-            return getLimitedUriBuilder(gameId, PATH_EXPANSIONS, limitCount).build()
-        }
-
-        fun buildExpansionUri(rowId: Long): Uri {
-            return getUriBuilder().appendPath(PATH_EXPANSIONS).appendPath(rowId.toString()).build()
-        }
-
-        fun buildPollsUri(gameId: Int): Uri {
-            return getUriBuilder(gameId, PATH_POLLS).build()
-        }
-
-        fun buildPollsUri(gameId: Int, pollName: String?): Uri {
-            return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).build()
-        }
-
-        fun buildPollResultsUri(gameId: Int, pollName: String?): Uri {
-            return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).build()
-        }
-
-        fun buildPollResultsUri(gameId: Int, pollName: String?, key: String?): Uri {
-            return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
-                .build()
-        }
-
-        fun buildPollResultsResultUri(gameId: Int, pollName: String?): Uri {
-            return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS)
-                .appendPath(PATH_POLL_RESULTS_RESULT).build()
-        }
-
-        fun buildPollResultsResultUri(gameId: Int, pollName: String?, key: String?): Uri {
-            return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName).appendPath(PATH_POLL_RESULTS).appendPath(key)
-                .appendPath(PATH_POLL_RESULTS_RESULT).build()
-        }
-
-        fun buildPollResultsResultUri(gameId: Int, pollName: String?, key: String?, key2: String?): Uri {
-            return getUriBuilder(gameId, PATH_POLLS).appendPath(pollName)
-                .appendPath(PATH_POLL_RESULTS).appendPath(key)
-                .appendPath(PATH_POLL_RESULTS_RESULT).appendPath(key2).build()
-        }
-
-        fun buildSuggestedPlayerCountPollResultsUri(gameId: Int): Uri {
-            return getUriBuilder(gameId, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS).build()
-        }
-
-        fun buildSuggestedPlayerCountPollResultsUri(gameId: Int, playerCount: String): Uri {
-            return getUriBuilder(gameId, PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS).appendPath(playerCount).build()
-        }
-
-        fun buildColorsUri(gameId: Int): Uri {
-            return getUriBuilder(gameId, PATH_COLORS).build()
-        }
-
-        fun buildColorsUri(gameId: Int, color: String?): Uri {
-            return getUriBuilder(gameId, PATH_COLORS).appendPath(color).build()
-        }
-
-        private fun getUriBuilder(): Uri.Builder = CONTENT_URI.buildUpon()
-
         private fun getUriBuilder(gameId: Int): Uri.Builder {
             return CONTENT_URI.buildUpon().appendPath(gameId.toString())
         }
 
-        private fun getUriBuilder(gameId: Int, path: String): Uri.Builder {
-            return getLimitedUriBuilder(gameId, path, 0)
-        }
-
-        private fun getUriBuilder(gameId: Int, path: String, id: Int): Uri.Builder {
-            return getUriBuilder(gameId, path).appendPath(id.toString())
-        }
-
-        fun buildPathUri(gameId: Int, path: String?): Uri {
-            return CONTENT_URI.buildUpon().appendPath(gameId.toString()).appendPath(path).build()
-        }
-
-        fun buildPathUri(gameId: Int, path: String?, id: Int): Uri {
-            return CONTENT_URI.buildUpon().appendPath(gameId.toString()).appendPath(path)
-                .appendPath(id.toString()).build()
-        }
-
-        private fun getLimitedUriBuilder(gameId: Int, path: String, limit: Int = 0): Uri.Builder {
-            val builder = CONTENT_URI.buildUpon().appendPath(gameId.toString()).appendPath(path)
-            if (limit > 0) {
-                builder.appendQueryParameter(QUERY_KEY_LIMIT, limit.toString())
-            }
-            return builder
-        }
-
         fun getGameId(uri: Uri) = uri.getPathValueAsInt(PATH_GAMES)
-
-        fun getPollName(uri: Uri) = uri.getPathValue(PATH_POLLS)
-
-        fun getPollResultsKey(uri: Uri) = uri.getPathValue(PATH_POLL_RESULTS)
-
-        fun getPollResultsResultKey(uri: Uri) = uri.getPathValue(PATH_POLL_RESULTS_RESULT)
-
-        fun getPollPlayerCount(uri: Uri) = uri.getPathValue(PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
     }
 
     object GameRanks {
@@ -234,16 +91,7 @@ class BggContract {
             const val GAME_RANK_BAYES_AVERAGE = "gamerank_bayes_average"
         }
 
-        val CONTENT_URI: Uri = Games.CONTENT_URI.buildUpon().appendPath(PATH_RANKS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.rank"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.rank"
-        const val DEFAULT_SORT = ("${Columns.GAME_RANK_TYPE} DESC,${Columns.GAME_RANK_VALUE},${Columns.GAME_RANK_FRIENDLY_NAME}")
-
-        fun buildGameRankUri(gameRankId: Int): Uri {
-            return CONTENT_URI.buildUpon().appendPath(gameRankId.toString()).build()
-        }
-
-        fun getRankId(uri: Uri) = uri.getPathValueAsInt(PATH_RANKS)
     }
 
     object Designers {
@@ -261,20 +109,7 @@ class BggContract {
             const val UPDATED = COL_UPDATED
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_DESIGNERS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.designer"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.designer"
-        const val DEFAULT_SORT = "${Columns.DESIGNER_NAME}$COLLATE_NOCASE ASC"
-
-        fun buildDesignerUri(designerId: Int): Uri {
-            return CONTENT_URI.buildUpon().appendPath(designerId.toString()).build()
-        }
-
-        fun buildDesignerCollectionUri(designerId: Int): Uri {
-            return CONTENT_URI.buildUpon().appendPath(designerId.toString()).appendPath(PATH_COLLECTION).build()
-        }
-
-        fun getDesignerId(uri: Uri) = uri.getPathValueAsInt(PATH_DESIGNERS)
     }
 
     object Artists {
@@ -293,20 +128,7 @@ class BggContract {
             const val UPDATED = COL_UPDATED
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_ARTISTS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.artist"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.artist"
-        const val DEFAULT_SORT = Columns.ARTIST_NAME + COLLATE_NOCASE + " ASC"
-
-        fun buildArtistUri(artistId: Int): Uri {
-            return CONTENT_URI.buildUpon().appendPath(artistId.toString()).build()
-        }
-
-        fun buildArtistCollectionUri(artistId: Int): Uri {
-            return CONTENT_URI.buildUpon().appendPath(artistId.toString()).appendPath(PATH_COLLECTION).build()
-        }
-
-        fun getArtistId(uri: Uri) = uri.getPathValueAsInt(PATH_ARTISTS)
     }
 
     object Publishers {
@@ -324,16 +146,7 @@ class BggContract {
             const val UPDATED = COL_UPDATED
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PUBLISHERS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.publisher"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.publisher"
-        const val DEFAULT_SORT = "${Columns.PUBLISHER_NAME}$COLLATE_NOCASE ASC"
-
-        fun buildCollectionUri(publisherId: Int): Uri {
-            return CONTENT_URI.buildUpon().appendPath(publisherId.toString()).appendPath(PATH_COLLECTION).build()
-        }
-
-        fun getPublisherId(uri: Uri) = uri.getPathValueAsInt(PATH_PUBLISHERS)
     }
 
     object Mechanics {
@@ -341,28 +154,9 @@ class BggContract {
             const val MECHANIC_ID = "mechanic_id"
             const val MECHANIC_NAME = "mechanic_name"
             const val ITEM_COUNT = "item_count"
-            const val UPDATED = COL_UPDATED
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_MECHANICS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.mechanic"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.mechanic"
-        const val DEFAULT_SORT = "${Columns.MECHANIC_NAME}$COLLATE_NOCASE ASC"
-
-        @Suppress("unused")
-        fun buildMechanicUri(mechanicId: Int): Uri {
-            return createMechanicUri(mechanicId).build()
-        }
-
-        private fun createMechanicUri(mechanicId: Int): Uri.Builder {
-            return CONTENT_URI.buildUpon().appendPath(mechanicId.toString())
-        }
-
-        fun buildCollectionUri(mechanicId: Int): Uri {
-            return createMechanicUri(mechanicId).appendPath(PATH_COLLECTION).build()
-        }
-
-        fun getMechanicId(uri: Uri) = uri.getPathValueAsInt(PATH_MECHANICS)
     }
 
     object Categories {
@@ -370,28 +164,9 @@ class BggContract {
             const val CATEGORY_ID = "category_id"
             const val CATEGORY_NAME = "category_name"
             const val ITEM_COUNT = "item_count"
-            const val UPDATED = COL_UPDATED
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_CATEGORIES).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.category"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.category"
-        const val DEFAULT_SORT = "${Columns.CATEGORY_NAME}$COLLATE_NOCASE ASC"
-
-        @Suppress("unused")
-        fun buildCategoryUri(categoryId: Int): Uri {
-            return createCategoryUri(categoryId).build()
-        }
-
-        fun buildCollectionUri(categoryId: Int): Uri {
-            return createCategoryUri(categoryId).appendPath(PATH_COLLECTION).build()
-        }
-
-        private fun createCategoryUri(categoryId: Int): Uri.Builder {
-            return CONTENT_URI.buildUpon().appendPath(categoryId.toString())
-        }
-
-        fun getCategoryId(uri: Uri) = uri.getPathValueAsInt(PATH_CATEGORIES)
     }
 
     object GamesExpansions {
@@ -402,10 +177,7 @@ class BggContract {
             const val INBOUND = "inbound"
         }
 
-        val CONTENT_URI: Uri = Games.CONTENT_URI.buildUpon().appendPath(PATH_EXPANSIONS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.expansion"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.expansion"
-        const val DEFAULT_SORT = "${Columns.EXPANSION_NAME}$COLLATE_NOCASE ASC"
     }
 
     object Collection {
@@ -457,23 +229,12 @@ class BggContract {
             const val UPDATED_LIST = COL_UPDATED_LIST
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build()
+        private val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.collection"
         const val DEFAULT_SORT = Columns.COLLECTION_SORT_NAME + COLLATE_NOCASE + " ASC"
-        const val SORT_ACQUIRED_FROM = Columns.PRIVATE_INFO_ACQUIRED_FROM + COLLATE_NOCASE + " ASC"
-        const val SORT_INVENTORY_LOCATION = Columns.PRIVATE_INFO_INVENTORY_LOCATION + COLLATE_NOCASE + " ASC"
 
         fun buildUri(id: Long): Uri {
             return CONTENT_URI.buildUpon().appendPath(id.toString()).build()
-        }
-
-        fun buildAcquiredFromUri(): Uri {
-            return CONTENT_URI.buildUpon().appendPath(PATH_ACQUIRED_FROM).build()
-        }
-
-        fun buildInventoryLocationUri(): Uri {
-            return CONTENT_URI.buildUpon().appendPath(PATH_INVENTORY_LOCATION).build()
         }
 
         fun getId(uri: Uri) = uri.getPathValueAsLong(PATH_COLLECTION)
@@ -492,10 +253,8 @@ class BggContract {
             const val UPDATED_LIST_TIMESTAMP = "updated_list_timestamp"
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build()
+        private val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.user"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.user"
-        const val DEFAULT_SORT = "${Columns.LAST_NAME}$COLLATE_NOCASE ASC, ${Columns.FIRST_NAME}$COLLATE_NOCASE ASC"
 
         fun buildUserUri(username: String): Uri {
             return CONTENT_URI.buildUpon().appendPath(username).build()
@@ -512,36 +271,8 @@ class BggContract {
             const val PLAYER_COLOR_SORT_ORDER = "player_color_sort"
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYER_COLORS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playercolor"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playercolor"
         const val TYPE_USER = 1
-        const val TYPE_PLAYER = 2
-        const val DEFAULT_SORT = "${Columns.PLAYER_TYPE} ASC, ${Columns.PLAYER_NAME} ASC, ${Columns.PLAYER_COLOR_SORT_ORDER} ASC"
-
-        fun buildUserUri(username: String?): Uri {
-            return BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).appendPath(username).appendPath(PATH_COLORS).build()
-        }
-
-        fun buildPlayerUri(playerName: String?): Uri {
-            return BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).appendPath(playerName).appendPath(PATH_COLORS).build()
-        }
-
-        fun buildUserUri(username: String?, sortOrder: Int): Uri {
-            return buildUserUri(username).buildUpon().appendPath(sortOrder.toString()).build()
-        }
-
-        fun getUsername(uri: Uri?) = uri.getSegmentAfterPath(PATH_USERS)
-
-        fun getPlayerName(uri: Uri?) = uri.getSegmentAfterPath(PATH_PLAYERS)
-
-        fun getSortOrder(uri: Uri?) = uri.getSegmentAfterPath(PATH_COLORS)?.toIntOrNull() ?: 0
-
-        private fun Uri?.getSegmentAfterPath(pathSegment: String, pathIndex: Int = 0): String? {
-            return this?.pathSegments?.let {
-                if (it.getOrNull(pathIndex) == pathSegment) it.getOrNull(pathIndex + 1) else null
-            }
-        }
     }
 
     object GameSuggestedPlayerCountPollPollResults {
@@ -556,8 +287,6 @@ class BggContract {
         }
 
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepoll.playercount"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepoll.playercount"
-        const val DEFAULT_SORT = "${Columns.SORT_INDEX} ASC"
     }
 
     object GamePolls {
@@ -568,10 +297,7 @@ class BggContract {
             const val POLL_TOTAL_VOTES = "poll_total_votes"
         }
 
-        val CONTENT_URI: Uri = Games.CONTENT_URI.buildUpon().appendPath(PATH_POLLS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepoll"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepoll"
-        const val DEFAULT_SORT = "${Columns.POLL_TITLE}$COLLATE_NOCASE ASC"
     }
 
     object GamePollResults {
@@ -582,10 +308,7 @@ class BggContract {
             const val POLL_RESULTS_SORT_INDEX = "pollresults_sortindex"
         }
 
-        val CONTENT_URI: Uri = GamePolls.CONTENT_URI.buildUpon().appendPath(PATH_POLL_RESULTS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresult"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresult"
-        const val DEFAULT_SORT = "${Columns.POLL_RESULTS_SORT_INDEX} ASC"
     }
 
     object GamePollResultsResult {
@@ -598,10 +321,7 @@ class BggContract {
             const val POLL_RESULTS_RESULT_SORT_INDEX = "pollresultsresult_sortindex"
         }
 
-        val CONTENT_URI: Uri = GamePollResults.CONTENT_URI.buildUpon().appendPath(PATH_POLL_RESULTS_RESULT).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamepollresultsresult"
-        const val DEFAULT_SORT = "${GamePollResults.Columns.POLL_RESULTS_SORT_INDEX} ASC, ${Columns.POLL_RESULTS_RESULT_SORT_INDEX} ASC"
     }
 
     object GameColors {
@@ -610,10 +330,7 @@ class BggContract {
             const val COLOR = "color"
         }
 
-        val CONTENT_URI: Uri = Games.CONTENT_URI.buildUpon().appendPath(PATH_COLORS).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamecolor"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.boardgamecolor"
-        const val DEFAULT_SORT = Columns.COLOR + COLLATE_NOCASE + " ASC"
     }
 
     object Plays {
@@ -635,77 +352,9 @@ class BggContract {
             const val UPDATE_TIMESTAMP = "update_timestamp"
             const val DIRTY_TIMESTAMP = "dirty_timestamp"
             const val SYNC_TIMESTAMP = COL_UPDATED_LIST
-            const val SUM_QUANTITY = "sum_quantity"
-            const val SUM_WINS = "sum_wins"
-            const val MAX_DATE = "max_date"
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_PLAYS).build()
-        private val CONTENT_SIMPLE_URI: Uri = CONTENT_URI.buildUpon().fragment(FRAGMENT_SIMPLE).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.play"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.play"
-
-        const val DEFAULT_SORT = "${Columns.DATE} DESC, plays.${Columns.PLAY_ID} DESC"
-
-        /**
-         * content://com.boardgamegeek/plays/#
-         */
-        fun buildPlayUri(internalId: Long): Uri {
-            return CONTENT_SIMPLE_URI.buildUpon().appendPath(internalId.toString()).build()
-        }
-
-        fun buildPlayWithGameUri(internalId: Long): Uri {
-            return CONTENT_URI.buildUpon().appendPath(internalId.toString()).build()
-        }
-
-        fun buildPlayerUri(): Uri {
-            return CONTENT_URI.buildUpon()
-                .appendPath(PATH_PLAYERS)
-                .build()
-        }
-
-        fun buildPlayerUri(internalId: Long): Uri {
-            return CONTENT_URI.buildUpon()
-                .appendPath(internalId.toString())
-                .appendPath(PATH_PLAYERS)
-                .build()
-        }
-
-        fun buildPlayerUri(internalPlayId: Long, internalPlayerId: Long): Uri {
-            return CONTENT_URI.buildUpon()
-                .appendPath(internalPlayId.toString())
-                .appendPath(PATH_PLAYERS)
-                .appendPath(internalPlayerId.toString())
-                .build()
-        }
-
-        fun buildLocationsUri(): Uri {
-            return CONTENT_URI.buildUpon().appendPath(PATH_LOCATIONS).build()
-        }
-
-        fun buildPlayersUri(): Uri {
-            return CONTENT_URI.buildUpon().appendPath(PATH_PLAYERS).build()
-        }
-
-        fun buildPlayersByPlayUri(): Uri {
-            return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_PLAY).build()
-        }
-
-        fun buildPlayersByUniquePlayerUri(): Uri {
-            return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_PLAYER).build()
-        }
-
-        fun buildPlayersByUniqueUserUri(): Uri {
-            return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_USER).build()
-        }
-
-        fun buildPlayersByUniqueNameUri(): Uri {
-            return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_UNIQUE_NAME).build()
-        }
-
-        fun buildPlayersByColor(): Uri {
-            return buildPlayersUri().buildUpon().appendQueryParameter(QUERY_KEY_GROUP_BY, QUERY_VALUE_COLOR).build()
-        }
 
         fun getInternalId(uri: Uri) = uri.getPathValueAsLong(PATH_PLAYS)
     }
@@ -723,21 +372,9 @@ class BggContract {
             const val NEW = "new"
             const val RATING = "rating"
             const val WIN = "win"
-            const val COUNT = "count"
-            const val DESCRIPTION = "description"
-            const val UNIQUE_NAME = "unique_name"
         }
 
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playplayer"
-        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.playplayer"
-        const val DEFAULT_SORT = "${Columns.START_POSITION} ASC, play_players.${Columns.NAME}$COLLATE_NOCASE ASC"
-        const val SORT_BY_SUM_QUANTITY = "${Plays.Columns.SUM_QUANTITY} DESC, $DEFAULT_SORT"
-
-        fun getPlayPlayerId(uri: Uri) = uri.getPathValueAsLong(PATH_PLAYERS)
-    }
-
-    object PlayLocations {
-        const val DEFAULT_SORT = "${Plays.Columns.LOCATION}$COLLATE_NOCASE ASC"
     }
 
     object CollectionViews {
@@ -771,44 +408,11 @@ class BggContract {
         const val COL_UPDATED_LIST = "updated_list"
 
         const val PATH_GAMES = "games"
-        const val PATH_RANKS = "ranks"
-        const val PATH_DESIGNERS = "designers"
-        const val PATH_ARTISTS = "artists"
-        const val PATH_PUBLISHERS = "publishers"
-        const val PATH_MECHANICS = "mechanics"
-        const val PATH_CATEGORIES = "categories"
-        const val PATH_EXPANSIONS = "expansions"
         const val PATH_COLLECTION = "collection"
         const val PATH_USERS = "users"
-        const val PATH_POLLS = "polls"
-        const val PATH_POLL_RESULTS = "results"
-        const val PATH_POLL_RESULTS_RESULT = "result"
-        const val PATH_SUGGESTED_PLAYER_COUNT_POLL_RESULTS = "suggestedplayercountpollresults"
         const val PATH_THUMBNAILS = "thumbnails"
         const val PATH_AVATARS = "avatars"
-        const val PATH_COLORS = "colors"
-        const val PATH_PLAYER_COLORS = "playercolors"
-        const val PATH_ACQUIRED_FROM = "acquiredfrom"
-        const val PATH_INVENTORY_LOCATION = "inventorylocation"
         const val PATH_PLAYS = "plays"
-        const val PATH_PLAYERS = "players"
-        const val PATH_LOCATIONS = "locations"
-
-        const val QUERY_KEY_GROUP_BY = "groupby"
-        const val QUERY_VALUE_NAME_NOT_USER = "namenotuser"
-        const val QUERY_VALUE_UNIQUE_NAME = "uniquename"
-        const val QUERY_VALUE_UNIQUE_PLAYER = "uniqueplayer"
-        const val QUERY_VALUE_UNIQUE_USER = "uniqueuser"
-        const val QUERY_VALUE_COLOR = "color"
-        const val QUERY_VALUE_PLAY = "play"
         const val QUERY_KEY_LIMIT = "limit"
-
-        const val FRAGMENT_SIMPLE = "simple"
-        const val FRAGMENT_PLAYS = "plays"
-
-
-        fun buildBasicUri(path: String?, id: Long): Uri? {
-            return BASE_CONTENT_URI.buildUpon().appendPath(path).appendPath(id.toString()).build()
-        }
     }
 }

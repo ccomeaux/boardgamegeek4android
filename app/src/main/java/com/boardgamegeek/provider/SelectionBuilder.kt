@@ -18,7 +18,6 @@ package com.boardgamegeek.provider
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
-import android.provider.BaseColumns
 import timber.log.Timber
 
 @Suppress("SpellCheckingInspection")
@@ -47,14 +46,6 @@ class SelectionBuilder {
         return this
     }
 
-    fun whereEquals(column: String, selectionArg: String?) = where("$column=?", selectionArg)
-
-    fun whereEquals(column: String, selectionArg: Int) = where("$column=?", selectionArg.toString())
-
-    fun whereEquals(column: String, selectionArg: Long) = where("$column=?", selectionArg.toString())
-
-    fun whereEqualsOrNull(column: String, selectionArg: String?) = where("$column=? OR $column IS NULL", selectionArg)
-
     /**
      * Append the given selection clause to the internal state. Each clause is surrounded with parenthesis and combined
      * using `AND`.
@@ -75,11 +66,6 @@ class SelectionBuilder {
         return this
     }
 
-    fun table(table: String?): SelectionBuilder {
-        tableName = table
-        return this
-    }
-
     fun limit(rowCount: String?): SelectionBuilder {
         limit = null
         rowCount?.let {
@@ -94,34 +80,6 @@ class SelectionBuilder {
 
     fun map(fromColumn: String, toClause: String?): SelectionBuilder {
         projectionMap[fromColumn] = "$toClause AS $fromColumn"
-        return this
-    }
-
-    fun mapToTable(column: String, table: String?): SelectionBuilder {
-        return if (column == BaseColumns._ID) {
-            mapToTable(column, table, column)
-        } else {
-            projectionMap[column] = "$table.$column"
-            this
-        }
-    }
-
-    fun mapToTable(column: String, table: String?, alias: String?): SelectionBuilder {
-        projectionMap[column] = "$table.$column AS $alias"
-        return this
-    }
-
-    fun mapAsSum(aliasColumn: String, sumColumn: String, table: String? = null) = map(aliasColumn, "SUM(${sumColumn.withTable(table)})")
-
-    fun mapAsMax(aliasColumn: String, maxColumn: String) = map(aliasColumn, "MAX($maxColumn)")
-
-    fun mapAsCount(fromColumn: String) = map(fromColumn, "COUNT(*)")
-
-    private fun String.withTable(table: String?): String = if (table == null) this else "$table.$this"
-
-    fun groupBy(vararg groupArgs: String?): SelectionBuilder {
-        groupBy.clear()
-        groupBy.addAll(groupArgs.asList().filterNotNull())
         return this
     }
 
