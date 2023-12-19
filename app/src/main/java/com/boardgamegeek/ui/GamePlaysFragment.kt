@@ -30,6 +30,7 @@ class GamePlaysFragment : Fragment() {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
     private var heroImageUrl = ""
+    private var thumbnailUrl = ""
     private var arePlayersCustomSorted = false
 
     @ColorInt
@@ -57,6 +58,7 @@ class GamePlaysFragment : Fragment() {
                 gameId = game.id
                 gameName = game.name
                 heroImageUrl = game.heroImageUrl
+                thumbnailUrl = game.thumbnailUrl
                 arePlayersCustomSorted = game.customPlayerSort
                 binding.syncTimestampView.timestamp = game.updatedPlays
                 iconColor = game.iconColor
@@ -103,6 +105,7 @@ class GamePlaysFragment : Fragment() {
                     gameId,
                     gameName,
                     heroImageUrl,
+                    thumbnailUrl,
                     arePlayersCustomSorted,
                     iconColor,
                 )

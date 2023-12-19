@@ -143,7 +143,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 binding.coordinatorLayout.snackbar(R.string.msg_logging_play)
                 viewModel.logQuickPlay(gameId, gameName)
             }
-            R.id.menu_log_play -> LogPlayActivity.logPlay(this, gameId, gameName, heroImageUrl.ifBlank { thumbnailUrl }, arePlayersCustomSorted)
+            R.id.menu_log_play -> LogPlayActivity.logPlay(this, gameId, gameName, heroImageUrl.ifBlank { thumbnailUrl.ifBlank { imageUrl } }, arePlayersCustomSorted)
             R.id.menu_log_play_wizard -> NewPlayActivity.start(this, gameId, gameName)
             R.id.menu_view_image -> ImageActivity.start(this, heroImageUrl)
             R.id.menu_users -> GameUsersDialogFragment.launch(this)
@@ -195,7 +195,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             context.startActivity(intent)
         }
 
-        fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
+        fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = thumbnailUrl) {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl) ?: return
             context.startActivity(intent.clearTask().clearTop())
         }

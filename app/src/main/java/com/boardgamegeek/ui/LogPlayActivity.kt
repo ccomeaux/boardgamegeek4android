@@ -1101,7 +1101,7 @@ class LogPlayActivity : AppCompatActivity() {
             gameId: Int,
             gameName: String,
             heroImageUrl: String = "",
-            customPlayerSort: Boolean = false
+            customPlayerSort: Boolean = false,
         ) {
             context.startActivity(
                 createIntent(
@@ -1120,7 +1120,7 @@ class LogPlayActivity : AppCompatActivity() {
             internalId: Long,
             gameId: Int,
             gameName: String,
-            heroImageUrl: String
+            heroImageUrl: String,
         ) {
             context.startActivity(createIntent(context, internalId, gameId, gameName, heroImageUrl, false))
         }
@@ -1137,7 +1137,7 @@ class LogPlayActivity : AppCompatActivity() {
             gameId: Int,
             gameName: String,
             heroImageUrl: String,
-            customPlayerSort: Boolean
+            customPlayerSort: Boolean,
         ) {
             context.startActivity(createRematchIntent(context, internalId, gameId, gameName, heroImageUrl, customPlayerSort))
         }
@@ -1147,7 +1147,7 @@ class LogPlayActivity : AppCompatActivity() {
             internalId: Long,
             gameId: Int,
             gameName: String,
-            heroImageUrl: String
+            heroImageUrl: String,
         ) {
             context.startActivity(createIntent(context, internalId, gameId, gameName, heroImageUrl, false).also {
                 it.putExtra(KEY_CHANGE_GAME, true)
@@ -1160,7 +1160,7 @@ class LogPlayActivity : AppCompatActivity() {
             gameId: Int,
             gameName: String,
             heroImageUrl: String,
-            customPlayerSort: Boolean
+            customPlayerSort: Boolean,
         ): Intent {
             return createIntent(context, internalId, gameId, gameName, heroImageUrl, customPlayerSort).also {
                 it.putExtra(KEY_REMATCH, true)
@@ -1173,7 +1173,7 @@ class LogPlayActivity : AppCompatActivity() {
             gameId: Int,
             gameName: String,
             heroImageUrl: String,
-            customPlayerSort: Boolean
+            customPlayerSort: Boolean,
         ): Intent {
             return context.intentFor<LogPlayActivity>(
                 KEY_ID to internalId,

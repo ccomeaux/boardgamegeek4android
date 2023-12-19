@@ -40,6 +40,9 @@ data class Play(
 
     val heroImageUrls = listOf(heroImageUrl, thumbnailUrl, imageUrl).filter { it.isNotBlank() }
 
+    val robustHeroImageUrl: String
+        get() = heroImageUrl.ifBlank { thumbnailUrl.ifBlank { imageUrl } }
+
     fun dateForDisplay(context: Context): CharSequence {
         return dateInMillis.asPastDaySpan(context, includeWeekDay = true)
     }

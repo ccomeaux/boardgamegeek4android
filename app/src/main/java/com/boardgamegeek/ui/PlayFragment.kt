@@ -66,7 +66,7 @@ class PlayFragment : Fragment() {
                     play.internalId,
                     play.gameId,
                     play.gameName,
-                    play.heroImageUrl,
+                    play.robustHeroImageUrl,
                 )
             }
         }
@@ -232,7 +232,7 @@ class PlayFragment : Fragment() {
                                 it.internalId,
                                 it.gameId,
                                 it.gameName,
-                                it.heroImageUrl
+                                it.robustHeroImageUrl,
                             )
                             return true
                         }
@@ -266,7 +266,7 @@ class PlayFragment : Fragment() {
                                 it.internalId,
                                 it.gameId,
                                 it.gameName,
-                                it.heroImageUrl,
+                                it.robustHeroImageUrl,
                                 it.arePlayersCustomSorted()
                             )
                             requireActivity().finish() // don't want to show the "old" play upon return

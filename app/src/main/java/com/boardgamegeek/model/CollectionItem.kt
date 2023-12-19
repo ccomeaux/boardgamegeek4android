@@ -111,6 +111,9 @@ data class CollectionItem(
     val yearPublished: Int
         get() = if (collectionYearPublished == YEAR_UNKNOWN) gameYearPublished else collectionYearPublished
 
+    val robustHeroImageUrl: String
+        get() = heroImageUrl.ifBlank { thumbnailUrl }.ifBlank { imageUrl }
+
     fun getPrivateInfo(context: Context): CharSequence {
         val initialText = context.resources.getString(R.string.acquired)
         val sb = SpannableStringBuilder()

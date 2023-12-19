@@ -295,15 +295,15 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 }
             }
             R.id.menu_edit -> {
-                val play = adapter.getItem(adapter.selectedItemPositions.iterator().next())
-                if (play != null)
+                adapter.getItem(adapter.selectedItemPositions.iterator().next())?.let { play ->
                     LogPlayActivity.editPlay(
                         requireContext(),
                         play.internalId,
                         play.gameId,
                         play.gameName,
-                        play.heroImageUrl,
+                        play.robustHeroImageUrl,
                     )
+                }
                 mode.finish()
             }
             R.id.menu_delete -> {

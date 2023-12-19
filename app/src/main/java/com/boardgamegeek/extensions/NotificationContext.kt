@@ -183,6 +183,7 @@ fun Context.notifyLoggedPlay(result: PlayUploadResult) {
                     result.play.gameId,
                     result.play.gameName,
                     result.play.heroImageUrl,
+                    result.play.thumbnailUrl,
                 )
             else
                 PlayActivity.createIntent(context, result.play.internalId)
@@ -210,7 +211,7 @@ private fun createRematchAction(context: Context, play: Play): NotificationCompa
             play.internalId,
             play.gameId,
             play.gameName,
-            play.heroImageUrl,
+            play.robustHeroImageUrl,
             play.gameIsCustomSorted,
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
