@@ -4,7 +4,7 @@ import androidx.room.*
 import com.boardgamegeek.db.model.*
 
 @Dao
-interface GameDaoNew {
+interface GameDao {
     @Transaction
     suspend fun upsert(game: GameForUpsert): Long {
         val internalId = if (game.header.internalId == 0L) {

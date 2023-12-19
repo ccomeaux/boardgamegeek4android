@@ -48,12 +48,12 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository, playDao: PlayDao, gameColorDao: GameColorDao, gameDao: GameDaoNew, artistDao: ArtistDao, designerDao: DesignerDao, publisherDao: PublisherDao, categoryDao: CategoryDao, mechanicDao: MechanicDao, collectionDao: CollectionDao) =
+    fun provideGameRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, imageRepository: ImageRepository, playDao: PlayDao, gameColorDao: GameColorDao, gameDao: GameDao, artistDao: ArtistDao, designerDao: DesignerDao, publisherDao: PublisherDao, categoryDao: CategoryDao, mechanicDao: MechanicDao, collectionDao: CollectionDao) =
         GameRepository(context, api, imageRepository, playDao, gameColorDao, gameDao, artistDao, designerDao, publisherDao, categoryDao, mechanicDao, collectionDao)
 
     @Provides
     @Singleton
-    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, imageRepository: ImageRepository, phpApi: PhpApi, gameDao: GameDaoNew, collectionDao: CollectionDao) =
+    fun provideGameCollectionRepository(@ApplicationContext context: Context, @Named("withAuth") api: BggService, imageRepository: ImageRepository, phpApi: PhpApi, gameDao: GameDao, collectionDao: CollectionDao) =
         GameCollectionRepository(context, api, imageRepository, phpApi, gameDao, collectionDao)
 
     @Provides
@@ -74,7 +74,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi, playDao: PlayDao, playerColorDao: PlayerColorDao, userDao: UserDao, gameColorDao: GameColorDao, gameDao: GameDaoNew, collectionDao: CollectionDao) =
+    fun providePlayRepository(@ApplicationContext context: Context, @Named("noAuth") api: BggService, phpApi: PhpApi, playDao: PlayDao, playerColorDao: PlayerColorDao, userDao: UserDao, gameColorDao: GameColorDao, gameDao: GameDao, collectionDao: CollectionDao) =
         PlayRepository(context, api, phpApi, playDao, playerColorDao, userDao, gameColorDao, gameDao, collectionDao)
 
     @Provides

@@ -6,7 +6,7 @@ import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.db.GameDaoNew
+import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.model.CollectionItemForInsert
 import com.boardgamegeek.db.model.CollectionItemWithGameEntity
 import com.boardgamegeek.db.model.CollectionPrivateInfoEntity
@@ -34,7 +34,7 @@ class GameCollectionRepository(
     private val api: BggService,
     private val imageRepository: ImageRepository,
     private val phpApi: PhpApi,
-    private val gameDao: GameDaoNew,
+    private val gameDao: GameDao,
     private val collectionDao: CollectionDao,
 ) {
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
