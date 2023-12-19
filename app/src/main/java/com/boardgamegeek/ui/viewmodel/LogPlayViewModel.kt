@@ -4,10 +4,10 @@ import android.app.Application
 import android.content.SharedPreferences
 import android.text.format.DateUtils
 import androidx.lifecycle.*
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.model.Player
-import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -153,7 +153,7 @@ class LogPlayViewModel @Inject constructor(
 
             if (internalId == INVALID_ID.toLong()) {
                 _internalId.value = INVALID_ID.toLong()
-                _dateInMillis.postValue(Calendar.getInstance().timeInMillis)
+                _dateInMillis.postValue(today())
                 val recentlyPlayed = (prefs[KEY_LAST_PLAY_TIME, 0L] ?: 0L).howManyHoursOld() < 12
                 if (recentlyPlayed) {
                     _location.postValue(prefs[KEY_LAST_PLAY_LOCATION, ""].orEmpty())
@@ -172,7 +172,7 @@ class LogPlayViewModel @Inject constructor(
                     _internalId.value = (if (isChangingGame || isRequestingRematch) INVALID_ID.toLong() else internalId)
                     if (!isChangingGame && !isRequestingRematch) _playId = play.playId
                     if (isRequestingRematch) {
-                        _dateInMillis.postValue(Calendar.getInstance().timeInMillis)
+                        _dateInMillis.postValue(today())
                         val players = if (gameSupportsCustomSort) play.players.map { player ->
                             player.copy(score = "", rating = 0.0, isWin = false, isNew = false, startingPosition = "")
                         } else play.players.map { player ->
@@ -514,7 +514,7 @@ class LogPlayViewModel @Inject constructor(
     ) = Play(
         internalId = _internalId.value ?: INVALID_ID.toLong(),
         playId = _playId,
-        dateInMillis = _dateInMillis.value ?: Calendar.getInstance().timeInMillis,
+        dateInMillis = _dateInMillis.value ?: today(),
         gameId = _game.value?.first ?: INVALID_ID,
         gameName = _game.value?.second.orEmpty(),
         location = _location.value.orEmpty(),
@@ -529,4 +529,13 @@ class LogPlayViewModel @Inject constructor(
         updateTimestamp = updateTimestamp,
         deleteTimestamp = deleteTimestamp,
     )
+
+    private fun today(): Long {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.timeInMillis
+    }
 }

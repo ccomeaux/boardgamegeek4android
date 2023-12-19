@@ -113,7 +113,7 @@ class LogPlayActivity : AppCompatActivity() {
 
     private fun wireUi() {
         binding.dateButton.setOnClickListener {
-            val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(dateInMillis).build()
+            val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(dateInMillis?.fromLocalToUtc()).build()
             datePicker.addOnPositiveButtonClickListener {
                 viewModel.updateDate(it.fromLocalToUtc())
             }
