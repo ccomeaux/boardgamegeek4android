@@ -24,5 +24,6 @@ class DatabaseModule {
         "bgg.db",
     ).addMigrations(
         DatabaseMigrations.MIGRATION_60_61,
+        DatabaseMigrations.MIGRATION_61_62,
     ).build()
 }

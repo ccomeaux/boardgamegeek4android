@@ -2,16 +2,20 @@ package com.boardgamegeek.db.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.util.Date
 
-@Entity(tableName = "publishers")
+@Entity(
+    tableName = "publishers",
+    indices = [Index("publisher_id", name = "index_publishers_publisher_id", unique = true)]
+)
 data class PublisherEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     val internalId: Long,
     @ColumnInfo(name = "publisher_id")
-    val publisherId: Int, // unique
+    val publisherId: Int,
     @ColumnInfo(name = "publisher_name")
     val publisherName: String,
     @ColumnInfo(name = "publisher_sort_name")

@@ -15,7 +15,7 @@ data class ArtistEntity(
     @ColumnInfo(name = "_id")
     val internalId: Long,
     @ColumnInfo(name = "artist_id")
-    val artistId: Int, // unique
+    val artistId: Int,
     @ColumnInfo(name = "artist_name")
     val artistName: String,
     @ColumnInfo(name = "artist_description")
