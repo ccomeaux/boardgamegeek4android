@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.DialogFragment
@@ -12,9 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPollBinding
-import com.boardgamegeek.model.GamePoll
 import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.model.GameLanguagePoll
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.IntegerValueFormatter
 import com.github.mikephil.charting.animation.Easing
@@ -28,25 +27,14 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import java.text.DecimalFormat
 
 @AndroidEntryPoint
-class GamePollDialogFragment : DialogFragment() {
-    private var pollType = UNKNOWN
+class GameLanguagePollDialogFragment : DialogFragment() {
     private var snackBar: Snackbar? = null
     private var _binding: FragmentPollBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        pollType = arguments?.getInt(KEY_TYPE, UNKNOWN) ?: UNKNOWN
-        if (pollType != LANGUAGE_DEPENDENCE && pollType != SUGGESTED_PLAYER_AGE) {
-            Timber.w("Unknown type of $pollType")
-            dismiss()
-        }
-    }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -88,19 +76,9 @@ class GamePollDialogFragment : DialogFragment() {
             width = (resources.displayMetrics.widthPixels * .8).toInt()
         }
 
-        when (pollType) {
-            LANGUAGE_DEPENDENCE -> {
-                dialog?.setTitle(R.string.language_dependence)
-                viewModel.languagePoll.observe(viewLifecycleOwner) {
-                    it?.let { showData(it, BggColors.fiveStageColors) }
-                }
-            }
-            SUGGESTED_PLAYER_AGE -> {
-                dialog?.setTitle(R.string.suggested_playerage)
-                viewModel.agePoll.observe(viewLifecycleOwner) {
-                    it?.let { showData(it, BggColors.twelveStageColors) }
-                }
-            }
+        dialog?.setTitle(R.string.language_dependence)
+        viewModel.languagePoll.observe(viewLifecycleOwner) {
+            it?.let { showLanguageData(it) }
         }
     }
 
@@ -109,16 +87,23 @@ class GamePollDialogFragment : DialogFragment() {
         _binding = null
     }
 
-    private fun showData(poll: GamePoll, chartColors: List<Int>) {
+    private fun showLanguageData(poll: GameLanguagePoll) {
         val totalVoteCount = poll.totalVotes
         if (totalVoteCount > 0) {
-            val entries = mutableListOf<PieEntry>()
-            for ((_, value, numberOfVotes) in poll.results) {
-                entries += PieEntry(numberOfVotes.toFloat(), value)
+            val entries = poll.results.sortedBy { it.level }.map {
+                val resId = when (it.level) {
+                    1 -> R.string.language_dependence_level_1
+                    2 -> R.string.language_dependence_level_2
+                    3 -> R.string.language_dependence_level_3
+                    4 -> R.string.language_dependence_level_4
+                    5 -> R.string.language_dependence_level_5
+                    else -> R.string.language_dependence_level_3 // makes the compiler happy
+                }
+                PieEntry(it.numberOfVotes.toFloat(), getString(resId))
             }
             val dataSet = PieDataSet(entries, "").apply {
                 valueFormatter = IntegerValueFormatter(true)
-                setColors(*chartColors.toIntArray())
+                setColors(*BggColors.fiveStageColors.toIntArray())
             }
 
             binding.chartView.data = PieData(dataSet)
@@ -130,23 +115,10 @@ class GamePollDialogFragment : DialogFragment() {
     }
 
     companion object {
-        private const val KEY_TYPE = "TYPE"
-        private const val UNKNOWN = 0
-        private const val LANGUAGE_DEPENDENCE = 1
-        private const val SUGGESTED_PLAYER_AGE = 2
         private val FORMAT = DecimalFormat("#0")
 
-        fun launchLanguageDependence(host: Fragment) {
-            launch(host, LANGUAGE_DEPENDENCE)
-        }
-
-        fun launchSuggestedPlayerAge(host: Fragment) {
-            launch(host, SUGGESTED_PLAYER_AGE)
-        }
-
-        private fun launch(host: Fragment, type: Int) {
-            host.showAndSurvive(GamePollDialogFragment().apply {
-                arguments = bundleOf(KEY_TYPE to type)
+        fun launch(host: Fragment) {
+            host.showAndSurvive(GameLanguagePollDialogFragment().apply {
                 setStyle(STYLE_NORMAL, R.style.Theme_bgglight_Dialog)
             })
         }

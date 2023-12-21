@@ -14,7 +14,8 @@ import com.boardgamegeek.databinding.FragmentGameBinding
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.dialog.GamePollDialogFragment
+import com.boardgamegeek.ui.dialog.GameAgePollDialogFragment
+import com.boardgamegeek.ui.dialog.GameLanguagePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameRanksDialogFragment
 import com.boardgamegeek.ui.dialog.GameSuggestedPlayerCountPollDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -64,8 +65,12 @@ class GameFragment : Fragment() {
                 binding.progress.hide()
 
                 viewModel.ranks.observe(viewLifecycleOwner) { it?.let { onRankQueryComplete(it) } }
-                viewModel.languagePoll.observe(viewLifecycleOwner) { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) }
-                viewModel.agePoll.observe(viewLifecycleOwner) { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) }
+                viewModel.languagePoll.observe(viewLifecycleOwner) { gamePollEntity ->
+                    gamePollEntity?.let { onLanguagePollQueryComplete(it) }
+                }
+                viewModel.agePoll.observe(viewLifecycleOwner) { gameSuggestedAgePollEntity ->
+                    gameSuggestedAgePollEntity?.let { onAgePollQueryComplete(it) }
+                }
                 viewModel.playerPoll.observe(viewLifecycleOwner) {
                     it?.let { onPlayerCountQueryComplete(it) }
                 }
@@ -175,9 +180,9 @@ class GameFragment : Fragment() {
         binding.ranksInclude.subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
     }
 
-    private fun onLanguagePollQueryComplete(poll: GamePoll?) {
-        val score = poll?.calculateScore() ?: 0.0
-        val totalVotes = poll?.totalVotes ?: 0
+    private fun onLanguagePollQueryComplete(poll: GameLanguagePoll) {
+        val score = poll.calculateScore()
+        val totalVotes = poll.totalVotes
 
         binding.languageInclude.languageView.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
         if (score == 0.0) {
@@ -192,19 +197,19 @@ class GameFragment : Fragment() {
         binding.languageInclude.languageScoreView.setTextColor(textColor)
 
         binding.languageInclude.languageContainer.setOrClearOnClickListener(totalVotes > 0) {
-            GamePollDialogFragment.launchLanguageDependence(this)
+            GameLanguagePollDialogFragment.launch(this)
         }
         binding.languageInclude.root.isVisible = true
     }
 
-    private fun onAgePollQueryComplete(poll: GamePoll?) {
-        val voteCount = poll?.totalVotes ?: 0
-        val message = if (poll?.modalValue.isNullOrBlank()) ""
-        else requireContext().getText(R.string.age_community, poll?.modalValue.orEmpty())
+    private fun onAgePollQueryComplete(poll: GameAgePoll) {
+        val voteCount = poll.totalVotes
+        val message = if (poll.modalValue.isBlank()) ""
+        else requireContext().getText(R.string.age_community, poll.modalValue)
         binding.agesInclude.playerAgePollView.setTextOrHide(message)
         binding.agesInclude.playerAgeVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, voteCount, voteCount))
         binding.agesInclude.playerAgeContainer.setOrClearOnClickListener(voteCount > 0) {
-            GamePollDialogFragment.launchSuggestedPlayerAge(this)
+            GameAgePollDialogFragment.launch(this)
         }
     }
 

@@ -106,19 +106,19 @@ class GameRepository @Inject constructor(
             gameDao.loadRanksForGame(gameId).map { it.mapToModel() }
     }
 
-    suspend fun getLanguagePoll(gameId: Int): GamePoll? {
+    suspend fun getLanguagePoll(gameId: Int): GameLanguagePoll? {
         return if (gameId == INVALID_ID)
             null
         else {
-            gameDao.loadLanguagePollForGame(gameId).mapToModel()
+            gameDao.loadLanguagePollForGame(gameId).mapToLanguagePollModel()
         }
     }
 
-    suspend fun getAgePoll(gameId: Int): GamePoll? {
+    suspend fun getAgePoll(gameId: Int): GameAgePoll? {
         return if (gameId == INVALID_ID)
             null
         else {
-            gameDao.loadAgePollForGame(gameId).mapToModel()
+            gameDao.loadAgePollForGame(gameId).mapToAgePollModel()
         }
     }
 

@@ -1,8 +1,6 @@
 package com.boardgamegeek.model
 
-data class GamePoll(val results: List<GamePollResult>) {
-    val modalValue: String by lazy { results.maxByOrNull { it.numberOfVotes }?.value ?: "" }
-
+class GameLanguagePoll(val results: List<Result>) {
     val totalVotes: Int by lazy { results.sumOf { it.numberOfVotes } }
 
     fun calculateScore(): Double {
@@ -10,4 +8,9 @@ data class GamePoll(val results: List<GamePollResult>) {
         val totalLevel = results.sumOf { it.numberOfVotes * ((it.level - 1) % 5 + 1) }
         return totalLevel.toDouble() / totalVotes
     }
+
+    data class Result(
+        val level: Int = 0,
+        val numberOfVotes: Int = 0,
+    )
 }

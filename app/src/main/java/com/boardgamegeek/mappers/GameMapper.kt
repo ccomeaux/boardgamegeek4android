@@ -189,11 +189,19 @@ fun GameEntity.mapToModel(lastPlayDate: String?): Game {
     )
 }
 
-fun List<GamePollResultsWithPoll>.mapToModel() = GamePoll(
+fun List<GamePollResultsWithPoll>.mapToAgePollModel() = GameAgePoll(
     this.map {
-        GamePollResult(
-            level = it.results.pollResultsResultLevel ?: BggContract.INVALID_ID,
+        GameAgePoll.Result(
             value = it.results.pollResultsResultValue,
+            numberOfVotes = it.results.pollResultsResultVotes,
+        )
+    }
+)
+
+fun List<GamePollResultsWithPoll>.mapToLanguagePollModel() = GameLanguagePoll(
+    this.map {
+        GameLanguagePoll.Result(
+            level = it.results.pollResultsResultLevel ?: BggContract.INVALID_ID,
             numberOfVotes = it.results.pollResultsResultVotes,
         )
     }

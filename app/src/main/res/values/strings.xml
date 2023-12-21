@@ -527,6 +527,11 @@
 	<string name="player_description_score_segment">: %s</string>
 	<string name="player_description_win_segment">\u0020- Win!</string>
 	<string name="language_dependence">Language dependence</string>
+	<string name="language_dependence_level_1">No necessary in-game text</string>
+	<string name="language_dependence_level_2">Some necessary text - easily memorized or small crib sheet</string>
+	<string name="language_dependence_level_3">Moderate in-game text - needs crib sheet or paste ups</string>
+	<string name="language_dependence_level_4">Extensive use of text - massive conversion needed to be playable</string>
+	<string name="language_dependence_level_5">Unplayable in another language</string>
 	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
 	<string name="age_prefix">Ages <b>%d+</b></string>
