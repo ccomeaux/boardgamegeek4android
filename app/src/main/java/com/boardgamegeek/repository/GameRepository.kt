@@ -71,13 +71,13 @@ class GameRepository @Inject constructor(
         games?.size ?: 0
     }
 
-    suspend fun fetchGame(vararg gameId: Int): List<Game> = withContext(Dispatchers.IO) {
+    suspend fun fetchGameThumbnail(vararg gameId: Int): String? = withContext(Dispatchers.IO) {
         val response = if (gameId.size == 1) {
             api.thing(gameId.first(), 1)
         } else {
             api.things(gameId.joinToString(), 1)
         }
-        response.games?.map { it.mapToModel() }.orEmpty()
+        response.games?.firstOrNull()?.thumbnail
     }
 
     suspend fun refreshHeroImage(game: Game): Game = withContext(Dispatchers.IO) {

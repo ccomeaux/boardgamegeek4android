@@ -38,8 +38,8 @@ class GeekListViewModel @Inject constructor(
                     geekList.items.forEach {
                         itemsWithImages += if (it.thumbnailUrls == null || it.heroImageUrls == null) {
                             val urlPair = if (it.imageId == 0) {
-                                val games = gameRepository.fetchGame(it.objectId)
-                                listOf(games.firstOrNull()?.thumbnailUrl.orEmpty()) to listOf(games.firstOrNull()?.thumbnailUrl.orEmpty())
+                                val url = gameRepository.fetchGameThumbnail(it.objectId)
+                                listOf(url.orEmpty()) to listOf(url.orEmpty())
                             } else {
                                 val urls = imageRepository.getImageUrls(it.imageId)
                                 urls[ImageRepository.ImageType.THUMBNAIL] to urls[ImageRepository.ImageType.HERO]

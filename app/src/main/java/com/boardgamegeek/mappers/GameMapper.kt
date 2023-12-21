@@ -10,116 +10,12 @@ import com.boardgamegeek.provider.BggContract
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-@Suppress("SpellCheckingInspection")
-fun GameRemote.mapToModel(): Game {
-    val (primaryName, sortIndex) = findPrimaryName(this)
-    val game = Game(
-        id = id,
-        name = primaryName,
-        sortName = primaryName.sortName(sortIndex),
-        imageUrl = image.orEmpty(),
-        thumbnailUrl = thumbnail.orEmpty(),
-        description = description.replaceHtmlLineFeeds().trim(),
-        subtype = type.toThingSubtype().mapToEntitySubtype(),
-        yearPublished = yearpublished?.toIntOrNull() ?: Game.YEAR_UNKNOWN,
-        minPlayers = minplayers?.toIntOrNull() ?: 0,
-        maxPlayers = maxplayers?.toIntOrNull() ?: 0,
-        playingTime = playingtime?.toIntOrNull() ?: 0,
-        maxPlayingTime = maxplaytime?.toIntOrNull() ?: 0,
-        minPlayingTime = minplaytime?.toIntOrNull() ?: 0,
-        minimumAge = minage?.toIntOrNull() ?: 0,
-        designers = links.filter { it.type == "boardgamedesigner" }.map { it.id to it.value },
-        artists = links.filter { it.type == "boardgameartist" }.map { it.id to it.value },
-        publishers = links.filter { it.type == "boardgamepublisher" }.map { it.id to it.value },
-        categories = links.filter { it.type == "boardgamecategory" }.map { it.id to it.value },
-        mechanics = links.filter { it.type == "boardgamemechanic" }.map { it.id to it.value },
-        expansions = links.filter { it.type == "boardgameexpansion" }.map { Triple(it.id, it.value, it.inbound == "true") },
-        families = links.filter { it.type == "boardgamefamily" }.map { it.id to it.value },
-        playerCountsBest = null,
-        playerCountsRecommended = null,
-        playerCountsNotRecommended = null,
-        lastViewedTimestamp = 0L,
-        lastPlayTimestamp = null,
-    )
-    return if (this.statistics != null) {
-        game.copy(
-            numberOfRatings = this.statistics.usersrated?.toIntOrNull() ?: 0,
-            rating = this.statistics.average?.toDoubleOrNull() ?: 0.0,
-            bayesAverage = this.statistics.bayesaverage?.toDoubleOrNull() ?: 0.0,
-            standardDeviation = this.statistics.stddev?.toDoubleOrNull() ?: 0.0,
-            median = this.statistics.median?.toDoubleOrNull() ?: 0.0,
-            numberOfUsersOwned = this.statistics.owned?.toIntOrNull() ?: 0,
-            numberOfUsersTrading = this.statistics.trading?.toIntOrNull() ?: 0,
-            numberOfUsersWanting = this.statistics.wanting?.toIntOrNull() ?: 0,
-            numberOfUsersWishListing = this.statistics.wishing?.toIntOrNull() ?: 0,
-            numberOfComments = this.statistics.numcomments?.toIntOrNull() ?: 0,
-            numberOfUsersWeighting = this.statistics.numweights?.toIntOrNull() ?: 0,
-            averageWeight = this.statistics.averageweight?.toDoubleOrNull() ?: 0.0,
-            overallRank = this.statistics.ranks.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRank.RANK_UNKNOWN,
-            ranks = createRanks(this),
-            polls = createPolls(this),
-            playerPoll = createPlayerPoll(this),
-        )
-    } else game
-}
-
 private fun findPrimaryName(from: GameRemote): Pair<String, Int> {
     return (from.names?.find { "primary" == it.type } ?: from.names?.firstOrNull())?.let { it.value to it.sortindex } ?: ("" to 0)
 }
 
-private fun createRanks(from: GameRemote) = from.statistics?.ranks?.map {
-    GameRank(
-        if (it.type == BggService.RANK_TYPE_FAMILY) GameRank.RankType.Family else GameRank.RankType.Subtype,
-        it.name,
-        it.friendlyname,
-        it.value.toIntOrNull() ?: GameRank.RANK_UNKNOWN,
-        it.bayesaverage.toDoubleOrNull() ?: 0.0
-    )
-}.orEmpty()
-
-private fun BggService.ThingSubtype?.mapToEntitySubtype(): Game.Subtype? = when (this) {
-    BggService.ThingSubtype.BOARDGAME -> Game.Subtype.BOARDGAME
-    BggService.ThingSubtype.BOARDGAME_EXPANSION -> Game.Subtype.BOARDGAME_EXPANSION
-    BggService.ThingSubtype.BOARDGAME_ACCESSORY -> Game.Subtype.BOARDGAME_ACCESSORY
-    null -> null
-}
-
 @Suppress("SpellCheckingInspection")
 private const val PLAYER_POLL_NAME = "suggested_numplayers"
-
-private fun createPolls(from: GameRemote): List<Game.Poll> {
-    val polls = mutableListOf<Game.Poll>()
-    from.polls?.filter { it.name != PLAYER_POLL_NAME }?.mapTo(polls) { poll ->
-        Game.Poll().apply {
-            name = poll.name ?: ""
-            title = poll.title ?: ""
-            totalVotes = poll.totalvotes
-            poll.results.forEach {
-                results += Game.Results().apply {
-                    numberOfPlayers = if (it.numplayers.isNullOrEmpty()) "X" else it.numplayers
-                    it.result.forEach { gr ->
-                        result.add(GamePollResult(gr.level, gr.value, gr.numvotes))
-                    }
-                }
-            }
-        }
-    }
-    return polls
-}
-
-private fun createPlayerPoll(from: GameRemote): List<GamePlayerPollResults> {
-    return from.polls?.find { it.name == PLAYER_POLL_NAME }?.let { poll ->
-        poll.results.map { playerCount ->
-            GamePlayerPollResults(
-                totalVotes = poll.totalvotes,
-                playerCount = playerCount.numplayers,
-                bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0,
-                recommendedVoteCount = playerCount.result.find { it.value == "Recommended" }?.numvotes ?: 0,
-                notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0,
-            )
-        }
-    } ?: emptyList()
-}
 
 fun GameRankEntity.mapToModel() = GameRank(
     if (gameRankType == BggService.RANK_TYPE_FAMILY) GameRank.RankType.Family else GameRank.RankType.Subtype,

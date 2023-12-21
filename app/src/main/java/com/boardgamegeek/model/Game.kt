@@ -44,34 +44,12 @@ data class Game(
     val winsColor: Int = Color.TRANSPARENT,
     val winnablePlaysColor: Int = Color.TRANSPARENT,
     val allPlaysColor: Int = Color.TRANSPARENT,
-    val polls: List<Poll> = emptyList(),
-    val playerPoll: List<GamePlayerPollResults> = emptyList(),
-    val designers: List<Pair<Int, String>> = emptyList(),
-    val artists: List<Pair<Int, String>> = emptyList(),
-    val publishers: List<Pair<Int, String>> = emptyList(),
-    val categories: List<Pair<Int, String>> = emptyList(),
-    val mechanics: List<Pair<Int, String>> = emptyList(),
-    val expansions: List<Triple<Int, String, Boolean>> = emptyList(),
-    val families: List<Pair<Int, String>> = emptyList(),
     val playerCountsBest: String?,
     val playerCountsRecommended: String?,
     val playerCountsNotRecommended: String?,
     val lastViewedTimestamp: Long,
     val lastPlayTimestamp: Long?,
 ) {
-    class Poll {
-        var name: String = ""
-        var title: String = ""
-        var totalVotes: Int = 0
-        var results = arrayListOf<Results>()
-    }
-
-    class Results {
-        var numberOfPlayers: String = ""
-        var result = arrayListOf<GamePollResult>()
-        val key = "X"
-    }
-
     val maxUsers: Int
         get() {
             return listOf(
