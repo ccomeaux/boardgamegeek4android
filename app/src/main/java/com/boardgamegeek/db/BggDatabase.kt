@@ -16,10 +16,9 @@ import com.boardgamegeek.db.model.*
         CollectionViewFilterEntity::class,
         GameEntity::class,
         GameColorsEntity::class,
-        GamePollEntity::class,
-        GamePollResultsEntity::class,
-        GamePollResultsResultEntity::class,
         GameRankEntity::class,
+        GameAgePollResultEntity::class,
+        GameLanguagePollResultEntity::class,
         GameSuggestedPlayerCountPollResultsEntity::class,
         GameArtistEntity::class,
         GameCategoryEntity::class,
@@ -33,7 +32,7 @@ import com.boardgamegeek.db.model.*
         PlayEntity::class,
         UserEntity::class
     ],
-    version = 62,
+    version = 63,
 )
 @TypeConverters(DateConverter::class)
 abstract class BggDatabase : RoomDatabase() {

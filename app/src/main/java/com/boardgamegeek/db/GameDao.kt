@@ -12,7 +12,8 @@ interface GameDao {
         } else {
             updateGame(game.header)
             deleteGameRanksForGame(game.header.gameId)
-            deletePollsForGame(game.header.gameId)
+            deleteAgePollForGame(game.header.gameId)
+            deleteLanguagePollForGame(game.header.gameId)
             deletePlayerPollForGame(game.header.gameId)
             deleteDesignersForGame(game.header.gameId)
             deleteArtistsForGame(game.header.gameId)
@@ -23,7 +24,8 @@ interface GameDao {
             game.header.internalId
         }
         insertRanks(game.ranks)
-        insertPolls(game.polls) // TODO this doesn't work
+        insertAgePoll(game.agePollResults)
+        insertLanguagePoll(game.languagePollResults)
         insertPlayerPoll(game.playerPoll)
         insertDesigners(game.designers)
         insertArtists(game.artists)
@@ -49,8 +51,11 @@ interface GameDao {
     @Insert
     suspend fun insertRanks(ranks: List<GameRankEntity>)
 
-    @Insert(GamePollEntity::class)
-    suspend fun insertPolls(polls: List<GamePollForUpsert>)
+    @Insert
+    suspend fun insertAgePoll(pollResults: List<GameAgePollResultEntity>)
+
+    @Insert
+    suspend fun insertLanguagePoll(pollResults: List<GameLanguagePollResultEntity>)
 
     @Insert
     suspend fun insertPlayerPoll(pollResults: List<GameSuggestedPlayerCountPollResultsEntity>)
@@ -76,8 +81,11 @@ interface GameDao {
     @Query("DELETE FROM game_ranks WHERE game_id = :gameId") // TODO test that this cascades the delete
     suspend fun deleteGameRanksForGame(gameId: Int)
 
-    @Query("DELETE FROM game_polls WHERE game_id = :gameId") // TODO test that this cascades the delete
-    suspend fun deletePollsForGame(gameId: Int)
+    @Query("DELETE FROM game_poll_age_results WHERE game_id = :gameId")
+    suspend fun deleteAgePollForGame(gameId: Int)
+
+    @Query("DELETE FROM game_poll_language_results WHERE game_id = :gameId")
+    suspend fun deleteLanguagePollForGame(gameId: Int)
 
     @Query("DELETE FROM game_suggested_player_count_poll_results WHERE game_id = :gameId")
     suspend fun deletePlayerPollForGame(gameId: Int)
@@ -115,11 +123,11 @@ interface GameDao {
     @Query("SELECT games.game_id, game_name FROM games LEFT OUTER JOIN collection ON games.game_id = collection.game_id WHERE collection_id IS NULL AND last_viewed < :sinceTimestamp AND num_of_plays = 0 ORDER BY games.updated")
     suspend fun loadNonCollectionAndUnplayedGames(sinceTimestamp: Long): List<GameIdAndName>
 
-    @Query("SELECT game_poll_results_result.*, game_polls.poll_total_votes AS totalVotes FROM game_poll_results_result JOIN game_poll_results ON game_poll_results._id = game_poll_results_result.pollresults_id JOIN game_polls ON game_polls._id = game_poll_results.poll_id WHERE poll_name='suggested_playerage' AND game_id = :gameId ORDER BY pollresultsresult_sortindex")
-    suspend fun loadAgePollForGame(gameId: Int): List<GamePollResultsWithPoll>
+    @Query("SELECT * FROM game_poll_age_results WHERE game_id = :gameId ORDER BY value")
+    suspend fun loadAgePollForGame(gameId: Int): List<GameAgePollResultEntity>
 
-    @Query("SELECT game_poll_results_result.*, game_polls.poll_total_votes AS totalVotes FROM game_poll_results_result JOIN game_poll_results ON game_poll_results._id = game_poll_results_result.pollresults_id JOIN game_polls ON game_polls._id = game_poll_results.poll_id WHERE poll_name='language_dependence' AND game_id = :gameId ORDER BY pollresultsresult_sortindex")
-    suspend fun loadLanguagePollForGame(gameId: Int): List<GamePollResultsWithPoll>
+    @Query("SELECT * FROM game_poll_language_results WHERE game_id = :gameId ORDER BY level")
+    suspend fun loadLanguagePollForGame(gameId: Int): List<GameLanguagePollResultEntity>
 
     @Query("SELECT * FROM game_suggested_player_count_poll_results WHERE game_id = :gameId")
     suspend fun loadPlayerPollForGame(gameId: Int): List<GameSuggestedPlayerCountPollResultsEntity>

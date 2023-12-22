@@ -5,12 +5,20 @@ class GameLanguagePoll(val results: List<Result>) {
 
     fun calculateScore(): Double {
         if (totalVotes == 0) return 0.0
-        val totalLevel = results.sumOf { it.numberOfVotes * ((it.level - 1) % 5 + 1) }
+        val totalLevel = results.sumOf { it.numberOfVotes * (it.level?.value ?: 0) }
         return totalLevel.toDouble() / totalVotes
     }
 
     data class Result(
-        val level: Int = 0,
-        val numberOfVotes: Int = 0,
+        val level: Level?,
+        val numberOfVotes: Int,
     )
+
+    enum class Level(val value: Int) {
+        NONE(1),
+        SOME(2),
+        MODERATE(3),
+        EXTENSIVE(4),
+        UNPLAYABLE(5),
+    }
 }

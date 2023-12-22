@@ -110,7 +110,7 @@ class GameRepository @Inject constructor(
         return if (gameId == INVALID_ID)
             null
         else {
-            gameDao.loadLanguagePollForGame(gameId).mapToLanguagePollModel()
+            gameDao.loadLanguagePollForGame(gameId).mapToModel()
         }
     }
 
@@ -118,7 +118,7 @@ class GameRepository @Inject constructor(
         return if (gameId == INVALID_ID)
             null
         else {
-            gameDao.loadAgePollForGame(gameId).mapToAgePollModel()
+            gameDao.loadAgePollForGame(gameId).mapToModel()
         }
     }
 

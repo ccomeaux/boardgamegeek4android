@@ -91,17 +91,18 @@ class GameLanguagePollDialogFragment : DialogFragment() {
         val totalVoteCount = poll.totalVotes
         if (totalVoteCount > 0) {
             val entries = poll.results.sortedBy { it.level }.map {
-                val resId = when (it.level) {
-                    1 -> R.string.language_dependence_level_1
-                    2 -> R.string.language_dependence_level_2
-                    3 -> R.string.language_dependence_level_3
-                    4 -> R.string.language_dependence_level_4
-                    5 -> R.string.language_dependence_level_5
-                    else -> R.string.language_dependence_level_3 // makes the compiler happy
+                it.level?.let { level ->
+                    val resId = when (level) {
+                        GameLanguagePoll.Level.NONE -> R.string.language_dependence_level_1
+                        GameLanguagePoll.Level.SOME -> R.string.language_dependence_level_2
+                        GameLanguagePoll.Level.MODERATE -> R.string.language_dependence_level_3
+                        GameLanguagePoll.Level.EXTENSIVE -> R.string.language_dependence_level_4
+                        GameLanguagePoll.Level.UNPLAYABLE -> R.string.language_dependence_level_5
+                    }
+                    PieEntry(it.numberOfVotes.toFloat(), getString(resId))
                 }
-                PieEntry(it.numberOfVotes.toFloat(), getString(resId))
             }
-            val dataSet = PieDataSet(entries, "").apply {
+            val dataSet = PieDataSet(entries.filterNotNull(), "").apply {
                 valueFormatter = IntegerValueFormatter(true)
                 setColors(*BggColors.fiveStageColors.toIntArray())
             }

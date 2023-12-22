@@ -6,7 +6,6 @@ import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.GameRemote
-import com.boardgamegeek.provider.BggContract
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -16,6 +15,8 @@ private fun findPrimaryName(from: GameRemote): Pair<String, Int> {
 
 @Suppress("SpellCheckingInspection")
 private const val PLAYER_POLL_NAME = "suggested_numplayers"
+private const val AGE_POLL_NAME = "suggested_playerage"
+private const val LANGUAGE_POLL_NAME = "language_dependence"
 
 fun GameRankEntity.mapToModel() = GameRank(
     if (gameRankType == BggService.RANK_TYPE_FAMILY) GameRank.RankType.Family else GameRank.RankType.Subtype,
@@ -29,7 +30,7 @@ fun GameRemote.mapToRatingModel(): GameComments {
     val list = comments.comments.map {
         GameComment(
             username = it.username,
-            rating = it.rating.toDoubleOrNull() ?: 0.0,
+            rating = it.rating.toDoubleOrNull() ?: Game.UNRATED,
             comment = it.value,
         )
     }
@@ -85,20 +86,20 @@ fun GameEntity.mapToModel(lastPlayDate: String?): Game {
     )
 }
 
-fun List<GamePollResultsWithPoll>.mapToAgePollModel() = GameAgePoll(
-    this.map {
+fun List<GameAgePollResultEntity>.mapToModel() = GameAgePoll(
+    this.mapIndexed { i, it ->
         GameAgePoll.Result(
-            value = it.results.pollResultsResultValue,
-            numberOfVotes = it.results.pollResultsResultVotes,
+            value = if (i == size - 1) "${it.value}+" else it.value.toString(),
+            numberOfVotes = it.votes,
         )
     }
 )
 
-fun List<GamePollResultsWithPoll>.mapToLanguagePollModel() = GameLanguagePoll(
-    this.map {
+fun List<GameLanguagePollResultEntity>.mapToModel() = GameLanguagePoll(
+    this.map { entity ->
         GameLanguagePoll.Result(
-            level = it.results.pollResultsResultLevel ?: BggContract.INVALID_ID,
-            numberOfVotes = it.results.pollResultsResultVotes,
+            level = GameLanguagePoll.Level.values().find { it.value == (entity.level - 1) % 5 + 1 },
+            numberOfVotes = entity.votes,
         )
     }
 )
@@ -168,37 +169,20 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
             recommendation = recommendation,
         )
     }.orEmpty()
-    val polls = polls?.filterNot { it.name == PLAYER_POLL_NAME }?.map { poll ->
-        GamePollForUpsert(
-            internalId = 0L,
+    val agePoll = polls?.find { it.name == AGE_POLL_NAME }?.results?.firstOrNull()?.result?.map {
+        GameAgePollResultEntity(
             gameId = this.id,
-            pollName = poll.name,
-            pollTitle = poll.title,
-            pollTotalVotes = poll.totalvotes,
-            results = poll.results.mapIndexed { sortIndex, r ->
-                GamePollResultsForUpsert(
-                    internalId = 0L,
-                    pollId = 0,
-                    pollResultsKey = if (r.numplayers.isNullOrEmpty()) "X" else r.numplayers,
-                    pollResultsPlayers = if (r.numplayers.isNullOrEmpty()) "X" else r.numplayers,
-                    pollResultsSortIndex = sortIndex,
-                    pollResultsResult = r.result.mapIndexed { index, result ->
-                        val level = if (result.level == 0) null else result.level
-                        val key = level?.toString() ?: result.value.substringBefore(" ")
-                        GamePollResultsResultEntity(
-                            internalId = 0L,
-                            pollResultsId = 0,
-                            pollResultsResultKey = key,
-                            pollResultsResultLevel = level,
-                            pollResultsResultValue = result.value,
-                            pollResultsResultVotes = result.numvotes,
-                            pollResultsResultSortIndex = index + 1,
-                        )
-                    }
-                )
-            }
+            value = it.value.split(" ").firstOrNull()?.toInt() ?: 21,
+            votes = it.numvotes,
         )
-    }.orEmpty()
+    }
+    val languagePoll = polls?.find { it.name == LANGUAGE_POLL_NAME }?.results?.firstOrNull()?.result?.map {
+        GameLanguagePollResultEntity(
+            gameId = this.id,
+            level = it.level,
+            votes = it.numvotes,
+        )
+    }
     val header = GameForUpsertHeader(
         internalId = 0L,
         updated = updated,
@@ -238,7 +222,8 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
     return GameForUpsert(
         header = header,
         ranks = ranks,
-        polls = polls,
+        agePollResults = agePoll.orEmpty(),
+        languagePollResults = languagePoll.orEmpty(),
         playerPoll = playerPoll,
         designers = links?.filter { it.type == "boardgamedesigner" }?.map { GameDesignerEntity(0L, this.id, it.id) }.orEmpty(),
         artists = links?.filter { it.type == "boardgameartist" }?.map { GameArtistEntity(0L, this.id, it.id) }.orEmpty(),
