@@ -19,7 +19,7 @@ data class CollectionItemEntity(
     val updatedTimestamp: Long?,
     @ColumnInfo(name = "updated_list")
     val updatedListTimestamp: Long?,
-    @ColumnInfo(name = "game_id") // TODO add index
+    @ColumnInfo(name = "game_id", index = true)
     val gameId: Int,
     @ColumnInfo(name = "collection_id")
     val collectionId: Int,

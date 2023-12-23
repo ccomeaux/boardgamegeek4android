@@ -15,7 +15,7 @@ data class GameColorsEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     val internalId: Long,
-    @ColumnInfo(name = "game_id") // TODO create index
+    @ColumnInfo(name = "game_id", index = true)
     val gameId: Int,
     @ColumnInfo
     val color: String,

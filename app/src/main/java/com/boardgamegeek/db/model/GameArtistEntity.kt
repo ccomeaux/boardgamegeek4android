@@ -16,8 +16,8 @@ data class GameArtistEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     val internalId: Long,
-    @ColumnInfo(name = "game_id")
+    @ColumnInfo(name = "game_id", index = true)
     val gameId: Int,
-    @ColumnInfo(name = "artist_id")
+    @ColumnInfo(name = "artist_id", index = true)
     val artistId: Int,
 )

@@ -15,7 +15,7 @@ data class CollectionViewFilterEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     val id: Int,
-    @ColumnInfo(name = "filter_id")
+    @ColumnInfo(name = "filter_id", index = true) // TODO index!
     val viewId: Int,
     @ColumnInfo
     val type: Int?,

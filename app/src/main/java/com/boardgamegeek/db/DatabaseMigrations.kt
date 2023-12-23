@@ -37,5 +37,25 @@ object DatabaseMigrations {
         }
     }
 
+    val MIGRATION_63_64 = object : Migration(63, 64) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_collection_filters_details_filter_id` ON `collection_filters_details` (`filter_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_game_colors_game_id` ON `game_colors` (`game_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_game_ranks_game_id` ON `game_ranks` (`game_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_game_suggested_player_count_poll_results_game_id` ON `game_suggested_player_count_poll_results` (`game_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_artists_game_id` ON `games_artists` (`game_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_artists_artist_id` ON `games_artists` (`artist_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_designers_game_id` ON `games_designers` (`game_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_designers_designer_id` ON `games_designers` (`designer_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_publishers_game_id` ON `games_publishers` (`game_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_publishers_publisher_id` ON `games_publishers` (`publisher_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_categories_game_id` ON `games_categories` (`game_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_categories_category_id` ON `games_categories` (`category_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_mechanics_game_id` ON `games_mechanics` (`game_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_games_mechanics_mechanic_id` ON `games_mechanics` (`mechanic_id`)")
+            database.execSQL("CREATE INDEX IF NOT EXISTS `index_collection_game_id` ON `collection` (`game_id`)")
+        }
+    }
+
     private fun SupportSQLiteDatabase.dropTable(tableName: String) = execSQL("DROP TABLE $tableName")
 }

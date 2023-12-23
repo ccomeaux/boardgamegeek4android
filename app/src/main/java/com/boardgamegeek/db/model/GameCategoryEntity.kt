@@ -9,8 +9,8 @@ data class GameCategoryEntity(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "_id")
     val internalId: Long,
-    @ColumnInfo(name = "game_id")
+    @ColumnInfo(name = "game_id", index = true)
     val gameId: Int,
-    @ColumnInfo(name = "category_id")
+    @ColumnInfo(name = "category_id", index = true)
     val categoryId: Int,
 )

@@ -26,5 +26,6 @@ class DatabaseModule {
         DatabaseMigrations.MIGRATION_60_61,
         DatabaseMigrations.MIGRATION_61_62,
         DatabaseMigrations.MIGRATION_62_63,
+        DatabaseMigrations.MIGRATION_63_64,
     ).build()
 }
