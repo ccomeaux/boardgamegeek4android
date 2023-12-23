@@ -60,12 +60,15 @@ interface PlayDao {
     @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE name = :name AND object_id = :gameId AND (user_name = '' OR user_name IS NULL) ORDER BY date DESC, play_id DESC")
     suspend fun loadPlaysForPlayerAndGame(name: String, gameId: Int): List<PlayEntity>
 
+    @Transaction
     @Query("SELECT * FROM plays WHERE update_timestamp>0 ORDER BY date DESC, play_id DESC")
     suspend fun loadUpdatingPlays(): List<PlayWithPlayersEntity>
 
+    @Transaction
     @Query("SELECT * FROM plays WHERE delete_timestamp>0 ORDER BY date DESC, play_id DESC")
     suspend fun loadDeletingPlays(): List<PlayWithPlayersEntity>
 
+    @Transaction
     @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT JOIN games ON games.game_id = plays.object_id WHERE plays._id = :internalId")
     suspend fun loadPlayWithPlayers(internalId: Long): PlayWithPlayersEntity
 

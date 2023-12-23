@@ -1,49 +1,59 @@
 package com.boardgamegeek.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import com.boardgamegeek.db.model.*
 
 @Dao
 interface CollectionDao {
+    @Transaction
     @Query("SELECT * FROM collection ORDER BY collection_sort_name COLLATE NOCASE")
     suspend fun loadAll(): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT * FROM collection WHERE _id = :internalId")
     suspend fun load(internalId: Long): CollectionItemWithGameEntity?
 
+    @Transaction
     @Query("SELECT * FROM collection WHERE collection_id = :collectionId")
     suspend fun load(collectionId: Int): CollectionItemWithGameEntity?
 
+    @Transaction
     @Query("SELECT * FROM collection WHERE game_id = :gameId")
     suspend fun loadForGame(gameId: Int): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT collection.* FROM games_artists INNER JOIN collection ON games_artists.game_id = collection.game_id WHERE artist_id = :artistId")
     suspend fun loadForArtist(artistId: Int): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT collection.* FROM games_designers INNER JOIN collection ON games_designers.game_id = collection.game_id WHERE designer_id = :designerId")
     suspend fun loadForDesigner(designerId: Int): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT collection.* FROM games_publishers INNER JOIN collection ON games_publishers.game_id = collection.game_id WHERE publisher_id = :publisherId")
     suspend fun loadForPublisher(publisherId: Int): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT collection.* FROM games_categories INNER JOIN collection ON games_categories.game_id = collection.game_id WHERE category_id = :categoryId")
     suspend fun loadForCategory(categoryId: Int): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT collection.* FROM games_mechanics INNER JOIN collection ON games_mechanics.game_id = collection.game_id WHERE mechanic_id = :mechanicId")
     suspend fun loadForMechanic(mechanicId: Int): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT * FROM collection WHERE collection_delete_timestamp > 0")
     suspend fun loadItemsPendingDeletion(): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT * FROM collection WHERE collection_dirty_timestamp > 0 AND (collection_delete_timestamp IS NULL OR collection_delete_timestamp = '' AND collection_delete_timestamp = 0)")
     suspend fun loadItemsPendingInsert(): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT * FROM collection WHERE status_dirty_timestamp > 0 OR rating_dirty_timestamp > 0 OR comment_dirty_timestamp > 0 OR private_info_dirty_timestamp > 0 OR wishlist_comment_dirty_timestamp > 0 OR trade_condition_dirty_timestamp > 0 OR want_parts_dirty_timestamp > 0 OR has_parts_dirty_timestamp > 0")
     suspend fun loadItemsPendingUpdate(): List<CollectionItemWithGameEntity>
 
+    @Transaction
     @Query("SELECT * FROM collection WHERE updated = 0 OR updated IS NULL ORDER BY updated_list ASC")
     suspend fun loadItemsNotUpdated(): List<CollectionItemWithGameEntity>
 
