@@ -298,6 +298,7 @@ class GameCollectionRepository(
         items.forEach { item ->
             if (!protectedCollectionIds.contains(item.item.collectionId)) {
                 deleteCount += collectionDao.delete(item.item.internalId)
+                Timber.i("Deleted collection item ${item.item.collectionName} [${item.item.collectionId}]")
             }
         }
         Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
@@ -331,7 +332,9 @@ class GameCollectionRepository(
         } else if (!response.error.isNullOrBlank()) {
             Result.failure(Exception(response.error))
         } else {
-            collectionDao.delete(item.internalId)
+            collectionDao.delete(item.internalId).also {
+                Timber.i("Deleted collection item ${item.collectionName} [${item.collectionId}]")
+            }
             Result.success(CollectionItemUploadResult.delete(item))
         }
     }
@@ -563,7 +566,9 @@ class GameCollectionRepository(
     suspend fun resetTimestamps(internalId: Long): Int = collectionDao.clearDirtyTimestamps(internalId)
 
     suspend fun deleteUnupdatedItems(timestamp: Long): Int {
-        return collectionDao.deleteUnupdatedItems(timestamp).also { Timber.d("Deleted $it old collection items") }
+        return collectionDao.deleteUnupdatedItems(timestamp).also {
+            Timber.i("Deleted $it old collection items")
+        }
     }
 
     fun enqueueUploadRequest(gameId: Int) {

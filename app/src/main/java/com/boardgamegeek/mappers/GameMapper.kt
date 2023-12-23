@@ -132,7 +132,7 @@ fun GameExpansionWithGame.mapToModel(items: List<CollectionItem>) = GameExpansio
 )
 
 @Suppress("SpellCheckingInspection")
-fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
+fun GameRemote.mapForUpsert(internalId: Long, updated: Long): GameForUpsert {
     val (primaryName, sortIndex) = findPrimaryName(this)
     val ranks = statistics?.ranks?.map {
         GameRankEntity(
@@ -184,7 +184,7 @@ fun GameRemote.mapForUpsert(updated: Long): GameForUpsert {
         )
     }
     val header = GameForUpsertHeader(
-        internalId = 0L,
+        internalId = internalId,
         updated = updated,
         updatedList = updated,
         gameId = id,

@@ -54,7 +54,8 @@ class GameRepository @Inject constructor(
         val timestamp = System.currentTimeMillis()
         val games = api.thing(gameId.first(), 1).games
         games?.forEach { game ->
-            val gameForUpsert = game.mapForUpsert(timestamp)
+            val internalId = gameDao.loadGame(game.id)?.game?.internalId ?: 0L
+            val gameForUpsert = game.mapForUpsert(internalId, timestamp)
             Timber.i("Saving game ${gameForUpsert.header.gameName} (${game.id})")
             game.mapToDesigners().forEach { designerDao.insert(it) }
             game.mapToArtists().forEach { artistDao.insert(it) }
@@ -64,8 +65,8 @@ class GameRepository @Inject constructor(
             if (gameForUpsert.header.gameName.isBlank()) {
                 Timber.w("Missing name from game ID=${gameForUpsert.header.gameId}")
             } else {
-                val internalId = gameDao.upsert(gameForUpsert)
-                Timber.i("Saved game ${gameForUpsert.header.gameName} (${game.id}) [$internalId]")
+                val upsertedInternalId = gameDao.upsert(gameForUpsert)
+                Timber.i("Saved game ${gameForUpsert.header.gameName} (${game.id}) [$upsertedInternalId]")
             }
         }
         games?.size ?: 0
