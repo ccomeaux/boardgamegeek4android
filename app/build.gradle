@@ -110,6 +110,9 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+            kotlinOptions.jvmTarget = jvmTarget
+        }
     }
     lint {
         abortOnError true
@@ -200,6 +203,9 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.16.1'
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.12"
+
+    debugImplementation "com.github.chuckerteam.chucker:library:3.5.2"
+    releaseImplementation "com.github.chuckerteam.chucker:library-no-op:3.5.2"
 }
 
 kapt {

@@ -12,6 +12,7 @@ import androidx.work.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.util.CrashReportingTree
+import com.boardgamegeek.util.DebugCrashHandler
 import com.boardgamegeek.util.RemoteConfig
 import com.boardgamegeek.work.PlayUploadWorker
 import com.boardgamegeek.work.SyncCollectionWorker
@@ -50,6 +51,7 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         initializeStetho()
         initializeFirebase()
         initializeTimber()
+        initializeChucker()
         initializePicasso()
         migrateData()
 
@@ -109,6 +111,15 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
             Timber.plant(Timber.DebugTree())
         } else {
             Timber.plant(CrashReportingTree())
+        }
+    }
+
+    private fun initializeChucker() {
+        if (BuildConfig.DEBUG) {
+            // initialize the exception handler
+            // HTTP client call interceptor is added in the NetworkModule
+            val systemHandler = Thread.getDefaultUncaughtExceptionHandler()
+            Thread.setDefaultUncaughtExceptionHandler(DebugCrashHandler(systemHandler, this))
         }
     }
 
