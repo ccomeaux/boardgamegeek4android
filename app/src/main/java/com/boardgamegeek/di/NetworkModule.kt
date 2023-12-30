@@ -6,6 +6,8 @@ import android.content.Context
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.io.*
 import com.boardgamegeek.repository.*
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides
@@ -32,26 +34,26 @@ object NetworkModule {
     @Provides
     @Singleton
     @Named("noAuth")
-    fun provideHttpClient(): OkHttpClient = OkHttpClient.Builder()
+    fun provideHttpClient(@ApplicationContext context: Context): OkHttpClient = OkHttpClient.Builder()
         .connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .addInterceptor(UserAgentInterceptor())
         .addInterceptor(RetryInterceptor(true))
-        .addLoggingInterceptor()
+        .addLoggingInterceptor(context)
         .build()
 
     @Provides
     @Singleton
     @Named("withAuth")
-    fun provideHttpClientWithAuth(@ApplicationContext context: Context?) = OkHttpClient.Builder()
+    fun provideHttpClientWithAuth(@ApplicationContext context: Context) = OkHttpClient.Builder()
         .connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .addInterceptor(UserAgentInterceptor(context))
         .addInterceptor(AuthInterceptor(context))
         .addInterceptor(RetryInterceptor(true))
-        .addLoggingInterceptor()
+        .addLoggingInterceptor(context)
         .build()
 
     @Provides
@@ -62,23 +64,23 @@ object NetworkModule {
         .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .addInterceptor(UserAgentInterceptor(context))
-        .addLoggingInterceptor()
+        .addLoggingInterceptor(context)
         .cache(Cache(File(context.cacheDir, "http"), 10 * 1024 * 1024))
         .build()
 
     @Provides
     @Singleton
     @Named("without202Retry")
-    fun provideHttpClientWithout202Retry() = OkHttpClient.Builder()
+    fun provideHttpClientWithout202Retry(@ApplicationContext context: Context) = OkHttpClient.Builder()
         .connectTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .readTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .writeTimeout(HTTP_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
         .addInterceptor(UserAgentInterceptor())
         .addInterceptor(RetryInterceptor(false))
-        .addLoggingInterceptor()
+        .addLoggingInterceptor(context)
         .build()
 
-    private fun OkHttpClient.Builder.addLoggingInterceptor() = apply {
+    private fun OkHttpClient.Builder.addLoggingInterceptor(context: Context) = apply {
         if (BuildConfig.DEBUG) {
             addInterceptor(HttpLoggingInterceptor { message ->
                 Timber.d(message)
@@ -86,6 +88,13 @@ object NetworkModule {
                 level = HttpLoggingInterceptor.Level.BODY
             })
             addNetworkInterceptor(StethoInterceptor())
+            addInterceptor(
+                ChuckerInterceptor.Builder(context)
+                    .collector(ChuckerCollector(context, true))
+                    .maxContentLength(256 * 1024)
+                    .alwaysReadResponseBody(true)
+                    .build()
+            )
         }
     }
 
