@@ -1,7 +1,6 @@
 package com.boardgamegeek.provider
 
 import android.app.SearchManager
-import android.content.ContentResolver
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteQueryBuilder
@@ -20,18 +19,15 @@ import java.util.*
 open class SearchSuggestProvider : BaseProvider() {
     override fun getType(uri: Uri) = SearchManager.SUGGEST_MIME_TYPE
 
-    override val path = SearchManager.SUGGEST_URI_PATH_QUERY
-
-    override val defaultSortOrder = Collection.DEFAULT_SORT
+    override val path = "${SearchManager.SUGGEST_URI_PATH_QUERY}/*"
 
     override fun query(
-        resolver: ContentResolver,
         db: SQLiteDatabase,
-        uri: Uri,
-        projection: Array<String>?,
-        selection: String?,
-        selectionArgs: Array<String>?,
-        sortOrder: String?
+        uri: Uri, // content://com.boardgamegeek/search_suggest_query/foo?limit=50
+        projection: Array<String>?, // null
+        selection: String?, // null
+        selectionArgs: Array<String>?, // null
+        sortOrder: String?, // null
     ): Cursor? {
         val searchTerm = uri.lastPathSegment?.lowercase(Locale.getDefault()).orEmpty()
         val limit = uri.getQueryParameter(SearchManager.SUGGEST_PARAMETER_LIMIT)
@@ -40,13 +36,12 @@ open class SearchSuggestProvider : BaseProvider() {
             projectionMap = suggestionProjectionMap
             appendWhere("(${Collection.Columns.COLLECTION_NAME} like '$searchTerm%%' OR ${Collection.Columns.COLLECTION_NAME} like '%% $searchTerm%%')")
         }
-        return qb.query(db, projection, selection, selectionArgs, GROUP_BY, null, getSortOrder(sortOrder), limit).apply {
-            setNotificationUri(resolver, uri)
-        }
+        return qb.query(db, projection, selection, selectionArgs, groupBy, null, sortBy, limit)
     }
 
     companion object {
-        private const val GROUP_BY = "${Collection.Columns.COLLECTION_NAME}, ${Collection.Columns.COLLECTION_YEAR_PUBLISHED}"
+        private const val sortBy = "${Collection.Columns.COLLECTION_SORT_NAME}${BggContract.COLLATE_NOCASE} ASC"
+        private const val groupBy = "${Collection.Columns.COLLECTION_NAME}, ${Collection.Columns.COLLECTION_YEAR_PUBLISHED}"
 
         @Suppress("SpellCheckingInspection")
         val suggestionProjectionMap = mutableMapOf(

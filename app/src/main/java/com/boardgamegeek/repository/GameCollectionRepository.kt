@@ -278,9 +278,7 @@ class GameCollectionRepository(
                     if (candidate.item.collectionThumbnailUrl != itemForInsert.collectionThumbnailUrl) {
                         collectionDao.updateHeroImageUrl(internalId, "") // TODO update this with a new one?
                         val thumbnailFileName = FileUtils.getFileNameFromUrl(candidate.item.collectionThumbnailUrl)
-                        if (thumbnailFileName.isNotBlank()) {
-                            context.contentResolver.delete(BggContract.Thumbnails.buildUri(thumbnailFileName), null, null)
-                        }
+                        imageRepository.deleteThumbnail(thumbnailFileName)
                     }
                     Timber.i("Updated collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId]")
                     candidate.item.collectionId to internalId

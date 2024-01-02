@@ -94,6 +94,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
                 if (uri == null) {
                     longToast(R.string.search_error_no_data)
                 } else {
+                    // content://com.boardgamegeek/games/13
                     val gameName = intent.getStringExtra(SearchManager.EXTRA_DATA_KEY).orEmpty()
                     GameActivity.start(this, Games.getGameId(uri), gameName)
                 }

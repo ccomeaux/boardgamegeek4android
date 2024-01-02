@@ -7,7 +7,7 @@ import androidx.annotation.WorkerThread
 import com.boardgamegeek.R
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.io.GeekdoApi
-import com.boardgamegeek.provider.BggContract.Companion.PATH_THUMBNAILS
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.util.RemoteConfig
 import com.squareup.picasso.Picasso
@@ -41,7 +41,7 @@ class ImageRepository(
                     .centerCrop()
                     .get()
             } catch (e: IOException) {
-                Timber.e(e, "Error downloading the thumbnail.")
+                Timber.e(e, "Error downloading the thumbnail at $thumbnailUrl.")
                 null
             }
         }
@@ -97,11 +97,13 @@ class ImageRepository(
         imageDao.deleteAvatars()
     }
 
+    suspend fun deleteThumbnail(fileName: String) = imageDao.deleteFile(fileName, BggContract.PATH_THUMBNAILS)
+
     private fun getThumbnailFile(context: Context, url: String): File? {
         if (url.isNotBlank()) {
             val filename = FileUtils.getFileNameFromUrl(url)
-            return if (filename.isNotBlank())
-                File(FileUtils.generateContentPath(context, PATH_THUMBNAILS), filename)
+            return if (filename.isNotBlank()) // TODO nothing is storing in this directory
+                File(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS), filename)
             else null
         }
         return null

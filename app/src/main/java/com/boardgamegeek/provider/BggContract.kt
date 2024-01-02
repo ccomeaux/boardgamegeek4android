@@ -3,21 +3,8 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
-import com.boardgamegeek.extensions.getPathValue
-import com.boardgamegeek.extensions.getPathValueAsInt
-import com.boardgamegeek.extensions.getPathValueAsLong
 
 class BggContract {
-    object Thumbnails {
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_THUMBNAILS).build()
-        fun buildUri(fileName: String?): Uri = CONTENT_URI.buildUpon().appendPath(fileName).build()
-    }
-
-    object Avatars {
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_AVATARS).build()
-        fun buildUri(avatarFileName: String?): Uri = CONTENT_URI.buildUpon().appendPath(avatarFileName).build()
-    }
-
     object Games {
         object Columns {
             const val GAME_ID = "game_id"
@@ -68,16 +55,24 @@ class BggContract {
 
         val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.game"
+        const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.game"
 
-        fun buildGameUri(gameId: Int): Uri {
-            return getUriBuilder(gameId).build()
+        fun buildGameUri(gameId: Int): Uri? {
+            return if (gameId == INVALID_ID) null
+            else getUriBuilder(gameId).build()
         }
 
         private fun getUriBuilder(gameId: Int): Uri.Builder {
             return CONTENT_URI.buildUpon().appendPath(gameId.toString())
         }
 
-        fun getGameId(uri: Uri) = uri.getPathValueAsInt(PATH_GAMES)
+        fun getGameId(uri: Uri): Int {
+            val index = uri.pathSegments.indexOf(PATH_GAMES)
+            return if (index == -1)
+                INVALID_ID
+            else
+                uri.pathSegments.getOrNull(index + 1)?.toIntOrNull() ?: INVALID_ID
+        }
     }
 
     object GameRanks {
@@ -90,8 +85,6 @@ class BggContract {
             const val GAME_RANK_VALUE = "gamerank_value"
             const val GAME_RANK_BAYES_AVERAGE = "gamerank_bayes_average"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.rank"
     }
 
     object Designers {
@@ -108,8 +101,6 @@ class BggContract {
             const val ITEM_COUNT = "item_count"
             const val UPDATED = COL_UPDATED
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.designer"
     }
 
     object Artists {
@@ -127,8 +118,6 @@ class BggContract {
             const val ITEM_COUNT = "item_count"
             const val UPDATED = COL_UPDATED
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.artist"
     }
 
     object Publishers {
@@ -145,8 +134,6 @@ class BggContract {
             const val ITEM_COUNT = "item_count"
             const val UPDATED = COL_UPDATED
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.publisher"
     }
 
     object Mechanics {
@@ -155,8 +142,6 @@ class BggContract {
             const val MECHANIC_NAME = "mechanic_name"
             const val ITEM_COUNT = "item_count"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.mechanic"
     }
 
     object Categories {
@@ -165,8 +150,6 @@ class BggContract {
             const val CATEGORY_NAME = "category_name"
             const val ITEM_COUNT = "item_count"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.category"
     }
 
     object GamesExpansions {
@@ -176,8 +159,6 @@ class BggContract {
             const val EXPANSION_NAME = "expansion_name"
             const val INBOUND = "inbound"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.expansion"
     }
 
     object Collection {
@@ -229,15 +210,7 @@ class BggContract {
             const val UPDATED_LIST = COL_UPDATED_LIST
         }
 
-        private val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection"
-        const val DEFAULT_SORT = Columns.COLLECTION_SORT_NAME + COLLATE_NOCASE + " ASC"
-
-        fun buildUri(id: Long): Uri {
-            return CONTENT_URI.buildUpon().appendPath(id.toString()).build()
-        }
-
-        fun getId(uri: Uri) = uri.getPathValueAsLong(PATH_COLLECTION)
     }
 
     object Users {
@@ -252,15 +225,6 @@ class BggContract {
             const val UPDATED_DETAIL_TIMESTAMP = "updated_detail_timestamp"
             const val UPDATED_LIST_TIMESTAMP = "updated_list_timestamp"
         }
-
-        private val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_USERS).build()
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.user"
-
-        fun buildUserUri(username: String): Uri {
-            return CONTENT_URI.buildUpon().appendPath(username).build()
-        }
-
-        fun getUsername(uri: Uri) = uri.getPathValue(PATH_USERS)
     }
 
     object PlayerColors {
@@ -270,8 +234,6 @@ class BggContract {
             const val PLAYER_COLOR = "player_color"
             const val PLAYER_COLOR_SORT_ORDER = "player_color_sort"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playercolor"
         const val TYPE_USER = 1
     }
 
@@ -285,8 +247,6 @@ class BggContract {
             const val NOT_RECOMMENDED_VOTE_COUNT = "not_recommended_vote_count"
             const val RECOMMENDATION = "recommendation"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepoll.playercount"
     }
 
     object GamePolls {
@@ -296,8 +256,6 @@ class BggContract {
             const val POLL_TITLE = "poll_title"
             const val POLL_TOTAL_VOTES = "poll_total_votes"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepoll"
     }
 
     object GamePollResults {
@@ -307,8 +265,6 @@ class BggContract {
             const val POLL_RESULTS_PLAYERS = "pollresults_players"
             const val POLL_RESULTS_SORT_INDEX = "pollresults_sortindex"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresult"
     }
 
     object GamePollResultsResult {
@@ -320,8 +276,6 @@ class BggContract {
             const val POLL_RESULTS_RESULT_VOTES = "pollresultsresult_votes"
             const val POLL_RESULTS_RESULT_SORT_INDEX = "pollresultsresult_sortindex"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamepollresultsresult"
     }
 
     object GameColors {
@@ -329,8 +283,6 @@ class BggContract {
             const val GAME_ID = Games.Columns.GAME_ID
             const val COLOR = "color"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.boardgamecolor"
     }
 
     object Plays {
@@ -353,10 +305,6 @@ class BggContract {
             const val DIRTY_TIMESTAMP = "dirty_timestamp"
             const val SYNC_TIMESTAMP = COL_UPDATED_LIST
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.play"
-
-        fun getInternalId(uri: Uri) = uri.getPathValueAsLong(PATH_PLAYS)
     }
 
     object PlayPlayers {
@@ -373,8 +321,6 @@ class BggContract {
             const val RATING = "rating"
             const val WIN = "win"
         }
-
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.playplayer"
     }
 
     object CollectionViews {
@@ -408,11 +354,7 @@ class BggContract {
         const val COL_UPDATED_LIST = "updated_list"
 
         const val PATH_GAMES = "games"
-        const val PATH_COLLECTION = "collection"
-        const val PATH_USERS = "users"
         const val PATH_THUMBNAILS = "thumbnails"
         const val PATH_AVATARS = "avatars"
-        const val PATH_PLAYS = "plays"
-        const val QUERY_KEY_LIMIT = "limit"
     }
 }

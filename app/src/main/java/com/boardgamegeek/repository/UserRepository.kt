@@ -13,6 +13,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
+import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.work.SyncUsersWorker
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -117,7 +118,7 @@ class UserRepository(
             userDao.update(user)
             if (user.avatarUrl != storedUser.avatarUrl) {
                 val avatarFileName = FileUtils.getFileNameFromUrl(storedUser.avatarUrl)
-                if (avatarFileName.isNotBlank()) imageDao.deleteAvatar(avatarFileName)
+                imageDao.deleteFile(avatarFileName, BggContract.PATH_AVATARS)
             }
         }
     }

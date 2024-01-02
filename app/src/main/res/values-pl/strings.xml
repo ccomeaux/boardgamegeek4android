@@ -302,7 +302,6 @@
 	<string name="title_high_scorers">Najwyżej punktujący</string>
 	<string name="search_hint">Szukaj…</string>
 	<string name="search_voice_prompt">Nazwij grę…</string>
-	<string name="search_settings_description">Gry w kolekcji</string>
 	<string name="search_searching">Wyszukiwanie \"%s\"</string>
 	<string name="empty_search">Brak wyników.\n\nWyszukiwarka nie lubi najpopularniejszych słów. Spróbuj ponownie pomijając \"the\", \"a\", \"of\", itd.</string>
 	<string name="search_error_no_data">Próba załądowania nieokreślonej gry.</string>
