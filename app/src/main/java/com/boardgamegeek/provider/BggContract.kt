@@ -53,18 +53,8 @@ class BggContract {
             const val UPDATED_LIST = COL_UPDATED_LIST
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build()
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.game"
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.game"
-
-        fun buildGameUri(gameId: Int): Uri? {
-            return if (gameId == INVALID_ID) null
-            else getUriBuilder(gameId).build()
-        }
-
-        private fun getUriBuilder(gameId: Int): Uri.Builder {
-            return CONTENT_URI.buildUpon().appendPath(gameId.toString())
-        }
 
         fun getGameId(uri: Uri): Int {
             val index = uri.pathSegments.indexOf(PATH_GAMES)
@@ -210,7 +200,15 @@ class BggContract {
             const val UPDATED_LIST = COL_UPDATED_LIST
         }
 
-        const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.collection"
+        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build()
+
+        fun getCollectionId(uri: Uri): Int {
+            val index = uri.pathSegments.indexOf(PATH_COLLECTION)
+            return if (index == -1)
+                INVALID_ID
+            else
+                uri.pathSegments.getOrNull(index + 1)?.toIntOrNull() ?: INVALID_ID
+        }
     }
 
     object Users {
@@ -354,6 +352,7 @@ class BggContract {
         const val COL_UPDATED_LIST = "updated_list"
 
         const val PATH_GAMES = "games"
+        const val PATH_COLLECTION = "collection"
         const val PATH_THUMBNAILS = "thumbnails"
         const val PATH_AVATARS = "avatars"
     }

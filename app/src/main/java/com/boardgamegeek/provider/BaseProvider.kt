@@ -27,7 +27,7 @@ abstract class BaseProvider {
     }
 
     @Throws(FileNotFoundException::class)
-    open fun openFile(context: Context, uri: Uri, mode: String): ParcelFileDescriptor? {
+    open fun openFile(context: Context, db: SQLiteDatabase, uri: Uri, mode: String): ParcelFileDescriptor? {
         throw FileNotFoundException("Unknown uri opening file: $uri")
     }
 }

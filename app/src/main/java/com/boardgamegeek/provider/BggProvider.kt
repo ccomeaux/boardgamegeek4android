@@ -46,7 +46,7 @@ class BggProvider : ContentProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        return getProvider(uri)?.openFile(requireContext(), uri, mode)
+        return getProvider(uri)?.openFile(requireContext(), openHelper.readableDatabase, uri, mode)
     }
 
     private fun getProvider(uri: Uri): BaseProvider? {
@@ -65,7 +65,7 @@ class BggProvider : ContentProvider() {
         private fun buildProviderMap(): SimpleArrayMap<Int, BaseProvider> {
             val map = SimpleArrayMap<Int, BaseProvider>()
             addProvider(map, GamesIdProvider())
-            addProvider(map, GamesIdThumbnailProvider())
+            addProvider(map, CollectionIdThumbnailProvider())
             addProvider(map, SearchSuggestProvider())
             return map
         }
