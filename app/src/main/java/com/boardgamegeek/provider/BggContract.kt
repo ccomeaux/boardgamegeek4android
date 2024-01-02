@@ -232,7 +232,6 @@ class BggContract {
             const val PLAYER_COLOR = "player_color"
             const val PLAYER_COLOR_SORT_ORDER = "player_color_sort"
         }
-        const val TYPE_USER = 1
     }
 
     object GameSuggestedPlayerCountPollPollResults {

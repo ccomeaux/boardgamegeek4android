@@ -17,4 +17,9 @@ data class PlayerColorsEntity(
     val playerColor: String,
     @ColumnInfo("player_color_sort")
     val playerColorSortOrder: Int,
-)
+) {
+    companion object {
+        const val TYPE_USER = 1
+        const val TYPE_PLAYER = 2
+    }
+}

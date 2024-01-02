@@ -49,7 +49,6 @@ class PlayRepository(
     private val gameDao: GameDao,
     private val collectionDao: CollectionDao,
 ) {
-    // TODO don't load these lazily
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
 
@@ -332,7 +331,7 @@ class PlayRepository(
 
     suspend fun loadPlayerFavoriteColors(): Map<Player, String> {
         return playerColorDao.loadFavoritePlayerColors().associate {
-            val player = if (it.playerType == PlayerColors.TYPE_USER)
+            val player = if (it.playerType == PlayerColorsEntity.TYPE_USER)
                 Player.createUser(it.playerName)
             else
                 Player.createNonUser(it.playerName)
@@ -644,7 +643,7 @@ class PlayRepository(
 
                 // update game colors
                 val existingColors = gameColorDao.loadColorsForGame(play.gameId).map { it.color }
-                play.players.distinctBy { it.color }.forEach {// TODO, just insert it with the right CONFLICT
+                play.players.distinctBy { it.color }.forEach {// TODO just insert it with the right CONFLICT
                     if (!existingColors.contains(it.color)) {
                         gameColorDao.insert(listOf(GameColorsEntity(internalId = 0L, gameId = play.gameId, it.color)))
                     }
