@@ -1,11 +1,23 @@
 package com.boardgamegeek.util
 
 import android.content.Context
+import android.graphics.Bitmap
 import com.boardgamegeek.provider.BggContract
+import timber.log.Timber
+import java.io.BufferedOutputStream
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 
 object FileUtils {
+    fun getFile(context: Context, type: String?, url: String?): File? {
+        if (url.isNullOrBlank()) return null
+        val filename = getFileNameFromUrl(url)
+        return if (filename.isNotBlank())
+            File(generateContentPath(context, type), filename)
+        else null
+    }
+
     /**
      * Returns a usable filename from the specified URL.
      */
@@ -27,6 +39,16 @@ object FileUtils {
             }
         }
         return base
+    }
+
+    fun saveBitmap(file: File, bitmap: Bitmap) {
+        try {
+            BufferedOutputStream(FileOutputStream(file)).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            }
+        } catch (e: IOException) {
+            Timber.e(e, "Error saving the thumbnail file at ${file.name}.")
+        }
     }
 
     /**

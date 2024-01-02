@@ -419,7 +419,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
             fun bindView(item: CollectionItem?, position: Int) {
                 if (item == null) return
-                binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
+                binding.thumbnailView.loadThumbnail(item.thumbnailUrl, saveBitmap =  true)
                 binding.nameView.text = item.collectionName
                 binding.yearView.text = item.yearPublished.asYear(context)
                 binding.favoriteView.isVisible = item.isFavorite

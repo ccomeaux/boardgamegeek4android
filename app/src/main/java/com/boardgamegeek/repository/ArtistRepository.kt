@@ -91,7 +91,7 @@ class ArtistRepository(
     }
 
     suspend fun refreshHeroImage(artist: Person): Person = withContext(Dispatchers.IO) {
-        val urlMap = imageRepository.fetchImageUrls(artist.thumbnailUrl.getImageId())
+        val urlMap = imageRepository.getImageUrls(artist.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         if (urls?.isNotEmpty() == true) {
             artistDao.updateHeroImageUrl(artist.id, urls.first())

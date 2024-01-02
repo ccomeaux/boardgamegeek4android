@@ -34,7 +34,7 @@ class SettingsViewModel @Inject constructor(
             collectionViewRepository.deleteAll()
             playRepository.deletePlays()
             userRepository.deleteUsers()
-            imageRepository.delete()
+            imageRepository.deleteAll()
         }
     }
 

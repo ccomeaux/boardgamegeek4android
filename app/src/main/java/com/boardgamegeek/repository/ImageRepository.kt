@@ -14,13 +14,11 @@ import com.squareup.picasso.Picasso
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.BufferedOutputStream
-import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 
 class ImageRepository(
     val context: Context,
+    @Suppress("SpellCheckingInspection")
     private val geekdoApi: GeekdoApi,
 ) {
     private val imageDao = ImageDao(context)
@@ -28,33 +26,25 @@ class ImageRepository(
     /** Get a bitmap for the given URL, either from disk or from the network. */
     @WorkerThread
     fun fetchThumbnail(thumbnailUrl: String?): Bitmap? {
-        if (thumbnailUrl == null) return null
-        if (thumbnailUrl.isBlank()) return null
-        val file = getThumbnailFile(context, thumbnailUrl)
-        val bitmap: Bitmap? = if (file?.exists() == true) {
-            BitmapFactory.decodeFile(file.absolutePath)
-        } else {
-            try {
-                Picasso.with(context)
-                    .load(thumbnailUrl)
-                    .resizeDimen(R.dimen.shortcut_icon_size, R.dimen.shortcut_icon_size)
-                    .centerCrop()
-                    .get()
-            } catch (e: IOException) {
-                Timber.e(e, "Error downloading the thumbnail at $thumbnailUrl.")
-                null
-            }
-        }
-        if (bitmap != null && file != null) {
-            try {
-                BufferedOutputStream(FileOutputStream(file)).use { out ->
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+        return FileUtils.getFile(context, BggContract.PATH_THUMBNAILS, thumbnailUrl)?.let { file ->
+            if (file.exists()) {
+                BitmapFactory.decodeFile(file.absolutePath)
+            } else {
+                try {
+                    Picasso.with(context)
+                        .load(thumbnailUrl)
+                        .resizeDimen(R.dimen.shortcut_icon_size, R.dimen.shortcut_icon_size)
+                        .centerCrop()
+                        .get()
+                } catch (e: IOException) {
+                    Timber.e(e, "Error downloading the thumbnail at $thumbnailUrl.")
+                    null
+                }?.let { bitmap ->
+                    FileUtils.saveBitmap(file, bitmap)
+                    bitmap
                 }
-            } catch (e: IOException) {
-                Timber.e(e, "Error saving the thumbnail file.")
             }
         }
-        return bitmap
     }
 
     enum class ImageType {
@@ -77,7 +67,7 @@ class ImageRepository(
         return list
     }
 
-    suspend fun fetchImageUrls(imageId: Int): Map<ImageType, List<String>> = withContext(Dispatchers.IO) {
+    private suspend fun fetchImageUrls(imageId: Int): Map<ImageType, List<String>> = withContext(Dispatchers.IO) {
         if (imageId > 0 && RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
             try {
                 val response = geekdoApi.image(imageId)
@@ -92,20 +82,10 @@ class ImageRepository(
         } else emptyMap()
     }
 
-    suspend fun delete() {
+    suspend fun deleteAll() {
         imageDao.deleteThumbnails()
         imageDao.deleteAvatars()
     }
 
     suspend fun deleteThumbnail(fileName: String) = imageDao.deleteFile(fileName, BggContract.PATH_THUMBNAILS)
-
-    private fun getThumbnailFile(context: Context, url: String): File? {
-        if (url.isNotBlank()) {
-            val filename = FileUtils.getFileNameFromUrl(url)
-            return if (filename.isNotBlank()) // TODO nothing is storing in this directory
-                File(FileUtils.generateContentPath(context, BggContract.PATH_THUMBNAILS), filename)
-            else null
-        }
-        return null
-    }
 }
