@@ -2,6 +2,7 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
@@ -50,6 +51,8 @@ class PublisherRepository(
 
     suspend fun loadPublisher(publisherId: Int) = publisherDao.loadPublisher(publisherId)?.mapToModel()
 
+    fun loadPublisherAsLiveData(publisherId: Int) = publisherDao.loadPublisherAsLiveData(publisherId).map { it.mapToModel() }
+
     suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
         if (id == BggContract.INVALID_ID) return emptyList()
         return collectionDao.loadForPublisher(id)
@@ -80,13 +83,12 @@ class PublisherRepository(
         }
     }
 
-    suspend fun refreshImages(publisher: Company): Company = withContext(Dispatchers.IO) {
+    suspend fun refreshImages(publisher: Company) = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.getImageUrls(publisher.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         urls?.firstOrNull()?.let {
             publisherDao.updateHeroImageUrl(publisher.id, it)
-            publisher.copy(heroImageUrl = it)
-        } ?: publisher
+        }
     }
 
     suspend fun calculateWhitmoreScores(publishers: List<Company>, progress: MutableLiveData<Pair<Int, Int>>) =

@@ -2,6 +2,7 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
@@ -15,6 +16,7 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.Date
 
 class ArtistRepository(
@@ -50,6 +52,8 @@ class ArtistRepository(
 
     suspend fun loadArtist(artistId: Int) = artistDao.loadArtist(artistId)?.mapToModel()
 
+    fun loadArtistAsLiveData(artistId: Int) = artistDao.loadArtistAsLiveData(artistId).map { it.mapToModel() }
+
     suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
         if (id == BggContract.INVALID_ID) return emptyList()
         return collectionDao.loadForArtist(id)
@@ -80,23 +84,22 @@ class ArtistRepository(
         }
     }
 
-    suspend fun refreshImages(artist: Person): Person = withContext(Dispatchers.IO) {
+    suspend fun refreshImages(artist: Person) = withContext(Dispatchers.IO) {
         val timestamp = Date()
         val response = api.person(artist.id)
         val person = response.items.firstOrNull()?.mapToModel(artist, timestamp)
         person?.let {
-            artistDao.updateImageUrls(artist.id, it.imageUrl, it.thumbnailUrl, it.imagesUpdatedTimestamp ?: Date())
+            artistDao.updateImageUrls(artist.id, it.imageUrl, it.thumbnailUrl, it.imagesUpdatedTimestamp ?: timestamp)
+            val imageId = it.thumbnailUrl.getImageId()
+            if (imageId != artist.heroImageUrl.getImageId()) {
+                Timber.d("Artist $artist's hero URL doesn't match image ID $imageId")
+                val urlMap = imageRepository.getImageUrls(imageId)
+                urlMap[ImageRepository.ImageType.HERO]?.firstOrNull()?.let { heroUrl ->
+                    Timber.d("Updating artist $artist with hero URL $heroUrl")
+                    artistDao.updateHeroImageUrl(artist.id, heroUrl)
+                }
+            }
         }
-        person ?: artist
-    }
-
-    suspend fun refreshHeroImage(artist: Person): Person = withContext(Dispatchers.IO) {
-        val urlMap = imageRepository.getImageUrls(artist.thumbnailUrl.getImageId())
-        val urls = urlMap[ImageRepository.ImageType.HERO]
-        if (urls?.isNotEmpty() == true) {
-            artistDao.updateHeroImageUrl(artist.id, urls.first())
-            artist.copy(heroImageUrl = urls.first())
-        } else artist
     }
 
     suspend fun calculateWhitmoreScores(artists: List<Person>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {

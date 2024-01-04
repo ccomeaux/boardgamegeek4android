@@ -15,6 +15,8 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 @AndroidEntryPoint
 class PersonActivity : HeroTabActivity() {
@@ -28,6 +30,7 @@ class PersonActivity : HeroTabActivity() {
     private var name = ""
     private var personType = PersonType.DESIGNER
     private var emptyMessageDescription = ""
+    private var automaticRefreshTimestamp = 0L
 
     private val viewModel by viewModels<PersonViewModel>()
 
@@ -66,6 +69,14 @@ class PersonActivity : HeroTabActivity() {
                 toast(it.message.ifBlank { getString(R.string.empty_person, emptyMessageDescription) })
             }
             it?.data?.let { person ->
+                if (it.status == Status.SUCCESS && automaticRefreshTimestamp.isOlderThan(3.hours)) {
+                    automaticRefreshTimestamp = System.currentTimeMillis()
+                    if (person.updatedTimestamp?.time.isOlderThan(1.days) ||
+                        person.imagesUpdatedTimestamp?.time.isOlderThan(1.days)
+                    ) {
+                        viewModel.refresh()
+                    }
+                }
                 safelySetTitle(person.name)
                 loadToolbarImage(person.heroImageUrls)
             }

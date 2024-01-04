@@ -6,14 +6,13 @@ import com.boardgamegeek.model.Company
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.extensions.getImageId
-import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.days
 
 @HiltViewModel
 class PersonViewModel @Inject constructor(
@@ -63,13 +62,37 @@ class PersonViewModel @Inject constructor(
     }
 
     fun refresh() {
-        _personInfo.value?.let { _personInfo.value = PersonInfo(it.type, it.id) }
+        _personInfo.value?.let { info ->
+            val id = info.id
+            viewModelScope.launch {
+                when (info.type) {
+                    // TODO - look at dates and optionally allow an override
+                    PersonType.ARTIST -> {
+                        artistRepository.refreshArtist(id)
+                        artistRepository.loadArtist(id)?.let { artistRepository.refreshImages(it) }
+                    }
+                    PersonType.DESIGNER -> {
+                        designerRepository.refreshDesigner(id)
+                        designerRepository.loadDesigner(id)?.let { designerRepository.refreshImages(it) }
+                    }
+                    PersonType.PUBLISHER -> {
+                        publisherRepository.refreshPublisher(id)
+                        publisherRepository.loadPublisher(id)?.let {
+                            val imageId = it.thumbnailUrl.getImageId()
+                            if (imageId != it.heroImageUrl.getImageId()) {
+                                publisherRepository.refreshImages(it)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     val details = _personInfo.switchMap { person ->
         liveData {
             when (person.id) {
-                BggContract.INVALID_ID -> emit(null)
+                BggContract.INVALID_ID -> emit(RefreshableResource.success(null))
                 else -> {
                     when (person.type) {
                         PersonType.ARTIST -> loadArtist(person.id, application)
@@ -78,81 +101,37 @@ class PersonViewModel @Inject constructor(
                     }
                 }
             }
-        }
+        }.distinctUntilChanged()
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<Person>?>.loadArtist(artistId: Int, application: Application) {
-        emit(RefreshableResource.refreshing(latestValue?.data))
-        val artist = artistRepository.loadArtist(artistId)
+    private suspend fun LiveDataScope<RefreshableResource<Person>>.loadArtist(artistId: Int, application: Application) {
         try {
-            val refreshedArtist = if (artist?.updatedTimestamp == null || artist.updatedTimestamp.time.isOlderThan(1.days)) {
-                emit(RefreshableResource.refreshing(artist))
-                artistRepository.refreshArtist(artistId)
-                artistRepository.loadArtist(artistId)
-            } else artist
-            refreshedArtist?.let {
-                val artistWithImages = if (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(1.days)) {
-                    emit(RefreshableResource.refreshing(it))
-                    artistRepository.refreshImages(it)
-                } else it
-                val completeArtist = if (artistWithImages.heroImageUrl.getImageId() != artistWithImages.thumbnailUrl.getImageId()) {
-                    emit(RefreshableResource.refreshing(artistWithImages))
-                    artistRepository.refreshHeroImage(artistWithImages)
-                } else artistWithImages
-                emit(RefreshableResource.success(artistRepository.loadArtist(artistId) ?: completeArtist))
-            } ?: emit(RefreshableResource.success(null))
+            emit(RefreshableResource.refreshing(latestValue?.data))
+            emitSource(artistRepository.loadArtistAsLiveData(artistId).map { RefreshableResource.success(it) })
         } catch (e: Exception) {
-            emit(RefreshableResource.error(e, application, artist))
+            emit(RefreshableResource.error(e, application, latestValue?.data))
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<Person>?>.loadDesigner(designerId: Int, application: Application) {
-        emit(RefreshableResource.refreshing(latestValue?.data))
-        val designer = designerRepository.loadDesigner(designerId)
+    private suspend fun LiveDataScope<RefreshableResource<Person>>.loadDesigner(designerId: Int, application: Application) {
         try {
-            val refreshedDesigner = if (designer?.updatedTimestamp == null || designer.updatedTimestamp.time.isOlderThan(1.days)) {
-                emit(RefreshableResource.refreshing(designer))
-                designerRepository.refreshDesigner(designerId)
-                designerRepository.loadDesigner(designerId)
-            } else designer
-            refreshedDesigner?.let {
-                val designerWithImages = if (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(1.days)) {
-                    emit(RefreshableResource.refreshing(it))
-                    designerRepository.refreshImages(it)
-                } else it
-                val completeDesigner = if (designerWithImages.heroImageUrl.getImageId() != designerWithImages.thumbnailUrl.getImageId()) {
-                    emit(RefreshableResource.refreshing(designerWithImages))
-                    designerRepository.refreshHeroImage(designerWithImages)
-                } else designerWithImages
-                emit(RefreshableResource.success(designerRepository.loadDesigner(designerId) ?: completeDesigner))
-            } ?: emit(RefreshableResource.success(null))
+            emit(RefreshableResource.refreshing(latestValue?.data))
+            emitSource(designerRepository.loadDesignerAsLiveData(designerId).map { RefreshableResource.success(it) })
         } catch (e: Exception) {
-            emit(RefreshableResource.error(e, application, designer))
+            emit(RefreshableResource.error(e, application, latestValue?.data))
         }
     }
 
-    private suspend fun LiveDataScope<RefreshableResource<Person>?>.loadPublisher(publisherId: Int, application: Application) {
-        emit(RefreshableResource.refreshing(latestValue?.data))
-        val publisher = publisherRepository.loadPublisher(publisherId)
+    private suspend fun LiveDataScope<RefreshableResource<Person>>.loadPublisher(publisherId: Int, application: Application) {
         try {
-            val refreshedPublisher = if (publisher?.updatedTimestamp == null || publisher.updatedTimestamp.time.isOlderThan(0.days)) {
-                emit(RefreshableResource.refreshing(publisher.toPerson()))
-                publisherRepository.refreshPublisher(publisherId)
-                publisherRepository.loadPublisher(publisherId)
-            } else publisher
-            val completePublisher = refreshedPublisher?.let {
-                emit(RefreshableResource.refreshing(it.toPerson()))
-                if (it.heroImageUrl.getImageId() != it.thumbnailUrl.getImageId()) {
-                    publisherRepository.refreshImages(it)
-                } else refreshedPublisher
-            }
-            emit(RefreshableResource.success((publisherRepository.loadPublisher(publisherId) ?: completePublisher).toPerson()))
+            emit(RefreshableResource.refreshing(latestValue?.data))
+            emitSource(publisherRepository.loadPublisherAsLiveData(publisherId).map { RefreshableResource.success(it.mapToPerson()) })
         } catch (e: Exception) {
-            emit(RefreshableResource.error(e, application, publisher.toPerson()))
+            emit(RefreshableResource.error(e, application, latestValue?.data))
         }
     }
 
-    private fun Company?.toPerson() = this?.let {
+    private fun Company?.mapToPerson() = this?.let {
         Person(
             BggContract.INVALID_ID.toLong(),
             it.id,
@@ -164,17 +143,11 @@ class PersonViewModel @Inject constructor(
         )
     }
 
-    val type: LiveData<PersonType> = _personInfo.map {
-        it.type
-    }
+    val type: LiveData<PersonType> = _personInfo.map { it.type }
 
-    val id: LiveData<Int> = _personInfo.map {
-        it.id
-    }
+    val id: LiveData<Int> = _personInfo.map { it.id }
 
-    val collectionSort: LiveData<CollectionSort> = _personInfo.map {
-        it.sort
-    }
+    val collectionSort: LiveData<CollectionSort> = _personInfo.map { it.sort }
 
     val collection = _personInfo.switchMap { person ->
         liveData {

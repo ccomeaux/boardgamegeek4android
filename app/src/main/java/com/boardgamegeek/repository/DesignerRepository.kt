@@ -2,6 +2,7 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
@@ -14,6 +15,7 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.Date
 
 class DesignerRepository(
@@ -49,6 +51,8 @@ class DesignerRepository(
 
     suspend fun loadDesigner(designerId: Int) = designerDao.loadDesigner(designerId)?.mapToModel()
 
+    fun loadDesignerAsLiveData(designerId: Int) = designerDao.loadDesignerAsLiveData(designerId).map { it?.mapToModel() }
+
     suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
         if (id == BggContract.INVALID_ID) return emptyList()
         return collectionDao.loadForDesigner(id)
@@ -79,23 +83,22 @@ class DesignerRepository(
         }
     }
 
-    suspend fun refreshImages(designer: Person): Person = withContext(Dispatchers.IO) {
+    suspend fun refreshImages(designer: Person) = withContext(Dispatchers.IO) {
         val timestamp = Date()
         val response = api.person(designer.id)
         val person = response.items.firstOrNull()?.mapToModel(designer, timestamp)
         person?.let {
-            designerDao.updateImageUrls(it.id, it.imageUrl, it.thumbnailUrl, it.imagesUpdatedTimestamp ?: Date())
+            designerDao.updateImageUrls(it.id, it.imageUrl, it.thumbnailUrl, it.imagesUpdatedTimestamp ?: timestamp)
+            val imageId = it.thumbnailUrl.getImageId()
+            if (imageId != designer.heroImageUrl.getImageId()) {
+                Timber.d("Designer $designer's hero URL doesn't match image ID $imageId")
+                val urlMap = imageRepository.getImageUrls(imageId)
+                urlMap[ImageRepository.ImageType.HERO]?.firstOrNull()?.let { heroUrl ->
+                    Timber.d("Updating designer $designer with hero URL $heroUrl")
+                    designerDao.updateHeroImageUrl(designer.id, heroUrl)
+                }
+            }
         }
-        person ?: designer
-    }
-
-    suspend fun refreshHeroImage(designer: Person): Person = withContext(Dispatchers.IO) {
-        val urlMap = imageRepository.getImageUrls(designer.thumbnailUrl.getImageId())
-        val urls = urlMap[ImageRepository.ImageType.HERO]
-        if (urls?.isNotEmpty() == true) {
-            designerDao.updateHeroImageUrl(designer.id, urls.first())
-            designer.copy(heroImageUrl = urls.first())
-        } else designer
     }
 
     suspend fun calculateWhitmoreScores(designers: List<Person>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {

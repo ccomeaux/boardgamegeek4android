@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.*
 import java.util.Date
@@ -11,6 +12,9 @@ interface DesignerDao {
 
     @Query("SELECT * FROM designers WHERE designer_id=:designerId")
     suspend fun loadDesigner(designerId: Int): DesignerEntity?
+
+    @Query("SELECT * FROM designers WHERE designer_id=:designerId")
+    fun loadDesignerAsLiveData(designerId: Int): LiveData<DesignerEntity?>
 
     @Query("UPDATE designers SET designer_image_url=:imageUrl, designer_thumbnail_url=:thumbnailUrl, designer_images_updated_timestamp=:timestamp WHERE designer_id=:designerId")
     suspend fun updateImageUrls(designerId: Int, imageUrl: String, thumbnailUrl: String, timestamp: Date)

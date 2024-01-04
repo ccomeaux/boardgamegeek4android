@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.*
 import java.util.Date
@@ -11,6 +12,9 @@ interface PublisherDao {
 
     @Query("SELECT * FROM publishers WHERE publisher_id=:publisherId")
     suspend fun loadPublisher(publisherId: Int): PublisherEntity?
+
+    @Query("SELECT * FROM publishers WHERE publisher_id=:publisherId")
+    fun loadPublisherAsLiveData(publisherId: Int): LiveData<PublisherEntity>
 
     @Query("UPDATE publishers SET publisher_hero_image_url=:url WHERE publisher_id=:publisherId")
     suspend fun updateHeroImageUrl(publisherId: Int, url: String)

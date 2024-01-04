@@ -17,4 +17,8 @@ data class Person(
     val imagesUpdatedTimestamp: Date? = null,
 ) {
     val heroImageUrls = listOf(heroImageUrl, thumbnailUrl, imageUrl)
+
+    override fun toString(): String {
+        return "$name [$id]"
+    }
 }

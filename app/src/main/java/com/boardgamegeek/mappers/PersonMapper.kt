@@ -25,8 +25,8 @@ fun PersonItem.mapToModel(person: Person, timestamp: Date): Person? {
     return if (id != person.id.toString()) null
     else
         person.copy(
-            imageUrl = image,
-            thumbnailUrl = thumbnail,
+            imageUrl = image.orEmpty(),
+            thumbnailUrl = thumbnail.orEmpty(),
             imagesUpdatedTimestamp = timestamp,
         )
 }
