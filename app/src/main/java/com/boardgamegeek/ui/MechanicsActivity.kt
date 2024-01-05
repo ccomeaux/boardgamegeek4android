@@ -8,7 +8,6 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
-import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel.SortType
 import dagger.hilt.android.AndroidEntryPoint
@@ -16,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MechanicsActivity : SimpleSinglePaneActivity() {
     private var numberOfMechanics = -1
-    private var sortBy = SortType.ITEM_COUNT
+    private var sortBy: SortType? = null
 
     private val viewModel by viewModels<MechanicsViewModel>()
 
@@ -27,7 +26,7 @@ class MechanicsActivity : SimpleSinglePaneActivity() {
             invalidateOptionsMenu()
         }
         viewModel.sort.observe(this) {
-            sortBy = it.sortType
+            sortBy = it
             invalidateOptionsMenu()
         }
     }
@@ -41,6 +40,7 @@ class MechanicsActivity : SimpleSinglePaneActivity() {
         val text = menu.findItem(when (sortBy) {
             SortType.NAME -> R.id.menu_sort_name
             SortType.ITEM_COUNT -> R.id.menu_sort_item_count
+            else -> 0
         })?.let {
             it.isChecked = true
             getString(R.string.by_prefix, it.title)

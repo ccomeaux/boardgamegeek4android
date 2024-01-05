@@ -12,11 +12,12 @@ class CategoriesViewModel @Inject constructor(
     private val repository: CategoryRepository,
 ) : AndroidViewModel(application) {
     enum class SortType {
-        NAME, ITEM_COUNT
+        NAME,
+        ITEM_COUNT
     }
 
-    private val _sort = MutableLiveData<CategoriesSort>()
-    val sort: LiveData<CategoriesSort>
+    private val _sort = MutableLiveData<SortType>()
+    val sort: LiveData<SortType>
         get() = _sort
 
     init {
@@ -25,35 +26,21 @@ class CategoriesViewModel @Inject constructor(
 
     val categories = sort.switchMap {
         liveData {
-            emit(repository.loadCategories(it.sortBy))
-        }
-    }
-
-    fun sort(sortType: SortType) {
-        if (_sort.value?.sortType != sortType) {
-            _sort.value = when (sortType) {
-                SortType.NAME -> CategoriesSort.ByName()
-                SortType.ITEM_COUNT -> CategoriesSort.ByItemCount()
+            sort.value?.let {
+                val sort = when (it) {
+                    SortType.NAME -> CategoryRepository.SortType.NAME
+                    SortType.ITEM_COUNT -> CategoryRepository.SortType.ITEM_COUNT
+                }
+                emitSource(repository.loadCategoriesAsLiveData(sort).distinctUntilChanged())
             }
         }
     }
 
-    fun refresh() {
-        _sort.value?.let { _sort.value = it }
+    fun sort(sortType: SortType) {
+        if (_sort.value != sortType) _sort.value = sortType
     }
 
-    sealed class CategoriesSort {
-        abstract val sortType: SortType
-        abstract val sortBy: CategoryRepository.SortType
-
-        class ByName : CategoriesSort() {
-            override val sortType = SortType.NAME
-            override val sortBy = CategoryRepository.SortType.NAME
-        }
-
-        class ByItemCount : CategoriesSort() {
-            override val sortType = SortType.ITEM_COUNT
-            override val sortBy = CategoryRepository.SortType.ITEM_COUNT
-        }
+    fun refresh() {
+        _sort.value?.let { _sort.value = it }
     }
 }

@@ -12,11 +12,12 @@ class MechanicsViewModel @Inject constructor(
     private val repository: MechanicRepository,
 ) : AndroidViewModel(application) {
     enum class SortType {
-        NAME, ITEM_COUNT
+        NAME,
+        ITEM_COUNT
     }
 
-    private val _sort = MutableLiveData<MechanicsSort>()
-    val sort: LiveData<MechanicsSort>
+    private val _sort = MutableLiveData<SortType>()
+    val sort: LiveData<SortType>
         get() = _sort
 
     init {
@@ -25,35 +26,21 @@ class MechanicsViewModel @Inject constructor(
 
     val mechanics = sort.switchMap {
         liveData {
-            emit(repository.loadMechanics(it.sortBy))
-        }
-    }
-
-    fun sort(sortType: SortType) {
-        if (_sort.value?.sortType != sortType) {
-            _sort.value = when (sortType) {
-                SortType.NAME -> MechanicsSort.ByName()
-                SortType.ITEM_COUNT -> MechanicsSort.ByItemCount()
+            sort.value?.let {
+                val sort = when (it) {
+                    SortType.NAME -> MechanicRepository.SortType.NAME
+                    SortType.ITEM_COUNT -> MechanicRepository.SortType.ITEM_COUNT
+                }
+                emitSource(repository.loadMechanicsAsLiveData(sort).distinctUntilChanged())
             }
         }
     }
 
-    fun refresh() {
-        _sort.value?.let { _sort.value = it }
+    fun sort(sortType: SortType) {
+        if (_sort.value != sortType) _sort.value = sortType
     }
 
-    sealed class MechanicsSort {
-        abstract val sortType: SortType
-        abstract val sortBy: MechanicRepository.SortType
-
-        class ByName : MechanicsSort() {
-            override val sortType = SortType.NAME
-            override val sortBy = MechanicRepository.SortType.NAME
-        }
-
-        class ByItemCount : MechanicsSort() {
-            override val sortType = SortType.ITEM_COUNT
-            override val sortBy = MechanicRepository.SortType.ITEM_COUNT
-        }
+    fun refresh() {
+        _sort.value?.let { _sort.value = it }
     }
 }

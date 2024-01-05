@@ -7,16 +7,16 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCategoriesBinding
 import com.boardgamegeek.databinding.RowCategoryBinding
 import com.boardgamegeek.model.Category
 import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class CategoriesFragment : Fragment() {
@@ -40,7 +40,7 @@ class CategoriesFragment : Fragment() {
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
 
         viewModel.categories.observe(viewLifecycleOwner) {
-            adapter.categories = it
+            adapter.submitList(it)
             binding.recyclerView.isVisible = adapter.itemCount > 0
             binding.emptyTextView.isVisible = adapter.itemCount == 0
             binding.progressBar.hide()
@@ -53,39 +53,35 @@ class CategoriesFragment : Fragment() {
         _binding = null
     }
 
-    class CategoriesAdapter : RecyclerView.Adapter<CategoriesAdapter.CategoryViewHolder>(), AutoUpdatableAdapter {
-        var categories: List<Category> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            autoNotify(oldValue, newValue) { old, new ->
-                old.id == new.id
-            }
-        }
-
+    class CategoriesAdapter : ListAdapter<Category, CategoriesAdapter.CategoryViewHolder>(ItemCallback()) {
         init {
             setHasStableIds(true)
         }
 
-        override fun getItemCount() = categories.size
-
-        override fun getItemId(position: Int) = categories.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
+        override fun getItemId(position: Int): Long = getItem(position).id.toLong()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
             return CategoryViewHolder(parent.inflate(R.layout.row_category))
         }
 
         override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-            holder.bind(categories.getOrNull(position))
+            holder.bind(getItem(position))
+        }
+
+        class ItemCallback : DiffUtil.ItemCallback<Category>() {
+            override fun areItemsTheSame(oldItem: Category, newItem: Category) = oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Category, newItem: Category) = oldItem == newItem
         }
 
         inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowCategoryBinding.bind(itemView)
 
-            fun bind(category: Category?) {
-                category?.let { c ->
-                    binding.nameView.text = c.name
-                    binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, c.itemCount, c.itemCount)
-                    itemView.setOnClickListener {
-                        CategoryActivity.start(itemView.context, c.id, c.name)
-                    }
+            fun bind(category: Category) {
+                binding.nameView.text = category.name
+                binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, category.itemCount, category.itemCount)
+                itemView.setOnClickListener {
+                    CategoryActivity.start(itemView.context, category.id, category.name)
                 }
             }
         }

@@ -1,6 +1,8 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import com.boardgamegeek.db.CategoryDao
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.model.Category
@@ -8,6 +10,8 @@ import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class CategoryRepository(
     val context: Context,
@@ -22,26 +26,30 @@ class CategoryRepository(
         NAME, RATING
     }
 
-    suspend fun loadCategories(sortBy: SortType = SortType.NAME): List<Category> {
-        return categoryDao.loadCategories()
-            .sortedBy {
+    suspend fun loadCategoriesAsLiveData(sortBy: SortType = SortType.NAME): LiveData<List<Category>> = withContext(Dispatchers.Default) {
+        categoryDao.loadCategoriesAsLiveData().map {
+            it.map { entity -> entity.mapToModel() }
+        }.map { list ->
+            list.sortedWith(
                 when (sortBy) {
-                    SortType.NAME -> it.categoryName
-                    SortType.ITEM_COUNT -> 0 // TODO
-                }.toString()
-            }
-            .map { it.mapToModel() }
+                    SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.ITEM_COUNT -> compareByDescending<Category> { it.itemCount }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                }
+            )
+        }
     }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
-        if (id == BggContract.INVALID_ID) return emptyList()
-        return collectionDao.loadForCategory(id)
+    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> = withContext(Dispatchers.Default) {
+        if (id == BggContract.INVALID_ID) emptyList()
+        else withContext(Dispatchers.IO) { collectionDao.loadForCategory(id) }
             .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
             .sortedWith(
                 if (sortBy == CollectionSortType.RATING)
-                    compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.isFavorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                    compareByDescending<CollectionItem> { it.rating }
+                        .thenByDescending { it.isFavorite }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
                 else
                     compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
             )
