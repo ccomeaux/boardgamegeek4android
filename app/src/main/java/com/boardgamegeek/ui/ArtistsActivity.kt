@@ -15,7 +15,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class ArtistsActivity : SimpleSinglePaneActivity() {
     private var numberOfArtists = -1
-    private var sortBy = SortType.ITEM_COUNT
+    private var sortBy: SortType? = null
 
     private val viewModel by viewModels<ArtistsViewModel>()
 
@@ -26,7 +26,7 @@ class ArtistsActivity : SimpleSinglePaneActivity() {
             invalidateOptionsMenu()
         }
         viewModel.sort.observe(this) {
-            sortBy = it.sortType
+            sortBy = it
             invalidateOptionsMenu()
         }
     }
@@ -42,6 +42,7 @@ class ArtistsActivity : SimpleSinglePaneActivity() {
                 SortType.NAME -> R.id.menu_sort_name
                 SortType.ITEM_COUNT -> R.id.menu_sort_item_count
                 SortType.WHITMORE_SCORE -> R.id.menu_sort_whitmore_score
+                else -> 0
             }
         )?.let {
             it.isChecked = true

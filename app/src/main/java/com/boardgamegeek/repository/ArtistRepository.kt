@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.boardgamegeek.db.ArtistDao
@@ -34,41 +35,43 @@ class ArtistRepository(
         NAME, RATING
     }
 
-    suspend fun loadArtists(sortBy: SortType): List<Person> {
-        return artistDao.loadArtists()
-            .sortedWith(
-                compareBy(
-                    String.CASE_INSENSITIVE_ORDER
-                ) {
-                    when (sortBy) {
-                        SortType.NAME -> it.artistName
-                        SortType.WHITMORE_SCORE -> it.whitmoreScore
-                        SortType.ITEM_COUNT -> 0 // TODO
-                    }.toString()
+    suspend fun loadArtistsAsLiveData(sortBy: SortType): LiveData<List<Person>> = withContext(Dispatchers.Default) {
+        artistDao.loadArtistsAsLiveData().map {
+            it.map { entity -> entity.mapToModel() }
+        }.map { list ->
+            list.sortedWith(
+                when (sortBy) {
+                    SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.WHITMORE_SCORE -> compareByDescending<Person> { it.whitmoreScore }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.ITEM_COUNT -> compareByDescending<Person> { it.itemCount }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
                 }
             )
-            .map { it.mapToModel() }
+        }
     }
 
-    suspend fun loadArtist(artistId: Int) = artistDao.loadArtist(artistId)?.mapToModel()
+    suspend fun loadArtist(artistId: Int) = withContext(Dispatchers.IO) { artistDao.loadArtist(artistId)?.mapToModel() }
 
     fun loadArtistAsLiveData(artistId: Int) = artistDao.loadArtistAsLiveData(artistId).map { it.mapToModel() }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
-        if (id == BggContract.INVALID_ID) return emptyList()
-        return collectionDao.loadForArtist(id)
+    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> = withContext(Dispatchers.Default) {
+        if (id == BggContract.INVALID_ID)  emptyList()
+        else withContext(Dispatchers.IO) { collectionDao.loadForArtist(id) }
             .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
             .sortedWith(
                 if (sortBy == CollectionSortType.RATING)
-                    compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.isFavorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                    compareByDescending<CollectionItem> { it.rating }
+                        .thenByDescending { it.isFavorite }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
                 else
                     compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
             )
     }
 
-    suspend fun deleteAll() = artistDao.deleteAll()
+    suspend fun deleteAll() = withContext(Dispatchers.IO) { artistDao.deleteAll() }
 
     suspend fun refreshArtist(artistId: Int) = withContext(Dispatchers.IO) {
         val timestamp = Date()
@@ -77,7 +80,6 @@ class ArtistRepository(
             val artist = artistDao.loadArtist(it.id)
             if (artist == null) {
                 artistDao.insert(it.mapArtistForUpsert())
-                // TODO update item count
             } else {
                 artistDao.update(it.mapArtistForUpsert(artist.internalId))
             }
@@ -102,7 +104,8 @@ class ArtistRepository(
         }
     }
 
-    suspend fun calculateWhitmoreScores(artists: List<Person>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+    suspend fun calculateWhitmoreScores(progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+        val artists = withContext(Dispatchers.IO) { artistDao.loadArtists().map { it.mapToModel() } }
         val sortedList = artists.sortedBy { it.statsUpdatedTimestamp }
         val maxProgress = sortedList.size
         sortedList.forEachIndexed { i, data ->
@@ -115,7 +118,7 @@ class ArtistRepository(
 
     suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
         val timestamp = Date()
-        val collection = collectionDao.loadForArtist(artistId).map { it.mapToModel() }
+        val collection = withContext(Dispatchers.IO) { collectionDao.loadForArtist(artistId).map { it.mapToModel() } }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) artistDao.loadArtist(artistId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {

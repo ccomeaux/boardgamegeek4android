@@ -96,6 +96,7 @@ class PersonActivity : HeroTabActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_view -> {
+                @Suppress("SpellCheckingInspection")
                 val path = when (personType) {
                     PersonType.DESIGNER -> "boardgamedesigner"
                     PersonType.ARTIST -> "boardgameartist"

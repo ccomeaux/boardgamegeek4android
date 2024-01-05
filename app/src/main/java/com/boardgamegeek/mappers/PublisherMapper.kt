@@ -2,6 +2,7 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.db.model.PublisherEntity
 import com.boardgamegeek.db.model.PublisherForUpsert
+import com.boardgamegeek.db.model.PublisherWithItemCount
 import com.boardgamegeek.model.Company
 import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.extensions.sortName
@@ -31,6 +32,8 @@ fun PublisherEntity.mapToModel() = Company(
     whitmoreScore = whitmoreScore ?: 0,
     statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
+
+fun PublisherWithItemCount.mapToModel() = publisher.mapToModel().copy(itemCount = itemCount)
 
 fun PublisherEntity.mapToGameDetail() = GameDetail(
     id = publisherId,

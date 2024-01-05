@@ -2,10 +2,12 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.model.Company
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
@@ -19,8 +21,8 @@ class PublishersViewModel @Inject constructor(
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val _sort = MutableLiveData<PublishersSort>()
-    val sort: LiveData<PublishersSort>
+    private val _sort = MutableLiveData<SortType>()
+    val sort: LiveData<SortType>
         get() = _sort
 
     private val _progress = MutableLiveData<Pair<Int, Int>>()
@@ -35,31 +37,36 @@ class PublishersViewModel @Inject constructor(
         else
             SortType.ITEM_COUNT
         sort(initialSort)
+        calculateStats()
     }
 
     val publishers = _sort.switchMap {
         liveData {
-            val publishers = publisherRepository.loadPublishers(it.sortBy)
-            emit(publishers)
-            val lastCalculation = application.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
+            sort.value?.let {
+                val sort = when(it) {
+                    SortType.NAME -> PublisherRepository.SortType.NAME
+                    SortType.ITEM_COUNT -> PublisherRepository.SortType.ITEM_COUNT
+                    SortType.WHITMORE_SCORE -> PublisherRepository.SortType.WHITMORE_SCORE
+                }
+                emitSource(publisherRepository.loadPublishersAsLiveData(sort).distinctUntilChanged())
+            }
+        }
+    }
+
+    private fun calculateStats() {
+        viewModelScope.launch {
+            val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
-                publisherRepository.calculateWhitmoreScores(publishers, _progress)
-                emit(publisherRepository.loadPublishers(it.sortBy))
+                publisherRepository.calculateWhitmoreScores(_progress)
                 isCalculating.set(false)
             }
         }
     }
 
     fun sort(sortType: SortType) {
-        if (_sort.value?.sortType != sortType) {
-            _sort.value = when (sortType) {
-                SortType.NAME -> PublishersSort.ByName()
-                SortType.ITEM_COUNT -> PublishersSort.ByItemCount()
-                SortType.WHITMORE_SCORE -> PublishersSort.ByWhitmoreScore()
-            }
-        }
+        if (_sort.value != sortType) _sort.value = sortType
     }
 
     fun refresh() {
@@ -67,40 +74,11 @@ class PublishersViewModel @Inject constructor(
     }
 
     fun getSectionHeader(publisher: Company?): String {
-        return _sort.value?.getSectionHeader(publisher).orEmpty()
-    }
-
-    sealed class PublishersSort {
-        abstract val sortType: SortType
-        abstract val sortBy: PublisherRepository.SortType
-        abstract fun getSectionHeader(publisher: Company?): String
-
-        class ByName : PublishersSort() {
-            override val sortType = SortType.NAME
-            override val sortBy = PublisherRepository.SortType.NAME
-            override fun getSectionHeader(publisher: Company?): String {
-                return when {
-                    publisher == null -> ""
-                    publisher.name.startsWith("(") -> "-"
-                    else -> publisher.name.firstChar()
-                }
-            }
-        }
-
-        class ByItemCount : PublishersSort() {
-            override val sortType = SortType.ITEM_COUNT
-            override val sortBy = PublisherRepository.SortType.ITEM_COUNT
-            override fun getSectionHeader(publisher: Company?): String {
-                return (publisher?.itemCount ?: 0).orderOfMagnitude()
-            }
-        }
-
-        class ByWhitmoreScore : PublishersSort() {
-            override val sortType = SortType.WHITMORE_SCORE
-            override val sortBy = PublisherRepository.SortType.WHITMORE_SCORE
-            override fun getSectionHeader(publisher: Company?): String {
-                return (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
-            }
+        return when(sort.value) {
+            SortType.NAME -> if (publisher?.name == "(Uncredited)") "-" else publisher?.name.firstChar()
+            SortType.ITEM_COUNT -> (publisher?.itemCount ?: 0).orderOfMagnitude()
+            SortType.WHITMORE_SCORE -> (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
+            else -> "-"
         }
     }
 }

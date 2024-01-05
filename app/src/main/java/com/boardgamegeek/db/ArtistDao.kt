@@ -10,6 +10,9 @@ interface ArtistDao {
     @Query("SELECT * FROM artists")
     suspend fun loadArtists(): List<ArtistEntity>
 
+    @Query("SELECT artists.*, COUNT(game_id) AS itemCount FROM artists LEFT OUTER JOIN games_artists ON artists.artist_id = games_artists.artist_id GROUP BY games_artists.artist_id")
+    fun loadArtistsAsLiveData(): LiveData<List<ArtistWithItemCount>>
+
     @Query("SELECT * FROM artists WHERE artist_id=:artistId")
     suspend fun loadArtist(artistId: Int): ArtistEntity?
 

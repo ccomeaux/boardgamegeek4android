@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.boardgamegeek.db.CollectionDao
@@ -33,41 +34,43 @@ class DesignerRepository(
         NAME, RATING
     }
 
-    suspend fun loadDesigners(sortBy: SortType): List<Person> {
-        return designerDao.loadDesigners()
-            .sortedWith(
-                compareBy(
-                    String.CASE_INSENSITIVE_ORDER
-                ) {
-                    when (sortBy) {
-                        SortType.NAME -> it.designerName
-                        SortType.WHITMORE_SCORE -> it.whitmoreScore
-                        SortType.ITEM_COUNT -> 0 // TODO
-                    }.toString()
+    suspend fun loadDesignersAsLiveData(sortBy: SortType): LiveData<List<Person>> = withContext(Dispatchers.Default) {
+        designerDao.loadDesignersAsLiveData().map {
+            it.map { entity -> entity.mapToModel() }
+        }.map { list ->
+            list.sortedWith(
+                when (sortBy) {
+                    SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.WHITMORE_SCORE -> compareByDescending<Person> { it.whitmoreScore }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.ITEM_COUNT -> compareByDescending<Person> { it.itemCount }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
                 }
             )
-            .map { it.mapToModel() }
+        }
     }
 
-    suspend fun loadDesigner(designerId: Int) = designerDao.loadDesigner(designerId)?.mapToModel()
+    suspend fun loadDesigner(designerId: Int) = withContext(Dispatchers.IO) { designerDao.loadDesigner(designerId)?.mapToModel() }
 
     fun loadDesignerAsLiveData(designerId: Int) = designerDao.loadDesignerAsLiveData(designerId).map { it?.mapToModel() }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
-        if (id == BggContract.INVALID_ID) return emptyList()
-        return collectionDao.loadForDesigner(id)
+    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> = withContext(Dispatchers.Default) {
+        if (id == BggContract.INVALID_ID) emptyList()
+        else withContext(Dispatchers.IO) { collectionDao.loadForDesigner(id) }
             .map { it.mapToModel() }
             .filter { it.deleteTimestamp == 0L }
             .filter { it.filterBySyncedStatues(context) }
             .sortedWith(
                 if (sortBy == CollectionSortType.RATING)
-                    compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.isFavorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                    compareByDescending<CollectionItem> { it.rating }
+                        .thenByDescending { it.isFavorite }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
                 else
                     compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
             )
     }
 
-    suspend fun deleteAll() = designerDao.deleteAll()
+    suspend fun deleteAll() = withContext(Dispatchers.IO) { designerDao.deleteAll() }
 
     suspend fun refreshDesigner(designerId: Int) = withContext(Dispatchers.IO) {
         val timestamp = Date()
@@ -76,7 +79,6 @@ class DesignerRepository(
             val designer = designerDao.loadDesigner(it.id)
             if (designer == null) {
                 designerDao.insert(it.mapDesignerForUpsert())
-                // TODO update item count
             } else {
                 designerDao.update(it.mapDesignerForUpsert(designer.internalId))
             }
@@ -101,7 +103,8 @@ class DesignerRepository(
         }
     }
 
-    suspend fun calculateWhitmoreScores(designers: List<Person>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+    suspend fun calculateWhitmoreScores(progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+        val designers = withContext(Dispatchers.IO) { designerDao.loadDesigners().map { it.mapToModel() } }
         val sortedList = designers.sortedBy { it.statsUpdatedTimestamp }
         val maxProgress = sortedList.size
         sortedList.forEachIndexed { i, data ->
@@ -114,7 +117,7 @@ class DesignerRepository(
 
     suspend fun calculateStats(designerId: Int, whitmoreScore: Int = -1): PersonStats = withContext(Dispatchers.Default) {
         val timestamp = Date()
-        val collection = collectionDao.loadForDesigner(designerId).map { it.mapToModel() }
+        val collection = withContext(Dispatchers.IO) { collectionDao.loadForDesigner(designerId).map { it.mapToModel() } }
         val stats = PersonStats.fromLinkedCollection(collection, context)
         val realOldScore = if (whitmoreScore == -1) designerDao.loadDesigner(designerId)?.whitmoreScore ?: 0 else whitmoreScore
         if (stats.whitmoreScore != realOldScore) {

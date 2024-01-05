@@ -10,6 +10,9 @@ interface DesignerDao {
     @Query("SELECT * FROM designers")
     suspend fun loadDesigners(): List<DesignerEntity>
 
+    @Query("SELECT designers.*, COUNT(game_id) AS itemCount FROM designers LEFT OUTER JOIN games_designers ON designers.designer_id = games_designers.designer_id GROUP BY games_designers.designer_id")
+    fun loadDesignersAsLiveData(): LiveData<List<DesignerWithItemCount>>
+
     @Query("SELECT * FROM designers WHERE designer_id=:designerId")
     suspend fun loadDesigner(designerId: Int): DesignerEntity?
 

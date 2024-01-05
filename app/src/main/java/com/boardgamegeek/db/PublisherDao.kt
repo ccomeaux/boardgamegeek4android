@@ -10,6 +10,9 @@ interface PublisherDao {
     @Query("SELECT * FROM publishers")
     suspend fun loadPublishers(): List<PublisherEntity>
 
+    @Query("SELECT publishers.*, COUNT(game_id) AS itemCount FROM publishers LEFT OUTER JOIN games_publishers ON publishers.publisher_id = games_publishers.publisher_id GROUP BY games_publishers.publisher_id")
+    fun loadPublishersAsLiveData(): LiveData<List<PublisherWithItemCount>>
+
     @Query("SELECT * FROM publishers WHERE publisher_id=:publisherId")
     suspend fun loadPublisher(publisherId: Int): PublisherEntity?
 

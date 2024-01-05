@@ -45,6 +45,8 @@ fun ArtistEntity.mapToModel() = Person(
     statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
 
+fun ArtistWithItemCount.mapToModel() = artist.mapToModel().copy(itemCount = itemCount)
+
 fun DesignerEntity.mapToGameDetail() = GameDetail(
     id = designerId,
     name = designerName,
@@ -78,6 +80,8 @@ fun DesignerEntity.mapToModel() = Person(
     whitmoreScore = whitmoreScore ?: 0,
     statsUpdatedTimestamp = statsUpdatedTimestamp,
 )
+
+fun DesignerWithItemCount.mapToModel() = designer.mapToModel().copy(itemCount = itemCount)
 
 fun Person.mapDesignerForUpsert(internalId: Long = 0L) = DesignerForUpsert(
     internalId = internalId,

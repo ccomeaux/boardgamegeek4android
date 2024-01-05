@@ -2,10 +2,12 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
@@ -13,14 +15,14 @@ import kotlin.time.Duration.Companion.hours
 @HiltViewModel
 class DesignersViewModel @Inject constructor(
     application: Application,
-    designerRepository: DesignerRepository,
+    private val designerRepository: DesignerRepository,
 ) : AndroidViewModel(application) {
     enum class SortType {
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val _sort = MutableLiveData<DesignersSort>()
-    val sort: LiveData<DesignersSort>
+    private val _sort = MutableLiveData<SortType>()
+    val sort: LiveData<SortType>
         get() = _sort
 
     private val _progress = MutableLiveData<Pair<Int, Int>>()
@@ -35,31 +37,36 @@ class DesignersViewModel @Inject constructor(
         else
             SortType.ITEM_COUNT
         sort(initialSort)
+        calculateStats()
     }
 
     val designers = _sort.switchMap {
         liveData {
-            val designers = designerRepository.loadDesigners(it.sortBy)
-            emit(designers)
-            val lastCalculation = application.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
+            sort.value?.let {
+                val sort = when(it) {
+                    SortType.NAME -> DesignerRepository.SortType.NAME
+                    SortType.ITEM_COUNT -> DesignerRepository.SortType.ITEM_COUNT
+                    SortType.WHITMORE_SCORE -> DesignerRepository.SortType.WHITMORE_SCORE
+                }
+                emitSource(designerRepository.loadDesignersAsLiveData(sort).distinctUntilChanged())
+            }
+        }
+    }
+
+    private fun calculateStats() {
+        viewModelScope.launch {
+            val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
-                designerRepository.calculateWhitmoreScores(designers, _progress)
-                emit(designerRepository.loadDesigners(it.sortBy))
+                designerRepository.calculateWhitmoreScores(_progress)
                 isCalculating.set(false)
             }
         }
     }
 
     fun sort(sortType: SortType) {
-        if (_sort.value?.sortType != sortType) {
-            _sort.value = when (sortType) {
-                SortType.NAME -> DesignersSort.ByName()
-                SortType.ITEM_COUNT -> DesignersSort.ByItemCount()
-                SortType.WHITMORE_SCORE -> DesignersSort.ByWhitmoreScore()
-            }
-        }
+        if (_sort.value != sortType) _sort.value = sortType
     }
 
     fun refresh() {
@@ -67,37 +74,11 @@ class DesignersViewModel @Inject constructor(
     }
 
     fun getSectionHeader(designer: Person?): String {
-        return _sort.value?.getSectionHeader(designer).orEmpty()
-    }
-
-    sealed class DesignersSort {
-        abstract val sortType: SortType
-        abstract val sortBy: DesignerRepository.SortType
-        abstract fun getSectionHeader(designer: Person?): String
-
-        class ByName : DesignersSort() {
-            override val sortType = SortType.NAME
-            override val sortBy = DesignerRepository.SortType.NAME
-            override fun getSectionHeader(designer: Person?): String {
-                return if (designer?.name == "(Uncredited)") "-"
-                else designer?.name.firstChar()
-            }
-        }
-
-        class ByItemCount : DesignersSort() {
-            override val sortType = SortType.ITEM_COUNT
-            override val sortBy = DesignerRepository.SortType.ITEM_COUNT
-            override fun getSectionHeader(designer: Person?): String {
-                return (designer?.itemCount ?: 0).orderOfMagnitude()
-            }
-        }
-
-        class ByWhitmoreScore : DesignersSort() {
-            override val sortType = SortType.WHITMORE_SCORE
-            override val sortBy = DesignerRepository.SortType.WHITMORE_SCORE
-            override fun getSectionHeader(designer: Person?): String {
-                return (designer?.whitmoreScore ?: 0).orderOfMagnitude()
-            }
+        return when(sort.value) {
+            SortType.NAME -> if (designer?.name == "(Uncredited)") "-" else designer?.name.firstChar()
+            SortType.ITEM_COUNT -> (designer?.itemCount ?: 0).orderOfMagnitude()
+            SortType.WHITMORE_SCORE -> (designer?.whitmoreScore ?: 0).orderOfMagnitude()
+            else -> "-"
         }
     }
 }

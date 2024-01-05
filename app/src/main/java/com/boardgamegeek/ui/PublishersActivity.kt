@@ -13,7 +13,7 @@ import com.boardgamegeek.ui.viewmodel.PublishersViewModel.SortType
 
 class PublishersActivity : SimpleSinglePaneActivity() {
     private var numberOfPublishers = -1
-    private var sortBy = SortType.ITEM_COUNT
+    private var sortBy: SortType? = null
 
     private val viewModel by viewModels<PublishersViewModel>()
 
@@ -24,7 +24,7 @@ class PublishersActivity : SimpleSinglePaneActivity() {
             invalidateOptionsMenu()
         }
         viewModel.sort.observe(this) {
-            sortBy = it.sortType
+            sortBy = it
             invalidateOptionsMenu()
         }
     }
@@ -39,6 +39,7 @@ class PublishersActivity : SimpleSinglePaneActivity() {
             SortType.NAME -> R.id.menu_sort_name
             SortType.ITEM_COUNT -> R.id.menu_sort_item_count
             SortType.WHITMORE_SCORE -> R.id.menu_sort_whitmore_score
+            else -> 0
         })?.let {
             it.isChecked = true
             getString(R.string.by_prefix, it.title)
