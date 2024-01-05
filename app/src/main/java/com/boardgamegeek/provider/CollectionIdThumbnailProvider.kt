@@ -44,7 +44,7 @@ class CollectionIdThumbnailProvider : BaseProvider() {
      */
     private fun generateFileName(db: SQLiteDatabase, uri: Uri): String? {
         val collectionId = Collection.getCollectionId(uri)
-        val qb = SQLiteQueryBuilder().apply { tables = BggDatabase.Tables.COLLECTION }
+        val qb = SQLiteQueryBuilder().apply { tables = BggDatabase.Tables.COLLECTION_JOIN_GAMES }
         return qb.query(
             db,
             arrayOf(Collection.Columns.COLLECTION_THUMBNAIL_URL, Games.Columns.THUMBNAIL_URL),

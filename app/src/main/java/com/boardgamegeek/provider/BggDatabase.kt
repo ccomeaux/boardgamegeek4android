@@ -78,12 +78,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         const val PLAYER_COLORS = "player_colors"
         const val USERS = "users"
 
-        val COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Games.Columns.GAME_ID)
-
-        private fun createJoin(table1: String, table2: String, column: String) = table1 + createJoinSuffix(table1, table2, column, column)
-
-        private fun createJoinSuffix(table1: String, table2: String, column1: String, column2: String) =
-            " LEFT OUTER JOIN $table2 ON $table1.$column1=$table2.$column2"
+        const val COLLECTION_JOIN_GAMES = "$COLLECTION LEFT OUTER JOIN $GAMES ON $COLLECTION.${Games.Columns.GAME_ID}=$GAMES.${Games.Columns.GAME_ID}"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
