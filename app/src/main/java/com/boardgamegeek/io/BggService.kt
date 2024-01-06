@@ -50,7 +50,7 @@ interface BggService {
     @GET("/xmlapi2/person")
     suspend fun person(@Query("id") id: Int): PersonResponse
 
-    @GET("/xmlapi2/company/{id}")
+    @GET("/xmlapi2/company")
     suspend fun company(@Query("id") id: Int): CompanyResponse
 
     @GET("/xmlapi2/search")
