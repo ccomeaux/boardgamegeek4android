@@ -75,13 +75,11 @@ class PersonCollectionFragment : Fragment() {
             }
         }
         viewModel.collection.observe(viewLifecycleOwner) {
-            it?.let { list ->
-                adapter.items = list
-                binding.emptyMessage.isVisible = list.isEmpty()
-                binding.recyclerView.isVisible = list.isNotEmpty()
-                binding.progressView.hide()
-                binding.swipeRefresh.isRefreshing = false
-            }
+            adapter.submitList(it)
+            binding.emptyMessage.isVisible = it.isEmpty()
+            binding.recyclerView.isVisible = it.isNotEmpty()
+            binding.progressView.hide()
+            binding.swipeRefresh.isRefreshing = false
         }
         viewModel.collectionSort.observe(viewLifecycleOwner) {
             sortType = it ?: CollectionSort.RATING

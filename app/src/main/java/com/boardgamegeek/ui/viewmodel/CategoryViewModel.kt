@@ -42,7 +42,7 @@ class CategoryViewModel @Inject constructor(
                 CollectionSort.NAME -> CategoryRepository.CollectionSortType.NAME
                 CollectionSort.RATING -> CategoryRepository.CollectionSortType.RATING
             }
-            emit(repository.loadCollection(c.first, sortBy))
+            emitSource(repository.loadCollection(c.first, sortBy))
         }
     }
 }

@@ -151,7 +151,7 @@ class PersonViewModel @Inject constructor(
 
     val collection = _personInfo.switchMap { person ->
         liveData {
-            emit(
+            emitSource(
                 when (person.type) {
                     PersonType.ARTIST -> artistRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) ArtistRepository.CollectionSortType.RATING else ArtistRepository.CollectionSortType.NAME)
                     PersonType.DESIGNER -> designerRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) DesignerRepository.CollectionSortType.RATING else DesignerRepository.CollectionSortType.NAME)

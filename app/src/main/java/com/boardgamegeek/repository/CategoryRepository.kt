@@ -2,6 +2,7 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.boardgamegeek.db.CategoryDao
 import com.boardgamegeek.db.CollectionDao
@@ -39,21 +40,23 @@ class CategoryRepository(
         }
     }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> = withContext(Dispatchers.Default) {
-        if (id == BggContract.INVALID_ID) emptyList()
-        else withContext(Dispatchers.IO) { collectionDao.loadForCategory(id) }
-            .map { it.mapToModel() }
-            .filter { it.deleteTimestamp == 0L }
-            .filter { it.filterBySyncedStatues(context) }
-            .sortedWith(
-                if (sortBy == CollectionSortType.RATING)
-                    compareByDescending<CollectionItem> { it.rating }
-                        .thenByDescending { it.isFavorite }
-                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
-                else
-                    compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
-            )
+    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): LiveData<List<CollectionItem>> = withContext(Dispatchers.Default) {
+        if (id == BggContract.INVALID_ID) MutableLiveData(emptyList())
+        else collectionDao.loadForCategoryAsLiveData(id).map {
+            it.map { entity -> entity.mapToModel() }
+        }.map { list ->
+            list.filter { it.deleteTimestamp == 0L }
+                .filter { it.filterBySyncedStatues(context) }
+                .sortedWith(
+                    if (sortBy == CollectionSortType.RATING)
+                        compareByDescending<CollectionItem> { it.rating }
+                            .thenByDescending { it.isFavorite }
+                            .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                    else
+                        compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                )
+        }
     }
 
-    suspend fun deleteAll() = categoryDao.deleteAll()
+    suspend fun deleteAll() = withContext(Dispatchers.IO) { categoryDao.deleteAll() }
 }

@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.*
 
@@ -26,20 +27,32 @@ interface CollectionDao {
     suspend fun loadForArtist(artistId: Int): List<CollectionItemWithGameEntity>
 
     @Transaction
+    @Query("SELECT collection.* FROM games_artists INNER JOIN collection ON games_artists.game_id = collection.game_id WHERE artist_id = :artistId")
+    fun loadForArtistAsLiveData(artistId: Int): LiveData<List<CollectionItemWithGameEntity>>
+
+    @Transaction
     @Query("SELECT collection.* FROM games_designers INNER JOIN collection ON games_designers.game_id = collection.game_id WHERE designer_id = :designerId")
     suspend fun loadForDesigner(designerId: Int): List<CollectionItemWithGameEntity>
+
+    @Transaction
+    @Query("SELECT collection.* FROM games_designers INNER JOIN collection ON games_designers.game_id = collection.game_id WHERE designer_id = :designerId")
+    fun loadForDesignerAsLiveData(designerId: Int): LiveData<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT collection.* FROM games_publishers INNER JOIN collection ON games_publishers.game_id = collection.game_id WHERE publisher_id = :publisherId")
     suspend fun loadForPublisher(publisherId: Int): List<CollectionItemWithGameEntity>
 
     @Transaction
+    @Query("SELECT collection.* FROM games_publishers INNER JOIN collection ON games_publishers.game_id = collection.game_id WHERE publisher_id = :publisherId")
+    fun loadForPublisherAsLiveData(publisherId: Int): LiveData<List<CollectionItemWithGameEntity>>
+
+    @Transaction
     @Query("SELECT collection.* FROM games_categories INNER JOIN collection ON games_categories.game_id = collection.game_id WHERE category_id = :categoryId")
-    suspend fun loadForCategory(categoryId: Int): List<CollectionItemWithGameEntity>
+    fun loadForCategoryAsLiveData(categoryId: Int): LiveData<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT collection.* FROM games_mechanics INNER JOIN collection ON games_mechanics.game_id = collection.game_id WHERE mechanic_id = :mechanicId")
-    suspend fun loadForMechanic(mechanicId: Int): List<CollectionItemWithGameEntity>
+    fun loadForMechanicAsLiveData(mechanicId: Int): LiveData<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT * FROM collection WHERE collection_delete_timestamp > 0")

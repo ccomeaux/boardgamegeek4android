@@ -54,18 +54,22 @@ class PublisherRepository(
 
     fun loadPublisherAsLiveData(publisherId: Int) = publisherDao.loadPublisherAsLiveData(publisherId).map { it.mapToModel() }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> = withContext(Dispatchers.Default) {
-        if (id == BggContract.INVALID_ID) emptyList()
-        else withContext(Dispatchers.IO) { collectionDao.loadForPublisher(id) }
-                .map { it.mapToModel() }
-                .filter { it.deleteTimestamp == 0L }
+    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): LiveData<List<CollectionItem>> = withContext(Dispatchers.Default) {
+        if (id == BggContract.INVALID_ID) MutableLiveData(emptyList())
+        else collectionDao.loadForPublisherAsLiveData(id).map {
+            it.map { entity -> entity.mapToModel() }
+        }.map { list ->
+            list.filter { it.deleteTimestamp == 0L }
                 .filter { it.filterBySyncedStatues(context) }
                 .sortedWith(
                     if (sortBy == CollectionSortType.RATING)
-                        compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.isFavorite }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                        compareByDescending<CollectionItem> { it.rating }
+                            .thenByDescending { it.isFavorite }
+                            .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
                     else
                         compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
                 )
+        }
     }
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { publisherDao.deleteAll() }

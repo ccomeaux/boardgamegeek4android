@@ -42,7 +42,7 @@ class MechanicViewModel @Inject constructor(
                 CollectionSort.NAME -> MechanicRepository.CollectionSortType.NAME
                 CollectionSort.RATING -> MechanicRepository.CollectionSortType.RATING
             }
-            emit(repository.loadCollection(m.first, sortBy))
+            emitSource(repository.loadCollection(m.first, sortBy))
         }
     }
 }

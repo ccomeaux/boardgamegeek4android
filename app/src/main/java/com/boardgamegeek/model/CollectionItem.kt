@@ -111,6 +111,12 @@ data class CollectionItem(
     val yearPublished: Int
         get() = if (collectionYearPublished == YEAR_UNKNOWN) gameYearPublished else collectionYearPublished
 
+    val robustName:String
+        get() = collectionName.ifBlank { gameName }
+
+    val robustThumbnailUrl: String
+        get() = thumbnailUrl.ifBlank { gameThumbnailUrl }
+
     val robustHeroImageUrl: String
         get() = heroImageUrl.ifBlank { thumbnailUrl }.ifBlank { imageUrl }
 

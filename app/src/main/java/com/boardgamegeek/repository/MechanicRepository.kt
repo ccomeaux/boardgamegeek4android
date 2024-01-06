@@ -2,6 +2,7 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.MechanicDao
@@ -39,21 +40,23 @@ class MechanicRepository(
         }
     }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): List<CollectionItem> {
-        if (id == BggContract.INVALID_ID) return emptyList()
-        return withContext(Dispatchers.IO) { collectionDao.loadForMechanic(id) }
-            .map { it.mapToModel() }
-            .filter { it.deleteTimestamp == 0L }
-            .filter { it.filterBySyncedStatues(context) }
-            .sortedWith(
-                if (sortBy == CollectionSortType.RATING)
-                    compareByDescending<CollectionItem> { it.rating }
-                        .thenByDescending { it.isFavorite }
-                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
-                else
-                    compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
-            )
+    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): LiveData<List<CollectionItem>> = withContext(Dispatchers.Default) {
+        if (id == BggContract.INVALID_ID) MutableLiveData(emptyList())
+        else collectionDao.loadForMechanicAsLiveData(id).map {
+            it.map { entity -> entity.mapToModel() }
+        }.map { list ->
+            list.filter { it.deleteTimestamp == 0L }
+                .filter { it.filterBySyncedStatues(context) }
+                .sortedWith(
+                    if (sortBy == CollectionSortType.RATING)
+                        compareByDescending<CollectionItem> { it.rating }
+                            .thenByDescending { it.isFavorite }
+                            .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                    else
+                        compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                )
+        }
     }
 
-    suspend fun deleteAll() = mechanicDao.deleteAll()
+    suspend fun deleteAll() = withContext(Dispatchers.IO) { mechanicDao.deleteAll() }
 }

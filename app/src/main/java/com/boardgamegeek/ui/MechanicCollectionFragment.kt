@@ -67,9 +67,9 @@ class MechanicCollectionFragment : Fragment() {
             activity?.invalidateOptionsMenu()
         }
         viewModel.collection.observe(viewLifecycleOwner) {
-            adapter.items = it.orEmpty()
-            binding.emptyMessage.isVisible = adapter.items.isEmpty()
-            binding.recyclerView.isVisible = adapter.items.isNotEmpty()
+            adapter.submitList(it)
+            binding.emptyMessage.isVisible = it.isEmpty()
+            binding.recyclerView.isVisible = it.isNotEmpty()
             binding.swipeRefresh.isRefreshing = false
             binding.progressView.hide()
         }
