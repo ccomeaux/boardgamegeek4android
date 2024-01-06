@@ -15,6 +15,7 @@ import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import timber.log.Timber
@@ -136,7 +137,7 @@ class SyncCollectionWorker @AssistedInject constructor(
 
     private suspend fun syncCollectionModifiedSince(): Result {
         Timber.i("Starting to sync recently modified collection")
-        try {
+        return try {
             val itemResult = syncCollectionModifiedSinceBySubtype(null)
             if (itemResult is Result.Failure) return itemResult
 
@@ -148,9 +149,9 @@ class SyncCollectionWorker @AssistedInject constructor(
 
             syncPrefs.setPartialCollectionSyncLastCompletedAt()
             Timber.i("Syncing recently modified collection completed successfully")
-            return Result.success()
+            Result.success()
         } catch (e: Exception) {
-            return handleException(applicationContext.getString(R.string.sync_notification_collection_partial), e)
+            handleException(applicationContext.getString(R.string.sync_notification_collection_partial), e)
         }
     }
 
@@ -178,7 +179,7 @@ class SyncCollectionWorker @AssistedInject constructor(
     private suspend fun syncUnupdatedCollection(): Result {
         Timber.i("Starting to sync unupdated collection")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_collection_unupdated)))
-        try {
+        return try {
             val gameList = gameCollectionRepository.loadUnupdatedItems()
             Timber.i("Found %,d unupdated collection items to update", gameList.size)
 
@@ -202,9 +203,9 @@ class SyncCollectionWorker @AssistedInject constructor(
                 }
             }
             Timber.i("Unupdated collection synced successfully")
-            return Result.success()
+            Result.success()
         } catch (e: Exception) {
-            return handleException(applicationContext.getString(R.string.sync_notification_collection_unupdated), e)
+            handleException(applicationContext.getString(R.string.sync_notification_collection_unupdated), e)
         }
     }
 
@@ -229,7 +230,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         excludedStatuses?.let { for (excludedStatus in it) options[excludedStatus] = "0" }
         gameIds?.let { options[BggService.COLLECTION_QUERY_KEY_ID] = it.joinToString(",") }
 
-        val result = try {
+        return try {
             val count = gameCollectionRepository.refresh(options, updatedTimestamp)
             Timber.i(
                 "Saved $count collection ${subtype.getDescription(applicationContext).lowercase()}" +
@@ -241,7 +242,6 @@ class SyncCollectionWorker @AssistedInject constructor(
         } catch (e: Exception) {
             handleException(errorMessage, e)
         }
-        return result
     }
 
     private suspend fun deleteUnusedItems() {
@@ -309,7 +309,7 @@ class SyncCollectionWorker @AssistedInject constructor(
                 updatedCount += gameRepository.refreshGame(gameId)
                 Timber.i("Refreshed game $gameName [$gameId]")
             } catch (e: Exception) {
-                handleException(applicationContext.getString(R.string.sync_notification_games_oldest), e)
+                return handleException(applicationContext.getString(R.string.sync_notification_games_oldest), e)
             }
         }
 
@@ -323,7 +323,7 @@ class SyncCollectionWorker @AssistedInject constructor(
                 updatedCount += gameRepository.refreshGame(gameId)
                 Timber.i("Refreshed game $gameName [$gameId]")
             } catch (e: Exception) {
-                handleException(applicationContext.getString(R.string.sync_notification_games_unupdated), e)
+                return handleException(applicationContext.getString(R.string.sync_notification_games_unupdated), e)
             }
         }
 
@@ -333,8 +333,10 @@ class SyncCollectionWorker @AssistedInject constructor(
 
     private fun handleException(contentText: String, e: Exception): Result {
         Timber.e(e)
-        val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
-        applicationContext.notifySyncError(contentText, bigText)
+        if (e !is CancellationException) {
+            val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
+            applicationContext.notifySyncError(contentText, bigText)
+        }
         return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
     }
 

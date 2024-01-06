@@ -13,6 +13,7 @@ import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import timber.log.Timber
@@ -39,7 +40,7 @@ class SyncPlaysWorker @AssistedInject constructor(
 
         Timber.i("Begin downloading plays")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays)))
-        try {
+        return try {
             startTime = System.currentTimeMillis()
 
             val newestSyncDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
@@ -63,9 +64,9 @@ class SyncPlaysWorker @AssistedInject constructor(
 
             playRepository.calculatePlayStats()
             Timber.i("Plays synced successfully")
-            return Result.success()
+            Result.success()
         } catch (e: Exception) {
-            return handleException(e)
+            handleException(e)
         }
     }
 
@@ -120,8 +121,10 @@ class SyncPlaysWorker @AssistedInject constructor(
 
     private fun handleException(e: Exception): Result {
         Timber.e(e)
-        val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
-        applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_plays), bigText)
+        if (e !is CancellationException) {
+            val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
+            applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_plays), bigText)
+        }
         return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
     }
 

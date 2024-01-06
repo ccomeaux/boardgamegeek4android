@@ -11,6 +11,7 @@ import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import timber.log.Timber
@@ -69,7 +70,9 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Updating $limit buddies; ${staleBuddies.size} total buddies cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
         for (username in staleBuddies.take(limit)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during stale buddy update"))
-            updatedBuddyCount += updateBuddy(username)
+            val result = updateBuddy(username)
+            if (result is Result.Success) updatedBuddyCount++
+            else return result
         }
 
         Timber.i("Syncing unupdated buddies")
@@ -79,31 +82,34 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Found ${unupdatedBuddies.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
         for (username in unupdatedBuddies.take(buddySyncSliceMaxSize)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during unupdated buddy update"))
-            updatedBuddyCount += updateBuddy(username)
+            val result = updateBuddy(username)
+            if (result is Result.Success) updatedBuddyCount++
+            else return result
         }
         Timber.i("Updated %,d stale & unupdated buddies", updatedBuddyCount)
 
         return Result.success()
     }
 
-    private suspend fun updateBuddy(username: String): Int {
+    private suspend fun updateBuddy(username: String): Result {
         Timber.i("About to refresh user $username")
         setProgress(workDataOf(PROGRESS_USERNAME to username))
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddy, username)))
         delay(buddiesFetchPauseMilliseconds)
         return try {
             userRepository.refresh(username)
-            1
+            Result.success()
         } catch (e: Exception) {
             handleException(e)
-            0
         }
     }
 
     private fun handleException(e: Exception): Result {
         Timber.e(e)
-        val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
-        applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_buddies_list), bigText)
+        if (e !is CancellationException) {
+            val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
+            applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_buddies_list), bigText)
+        }
         return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
     }
 
