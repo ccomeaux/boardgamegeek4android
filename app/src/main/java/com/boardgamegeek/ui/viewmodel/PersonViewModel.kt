@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import com.boardgamegeek.model.Company
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.model.RefreshableResource
-import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
@@ -63,27 +62,12 @@ class PersonViewModel @Inject constructor(
 
     fun refresh() {
         _personInfo.value?.let { info ->
-            val id = info.id
             viewModelScope.launch {
                 when (info.type) {
                     // TODO - look at dates and optionally allow an override
-                    PersonType.ARTIST -> {
-                        artistRepository.refreshArtist(id)
-                        artistRepository.loadArtist(id)?.let { artistRepository.refreshImages(it) }
-                    }
-                    PersonType.DESIGNER -> {
-                        designerRepository.refreshDesigner(id)
-                        designerRepository.loadDesigner(id)?.let { designerRepository.refreshImages(it) }
-                    }
-                    PersonType.PUBLISHER -> {
-                        publisherRepository.refreshPublisher(id)
-                        publisherRepository.loadPublisher(id)?.let {
-                            val imageId = it.thumbnailUrl.getImageId()
-                            if (imageId != it.heroImageUrl.getImageId()) {
-                                publisherRepository.refreshImages(it)
-                            }
-                        }
-                    }
+                    PersonType.ARTIST -> artistRepository.refreshArtist(info.id)
+                    PersonType.DESIGNER -> designerRepository.refreshDesigner(info.id)
+                    PersonType.PUBLISHER -> publisherRepository.refreshPublisher(info.id)
                 }
             }
         }

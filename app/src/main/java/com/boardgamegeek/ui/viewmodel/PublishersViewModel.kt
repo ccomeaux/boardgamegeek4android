@@ -37,6 +37,7 @@ class PublishersViewModel @Inject constructor(
         else
             SortType.ITEM_COUNT
         sort(initialSort)
+        refreshMissingThumbnails()
         calculateStats()
     }
 
@@ -50,6 +51,12 @@ class PublishersViewModel @Inject constructor(
                 }
                 emitSource(publisherRepository.loadPublishersAsLiveData(sort).distinctUntilChanged())
             }
+        }
+    }
+
+    private fun refreshMissingThumbnails() {
+        viewModelScope.launch {
+            publisherRepository.refreshMissingThumbnails()
         }
     }
 

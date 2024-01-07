@@ -51,8 +51,6 @@ class ArtistRepository(
         }
     }
 
-    suspend fun loadArtist(artistId: Int) = withContext(Dispatchers.IO) { artistDao.loadArtist(artistId)?.mapToModel() }
-
     fun loadArtistAsLiveData(artistId: Int) = artistDao.loadArtistAsLiveData(artistId).map { it.mapToModel() }
 
     suspend fun loadCollection(id: Int, sortBy: CollectionSortType): LiveData<List<CollectionItem>> = withContext(Dispatchers.Default) {
@@ -75,6 +73,18 @@ class ArtistRepository(
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { artistDao.deleteAll() }
 
+    suspend fun refreshMissingImages(limit: Int = 10) = withContext(Dispatchers.IO) {
+        artistDao.loadArtists()
+            .filter { it.artistThumbnailUrl.isNullOrBlank() }
+            .map { it.mapToModel() }
+            .sortedByDescending { it.whitmoreScore }
+            .take(limit.coerceIn(0, 25))
+            .forEach {
+                Timber.d("Refreshing missing images for artist $it")
+                refreshImages(it)
+            }
+    }
+
     suspend fun refreshArtist(artistId: Int) = withContext(Dispatchers.IO) {
         val timestamp = Date()
         val response = api.person(BggService.PersonType.ARTIST, artistId)
@@ -85,10 +95,11 @@ class ArtistRepository(
             } else {
                 artistDao.update(it.mapArtistForUpsert(artist.internalId))
             }
+            refreshImages(it)
         }
     }
 
-    suspend fun refreshImages(artist: Person) = withContext(Dispatchers.IO) {
+    private suspend fun refreshImages(artist: Person) = withContext(Dispatchers.IO) {
         val timestamp = Date()
         val response = api.person(artist.id)
         val person = response.items.firstOrNull()?.mapToModel(artist, timestamp)

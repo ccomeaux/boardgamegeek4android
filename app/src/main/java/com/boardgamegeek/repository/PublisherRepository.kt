@@ -17,6 +17,7 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.util.Date
 
 class PublisherRepository(
@@ -50,8 +51,6 @@ class PublisherRepository(
         }
     }
 
-    suspend fun loadPublisher(publisherId: Int) = withContext(Dispatchers.IO) { publisherDao.loadPublisher(publisherId)?.mapToModel() }
-
     fun loadPublisherAsLiveData(publisherId: Int) = publisherDao.loadPublisherAsLiveData(publisherId).map { it.mapToModel() }
 
     suspend fun loadCollection(id: Int, sortBy: CollectionSortType): LiveData<List<CollectionItem>> = withContext(Dispatchers.Default) {
@@ -84,10 +83,28 @@ class PublisherRepository(
             } else {
                 publisherDao.update(it.mapForUpsert(publisher.internalId))
             }
+            val imageId = it.thumbnailUrl.getImageId()
+            if (imageId != it.heroImageUrl.getImageId()) {
+                refreshHeroImage(it)
+            }
         }
     }
 
-    suspend fun refreshImages(publisher: Company) = withContext(Dispatchers.IO) {
+    suspend fun refreshMissingThumbnails(limit: Int = 10) = withContext(Dispatchers.IO) {
+        val publishers = publisherDao.loadPublishers()
+        publishers
+            .filter { it.publisherThumbnailUrl.isNullOrBlank() }
+            .map { it.mapToModel() }
+            .sortedByDescending { it.whitmoreScore }
+            .take(limit.coerceIn(0, 25))
+            .forEach {
+                Timber.d("Refreshing missing images for publisher $it")
+                refreshPublisher(it.id)
+                refreshHeroImage(it)
+            }
+    }
+
+    private suspend fun refreshHeroImage(publisher: Company) = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.getImageUrls(publisher.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         urls?.firstOrNull()?.let {

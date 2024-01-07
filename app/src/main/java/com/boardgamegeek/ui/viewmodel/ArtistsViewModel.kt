@@ -35,8 +35,9 @@ class ArtistsViewModel @Inject constructor(
         val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
             SortType.WHITMORE_SCORE
         else
-            SortType.NAME
+            SortType.ITEM_COUNT
         sort(initialSort)
+        refreshMissingImages()
         calculateStats()
     }
 
@@ -50,6 +51,12 @@ class ArtistsViewModel @Inject constructor(
                 }
                 emitSource(artistRepository.loadArtistsAsLiveData(sort).distinctUntilChanged())
             }
+        }
+    }
+
+    private fun refreshMissingImages() {
+        viewModelScope.launch {
+            artistRepository.refreshMissingImages()
         }
     }
 

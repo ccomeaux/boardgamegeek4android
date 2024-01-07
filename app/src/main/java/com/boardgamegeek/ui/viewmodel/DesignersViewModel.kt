@@ -37,6 +37,7 @@ class DesignersViewModel @Inject constructor(
         else
             SortType.ITEM_COUNT
         sort(initialSort)
+        refreshMissingImages()
         calculateStats()
     }
 
@@ -50,6 +51,12 @@ class DesignersViewModel @Inject constructor(
                 }
                 emitSource(designerRepository.loadDesignersAsLiveData(sort).distinctUntilChanged())
             }
+        }
+    }
+
+    private fun refreshMissingImages() {
+        viewModelScope.launch {
+            designerRepository.refreshMissingImages()
         }
     }
 

@@ -50,8 +50,6 @@ class DesignerRepository(
         }
     }
 
-    suspend fun loadDesigner(designerId: Int) = withContext(Dispatchers.IO) { designerDao.loadDesigner(designerId)?.mapToModel() }
-
     fun loadDesignerAsLiveData(designerId: Int) = designerDao.loadDesignerAsLiveData(designerId).map { it?.mapToModel() }
 
     suspend fun loadCollection(id: Int, sortBy: CollectionSortType): LiveData<List<CollectionItem>> = withContext(Dispatchers.Default) {
@@ -84,10 +82,23 @@ class DesignerRepository(
             } else {
                 designerDao.update(it.mapDesignerForUpsert(designer.internalId))
             }
+            refreshImages(it)
         }
     }
 
-    suspend fun refreshImages(designer: Person) = withContext(Dispatchers.IO) {
+    suspend fun refreshMissingImages(limit: Int = 10) = withContext(Dispatchers.IO) {
+        designerDao.loadDesigners()
+            .filter { it.designerThumbnailUrl.isNullOrBlank() }
+            .map { it.mapToModel() }
+            .sortedByDescending { it.whitmoreScore }
+            .take(limit.coerceIn(0, 25))
+            .forEach {
+                Timber.d("Refreshing missing images for designer $it")
+                refreshImages(it)
+            }
+    }
+
+    private suspend fun refreshImages(designer: Person) = withContext(Dispatchers.IO) {
         val timestamp = Date()
         val response = api.person(designer.id)
         val person = response.items.firstOrNull()?.mapToModel(designer, timestamp)

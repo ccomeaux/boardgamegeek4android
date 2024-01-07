@@ -14,4 +14,8 @@ data class Company(
     val itemCount: Int = 0,
     val whitmoreScore: Int = 0,
     val statsUpdatedTimestamp: Date? = null,
-)
+) {
+    override fun toString(): String {
+        return "$name [$id]"
+    }
+}
