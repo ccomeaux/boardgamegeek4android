@@ -70,7 +70,7 @@ interface PlayDao {
 
     @Transaction
     @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT JOIN games ON games.game_id = plays.object_id WHERE plays._id = :internalId")
-    suspend fun loadPlayWithPlayers(internalId: Long): PlayWithPlayersEntity
+    suspend fun loadPlayWithPlayers(internalId: Long): PlayWithPlayersAndImagesEntity
 
     @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE object_id = :gameId AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
     suspend fun loadPlayersForGame(gameId: Int): List<PlayerWithPlayEntity>
