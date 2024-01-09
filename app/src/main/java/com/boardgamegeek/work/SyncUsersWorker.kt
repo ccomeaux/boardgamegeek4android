@@ -51,10 +51,9 @@ class SyncUsersWorker @AssistedInject constructor(
             if (lastCompleteSync >= 0 && !lastCompleteSync.isOlderThan(buddiesFetchIntervalDays.days)) {
                 Timber.i("Skipping downloading buddies list; we synced already within the last $buddiesFetchIntervalDays days")
             } else {
-                val timestamp = System.currentTimeMillis()
-                val (savedCount, deletedCount) = userRepository.refreshBuddies(timestamp)
-                Timber.i("Saved $savedCount buddies; pruned $deletedCount users who are no longer buddies")
-                syncPrefs.setBuddiesTimestamp(timestamp)
+                userRepository.refreshBuddies()?.let {
+                    return handleException(Exception(it))
+                }
             }
         } catch (e: Exception) {
             return handleException(e)
@@ -63,12 +62,12 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Syncing oldest buddies")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
         var updatedBuddyCount = 0
-        val allUsers = userRepository.loadBuddies().sortedBy { it.updatedTimestamp }
+        val allBuddies = userRepository.loadBuddies().sortedBy { it.updatedTimestamp }
 
-        val staleBuddies = allUsers.filter { it.updatedTimestamp > 0L }.map { it.username }
-        val limit = (staleBuddies.size / buddySyncSliceCount.coerceAtLeast(1)).coerceAtMost(buddySyncSliceMaxSize)
-        Timber.i("Updating $limit buddies; ${staleBuddies.size} total buddies cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
-        for (username in staleBuddies.take(limit)) {
+        val staleBuddyUsernames = allBuddies.filter { it.updatedTimestamp > 0L }.map { it.username }
+        val limit = (staleBuddyUsernames.size / buddySyncSliceCount.coerceAtLeast(1)).coerceAtMost(buddySyncSliceMaxSize)
+        Timber.i("Updating $limit buddies; ${staleBuddyUsernames.size} total buddies cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
+        for (username in staleBuddyUsernames.take(limit)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during stale buddy update"))
             val result = updateBuddy(username)
             if (result is Result.Success) updatedBuddyCount++
@@ -78,7 +77,7 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Syncing unupdated buddies")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_unupdated)))
 
-        val unupdatedBuddies = allUsers.filter { it.updatedTimestamp == 0L }.map { it.username }
+        val unupdatedBuddies = allBuddies.filter { it.updatedTimestamp == 0L }.map { it.username }
         Timber.i("Found ${unupdatedBuddies.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
         for (username in unupdatedBuddies.take(buddySyncSliceMaxSize)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during unupdated buddy update"))

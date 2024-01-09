@@ -2,6 +2,9 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
+import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.model.CollectionItem
@@ -9,10 +12,11 @@ import com.boardgamegeek.model.User
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.db.model.UserForUpsert
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.*
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
+import com.boardgamegeek.pref.setBuddiesTimestamp
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.work.SyncUsersWorker
@@ -62,8 +66,22 @@ class UserRepository(
         }
 
     suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<User> = withContext(Dispatchers.IO) {
-        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         userDao.loadUsers()
+            .map { it.mapToModel() }
+            .filterAndSortBuddies(sortBy)
+    }
+
+    suspend fun loadBuddiesAsLiveData(sortBy: UsersSortBy = UsersSortBy.USERNAME): LiveData<List<User>> = withContext(Dispatchers.IO) {
+        userDao.loadUsersAsLiveData().map {
+            it.map { entity -> entity.mapToModel() }
+        }.map { list ->
+            list.filterAndSortBuddies(sortBy)
+        }
+    }
+
+    private fun List<User>.filterAndSortBuddies(sortBy: UsersSortBy): List<User> {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        return this.filter { it.isBuddy && it.username != username }
             .sortedWith(
                 compareBy(
                     String.CASE_INSENSITIVE_ORDER
@@ -72,40 +90,44 @@ class UserRepository(
                         UsersSortBy.FIRST_NAME -> it.firstName
                         UsersSortBy.LAST_NAME -> it.lastName
                         UsersSortBy.USERNAME -> it.username
-                    }.toString()
+                    }
                 }
             )
-            .filter { it.buddyFlag == true && it.username != username }
-            .map { it.mapToModel() }
     }
 
     suspend fun loadAllUsers(): List<User> = withContext(Dispatchers.IO) {
         userDao.loadUsers().map { it.mapToModel() }
     }
 
-    suspend fun refreshBuddies(timestamp: Long): Pair<Int, Int> = withContext(Dispatchers.IO) {
+    suspend fun refreshBuddies(): String? = withContext(Dispatchers.IO) {
         val accountName = Authenticator.getAccount(context)?.name
-        if (accountName.isNullOrBlank()) return@withContext 0 to 0
+        if (accountName.isNullOrBlank()) return@withContext context.getString(R.string.msg_sync_unauthed)
 
-        val response = api.user(accountName, 1, 1)
+        val timestamp = System.currentTimeMillis()
+        val result = safeApiCall(context) { api.user(accountName, 1, 1) }
+        if (result.isSuccess) {
+            result.getOrNull()?.let { user ->
+                upsertUser(user.mapForUpsert(timestamp)) // update the current user
+                user.buddies?.buddies?.let { buddies ->
+                    var savedCount = 0
+                    buddies
+                        .map { it.mapForBuddyUpsert(timestamp) }
+                        .filter { it.username.isNotBlank() }
+                        .forEach {
+                            userDao.upsert(it)
+                            savedCount++
+                        }
+                    Timber.d("Downloaded ${buddies.size} buddies, saved $savedCount buddies")
 
-        upsertUser(response.mapForUpsert(timestamp))
+                    val deletedCount = userDao.deleteBuddiesAsOf(timestamp)
+                    Timber.d("Deleted $deletedCount buddies")
 
-        val downloadedCount = response.buddies?.buddies?.size ?: 0
-        var savedCount = 0
-        response.buddies?.buddies.orEmpty()
-            .map { it.mapForBuddyUpsert(timestamp) }
-            .filter { it.username.isNotBlank() }
-            .forEach {
-                userDao.upsert(it)
-                savedCount++
+                    Timber.i("Saved $savedCount buddies; pruned $deletedCount users who are no longer buddies")
+                    syncPrefs.setBuddiesTimestamp(timestamp)
+                }
             }
-        Timber.d("Downloaded $downloadedCount users, saved $savedCount users")
-
-        val deletedCount = userDao.deleteBuddiesAsOf(timestamp)
-        Timber.d("Deleted $deletedCount users")
-
-        savedCount to deletedCount
+        }
+        result.exceptionOrNull()?.localizedMessage
     }
 
     private suspend fun upsertUser(user: UserForUpsert) {

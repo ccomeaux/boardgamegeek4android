@@ -1,5 +1,6 @@
 package com.boardgamegeek.db
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.UserAsBuddyForUpsert
 import com.boardgamegeek.db.model.UserEntity
@@ -12,6 +13,9 @@ interface UserDao {
 
     @Query("SELECT * FROM users")
     suspend fun loadUsers(): List<UserEntity>
+
+    @Query("SELECT * FROM users")
+    fun loadUsersAsLiveData(): LiveData<List<UserEntity>>
 
     @Insert(entity = UserEntity::class)
     suspend fun insert(user: UserForUpsert)

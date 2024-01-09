@@ -711,6 +711,7 @@
 	<string name="msg_sync_error_null">Problem communicating with BoardGameGeek (no response)</string>
 	<string name="msg_sync_error_timeout">Timed out trying to communicate with BoardGameGeek</string>
 	<string name="msg_sync_error">Problem communicating with BoardGameGeek</string>
+	<string name="msg_sync_unauthed">Not logged in</string>
 	<string name="profile_updated">Profile updated</string>
 	<string name="game">game</string>
 	<string name="play">play</string>

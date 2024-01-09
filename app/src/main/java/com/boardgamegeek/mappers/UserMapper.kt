@@ -15,7 +15,8 @@ fun UserEntity.mapToModel() = User(
     lastName = lastName.orEmpty(),
     avatarUrl = if (avatarUrl == BggContract.INVALID_URL) "" else avatarUrl.orEmpty(),
     playNickname = playNickname.orEmpty(),
-    updatedTimestamp = updatedDetailDate?.time ?: 0L
+    updatedTimestamp = updatedDetailDate?.time ?: 0L,
+    isBuddy = buddyFlag == true,
 )
 
 fun UserRemote.mapForUpsert(timestamp: Long) = UserForUpsert(

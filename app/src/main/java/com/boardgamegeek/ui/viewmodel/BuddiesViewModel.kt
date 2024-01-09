@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
 import com.boardgamegeek.extensions.firstChar
@@ -15,6 +14,7 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.pref.setBuddiesTimestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -33,84 +33,76 @@ class BuddiesViewModel @Inject constructor(
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(application.applicationContext) }
     private var isRefreshing = AtomicBoolean()
 
-    private val _sort = MutableLiveData<BuddiesSort>()
-    val sort: LiveData<BuddiesSort>
+    private val _sort = MutableLiveData<SortType>()
+    val sort: LiveData<SortType>
         get() = _sort
+
+    private val _refreshing = MutableLiveData<Boolean>()
+    val refreshing: LiveData<Boolean>
+        get() = _refreshing
+
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String>
+        get() = _error
 
     init {
         sort(SortType.USERNAME)
+        if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true &&
+            syncPrefs.getBuddiesTimestamp().isOlderThan(1.days) &&
+            isRefreshing.compareAndSet(false, true)
+        ) {
+            refresh()
+        }
     }
 
-    val buddies: LiveData<RefreshableResource<List<User>>> = sort.switchMap {
+    val buddies: LiveData<List<User>> = sort.switchMap {
         liveData {
             try {
-                val buddies = userRepository.loadBuddies(it.sortBy)
-                val refreshedBuddies = if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true) {
-                    when {
-                        syncPrefs.getBuddiesTimestamp().isOlderThan(1.days) &&
-                                isRefreshing.compareAndSet(false, true) -> {
-                            emit(RefreshableResource.refreshing(buddies))
-                            val timestamp = System.currentTimeMillis()
-                            userRepository.refreshBuddies(timestamp)
-                            syncPrefs.setBuddiesTimestamp(timestamp)
-                            userRepository.loadBuddies(it.sortBy)
-                        }
-                        else -> buddies
-                    }.also { isRefreshing.set(false) }
-                } else buddies
-                emit(RefreshableResource.success(refreshedBuddies))
+                val sortBy = when (it) {
+                    SortType.FIRST_NAME -> UserRepository.UsersSortBy.FIRST_NAME
+                    SortType.LAST_NAME -> UserRepository.UsersSortBy.LAST_NAME
+                    SortType.USERNAME -> UserRepository.UsersSortBy.USERNAME
+                }
+                emitSource(userRepository.loadBuddiesAsLiveData(sortBy))
             } catch (e: Exception) {
+                _error.value = e.localizedMessage
+            }
+        }
+    }
+
+    private fun refresh() {
+        viewModelScope.launch {
+            _refreshing.value = true
+            try {
+                userRepository.refreshBuddies()?.let { errorMessage ->
+                    _error.value = errorMessage
+                }
+            } finally {
+                _refreshing.value = false
                 isRefreshing.set(false)
-                emit(RefreshableResource.error(e, application))
             }
         }
     }
 
     fun sort(sortType: SortType) {
-        _sort.value = when (sortType) {
-            SortType.USERNAME -> BuddiesSort.ByUsername()
-            SortType.FIRST_NAME -> BuddiesSort.ByFirstName()
-            SortType.LAST_NAME -> BuddiesSort.ByLastName()
+        if (_sort.value != sortType) _sort.value = sortType
+    }
+
+    fun getSectionHeader(user: User?): String {
+        return when (sort.value) {
+            SortType.FIRST_NAME -> user?.firstName.firstChar()
+            SortType.LAST_NAME -> user?.lastName.firstChar()
+            SortType.USERNAME -> user?.username.firstChar()
+            null -> "-"
         }
     }
 
-    fun getSectionHeader(user: User?): String? {
-        return sort.value?.getSectionHeader(user)
-    }
-
-    fun refresh(): Boolean {
+    fun requestRefresh(): Boolean {
         _sort.value = sort.value
-        return !isRefreshing.get()
-    }
-
-    sealed class BuddiesSort {
-        abstract val sortType: SortType
-        abstract val sortBy: UserRepository.UsersSortBy
-        abstract fun getSectionHeader(user: User?): String
-
-        class ByUsername : BuddiesSort() {
-            override val sortType = SortType.USERNAME
-            override val sortBy = UserRepository.UsersSortBy.USERNAME
-            override fun getSectionHeader(user: User?): String {
-                return user?.username.firstChar()
-            }
-        }
-
-        class ByFirstName : BuddiesSort() {
-            override val sortType = SortType.FIRST_NAME
-            override val sortBy = UserRepository.UsersSortBy.FIRST_NAME
-            override fun getSectionHeader(user: User?): String {
-                return user?.firstName.firstChar()
-            }
-        }
-
-        class ByLastName : BuddiesSort() {
-            override val sortType = SortType.LAST_NAME
-            override val sortBy = UserRepository.UsersSortBy.LAST_NAME
-            override fun getSectionHeader(user: User?): String {
-                return user?.lastName.firstChar()
-            }
-        }
+        return if (isRefreshing.compareAndSet(false, true)){
+            refresh()
+            true
+        } else false
     }
 }
 

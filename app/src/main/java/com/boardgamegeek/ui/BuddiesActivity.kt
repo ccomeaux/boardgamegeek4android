@@ -23,12 +23,16 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.buddies.observe(this) {
-            numberOfBuddies = it?.data?.size ?: 0
-            invalidateOptionsMenu()
+            it?.let {
+                numberOfBuddies = it.size
+                invalidateOptionsMenu()
+            }
         }
         viewModel.sort.observe(this) {
-            sortBy = it.sortType
-            invalidateOptionsMenu()
+            it?.let {
+                sortBy = it
+                invalidateOptionsMenu()
+            }
         }
     }
 
