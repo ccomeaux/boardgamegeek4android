@@ -7,6 +7,7 @@ import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -42,7 +43,7 @@ class DesignersViewModel @Inject constructor(
     }
 
     val designers = _sort.switchMap {
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             sort.value?.let {
                 val sort = when(it) {
                     SortType.NAME -> DesignerRepository.SortType.NAME

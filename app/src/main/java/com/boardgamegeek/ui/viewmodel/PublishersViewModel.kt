@@ -7,6 +7,7 @@ import com.boardgamegeek.model.Company
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -42,7 +43,7 @@ class PublishersViewModel @Inject constructor(
     }
 
     val publishers = _sort.switchMap {
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             sort.value?.let {
                 val sort = when(it) {
                     SortType.NAME -> PublisherRepository.SortType.NAME

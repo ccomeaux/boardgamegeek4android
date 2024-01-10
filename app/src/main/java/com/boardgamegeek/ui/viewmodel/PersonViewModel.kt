@@ -10,6 +10,7 @@ import com.boardgamegeek.repository.ArtistRepository
 import com.boardgamegeek.repository.DesignerRepository
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -74,7 +75,7 @@ class PersonViewModel @Inject constructor(
     }
 
     val details = _personInfo.switchMap { person ->
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             when (person.id) {
                 BggContract.INVALID_ID -> emit(RefreshableResource.success(null))
                 else -> {
@@ -134,7 +135,7 @@ class PersonViewModel @Inject constructor(
     val collectionSort: LiveData<CollectionSort> = _personInfo.map { it.sort }
 
     val collection = _personInfo.switchMap { person ->
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             emitSource(
                 when (person.type) {
                     PersonType.ARTIST -> artistRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) ArtistRepository.CollectionSortType.RATING else ArtistRepository.CollectionSortType.NAME)

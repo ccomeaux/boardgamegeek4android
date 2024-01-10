@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.repository.MechanicRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,7 +26,7 @@ class MechanicsViewModel @Inject constructor(
     }
 
     val mechanics = sort.switchMap {
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             sort.value?.let {
                 val sort = when (it) {
                     SortType.NAME -> MechanicRepository.SortType.NAME
