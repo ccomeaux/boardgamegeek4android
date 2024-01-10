@@ -11,6 +11,9 @@ interface UserDao {
     @Query("SELECT * FROM users WHERE username=:username")
     suspend fun loadUser(username: String): UserEntity?
 
+    @Query("SELECT * FROM users WHERE username=:username")
+    fun loadUserAsLiveData(username: String): LiveData<UserEntity>
+
     @Query("SELECT * FROM users")
     suspend fun loadUsers(): List<UserEntity>
 

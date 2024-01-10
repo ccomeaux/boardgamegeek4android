@@ -27,7 +27,6 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 import com.boardgamegeek.pref.clearPlaysTimestamps
-import com.boardgamegeek.provider.BggContract.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.work.*
@@ -339,8 +338,8 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadPlayer(name: String?, type: PlayerType): Player? {
-        return when {
+    suspend fun loadPlayer(name: String?, type: PlayerType): Player? = withContext(Dispatchers.IO) {
+        when {
             name.isNullOrBlank() -> null
             type == PlayerType.USER -> playDao.loadPlayersForUser(name).mapToModel()
             type == PlayerType.NON_USER -> playDao.loadPlayersForPlayer(name).mapToModel()
@@ -366,16 +365,16 @@ class PlayRepository(
         NON_USER,
     }
 
-    suspend fun loadPlayerColors(name: String, type: PlayerType): List<PlayerColor> {
-        return when (type) {
+    suspend fun loadPlayerColors(name: String, type: PlayerType): List<PlayerColor> = withContext(Dispatchers.IO) {
+        when (type) {
             PlayerType.USER -> loadUserColors(name)
             PlayerType.NON_USER -> loadNonUserColors(name)
         }
     }
 
-    suspend fun loadUserColors(username: String) = playerColorDao.loadColorsForUser(username).map { it.mapToModel() }
+    suspend fun loadUserColors(username: String) = withContext(Dispatchers.IO) { playerColorDao.loadColorsForUser(username).map { it.mapToModel() } }
 
-    suspend fun loadNonUserColors(playerName: String) = playerColorDao.loadColorsForPlayer(playerName).map { it.mapToModel() }
+    suspend fun loadNonUserColors(playerName: String) = withContext(Dispatchers.IO) { playerColorDao.loadColorsForPlayer(playerName).map { it.mapToModel() } }
 
     suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
         if (!name.isNullOrBlank()) {

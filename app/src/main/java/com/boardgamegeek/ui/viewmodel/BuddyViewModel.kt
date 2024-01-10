@@ -5,7 +5,6 @@ import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Player
-import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
@@ -14,6 +13,7 @@ import com.boardgamegeek.repository.UserRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -38,16 +38,20 @@ class BuddyViewModel @Inject constructor(
     val isUsernameValid: LiveData<Event<Boolean>>
         get() = _isUsernameValid
 
+    private val _refreshing = MutableLiveData<Boolean>()
+    val refreshing: LiveData<Boolean>
+        get() = _refreshing
+
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String>
+        get() = _error
+
     fun setUsername(name: String?) {
         if (user.value?.first != name) user.value = (name to PlayRepository.PlayerType.USER)
     }
 
     fun setPlayerName(name: String?) {
         if (user.value?.first != name) user.value = (name to PlayRepository.PlayerType.NON_USER)
-    }
-
-    fun refresh() {
-        user.value?.let { user.value = it }
     }
 
     val username = user.map {
@@ -64,32 +68,35 @@ class BuddyViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    val buddy: LiveData<RefreshableResource<User>> = user.switchMap { (username, type) ->
-        liveData {
+    fun refresh() {
+        viewModelScope.launch {
             try {
-                when (type) {
-                    PlayRepository.PlayerType.USER -> {
-                        if (username.isNullOrBlank()) {
-                            emit(RefreshableResource.success(null))
-                        } else {
-                            val loadedUser = userRepository.load(username)
-                            val refreshedUser = if ((loadedUser == null || loadedUser.updatedTimestamp.isOlderThan(1.days)) &&
-                                isRefreshing.compareAndSet(false, true)
-                            ) {
-                                emit(RefreshableResource.refreshing(loadedUser))
-                                userRepository.refresh(username)
-                                val user = userRepository.load(username)
-                                isRefreshing.set(false)
-                                user
-                            } else loadedUser
-                            emit(RefreshableResource.success(refreshedUser))
-                        }
+                _refreshing.value = true
+                if (isRefreshing.compareAndSet(false, true)) {
+                    userRepository.refresh(user.value?.first.orEmpty())?.let {
+                        _error.value = it
                     }
-                    PlayRepository.PlayerType.NON_USER -> emit(RefreshableResource.success(null))
                 }
-            } catch (e: Exception) {
+            } finally {
+                _refreshing.value = false
                 isRefreshing.set(false)
-                emit(RefreshableResource.error(e, application))
+            }
+        }
+    }
+
+    val buddy: LiveData<User?> = user.switchMap { (username, type) ->
+        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+            try {
+                if (type == PlayRepository.PlayerType.USER && !username.isNullOrBlank()) {
+                    emitSource(userRepository.loadUserAsLiveData(username).also {
+                        if (it.value?.updatedTimestamp.isOlderThan(1.days)) {
+                            refresh()
+                        }
+                    })
+                } else emit(null)
+            } catch (e: Exception) {
+                _error.value = e.localizedMessage
+                isRefreshing.set(false)
             }
         }
     }
@@ -113,10 +120,9 @@ class BuddyViewModel @Inject constructor(
             user.value?.let { (username, type) ->
                 if (type == PlayRepository.PlayerType.USER && !username.isNullOrBlank()) {
                     userRepository.updateNickName(username, nickName)
-                    refresh()
 
                     val message = if (updatePlays) {
-                        val newNickName = nickName.ifBlank { buddy.value?.data?.fullName }
+                        val newNickName = nickName.ifBlank { buddy.value?.fullName }
                         if (newNickName.isNullOrBlank()) {
                             getApplication<BggApplication>().getString(R.string.msg_missing_nickname)
                         } else {
@@ -136,6 +142,8 @@ class BuddyViewModel @Inject constructor(
                     setUpdateMessage(message)
                     firebaseAnalytics.logEvent("DataManipulation") {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyNickname")
+                        param("Username", username)
+                        param("NickName", nickName)
                         param("Action", "Edit")
                     }
                 }
@@ -151,17 +159,13 @@ class BuddyViewModel @Inject constructor(
                     playRepository.enqueueUploadRequest(internalIds)
                     setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_play_player_change, oldName, newName))
                     setPlayerName(newName)
+                    firebaseAnalytics.logEvent("DataManipulation") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "RenamePlayer")
+                        param("OldName", oldName)
+                        param("NewName", newName)
+                        param("Action", "Edit")
+                    }
                 }
-            }
-        }
-    }
-
-    fun validateUsername(username: String) {
-        viewModelScope.launch {
-            if (username.isBlank())
-                _isUsernameValid.value = Event(false)
-            else {
-                _isUsernameValid.value = Event(userRepository.validateUsername(username))
             }
         }
     }
@@ -174,8 +178,20 @@ class BuddyViewModel @Inject constructor(
                     playRepository.enqueueUploadRequest(internalIds)
                     setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_player_add_username, username, playerName))
                     setUsername(username)
+                    firebaseAnalytics.logEvent("DataManipulation") {
+                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "AddUserName")
+                        param("PlayerNAme", playerName)
+                        param("Username", username)
+                        param("Action", "Edit")
+                    }
                 }
             }
+        }
+    }
+
+    fun validateUsername(username: String) {
+        viewModelScope.launch {
+            _isUsernameValid.value = Event(userRepository.validateUsername(username))
         }
     }
 

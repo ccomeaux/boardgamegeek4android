@@ -3,6 +3,7 @@ package com.boardgamegeek.repository
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -38,16 +39,26 @@ class UserRepository(
         FIRST_NAME, LAST_NAME, USERNAME
     }
 
-    suspend fun load(username: String): User? = withContext(Dispatchers.IO) {
-        userDao.loadUser(username)?.mapToModel()
+    suspend fun loadUser(username: String): User? = withContext(Dispatchers.IO) {
+        if (username.isBlank()) null
+        else userDao.loadUser(username)?.mapToModel()
     }
 
-    suspend fun refresh(username: String) = withContext(Dispatchers.IO) {
-        if (username.isBlank()) return@withContext
+    fun loadUserAsLiveData(username: String): LiveData<User?> {
+        return if (username.isBlank()) MutableLiveData(null)
+        else userDao.loadUserAsLiveData(username).map { it.mapToModel() }
+    }
+
+    suspend fun refresh(username: String): String? = withContext(Dispatchers.IO) {
+        if (username.isBlank()) return@withContext null
         val timestamp = System.currentTimeMillis()
-        val response = api.user(username)
-        val user = response.mapForUpsert(timestamp)
-        upsertUser(user)
+        val result = safeApiCall(context) { api.user(username) }
+        if (result.isSuccess) {
+            result.getOrNull()?.mapForUpsert(timestamp)?.let { user ->
+                upsertUser(user)
+            }
+        }
+        result.exceptionOrNull()?.localizedMessage
     }
 
     suspend fun refreshCollection(username: String, status: String): List<CollectionItem> =
@@ -71,7 +82,7 @@ class UserRepository(
             .filterAndSortBuddies(sortBy)
     }
 
-    suspend fun loadBuddiesAsLiveData(sortBy: UsersSortBy = UsersSortBy.USERNAME): LiveData<List<User>> = withContext(Dispatchers.IO) {
+    suspend fun loadBuddiesAsLiveData(sortBy: UsersSortBy = UsersSortBy.USERNAME): LiveData<List<User>> = withContext(Dispatchers.Default) {
         userDao.loadUsersAsLiveData().map {
             it.map { entity -> entity.mapToModel() }
         }.map { list ->
@@ -146,11 +157,14 @@ class UserRepository(
     }
 
     suspend fun validateUsername(username: String): Boolean = withContext(Dispatchers.IO) {
-        val response = api.user(username)
-        response.name == username
+        if (username.isBlank()) false
+        else {
+            val result = safeApiCall(context) { api.user(username) }
+            result.getOrNull()?.name == username
+        }
     }
 
-    suspend fun updateNickName(username: String, nickName: String) {
+    suspend fun updateNickName(username: String, nickName: String) = withContext(Dispatchers.IO) {
         if (username.isNotBlank()) userDao.updateNickname(username, nickName)
     }
 

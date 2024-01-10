@@ -26,10 +26,10 @@ class SelfUserViewModel @Inject constructor(
                 !username.isNullOrBlank() -> {
                     try {
                         emit(RefreshableResource.refreshing(latestValue?.data))
-                        val localUser = userRepository.load(username)
+                        val localUser = userRepository.loadUser(username)
                         if (localUser == null || localUser.updatedTimestamp.isOlderThan(1.days)) {
                             userRepository.refresh(username)
-                            val refreshedUser = userRepository.load(username)
+                            val refreshedUser = userRepository.loadUser(username)
                             emit(RefreshableResource.success(refreshedUser))
                             if (username == Authenticator.getAccount(application)?.name) {
                                 userRepository.updateSelf(refreshedUser)
