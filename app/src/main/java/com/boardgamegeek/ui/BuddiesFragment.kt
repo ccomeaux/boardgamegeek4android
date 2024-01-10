@@ -102,7 +102,7 @@ class BuddiesFragment : Fragment() {
     }
 
     private fun triggerRefresh() {
-        binding.swipeRefresh.isRefreshing = viewModel.requestRefresh()
+        viewModel.refresh()
     }
 
     class BuddiesAdapter(private val viewModel: BuddiesViewModel) :

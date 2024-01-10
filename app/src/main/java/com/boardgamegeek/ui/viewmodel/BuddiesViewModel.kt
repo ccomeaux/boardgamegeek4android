@@ -12,8 +12,8 @@ import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
-import com.boardgamegeek.pref.setBuddiesTimestamp
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
@@ -47,16 +47,11 @@ class BuddiesViewModel @Inject constructor(
 
     init {
         sort(SortType.USERNAME)
-        if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true &&
-            syncPrefs.getBuddiesTimestamp().isOlderThan(1.days) &&
-            isRefreshing.compareAndSet(false, true)
-        ) {
-            refresh()
-        }
+        refresh()
     }
 
     val buddies: LiveData<List<User>> = sort.switchMap {
-        liveData {
+        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
             try {
                 val sortBy = when (it) {
                     SortType.FIRST_NAME -> UserRepository.UsersSortBy.FIRST_NAME
@@ -70,12 +65,17 @@ class BuddiesViewModel @Inject constructor(
         }
     }
 
-    private fun refresh() {
+    fun refresh() {
         viewModelScope.launch {
             _refreshing.value = true
             try {
-                userRepository.refreshBuddies()?.let { errorMessage ->
-                    _error.value = errorMessage
+                if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true &&
+                    syncPrefs.getBuddiesTimestamp().isOlderThan(1.days) &&
+                    isRefreshing.compareAndSet(false, true)
+                ) {
+                    userRepository.refreshBuddies()?.let { errorMessage ->
+                        _error.value = errorMessage
+                    }
                 }
             } finally {
                 _refreshing.value = false
@@ -95,14 +95,6 @@ class BuddiesViewModel @Inject constructor(
             SortType.USERNAME -> user?.username.firstChar()
             null -> "-"
         }
-    }
-
-    fun requestRefresh(): Boolean {
-        _sort.value = sort.value
-        return if (isRefreshing.compareAndSet(false, true)){
-            refresh()
-            true
-        } else false
     }
 }
 
