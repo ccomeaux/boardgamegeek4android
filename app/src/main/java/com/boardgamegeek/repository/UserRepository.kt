@@ -39,6 +39,10 @@ class UserRepository(
         FIRST_NAME, LAST_NAME, USERNAME
     }
 
+    suspend fun loadAllUsers(): List<User> = withContext(Dispatchers.IO) {
+        userDao.loadUsers().map { it.mapToModel() }
+    }
+
     suspend fun loadUser(username: String): User? = withContext(Dispatchers.IO) {
         if (username.isBlank()) null
         else userDao.loadUser(username)?.mapToModel()
@@ -49,41 +53,14 @@ class UserRepository(
         else userDao.loadUserAsLiveData(username).map { it.mapToModel() }
     }
 
-    suspend fun refresh(username: String): String? = withContext(Dispatchers.IO) {
-        if (username.isBlank()) return@withContext null
-        val timestamp = System.currentTimeMillis()
-        val result = safeApiCall(context) { api.user(username) }
-        if (result.isSuccess) {
-            result.getOrNull()?.mapForUpsert(timestamp)?.let { user ->
-                upsertUser(user)
-            }
-        }
-        result.exceptionOrNull()?.localizedMessage
-    }
-
-    suspend fun refreshCollection(username: String, status: String): List<CollectionItem> =
-        withContext(Dispatchers.IO) {
-            val items = mutableListOf<CollectionItem>()
-            val response = api.collection(
-                username, mapOf(
-                    status to "1",
-                    BggService.COLLECTION_QUERY_KEY_BRIEF to "1"
-                )
-            )
-            response.items?.forEach {
-                items += it.mapToCollectionItem()
-            }
-            items
-        }
-
-    suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<User> = withContext(Dispatchers.IO) {
-        userDao.loadUsers()
+    suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<User> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { userDao.loadUsers() }
             .map { it.mapToModel() }
             .filterAndSortBuddies(sortBy)
     }
 
     suspend fun loadBuddiesAsLiveData(sortBy: UsersSortBy = UsersSortBy.USERNAME): LiveData<List<User>> = withContext(Dispatchers.Default) {
-        userDao.loadUsersAsLiveData().map {
+        withContext(Dispatchers.IO) { userDao.loadUsersAsLiveData() }.map {
             it.map { entity -> entity.mapToModel() }
         }.map { list ->
             list.filterAndSortBuddies(sortBy)
@@ -106,9 +83,28 @@ class UserRepository(
             )
     }
 
-    suspend fun loadAllUsers(): List<User> = withContext(Dispatchers.IO) {
-        userDao.loadUsers().map { it.mapToModel() }
+    suspend fun refresh(username: String): String? = withContext(Dispatchers.IO) {
+        if (username.isBlank()) return@withContext null
+        val timestamp = System.currentTimeMillis()
+        val result = safeApiCall(context) { api.user(username) }
+        if (result.isSuccess) {
+            result.getOrNull()?.mapForUpsert(timestamp)?.let { user ->
+                upsertUser(user)
+            }
+        }
+        result.exceptionOrNull()?.localizedMessage
     }
+
+    suspend fun refreshCollection(username: String, status: String): List<CollectionItem> = // TODO use an enum for status
+        withContext(Dispatchers.IO) {
+            val response = api.collection(
+                username, mapOf(
+                    status to "1",
+                    BggService.COLLECTION_QUERY_KEY_BRIEF to "1"
+                )
+            )
+            response.items?.map { it.mapToCollectionItem() }.orEmpty()
+        }
 
     suspend fun refreshBuddies(): String? = withContext(Dispatchers.IO) {
         val accountName = Authenticator.getAccount(context)?.name
@@ -141,7 +137,7 @@ class UserRepository(
         result.exceptionOrNull()?.localizedMessage
     }
 
-    private suspend fun upsertUser(user: UserForUpsert) {
+    private suspend fun upsertUser(user: UserForUpsert) = withContext(Dispatchers.IO) {
         val storedUser = userDao.loadUser(user.username)
         if (storedUser == null) {
             userDao.insert(user)
@@ -156,14 +152,6 @@ class UserRepository(
         }
     }
 
-    suspend fun validateUsername(username: String): Boolean = withContext(Dispatchers.IO) {
-        if (username.isBlank()) false
-        else {
-            val result = safeApiCall(context) { api.user(username) }
-            result.getOrNull()?.name == username
-        }
-    }
-
     suspend fun updateNickName(username: String, nickName: String) = withContext(Dispatchers.IO) {
         if (username.isNotBlank()) userDao.updateNickname(username, nickName)
     }
@@ -175,16 +163,22 @@ class UserRepository(
         prefs[AccountPreferences.KEY_AVATAR_URL] = user?.avatarUrl.orEmpty()
     }
 
-    suspend fun deleteUsers(): Int {
-        syncPrefs.clearBuddyListTimestamps()
-        val count = userDao.deleteAll()
-        imageDao.deleteAvatars()
-        Timber.i("Removed %d users", count)
-        return count
-    }
-
     suspend fun resetUsers() {
         deleteUsers()
         SyncUsersWorker.requestSync(context)
+    }
+
+    suspend fun deleteUsers() = withContext(Dispatchers.IO) {
+        syncPrefs.clearBuddyListTimestamps()
+        userDao.deleteAll().also { Timber.i("Deleted $it users") }
+        imageDao.deleteAvatars().also { Timber.i("Deleted $it user avatars") }
+    }
+
+    suspend fun validateUsername(username: String): Boolean {
+        return if (username.isBlank()) false
+        else {
+            val result = safeApiCall(context) { api.user(username) }
+            result.getOrNull()?.name == username
+        }
     }
 }

@@ -180,7 +180,7 @@ class BuddyViewModel @Inject constructor(
                     setUsername(username)
                     firebaseAnalytics.logEvent("DataManipulation") {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "AddUserName")
-                        param("PlayerNAme", playerName)
+                        param("PlayerName", playerName)
                         param("Username", username)
                         param("Action", "Edit")
                     }
