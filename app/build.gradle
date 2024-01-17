@@ -28,26 +28,6 @@ repositories {
     maven { url "https://clojars.org/repo/" }
 }
 
-def gitSha = { ->
-    def p = 'git rev-parse --short HEAD'.execute([], project.rootDir)
-    p.waitFor()
-    if (p.exitValue() != 0) {
-        throw new RuntimeException(p.errorStream.text)
-    }
-
-    return p.text.trim()
-}
-
-def gitBranchName = { ->
-    def p = 'git rev-parse --abbrev-ref HEAD'.execute([], project.rootDir)
-    p.waitFor()
-    if (p.exitValue() != 0) {
-        throw new RuntimeException(p.errorStream.text)
-    }
-
-    return p.text.trim()
-}
-
 android {
     namespace 'com.boardgamegeek'
 
@@ -69,8 +49,6 @@ android {
 
         def buildTime = new GregorianCalendar().format("yyyy-MM-dd h:mm:ss a z")
         buildConfigField 'String', 'BUILD_TIME', "\"${buildTime}\""
-        buildConfigField 'String', 'GIT_SHA', "\"${gitSha()}\""
-        buildConfigField 'String', 'GIT_BRANCH', "\"${gitBranchName()}\""
 
         vectorDrawables.useSupportLibrary = true
 
@@ -84,27 +62,19 @@ android {
     buildTypes {
         applicationVariants.all { variant ->
             variant.outputs.all { output ->
-                def branchName = gitBranchName().replace('/', "-")
-                if (branchName == "master") branchName = ""
-                outputFileName = output.outputFile.name.replace(".apk", "-" + defaultConfig.versionName + "_" + branchName + ".apk")
+                outputFileName = output.outputFile.name.replace(".apk", "-" + defaultConfig.versionName + ".apk")
             }
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            if (gitBranchName() == "master") {
-                versionNameSuffix ""
-            } else if (gitBranchName().startsWith("feature")) {
-                versionNameSuffix " (${gitBranchName()})"
-            } else {
-                versionNameSuffix " RC${versionBuild}"
-            }
+            versionNameSuffix " RC${versionBuild}"
         }
         debug {
             if (versionBuild > 0) {
-                versionNameSuffix " build ${versionBuild} (${gitBranchName()})"
+                versionNameSuffix " build ${versionBuild}"
             } else {
-                versionNameSuffix " (${gitBranchName()})"
+                versionNameSuffix
             }
         }
     }
