@@ -120,8 +120,10 @@ class SyncPlaysWorker @AssistedInject constructor(
     }
 
     private fun handleException(e: Exception): Result {
-        Timber.e(e)
-        if (e !is CancellationException) {
+        if (e is CancellationException) {
+            Timber.i("Canceling plays sync")
+        } else {
+            Timber.e(e)
             val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
             applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_plays), bigText)
         }

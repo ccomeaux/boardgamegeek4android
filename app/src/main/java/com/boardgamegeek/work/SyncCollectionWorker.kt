@@ -332,8 +332,10 @@ class SyncCollectionWorker @AssistedInject constructor(
     }
 
     private fun handleException(contentText: String, e: Exception): Result {
-        Timber.e(e)
-        if (e !is CancellationException) {
+        if (e is CancellationException) {
+            Timber.i("Canceling collection sync")
+        } else {
+            Timber.e(e)
             val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
             applicationContext.notifySyncError(contentText, bigText)
         }
