@@ -48,7 +48,6 @@ class CollectionViewViewModel @Inject constructor(
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
 
     private val syncTimestamp = MutableLiveData<Long>()
-    private val viewsTimestamp = MutableLiveData<Long>()
     private val _sortType = MutableLiveData<Int>()
     private val _addedFilters = MutableLiveData<List<CollectionFilterer>>()
     private val _removedFilterTypes = MutableLiveData<List<Int>>()
@@ -104,16 +103,17 @@ class CollectionViewViewModel @Inject constructor(
     val selectedViewId: LiveData<Int>
         get() = _selectedViewId
 
-    val views: LiveData<List<CollectionView>> = viewsTimestamp.switchMap {
-        liveData { emit(viewRepository.loadViewsWithoutFilters()) }
-    }
+    val views: LiveData<List<CollectionView>> =
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            emitSource(viewRepository.loadViewsWithoutFiltersAsLiveData())
+        }
 
     private val selectedView: LiveData<CollectionView> = _selectedViewId.switchMap {
-        liveData {
-            _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
-            _addedFilters.value = emptyList()
-            _removedFilterTypes.value = emptyList()
-            emit(viewRepository.loadView(it))
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            _sortType.postValue( CollectionSorterFactory.TYPE_UNKNOWN)
+            _addedFilters.postValue( emptyList())
+            _removedFilterTypes.postValue( emptyList())
+            emitSource(viewRepository.loadViewAsLiveData(it))
         }
     }
 
@@ -122,7 +122,6 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     init {
-        refreshViews()
         viewModelScope.launch { initMediators() }
         _selectedViewId.value = defaultViewId
     }
@@ -333,7 +332,6 @@ class CollectionViewViewModel @Inject constructor(
             val viewId = viewRepository.insertView(view)
             logAction("Insert", name)
             postToastMessage(R.string.msg_collection_view_updated, name)
-            refreshViews()
             setOrRemoveDefault(viewId, isDefault)
             selectView(viewId)
         }
@@ -350,7 +348,6 @@ class CollectionViewViewModel @Inject constructor(
             viewRepository.updateView(view)
             logAction("Update", name)
             postToastMessage(R.string.msg_collection_view_updated, name)
-            refreshViews()
             setOrRemoveDefault(view.id, isDefault)
         }
     }
@@ -361,7 +358,6 @@ class CollectionViewViewModel @Inject constructor(
             if (viewRepository.deleteView(viewId)) {
                 logAction("Delete", name)
                 postToastMessage(R.string.msg_collection_view_deleted, name)
-                refreshViews()
                 if (viewId == _selectedViewId.value) {
                     selectView(defaultViewId)
                 }
@@ -375,10 +371,6 @@ class CollectionViewViewModel @Inject constructor(
             param("Action", action)
             param("Name", name)
         }
-    }
-
-    private fun refreshViews() {
-        viewsTimestamp.postValue(System.currentTimeMillis())
     }
 
     fun logQuickPlay(gameId: Int, gameName: String) {

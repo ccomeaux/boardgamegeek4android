@@ -2,6 +2,9 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import androidx.core.content.pm.ShortcutManagerCompat
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
 import com.boardgamegeek.model.CollectionView
@@ -22,50 +25,52 @@ class CollectionViewRepository(
         name = context.getString(R.string.title_collection),
     )
 
-    suspend fun loadViewsWithoutFilters(includeDefault: Boolean = true): List<CollectionView> {
-        val list = collectionViewDao.loadViewsWithoutFilters().map { it.mapToModel() }
-        return if (includeDefault) listOf(defaultView) + list else list
-    }
-
-    suspend fun loadViews(): List<CollectionView> {
-        return collectionViewDao.loadViews().map { it.key.mapToModel(it.value) }
-    }
-
-    suspend fun loadView(viewId: Int): CollectionView {
-        if (viewId == CollectionViewPrefs.DEFAULT_DEFAULT_ID){
-            return defaultView
+    fun loadViewsWithoutFiltersAsLiveData(): LiveData<List<CollectionView>> {
+        return collectionViewDao.loadViewsWithoutFiltersAsLiveData().map { list ->
+            listOf(defaultView) + list.map { it.mapToModel() }
         }
-        val multimap = collectionViewDao.loadView(viewId)
-        return multimap?.firstNotNullOfOrNull { it.key.mapToModel(it.value) } ?: defaultView
     }
 
-    suspend fun insertView(view: CollectionView): Int {
-        return collectionViewDao.insert(view.mapToEntity(), view.filters?.map { it.mapToEntity(view.id) }.orEmpty()).toInt()
+    suspend fun loadViews(): List<CollectionView> = withContext(Dispatchers.IO) {
+        collectionViewDao.loadViews().map { it.key.mapToModel(it.value) }
     }
 
-    suspend fun updateView(view: CollectionView) {
+    fun loadViewAsLiveData(viewId: Int): LiveData<CollectionView> {
+        return if (viewId == CollectionViewPrefs.DEFAULT_DEFAULT_ID) MutableLiveData(defaultView)
+        else collectionViewDao.loadViewAsLiveData(viewId).map { it.view.mapToModel(it.filters) }
+    }
+
+    suspend fun insertView(view: CollectionView): Int = withContext(Dispatchers.IO) {
+        collectionViewDao.insert(view.mapToEntity(), view.filters?.map { it.mapToEntity(view.id) }.orEmpty()).toInt()
+    }
+
+    suspend fun updateView(view: CollectionView) = withContext(Dispatchers.IO) {
         collectionViewDao.update(view.mapToEntity(), view.filters?.map { it.mapToEntity(view.id) }.orEmpty())
     }
 
-    suspend fun deleteAll() = collectionViewDao.deleteAll()
+    suspend fun deleteAll() = withContext(Dispatchers.IO) { collectionViewDao.deleteAll() }
 
-    suspend fun deleteView(viewId: Int): Boolean {
-        if (viewId == BggContract.INVALID_ID) return false
-        return collectionViewDao.delete(viewId) > 0
+    suspend fun deleteView(viewId: Int): Boolean = withContext(Dispatchers.IO) {
+        if (viewId == BggContract.INVALID_ID) false
+        else collectionViewDao.delete(viewId) > 0
     }
 
-    suspend fun updateShortcuts(viewId: Int) = withContext(Dispatchers.Default) {
+    suspend fun updateShortcuts(viewId: Int) {
         if (viewId > 0) {
-            collectionViewDao.loadView(viewId)?.let { view ->
-                val count = view.firstNotNullOfOrNull { it.key.selectedCount } ?: 0
-                collectionViewDao.updateShortcut(viewId, count, System.currentTimeMillis())
+            withContext(Dispatchers.IO) {
+                collectionViewDao.loadView(viewId)?.let { view ->
+                    val updatedCount = (view.firstNotNullOfOrNull { it.key.selectedCount } ?: 0) + 1
+                    collectionViewDao.updateShortcut(viewId, updatedCount, System.currentTimeMillis())
+                }
             }
-            ShortcutManagerCompat.reportShortcutUsed(context, CollectionActivity.createShortcutName(viewId))
-            val shortcuts = collectionViewDao.loadViewsWithoutFilters()
-                .filterNot { it.name.isNullOrBlank() }
-                .take(SHORTCUT_COUNT)
-                .map { view -> CollectionActivity.createShortcutInfo(context, view.id, view.name.orEmpty()) }
-            ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
+            withContext(Dispatchers.Default) {
+                ShortcutManagerCompat.reportShortcutUsed(context, CollectionActivity.createShortcutName(viewId))
+                val shortcuts = withContext(Dispatchers.IO) { collectionViewDao.loadViewsWithoutFilters() }
+                    .filterNot { it.name.isNullOrBlank() }
+                    .take(SHORTCUT_COUNT)
+                    .map { view -> CollectionActivity.createShortcutInfo(context, view.id, view.name.orEmpty()) }
+                ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
+            }
         }
     }
 
