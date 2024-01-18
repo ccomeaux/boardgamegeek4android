@@ -7,8 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.map
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionView
-import com.boardgamegeek.extensions.CollectionViewPrefs
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.provider.BggContract
@@ -40,26 +40,41 @@ class CollectionViewRepository(
         else collectionViewDao.loadViewAsLiveData(viewId).map { it.view.mapToModel(it.filters) }
     }
 
-    suspend fun insertView(view: CollectionView): Int = withContext(Dispatchers.IO) {
-        collectionViewDao.insert(view.mapToEntity(), view.filters?.map { it.mapToEntity(view.id) }.orEmpty()).toInt()
+    suspend fun insertView(view: CollectionView): Int {
+        val viewId = collectionViewDao.insert(view.mapToEntity(), view.filters?.map { it.mapToEntity(view.id) }.orEmpty()).toInt()
+        if (view.starred) {
+            context.preferences()[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID] = viewId
+        }
+        return viewId
     }
 
     suspend fun updateView(view: CollectionView) = withContext(Dispatchers.IO) {
         collectionViewDao.update(view.mapToEntity(), view.filters?.map { it.mapToEntity(view.id) }.orEmpty())
+        val defaultViewId = context.preferences()[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID, CollectionViewPrefs.DEFAULT_DEFAULT_ID] ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID
+        if (view.starred) {
+            context.preferences()[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID] = view.id
+        } else if (view.id == defaultViewId) {
+            context.preferences().remove(CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID)
+        }
     }
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { collectionViewDao.deleteAll() }
 
-    suspend fun deleteView(viewId: Int): Boolean = withContext(Dispatchers.IO) {
-        if (viewId == BggContract.INVALID_ID) false
-        else collectionViewDao.delete(viewId) > 0
+    suspend fun deleteView(viewId: Int): Boolean {
+        if (viewId == BggContract.INVALID_ID) return false
+        collectionViewDao.loadView(viewId)?.let { view ->
+            if (view.starred == true) {
+                context.preferences().remove(CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID)
+            }
+        }
+        return collectionViewDao.delete(viewId) > 0
     }
 
     suspend fun updateShortcuts(viewId: Int) {
         if (viewId > 0) {
             withContext(Dispatchers.IO) {
                 collectionViewDao.loadView(viewId)?.let { view ->
-                    val updatedCount = (view.firstNotNullOfOrNull { it.key.selectedCount } ?: 0) + 1
+                    val updatedCount = (view.selectedCount ?: 0) + 1
                     collectionViewDao.updateShortcut(viewId, updatedCount, System.currentTimeMillis())
                 }
             }

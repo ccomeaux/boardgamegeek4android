@@ -11,6 +11,10 @@ interface CollectionDao {
     suspend fun loadAll(): List<CollectionItemWithGameEntity>
 
     @Transaction
+    @Query("SELECT * FROM collection ORDER BY collection_sort_name COLLATE NOCASE")
+    fun loadAllAsLiveData(): LiveData<List<CollectionItemWithGameEntity>>
+
+    @Transaction
     @Query("SELECT * FROM collection WHERE _id = :internalId")
     suspend fun load(internalId: Long): CollectionItemWithGameEntity?
 

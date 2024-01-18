@@ -17,8 +17,8 @@ interface CollectionViewDao {
     @Query("SELECT * FROM collection_filters LEFT OUTER JOIN collection_filters_details ON collection_filters._id = collection_filters_details.filter_id  ORDER BY selected_count DESC, selected_timestamp DESC")
     suspend fun loadViews(): Map<CollectionViewEntity, List<CollectionViewFilterEntity>>
 
-    @Query("SELECT * FROM collection_filters LEFT OUTER JOIN collection_filters_details ON collection_filters._id = collection_filters_details.filter_id WHERE collection_filters._id = :id")
-    suspend fun loadView(id: Int): Map<CollectionViewEntity, List<CollectionViewFilterEntity>>?
+    @Query("SELECT * FROM collection_filters WHERE _id = :id")
+    suspend fun loadView(id: Int): CollectionViewEntity?
 
     @Transaction
     @Query("SELECT * FROM collection_filters WHERE _id = :id")

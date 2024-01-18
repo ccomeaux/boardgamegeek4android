@@ -2,6 +2,8 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.map
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -48,6 +50,10 @@ class GameCollectionRepository(
     suspend fun loadAll(): List<CollectionItem> = collectionDao.loadAll()
         .map { it.mapToModel() }
         .filter { it.deleteTimestamp == 0L }
+
+    fun loadAllAsLiveData(): LiveData<List<CollectionItem>> = collectionDao.loadAllAsLiveData().map { list ->
+        list.map { it.mapToModel() }
+    }.map { it.filter { item -> item.deleteTimestamp == 0L } }
 
     suspend fun loadCollectionItem(internalId: Long): CollectionItem? {
         return if (internalId == INVALID_ID.toLong())

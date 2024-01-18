@@ -65,9 +65,9 @@ class CollectionViewViewModel @Inject constructor(
         get() = _items
 
     private val _allItems: LiveData<List<CollectionItem>> = syncTimestamp.switchMap {
-        liveData {
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             try {
-                emit(gameCollectionRepository.loadAll())
+                emitSource(gameCollectionRepository.loadAllAsLiveData())
             } catch (e: Exception) {
                 _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
             }
@@ -328,11 +328,11 @@ class CollectionViewViewModel @Inject constructor(
                 name = name,
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
                 filters = effectiveFilters.value?.map { CollectionViewFilter(BggContract.INVALID_ID, it.type, it.deflate()) },
+                starred = isDefault,
             )
             val viewId = viewRepository.insertView(view)
             logAction("Insert", name)
             postToastMessage(R.string.msg_collection_view_updated, name)
-            setOrRemoveDefault(viewId, isDefault)
             selectView(viewId)
         }
     }
@@ -344,11 +344,11 @@ class CollectionViewViewModel @Inject constructor(
                 name = selectedViewName.value.orEmpty(),
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
                 filters = effectiveFilters.value?.map { CollectionViewFilter(BggContract.INVALID_ID, it.type, it.deflate()) },
+                starred = isDefault,
             )
             viewRepository.updateView(view)
             logAction("Update", name)
             postToastMessage(R.string.msg_collection_view_updated, name)
-            setOrRemoveDefault(view.id, isDefault)
         }
     }
 
@@ -395,20 +395,12 @@ class CollectionViewViewModel @Inject constructor(
         _toastMessage.value = Event(getApplication<BggApplication>().getString(resId, name))
     }
 
-    private fun setOrRemoveDefault(viewId: Int, isDefault: Boolean) {
-        if (isDefault) {
-            prefs[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID] = viewId
-        } else if (viewId == defaultViewId) {
-            prefs.remove(CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID)
-        }
-    }
-
     fun createShortcut() {
         viewModelScope.launch(Dispatchers.Default) {
             val context = getApplication<BggApplication>().applicationContext
-            val viewId = _selectedViewId.value ?: BggContract.INVALID_ID
-            val viewName = selectedViewName.value.orEmpty()
             if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+                val viewId = _selectedViewId.value ?: BggContract.INVALID_ID
+                val viewName = selectedViewName.value.orEmpty()
                 val info = CollectionActivity.createShortcutInfo(context, viewId, viewName)
                 ShortcutManagerCompat.requestPinShortcut(context, info, null)
             }
