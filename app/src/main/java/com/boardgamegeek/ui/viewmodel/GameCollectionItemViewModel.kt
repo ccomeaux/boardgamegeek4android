@@ -64,8 +64,8 @@ class GameCollectionItemViewModel @Inject constructor(
                 val item = gameCollectionRepository.loadCollectionItem(internalId)
                 emit(RefreshableResource.success(item))
                 item?.let {
-                    if (it.isDirty)
-                        gameCollectionRepository.enqueueUploadRequest(it.gameId)
+                    if (latestValue == null && it.isDirty)
+                        gameCollectionRepository.enqueueUploadRequest(it.gameId) // TODO Don't do this until the the user presses done (except the first time before anything is loaded)
                     if (isItemRefreshing.compareAndSet(false, true)) {
                         val refreshedItem = if (
                             forceRefresh.get() ||
