@@ -8,6 +8,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -18,12 +19,8 @@ class PublishersViewModel @Inject constructor(
     application: Application,
     private val publisherRepository: PublisherRepository,
 ) : AndroidViewModel(application) {
-    enum class SortType {
-        NAME, ITEM_COUNT, WHITMORE_SCORE
-    }
-
-    private val _sort = MutableLiveData<SortType>()
-    val sort: LiveData<SortType>
+    private val _sort = MutableLiveData<Company.SortType>()
+    val sort: LiveData<Company.SortType>
         get() = _sort
 
     private val _progress = MutableLiveData<Pair<Int, Int>>()
@@ -34,9 +31,9 @@ class PublishersViewModel @Inject constructor(
 
     init {
         val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
-            SortType.WHITMORE_SCORE
+            Company.SortType.WHITMORE_SCORE
         else
-            SortType.ITEM_COUNT
+            Company.SortType.ITEM_COUNT
         sort(initialSort)
         refreshMissingThumbnails()
         calculateStats()
@@ -45,12 +42,7 @@ class PublishersViewModel @Inject constructor(
     val publishers = _sort.switchMap {
         liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
             sort.value?.let {
-                val sort = when(it) {
-                    SortType.NAME -> PublisherRepository.SortType.NAME
-                    SortType.ITEM_COUNT -> PublisherRepository.SortType.ITEM_COUNT
-                    SortType.WHITMORE_SCORE -> PublisherRepository.SortType.WHITMORE_SCORE
-                }
-                emitSource(publisherRepository.loadPublishersAsLiveData(sort).distinctUntilChanged())
+                emitSource(publisherRepository.loadPublishersFlow(it).distinctUntilChanged().asLiveData())
             }
         }
     }
@@ -67,26 +59,30 @@ class PublishersViewModel @Inject constructor(
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
-                publisherRepository.calculateWhitmoreScores(_progress)
+                publisherRepository.calculateStats(_progress)
                 isCalculating.set(false)
             }
         }
     }
 
-    fun sort(sortType: SortType) {
+    fun sort(sortType: Company.SortType) {
         if (_sort.value != sortType) _sort.value = sortType
     }
 
-    fun refresh() {
+    fun reload() {
         _sort.value?.let { _sort.value = it }
     }
 
     fun getSectionHeader(publisher: Company?): String {
         return when(sort.value) {
-            SortType.NAME -> if (publisher?.name == "(Uncredited)") "-" else publisher?.name.firstChar()
-            SortType.ITEM_COUNT -> (publisher?.itemCount ?: 0).orderOfMagnitude()
-            SortType.WHITMORE_SCORE -> (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
-            else -> "-"
+            Company.SortType.NAME -> if (publisher?.name == "(Uncredited)") defaultHeader else publisher?.name.firstChar()
+            Company.SortType.ITEM_COUNT -> (publisher?.itemCount ?: 0).orderOfMagnitude()
+            Company.SortType.WHITMORE_SCORE -> (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
+            else -> defaultHeader
         }
+    }
+
+    companion object {
+        const val defaultHeader = "-"
     }
 }

@@ -2,7 +2,7 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.model.Company
+import com.boardgamegeek.mappers.mapToPerson
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.provider.BggContract
@@ -11,6 +11,7 @@ import com.boardgamegeek.repository.DesignerRepository
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -92,7 +93,7 @@ class PersonViewModel @Inject constructor(
     private suspend fun LiveDataScope<RefreshableResource<Person>>.loadArtist(artistId: Int, application: Application) {
         try {
             emit(RefreshableResource.refreshing(latestValue?.data))
-            emitSource(artistRepository.loadArtistAsLiveData(artistId).map { RefreshableResource.success(it) })
+            emitSource(artistRepository.loadArtistFlow(artistId).distinctUntilChanged().asLiveData().map { RefreshableResource.success(it) })
         } catch (e: Exception) {
             emit(RefreshableResource.error(e, application, latestValue?.data))
         }
@@ -101,7 +102,7 @@ class PersonViewModel @Inject constructor(
     private suspend fun LiveDataScope<RefreshableResource<Person>>.loadDesigner(designerId: Int, application: Application) {
         try {
             emit(RefreshableResource.refreshing(latestValue?.data))
-            emitSource(designerRepository.loadDesignerAsLiveData(designerId).map { RefreshableResource.success(it) })
+            emitSource(designerRepository.loadDesignerFlow(designerId).distinctUntilChanged().asLiveData().map { RefreshableResource.success(it) })
         } catch (e: Exception) {
             emit(RefreshableResource.error(e, application, latestValue?.data))
         }
@@ -110,22 +111,10 @@ class PersonViewModel @Inject constructor(
     private suspend fun LiveDataScope<RefreshableResource<Person>>.loadPublisher(publisherId: Int, application: Application) {
         try {
             emit(RefreshableResource.refreshing(latestValue?.data))
-            emitSource(publisherRepository.loadPublisherAsLiveData(publisherId).map { RefreshableResource.success(it.mapToPerson()) })
+            emitSource(publisherRepository.loadPublisherFlow(publisherId).distinctUntilChanged().asLiveData().map { RefreshableResource.success(it?.mapToPerson()) })
         } catch (e: Exception) {
             emit(RefreshableResource.error(e, application, latestValue?.data))
         }
-    }
-
-    private fun Company?.mapToPerson() = this?.let {
-        Person(
-            BggContract.INVALID_ID.toLong(),
-            it.id,
-            it.name,
-            it.description,
-            it.updatedTimestamp,
-            it.thumbnailUrl,
-            it.heroImageUrl,
-        )
     }
 
     val type: LiveData<PersonType> = _personInfo.map { it.type }
@@ -148,18 +137,13 @@ class PersonViewModel @Inject constructor(
 
     val stats = _personInfo.switchMap { person ->
         liveData {
-            when (person.id) {
-                BggContract.INVALID_ID -> emit(null)
-                else -> {
-                    emit(
-                        when (person.type) {
-                            PersonType.ARTIST -> artistRepository.calculateStats(person.id)
-                            PersonType.DESIGNER -> designerRepository.calculateStats(person.id)
-                            PersonType.PUBLISHER -> publisherRepository.calculateStats(person.id)
-                        }
-                    )
+            emit(
+                when (person.type) {
+                    PersonType.ARTIST -> artistRepository.calculateStats(person.id)
+                    PersonType.DESIGNER -> designerRepository.calculateStats(person.id)
+                    PersonType.PUBLISHER -> publisherRepository.calculateStats(person.id)
                 }
-            }
+            )
         }
     }
 }

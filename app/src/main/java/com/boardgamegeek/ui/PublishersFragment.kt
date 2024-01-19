@@ -40,7 +40,7 @@ class PublishersFragment : Fragment() {
             RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter)
         )
 
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.reload() }
 
         viewModel.publishers.observe(viewLifecycleOwner) {
             adapter.submitList(it)

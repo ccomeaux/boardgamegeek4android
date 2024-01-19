@@ -7,7 +7,7 @@ import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.DesignerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -18,12 +18,8 @@ class DesignersViewModel @Inject constructor(
     application: Application,
     private val designerRepository: DesignerRepository,
 ) : AndroidViewModel(application) {
-    enum class SortType {
-        NAME, ITEM_COUNT, WHITMORE_SCORE
-    }
-
-    private val _sort = MutableLiveData<SortType>()
-    val sort: LiveData<SortType>
+    private val _sort = MutableLiveData<Person.SortType>()
+    val sort: LiveData<Person.SortType>
         get() = _sort
 
     private val _progress = MutableLiveData<Pair<Int, Int>>()
@@ -34,25 +30,16 @@ class DesignersViewModel @Inject constructor(
 
     init {
         val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
-            SortType.WHITMORE_SCORE
+            Person.SortType.WHITMORE_SCORE
         else
-            SortType.ITEM_COUNT
+            Person.SortType.ITEM_COUNT
         sort(initialSort)
         refreshMissingImages()
         calculateStats()
     }
 
     val designers = _sort.switchMap {
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            sort.value?.let {
-                val sort = when(it) {
-                    SortType.NAME -> DesignerRepository.SortType.NAME
-                    SortType.ITEM_COUNT -> DesignerRepository.SortType.ITEM_COUNT
-                    SortType.WHITMORE_SCORE -> DesignerRepository.SortType.WHITMORE_SCORE
-                }
-                emitSource(designerRepository.loadDesignersAsLiveData(sort).distinctUntilChanged())
-            }
-        }
+        designerRepository.loadDesignersFlow(it).distinctUntilChanged().asLiveData()
     }
 
     private fun refreshMissingImages() {
@@ -67,26 +54,30 @@ class DesignersViewModel @Inject constructor(
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
-                designerRepository.calculateWhitmoreScores(_progress)
+                designerRepository.calculateStats(_progress)
                 isCalculating.set(false)
             }
         }
     }
 
-    fun sort(sortType: SortType) {
+    fun sort(sortType: Person.SortType) {
         if (_sort.value != sortType) _sort.value = sortType
     }
 
-    fun refresh() {
+    fun reload() {
         _sort.value?.let { _sort.value = it }
     }
 
     fun getSectionHeader(designer: Person?): String {
         return when(sort.value) {
-            SortType.NAME -> if (designer?.name == "(Uncredited)") "-" else designer?.name.firstChar()
-            SortType.ITEM_COUNT -> (designer?.itemCount ?: 0).orderOfMagnitude()
-            SortType.WHITMORE_SCORE -> (designer?.whitmoreScore ?: 0).orderOfMagnitude()
-            else -> "-"
+            Person.SortType.NAME -> if (designer?.name == "(Uncredited)") defaultHeader else designer?.name.firstChar()
+            Person.SortType.ITEM_COUNT -> (designer?.itemCount ?: 0).orderOfMagnitude()
+            Person.SortType.WHITMORE_SCORE -> (designer?.whitmoreScore ?: 0).orderOfMagnitude()
+            else -> defaultHeader
         }
+    }
+
+    companion object {
+        const val defaultHeader = "-"
     }
 }

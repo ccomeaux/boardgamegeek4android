@@ -42,7 +42,7 @@ class DesignersFragment : Fragment() {
             RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter)
         )
 
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.reload() }
 
         viewModel.designers.observe(viewLifecycleOwner) {
             adapter.submitList(it)

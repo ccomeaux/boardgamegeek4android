@@ -7,10 +7,12 @@ import com.boardgamegeek.model.Company
 import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.io.model.CompanyItem
+import com.boardgamegeek.model.Person
 import com.boardgamegeek.provider.BggContract
 import java.util.Date
 
 fun CompanyItem.mapToModel(timestamp: Date) = Company(
+    internalId = 0L,
     id = this.id.toIntOrNull() ?: BggContract.INVALID_ID,
     name = name,
     sortName = if (nameType == "primary") name.sortName(sortindex) else name,
@@ -20,7 +22,18 @@ fun CompanyItem.mapToModel(timestamp: Date) = Company(
     updatedTimestamp = timestamp,
 )
 
+fun Company.mapToPerson() = Person(
+    internalId = internalId,
+    id = id,
+    name = name,
+    description = description,
+    updatedTimestamp = updatedTimestamp,
+    thumbnailUrl = thumbnailUrl,
+    heroImageUrl = heroImageUrl,
+)
+
 fun PublisherEntity.mapToModel() = Company(
+    internalId = internalId,
     id = publisherId,
     name = publisherName,
     sortName = "",

@@ -21,4 +21,22 @@ data class Person(
     override fun toString(): String {
         return "$name [$id]"
     }
+
+    enum class SortType {
+        NAME, ITEM_COUNT, WHITMORE_SCORE
+    }
+
+    companion object {
+        fun List<Person>.applySort(sortBy: SortType): List<Person> {
+            return sortedWith(
+                when (sortBy) {
+                    SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.WHITMORE_SCORE -> compareByDescending<Person> { it.whitmoreScore }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.ITEM_COUNT -> compareByDescending<Person> { it.itemCount }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                }
+            )
+        }
+    }
 }

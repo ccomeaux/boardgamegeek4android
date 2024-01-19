@@ -7,7 +7,7 @@ import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.ArtistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -22,8 +22,8 @@ class ArtistsViewModel @Inject constructor(
         NAME, ITEM_COUNT, WHITMORE_SCORE
     }
 
-    private val _sort = MutableLiveData<SortType>()
-    val sort: LiveData<SortType>
+    private val _sort = MutableLiveData<Person.SortType>()
+    val sort: LiveData<Person.SortType>
         get() = _sort
 
     private val _progress = MutableLiveData<Pair<Int, Int>>()
@@ -34,25 +34,16 @@ class ArtistsViewModel @Inject constructor(
 
     init {
         val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
-            SortType.WHITMORE_SCORE
+            Person.SortType.WHITMORE_SCORE
         else
-            SortType.ITEM_COUNT
+            Person.SortType.ITEM_COUNT
         sort(initialSort)
         refreshMissingImages()
         calculateStats()
     }
 
     val artists = _sort.switchMap {
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            sort.value?.let {
-                val sort = when(it) {
-                    SortType.NAME -> ArtistRepository.SortType.NAME
-                    SortType.ITEM_COUNT -> ArtistRepository.SortType.ITEM_COUNT
-                    SortType.WHITMORE_SCORE -> ArtistRepository.SortType.WHITMORE_SCORE
-                }
-                emitSource(artistRepository.loadArtistsAsLiveData(sort).distinctUntilChanged())
-            }
-        }
+        artistRepository.loadArtistsFlow(it).distinctUntilChanged().asLiveData()
     }
 
     private fun refreshMissingImages() {
@@ -67,26 +58,30 @@ class ArtistsViewModel @Inject constructor(
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
-                artistRepository.calculateWhitmoreScores(_progress)
+                artistRepository.calculateStats(_progress)
                 isCalculating.set(false)
             }
         }
     }
 
-    fun sort(sortType: SortType) {
+    fun sort(sortType: Person.SortType) {
         if (_sort.value != sortType) _sort.value = sortType
     }
 
-    fun refresh() {
+    fun reload() {
         _sort.value?.let { _sort.value = it }
     }
 
     fun getSectionHeader(artist: Person?): String {
         return when(sort.value) {
-            SortType.NAME -> if (artist?.name == "(Uncredited)") "-" else artist?.name.firstChar()
-            SortType.ITEM_COUNT -> (artist?.itemCount ?: 0).orderOfMagnitude()
-            SortType.WHITMORE_SCORE -> (artist?.whitmoreScore ?: 0).orderOfMagnitude()
-            else -> "-"
+            Person.SortType.NAME -> if (artist?.name == "(Uncredited)") defaultHeader else artist?.name.firstChar()
+            Person.SortType.ITEM_COUNT -> (artist?.itemCount ?: 0).orderOfMagnitude()
+            Person.SortType.WHITMORE_SCORE -> (artist?.whitmoreScore ?: 0).orderOfMagnitude()
+            else -> defaultHeader
         }
+    }
+
+    companion object {
+        const val defaultHeader = "-"
     }
 }

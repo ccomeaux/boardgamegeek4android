@@ -1,8 +1,8 @@
 package com.boardgamegeek.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.*
+import kotlinx.coroutines.flow.Flow
 import java.util.Date
 
 @Dao
@@ -11,13 +11,13 @@ interface DesignerDao {
     suspend fun loadDesigners(): List<DesignerEntity>
 
     @Query("SELECT designers.*, COUNT(game_id) AS itemCount FROM designers LEFT OUTER JOIN games_designers ON designers.designer_id = games_designers.designer_id GROUP BY games_designers.designer_id")
-    fun loadDesignersAsLiveData(): LiveData<List<DesignerWithItemCount>>
+    fun loadDesignersFlow(): Flow<List<DesignerWithItemCount>>
 
     @Query("SELECT * FROM designers WHERE designer_id=:designerId")
     suspend fun loadDesigner(designerId: Int): DesignerEntity?
 
     @Query("SELECT * FROM designers WHERE designer_id=:designerId")
-    fun loadDesignerAsLiveData(designerId: Int): LiveData<DesignerEntity?>
+    fun loadDesignerFlow(designerId: Int): Flow<DesignerEntity?>
 
     @Query("UPDATE designers SET designer_image_url=:imageUrl, designer_thumbnail_url=:thumbnailUrl, designer_images_updated_timestamp=:timestamp WHERE designer_id=:designerId")
     suspend fun updateImageUrls(designerId: Int, imageUrl: String, thumbnailUrl: String, timestamp: Date)
