@@ -7,6 +7,7 @@ import androidx.annotation.WorkerThread
 import com.boardgamegeek.R
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.io.GeekdoApi
+import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.util.RemoteConfig
@@ -69,23 +70,27 @@ class ImageRepository(
 
     private suspend fun fetchImageUrls(imageId: Int): Map<ImageType, List<String>> = withContext(Dispatchers.IO) {
         if (imageId > 0 && RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-            try {
-                val response = geekdoApi.image(imageId)
-                mapOf(
-                    ImageType.THUMBNAIL to listOf(response.images.small.url),
-                    ImageType.HERO to listOf(response.images.medium.url, response.images.small.url),
-                )
-            } catch (e: Exception) {
-                Timber.w(e, "Couldn't resolve image ID $imageId")
-                emptyMap()
+            val response = safeApiCall(context) { geekdoApi.image(imageId) }
+            if (response.isSuccess) {
+                response.getOrNull()?.let {
+                    return@withContext mapOf(
+                        ImageType.THUMBNAIL to listOf(it.images.small.url),
+                        ImageType.HERO to listOf(it.images.medium.url, it.images.small.url),
+                    )
+                }
+            } else {
+                Timber.w("Couldn't resolve image ID $imageId")
             }
-        } else emptyMap()
+        }
+        emptyMap()
     }
 
-    suspend fun deleteAll() {
+    suspend fun deleteAll() = withContext(Dispatchers.IO) {
         imageDao.deleteThumbnails()
         imageDao.deleteAvatars()
     }
 
-    suspend fun deleteThumbnail(fileName: String) = imageDao.deleteFile(fileName, BggContract.PATH_THUMBNAILS)
+    suspend fun deleteThumbnail(fileName: String) = withContext(Dispatchers.IO) {
+        imageDao.deleteFile(fileName, BggContract.PATH_THUMBNAILS)
+    }
 }
