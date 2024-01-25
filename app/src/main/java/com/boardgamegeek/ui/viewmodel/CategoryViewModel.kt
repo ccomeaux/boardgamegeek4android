@@ -2,9 +2,11 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CategoryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 
 @HiltViewModel
@@ -12,23 +14,19 @@ class CategoryViewModel @Inject constructor(
     application: Application,
     private val repository: CategoryRepository,
 ) : AndroidViewModel(application) {
-    enum class CollectionSort {
-        NAME, RATING
-    }
-
-    private val _category = MutableLiveData<Pair<Int, CollectionSort>>()
+    private val _category = MutableLiveData<Pair<Int, CollectionItem.SortType>>()
 
     fun setId(id: Int) {
         if (_category.value?.first != id)
-            _category.value = id to (_category.value?.second ?: CollectionSort.RATING)
+            _category.value = id to (_category.value?.second ?: CollectionItem.SortType.RATING)
     }
 
-    fun setSort(sortType: CollectionSort) {
+    fun setSort(sortType: CollectionItem.SortType) {
         if (_category.value?.second != sortType)
             _category.value = (_category.value?.first ?: BggContract.INVALID_ID) to sortType
     }
 
-    fun refresh() {
+    fun reload() {
         _category.value?.let { _category.value = it }
     }
 
@@ -38,11 +36,7 @@ class CategoryViewModel @Inject constructor(
 
     val collection = _category.switchMap { c ->
         liveData {
-            val sortBy = when (c.second) {
-                CollectionSort.NAME -> CategoryRepository.CollectionSortType.NAME
-                CollectionSort.RATING -> CategoryRepository.CollectionSortType.RATING
-            }
-            emitSource(repository.loadCollection(c.first, sortBy))
+            emitSource(repository.loadCollectionFlow(c.first, c.second).distinctUntilChanged().asLiveData())
         }
     }
 }

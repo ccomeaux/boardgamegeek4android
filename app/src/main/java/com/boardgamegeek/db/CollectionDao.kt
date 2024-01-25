@@ -3,6 +3,7 @@ package com.boardgamegeek.db
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CollectionDao {
@@ -52,11 +53,11 @@ interface CollectionDao {
 
     @Transaction
     @Query("SELECT collection.* FROM games_categories INNER JOIN collection ON games_categories.game_id = collection.game_id WHERE category_id = :categoryId")
-    fun loadForCategoryAsLiveData(categoryId: Int): LiveData<List<CollectionItemWithGameEntity>>
+    fun loadForCategoryFlow(categoryId: Int): Flow<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT collection.* FROM games_mechanics INNER JOIN collection ON games_mechanics.game_id = collection.game_id WHERE mechanic_id = :mechanicId")
-    fun loadForMechanicAsLiveData(mechanicId: Int): LiveData<List<CollectionItemWithGameEntity>>
+    fun loadForMechanicFlow(mechanicId: Int): Flow<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT * FROM collection WHERE collection_delete_timestamp > 0")

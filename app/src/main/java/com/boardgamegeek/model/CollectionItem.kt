@@ -159,11 +159,26 @@ data class CollectionItem(
         } else sb.append(".")
     }
 
+    enum class SortType {
+        NAME, RATING
+    }
+
     companion object {
         const val WISHLIST_PRIORITY_UNKNOWN = 0
         const val RANK_UNKNOWN = GameRank.RANK_UNKNOWN
         const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
         const val UNRATED = Game.UNRATED
+
+        fun List<CollectionItem>.applySort(sortBy: SortType): List<CollectionItem> {
+            return sortedWith(
+                if (sortBy == SortType.RATING)
+                    compareByDescending<CollectionItem> { it.rating }
+                        .thenByDescending { it.isFavorite }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+                else
+                    compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
+            )
+        }
 
         fun CollectionItem.filterBySyncedStatues(context: Context): Boolean {
             val syncedStatuses = context.preferences().getSyncStatusesOrDefault()

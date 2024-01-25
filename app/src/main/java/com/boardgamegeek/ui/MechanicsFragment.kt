@@ -37,7 +37,7 @@ class MechanicsFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.reload() }
 
         viewModel.mechanics.observe(viewLifecycleOwner) {
             adapter.submitList(it)

@@ -1,17 +1,19 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.MechanicDao
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
 import com.boardgamegeek.model.Mechanic
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.model.CollectionItem
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.model.CollectionItem.Companion.applySort
+import com.boardgamegeek.model.Mechanic.Companion.applySort
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class MechanicRepository(
@@ -19,43 +21,26 @@ class MechanicRepository(
     private val mechanicDao: MechanicDao,
     private val collectionDao: CollectionDao,
 ) {
-    enum class SortType {
-        NAME, ITEM_COUNT
+    fun loadMechanicsFlow(sortBy: Mechanic.SortType): Flow<List<Mechanic>> {
+        return mechanicDao.loadMechanicsFLow()
+            .map { it.map { entity -> entity.mapToModel() } }
+            .flowOn(Dispatchers.Default)
+            .map { it.applySort(sortBy) }
+            .flowOn(Dispatchers.Default)
+            .conflate()
     }
 
-    enum class CollectionSortType {
-        NAME, RATING
-    }
-
-    suspend fun loadMechanicsAsLiveData(sortBy: SortType = SortType.NAME): LiveData<List<Mechanic>> = withContext(Dispatchers.Default) {
-        mechanicDao.loadMechanicsAsLiveData().map {
-            it.map { entity -> entity.mapToModel() }
-        }.map { list ->
-            list.sortedWith(
-                when (sortBy) {
-                    SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                    SortType.ITEM_COUNT -> compareByDescending<Mechanic> { it.itemCount }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                }
-            )
-        }
-    }
-
-    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): LiveData<List<CollectionItem>> = withContext(Dispatchers.Default) {
-        if (id == BggContract.INVALID_ID) MutableLiveData(emptyList())
-        else collectionDao.loadForMechanicAsLiveData(id).map {
-            it.map { entity -> entity.mapToModel() }
-        }.map { list ->
-            list.filter { it.deleteTimestamp == 0L }
-                .filter { it.filterBySyncedStatues(context) }
-                .sortedWith(
-                    if (sortBy == CollectionSortType.RATING)
-                        compareByDescending<CollectionItem> { it.rating }
-                            .thenByDescending { it.isFavorite }
-                            .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
-                    else
-                        compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
-                )
-        }
+    fun loadCollection(id: Int, sortBy: CollectionItem.SortType): Flow<List<CollectionItem>> {
+        return collectionDao.loadForMechanicFlow(id)
+            .map { it.map { entity -> entity.mapToModel() } }
+            .flowOn(Dispatchers.Default)
+            .map { list ->
+                list.filter { it.deleteTimestamp == 0L }
+                    .filter { it.filterBySyncedStatues(context) }
+                    .applySort(sortBy)
+            }
+            .flowOn(Dispatchers.Default)
+            .conflate()
     }
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { mechanicDao.deleteAll() }
