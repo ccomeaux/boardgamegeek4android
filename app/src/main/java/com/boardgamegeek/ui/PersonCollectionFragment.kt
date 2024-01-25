@@ -9,9 +9,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentLinkedCollectionBinding
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.ui.adapter.LinkedCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
-import com.boardgamegeek.ui.viewmodel.PersonViewModel.CollectionSort
 import com.boardgamegeek.ui.viewmodel.PersonViewModel.PersonType
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -20,7 +20,7 @@ import java.util.*
 class PersonCollectionFragment : Fragment() {
     private var _binding: FragmentLinkedCollectionBinding? = null
     private val binding get() = _binding!!
-    private var sortType = CollectionSort.RATING
+    private var sortType: CollectionItem.SortType? = null
     private val adapter: LinkedCollectionAdapter by lazy { LinkedCollectionAdapter() }
     private val viewModel by activityViewModels<PersonViewModel>()
 
@@ -43,8 +43,9 @@ class PersonCollectionFragment : Fragment() {
             override fun onPrepareMenu(menu: Menu) {
                 menu.findItem(
                     when (sortType) {
-                        CollectionSort.NAME -> R.id.menu_sort_name
-                        CollectionSort.RATING -> R.id.menu_sort_rating
+                        CollectionItem.SortType.NAME -> R.id.menu_sort_name
+                        CollectionItem.SortType.RATING -> R.id.menu_sort_rating
+                        else -> View.NO_ID
                     }
                 )?.isChecked = true
             }
@@ -52,8 +53,8 @@ class PersonCollectionFragment : Fragment() {
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 viewModel.sort(
                     when (menuItem.itemId) {
-                        R.id.menu_sort_name -> CollectionSort.NAME
-                        R.id.menu_sort_rating -> CollectionSort.RATING
+                        R.id.menu_sort_name -> CollectionItem.SortType.NAME
+                        R.id.menu_sort_rating -> CollectionItem.SortType.RATING
                         else -> return false
                     }
                 )
@@ -82,7 +83,7 @@ class PersonCollectionFragment : Fragment() {
             binding.swipeRefresh.isRefreshing = false
         }
         viewModel.collectionSort.observe(viewLifecycleOwner) {
-            sortType = it ?: CollectionSort.RATING
+            sortType = it ?: CollectionItem.SortType.RATING
             activity?.invalidateOptionsMenu()
         }
     }

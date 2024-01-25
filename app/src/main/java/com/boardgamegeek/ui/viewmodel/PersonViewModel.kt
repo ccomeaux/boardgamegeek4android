@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.mappers.mapToPerson
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.provider.BggContract
@@ -22,20 +23,16 @@ class PersonViewModel @Inject constructor(
     private val designerRepository: DesignerRepository,
     private val publisherRepository: PublisherRepository,
 ) : AndroidViewModel(application) {
-    data class PersonInfo(
+    private data class PersonInfo(
         val type: PersonType,
         val id: Int,
-        val sort: CollectionSort = CollectionSort.RATING
+        val sort: CollectionItem.SortType = CollectionItem.SortType.RATING
     )
 
     enum class PersonType {
         ARTIST,
         DESIGNER,
         PUBLISHER
-    }
-
-    enum class CollectionSort {
-        NAME, RATING
     }
 
     private val _personInfo = MutableLiveData<PersonInfo>()
@@ -52,7 +49,7 @@ class PersonViewModel @Inject constructor(
         if (_personInfo.value?.type != PersonType.PUBLISHER || _personInfo.value?.id != publisherId) _personInfo.value = PersonInfo(PersonType.PUBLISHER, publisherId)
     }
 
-    fun sort(sortType: CollectionSort) {
+    fun sort(sortType: CollectionItem.SortType) {
         if (_personInfo.value?.sort != sortType) {
             _personInfo.value = PersonInfo(
                 _personInfo.value?.type ?: PersonType.DESIGNER,
@@ -121,16 +118,16 @@ class PersonViewModel @Inject constructor(
 
     val id: LiveData<Int> = _personInfo.map { it.id }
 
-    val collectionSort: LiveData<CollectionSort> = _personInfo.map { it.sort }
+    val collectionSort: LiveData<CollectionItem.SortType> = _personInfo.map { it.sort }
 
     val collection = _personInfo.switchMap { person ->
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+        liveData {
             emitSource(
                 when (person.type) {
-                    PersonType.ARTIST -> artistRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) ArtistRepository.CollectionSortType.RATING else ArtistRepository.CollectionSortType.NAME)
-                    PersonType.DESIGNER -> designerRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) DesignerRepository.CollectionSortType.RATING else DesignerRepository.CollectionSortType.NAME)
-                    PersonType.PUBLISHER -> publisherRepository.loadCollection(person.id, if (person.sort == CollectionSort.RATING) PublisherRepository.CollectionSortType.RATING else PublisherRepository.CollectionSortType.NAME)
-                }
+                    PersonType.ARTIST -> artistRepository.loadCollectionFlow(person.id, person.sort)
+                    PersonType.DESIGNER -> designerRepository.loadCollectionFlow(person.id, person.sort)
+                    PersonType.PUBLISHER -> publisherRepository.loadCollectionFlow(person.id, person.sort)
+                }.asLiveData()
             )
         }
     }

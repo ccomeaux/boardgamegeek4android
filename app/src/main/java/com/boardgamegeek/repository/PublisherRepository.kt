@@ -1,9 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
@@ -15,6 +13,7 @@ import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.mapForUpsert
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionItem.Companion.applySort
 import com.boardgamegeek.model.Company.Companion.applySort
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
@@ -34,10 +33,6 @@ class PublisherRepository(
     private val collectionDao: CollectionDao,
     private val imageRepository: ImageRepository,
 ) {
-    enum class CollectionSortType {
-        NAME, RATING
-    }
-
     fun loadPublishersFlow(sortBy: Company.SortType): Flow<List<Company>> {
         return publisherDao.loadPublishersFlow()
             .map { it.map { entity -> entity.mapToModel() } }
@@ -49,22 +44,17 @@ class PublisherRepository(
 
     fun loadPublisherFlow(publisherId: Int) = publisherDao.loadPublisherFlow(publisherId).map { it?.mapToModel() }.flowOn(Dispatchers.Default)
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionSortType): LiveData<List<CollectionItem>> = withContext(Dispatchers.Default) {
-        if (id == BggContract.INVALID_ID) MutableLiveData(emptyList())
-        else collectionDao.loadForPublisherAsLiveData(id).map {
-            it.map { entity -> entity.mapToModel() }
-        }.map { list ->
-            list.filter { it.deleteTimestamp == 0L }
-                .filter { it.filterBySyncedStatues(context) }
-                .sortedWith(
-                    if (sortBy == CollectionSortType.RATING)
-                        compareByDescending<CollectionItem> { it.rating }
-                            .thenByDescending { it.isFavorite }
-                            .thenBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
-                    else
-                        compareBy(String.CASE_INSENSITIVE_ORDER) { it.sortName }
-                )
-        }
+    fun loadCollectionFlow(id: Int, sortBy: CollectionItem.SortType): Flow<List<CollectionItem>> {
+        return collectionDao.loadForPublisherFlow(id)
+            .map { it.map { entity -> entity.mapToModel() } }
+            .flowOn(Dispatchers.Default)
+            .map { list ->
+                list.filter { it.deleteTimestamp == 0L }
+                    .filter { it.filterBySyncedStatues(context) }
+                    .applySort(sortBy)
+            }
+            .flowOn(Dispatchers.Default)
+            .conflate()
     }
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { publisherDao.deleteAll() }

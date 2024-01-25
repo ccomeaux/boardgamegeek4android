@@ -33,7 +33,7 @@ interface CollectionDao {
 
     @Transaction
     @Query("SELECT collection.* FROM games_artists INNER JOIN collection ON games_artists.game_id = collection.game_id WHERE artist_id = :artistId")
-    fun loadForArtistAsLiveData(artistId: Int): LiveData<List<CollectionItemWithGameEntity>>
+    fun loadForArtistAsLiveData(artistId: Int): Flow<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT collection.* FROM games_designers INNER JOIN collection ON games_designers.game_id = collection.game_id WHERE designer_id = :designerId")
@@ -41,7 +41,7 @@ interface CollectionDao {
 
     @Transaction
     @Query("SELECT collection.* FROM games_designers INNER JOIN collection ON games_designers.game_id = collection.game_id WHERE designer_id = :designerId")
-    fun loadForDesignerAsLiveData(designerId: Int): LiveData<List<CollectionItemWithGameEntity>>
+    fun loadForDesignerAsLiveData(designerId: Int): Flow<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT collection.* FROM games_publishers INNER JOIN collection ON games_publishers.game_id = collection.game_id WHERE publisher_id = :publisherId")
@@ -49,7 +49,7 @@ interface CollectionDao {
 
     @Transaction
     @Query("SELECT collection.* FROM games_publishers INNER JOIN collection ON games_publishers.game_id = collection.game_id WHERE publisher_id = :publisherId")
-    fun loadForPublisherAsLiveData(publisherId: Int): LiveData<List<CollectionItemWithGameEntity>>
+    fun loadForPublisherFlow(publisherId: Int): Flow<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT collection.* FROM games_categories INNER JOIN collection ON games_categories.game_id = collection.game_id WHERE category_id = :categoryId")
