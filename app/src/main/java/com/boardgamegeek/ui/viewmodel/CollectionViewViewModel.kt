@@ -78,11 +78,7 @@ class CollectionViewViewModel @Inject constructor(
     val isFiltering: LiveData<Boolean>
         get() = _isFiltering
 
-    private var wasRefreshing = false
     val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(workName).map { list ->
-        if (wasRefreshing && list.all { it.state.isFinished }) {
-            wasRefreshing = false
-        }
         list.any { workInfo -> !workInfo.state.isFinished }
     }
 
@@ -301,12 +297,10 @@ class CollectionViewViewModel @Inject constructor(
         }
     }
 
-    fun refresh(): Boolean {
-        return if (!wasRefreshing) {
-            wasRefreshing = true
+    fun refresh() {
+        if (isRefreshing.value == false) {
             gameCollectionRepository.enqueueRefreshRequest(workName)
-            true
-        } else false
+        }
     }
 
     fun insert(name: String, isDefault: Boolean) {
