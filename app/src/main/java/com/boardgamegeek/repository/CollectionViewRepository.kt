@@ -71,6 +71,13 @@ class CollectionViewRepository(
         return collectionViewDao.delete(viewId) > 0
     }
 
+    suspend fun createViewShortcut(context: Context, viewId: Int, viewName: String) = withContext(Dispatchers.Default) {
+        if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
+            val info = CollectionActivity.createShortcutInfo(context, viewId, viewName)
+            ShortcutManagerCompat.requestPinShortcut(context, info, null)
+        }
+    }
+
     suspend fun updateShortcuts(viewId: Int) = withContext(Dispatchers.Default) {
         if (viewId > 0) {
             withContext(Dispatchers.IO) {

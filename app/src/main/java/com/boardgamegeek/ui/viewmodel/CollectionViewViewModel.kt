@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import android.content.SharedPreferences
-import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
 import androidx.lifecycle.*
 import androidx.work.WorkManager
@@ -22,7 +21,6 @@ import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.sorter.CollectionSorterFactory
-import com.boardgamegeek.ui.CollectionActivity
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -389,13 +387,9 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     fun createShortcut() {
-        viewModelScope.launch(Dispatchers.Default) {
-            val context = getApplication<BggApplication>().applicationContext
-            if (ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-                val viewId = _selectedViewId.value ?: BggContract.INVALID_ID
-                val viewName = selectedViewName.value.orEmpty()
-                val info = CollectionActivity.createShortcutInfo(context, viewId, viewName)
-                ShortcutManagerCompat.requestPinShortcut(context, info, null)
+        _selectedViewId.value?.let { viewId ->
+            viewModelScope.launch {
+                viewRepository.createViewShortcut(getApplication<BggApplication>().applicationContext, viewId, selectedViewName.value.orEmpty())
             }
         }
     }
