@@ -16,6 +16,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.ThrottledLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameCollectionRepository
@@ -26,10 +27,10 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class CollectionViewViewModel @Inject constructor(
@@ -47,7 +48,6 @@ class CollectionViewViewModel @Inject constructor(
     private val collectionFiltererFactory: CollectionFiltererFactory by lazy { CollectionFiltererFactory(application) }
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
 
-    private val syncTimestamp = MutableLiveData<Long>()
     private val _sortType = MutableLiveData<Int>()
     private val _addedFilters = MutableLiveData<List<CollectionFilterer>>()
     private val _removedFilterTypes = MutableLiveData<List<Int>>()
@@ -62,17 +62,7 @@ class CollectionViewViewModel @Inject constructor(
 
     private val _items = MediatorLiveData<List<CollectionItem>>()
     val items: LiveData<List<CollectionItem>>
-        get() = _items
-
-    private val _allItems: LiveData<List<CollectionItem>> = syncTimestamp.switchMap {
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            try {
-                emitSource(gameCollectionRepository.loadAllAsLiveData())
-            } catch (e: Exception) {
-                _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
-            }
-        }
-    }
+        get() = ThrottledLiveData(_items, 500)
 
     private val _errorMessage = MediatorLiveData<Event<String>>()
     val errorMessage: LiveData<Event<String>>
@@ -94,26 +84,37 @@ class CollectionViewViewModel @Inject constructor(
     val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(workName).map { list ->
         if (wasRefreshing && list.all { it.state.isFinished }) {
             wasRefreshing = false
-            syncTimestamp.postValue(System.currentTimeMillis())
         }
         list.any { workInfo -> !workInfo.state.isFinished }
     }
+
+    private val _allItems: LiveData<List<CollectionItem>> =
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            try {
+                emitSource(gameCollectionRepository.loadAllAsFlow().distinctUntilChanged().asLiveData())
+            } catch (e: Exception) {
+                _errorMessage.postValue(Event(e.localizedMessage.ifEmpty { "Error loading collection" }))
+            }
+        }
 
     private val _selectedViewId = MutableLiveData<Int>()
     val selectedViewId: LiveData<Int>
         get() = _selectedViewId
 
     val views: LiveData<List<CollectionView>> =
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            emitSource(viewRepository.loadViewsWithoutFiltersAsLiveData())
+        liveData {
+            emitSource(viewRepository.loadViewsWithoutFiltersFlow().distinctUntilChanged().asLiveData())
         }
 
     private val selectedView: LiveData<CollectionView> = _selectedViewId.switchMap {
-        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
-            _sortType.postValue( CollectionSorterFactory.TYPE_UNKNOWN)
-            _addedFilters.postValue( emptyList())
-            _removedFilterTypes.postValue( emptyList())
-            emitSource(viewRepository.loadViewAsLiveData(it))
+        liveData {
+            _sortType.postValue(CollectionSorterFactory.TYPE_UNKNOWN)
+            _addedFilters.postValue(emptyList())
+            _removedFilterTypes.postValue(emptyList())
+            if (it == CollectionViewPrefs.DEFAULT_DEFAULT_ID)
+                emit(viewRepository.defaultView)
+            else
+                emitSource(viewRepository.loadViewFlow(it).distinctUntilChanged().asLiveData())
         }
     }
 
@@ -163,7 +164,7 @@ class CollectionViewViewModel @Inject constructor(
             filterAndSortItems(sortType = it)
         }
         _items.addSource(_allItems) {
-            filterAndSortItems(itemList = it.orEmpty())
+            it?.let { filterAndSortItems(itemList = it) }
         }
     }
 
@@ -248,26 +249,15 @@ class CollectionViewViewModel @Inject constructor(
         removedFilterTypes: List<Int>
     ) {
         viewModelScope.launch(Dispatchers.Default) {
-            // inflate filters
-            val loadedFilters = mutableListOf<CollectionFilterer>()
-            for ((_, type, data) in loadedView?.filters.orEmpty()) {
-                val filter = collectionFiltererFactory.create(type)
-                filter?.inflate(data)
-                if (filter?.isValid == true) {
-                    loadedFilters.add(filter)
+            val loadedFilters = loadedView?.filters?.mapNotNull {
+                collectionFiltererFactory.create(it.type, it.data)?.let { filter ->
+                    if (filter.isValid) filter else null
                 }
-            }
+            }.orEmpty()
 
-            val addedTypes = addedFilters.map { af -> af.type }
-            val filters: MutableList<CollectionFilterer> = mutableListOf()
-            loadedFilters.forEach { lf ->
-                if (!addedTypes.contains(lf.type) && !removedFilterTypes.contains(lf.type))
-                    filters += lf
-            }
-            addedFilters.forEach { af ->
-                if (!removedFilterTypes.contains(af.type))
-                    filters += af
-            }
+            val addedTypes = addedFilters.map { it.type }
+            val filters = loadedFilters.filter { !addedTypes.contains(it.type) && !removedFilterTypes.contains(it.type) } +
+                    addedFilters.filter { !removedFilterTypes.contains(it.type) }
             _effectiveFilters.postValue(filters)
         }
     }
@@ -314,10 +304,9 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     fun refresh(): Boolean {
-        return if ((syncTimestamp.value ?: 0).isOlderThan(1.minutes)) {
+        return if (!wasRefreshing) {
             wasRefreshing = true
             gameCollectionRepository.enqueueRefreshRequest(workName)
-            syncTimestamp.postValue(System.currentTimeMillis())
             true
         } else false
     }
@@ -339,16 +328,20 @@ class CollectionViewViewModel @Inject constructor(
 
     fun update(name: String, isDefault: Boolean) {
         viewModelScope.launch {
-            val view = CollectionView(
-                id = _selectedViewId.value ?: BggContract.INVALID_ID,
-                name = selectedViewName.value.orEmpty(),
-                sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                filters = effectiveFilters.value?.map { CollectionViewFilter(BggContract.INVALID_ID, it.type, it.deflate()) },
-                starred = isDefault,
-            )
-            viewRepository.updateView(view)
-            logAction("Update", name)
-            postToastMessage(R.string.msg_collection_view_updated, name)
+            _selectedViewId.value?.let { viewId ->
+                if (viewId != BggContract.INVALID_ID) {
+                    val view = CollectionView(
+                        id = viewId,
+                        name = name,
+                        sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
+                        filters = effectiveFilters.value?.map { CollectionViewFilter(BggContract.INVALID_ID, it.type, it.deflate()) },
+                        starred = isDefault,
+                    )
+                    viewRepository.updateView(view)
+                    logAction("Update", name)
+                    postToastMessage(R.string.msg_collection_view_updated, name)
+                }
+            }
         }
     }
 
@@ -387,8 +380,8 @@ class CollectionViewViewModel @Inject constructor(
         }
     }
 
-    private fun postError(exception: Throwable?) {
-        _errorMessage.value = Event(exception?.message.orEmpty())
+    private fun postError(t: Throwable?) {
+        _errorMessage.postValue(Event(t?.localizedMessage?.ifEmpty { "Unknown error" } ?: "Unknown error"))
     }
 
     private fun postToastMessage(resId: Int, name: String) {

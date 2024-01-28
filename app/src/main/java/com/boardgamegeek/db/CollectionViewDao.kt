@@ -1,10 +1,10 @@
 package com.boardgamegeek.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.CollectionViewEntity
 import com.boardgamegeek.db.model.CollectionViewFilterEntity
 import com.boardgamegeek.db.model.CollectionViewWithFilters
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CollectionViewDao {
@@ -12,7 +12,7 @@ interface CollectionViewDao {
     suspend fun loadViewsWithoutFilters(): List<CollectionViewEntity>
 
     @Query("SELECT * FROM collection_filters ORDER BY selected_count DESC, selected_timestamp DESC")
-    fun loadViewsWithoutFiltersAsLiveData(): LiveData<List<CollectionViewEntity>>
+    fun loadViewsWithoutFiltersFlow(): Flow<List<CollectionViewEntity>>
 
     @Query("SELECT * FROM collection_filters LEFT OUTER JOIN collection_filters_details ON collection_filters._id = collection_filters_details.filter_id  ORDER BY selected_count DESC, selected_timestamp DESC")
     suspend fun loadViews(): Map<CollectionViewEntity, List<CollectionViewFilterEntity>>
@@ -22,7 +22,7 @@ interface CollectionViewDao {
 
     @Transaction
     @Query("SELECT * FROM collection_filters WHERE _id = :id")
-    fun loadViewAsLiveData(id: Int): LiveData<CollectionViewWithFilters>
+    fun loadViewFlow(id: Int): Flow<CollectionViewWithFilters>
 
     @Transaction
     suspend fun insert(view: CollectionViewEntity, filters: List<CollectionViewFilterEntity>): Long {

@@ -35,6 +35,8 @@ class CollectionFiltererFactory(context: Context) {
 
     fun create(type: Int): CollectionFilterer? = filterers.find { it.type == type }
 
+    fun create(type: Int, data: String): CollectionFilterer? = filterers.find { it.type == type }?.also { it.inflate(data) }
+
     companion object {
         const val TYPE_UNKNOWN = -1
         const val TYPE_STATUS = 1

@@ -2,8 +2,6 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.map
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -27,6 +25,9 @@ import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.work.CollectionUploadWorker
 import com.boardgamegeek.work.SyncCollectionWorker
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
 import timber.log.Timber
@@ -47,13 +48,11 @@ class GameCollectionRepository(
         SyncCollectionWorker.requestSync(context)
     }
 
-    suspend fun loadAll(): List<CollectionItem> = collectionDao.loadAll()
-        .map { it.mapToModel() }
-        .filter { it.deleteTimestamp == 0L }
-
-    fun loadAllAsLiveData(): LiveData<List<CollectionItem>> = collectionDao.loadAllAsLiveData().map { list ->
-        list.map { it.mapToModel() }
-    }.map { it.filter { item -> item.deleteTimestamp == 0L } }
+    fun loadAllAsFlow(): Flow<List<CollectionItem>> = collectionDao.loadAllAsFlow()
+        .map { list -> list.map { it.mapToModel() } }
+        .flowOn(Dispatchers.Default)
+        .map { it.filter { item -> item.deleteTimestamp == 0L } }
+        .flowOn(Dispatchers.Default)
 
     suspend fun loadCollectionItem(internalId: Long): CollectionItem? {
         return if (internalId == INVALID_ID.toLong())

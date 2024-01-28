@@ -1,6 +1,5 @@
 package com.boardgamegeek.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.*
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +12,7 @@ interface CollectionDao {
 
     @Transaction
     @Query("SELECT * FROM collection ORDER BY collection_sort_name COLLATE NOCASE")
-    fun loadAllAsLiveData(): LiveData<List<CollectionItemWithGameEntity>>
+    fun loadAllAsFlow(): Flow<List<CollectionItemWithGameEntity>>
 
     @Transaction
     @Query("SELECT * FROM collection WHERE _id = :internalId")
