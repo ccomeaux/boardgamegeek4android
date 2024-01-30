@@ -9,7 +9,6 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionView
-import com.boardgamegeek.model.CollectionViewFilter
 import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
@@ -43,7 +42,6 @@ class CollectionViewViewModel @Inject constructor(
     val defaultViewId
         get() = prefs[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID, CollectionViewPrefs.DEFAULT_DEFAULT_ID] ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID
 
-    private val collectionFiltererFactory: CollectionFiltererFactory by lazy { CollectionFiltererFactory(application) }
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
 
     private val _sortType = MutableLiveData<Int>()
@@ -243,14 +241,8 @@ class CollectionViewViewModel @Inject constructor(
         removedFilterTypes: List<Int>
     ) {
         viewModelScope.launch(Dispatchers.Default) {
-            val loadedFilters = loadedView?.filters?.mapNotNull {
-                collectionFiltererFactory.create(it.type, it.data)?.let { filter ->
-                    if (filter.isValid) filter else null
-                }
-            }.orEmpty()
-
             val addedTypes = addedFilters.map { it.type }
-            val filters = loadedFilters.filter { !addedTypes.contains(it.type) && !removedFilterTypes.contains(it.type) } +
+            val filters = loadedView?.filters.orEmpty().filter { !addedTypes.contains(it.type) && !removedFilterTypes.contains(it.type) } +
                     addedFilters.filter { !removedFilterTypes.contains(it.type) }
             _effectiveFilters.postValue(filters)
         }
@@ -308,8 +300,8 @@ class CollectionViewViewModel @Inject constructor(
             val view = CollectionView(
                 name = name,
                 sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                filters = effectiveFilters.value?.map { CollectionViewFilter(BggContract.INVALID_ID, it.type, it.deflate()) },
                 starred = isDefault,
+                filters = effectiveFilters.value,
             )
             val viewId = viewRepository.insertView(view)
             logAction("Insert", name)
@@ -326,8 +318,8 @@ class CollectionViewViewModel @Inject constructor(
                         id = viewId,
                         name = name,
                         sortType = effectiveSortType.value ?: CollectionSorterFactory.TYPE_DEFAULT,
-                        filters = effectiveFilters.value?.map { CollectionViewFilter(BggContract.INVALID_ID, it.type, it.deflate()) },
                         starred = isDefault,
+                        filters = effectiveFilters.value,
                     )
                     viewRepository.updateView(view)
                     logAction("Update", name)

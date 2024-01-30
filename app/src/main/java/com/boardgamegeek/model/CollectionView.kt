@@ -1,5 +1,6 @@
 package com.boardgamegeek.model
 
+import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorterFactory
 
@@ -10,7 +11,7 @@ data class CollectionView(
     val count: Int = 0,
     val timestamp: Long = 0L,
     val starred: Boolean = false,
-    val filters: List<CollectionViewFilter>? = null,
+    val filters: List<CollectionFilterer>? = null,
 ) {
     override fun toString(): String = name
 }

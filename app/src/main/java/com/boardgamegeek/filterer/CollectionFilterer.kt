@@ -3,6 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.content.res.ResourcesCompat
 import com.boardgamegeek.model.CollectionItem
 
 abstract class CollectionFilterer(protected val context: Context) {
@@ -11,8 +12,8 @@ abstract class CollectionFilterer(protected val context: Context) {
     abstract val typeResourceId: Int
 
     val type: Int
-        get() = context.getString(typeResourceId, CollectionFiltererFactory.TYPE_UNKNOWN).toIntOrNull()
-                ?: CollectionFiltererFactory.TYPE_UNKNOWN
+        get() = context.getString(typeResourceId, CollectionFiltererFactory.TYPE_UNKNOWN)
+            .toIntOrNull() ?: CollectionFiltererFactory.TYPE_UNKNOWN
 
     @get:DrawableRes
     open val iconResourceId: Int
@@ -42,6 +43,6 @@ abstract class CollectionFilterer(protected val context: Context) {
 
     companion object {
         const val DELIMITER = ":"
-        const val INVALID_ICON = -1
+        const val INVALID_ICON = ResourcesCompat.ID_NULL
     }
 }
