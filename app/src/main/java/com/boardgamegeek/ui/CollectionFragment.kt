@@ -62,7 +62,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     private val viewModel by activityViewModels<CollectionViewViewModel>()
     private val adapter by lazy { CollectionAdapter() }
     private val prefs: SharedPreferences by lazy { requireContext().preferences() }
-    private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(requireContext()) }
     private val numberFormat = NumberFormat.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,8 +129,8 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         viewModel.views.observe(viewLifecycleOwner) {
             binding.footerToolbar.menu.findItem(R.id.menu_collection_view_delete)?.isEnabled = it?.isNotEmpty() == true
         }
-        viewModel.effectiveSortType.observe(viewLifecycleOwner) { sortType: Int ->
-            sorter = collectionSorterFactory.create(sortType)
+        viewModel.effectiveSort.observe(viewLifecycleOwner) {
+            sorter = it
             bindSortAndFilterButtons()
         }
         viewModel.effectiveFilters.observe(viewLifecycleOwner) { filterList ->
@@ -299,9 +298,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                     )
                     chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
                     setOnClickListener { _ ->
-                        collectionSorterFactory.reverse(it.first.getType(it.second))?.let { reversedSortType ->
-                            viewModel.setSort(reversedSortType)
-                        }
+                        viewModel.reverseSort()
                     }
                 } else binding.chipGroup.removeView(this)
             }
