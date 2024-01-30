@@ -24,7 +24,7 @@ class CategoriesViewModel @Inject constructor(
     val categories = sort.switchMap {
         liveData {
             sort.value?.let {
-                emitSource(repository.loadCategoriesAsLiveData(it).distinctUntilChanged().asLiveData())
+                emitSource(repository.loadCategoriesFlow(it).distinctUntilChanged().asLiveData())
             }
         }
     }

@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CategoryDao {
     @Query("SELECT categories.*, COUNT(game_id) AS itemCount FROM categories LEFT OUTER JOIN games_categories ON categories.category_id = games_categories.category_id GROUP BY games_categories.category_id")
-    fun loadCategoriesAsLiveData(): Flow<List<CategoryWithItemCount>>
+    fun loadCategoriesFlow(): Flow<List<CategoryWithItemCount>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(categoryEntity: CategoryEntity)

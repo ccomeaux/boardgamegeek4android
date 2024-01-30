@@ -21,8 +21,8 @@ class CategoryRepository(
     private val categoryDao: CategoryDao,
     private val collectionDao: CollectionDao,
 ) {
-    fun loadCategoriesAsLiveData(sortBy: Category.SortType): Flow<List<Category>> {
-        return categoryDao.loadCategoriesAsLiveData()
+    fun loadCategoriesFlow(sortBy: Category.SortType): Flow<List<Category>> {
+        return categoryDao.loadCategoriesFlow()
             .map { it.map { entity -> entity.mapToModel() } }
             .flowOn(Dispatchers.Default)
             .map { it.applySort(sortBy) }
