@@ -2,9 +2,6 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.map
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.ImageDao
@@ -15,6 +12,7 @@ import com.boardgamegeek.db.model.UserForUpsert
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.*
 import com.boardgamegeek.mappers.*
+import com.boardgamegeek.model.User.Companion.applySort
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
 import com.boardgamegeek.pref.setBuddiesTimestamp
@@ -23,6 +21,7 @@ import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.work.SyncUsersWorker
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -35,10 +34,6 @@ class UserRepository(
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
-    enum class UsersSortBy {
-        FIRST_NAME, LAST_NAME, USERNAME
-    }
-
     suspend fun loadAllUsers(): List<User> = withContext(Dispatchers.IO) {
         userDao.loadUsers().map { it.mapToModel() }
     }
@@ -48,39 +43,31 @@ class UserRepository(
         else userDao.loadUser(username)?.mapToModel()
     }
 
-    fun loadUserAsLiveData(username: String): LiveData<User?> {
-        return if (username.isBlank()) MutableLiveData(null)
-        else userDao.loadUserAsLiveData(username).map { it.mapToModel() }
+    fun loadUserFlow(username: String): Flow<User?> {
+        return userDao.loadUserFlow(username).map { it?.mapToModel() }
     }
 
-    suspend fun loadBuddies(sortBy: UsersSortBy = UsersSortBy.USERNAME): List<User> = withContext(Dispatchers.Default) {
+    suspend fun loadBuddies(sortBy: User.SortType = User.SortType.USERNAME): List<User> = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { userDao.loadUsers() }
             .map { it.mapToModel() }
-            .filterAndSortBuddies(sortBy)
+            .filterBuddies()
+            .applySort(sortBy)
     }
 
-    suspend fun loadBuddiesAsLiveData(sortBy: UsersSortBy = UsersSortBy.USERNAME): LiveData<List<User>> = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { userDao.loadUsersAsLiveData() }.map {
-            it.map { entity -> entity.mapToModel() }
-        }.map { list ->
-            list.filterAndSortBuddies(sortBy)
-        }
+    fun loadBuddiesFlow(sortBy: User.SortType = User.SortType.USERNAME): Flow<List<User>> {
+        return userDao.loadUsersFlow()
+            .map { it.map { entity -> entity.mapToModel() } }
+            .flowOn(Dispatchers.Default)
+            .map { list -> list.filterBuddies() }
+            .flowOn(Dispatchers.Default)
+            .map { it.applySort(sortBy) }
+            .flowOn(Dispatchers.Default)
+            .conflate()
     }
 
-    private fun List<User>.filterAndSortBuddies(sortBy: UsersSortBy): List<User> {
+    private fun List<User>.filterBuddies(): List<User> {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         return this.filter { it.isBuddy && it.username != username }
-            .sortedWith(
-                compareBy(
-                    String.CASE_INSENSITIVE_ORDER
-                ) {
-                    when (sortBy) {
-                        UsersSortBy.FIRST_NAME -> it.firstName
-                        UsersSortBy.LAST_NAME -> it.lastName
-                        UsersSortBy.USERNAME -> it.username
-                    }
-                }
-            )
     }
 
     suspend fun refresh(username: String): String? = withContext(Dispatchers.IO) {

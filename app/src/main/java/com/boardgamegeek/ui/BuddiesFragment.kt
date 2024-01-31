@@ -53,7 +53,9 @@ class BuddiesFragment : Fragment() {
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
-            it?.let { showError(it) }
+            it?.let { it.getContentIfNotHandled()?.let { message ->
+                showError(message)
+            } }
         }
 
         viewModel.buddies.observe(viewLifecycleOwner) {

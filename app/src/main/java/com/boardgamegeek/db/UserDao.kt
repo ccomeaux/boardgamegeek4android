@@ -1,10 +1,10 @@
 package com.boardgamegeek.db
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.boardgamegeek.db.model.UserAsBuddyForUpsert
 import com.boardgamegeek.db.model.UserEntity
 import com.boardgamegeek.db.model.UserForUpsert
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface UserDao {
@@ -12,13 +12,13 @@ interface UserDao {
     suspend fun loadUser(username: String): UserEntity?
 
     @Query("SELECT * FROM users WHERE username=:username")
-    fun loadUserAsLiveData(username: String): LiveData<UserEntity>
+    fun loadUserFlow(username: String): Flow<UserEntity?>
 
     @Query("SELECT * FROM users")
     suspend fun loadUsers(): List<UserEntity>
 
     @Query("SELECT * FROM users")
-    fun loadUsersAsLiveData(): LiveData<List<UserEntity>>
+    fun loadUsersFlow(): Flow<List<UserEntity>>
 
     @Insert(entity = UserEntity::class)
     suspend fun insert(user: UserForUpsert)

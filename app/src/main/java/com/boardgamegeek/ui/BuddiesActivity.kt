@@ -3,18 +3,19 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
+import com.boardgamegeek.model.User
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
-import com.boardgamegeek.ui.viewmodel.BuddiesViewModel.SortType
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class BuddiesActivity : TopLevelSinglePaneActivity() {
     private var numberOfBuddies = -1
-    private var sortBy = SortType.USERNAME
+    private var sortBy: User.SortType? = null
 
     private val viewModel by viewModels<BuddiesViewModel>()
 
@@ -44,9 +45,10 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
         super.onPrepareOptionsMenu(menu)
         menu.findItem(
             when (sortBy) {
-                SortType.USERNAME -> R.id.menu_sort_username
-                SortType.FIRST_NAME -> R.id.menu_sort_first_name
-                SortType.LAST_NAME -> R.id.menu_sort_last_name
+                User.SortType.USERNAME -> R.id.menu_sort_username
+                User.SortType.FIRST_NAME -> R.id.menu_sort_first_name
+                User.SortType.LAST_NAME -> R.id.menu_sort_last_name
+                else -> View.NO_ID
             }
         )?.isChecked = true
         menu.setActionBarCount(R.id.menu_list_count, numberOfBuddies, title.toString())
@@ -55,9 +57,9 @@ class BuddiesActivity : TopLevelSinglePaneActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sort_username -> viewModel.sort(SortType.USERNAME)
-            R.id.menu_sort_first_name -> viewModel.sort(SortType.FIRST_NAME)
-            R.id.menu_sort_last_name -> viewModel.sort(SortType.LAST_NAME)
+            R.id.menu_sort_username -> viewModel.sort(User.SortType.USERNAME)
+            R.id.menu_sort_first_name -> viewModel.sort(User.SortType.FIRST_NAME)
+            R.id.menu_sort_last_name -> viewModel.sort(User.SortType.LAST_NAME)
             else -> return super.onOptionsItemSelected(item)
         }
         return true

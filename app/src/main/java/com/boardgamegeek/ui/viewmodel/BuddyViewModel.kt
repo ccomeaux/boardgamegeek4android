@@ -4,16 +4,16 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.model.Player
-import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.model.Player
+import com.boardgamegeek.model.User
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -85,10 +85,10 @@ class BuddyViewModel @Inject constructor(
     }
 
     val buddy: LiveData<User?> = user.switchMap { (username, type) ->
-        liveData(context = viewModelScope.coroutineContext + Dispatchers.IO) {
+        liveData {
             try {
                 if (type == PlayRepository.PlayerType.USER && !username.isNullOrBlank()) {
-                    emitSource(userRepository.loadUserAsLiveData(username).also {
+                    emitSource(userRepository.loadUserFlow(username).distinctUntilChanged().asLiveData().also {
                         if (it.value?.updatedTimestamp.isOlderThan(1.days)) {
                             refresh()
                         }
