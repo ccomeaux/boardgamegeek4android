@@ -38,11 +38,6 @@ class UserRepository(
         userDao.loadUsers().map { it.mapToModel() }
     }
 
-    suspend fun loadUser(username: String): User? = withContext(Dispatchers.IO) {
-        if (username.isBlank()) null
-        else userDao.loadUser(username)?.mapToModel()
-    }
-
     fun loadUserFlow(username: String): Flow<User?> {
         return userDao.loadUserFlow(username).map { it?.mapToModel() }
     }
@@ -70,13 +65,18 @@ class UserRepository(
         return this.filter { it.isBuddy && it.username != username }
     }
 
-    suspend fun refresh(username: String): String? = withContext(Dispatchers.IO) {
+    suspend fun refresh(username: String, isSelf: Boolean = false): String? = withContext(Dispatchers.IO) {
         if (username.isBlank()) return@withContext null
         val timestamp = System.currentTimeMillis()
         val result = safeApiCall(context) { api.user(username) }
         if (result.isSuccess) {
             result.getOrNull()?.mapForUpsert(timestamp)?.let { user ->
                 upsertUser(user)
+                if (isSelf && username == Authenticator.getAccount(context)?.name) {
+                    userDao.loadUser(username)?.let {
+                        updateSelf(it.mapToModel())
+                    }
+                }
             }
         }
         result.exceptionOrNull()?.localizedMessage

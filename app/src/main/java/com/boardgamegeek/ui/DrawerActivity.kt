@@ -77,7 +77,7 @@ abstract class DrawerActivity : BaseActivity() {
 
         selfUserViewModel.user.observe(this) {
             navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
-            refreshHeader(it?.data)
+            refreshHeader(it)
         }
     }
 

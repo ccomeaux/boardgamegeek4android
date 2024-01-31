@@ -2,14 +2,14 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
 
@@ -20,31 +20,20 @@ class SelfUserViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     val username: LiveSharedPreference<String> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
 
-    val user: LiveData<RefreshableResource<User>> = username.switchMap { username ->
+    val user: LiveData<User?> = username.switchMap { username ->
         liveData {
-            when {
-                !username.isNullOrBlank() -> {
-                    try {
-                        emit(RefreshableResource.refreshing(latestValue?.data))
-                        val localUser = userRepository.loadUser(username)
-                        if (localUser == null || localUser.updatedTimestamp.isOlderThan(1.days)) {
-                            userRepository.refresh(username)
-                            val refreshedUser = userRepository.loadUser(username)
-                            emit(RefreshableResource.success(refreshedUser))
-                            if (username == Authenticator.getAccount(application)?.name) {
-                                userRepository.updateSelf(refreshedUser)
-                            }
-                        } else {
-                            emit(RefreshableResource.success(localUser))
+            if (username != null && username.isNotBlank()) {
+                emitSource(userRepository.loadUserFlow(username).distinctUntilChanged().asLiveData().also {
+                    if (it.value == null || it.value?.updatedTimestamp.isOlderThan(1.days)) {
+                        val errorMessage = userRepository.refresh(username)
+                        if (!errorMessage.isNullOrBlank()) {
+                            Timber.w(errorMessage)
                         }
-                    } catch (e: Exception) {
-                        emit(RefreshableResource.error(e, application))
                     }
-                }
-                else -> {
-                    userRepository.updateSelf(null)
-                    emit(RefreshableResource.success(null))
-                }
+                })
+            } else {
+                emit(null)
+                userRepository.updateSelf(null)
             }
         }
     }
