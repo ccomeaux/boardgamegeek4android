@@ -698,38 +698,30 @@ class PlayRepository(
     }
 
     fun updateGameHIndex(hIndex: HIndex) {
-        updateHIndex(
-            context, hIndex, PlayStatPrefs.KEY_GAME_H_INDEX, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX
-        )
+        updateHIndex(hIndex, HIndexType.Game, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX)
     }
 
     fun updatePlayerHIndex(hIndex: HIndex) {
-        updateHIndex(
-            context, hIndex, PlayStatPrefs.KEY_PLAYER_H_INDEX, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX
-        )
+        updateHIndex(hIndex, HIndexType.Player, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX)
     }
 
-    private fun updateHIndex(
-        context: Context, hIndex: HIndex, key: String, @StringRes typeResId: Int, notificationId: Int
-    ) {
+    private fun updateHIndex(hIndex: HIndex, type: HIndexType, @StringRes typeResId: Int, notificationId: Int) {
         if (hIndex.h != HIndex.INVALID_H_INDEX) {
-            val old = HIndex(prefs[key, 0] ?: 0, prefs[key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
+            val old = prefs.getHIndex(type)
             if (old != hIndex) {
-                prefs[key] = hIndex.h
-                prefs[key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX] = hIndex.n
-                @StringRes val messageId =
-                    if (hIndex.h > old.h || hIndex.h == old.h && hIndex.n < old.n) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
+                prefs.setHIndex(type, hIndex)
+                @StringRes val messageId = if (hIndex > old) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
                 context.notify(
                     context.createNotificationBuilder(
                         R.string.title_play_stats, NotificationChannels.STATS, PlayStatsActivity::class.java
                     ).setContentText(context.getText(messageId, context.getString(typeResId), hIndex.description)).setContentIntent(
-                            PendingIntent.getActivity(
-                                context,
-                                0,
-                                Intent(context, PlayStatsActivity::class.java),
-                                PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0,
-                            )
-                        ), NotificationTags.PLAY_STATS, notificationId
+                        PendingIntent.getActivity(
+                            context,
+                            0,
+                            Intent(context, PlayStatsActivity::class.java),
+                            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0,
+                        )
+                    ), NotificationTags.PLAY_STATS, notificationId
                 )
             }
         }

@@ -1,11 +1,18 @@
 package com.boardgamegeek.model
 
-data class HIndex(val h: Int, val n: Int) {
+data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
     private val rational: Double
         get() = if (h == INVALID_H_INDEX) 0.0 else h + 1 - n.toDouble() / (2 * h + 1)
 
     val description: String
         get() = if (h == INVALID_H_INDEX) "?" else String.format("%.2f", rational)
+
+    override fun compareTo(other: HIndex): Int {
+        if (h == other.h && n == other.n) return 0
+        if (h > other.h) return 1
+        if (n < other.n) return 1
+        return -1
+    }
 
     companion object {
         const val INVALID_H_INDEX = -1

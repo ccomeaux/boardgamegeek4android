@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.PlayStatPrefs.KEY_GAME_H_INDEX
+import com.boardgamegeek.extensions.PlayStatPrefs.KEY_PLAYER_H_INDEX
+import com.boardgamegeek.model.HIndex
 import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.model.Player
 import java.util.*
@@ -206,6 +209,18 @@ object PlayStatPrefs {
     const val KEY_H_INDEX_N_SUFFIX = "_n"
 }
 
+enum class HIndexType(val key: String) {
+    Game(KEY_GAME_H_INDEX),
+    Player(KEY_PLAYER_H_INDEX),
+}
+
+fun SharedPreferences.getHIndex(type: HIndexType) = HIndex(this[type.key, 0] ?: 0, this[type.key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
+
+fun SharedPreferences.setHIndex(type: HIndexType, hIndex: HIndex) {
+    this[type.key] = hIndex.h
+    this[type.key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX] = hIndex.n
+}
+
 // endregion PLAY STATS
 
 // region FORUMS
@@ -243,16 +258,6 @@ fun SharedPreferences.putLastPlayPlayers(players: List<PlayPlayer>?) {
 }
 
 //endregion LAST PLAY
-
-private const val KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp"
-
-fun SharedPreferences.getLastPrivacyCheckTimestamp(): Long {
-    return this[KEY_PRIVACY_CHECK_TIMESTAMP, 0L] ?: 0L
-}
-
-fun SharedPreferences.setLastPrivacyCheckTimestamp() {
-    this[KEY_PRIVACY_CHECK_TIMESTAMP] = System.currentTimeMillis()
-}
 
 private fun SharedPreferences.putStringSet(key: String, value: Set<String>) {
     this.edit {
