@@ -25,7 +25,7 @@ class SelfUserViewModel @Inject constructor(
             if (username != null && username.isNotBlank()) {
                 emitSource(userRepository.loadUserFlow(username).distinctUntilChanged().asLiveData().also {
                     if (it.value == null || it.value?.updatedTimestamp.isOlderThan(1.days)) {
-                        val errorMessage = userRepository.refresh(username)
+                        val errorMessage = userRepository.refresh(username, true)
                         if (!errorMessage.isNullOrBlank()) {
                             Timber.w(errorMessage)
                         }
