@@ -76,7 +76,7 @@ class PlayUploadWorker @AssistedInject constructor(
             Timber.i("Updated game [$gameId]'s game count")
         }
         if (gameIds.isNotEmpty()) {
-            playRepository.calculatePlayStats()
+            playRepository.calculateStats()
             Timber.i("Recalculated game stats")
         }
 

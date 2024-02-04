@@ -25,7 +25,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding
-import com.boardgamegeek.model.HIndex
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
@@ -393,11 +392,10 @@ class GamePlayStatsFragment : Fragment() {
                 R.string.play_stat_utilization
             ).setInfoText(R.string.play_stat_utilization_info)
         }
-        val hIndexOffset = stats.hIndexOffset
-        if (hIndexOffset == HIndex.INVALID_H_INDEX) {
-            addPlayStat(binding.advanced.advancedTable, "", R.string.play_stat_game_h_index_offset_in)
+        if (stats.playCountShortOfHIndex > 0) {
+            addPlayStat(binding.advanced.advancedTable, stats.playCountShortOfHIndex.toString(), R.string.play_stat_game_h_index_offset_out)
         } else {
-            addPlayStat(binding.advanced.advancedTable, hIndexOffset.toString(), R.string.play_stat_game_h_index_offset_out)
+            addPlayStat(binding.advanced.advancedTable, "", R.string.play_stat_game_h_index_offset_in)
         }
 
         // endregion ADVANCED
@@ -640,15 +638,10 @@ class GamePlayStatsFragment : Fragment() {
             return if (raw < 1.0) 0.0 else ln(raw)
         }
 
-        val hIndexOffset: Int
-            get() {
-                val hIndex = prefs[PlayStatPrefs.KEY_GAME_H_INDEX, 0] ?: 0
-                return if (playCount >= hIndex) {
-                    HIndex.INVALID_H_INDEX
-                } else {
-                    hIndex - playCount
-                }
-            }
+        val playCountShortOfHIndex: Int by lazy {
+            val hIndex = prefs[PlayStatPrefs.KEY_GAME_H_INDEX, 0] ?: 0
+            (hIndex - playCount).coerceAtLeast(0)
+        }
 
 //        fun getMonthsPerPlay(): Int {
 //            val days = calculateSpan()

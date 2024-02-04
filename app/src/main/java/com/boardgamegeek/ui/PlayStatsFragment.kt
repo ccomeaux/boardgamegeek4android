@@ -215,7 +215,7 @@ class PlayStatsFragment : Fragment() {
 
     private fun bindPlayerUi(stats: PlayerStats) {
         binding.playerHIndexView.text = stats.hIndex.description
-        bindHIndexTable(binding.playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
+        bindHIndexTable(binding.playerHIndexTable, stats.hIndex, stats.hIndexPlayers)
         binding.playerHIndexTable.setOnClickListener {
             PlayersActivity.startByPlayCount(requireContext())
         }

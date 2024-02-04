@@ -62,7 +62,7 @@ class SyncPlaysWorker @AssistedInject constructor(
                 syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] = 0L
             } else Timber.i("Already downloaded all past plays")
 
-            playRepository.calculatePlayStats()
+            playRepository.calculateStats()
             Timber.i("Plays synced successfully")
             Result.success()
         } catch (e: Exception) {

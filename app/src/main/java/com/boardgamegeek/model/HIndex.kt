@@ -1,11 +1,21 @@
 package com.boardgamegeek.model
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
 data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
+    init {
+        require(h >= 0)
+        require(n >= 0)
+    }
+
     private val rational: Double
-        get() = if (h == INVALID_H_INDEX) 0.0 else h + 1 - n.toDouble() / (2 * h + 1)
+        get() = (if (isValid()) h + 1 - n.toDouble() / (2 * h + 1) else 0.0)
 
     val description: String
-        get() = if (h == INVALID_H_INDEX) "?" else String.format("%.2f", rational)
+        get() = (if (isValid()) String.format("%.2f", rational) else "?")
+
+    fun isValid() = (h > 0 || n > 0)
 
     override fun compareTo(other: HIndex): Int {
         if (h == other.h && n == other.n) return 0
@@ -15,9 +25,11 @@ data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
     }
 
     companion object {
-        const val INVALID_H_INDEX = -1
+        fun invalid(): HIndex {
+            return HIndex(0, 0)
+        }
 
-        fun fromList(list: List<Int>): HIndex {
+        suspend fun fromList(list: List<Int>): HIndex = withContext(Dispatchers.Default) {
             val counts = list.filter { it > 0 }.sortedDescending()
 
             var hIndexCounter = 0
@@ -42,7 +54,7 @@ data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
             }
             if (counts.size == h) n += nextH
 
-            return HIndex(h, n)
+            HIndex(h, n)
         }
     }
 }

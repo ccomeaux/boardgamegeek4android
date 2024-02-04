@@ -4,14 +4,10 @@ import com.boardgamegeek.extensions.cdf
 import com.boardgamegeek.extensions.inverseCdf
 import kotlin.math.ln
 
-class PlayStats(private val games: List<GameForPlayStats>, private val isOwnedSynced: Boolean) {
-    companion object {
-        const val INVALID_FRIENDLESS = Integer.MIN_VALUE
-        const val INVALID_UTILIZATION = -1.0
-        const val INVALID_CFM = -1.0
-        private const val PLAY_COUNT_TO_EARN_KEEP = 10
-        private val lambda = ln(0.1) / -10
-    }
+class PlayStats private constructor(private val games: List<GameForPlayStats>, private val isOwnedSynced: Boolean) {
+    private var _hIndex: HIndex = HIndex.invalid()
+    val hIndex: HIndex
+        get() = _hIndex
 
     val numberOfPlays: Int by lazy {
         games.sumOf { it.playCount }
@@ -43,10 +39,6 @@ class PlayStats(private val games: List<GameForPlayStats>, private val isOwnedSy
 
     val top100Count: Int by lazy {
         games.filter { it.playCount > 0 }.filter { it.bggRank in 1..100 }.size
-    }
-
-    val hIndex: HIndex by lazy {
-        HIndex.fromList(games.map { it.playCount })
     }
 
     fun getHIndexGames(): List<Pair<String, Int>> {
@@ -97,5 +89,19 @@ class PlayStats(private val games: List<GameForPlayStats>, private val isOwnedSy
 
     private val totalCdf: Double by lazy {
         ownedGames.sumOf { it.playCount.toDouble().cdf(lambda) }
+    }
+
+    companion object {
+        const val INVALID_FRIENDLESS = Integer.MIN_VALUE
+        const val INVALID_UTILIZATION = -1.0
+        const val INVALID_CFM = -1.0
+        private const val PLAY_COUNT_TO_EARN_KEEP = 10
+        private val lambda = ln(0.1) / -10
+
+        suspend fun fromList(games: List<GameForPlayStats>, isOwnedSynced: Boolean): PlayStats {
+            return PlayStats(games, isOwnedSynced).also {
+                it._hIndex = HIndex.fromList(games.map { game -> game.playCount })
+            }
+        }
     }
 }

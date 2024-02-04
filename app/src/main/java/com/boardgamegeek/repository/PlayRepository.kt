@@ -97,7 +97,7 @@ class PlayRepository(
 
             playDao.deleteUnupdatedPlaysForGame(gameId, timestamp)
             gameDao.updatePlayTimestamp(gameId, timestamp)
-            calculatePlayStats()
+            calculateStats()
         }
     }
 
@@ -108,7 +108,7 @@ class PlayRepository(
             val response = api.playsByGame(username, gameId, 1)
             val plays = response.plays.mapToModel(timestamp)
             saveFromSync(plays, timestamp)
-            calculatePlayStats()
+            calculateStats()
         }
     }
 
@@ -252,7 +252,7 @@ class PlayRepository(
             Timber.i("Not syncing old plays; already caught up.")
         }
 
-        calculatePlayStats()
+        calculateStats()
     }
 
     suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long) =
@@ -276,7 +276,7 @@ class PlayRepository(
                 Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page)
             } while (shouldContinue)
 
-            calculatePlayStats()
+            calculateStats()
 
             plays
         }
@@ -294,7 +294,7 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadForStats(
+    private suspend fun loadForStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
         includeAccessories: Boolean
@@ -347,7 +347,7 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<Player> {
+    private suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<Player> {
         val username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
         return playDao.loadPlayers()
             .asSequence()
@@ -429,7 +429,7 @@ class PlayRepository(
             val result = upsertPlay(play)
             if (result.isSuccess) {
                 updateGamePlayCount(play.gameId)
-                calculatePlayStats()
+                calculateStats()
             }
             result
         } catch (ex: Exception) {
@@ -681,32 +681,34 @@ class PlayRepository(
         gameDao.resetPlaySync()
     }
 
-    suspend fun calculatePlayStats() = withContext(Dispatchers.Default) {
+    suspend fun calculateStats() = withContext(Dispatchers.Default) {
         if ((syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE] ?: Long.MAX_VALUE) == 0L) {
-            val includeIncompletePlays = prefs[PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE, false] ?: false
-            val includeExpansions = prefs[PlayStatPrefs.LOG_PLAY_STATS_EXPANSIONS, false] ?: false
-            val includeAccessories = prefs[PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES, false] ?: false
-
-            val games = loadForStats(includeIncompletePlays, includeExpansions, includeAccessories)
-            val playStats = PlayStats(games, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN))
-            updateGameHIndex(playStats.hIndex)
-
-            val players = loadPlayersForStats(includeIncompletePlays)
-            val playerStats = PlayerStats(players)
-            updatePlayerHIndex(playerStats.hIndex)
+            calculatePlayStats()
+            calculatePlayerStats()
         }
     }
 
-    fun updateGameHIndex(hIndex: HIndex) {
-        updateHIndex(hIndex, HIndexType.Game, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX)
+    suspend fun calculatePlayStats(): PlayStats {
+        val includeIncompletePlays = prefs[PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE, false] ?: false
+        val includeExpansions = prefs[PlayStatPrefs.LOG_PLAY_STATS_EXPANSIONS, false] ?: false
+        val includeAccessories = prefs[PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES, false] ?: false
+
+        val games = loadForStats(includeIncompletePlays, includeExpansions, includeAccessories)
+        return PlayStats.fromList(games, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN)).also {
+            updateHIndex(it.hIndex, HIndexType.Game, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX)
+        }
     }
 
-    fun updatePlayerHIndex(hIndex: HIndex) {
-        updateHIndex(hIndex, HIndexType.Player, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX)
+    suspend fun calculatePlayerStats(): PlayerStats {
+        val includeIncompletePlays = prefs[PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE, false] ?: false
+        val players = loadPlayersForStats(includeIncompletePlays)
+        return PlayerStats.fromList(players).also {
+            updateHIndex(it.hIndex, HIndexType.Player, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX)
+        }
     }
 
     private fun updateHIndex(hIndex: HIndex, type: HIndexType, @StringRes typeResId: Int, notificationId: Int) {
-        if (hIndex.h != HIndex.INVALID_H_INDEX) {
+        if (hIndex.isValid()) {
             val old = prefs.getHIndex(type)
             if (old != hIndex) {
                 prefs.setHIndex(type, hIndex)

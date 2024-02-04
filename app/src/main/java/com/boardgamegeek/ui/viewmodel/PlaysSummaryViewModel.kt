@@ -89,10 +89,10 @@ class PlaysSummaryViewModel @Inject constructor(
 
     val hIndex = MediatorLiveData<HIndex>().apply {
         addSource(h) {
-            value = HIndex(it ?: HIndex.INVALID_H_INDEX, n.value ?: 0)
+            value = HIndex(it ?: 0, n.value ?: 0)
         }
         addSource(n) {
-            value = HIndex(h.value ?: HIndex.INVALID_H_INDEX, it ?: 0)
+            value = HIndex(h.value ?: 0, it ?: 0)
         }
     }
 
