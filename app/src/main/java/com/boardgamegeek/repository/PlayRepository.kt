@@ -408,12 +408,6 @@ class PlayRepository(
         }
     }
 
-    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long) =
-        playDao.deleteUnupdatedPlaysAfterDate(playDate.asDateForApi(), syncTimestamp)
-
-    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) =
-        playDao.deleteUnupdatedPlaysBeforeDate(playDate.asDateForApi(), syncTimestamp)
-
     suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
         if (!name.isNullOrBlank()) {
             colors?.let { list ->
@@ -479,6 +473,8 @@ class PlayRepository(
     }
 
     // endregion
+
+    // region Save
 
     suspend fun saveFromSync(plays: List<Play>, syncTimestamp: Long) {
         Timber.i("Saving %d plays", plays.size)
@@ -662,6 +658,8 @@ class PlayRepository(
     private suspend fun upsert(play: Play, syncTimestamp: Long = 0L) =
         playDao.upsert(play.mapToEntity(syncTimestamp), play.players.map { it.mapToEntity() })
 
+    // endregion
+
     suspend fun resetPlays() {
         // resets the sync timestamps, removes the plays' hashcode, and request a sync
         syncPrefs.clearPlaysTimestamps()
@@ -670,11 +668,25 @@ class PlayRepository(
         SyncPlaysWorker.requestSync(context)
     }
 
-    suspend fun deletePlays() {
+    // region Delete
+
+    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long) = withContext(Dispatchers.IO) {
+        playDao.deleteUnupdatedPlaysAfterDate(playDate.asDateForApi(), syncTimestamp)
+    }
+
+    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) = withContext(Dispatchers.IO) {
+        playDao.deleteUnupdatedPlaysBeforeDate(playDate.asDateForApi(), syncTimestamp)
+    }
+
+    suspend fun deletePlays() = withContext(Dispatchers.IO) {
         syncPrefs.clearPlaysTimestamps()
         playDao.deleteAll()
         gameDao.resetPlaySync()
     }
+
+    // endregion
+
+    // region Stats
 
     suspend fun calculateStats() = withContext(Dispatchers.Default) {
         if ((syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE] ?: Long.MAX_VALUE) == 0L) {
@@ -701,8 +713,6 @@ class PlayRepository(
             updateHIndex(it.hIndex, HIndexType.Player, R.string.player, NOTIFICATION_ID_PLAY_STATS_PLAYER_H_INDEX)
         }
     }
-
-    // region Stats
 
     private suspend fun loadForStats(
         includeIncompletePlays: Boolean,
