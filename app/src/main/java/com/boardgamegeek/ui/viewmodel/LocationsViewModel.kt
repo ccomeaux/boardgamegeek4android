@@ -14,54 +14,33 @@ class LocationsViewModel @Inject constructor(
     application: Application,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    enum class SortType {
-        NAME, PLAY_COUNT
-    }
-
-    private val _sort = MutableLiveData<LocationsSort>()
-    val sort: LiveData<LocationsSort>
-        get() = _sort
+    private val _sortType = MutableLiveData<Location.SortType>()
+    val sortType: LiveData<Location.SortType>
+        get() = _sortType
 
     init {
-        sort(SortType.NAME)
+        sort(Location.SortType.NAME)
     }
 
-    val locations: LiveData<List<Location>> = sort.switchMap {
+    val locations: LiveData<List<Location>> = sortType.switchMap {
         liveData {
-            emit(playRepository.loadLocations(it.sortBy))
+            emit(playRepository.loadLocations(it))
         }
     }
 
     fun refresh() {
-        _sort.value?.let { _sort.value = it }
+        _sortType.value?.let { _sortType.value = it }
     }
 
-    fun sort(sortType: SortType) {
-        _sort.value = when (sortType) {
-            SortType.NAME -> LocationsSort.ByName()
-            SortType.PLAY_COUNT -> LocationsSort.ByPlayCount()
-        }
+    fun sort(sortType: Location.SortType) {
+        if (_sortType.value != sortType) _sortType.value = sortType
     }
 
     fun getSectionHeader(location: Location?): String {
-        return sort.value?.getSectionHeader(location) ?: ""
-    }
-
-    sealed class LocationsSort {
-        abstract val sortType: SortType
-        abstract val sortBy: PlayRepository.LocationSortBy
-        abstract fun getSectionHeader(location: Location?): String
-
-        class ByName : LocationsSort() {
-            override val sortType = SortType.NAME
-            override val sortBy = PlayRepository.LocationSortBy.NAME
-            override fun getSectionHeader(location: Location?) = location?.name.firstChar()
-        }
-
-        class ByPlayCount : LocationsSort() {
-            override val sortType = SortType.PLAY_COUNT
-            override val sortBy = PlayRepository.LocationSortBy.PLAY_COUNT
-            override fun getSectionHeader(location: Location?) = (location?.playCount ?: 0).orderOfMagnitude()
+        return when(sortType.value) {
+            Location.SortType.NAME -> location?.name.firstChar()
+            Location.SortType.PLAY_COUNT -> (location?.playCount ?: 0).orderOfMagnitude()
+            null -> ""
         }
     }
 }

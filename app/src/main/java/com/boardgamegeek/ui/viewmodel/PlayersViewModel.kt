@@ -1,8 +1,8 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import android.content.Context
 import androidx.lifecycle.*
+import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.firstChar
@@ -16,75 +16,43 @@ class PlayersViewModel @Inject constructor(
     application: Application,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    enum class SortType {
-        NAME, PLAY_COUNT, WIN_COUNT
-    }
-
-    private val _sort = MutableLiveData<PlayersSort>()
-    val sort: LiveData<PlayersSort>
-        get() = _sort
+    private val _sortType = MutableLiveData<Player.SortType>()
+    val sortType: LiveData<Player.SortType>
+        get() = _sortType
 
     init {
-        sort(SortType.NAME)
+        sort(Player.SortType.NAME)
     }
 
-    val players: LiveData<List<Player>> = sort.switchMap {
+    val players: LiveData<List<Player>> = sortType.switchMap {
         liveData {
-            emit(playRepository.loadPlayers(it.sortBy))
+            emit(playRepository.loadPlayers(it))
         }
     }
 
-    fun sort(sortType: SortType) {
-        _sort.value = when (sortType) {
-            SortType.NAME -> PlayersSort.ByName()
-            SortType.PLAY_COUNT -> PlayersSort.ByPlayCount()
-            SortType.WIN_COUNT -> PlayersSort.ByWinCount()
-        }
+    fun sort(sortType: Player.SortType) {
+        if (_sortType.value != sortType) _sortType.value = sortType
     }
 
     fun getSectionHeader(player: Player?): String {
-        return sort.value?.getSectionHeader(player) ?: ""
+        return when (_sortType.value) {
+            Player.SortType.NAME -> player?.name.firstChar()
+            Player.SortType.PLAY_COUNT -> (player?.playCount ?: 0).orderOfMagnitude()
+            Player.SortType.WIN_COUNT -> (player?.winCount ?: 0).orderOfMagnitude()
+            else -> ""
+        }
     }
 
     fun getDisplayText(player: Player?): String {
-        return sort.value?.getDisplayText(getApplication(), player) ?: ""
-    }
-
-    sealed class PlayersSort {
-        abstract val sortType: SortType
-        abstract val sortBy: PlayRepository.PlayerSortBy
-        abstract fun getSectionHeader(player: Player?): String
-        open fun getDisplayText(context: Context, player: Player?): String {
-            val playCount = player?.playCount ?: 0
-            return context.resources.getQuantityString(R.plurals.plays_suffix, playCount, playCount)
-        }
-
-        class ByName : PlayersSort() {
-            override val sortType = SortType.NAME
-            override val sortBy = PlayRepository.PlayerSortBy.NAME
-            override fun getSectionHeader(player: Player?): String {
-                return player?.name.firstChar()
-            }
-        }
-
-        class ByPlayCount : PlayersSort() {
-            override val sortType = SortType.PLAY_COUNT
-            override val sortBy = PlayRepository.PlayerSortBy.PLAY_COUNT
-            override fun getSectionHeader(player: Player?): String {
-                return (player?.playCount ?: 0).orderOfMagnitude()
-            }
-        }
-
-        class ByWinCount : PlayersSort() {
-            override val sortType = SortType.WIN_COUNT
-            override val sortBy = PlayRepository.PlayerSortBy.WIN_COUNT
-            override fun getSectionHeader(player: Player?): String {
-                return (player?.winCount ?: 0).orderOfMagnitude()
-            }
-
-            override fun getDisplayText(context: Context, player: Player?): String {
+        val context = getApplication<BggApplication>()
+        return when (_sortType.value) {
+            Player.SortType.WIN_COUNT -> {
                 val winCount = player?.winCount ?: 0
-                return context.resources.getQuantityString(R.plurals.wins_suffix, winCount, winCount)
+                context.resources.getQuantityString(R.plurals.wins_suffix, winCount, winCount)
+            }
+            else -> {
+                val playCount = player?.playCount ?: 0
+                context.resources.getQuantityString(R.plurals.plays_suffix, playCount, playCount)
             }
         }
     }

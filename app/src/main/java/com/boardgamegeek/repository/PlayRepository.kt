@@ -53,14 +53,6 @@ class PlayRepository(
         NON_USER,
     }
 
-    enum class PlayerSortBy {
-        NAME, PLAY_COUNT, WIN_COUNT
-    }
-
-    enum class LocationSortBy {
-        NAME, PLAY_COUNT
-    }
-
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
 
@@ -122,7 +114,7 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadPlayers(sortBy: PlayerSortBy = PlayerSortBy.PLAY_COUNT): List<Player> = withContext(Dispatchers.Default) {
+    suspend fun loadPlayers(sortBy: Player.SortType = Player.SortType.PLAY_COUNT): List<Player> = withContext(Dispatchers.Default) {
         val players = withContext(Dispatchers.IO) { playDao.loadPlayers() }
         val grouping = players.groupBy { it.key() }
         val list = grouping.map { (_, value) ->
@@ -131,9 +123,9 @@ class PlayRepository(
             }
         }.filterNotNull()
         when (sortBy) {
-            PlayerSortBy.NAME -> list.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, Player::name))
-            PlayerSortBy.PLAY_COUNT -> list.sortedByDescending { it.playCount }
-            PlayerSortBy.WIN_COUNT -> list.sortedByDescending { it.winCount }
+            Player.SortType.NAME -> list.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, Player::name))
+            Player.SortType.PLAY_COUNT -> list.sortedByDescending { it.playCount }
+            Player.SortType.WIN_COUNT -> list.sortedByDescending { it.winCount }
         }
     }
 
@@ -197,13 +189,13 @@ class PlayRepository(
         }.mapNotNull { it.player.color }
     }
 
-    suspend fun loadLocations(sortBy: LocationSortBy = LocationSortBy.PLAY_COUNT): List<Location> = withContext(Dispatchers.Default) {
+    suspend fun loadLocations(sortBy: Location.SortType = Location.SortType.PLAY_COUNT): List<Location> = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playDao.loadLocations() }
             .map { it.mapToModel() }
             .sortedWith(
                 when (sortBy) {
-                    LocationSortBy.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                    LocationSortBy.PLAY_COUNT -> compareByDescending<Location> { it.playCount }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    Location.SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    Location.SortType.PLAY_COUNT -> compareByDescending<Location> { it.playCount }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
                 }
             )
     }

@@ -38,6 +38,10 @@ data class Player(
         }
     }
 
+    enum class SortType {
+        NAME, PLAY_COUNT, WIN_COUNT
+    }
+
     companion object {
         fun createUser(name: String) = Player(name = "", username = name)
         fun createNonUser(name: String) = Player(name = name, username = "")
