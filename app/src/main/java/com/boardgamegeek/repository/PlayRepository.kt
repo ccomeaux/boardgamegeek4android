@@ -533,23 +533,31 @@ class PlayRepository(
         }
     }
 
-    private suspend fun markAsSynced(internalId: Long, playId: Int): Boolean {
-        if (internalId == INVALID_ID.toLong()) return false
-        if (playId == INVALID_ID) return false
-        return playDao.markAsSynced(internalId, playId) > 0
+    private suspend fun markAsSynced(internalId: Long, playId: Int): Boolean = withContext(Dispatchers.IO) {
+        if (internalId == INVALID_ID.toLong() || playId == INVALID_ID) false
+        else playDao.markAsSynced(internalId, playId) > 0
     }
 
-    suspend fun markAsDiscarded(internalId: Long) = playDao.markAsDiscarded(internalId) > 0
+    suspend fun markAsDiscarded(internalId: Long) = withContext(Dispatchers.IO) {
+        if (internalId == INVALID_ID.toLong()) false
+        else playDao.markAsDiscarded(internalId) > 0
+    }
 
-    suspend fun markAsUpdated(internalId: Long) = playDao.markAsUpdated(internalId) > 0
+    suspend fun markAsUpdated(internalId: Long) = withContext(Dispatchers.IO) {
+        if (internalId == INVALID_ID.toLong()) false
+        else playDao.markAsUpdated(internalId) > 0
+    }
 
-    suspend fun markAsDeleted(internalId: Long) = playDao.markAsDeleted(internalId) > 0
+    suspend fun markAsDeleted(internalId: Long) = withContext(Dispatchers.IO) {
+        if (internalId == INVALID_ID.toLong()) false
+        else playDao.markAsDeleted(internalId) > 0
+    }
 
     suspend fun updateGamePlayCount(gameId: Int) = withContext(Dispatchers.Default) {
         if (gameId != INVALID_ID) {
             val allPlays = loadPlaysByGame(gameId)
             val playCount = allPlays.sumOf { it.quantity }
-            gameDao.updatePlayCount(gameId, playCount)
+            withContext(Dispatchers.IO) { gameDao.updatePlayCount(gameId, playCount) }
         }
     }
 
@@ -610,7 +618,7 @@ class PlayRepository(
         internalIds
     }
 
-    suspend fun save(play: Play): Long {
+    suspend fun save(play: Play): Long = withContext(Dispatchers.IO) {
         val id = upsert(play)
 
         // remember details about the play if it's being uploaded for the first time
@@ -652,11 +660,12 @@ class PlayRepository(
             }
         }
 
-        return id
+        id
     }
 
-    private suspend fun upsert(play: Play, syncTimestamp: Long = 0L) =
+    private suspend fun upsert(play: Play, syncTimestamp: Long = 0L) = withContext(Dispatchers.IO) {
         playDao.upsert(play.mapToEntity(syncTimestamp), play.players.map { it.mapToEntity() })
+    }
 
     // endregion
 
