@@ -48,13 +48,167 @@ class PlayRepository(
     private val gameDao: GameDao,
     private val collectionDao: CollectionDao,
 ) {
+    enum class PlayerType {
+        USER,
+        NON_USER,
+    }
+
+    enum class PlayerSortBy {
+        NAME, PLAY_COUNT, WIN_COUNT
+    }
+
+    enum class LocationSortBy {
+        NAME, PLAY_COUNT
+    }
+
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context.applicationContext) }
 
-    suspend fun loadPlay(internalId: Long): Play? {
-        return if (internalId == INVALID_ID.toLong()) null
-        else playDao.loadPlayWithPlayers(internalId).mapToModel()
+    // region Load
+
+    suspend fun loadPlays(): List<Play> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playDao.loadPlays() }.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
     }
+
+    suspend fun loadUpdatingPlays(): List<Play> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playDao.loadUpdatingPlays() }.map { it.mapToModel() }
+    }
+
+    suspend fun loadDeletingPlays(): List<Play> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playDao.loadDeletingPlays() }.map { it.mapToModel() }
+    }
+
+    suspend fun loadPlay(internalId: Long): Play? = withContext(Dispatchers.Default) {
+        if (internalId == INVALID_ID.toLong()) null
+        else withContext(Dispatchers.IO) { playDao.loadPlayWithPlayers(internalId) }.mapToModel()
+    }
+
+    suspend fun loadPlaysByGame(gameId: Int): List<Play> = withContext(Dispatchers.Default) {
+        if (gameId == INVALID_ID) emptyList()
+        else withContext(Dispatchers.IO) { playDao.loadPlaysForGame(gameId) }
+            .map { it.mapToModel() }
+            .filterNot { it.deleteTimestamp > 0L }
+    }
+
+    suspend fun loadPlaysByLocation(location: String): List<Play> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playDao.loadPlaysForLocation(location) }
+            .map { it.mapToModel() }
+            .filterNot { it.deleteTimestamp > 0L }
+    }
+
+    suspend fun loadPlaysByUsername(username: String): List<Play> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playDao.loadPlaysForUser(username) }
+            .map { it.mapToModel() }
+            .filterNot { it.deleteTimestamp > 0L }
+    }
+
+    suspend fun loadPlaysByPlayerName(playerName: String): List<Play> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playDao.loadPlaysForPlayer(playerName) }
+            .map { it.mapToModel() }
+            .filterNot { it.deleteTimestamp > 0L }
+    }
+
+    suspend fun loadPlaysByPlayer(name: String, gameId: Int, isUser: Boolean): List<Play> = withContext(Dispatchers.Default) {
+        if (name.isBlank() || gameId == INVALID_ID) emptyList()
+        else {
+            val plays = withContext(Dispatchers.IO) {
+                if (isUser) {
+                    playDao.loadPlaysForUserAndGame(name, gameId)
+                } else {
+                    playDao.loadPlaysForPlayerAndGame(name, gameId)
+                }
+            }
+            plays.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
+        }
+    }
+
+    suspend fun loadPlayers(sortBy: PlayerSortBy = PlayerSortBy.PLAY_COUNT): List<Player> = withContext(Dispatchers.Default) {
+        val players = withContext(Dispatchers.IO) { playDao.loadPlayers() }
+        val grouping = players.groupBy { it.key() }
+        val list = grouping.map { (_, value) ->
+            value.firstOrNull()?.let {
+                value.mapToModel()
+            }
+        }.filterNotNull()
+        when (sortBy) {
+            PlayerSortBy.NAME -> list.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, Player::name))
+            PlayerSortBy.PLAY_COUNT -> list.sortedByDescending { it.playCount }
+            PlayerSortBy.WIN_COUNT -> list.sortedByDescending { it.winCount }
+        }
+    }
+
+    suspend fun loadPlayersByLocation(location: String = ""): List<Player> = withContext(Dispatchers.Default) {
+        val players = withContext(Dispatchers.IO) { playDao.loadPlayersForLocation(location) }
+        val grouping = players.groupBy { it.key() }
+        grouping.map { (_, value) -> value.mapToModel() }
+            .filterNotNull()
+            .sortedByDescending { it.playCount }
+    }
+
+    suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayer> = withContext(Dispatchers.Default) {
+        if (gameId == INVALID_ID) emptyList()
+        else withContext(Dispatchers.IO) { playDao.loadPlayersForGame(gameId) }.map { it.player.mapToModel() }
+    }
+
+    suspend fun loadPlayer(name: String?, type: PlayerType): Player? = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
+            when {
+                name.isNullOrBlank() -> null
+                type == PlayerType.USER -> playDao.loadPlayersForUser(name)
+                type == PlayerType.NON_USER -> playDao.loadPlayersForPlayer(name)
+                else -> null
+            }
+        }?.mapToModel()
+    }
+
+    suspend fun loadPlayerFavoriteColors(): Map<Player, String> = withContext(Dispatchers.IO) {
+        playerColorDao.loadFavoritePlayerColors().associate {
+            val player = if (it.playerType == PlayerColorsEntity.TYPE_USER)
+                Player.createUser(it.playerName)
+            else
+                Player.createNonUser(it.playerName)
+            player to it.playerColor
+        }
+    }
+
+    suspend fun loadPlayerColors(name: String, type: PlayerType): List<PlayerColor> {
+        return when (type) {
+            PlayerType.USER -> loadUserColors(name)
+            PlayerType.NON_USER -> loadNonUserColors(name)
+        }
+    }
+
+    suspend fun loadUserColors(username: String) = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playerColorDao.loadColorsForUser(username).map { it.mapToModel() } }
+    }
+
+    suspend fun loadNonUserColors(playerName: String) = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playerColorDao.loadColorsForPlayer(playerName).map { it.mapToModel() } }
+    }
+
+    suspend fun loadPlayerUsedColors(name: String?, type: PlayerType): List<String> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) {
+            when {
+                name.isNullOrBlank() -> emptyList()
+                type == PlayerType.USER -> playDao.loadPlayersForUser(name)
+                type == PlayerType.NON_USER -> playDao.loadPlayersForPlayer(name)
+                else -> emptyList()
+            }
+        }.mapNotNull { it.player.color }
+    }
+
+    suspend fun loadLocations(sortBy: LocationSortBy = LocationSortBy.PLAY_COUNT): List<Location> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { playDao.loadLocations() }
+            .map { it.mapToModel() }
+            .sortedWith(
+                when (sortBy) {
+                    LocationSortBy.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    LocationSortBy.PLAY_COUNT -> compareByDescending<Location> { it.playCount }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                }
+            )
+    }
+
+    // endregion
 
     suspend fun refreshPlay(
         internalId: Long,
@@ -157,36 +311,6 @@ class PlayRepository(
             playDao.delete(play.internalId)
             Result.success(PlayUploadResult.delete(play))
         }
-    }
-
-    suspend fun loadPlays() = playDao.loadPlays().map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
-
-    suspend fun loadUpdatingPlays() = playDao.loadUpdatingPlays().map { it.mapToModel() }
-
-    suspend fun loadDeletingPlays() = playDao.loadDeletingPlays().map { it.mapToModel() }
-
-    suspend fun loadPlaysByGame(gameId: Int): List<Play> {
-        return if (gameId == INVALID_ID) emptyList()
-        else playDao.loadPlaysForGame(gameId).map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
-    }
-
-    suspend fun loadPlaysByLocation(location: String) =
-        playDao.loadPlaysForLocation(location).map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
-
-    suspend fun loadPlaysByUsername(username: String) =
-        playDao.loadPlaysForUser(username).map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
-
-    suspend fun loadPlaysByPlayerName(playerName: String) =
-        playDao.loadPlaysForPlayer(playerName).map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
-
-    suspend fun loadPlaysByPlayer(name: String, gameId: Int, isUser: Boolean): List<Play> {
-        if (name.isBlank() || gameId == INVALID_ID) return emptyList()
-        val plays = if (isUser) {
-            playDao.loadPlaysForUserAndGame(name, gameId)
-        } else {
-            playDao.loadPlaysForPlayerAndGame(name, gameId)
-        }
-        return plays.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
     }
 
     suspend fun refreshPlays() = withContext(Dispatchers.IO) {
@@ -308,8 +432,8 @@ class PlayRepository(
         val items = collectionDao.loadAll().map { it.mapToModel() }
         val filteredItems = items.filter {
             it.subtype == null || it.subtype == Game.Subtype.BOARDGAME ||
-            (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions) ||
-            (it.subtype == Game.Subtype.BOARDGAME_ACCESSORY && includeAccessories)
+                    (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions) ||
+                    (it.subtype == Game.Subtype.BOARDGAME_ACCESSORY && includeAccessories)
         }
         gameMap.filterKeys { it.first in filteredItems.map { item -> item.gameId } }.map { game ->
             val itemPairs = items.filter { it.gameId == game.key.first }
@@ -320,30 +444,6 @@ class PlayRepository(
                 isOwned = itemPairs.any { it.own },
                 bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN
             )
-        }
-    }
-
-    suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayer> {
-        if (gameId == INVALID_ID) return emptyList()
-        return playDao.loadPlayersForGame(gameId).map { it.player.mapToModel() }
-    }
-
-    suspend fun loadPlayerFavoriteColors(): Map<Player, String> {
-        return playerColorDao.loadFavoritePlayerColors().associate {
-            val player = if (it.playerType == PlayerColorsEntity.TYPE_USER)
-                Player.createUser(it.playerName)
-            else
-                Player.createNonUser(it.playerName)
-            player to it.playerColor
-        }
-    }
-
-    suspend fun loadPlayer(name: String?, type: PlayerType): Player? = withContext(Dispatchers.IO) {
-        when {
-            name.isNullOrBlank() -> null
-            type == PlayerType.USER -> playDao.loadPlayersForUser(name).mapToModel()
-            type == PlayerType.NON_USER -> playDao.loadPlayersForPlayer(name).mapToModel()
-            else -> null
         }
     }
 
@@ -360,22 +460,6 @@ class PlayRepository(
             .toList()
     }
 
-    enum class PlayerType {
-        USER,
-        NON_USER,
-    }
-
-    suspend fun loadPlayerColors(name: String, type: PlayerType): List<PlayerColor> = withContext(Dispatchers.IO) {
-        when (type) {
-            PlayerType.USER -> loadUserColors(name)
-            PlayerType.NON_USER -> loadNonUserColors(name)
-        }
-    }
-
-    suspend fun loadUserColors(username: String) = withContext(Dispatchers.IO) { playerColorDao.loadColorsForUser(username).map { it.mapToModel() } }
-
-    suspend fun loadNonUserColors(playerName: String) = withContext(Dispatchers.IO) { playerColorDao.loadColorsForPlayer(playerName).map { it.mapToModel() } }
-
     suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
         if (!name.isNullOrBlank()) {
             colors?.let { list ->
@@ -391,26 +475,6 @@ class PlayRepository(
                 playerColorDao.upsertColorsForPlayer(entities)
             }
         }
-    }
-
-    suspend fun loadPlayerUsedColors(name: String?, type: PlayerType): List<String> {
-        return when {
-            name.isNullOrBlank() -> emptyList()
-            type == PlayerType.USER -> playDao.loadPlayersForUser(name).mapNotNull { it.player.color }
-            type == PlayerType.NON_USER -> playDao.loadPlayersForPlayer(name).mapNotNull { it.player.color }
-            else -> emptyList()
-        }
-    }
-
-    enum class LocationSortBy {
-        NAME, PLAY_COUNT
-    }
-
-    suspend fun loadLocations(sortBy: LocationSortBy = LocationSortBy.PLAY_COUNT): List<Location> {
-        return when (sortBy) {
-            LocationSortBy.PLAY_COUNT -> playDao.loadLocations()
-            LocationSortBy.NAME -> playDao.loadLocations().sortedBy { it.name }
-        }.map { it.mapToModel() }
     }
 
     suspend fun logQuickPlay(gameId: Int, gameName: String): Result<PlayUploadResult> {
@@ -533,33 +597,6 @@ class PlayRepository(
             val playCount = allPlays.sumOf { it.quantity }
             gameDao.updatePlayCount(gameId, playCount)
         }
-    }
-
-    enum class PlayerSortBy {
-        NAME, PLAY_COUNT, WIN_COUNT
-    }
-
-    suspend fun loadPlayers(sortBy: PlayerSortBy = PlayerSortBy.PLAY_COUNT): List<Player> {
-        val players = playDao.loadPlayers()
-        val grouping = players.groupBy { it.key() }
-        val list = grouping.map { (_, value) ->
-            value.firstOrNull()?.let {
-                value.mapToModel()
-            }
-        }.filterNotNull()
-        return when (sortBy) {
-            PlayerSortBy.NAME -> list.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, Player::name))
-            PlayerSortBy.PLAY_COUNT -> list.sortedByDescending { it.playCount }
-            PlayerSortBy.WIN_COUNT -> list.sortedByDescending { it.winCount }
-        }
-    }
-
-    suspend fun loadPlayersByLocation(location: String = ""): List<Player> {
-        val players = playDao.loadPlayersForLocation(location)
-        val grouping = players.groupBy { it.key() }
-        return grouping.map { (_, value) ->
-            value.mapToModel()
-        }.filterNotNull().sortedByDescending { it.playCount }
     }
 
     suspend fun updatePlaysWithNickName(username: String, nickName: String): Collection<Long> = withContext(Dispatchers.IO) {
@@ -712,7 +749,8 @@ class PlayRepository(
             val old = prefs.getHIndex(type)
             if (old != hIndex) {
                 prefs.setHIndex(type, hIndex)
-                @StringRes val messageId = if (hIndex > old) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
+                @StringRes val messageId =
+                    if (hIndex > old) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
                 context.notify(
                     context.createNotificationBuilder(
                         R.string.title_play_stats, NotificationChannels.STATS, PlayStatsActivity::class.java
