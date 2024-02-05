@@ -202,6 +202,8 @@ class PlayRepository(
 
     // endregion
 
+    // region Download
+
     suspend fun refreshPlay(
         internalId: Long,
         playId: Int,
@@ -255,53 +257,6 @@ class PlayRepository(
             val plays = response.plays.mapToModel(timestamp)
             saveFromSync(plays, timestamp)
             calculateStats()
-        }
-    }
-
-    /**
-     * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
-     * an error message if not.
-     */
-    suspend fun upsertPlay(play: Play): Result<PlayUploadResult> {
-        if (play.updateTimestamp == 0L)
-            return Result.success(PlayUploadResult.noOp(play))
-        val response = phpApi.play(play.mapToFormBodyForUpsert().build())
-        return if (response.hasAuthError()) {
-            Authenticator.clearPassword(context)
-            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
-        } else if (response.hasInvalidIdError()) {
-            Result.failure(Exception(context.getString(R.string.msg_play_update_bad_id)))
-        } else if (!response.error.isNullOrBlank()) {
-            Result.failure(Exception(response.error))
-        } else {
-            markAsSynced(play.internalId, response.playId)
-            Result.success(PlayUploadResult.upsert(play, response.playId, response.numberOfPlays))
-        }
-    }
-
-    suspend fun deletePlay(play: Play): Result<PlayUploadResult> {
-        if (play.deleteTimestamp == 0L)
-            return Result.success(PlayUploadResult.noOp(play))
-        if (play.internalId == INVALID_ID.toLong())
-            return Result.success(PlayUploadResult.noOp(play))
-        if (play.playId == INVALID_ID) {
-            playDao.delete(play.internalId)
-            return Result.success(PlayUploadResult.delete(play))
-        }
-        val response = phpApi.play(play.playId.mapToFormBodyForDelete().build())
-        return if (response.hasAuthError()) {
-            Authenticator.clearPassword(context)
-            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
-        } else if (response.hasInvalidIdError()) {
-            playDao.delete(play.internalId)
-            Result.success(PlayUploadResult.delete(play))
-        } else if (!response.error.isNullOrBlank()) {
-            Result.failure(Exception(response.error))
-        } else if (!response.success) {
-            Result.failure(Exception(context.getString(R.string.msg_play_delete_unsuccessful)))
-        } else {
-            playDao.delete(play.internalId)
-            Result.success(PlayUploadResult.delete(play))
         }
     }
 
@@ -371,12 +326,6 @@ class PlayRepository(
         calculateStats()
     }
 
-    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long) =
-        playDao.deleteUnupdatedPlaysAfterDate(playDate.asDateForApi(), syncTimestamp)
-
-    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) =
-        playDao.deleteUnupdatedPlaysBeforeDate(playDate.asDateForApi(), syncTimestamp)
-
     suspend fun refreshPlaysForDate(timeInMillis: Long) = withContext(Dispatchers.IO) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         if (timeInMillis <= 0L && !username.isNullOrBlank()) {
@@ -410,47 +359,60 @@ class PlayRepository(
         }
     }
 
-    private suspend fun loadForStats(
-        includeIncompletePlays: Boolean,
-        includeExpansions: Boolean,
-        includeAccessories: Boolean
-    ): List<GameForPlayStats> = withContext(Dispatchers.Default) {
-        // TODO make this more efficient (I think we can get it all in 1 query)
-        val allPlays = playDao.loadPlays().filter { it.deleteTimestamp == 0L }
-        val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
-        val gameMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
-            accumulator + element.quantity
-        }
-        val items = collectionDao.loadAll().map { it.mapToModel() }
-        val filteredItems = items.filter {
-            it.subtype == null || it.subtype == Game.Subtype.BOARDGAME ||
-                    (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions) ||
-                    (it.subtype == Game.Subtype.BOARDGAME_ACCESSORY && includeAccessories)
-        }
-        gameMap.filterKeys { it.first in filteredItems.map { item -> item.gameId } }.map { game ->
-            val itemPairs = items.filter { it.gameId == game.key.first }
-            GameForPlayStats(
-                id = game.key.first,
-                name = game.key.second,
-                playCount = game.value,
-                isOwned = itemPairs.any { it.own },
-                bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN
-            )
+    // endregion
+
+    /**
+     * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
+     * an error message if not.
+     */
+    suspend fun upsertPlay(play: Play): Result<PlayUploadResult> {
+        if (play.updateTimestamp == 0L)
+            return Result.success(PlayUploadResult.noOp(play))
+        val response = phpApi.play(play.mapToFormBodyForUpsert().build())
+        return if (response.hasAuthError()) {
+            Authenticator.clearPassword(context)
+            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+        } else if (response.hasInvalidIdError()) {
+            Result.failure(Exception(context.getString(R.string.msg_play_update_bad_id)))
+        } else if (!response.error.isNullOrBlank()) {
+            Result.failure(Exception(response.error))
+        } else {
+            markAsSynced(play.internalId, response.playId)
+            Result.success(PlayUploadResult.upsert(play, response.playId, response.numberOfPlays))
         }
     }
 
-    private suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<Player> {
-        val username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
-        return playDao.loadPlayers()
-            .asSequence()
-            .filterNot { it.player.username == username }
-            .filter { includeIncompletePlays || !it.incomplete }
-            .groupBy { it.key() }
-            .map { it.value.mapToModel() }
-            .filterNotNull()
-            .sortedByDescending { it.playCount }
-            .toList()
+    suspend fun deletePlay(play: Play): Result<PlayUploadResult> {
+        if (play.deleteTimestamp == 0L)
+            return Result.success(PlayUploadResult.noOp(play))
+        if (play.internalId == INVALID_ID.toLong())
+            return Result.success(PlayUploadResult.noOp(play))
+        if (play.playId == INVALID_ID) {
+            playDao.delete(play.internalId)
+            return Result.success(PlayUploadResult.delete(play))
+        }
+        val response = phpApi.play(play.playId.mapToFormBodyForDelete().build())
+        return if (response.hasAuthError()) {
+            Authenticator.clearPassword(context)
+            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+        } else if (response.hasInvalidIdError()) {
+            playDao.delete(play.internalId)
+            Result.success(PlayUploadResult.delete(play))
+        } else if (!response.error.isNullOrBlank()) {
+            Result.failure(Exception(response.error))
+        } else if (!response.success) {
+            Result.failure(Exception(context.getString(R.string.msg_play_delete_unsuccessful)))
+        } else {
+            playDao.delete(play.internalId)
+            Result.success(PlayUploadResult.delete(play))
+        }
     }
+
+    suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long) =
+        playDao.deleteUnupdatedPlaysAfterDate(playDate.asDateForApi(), syncTimestamp)
+
+    suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) =
+        playDao.deleteUnupdatedPlaysBeforeDate(playDate.asDateForApi(), syncTimestamp)
 
     suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
         if (!name.isNullOrBlank()) {
@@ -494,6 +456,8 @@ class PlayRepository(
         }
     }
 
+    // region Upload
+
     fun enqueueUploadRequest(internalId: Long, tag: String? = null) {
         val workRequestBuilder = OneTimeWorkRequestBuilder<PlayUploadWorker>()
             .setInputData(workDataOf(PlayUploadWorker.INTERNAL_ID to internalId))
@@ -513,6 +477,8 @@ class PlayRepository(
             .build()
         WorkManager.getInstance(context).enqueue(workRequest)
     }
+
+    // endregion
 
     suspend fun saveFromSync(plays: List<Play>, syncTimestamp: Long) {
         Timber.i("Saving %d plays", plays.size)
@@ -736,6 +702,50 @@ class PlayRepository(
         }
     }
 
+    // region Stats
+
+    private suspend fun loadForStats(
+        includeIncompletePlays: Boolean,
+        includeExpansions: Boolean,
+        includeAccessories: Boolean
+    ): List<GameForPlayStats> = withContext(Dispatchers.Default) {
+        // TODO make this more efficient (I think we can get it all in 1 query)
+        val allPlays = playDao.loadPlays().filter { it.deleteTimestamp == 0L }
+        val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
+        val gameMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
+            accumulator + element.quantity
+        }
+        val items = collectionDao.loadAll().map { it.mapToModel() }
+        val filteredItems = items.filter {
+            it.subtype == null || it.subtype == Game.Subtype.BOARDGAME ||
+                    (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions) ||
+                    (it.subtype == Game.Subtype.BOARDGAME_ACCESSORY && includeAccessories)
+        }
+        gameMap.filterKeys { it.first in filteredItems.map { item -> item.gameId } }.map { game ->
+            val itemPairs = items.filter { it.gameId == game.key.first }
+            GameForPlayStats(
+                id = game.key.first,
+                name = game.key.second,
+                playCount = game.value,
+                isOwned = itemPairs.any { it.own },
+                bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN
+            )
+        }
+    }
+
+    private suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<Player> {
+        val username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
+        return playDao.loadPlayers()
+            .asSequence()
+            .filterNot { it.player.username == username }
+            .filter { includeIncompletePlays || !it.incomplete }
+            .groupBy { it.key() }
+            .map { it.value.mapToModel() }
+            .filterNotNull()
+            .sortedByDescending { it.playCount }
+            .toList()
+    }
+
     private fun updateHIndex(hIndex: HIndex, type: HIndexType, @StringRes typeResId: Int, notificationId: Int) {
         if (hIndex.isValid()) {
             val old = prefs.getHIndex(type)
@@ -758,6 +768,8 @@ class PlayRepository(
             }
         }
     }
+
+    // endregion
 
     companion object {
         private const val NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0
