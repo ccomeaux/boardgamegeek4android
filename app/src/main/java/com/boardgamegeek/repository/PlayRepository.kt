@@ -19,6 +19,7 @@ import com.boardgamegeek.model.PlayStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
+import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToFormBodyForDelete
@@ -368,17 +369,29 @@ class PlayRepository(
     suspend fun upsertPlay(play: Play): Result<PlayUploadResult> {
         if (play.updateTimestamp == 0L)
             return Result.success(PlayUploadResult.noOp(play))
-        val response = phpApi.play(play.mapToFormBodyForUpsert().build())
-        return if (response.hasAuthError()) {
-            Authenticator.clearPassword(context)
-            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
-        } else if (response.hasInvalidIdError()) {
-            Result.failure(Exception(context.getString(R.string.msg_play_update_bad_id)))
-        } else if (!response.error.isNullOrBlank()) {
-            Result.failure(Exception(response.error))
-        } else {
-            markAsSynced(play.internalId, response.playId)
-            Result.success(PlayUploadResult.upsert(play, response.playId, response.numberOfPlays))
+        val result = safeApiCall(context) { phpApi.play(play.mapToFormBodyForUpsert().build()) }
+        result.exceptionOrNull()?.let {
+            return Result.failure(it)
+        }
+        val response = result.getOrNull()
+        return when {
+            response == null -> {
+                Result.failure(Exception(context.getString(R.string.msg_play_update_null_response)))
+            }
+            response.hasAuthError() -> {
+                Authenticator.clearPassword(context)
+                Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+            }
+            response.hasInvalidIdError() -> {
+                Result.failure(Exception(context.getString(R.string.msg_play_update_bad_id)))
+            }
+            !response.error.isNullOrBlank() -> {
+                Result.failure(Exception(response.error))
+            }
+            else -> {
+                markAsSynced(play.internalId, response.playId)
+                Result.success(PlayUploadResult.upsert(play, response.playId, response.numberOfPlays))
+            }
         }
     }
 
@@ -388,39 +401,35 @@ class PlayRepository(
         if (play.internalId == INVALID_ID.toLong())
             return Result.success(PlayUploadResult.noOp(play))
         if (play.playId == INVALID_ID) {
-            playDao.delete(play.internalId)
+            withContext(Dispatchers.IO) { playDao.delete(play.internalId) }
             return Result.success(PlayUploadResult.delete(play))
         }
-        val response = phpApi.play(play.playId.mapToFormBodyForDelete().build())
-        return if (response.hasAuthError()) {
-            Authenticator.clearPassword(context)
-            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
-        } else if (response.hasInvalidIdError()) {
-            playDao.delete(play.internalId)
-            Result.success(PlayUploadResult.delete(play))
-        } else if (!response.error.isNullOrBlank()) {
-            Result.failure(Exception(response.error))
-        } else if (!response.success) {
-            Result.failure(Exception(context.getString(R.string.msg_play_delete_unsuccessful)))
-        } else {
-            playDao.delete(play.internalId)
-            Result.success(PlayUploadResult.delete(play))
+        val result = safeApiCall(context) { phpApi.play(play.playId.mapToFormBodyForDelete().build()) }
+        result.exceptionOrNull()?.let {
+            return Result.failure(it)
         }
-    }
-
-    suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
-        if (!name.isNullOrBlank()) {
-            colors?.let { list ->
-                val entities = list.filter { it.isNotBlank() }.mapIndexed { index, color ->
-                    PlayerColorsEntity(
-                        internalId = 0,
-                        if (type == PlayerType.USER) TYPE_USER else TYPE_PLAYER,
-                        name,
-                        color,
-                        index + 1,
-                    )
-                }
-                playerColorDao.upsertColorsForPlayer(entities)
+        val response = result.getOrNull()
+        return when {
+            response == null -> {
+                Result.failure(Exception(context.getString(R.string.msg_play_update_null_response)))
+            }
+            response.hasAuthError() -> {
+                Authenticator.clearPassword(context)
+                Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+            }
+            response.hasInvalidIdError() -> {
+                playDao.delete(play.internalId)
+                Result.success(PlayUploadResult.delete(play))
+            }
+            !response.error.isNullOrBlank() -> {
+                Result.failure(Exception(response.error))
+            }
+            !response.success -> {
+                Result.failure(Exception(context.getString(R.string.msg_play_delete_unsuccessful)))
+            }
+            else -> {
+                playDao.delete(play.internalId)
+                Result.success(PlayUploadResult.delete(play))
             }
         }
     }
@@ -616,6 +625,23 @@ class PlayRepository(
             }
         }
         internalIds
+    }
+
+    suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
+        if (!name.isNullOrBlank()) {
+            colors?.let { list ->
+                val entities = list.filter { it.isNotBlank() }.mapIndexed { index, color ->
+                    PlayerColorsEntity(
+                        internalId = 0,
+                        if (type == PlayerType.USER) TYPE_USER else TYPE_PLAYER,
+                        name,
+                        color,
+                        index + 1,
+                    )
+                }
+                playerColorDao.upsertColorsForPlayer(entities)
+            }
+        }
     }
 
     suspend fun save(play: Play): Long = withContext(Dispatchers.IO) {
