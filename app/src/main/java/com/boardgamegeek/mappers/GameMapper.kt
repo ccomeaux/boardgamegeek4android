@@ -214,7 +214,7 @@ fun GameRemote.mapForUpsert(internalId: Long, updated: Long): GameForUpsert {
         numberOfComments = statistics?.numcomments?.toIntOrNull(),
         numberOfUsersWeighting = statistics?.numweights?.toIntOrNull(),
         averageWeight = statistics?.averageweight?.toDoubleOrNull(),
-        suggestedPlayerCountPollVoteTotal = this.polls.find { it.name == PLAYER_POLL_NAME }?.totalvotes,
+        suggestedPlayerCountPollVoteTotal = this.polls?.find { it.name == PLAYER_POLL_NAME }?.totalvotes,
         playerCountsBest = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.BEST }.map { it.playerCount }.toSet().forDatabase(),
         playerCountsRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.RECOMMENDED }.map { it.playerCount }.toSet().forDatabase(),
         playerCountsNotRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.NOT_RECOMMENDED }.map { it.playerCount }.toSet().forDatabase(),
