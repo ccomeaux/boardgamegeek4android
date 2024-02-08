@@ -53,7 +53,7 @@ class PlaysSummaryFragment : Fragment() {
             requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
         }
 
-        viewModel.plays.observe(viewLifecycleOwner) { binding.swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) }
+        //viewModel.plays.observe(viewLifecycleOwner) { binding.swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) }
         viewModel.playsInProgress.observe(viewLifecycleOwner) { plays -> bindInProgressPlays(plays) }
         viewModel.playsNotInProgress.observe(viewLifecycleOwner) { plays -> bindRecentPlays(plays) }
         viewModel.playCount.observe(viewLifecycleOwner) { playCount -> bindPlayCount(playCount ?: 0) }

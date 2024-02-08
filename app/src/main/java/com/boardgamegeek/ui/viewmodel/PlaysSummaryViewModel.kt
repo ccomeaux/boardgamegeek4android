@@ -26,7 +26,7 @@ class PlaysSummaryViewModel @Inject constructor(
     private val username = LiveSharedPreference<String>(getApplication(), AccountPreferences.KEY_USERNAME)
 
     init {
-        refresh()
+        reload()
     }
 
     val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
@@ -36,33 +36,48 @@ class PlaysSummaryViewModel @Inject constructor(
 
     val plays = syncTimestamp.switchMap {
         liveData {
-            try {
-                val list = playRepository.loadPlays()
-                val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
-                    emit(RefreshableResource.refreshing(list))
-                    // TODO - while refreshing, the plays aren't updated in the UI. Figure out how to do that. Maybe listen to the play sync dates
-                    playRepository.refreshPlays()
-                    playRepository.loadPlays()
-                } else list
-                emit(RefreshableResource.success(refreshedList))
-            } catch (e: Exception) {
-                playsRateLimiter.reset(0)
-                emit(RefreshableResource.error(e, getApplication()))
-            }
+            emitSource(playRepository.loadPlaysFlow().asLiveData())
+            attemptRefresh()
         }
     }
 
-    val playCount: LiveData<Int> = plays.map { list ->
-        list.data?.sumOf { it.quantity } ?: 0
+    fun reload(): Boolean {
+        val value = syncTimestamp.value
+        return if (value == null || value.isOlderThan(5.seconds)) {
+            syncTimestamp.postValue(System.currentTimeMillis())
+            true
+        } else false
     }
+
+    fun refresh(): Boolean {
+        return attemptRefresh() // TODO - force?
+    }
+
+    private fun attemptRefresh(): Boolean {
+        return if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
+            viewModelScope.launch {
+                try {
+                    playRepository.refreshPlays()
+                } catch (e: Exception) {
+                    // TODO emit error message
+                    playsRateLimiter.reset(0)
+                }
+            }
+            true
+        } else false
+    }
+
+    val playCount: LiveData<Int> = plays.map { list ->
+        list.sumOf { it.quantity }
+    }.distinctUntilChanged()
 
     val playsInProgress: LiveData<List<Play>> = plays.map { list ->
-        list.data?.filter { it.dirtyTimestamp > 0L }.orEmpty()
-    }
+        list.filter { it.dirtyTimestamp > 0L }
+    }.distinctUntilChanged()
 
     val playsNotInProgress: LiveData<List<Play>> = plays.map { list ->
-        list.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY).orEmpty()
-    }
+        list.filter { it.dirtyTimestamp == 0L }.take(ITEMS_TO_DISPLAY)
+    }.distinctUntilChanged()
 
     val players: LiveData<List<Player>> = plays.switchMap {
         liveData {
@@ -94,14 +109,6 @@ class PlaysSummaryViewModel @Inject constructor(
         addSource(n) {
             value = HIndex(h.value ?: 0, it ?: 0)
         }
-    }
-
-    fun refresh(): Boolean {
-        val value = syncTimestamp.value
-        return if (value == null || value.isOlderThan(1.seconds)) {
-            syncTimestamp.postValue(System.currentTimeMillis())
-            true
-        } else false
     }
 
     fun reset() {

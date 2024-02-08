@@ -34,6 +34,9 @@ interface PlayDao {
     @Query("SELECT * FROM plays ORDER BY date DESC, play_id DESC")
     suspend fun loadPlays(): List<PlayEntity>
 
+    @Query("SELECT * FROM plays ORDER BY date DESC, play_id DESC")
+    fun loadPlaysFlow(): Flow<List<PlayEntity>>
+
     @Query("SELECT * FROM plays WHERE play_id = :playId")
     suspend fun loadPlay(playId: Int): PlayEntity?
 

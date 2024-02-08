@@ -33,9 +33,7 @@ import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.work.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
@@ -65,6 +63,15 @@ class PlayRepository(
 
     suspend fun loadPlays(): List<Play> = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playDao.loadPlays() }.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
+    }
+
+    fun loadPlaysFlow(): Flow<List<Play>> {
+        return playDao.loadPlaysFlow()
+            .map {
+                it.map { entity -> entity.mapToModel() }.filterNot { play -> play.deleteTimestamp > 0L }
+            }
+            .flowOn(Dispatchers.Default)
+            .conflate()
     }
 
     suspend fun loadUpdatingPlays(): List<Play> = withContext(Dispatchers.Default) {
