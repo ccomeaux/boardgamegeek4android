@@ -19,6 +19,7 @@ import com.boardgamegeek.model.PlayStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
+import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToModel
@@ -32,6 +33,9 @@ import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.PlayStatsActivity
 import com.boardgamegeek.work.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Calendar
@@ -73,7 +77,11 @@ class PlayRepository(
 
     suspend fun loadPlay(internalId: Long): Play? = withContext(Dispatchers.Default) {
         if (internalId == INVALID_ID.toLong()) null
-        else withContext(Dispatchers.IO) { playDao.loadPlayWithPlayers(internalId) }.mapToModel()
+        else withContext(Dispatchers.IO) { playDao.loadPlayWithPlayers(internalId) }?.mapToModel()
+    }
+
+    fun loadPlayFlow(internalId: Long): Flow<Play?> {
+        return playDao.loadPlayWithPlayersFlow(internalId).map { it?.mapToModel() }.flowOn(Dispatchers.Default)
     }
 
     suspend fun loadPlaysByGame(gameId: Int): List<Play> = withContext(Dispatchers.Default) {
@@ -206,32 +214,28 @@ class PlayRepository(
     // region Download
 
     suspend fun refreshPlay(
-        internalId: Long,
-        playId: Int,
-        gameId: Int,
+        play: Play,
         timestamp: Long = System.currentTimeMillis()
-    ): Play? =
-        withContext(Dispatchers.IO) {
-            val username = prefs[AccountPreferences.KEY_USERNAME, ""]
-            if (username.isNullOrBlank() ||
-                internalId == INVALID_ID.toLong() ||
-                playId == INVALID_ID ||
-                gameId == INVALID_ID
-            ) {
-                null
-            } else {
-                var page = 1
-                var returnedPlay: Play?
-                do {
-                    val result = api.playsByGame(username, gameId, page++)
-                    val plays = result.plays.mapToModel(timestamp)
+    ): String? = withContext(Dispatchers.Default) {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""].orEmpty()
+        if (username.isNotBlank() && play.internalId != INVALID_ID.toLong() && play.playId != INVALID_ID && play.gameId != INVALID_ID) {
+            var page = 1
+            var result: Result<PlaysResponse>?
+            do {
+                result = safeApiCall(context) { api.playsByGame(username, play.gameId, page++) }
+                if (result.isSuccess) {
+                    val plays = result.getOrNull()?.plays.mapToModel(timestamp)
                     saveFromSync(plays, timestamp)
-                    Timber.i("Synced plays for game ID %s (page %,d)", gameId, page)
-                    returnedPlay = plays.find { it.playId == playId }
-                } while (result.hasMorePages() && returnedPlay == null)
-                returnedPlay
-            }
+                    Timber.i("Synced plays for game ID %s (page %,d)", play.gameId, page)
+                    if (plays.any { it.playId == play.playId })
+                        break
+                } else {
+                    return@withContext result.exceptionOrNull()?.localizedMessage ?: "Error"
+                }
+            } while (result?.getOrNull()?.hasMorePages() == true)
         }
+        null
+    }
 
     suspend fun refreshPlaysForGame(gameId: Int) = withContext(Dispatchers.Default) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]

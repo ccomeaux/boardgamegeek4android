@@ -4,11 +4,12 @@ import android.app.Application
 import androidx.lifecycle.*
 import androidx.work.WorkManager
 import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -23,29 +24,33 @@ class PlayViewModel @Inject constructor(
     private val forceRefresh = AtomicBoolean()
     private val internalId = MutableLiveData<Long>()
 
-    val play: LiveData<RefreshableResource<Play>> = internalId.switchMap { id ->
+    private val _isDownloading = MutableLiveData(false)
+    private val _isUploading = WorkManager.getInstance(getApplication()).getWorkInfosByTagLiveData(workTag).map { list ->
+        list.any { workInfo -> !workInfo.state.isFinished }
+    }
+
+    private val _isRefreshing = MediatorLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
+
+    private val _errorMessage = EventLiveData()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
+
+    init {
+        _isRefreshing.addSource(_isDownloading) {
+            _isRefreshing.value = it || (_isUploading.value ?: false)
+        }
+        _isRefreshing.addSource(_isUploading) {
+            _isRefreshing.value = it || (_isDownloading.value ?: false)
+        }
+    }
+
+    val play: LiveData<Play?> = internalId.switchMap { id ->
         liveData {
-            try {
-                latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
-                val play = repository.loadPlay(id)
-                emit(RefreshableResource.success(play))
-                if (arePlaysRefreshing.compareAndSet(false, true)) {
-                    play?.let {
-                        val canRefresh = it.playId != BggContract.INVALID_ID && it.gameId != BggContract.INVALID_ID
-                        val shouldRefresh = it.syncTimestamp.isOlderThan(2.hours)
-                        if (canRefresh && (shouldRefresh || forceRefresh.compareAndSet(true, false))) {
-                            emit(RefreshableResource.refreshing(it))
-                            repository.refreshPlay(id, it.playId, it.gameId)
-                            val refreshedPlay = repository.loadPlay(id)
-                            emit(RefreshableResource.success(refreshedPlay))
-                        }
-                    }
-                }
-            } catch (e: Exception) {
-                emit(RefreshableResource.error(e, application))
-            } finally {
-                arePlaysRefreshing.set(false)
-            }
+            emitSource(repository.loadPlayFlow(id).distinctUntilChanged().asLiveData().also {
+                attemptRefresh()
+            })
         }
     }
 
@@ -55,25 +60,34 @@ class PlayViewModel @Inject constructor(
 
     fun refresh() {
         forceRefresh.set(true)
-        reload()
+        attemptRefresh()
+    }
+
+    private fun attemptRefresh() {
+        viewModelScope.launch {
+            if (arePlaysRefreshing.compareAndSet(false, true)) {
+                play.value?.let { play ->
+                    if (forceRefresh.compareAndSet(true, false) ||
+                        play.syncTimestamp.isOlderThan(2.hours)) {
+                        _isDownloading.value = true
+                        repository.refreshPlay(play)?.let {
+                            _errorMessage.postMessage(it)
+                        }
+                        _isDownloading.value = false
+                    }
+                }
+                arePlaysRefreshing.set(false)
+            }
+        }
     }
 
     fun reload() {
         internalId.value = internalId.value
     }
 
-    private var wasRefreshing = false
-    val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosByTagLiveData(workTag).map { list ->
-        if (wasRefreshing && list.all { it.state.isFinished }) {
-            wasRefreshing = false
-            reload()
-        }
-        list.any { workInfo -> !workInfo.state.isFinished }
-    }
-
     fun discard() {
         viewModelScope.launch {
-            play.value?.data?.let {
+            play.value?.let {
                 if (repository.markAsDiscarded(it.internalId))
                     refresh()
             }
@@ -82,9 +96,8 @@ class PlayViewModel @Inject constructor(
 
     fun send() {
         viewModelScope.launch {
-            play.value?.data?.let {
+            play.value?.let {
                 if (repository.markAsUpdated(it.internalId)) {
-                    wasRefreshing = true
                     repository.enqueueUploadRequest(it.internalId, workTag)
                 }
             }
@@ -93,9 +106,8 @@ class PlayViewModel @Inject constructor(
 
     fun delete() {
         viewModelScope.launch {
-            play.value?.data?.let {
+            play.value?.let {
                 if (repository.markAsDeleted(it.internalId)) {
-                    wasRefreshing = true
                     repository.enqueueUploadRequest(it.internalId, workTag)
                 }
             }

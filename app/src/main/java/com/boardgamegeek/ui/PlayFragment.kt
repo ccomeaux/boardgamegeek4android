@@ -12,7 +12,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayBinding
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayPlayer
-import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
@@ -73,25 +72,22 @@ class PlayFragment : Fragment() {
         binding.playersView.adapter = adapter
         viewModel.isRefreshing.observe(viewLifecycleOwner) {
             it?.let {
-                if (it) binding.progressBar.show()
-                else binding.progressBar.hide()
+                binding.swipeRefreshLayout.post { binding.swipeRefreshLayout.isRefreshing = it }
+            }
+        }
+        viewModel.errorMessage.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { error ->
+                showError(error)
             }
         }
         viewModel.play.observe(viewLifecycleOwner) {
-            binding.swipeRefreshLayout.post { binding.swipeRefreshLayout.isRefreshing = it?.status == Status.REFRESHING }
-            play = it.data
-            val message = resources.getString(R.string.empty_play)
-            when {
-                it?.data == null -> showError(message)
-                it.status == Status.ERROR -> {
-                    showData(it.data)
-                    longToast(it.message.ifBlank { message })
-                }
-                else -> {
-                    showData(it.data)
-                    maybeShowNotification()
-                    requireActivity().invalidateOptionsMenu()
-                }
+            play = it
+            requireActivity().invalidateOptionsMenu()
+            if (it == null) {
+                showError(resources.getString(R.string.empty_play))
+            } else {
+                showData(it)
+                maybeShowNotification()
             }
         }
     }
@@ -102,9 +98,10 @@ class PlayFragment : Fragment() {
     }
 
     private fun showError(message: String) {
+        binding.progressBar.hide()
         binding.emptyView.text = message
         binding.emptyView.isVisible = true
-        binding.listContainer.isVisible = false
+        binding.constraintLayout.isVisible = false
     }
 
     private fun showData(play: Play) {
@@ -190,8 +187,9 @@ class PlayFragment : Fragment() {
         binding.playersLabel.isVisible = play.players.isNotEmpty()
         adapter.players = play.players
 
+        binding.progressBar.hide()
         binding.emptyView.isVisible = false
-        binding.listContainer.isVisible = true
+        binding.constraintLayout.isVisible = true
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
