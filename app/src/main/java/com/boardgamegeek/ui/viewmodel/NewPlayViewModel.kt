@@ -542,8 +542,7 @@ class NewPlayViewModel @Inject constructor(
                 _players = players,
             )
 
-            playRepository.enqueueUploadRequest(play.internalId)
-            _insertedId.value = playRepository.save(play)
+            _insertedId.value = playRepository.logPlay(play)
         }
     }
 

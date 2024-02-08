@@ -156,10 +156,10 @@ class PlayRepository(
 
     suspend fun loadPlayerFavoriteColors(): Map<Player, String> = withContext(Dispatchers.IO) {
         playerColorDao.loadFavoritePlayerColors().associate {
-            val player = if (it.playerType == PlayerColorsEntity.TYPE_USER)
-                Player.createUser(it.playerName)
-            else
-                Player.createNonUser(it.playerName)
+            val player = when (it.playerType) {
+                PlayerColorsEntity.TYPE_USER -> Player.createUser(it.playerName)
+                else -> Player.createNonUser(it.playerName)
+            }
             player to it.playerColor
         }
     }
@@ -362,11 +362,89 @@ class PlayRepository(
 
     // endregion
 
+    // region Log
+
+    suspend fun logQuickPlay(gameId: Int, gameName: String): Result<PlayUploadResult> {
+        val play = Play(
+            gameId = gameId,
+            gameName = gameName,
+            dateInMillis = Calendar.getInstance().timeInMillis,
+            updateTimestamp = System.currentTimeMillis()
+        )
+        val internalId = upsert(play)
+        return tryUpload(play.copy(internalId = internalId))
+    }
+
+    suspend fun logPlay(play: Play): Long = withContext(Dispatchers.IO) {
+        val id = upsert(play)
+
+        if (play.updateTimestamp > 0L) tryUpload(play)
+
+        // remember details about the play if it's being uploaded for the first time
+        if (!play.isSynced && (play.updateTimestamp > 0)) {
+            prefs[KEY_LAST_PLAY_DATE] = play.dateInMillis
+            // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
+            val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
+            val isToday = play.dateInMillis.isToday() || endTime.isToday()
+            if (isToday) {
+                prefs[KEY_LAST_PLAY_TIME] = System.currentTimeMillis()
+                prefs[KEY_LAST_PLAY_LOCATION] = play.location
+                prefs.putLastPlayPlayers(play.players)
+            }
+
+            gameDao.loadGame(play.gameId)?.let {
+                // update game's custom sort order
+                if (play.players.isNotEmpty()) {
+                    gameDao.updateCustomPlayerSort(play.gameId, play.arePlayersCustomSorted())
+                }
+
+                // update game colors
+                val existingColors = gameColorDao.loadColorsForGame(play.gameId).map { it.color }
+                play.players.distinctBy { it.color }.forEach {// TODO just insert it with the right CONFLICT
+                    if (!existingColors.contains(it.color)) {
+                        gameColorDao.insert(listOf(GameColorsEntity(internalId = 0L, gameId = play.gameId, it.color)))
+                    }
+                }
+            }
+
+            // save nicknames for players if they don't have one already
+            play.players.forEach { player ->
+                if (player.username.isNotBlank() && player.name.isNotBlank()) {
+                    userDao.loadUser(player.username)?.let {
+                        if (it.playNickname.isNullOrBlank()) {
+                            userDao.updateNickname(player.username, player.name)
+                        }
+                    }
+                }
+            }
+        }
+
+        id
+    }
+
+    // endregion
+
+    // region Upload
+
+    private suspend fun tryUpload(play: Play): Result<PlayUploadResult> {
+        return try {
+            val result = uploadPlay(play)
+            if (result.isSuccess) {
+                updateGamePlayCount(play.gameId)
+                calculateStats()
+            }
+            result
+        } catch (ex: Exception) {
+            enqueueUploadRequest(play.internalId)
+            return Result.failure(Exception(context.getString(R.string.msg_play_queued_for_upload), ex))
+        }
+    }
+
     /**
      * Upload the play to BGG. Returns the status (new, update, or error). If successful, returns the new Play ID and the new total number of plays,
      * an error message if not.
      */
-    suspend fun upsertPlay(play: Play): Result<PlayUploadResult> {
+    suspend fun uploadPlay(play: Play): Result<PlayUploadResult> {
         if (play.updateTimestamp == 0L)
             return Result.success(PlayUploadResult.noOp(play))
         val result = safeApiCall(context) { phpApi.play(play.mapToFormBodyForUpsert().build()) }
@@ -390,6 +468,8 @@ class PlayRepository(
             }
             else -> {
                 markAsSynced(play.internalId, response.playId)
+                updateGamePlayCount(play.gameId)
+                calculateStats()
                 Result.success(PlayUploadResult.upsert(play, response.playId, response.numberOfPlays))
             }
         }
@@ -434,33 +514,6 @@ class PlayRepository(
         }
     }
 
-    suspend fun logQuickPlay(gameId: Int, gameName: String): Result<PlayUploadResult> {
-        val play = Play(
-            gameId = gameId,
-            gameName = gameName,
-            dateInMillis = Calendar.getInstance().timeInMillis,
-            updateTimestamp = System.currentTimeMillis()
-        )
-        val internalId = upsert(play)
-        return logPlay(play.copy(internalId = internalId))
-    }
-
-    suspend fun logPlay(play: Play): Result<PlayUploadResult> {
-        return try {
-            val result = upsertPlay(play)
-            if (result.isSuccess) {
-                updateGamePlayCount(play.gameId)
-                calculateStats()
-            }
-            result
-        } catch (ex: Exception) {
-            enqueueUploadRequest(play.internalId)
-            return Result.failure(Exception(context.getString(R.string.msg_play_queued_for_upload), ex))
-        }
-    }
-
-    // region Upload
-
     fun enqueueUploadRequest(internalId: Long, tag: String? = null) {
         val workRequestBuilder = OneTimeWorkRequestBuilder<PlayUploadWorker>()
             .setInputData(workDataOf(PlayUploadWorker.INTERNAL_ID to internalId))
@@ -492,13 +545,29 @@ class PlayRepository(
         var unchangedCount = 0
         var dirtyCount = 0
         var errorCount = 0
-        plays.forEach {
-            when (saveFromSync(it, syncTimestamp)) {
-                SaveStatus.UPDATED -> updateCount++
-                SaveStatus.INSERTED -> insertCount++
-                SaveStatus.DIRTY -> dirtyCount++
-                SaveStatus.ERROR -> errorCount++
-                SaveStatus.UNCHANGED -> unchangedCount++
+        plays.forEach { play ->
+            if (play.playId == INVALID_ID || play.playId == 0) {
+                Timber.i("Can't sync a play without a play ID.")
+                errorCount++
+            }
+            val candidate = play.playId.let { playDao.loadPlay(it) }
+            when {
+                candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
+                    upsert(play, syncTimestamp)
+                    insertCount++
+                }
+                (((candidate.dirtyTimestamp ?: 0L) > 0L || (candidate.deleteTimestamp ?: 0L) > 0L || (candidate.updateTimestamp ?: 0L) > 0L)) -> {
+                    Timber.i("Not saving during the sync; local play is modified.")
+                    dirtyCount++
+                }
+                candidate.syncHashCode == play.generateSyncHashCode() -> {
+                    playDao.updateSyncTimestamp(candidate.internalId, syncTimestamp)
+                    unchangedCount++
+                }
+                else -> {
+                    upsert(play.copy(internalId = candidate.internalId), syncTimestamp)
+                    updateCount++
+                }
             }
         }
         Timber.i(
@@ -510,36 +579,6 @@ class PlayRepository(
             dirtyCount,
             errorCount
         )
-    }
-
-    enum class SaveStatus {
-        UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
-    }
-
-    private suspend fun saveFromSync(play: Play, syncTimestamp: Long): SaveStatus = withContext(Dispatchers.IO) {
-        if (play.playId == INVALID_ID || play.playId == 0) {
-            Timber.i("Can't sync a play without a play ID.")
-            return@withContext SaveStatus.ERROR
-        }
-        val candidate = play.playId.let { playDao.loadPlay(it) }
-        when {
-            candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
-                upsert(play, syncTimestamp)
-                SaveStatus.INSERTED
-            }
-            (((candidate.dirtyTimestamp ?: 0L) > 0L || (candidate.deleteTimestamp ?: 0L) > 0L || (candidate.updateTimestamp ?: 0L) > 0L)) -> {
-                Timber.i("Not saving during the sync; local play is modified.")
-                SaveStatus.DIRTY
-            }
-            candidate.syncHashCode == play.generateSyncHashCode() -> {
-                playDao.updateSyncTimestamp(candidate.internalId, syncTimestamp)
-                SaveStatus.UNCHANGED
-            }
-            else -> {
-                upsert(play.copy(internalId = candidate.internalId), syncTimestamp)
-                SaveStatus.UPDATED
-            }
-        }
     }
 
     private suspend fun markAsSynced(internalId: Long, playId: Int): Boolean = withContext(Dispatchers.IO) {
@@ -642,51 +681,6 @@ class PlayRepository(
                 playerColorDao.upsertColorsForPlayer(entities)
             }
         }
-    }
-
-    suspend fun save(play: Play): Long = withContext(Dispatchers.IO) {
-        val id = upsert(play)
-
-        // remember details about the play if it's being uploaded for the first time
-        if (!play.isSynced && (play.updateTimestamp > 0)) {
-            prefs[KEY_LAST_PLAY_DATE] = play.dateInMillis
-            // if the play is "current" (for today and about to be synced), remember the location and players to be used in the next play
-            val endTime = play.dateInMillis + min(60 * 24, play.length) * 60 * 1000
-            val isToday = play.dateInMillis.isToday() || endTime.isToday()
-            if (isToday) {
-                prefs[KEY_LAST_PLAY_TIME] = System.currentTimeMillis()
-                prefs[KEY_LAST_PLAY_LOCATION] = play.location
-                prefs.putLastPlayPlayers(play.players)
-            }
-
-            gameDao.loadGame(play.gameId)?.let {
-                // update game's custom sort order
-                if (play.players.isNotEmpty()) {
-                    gameDao.updateCustomPlayerSort(play.gameId, play.arePlayersCustomSorted())
-                }
-
-                // update game colors
-                val existingColors = gameColorDao.loadColorsForGame(play.gameId).map { it.color }
-                play.players.distinctBy { it.color }.forEach {// TODO just insert it with the right CONFLICT
-                    if (!existingColors.contains(it.color)) {
-                        gameColorDao.insert(listOf(GameColorsEntity(internalId = 0L, gameId = play.gameId, it.color)))
-                    }
-                }
-            }
-
-            // save nicknames for players if they don't have one already
-            play.players.forEach { player ->
-                if (player.username.isNotBlank() && player.name.isNotBlank()) {
-                    userDao.loadUser(player.username)?.let {
-                        if (it.playNickname.isNullOrBlank()) {
-                            userDao.updateNickname(player.username, player.name)
-                        }
-                    }
-                }
-            }
-        }
-
-        id
     }
 
     private suspend fun upsert(play: Play, syncTimestamp: Long = 0L) = withContext(Dispatchers.IO) {

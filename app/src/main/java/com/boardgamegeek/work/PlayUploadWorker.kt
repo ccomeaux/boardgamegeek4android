@@ -68,7 +68,7 @@ class PlayUploadWorker @AssistedInject constructor(
 
         Timber.i("Found ${playsToUpsert.count()} play(s) marked for upsert")
         uploadList(playsToUpsert) {
-            playRepository.upsertPlay(it)
+            playRepository.uploadPlay(it)
         }
 
         gameIds.filterNot { it == BggContract.INVALID_ID }.forEach { gameId ->

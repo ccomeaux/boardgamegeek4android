@@ -481,8 +481,7 @@ class LogPlayViewModel @Inject constructor(
     fun logPlay() {
         viewModelScope.launch {
             val play = buildPlay(updateTimestamp = System.currentTimeMillis(), dirtyTimestamp = System.currentTimeMillis())
-            val internalId = playRepository.save(play)
-            playRepository.enqueueUploadRequest(internalId)
+            val internalId = playRepository.logPlay(play)
             _internalId.postValue(internalId)
             if (internalIdToDelete != INVALID_ID.toLong()) {
                 if (playRepository.markAsDeleted(internalIdToDelete))
@@ -494,7 +493,7 @@ class LogPlayViewModel @Inject constructor(
 
     fun saveDraft(wantToFinish: Boolean = true) {
         viewModelScope.launch {
-            _internalId.postValue(playRepository.save(buildPlay(dirtyTimestamp = System.currentTimeMillis())))
+            _internalId.postValue(playRepository.logPlay(buildPlay(dirtyTimestamp = System.currentTimeMillis())))
             if (wantToFinish) _canFinish.postValue(true)
         }
     }
