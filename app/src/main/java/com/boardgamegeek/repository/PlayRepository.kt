@@ -25,6 +25,7 @@ import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToFormBodyForDelete
 import com.boardgamegeek.mappers.mapToFormBodyForUpsert
+import com.boardgamegeek.model.Location.Companion.applySort
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
@@ -214,6 +215,13 @@ class PlayRepository(
                     Location.SortType.PLAY_COUNT -> compareByDescending<Location> { it.playCount }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
                 }
             )
+    }
+
+    fun loadLocationsFlow(sortBy: Location.SortType = Location.SortType.PLAY_COUNT): Flow<List<Location>> {
+        return playDao.loadLocationsFlow()
+            .map { it.map { location -> location.mapToModel() }.applySort(sortBy) }
+            .flowOn(Dispatchers.Default)
+            .conflate()
     }
 
     // endregion

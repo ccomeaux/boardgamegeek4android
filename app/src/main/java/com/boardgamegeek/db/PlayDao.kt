@@ -92,6 +92,9 @@ interface PlayDao {
     @Query("SELECT location AS name, SUM(quantity) AS playCount from plays WHERE delete_timestamp IS NULL OR delete_timestamp = 0 GROUP BY location ORDER BY playCount DESC")
     suspend fun loadLocations(): List<LocationEntity>
 
+    @Query("SELECT location AS name, SUM(quantity) AS playCount from plays WHERE delete_timestamp IS NULL OR delete_timestamp = 0 GROUP BY location ORDER BY playCount DESC")
+    fun loadLocationsFlow(): Flow<List<LocationEntity>>
+
     @Transaction
     suspend fun updateUsername(playInternalId: Long, playerInternalId: Long, username: String) {
         updatePlayerUsername(playerInternalId, username)
