@@ -109,11 +109,10 @@ class PlaysSummaryViewModel @Inject constructor(
         }
     }
 
-    val colors: LiveData<List<PlayerColor>> = liveData {
-        emit(
-            if (username.value.isNullOrBlank()) emptyList()
-            else playRepository.loadUserColors(username.value.orEmpty())
-        )
+    val colors: LiveData<List<PlayerColor>> = username.switchMap {
+        liveData {
+            emitSource(playRepository.loadUserColorsFlow(it.orEmpty()).asLiveData())
+        }
     }
 
     val hIndex = MediatorLiveData<HIndex>().apply {

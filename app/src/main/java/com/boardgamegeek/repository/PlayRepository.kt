@@ -200,8 +200,11 @@ class PlayRepository(
     }
 
     suspend fun loadUserColors(username: String) = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { playerColorDao.loadColorsForUser(username).map { it.mapToModel() } }
+        withContext(Dispatchers.IO) { playerColorDao.loadColorsForUser(username) } .map { it.mapToModel() }
     }
+
+    fun loadUserColorsFlow(username: String) =
+        playerColorDao.loadColorsForUserFlow(username).map { it.map { it.mapToModel() } }
 
     suspend fun loadNonUserColors(playerName: String) = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playerColorDao.loadColorsForPlayer(playerName).map { it.mapToModel() } }
