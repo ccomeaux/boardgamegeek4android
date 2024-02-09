@@ -45,5 +45,17 @@ data class Player(
     companion object {
         fun createUser(name: String) = Player(name = "", username = name)
         fun createNonUser(name: String) = Player(name = name, username = "")
+
+        fun List<Player>.applySort(sortBy: SortType): List<Player> {
+            return sortedWith(
+                when (sortBy) {
+                    SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.PLAY_COUNT -> compareByDescending<Player> { it.playCount }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.WIN_COUNT -> compareByDescending<Player> { it.winCount }
+                        .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                }
+            )
+        }
     }
 }

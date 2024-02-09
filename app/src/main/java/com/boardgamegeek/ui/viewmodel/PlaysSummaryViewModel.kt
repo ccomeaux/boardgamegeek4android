@@ -9,9 +9,8 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -84,10 +83,16 @@ class PlaysSummaryViewModel @Inject constructor(
 
     val players: LiveData<List<Player>> = plays.switchMap {
         liveData {
-            emit(playRepository.loadPlayers())
+            emitSource(
+                playRepository.loadPlayersFlow()
+                    .map { list ->
+                        list.filter { player -> player.username != username.value }
+                            .take(ITEMS_TO_DISPLAY)
+                    }
+                    .distinctUntilChanged()
+                    .asLiveData()
+            )
         }
-    }.map { p ->
-        p.filter { it.username != username.value }.take(ITEMS_TO_DISPLAY)
     }
 
     val locations: LiveData<List<Location>> = plays.switchMap {

@@ -26,6 +26,7 @@ import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapToFormBodyForDelete
 import com.boardgamegeek.mappers.mapToFormBodyForUpsert
 import com.boardgamegeek.model.Location.Companion.applySort
+import com.boardgamegeek.model.Player.Companion.applySort
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
@@ -134,16 +135,27 @@ class PlayRepository(
     suspend fun loadPlayers(sortBy: Player.SortType = Player.SortType.PLAY_COUNT): List<Player> = withContext(Dispatchers.Default) {
         val players = withContext(Dispatchers.IO) { playDao.loadPlayers() }
         val grouping = players.groupBy { it.key() }
-        val list = grouping.map { (_, value) ->
+        grouping.map { (_, value) ->
             value.firstOrNull()?.let {
                 value.mapToModel()
             }
-        }.filterNotNull()
-        when (sortBy) {
-            Player.SortType.NAME -> list.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER, Player::name))
-            Player.SortType.PLAY_COUNT -> list.sortedByDescending { it.playCount }
-            Player.SortType.WIN_COUNT -> list.sortedByDescending { it.winCount }
         }
+            .filterNotNull()
+            .applySort(sortBy)
+    }
+
+    fun loadPlayersFlow(sortBy: Player.SortType = Player.SortType.PLAY_COUNT): Flow<List<Player>> {
+        return playDao.loadPlayersFlow()
+            .map { list ->
+                list.groupBy { player -> player.key() }
+                    .map { (_, value) ->
+                        value.firstOrNull()?.let {
+                            value.mapToModel()
+                        }
+                    }
+                    .filterNotNull()
+                    .applySort(sortBy)
+            }
     }
 
     suspend fun loadPlayersByLocation(location: String = ""): List<Player> = withContext(Dispatchers.Default) {
