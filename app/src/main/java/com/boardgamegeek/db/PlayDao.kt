@@ -43,11 +43,17 @@ interface PlayDao {
     @Query("SELECT * FROM plays WHERE object_id = :gameId ORDER BY date DESC, play_id DESC")
     suspend fun loadPlaysForGame(gameId: Int): List<PlayEntity>
 
+    @Query("SELECT * FROM plays WHERE object_id = :gameId ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForGameFlow(gameId: Int): Flow<List<PlayEntity>>
+
     @Query("SELECT * FROM plays WHERE location = :location ORDER BY date DESC, play_id DESC")
     suspend fun loadPlaysForLocation(location: String): List<PlayEntity>
 
+    @Query("SELECT * FROM plays WHERE location = :location ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForLocationFlow(location: String): Flow<List<PlayEntity>>
+
     @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE user_name = :username ORDER BY date DESC, play_id DESC")
-    suspend fun loadPlaysForUser(username: String): List<PlayEntity>
+    fun loadPlaysForUserFlow(username: String): Flow<List<PlayEntity>>
 
     @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE user_name = :username AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
     suspend fun loadPlayersForUser(username: String): List<PlayerWithPlayEntity>
@@ -56,7 +62,7 @@ interface PlayDao {
     suspend fun loadPlaysForUserAndGame(username: String, gameId: Int): List<PlayEntity>
 
     @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE name = :name AND (user_name = '' OR user_name IS NULL) ORDER BY date DESC, play_id DESC")
-    suspend fun loadPlaysForPlayer(name: String): List<PlayEntity>
+    fun loadPlaysForPlayerFlow(name: String): Flow<List<PlayEntity>>
 
     @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE name = :name AND (user_name = '' OR user_name IS NULL)")
     suspend fun loadPlayersForPlayer(name: String): List<PlayerWithPlayEntity>

@@ -12,6 +12,8 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -70,16 +72,17 @@ class PlaysViewModel @Inject constructor(
 
     private val allPlays: LiveData<List<Play>> = playInfo.switchMap {
         liveData {
-            val list = when (it.mode) {
-                Mode.ALL -> playRepository.loadPlays()
-                Mode.GAME -> playRepository.loadPlaysByGame(it.id)
-                Mode.LOCATION -> playRepository.loadPlaysByLocation(it.name)
-                Mode.BUDDY -> playRepository.loadPlaysByUsername(it.name)
-                Mode.PLAYER -> playRepository.loadPlaysByPlayerName(it.name)
+            val list: Flow<List<Play>> = when (it.mode) {
+                Mode.ALL -> playRepository.loadPlaysFlow()
+                Mode.GAME -> playRepository.loadPlaysByGameFlow(it.id)
+                Mode.LOCATION -> playRepository.loadPlaysByLocationFlow(it.name)
+                Mode.BUDDY -> playRepository.loadPlaysByUsernameFlow(it.name)
+                Mode.PLAYER -> playRepository.loadPlaysByPlayerNameFlow(it.name)
             }
-            emit(list)
+            emitSource(list.distinctUntilChanged().asLiveData())
         }
     }
+
     init {
         _plays.addSource(allPlays) { list ->
             filterAndSortPlays(list, sortType.value, filterType.value)

@@ -63,10 +63,6 @@ class PlayRepository(
 
     // region Load
 
-    suspend fun loadPlays(): List<Play> = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { playDao.loadPlays() }.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
-    }
-
     fun loadPlaysFlow(): Flow<List<Play>> {
         return playDao.loadPlaysFlow()
             .map {
@@ -100,22 +96,28 @@ class PlayRepository(
             .filterNot { it.deleteTimestamp > 0L }
     }
 
-    suspend fun loadPlaysByLocation(location: String): List<Play> = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { playDao.loadPlaysForLocation(location) }
-            .map { it.mapToModel() }
-            .filterNot { it.deleteTimestamp > 0L }
+    fun loadPlaysByGameFlow(gameId: Int): Flow<List<Play>> {
+        return playDao.loadPlaysForGameFlow(gameId).map { list ->
+            list.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
+        }
     }
 
-    suspend fun loadPlaysByUsername(username: String): List<Play> = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { playDao.loadPlaysForUser(username) }
-            .map { it.mapToModel() }
-            .filterNot { it.deleteTimestamp > 0L }
+    fun loadPlaysByLocationFlow(location: String): Flow<List<Play>> {
+        return playDao.loadPlaysForLocationFlow(location).map { list ->
+            list.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
+        }
     }
 
-    suspend fun loadPlaysByPlayerName(playerName: String): List<Play> = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { playDao.loadPlaysForPlayer(playerName) }
-            .map { it.mapToModel() }
-            .filterNot { it.deleteTimestamp > 0L }
+    fun loadPlaysByUsernameFlow(username: String): Flow<List<Play>> {
+        return playDao.loadPlaysForUserFlow(username).map { list ->
+            list.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
+        }
+    }
+
+    fun loadPlaysByPlayerNameFlow(playerName: String): Flow<List<Play>> {
+        return playDao.loadPlaysForPlayerFlow(playerName).map { list ->
+            list.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
+        }
     }
 
     suspend fun loadPlaysByPlayer(name: String, gameId: Int, isUser: Boolean): List<Play> = withContext(Dispatchers.Default) {
@@ -200,7 +202,7 @@ class PlayRepository(
     }
 
     suspend fun loadUserColors(username: String) = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { playerColorDao.loadColorsForUser(username) } .map { it.mapToModel() }
+        withContext(Dispatchers.IO) { playerColorDao.loadColorsForUser(username) }.map { it.mapToModel() }
     }
 
     fun loadUserColorsFlow(username: String) =
@@ -702,7 +704,7 @@ class PlayRepository(
         newLocationName: String,
     ): List<Long> = withContext(Dispatchers.IO) {
         val internalIds = mutableListOf<Long>()
-        val plays = loadPlaysByLocation(oldLocationName)
+        val plays = playDao.loadPlaysForLocation(oldLocationName).map { it.mapToModel() }
         plays.forEach { play ->
             if (play.dirtyTimestamp > 0 || play.updateTimestamp > 0) {
                 if (playDao.updateLocation(play.internalId, newLocationName) > 0)
