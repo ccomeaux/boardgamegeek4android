@@ -54,6 +54,7 @@ class PlaysSummaryFragment : Fragment() {
         }
 
         //viewModel.plays.observe(viewLifecycleOwner) { binding.swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) }
+        viewModel.errorMessage.observe(viewLifecycleOwner) { it.getContentIfNotHandled()?.let { message -> longToast(message) } }
         viewModel.playsInProgress.observe(viewLifecycleOwner) { plays -> bindInProgressPlays(plays) }
         viewModel.playsNotInProgress.observe(viewLifecycleOwner) { plays -> bindRecentPlays(plays) }
         viewModel.playCount.observe(viewLifecycleOwner) { playCount -> bindPlayCount(playCount ?: 0) }

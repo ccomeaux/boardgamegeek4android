@@ -295,6 +295,24 @@ class PlayRepository(
         }
     }
 
+    suspend fun refreshRecentPlays(): String? = withContext(Dispatchers.IO) {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        if (username.isNullOrBlank())
+            return@withContext null
+
+        val syncInitiatedTimestamp = System.currentTimeMillis()
+        val response = safeApiCall(context) { api.plays(username, null, null, 1) }
+        if (response.isSuccess) {
+            val plays = response.getOrNull()?.plays.mapToModel(syncInitiatedTimestamp)
+            saveFromSync(plays, syncInitiatedTimestamp)
+            Timber.i("Synced %,d most recent plays", 1, plays.size)
+            calculateStats()
+            null
+        } else {
+            response.exceptionOrNull()?.localizedMessage
+        }
+    }
+
     suspend fun refreshPlays() = withContext(Dispatchers.IO) {
         val syncInitiatedTimestamp = System.currentTimeMillis()
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]

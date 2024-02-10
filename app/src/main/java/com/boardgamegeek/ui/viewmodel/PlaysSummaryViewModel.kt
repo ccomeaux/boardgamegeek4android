@@ -4,6 +4,8 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
@@ -36,10 +38,16 @@ class PlaysSummaryViewModel @Inject constructor(
     val oldestSyncDate = LiveSharedPreference<Long>(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
     val newestSyncDate = LiveSharedPreference<Long>(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
 
-    val plays = syncTimestamp.switchMap {
+    private val _errorMessage = EventLiveData()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
+
+    private val plays = syncPlays.switchMap {
         liveData {
-            emitSource(playRepository.loadPlaysFlow().asLiveData())
-            attemptRefresh()
+            if (it) {
+                emitSource(playRepository.loadPlaysFlow().asLiveData())
+                attemptRefresh()
+            }
         }
     }
 
@@ -59,9 +67,10 @@ class PlaysSummaryViewModel @Inject constructor(
         return if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
             viewModelScope.launch {
                 try {
-                    playRepository.refreshPlays()
-                } catch (e: Exception) {
-                    // TODO emit error message
+                    playRepository.refreshRecentPlays()?.let {
+                        _errorMessage.setMessage(it)
+                    }
+                } finally {
                     playsRateLimiter.reset(0)
                 }
             }
