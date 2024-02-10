@@ -7,6 +7,7 @@ import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,7 +25,7 @@ class LocationsViewModel @Inject constructor(
 
     val locations: LiveData<List<Location>> = sortType.switchMap {
         liveData {
-            emit(playRepository.loadLocations(it))
+            emitSource(playRepository.loadLocationsFlow(it).distinctUntilChanged().asLiveData())
         }
     }
 

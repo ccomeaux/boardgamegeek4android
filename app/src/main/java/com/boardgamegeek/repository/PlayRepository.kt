@@ -224,12 +224,7 @@ class PlayRepository(
     suspend fun loadLocations(sortBy: Location.SortType = Location.SortType.PLAY_COUNT): List<Location> = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playDao.loadLocations() }
             .map { it.mapToModel() }
-            .sortedWith(
-                when (sortBy) {
-                    Location.SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                    Location.SortType.PLAY_COUNT -> compareByDescending<Location> { it.playCount }.thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                }
-            )
+            .applySort(sortBy)
     }
 
     fun loadLocationsFlow(sortBy: Location.SortType = Location.SortType.PLAY_COUNT): Flow<List<Location>> {
