@@ -204,7 +204,7 @@ class PlayRepository(
     }
 
     fun loadUserColorsFlow(username: String) =
-        playerColorDao.loadColorsForUserFlow(username).map { it.map { it.mapToModel() } }
+        playerColorDao.loadColorsForUserFlow(username).map { list -> list.map { it.mapToModel() } }
 
     suspend fun loadNonUserColors(playerName: String) = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playerColorDao.loadColorsForPlayer(playerName).map { it.mapToModel() } }
@@ -306,6 +306,7 @@ class PlayRepository(
             val plays = response.getOrNull()?.plays.mapToModel(syncInitiatedTimestamp)
             saveFromSync(plays, syncInitiatedTimestamp)
             Timber.i("Synced %,d most recent plays", 1, plays.size)
+            prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = syncInitiatedTimestamp
             calculateStats()
             null
         } else {
@@ -614,6 +615,7 @@ class PlayRepository(
                 }
                 candidate.syncHashCode == play.generateSyncHashCode() -> {
                     playDao.updateSyncTimestamp(candidate.internalId, syncTimestamp)
+                    Timber.i("No change in play ${play.playId}.")
                     unchangedCount++
                 }
                 else -> {

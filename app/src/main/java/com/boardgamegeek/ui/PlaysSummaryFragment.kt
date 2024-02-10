@@ -43,17 +43,14 @@ class PlaysSummaryFragment : Fragment() {
         }
 
         binding.syncButton.setOnClickListener {
-            val prefs = requireContext().preferences()
-            prefs[PREFERENCES_KEY_SYNC_PLAYS] = true
-            prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
-            viewModel.refresh()
+            viewModel.enableSyncing(true)
         }
 
         binding.syncCancelButton.setOnClickListener {
-            requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
+            viewModel.enableSyncing(false)
         }
 
-        //viewModel.plays.observe(viewLifecycleOwner) { binding.swipeRefreshLayout.isRefreshing = (it.status == Status.REFRESHING) }
+        viewModel.isSyncing.observe(viewLifecycleOwner) { it?.let { binding.swipeRefreshLayout.isRefreshing = it } }
         viewModel.errorMessage.observe(viewLifecycleOwner) { it.getContentIfNotHandled()?.let { message -> longToast(message) } }
         viewModel.playsInProgress.observe(viewLifecycleOwner) { plays -> bindInProgressPlays(plays) }
         viewModel.playsNotInProgress.observe(viewLifecycleOwner) { plays -> bindRecentPlays(plays) }

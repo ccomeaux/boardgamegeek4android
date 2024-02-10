@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.lifecycle.*
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
@@ -9,29 +10,21 @@ import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class PlaysSummaryViewModel @Inject constructor(
     application: Application,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val playsRateLimiter = RateLimiter<Int>(10.minutes)
-    private val syncTimestamp = MutableLiveData<Long>()
+    private val prefs: SharedPreferences by lazy { application.preferences() }
     private val h = LiveSharedPreference<Int>(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX)
     private val n = LiveSharedPreference<Int>(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX)
     private val username = LiveSharedPreference<String>(getApplication(), AccountPreferences.KEY_USERNAME)
-
-    init {
-        reload()
-    }
 
     val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
     val syncPlaysTimestamp = LiveSharedPreference<Long>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP)
@@ -42,36 +35,36 @@ class PlaysSummaryViewModel @Inject constructor(
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
 
+    private val _isSyncing = MutableLiveData<Boolean>()
+    val isSyncing: LiveData<Boolean>
+        get() = _isSyncing
+
     private val plays = syncPlays.switchMap {
         liveData {
             if (it) {
                 emitSource(playRepository.loadPlaysFlow().asLiveData())
-                attemptRefresh()
+                refresh()
             }
         }
     }
 
-    fun reload(): Boolean {
-        val value = syncTimestamp.value
-        return if (value == null || value.isOlderThan(5.seconds)) {
-            syncTimestamp.postValue(System.currentTimeMillis())
-            true
-        } else false
+    fun enableSyncing(enable: Boolean) {
+        if (enable)
+            prefs[PREFERENCES_KEY_SYNC_PLAYS] = true
+        else
+            prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
     }
 
     fun refresh(): Boolean {
-        return attemptRefresh() // TODO - force?
-    }
-
-    private fun attemptRefresh(): Boolean {
-        return if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
+        return if (syncPlays.value == true && _isSyncing.value != true) {
             viewModelScope.launch {
                 try {
+                    _isSyncing.value = true
                     playRepository.refreshRecentPlays()?.let {
                         _errorMessage.setMessage(it)
                     }
                 } finally {
-                    playsRateLimiter.reset(0)
+                    _isSyncing.value = false
                 }
             }
             true
