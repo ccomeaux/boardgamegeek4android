@@ -174,7 +174,7 @@ class PlayerColorsActivity : BaseActivity() {
             viewModel.generate()
         }
 
-        binding.fab.colorize(R.color.primary)
+        binding.fab.colorize(ContextCompat.getColor(this, R.color.primary))
         binding.fab.setOnClickListener {
             PlayerColorPickerDialogFragment.launch(this, usedColors)
         }
