@@ -46,7 +46,7 @@ class BggProvider : ContentProvider() {
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        return getProvider(uri)?.openFile(requireContext(), openHelper.readableDatabase, uri, mode)
+        return context?.let { getProvider(uri)?.openFile(it, openHelper.readableDatabase, uri, mode) }
     }
 
     private fun getProvider(uri: Uri): BaseProvider? {
