@@ -28,7 +28,6 @@ import com.boardgamegeek.mappers.mapToFormBodyForUpsert
 import com.boardgamegeek.model.Location.Companion.applySort
 import com.boardgamegeek.model.Player.Companion.applySort
 import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_NEWEST_DATE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
 import com.boardgamegeek.pref.clearPlaysTimestamps
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
@@ -311,101 +310,32 @@ class PlayRepository(
         }
     }
 
-    suspend fun refreshPlays() = withContext(Dispatchers.IO) {
-        val syncInitiatedTimestamp = System.currentTimeMillis()
+    suspend fun refreshPlaysForDate(timeInMillis: Long): String? = withContext(Dispatchers.Default) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
-        if (username.isNullOrBlank())
-            return@withContext
-
-        val newestTimestamp = syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
-        val minDate = if (newestTimestamp == 0L) null else newestTimestamp.asDateForApi()
-        var page = 1
-        do {
-            val response = api.plays(username, minDate, null, page++)
-            val plays = response.plays.mapToModel(syncInitiatedTimestamp)
-            saveFromSync(plays, syncInitiatedTimestamp)
-
-            plays.maxOfOrNull { it.dateInMillis }?.let {
-                if (it > (syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L)) {
-                    syncPrefs[TIMESTAMP_PLAYS_NEWEST_DATE] = it
-                }
-            }
-            plays.minOfOrNull { it.dateInMillis }?.let {
-                if (it < (syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE)) {
-                    syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = it
-                }
-            }
-
-            if (minDate == null) {
-                Timber.i("Synced page %,d of the newest plays (%,d plays in this page)", page - 1, plays.size)
-            } else {
-                Timber.i("Synced page %,d of plays from %s or later (%,d plays in this page)", page - 1, minDate, plays.size)
-            }
-        } while (response.hasMorePages())
-        if (minDate != null) {
-            deleteUnupdatedPlaysSince(syncInitiatedTimestamp, newestTimestamp)
-        }
-
-        val oldestTimestamp = syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE
-        if (oldestTimestamp > 0) {
-            page = 1
-            val maxDate = if (oldestTimestamp == Long.MAX_VALUE) null else oldestTimestamp.asDateForApi()
-            do {
-                val response = api.plays(username, null, maxDate, page++)
-                val plays = response.plays.mapToModel(syncInitiatedTimestamp)
-                saveFromSync(plays, syncInitiatedTimestamp)
-
-                plays.minOfOrNull { it.dateInMillis }?.let {
-                    if (it < (syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE)) {
-                        syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = it
-                    }
-                }
-                if (maxDate == null) {
-                    Timber.i("Synced page %,d of the oldest plays (%,d plays in this page)", page - 1, plays.size)
-                } else {
-                    Timber.i("Synced page %,d of plays from %s or earlier (%,d plays in this page)", page - 1, maxDate, plays.size)
-                }
-            } while (response.hasMorePages())
-            if (oldestTimestamp != Long.MAX_VALUE) {
-                deleteUnupdatedPlaysBefore(syncInitiatedTimestamp, oldestTimestamp)
-            }
-            syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE] = 0L
-        } else {
-            Timber.i("Not syncing old plays; already caught up.")
-        }
-
-        calculateStats()
-    }
-
-    suspend fun refreshPlaysForDate(timeInMillis: Long) = withContext(Dispatchers.IO) {
-        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
-        if (timeInMillis <= 0L && !username.isNullOrBlank()) {
-            emptyList()
-        } else {
-            val plays = mutableListOf<Play>()
-            val timestamp = System.currentTimeMillis()
+        if (timeInMillis > 0L && !username.isNullOrBlank()) {
             var page = 1
             do {
-                val (playsPage, shouldContinue) = downloadPlays(timeInMillis, timeInMillis, page++)
-                saveFromSync(playsPage, timestamp)
-                plays += playsPage
-                Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page)
-            } while (shouldContinue)
+                val timestamp = System.currentTimeMillis()
+                val result = safeApiCall(context) { api.plays(username, timeInMillis.asDateForApi(), timeInMillis.asDateForApi(), page++) }
+                if (result.isSuccess) {
+                    val playsPage = result.getOrNull()?.plays.mapToModel(timestamp)
+                    saveFromSync(playsPage, timestamp)
+                    Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page - 1)
+                }
+                else return@withContext result.exceptionOrNull()?.localizedMessage ?: "Error"
+            } while (result.getOrNull()?.hasMorePages() == true)
 
             calculateStats()
-
-            plays
         }
+        null
     }
 
-    suspend fun downloadPlays(fromDate: Long, toDate: Long, page: Int, timestamp: Long = System.currentTimeMillis()) = withContext(Dispatchers.IO) {
-        val from = if (fromDate > 0L) fromDate.asDateForApi() else null
-        val to = if (toDate > 0L) toDate.asDateForApi() else null
+    suspend fun downloadPlays(fromDate: Long?, toDate: Long?, page: Int, timestamp: Long = System.currentTimeMillis()) = withContext(Dispatchers.IO) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         if (username.isNullOrBlank()) {
             emptyList<Play>() to false
         } else {
-            val response = api.plays(username, from, to, page)
+            val response = api.plays(username, fromDate.asDateForApi(), toDate.asDateForApi(), page)
             response.plays.mapToModel(timestamp) to response.hasMorePages()
         }
     }

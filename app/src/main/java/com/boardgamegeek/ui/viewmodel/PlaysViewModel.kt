@@ -10,7 +10,6 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -180,7 +179,6 @@ class PlaysViewModel @Inject constructor(
             } catch (e: Exception) {
                 _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
             } finally {
-                playInfo.value.let { playInfo.value = it }
                 _isRefreshing.postValue(false)
             }
         }
@@ -191,12 +189,13 @@ class PlaysViewModel @Inject constructor(
             try {
                 if (syncPlays.value == true && _isRefreshing.value != true) {
                     _isRefreshing.postValue(true)
-                    playRepository.refreshPlaysForDate(timeInMillis)
+                    playRepository.refreshPlaysForDate(timeInMillis)?.let {
+                        _errorMessage.postValue(it)
+                    }
                 }
             } catch (e: Exception) {
                 _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
             } finally {
-                playInfo.value.let { playInfo.value = it }
                 _isRefreshing.postValue(false)
             }
         }
