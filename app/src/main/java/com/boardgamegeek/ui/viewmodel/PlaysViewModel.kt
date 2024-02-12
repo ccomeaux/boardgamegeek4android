@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class PlaysViewModel @Inject constructor(
@@ -25,7 +24,6 @@ class PlaysViewModel @Inject constructor(
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     private val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    private val playsRateLimiter = RateLimiter<Int>(10.minutes)
 
     private data class PlayInfo(
         val mode: Mode,
@@ -144,15 +142,11 @@ class PlaysViewModel @Inject constructor(
     }
 
     fun setFilter(type: FilterType) {
-        if (_filterType.value != type) {
-            _filterType.value = type
-        }
+        if (_filterType.value != type) _filterType.value = type
     }
 
     fun setSort(type: SortType) {
-        if (sortType.value != type) {
-            _sortType.value = type
-        }
+        if (sortType.value != type) _sortType.value = type
     }
 
     fun renameLocation(oldLocationName: String, newLocationName: String) {
@@ -175,17 +169,16 @@ class PlaysViewModel @Inject constructor(
     fun refresh() {
         viewModelScope.launch {
             try {
-                _isRefreshing.postValue(true)
-                val id = playInfo.value?.id ?: 0
-                if (syncPlays.value == true && playsRateLimiter.shouldProcess(id)) {
+                if (syncPlays.value == true && _isRefreshing.value != true) {
+                    _isRefreshing.postValue(true)
+                    val id = playInfo.value?.id ?: 0
                     when (playInfo.value?.mode) {
                         Mode.GAME -> playRepository.refreshPlaysForGame(id)
-                        else -> playRepository.refreshPlays()
+                        else -> playRepository.refreshRecentPlays()
                     }
                 }
             } catch (e: Exception) {
                 _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
-                playsRateLimiter.reset(0)
             } finally {
                 playInfo.value.let { playInfo.value = it }
                 _isRefreshing.postValue(false)
@@ -196,8 +189,10 @@ class PlaysViewModel @Inject constructor(
     fun refreshPlaysByDate(timeInMillis: Long) {
         viewModelScope.launch {
             try {
-                _isRefreshing.postValue(true)
-                playRepository.refreshPlaysForDate(timeInMillis)
+                if (syncPlays.value == true && _isRefreshing.value != true) {
+                    _isRefreshing.postValue(true)
+                    playRepository.refreshPlaysForDate(timeInMillis)
+                }
             } catch (e: Exception) {
                 _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
             } finally {
