@@ -6,10 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 
 // FROM: https://stackoverflow.com/questions/62457503/android-livedata-how-to-throttle-results
-class ThrottledLiveData<T>(source: LiveData<T>, delayMs: Long) : MediatorLiveData<T>() {
+class ThrottledLiveData<T>(source: LiveData<T>, private var delayMs: Long) : MediatorLiveData<T>() {
     private val handler = Handler(Looper.getMainLooper())
-    var delayMs = delayMs
-        set
 
     private var isValueDelayed = false
     private var delayedValue: T? = null

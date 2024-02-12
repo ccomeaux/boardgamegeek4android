@@ -100,7 +100,7 @@ class BuddyCollectionFragment : Fragment() {
                     }
                     Status.SUCCESS -> {
                         activity?.invalidateOptionsMenu()
-                        if (data == null || data.isEmpty()) {
+                        if (data.isNullOrEmpty()) {
                             showError(getString(R.string.empty_buddy_collection))
                         } else {
                             adapter.items = data

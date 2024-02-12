@@ -21,7 +21,7 @@ class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
 
     override fun onPositiveButton() {
         val text = binding.editText.text?.toString()
-        if (text != null && text.isNotBlank()) {
+        if (!text.isNullOrBlank()) {
             FirebaseAnalytics.getInstance(requireContext()).logEvent("DataManipulation") {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Location")
                 param("Action", "Edit")
