@@ -50,10 +50,6 @@ fun Long.howManyHoursOld(): Int {
     return ((System.currentTimeMillis() - this) / HOUR_IN_MILLIS).toInt()
 }
 
-fun Long.howManyWeeksOld(): Int {
-    return ((System.currentTimeMillis() - this) / WEEK_IN_MILLIS).toInt()
-}
-
 fun Long.forDatabase(): String {
     val c = Calendar.getInstance()
     c.timeInMillis = this
