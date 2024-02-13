@@ -78,9 +78,9 @@ fun GameEntity.mapToModel(lastPlayDate: String?): Game {
         winsColor = winsColor ?: Color.TRANSPARENT,
         winnablePlaysColor = winnablePlaysColor ?: Color.TRANSPARENT,
         allPlaysColor = allPlaysColor ?: Color.TRANSPARENT,
-        playerCountsBest = playerCountsBest,
-        playerCountsRecommended = playerCountsRecommended,
-        playerCountsNotRecommended = playerCountsNotRecommended,
+        playerCountsBest = playerCountsBest.splitFromDatabase(),
+        playerCountsRecommended = playerCountsRecommended.splitFromDatabase(),
+        playerCountsNotRecommended = playerCountsNotRecommended.splitFromDatabase(),
         lastViewedTimestamp = lastViewedTimestamp ?: 0L,
         lastPlayTimestamp = lastPlayDate.toMillis(playDateFormat),
     )
@@ -215,9 +215,9 @@ fun GameRemote.mapForUpsert(internalId: Long, updated: Long): GameForUpsert {
         numberOfUsersWeighting = statistics?.numweights?.toIntOrNull(),
         averageWeight = statistics?.averageweight?.toDoubleOrNull(),
         suggestedPlayerCountPollVoteTotal = this.polls?.find { it.name == PLAYER_POLL_NAME }?.totalvotes,
-        playerCountsBest = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.BEST }.map { it.playerCount }.toSet().forDatabase(),
-        playerCountsRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.RECOMMENDED }.map { it.playerCount }.toSet().forDatabase(),
-        playerCountsNotRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.NOT_RECOMMENDED }.map { it.playerCount }.toSet().forDatabase(),
+        playerCountsBest = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.BEST }.map { it.playerCount }.toSet().joinForDatabase(),
+        playerCountsRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.RECOMMENDED }.map { it.playerCount }.toSet().joinForDatabase(),
+        playerCountsNotRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.NOT_RECOMMENDED }.map { it.playerCount }.toSet().joinForDatabase(),
     )
     return GameForUpsert(
         header = header,
@@ -266,4 +266,8 @@ fun GameRemote.mapToMechanics() = links.filter {
 
 fun String?.toThingSubtype() = BggService.ThingSubtype.values().find { this == it.code }
 
-fun <T> Iterable<T>.forDatabase(delimiter: String = "|") = this.joinToString(delimiter, prefix = delimiter, postfix = delimiter)
+const val separator = "|"
+
+fun <T> Iterable<T>.joinForDatabase(delimiter: String = separator) = this.joinToString(delimiter, prefix = delimiter, postfix = delimiter)
+
+fun String?.splitFromDatabase(): Set<Int> = this?.split(separator)?.mapNotNull { it.toIntOrNull() }?.toSet().orEmpty()

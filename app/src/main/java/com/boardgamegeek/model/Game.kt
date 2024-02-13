@@ -44,9 +44,9 @@ data class Game(
     val winsColor: Int = Color.TRANSPARENT,
     val winnablePlaysColor: Int = Color.TRANSPARENT,
     val allPlaysColor: Int = Color.TRANSPARENT,
-    val playerCountsBest: String?,
-    val playerCountsRecommended: String?,
-    val playerCountsNotRecommended: String?,
+    val playerCountsBest: Set<Int>?,
+    val playerCountsRecommended: Set<Int>?,
+    val playerCountsNotRecommended: Set<Int>?,
     val lastViewedTimestamp: Long,
     val lastPlayTimestamp: Long?,
 ) {

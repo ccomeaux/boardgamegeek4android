@@ -23,28 +23,27 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
 
     override fun chipText(): String {
         return context.getString(R.string.recommended_player_count_description_abbr,
-                when (recommendation) {
-                    BEST -> context.getString(R.string.best)
-                    else -> context.getString(R.string.good)
-                },
-                playerCount)
+            when (recommendation) {
+                BEST -> context.getString(R.string.best)
+                else -> context.getString(R.string.good)
+            },
+            playerCount)
     }
 
     override fun description(): String {
         return context.resources.getQuantityString(R.plurals.recommended_player_count_description,
-                playerCount,
-                context.getString(when (recommendation) {
-                    BEST -> R.string.best
-                    else -> R.string.recommended
-                }),
-                playerCount)
+            playerCount,
+            context.getString(when (recommendation) {
+                BEST -> R.string.best
+                else -> R.string.recommended
+            }),
+            playerCount)
     }
 
     override fun filter(item: CollectionItem): Boolean {
-        val seg = "$separator$playerCount$separator" // TODO rework
         return when (recommendation) {
-            BEST -> item.bestPlayerCounts.contains(seg)
-            RECOMMENDED -> item.recommendedPlayerCounts.contains(seg)
+            BEST -> item.bestPlayerCounts.orEmpty().contains(playerCount)
+            RECOMMENDED -> item.recommendedPlayerCounts.orEmpty().contains(playerCount)
             else -> true
         }
     }
@@ -52,6 +51,5 @@ class RecommendedPlayerCountFilterer(context: Context) : CollectionFilterer(cont
     companion object {
         const val RECOMMENDED = 1
         const val BEST = 2
-        private const val separator = "|"
     }
 }
