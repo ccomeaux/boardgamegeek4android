@@ -146,7 +146,7 @@ class GameFragment : Fragment() {
         binding.agesInclude.root.isVisible = true
 
         binding.weightInclude.weightView.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
-        if (game.averageWeight == 0.0) {
+        if (game.averageWeight == Game.UNWEIGHTED) {
             binding.weightInclude.weightScoreView.isVisible = false
         } else {
             binding.weightInclude.weightScoreView.setTextOrHide(game.averageWeight.asScore(context, format = scoreFormat))

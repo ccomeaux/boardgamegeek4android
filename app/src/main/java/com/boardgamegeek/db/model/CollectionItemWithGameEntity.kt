@@ -11,4 +11,5 @@ data class CollectionItemWithGameEntity (
         entityColumn = "game_id",
     )
     val game: GameEntity,
+    val lastPlayedDate: String?,
 )

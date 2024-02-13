@@ -69,7 +69,7 @@ data class CollectionItem(
     val minimumAge: Int = 0,
     val rank: Int = RANK_UNKNOWN,
     val geekRating: Double = UNRATED,
-    val averageWeight: Double = UNRATED,
+    val averageWeight: Double = UNWEIGHTED,
     val isFavorite: Boolean = false,
     val lastPlayDate: Long = 0L,
     val arePlayersCustomSorted: Boolean = false,
@@ -168,6 +168,7 @@ data class CollectionItem(
         const val RANK_UNKNOWN = GameRank.RANK_UNKNOWN
         const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
         const val UNRATED = Game.UNRATED
+        const val UNWEIGHTED = Game.UNWEIGHTED
 
         fun List<CollectionItem>.applySort(sortBy: SortType): List<CollectionItem> {
             return sortedWith(

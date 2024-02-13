@@ -3,7 +3,6 @@ package com.boardgamegeek.mappers
 import android.graphics.Color
 import com.boardgamegeek.db.model.*
 import com.boardgamegeek.model.CollectionItem
-import com.boardgamegeek.model.Game
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
@@ -113,7 +112,7 @@ fun CollectionItemRemote.mapToCollectionGame(updatedTimestamp: Long, internalId:
     gameId = objectid,
     gameName = if (originalname.isNullOrBlank()) name else originalname,
     gameSortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
-    yearPublished = yearpublished?.toIntOrNull() ?: CollectionItemGame.YEAR_UNKNOWN,
+    yearPublished = yearpublished?.toIntOrNull() ?: CollectionItem.YEAR_UNKNOWN,
     imageUrl = image.orEmpty(),
     thumbnailUrl = thumbnail.orEmpty(),
     minPlayers = stats?.minplayers ?: 0,
@@ -226,6 +225,7 @@ private fun CollectionItem.mapToFormBodyBuilder(): FormBody.Builder {
 
 fun CollectionItemWithGameEntity.mapToModel(): CollectionItem {
     val acquisitionDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     return CollectionItem(
         internalId = item.internalId,
         gameId = item.gameId,
@@ -233,7 +233,7 @@ fun CollectionItemWithGameEntity.mapToModel(): CollectionItem {
         collectionId = item.collectionId,
         collectionName = item.collectionName,
         sortName = item.collectionSortName,
-        gameYearPublished = game.yearPublished ?: Game.YEAR_UNKNOWN,
+        gameYearPublished = game.yearPublished ?: CollectionItem.YEAR_UNKNOWN,
         collectionYearPublished = item.collectionYearPublished ?: CollectionItem.YEAR_UNKNOWN,
         imageUrl = item.collectionImageUrl.orEmpty(),
         thumbnailUrl = item.collectionThumbnailUrl.orEmpty(),
@@ -241,7 +241,7 @@ fun CollectionItemWithGameEntity.mapToModel(): CollectionItem {
         gameImageUrl = game.imageUrl.orEmpty(),
         gameThumbnailUrl = game.thumbnailUrl.orEmpty(),
         gameHeroImageUrl = game.heroImageUrl.orEmpty(),
-        averageRating = game.average ?: Game.UNRATED,
+        averageRating = game.average ?: CollectionItem.UNRATED,
         rating = item.rating ?: CollectionItem.UNRATED,
         own = item.statusOwn,
         previouslyOwned = item.statusPreviouslyOwned,
@@ -269,7 +269,7 @@ fun CollectionItemWithGameEntity.mapToModel(): CollectionItem {
         wantPartsList = item.wantpartsList.orEmpty(),
         hasPartsList = item.haspartsList.orEmpty(),
         wishListComment = item.wishlistComment.orEmpty(),
-        syncTimestamp = item.updatedTimestamp ?: 0L, // item.updatedListTimestamp or game.X
+        syncTimestamp = item.updatedTimestamp ?: 0L,
         deleteTimestamp = item.collectionDeleteTimestamp ?: 0L,
         dirtyTimestamp = item.collectionDirtyTimestamp ?: 0L,
         statusDirtyTimestamp = item.statusDirtyTimestamp ?: 0L,
@@ -286,10 +286,10 @@ fun CollectionItemWithGameEntity.mapToModel(): CollectionItem {
         playingTime = game.playingTime ?: 0,
         minimumAge = game.minimumAge ?: 0,
         rank = game.gameRank ?: GameRank.RANK_UNKNOWN,
-        geekRating = game.bayesAverage ?: Game.UNRATED,
-        averageWeight = game.averageWeight ?: 0.0, // TODO move to constant
+        geekRating = game.bayesAverage ?: CollectionItem.UNRATED,
+        averageWeight = game.averageWeight ?: CollectionItem.UNWEIGHTED,
         isFavorite = game.isStarred ?: false,
-        lastPlayDate = 0L, // TODO
+        lastPlayDate = lastPlayedDate?.toMillis(playDateFormat) ?: 0L,
         arePlayersCustomSorted = game.customPlayerSort ?: false,
         minPlayerCount = game.minPlayers ?: 0,
         maxPlayerCount = game.maxPlayers ?: 0,

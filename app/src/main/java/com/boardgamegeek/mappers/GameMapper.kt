@@ -67,7 +67,7 @@ fun GameEntity.mapToModel(lastPlayDate: String?): Game {
         numberOfUsersWishListing = numberOfUsersWishListing ?: 0,
         numberOfComments = numberOfComments ?: 0,
         numberOfUsersWeighting = numberOfUsersWeighting ?: 0,
-        averageWeight = averageWeight ?: 0.0,
+        averageWeight = averageWeight ?: Game.UNWEIGHTED,
         overallRank = gameRank ?: GameRank.RANK_UNKNOWN,
         updatedPlays = updatedPlays ?: 0L,
         customPlayerSort = customPlayerSort ?: false,

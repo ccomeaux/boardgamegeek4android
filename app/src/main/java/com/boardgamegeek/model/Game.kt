@@ -74,5 +74,6 @@ data class Game(
     companion object {
         const val YEAR_UNKNOWN = 0
         const val UNRATED = 0.0
+        const val UNWEIGHTED = 0.0
     }
 }
