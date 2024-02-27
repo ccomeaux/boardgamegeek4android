@@ -7,15 +7,13 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.db.model.CollectionItemForInsert
-import com.boardgamegeek.db.model.CollectionItemWithGameEntity
-import com.boardgamegeek.db.model.CollectionPrivateInfoEntity
-import com.boardgamegeek.db.model.CollectionStatusEntity
+import com.boardgamegeek.db.model.*
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.io.model.CollectionItemRemote
+import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearCollection
@@ -68,7 +66,7 @@ class GameCollectionRepository(
             collectionDao.loadForGame(gameId).map { it.mapToModel() }
     }
 
-    suspend fun loadUnupdatedItems() = collectionDao.loadItemsNotUpdated()
+    suspend fun loadUnupdatedItems() = withContext(Dispatchers.IO) { collectionDao.loadItemsNotUpdated() }
 
     suspend fun refresh(options: Map<String, String>, updatedTimestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
         var count = 0
@@ -144,7 +142,7 @@ class GameCollectionRepository(
         } ?: item
     }
 
-    suspend fun refreshCollectionItems(gameId: Int, subtype: Game.Subtype? = null): List<CollectionItem>? = withContext(Dispatchers.IO) {
+    suspend fun refreshCollectionItems(gameId: Int, subtype: Game.Subtype? = null) = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID && !username.isNullOrBlank()) {
             val timestamp = System.currentTimeMillis()
             val list = mutableListOf<CollectionItem>()
@@ -295,7 +293,7 @@ class GameCollectionRepository(
         }
     }
 
-    private suspend fun delete(gameId: Int, protectedCollectionIds: List<Int>) {
+    private suspend fun delete(gameId: Int, protectedCollectionIds: List<Int>) = withContext(Dispatchers.IO) {
         var deleteCount = 0
         val items = collectionDao.loadForGame(gameId)
         items.forEach { item ->
@@ -317,15 +315,15 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun loadAcquiredFrom() = collectionDao.loadAcquiredFrom().filterNot { it.isBlank() }
+    suspend fun loadAcquiredFrom() = withContext(Dispatchers.IO) { collectionDao.loadAcquiredFrom().filterNot { it.isBlank() } }
 
-    suspend fun loadInventoryLocation() = collectionDao.loadInventoryLocation().filterNot { it.isBlank() }
+    suspend fun loadInventoryLocation() = withContext(Dispatchers.IO) { collectionDao.loadInventoryLocation().filterNot { it.isBlank() } }
 
-    suspend fun loadItemsPendingDeletion() = collectionDao.loadItemsPendingDeletion().map { it.mapToModel() }
+    suspend fun loadItemsPendingDeletion() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingDeletion().map { it.mapToModel() } }
 
-    suspend fun loadItemsPendingInsert() = collectionDao.loadItemsPendingInsert().map { it.mapToModel() }
+    suspend fun loadItemsPendingInsert() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingInsert().map { it.mapToModel() } }
 
-    suspend fun loadItemsPendingUpdate() = collectionDao.loadItemsPendingUpdate().map { it.mapToModel() }
+    suspend fun loadItemsPendingUpdate() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingUpdate().map { it.mapToModel() } }
 
     suspend fun uploadDeletedItem(item: CollectionItem): Result<CollectionItemUploadResult> {
         val response = phpApi.collection(item.mapToFormBodyForDeletion())
@@ -451,48 +449,10 @@ class GameCollectionRepository(
         statuses: List<String>,
         wishListPriority: Int,
         timestamp: Long = System.currentTimeMillis()
-    ) {
+    ) = withContext(Dispatchers.IO) {
         gameDao.loadGame(gameId)?.let { entity ->
             entity.game?.let {
-                val collectionItemForInsert = CollectionItemForInsert(
-                    internalId = 0L,
-                    updatedTimestamp = null,
-                    updatedListTimestamp = null,
-                    gameId = gameId,
-                    collectionId = INVALID_ID,
-                    collectionName = it.gameName,
-                    collectionSortName = it.gameSortName,
-                    statusOwn = statuses.contains(BggContract.Collection.Columns.STATUS_OWN),
-                    statusPreviouslyOwned = statuses.contains(BggContract.Collection.Columns.STATUS_PREVIOUSLY_OWNED),
-                    statusForTrade = statuses.contains(BggContract.Collection.Columns.STATUS_FOR_TRADE),
-                    statusWant = statuses.contains(BggContract.Collection.Columns.STATUS_WANT),
-                    statusWantToPlay = statuses.contains(BggContract.Collection.Columns.STATUS_WANT_TO_PLAY),
-                    statusWantToBuy = statuses.contains(BggContract.Collection.Columns.STATUS_WANT_TO_BUY),
-                    statusWishlist = statuses.contains(BggContract.Collection.Columns.STATUS_WISHLIST),
-                    statusWishlistPriority = wishListPriority,
-                    statusPreordered = statuses.contains(BggContract.Collection.Columns.STATUS_PREORDERED),
-                    comment = null,
-                    collectionImageUrl = it.imageUrl,
-                    collectionThumbnailUrl = it.thumbnailUrl,
-                    collectionYearPublished = it.yearPublished,
-                    condition = null,
-                    haspartsList = null,
-                    wantpartsList = null,
-                    lastModified = System.currentTimeMillis(),
-                    privateInfoCurrentValueCurrency = null,
-                    privateInfoCurrentValue = null,
-                    privateInfoPricePaidCurrency = null,
-                    privateInfoPricePaid = null,
-                    privateInfoQuantity = null,
-                    privateInfoAcquiredFrom = null,
-                    privateInfoAcquisitionDate = null,
-                    privateInfoComment = null,
-                    privateInfoInventoryLocation = null,
-                    rating = null,
-                    wishlistComment = null,
-                    collectionDirtyTimestamp = timestamp,
-                    statusDirtyTimestamp = timestamp,
-                )
+                val collectionItemForInsert = withContext(Dispatchers.Default) { it.mapForInsert(statuses, wishListPriority, timestamp) }
                 val internalId = collectionDao.insert(collectionItemForInsert)
                 if (internalId == INVALID_ID.toLong()) {
                     Timber.d("Collection item for game '${it.gameName}` ($gameId) not added")
@@ -514,7 +474,7 @@ class GameCollectionRepository(
         acquisitionDate: Long?,
         acquiredFrom: String?,
         inventoryLocation: String?,
-    ): Int {
+    ): Int = withContext(Dispatchers.IO) {
         val entity = CollectionPrivateInfoEntity(
             internalId,
             priceCurrency,
@@ -527,10 +487,10 @@ class GameCollectionRepository(
             inventoryLocation,
             System.currentTimeMillis(),
         )
-        return collectionDao.updatePrivateInfo(entity)
+        collectionDao.updatePrivateInfo(entity)
     }
 
-    suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int): Int {
+    suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int): Int = withContext(Dispatchers.IO) {
         val priority = if (statuses.contains(BggContract.Collection.Columns.STATUS_WISHLIST))
             wishlistPriority.coerceIn(1..5)
         else null
@@ -547,30 +507,30 @@ class GameCollectionRepository(
             statusPreordered = statuses.contains(BggContract.Collection.Columns.STATUS_PREORDERED),
             statusDirtyTimestamp = System.currentTimeMillis(),
         )
-        return collectionDao.updateStatuses(entity)
+        collectionDao.updateStatuses(entity)
     }
 
-    suspend fun updateRating(internalId: Long, rating: Double): Int = collectionDao.updateRating(internalId, rating, System.currentTimeMillis())
+    suspend fun updateRating(internalId: Long, rating: Double): Int = withContext(Dispatchers.IO) { collectionDao.updateRating(internalId, rating, System.currentTimeMillis()) }
 
-    suspend fun updateComment(internalId: Long, text: String): Int = collectionDao.updateComment(internalId, text, System.currentTimeMillis())
+    suspend fun updateComment(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateComment(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updatePrivateComment(internalId: Long, text: String): Int = collectionDao.updatePrivateComment(internalId, text, System.currentTimeMillis())
+    suspend fun updatePrivateComment(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updatePrivateComment(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updateWishlistComment(internalId: Long, text: String): Int = collectionDao.updateWishlistComment(internalId, text, System.currentTimeMillis())
+    suspend fun updateWishlistComment(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateWishlistComment(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updateCondition(internalId: Long, text: String): Int = collectionDao.updateTradeCondition(internalId, text, System.currentTimeMillis())
+    suspend fun updateCondition(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateTradeCondition(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updateHasParts(internalId: Long, text: String): Int = collectionDao.updateHasParts(internalId, text, System.currentTimeMillis())
+    suspend fun updateHasParts(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateHasParts(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updateWantParts(internalId: Long, text: String): Int = collectionDao.updateWantParts(internalId, text, System.currentTimeMillis())
+    suspend fun updateWantParts(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateWantParts(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun markAsDeleted(internalId: Long): Int = collectionDao.updateDeletedTimestamp(internalId, System.currentTimeMillis())
+    suspend fun markAsDeleted(internalId: Long): Int = withContext(Dispatchers.IO) { collectionDao.updateDeletedTimestamp(internalId, System.currentTimeMillis()) }
 
-    suspend fun resetTimestamps(internalId: Long): Int = collectionDao.clearDirtyTimestamps(internalId)
+    suspend fun resetTimestamps(internalId: Long): Int = withContext(Dispatchers.IO) { collectionDao.clearDirtyTimestamps(internalId) }
 
-    suspend fun deleteUnupdatedItems(timestamp: Long): Int {
-        return collectionDao.deleteUnupdatedItems(timestamp).also {
-            Timber.i("Deleted $it old collection items")
+    suspend fun deleteUnupdatedItems(timestamp: Long): Int = withContext(Dispatchers.IO) {
+        collectionDao.deleteUnupdatedItems(timestamp).also {
+            Timber.i("Deleted $it collection items not updated since ${timestamp.formatTimestamp(context)}")
         }
     }
 
