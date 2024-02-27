@@ -14,7 +14,6 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionItemBinding
 import com.boardgamegeek.model.CollectionItem
-import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.dialog.*
@@ -152,26 +151,21 @@ class GameCollectionItemFragment : Fragment() {
                 }
             }
         }
+        viewModel.error.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { showError(it) }
+        }
         viewModel.item.observe(viewLifecycleOwner) {
-            it?.let { (status, data, message) ->
-                when (status) {
-                    Status.REFRESHING -> binding.progressView.show()
-                    Status.ERROR -> {
-                        showError(message)
-                        binding.progressView.hide()
-                    }
-                    Status.SUCCESS -> {
-                        internalId = data?.internalId ?: INVALID_ID.toLong()
-                        isDirty = data?.isDirty ?: false
-                        if (data != null) {
-                            updateUi(data)
-                        } else {
-                            showError(getString(R.string.invalid_collection_status))
-                        }
-                        binding.progressView.hide()
-                    }
-                }
+            it?.let {
+
             }
+            internalId = it?.internalId ?: INVALID_ID.toLong()
+            isDirty = it?.isDirty ?: false
+            if (it != null) {
+                updateUi(it)
+            } else {
+                showError(getString(R.string.invalid_collection_status))
+            }
+            binding.contentLoadingProgressBar.hide()
         }
     }
 

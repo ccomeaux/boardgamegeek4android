@@ -120,6 +120,10 @@ data class CollectionItem(
     val robustHeroImageUrl: String
         get() = heroImageUrl.ifBlank { thumbnailUrl }.ifBlank { imageUrl }
 
+    fun doesHeroImageNeedUpdating(): Boolean {
+        return heroImageUrl.getImageId() != thumbnailUrl.getImageId()
+    }
+
     fun getPrivateInfo(context: Context): CharSequence {
         val initialText = context.resources.getString(R.string.acquired)
         val sb = SpannableStringBuilder()

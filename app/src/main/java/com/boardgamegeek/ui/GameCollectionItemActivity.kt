@@ -12,7 +12,6 @@ import androidx.fragment.app.Fragment
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.model.CollectionItem
-import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
@@ -84,18 +83,17 @@ class GameCollectionItemActivity : HeroActivity() {
         }
         if (collectionId == BggContract.INVALID_ID) binding.fab.hide() else binding.fab.ensureShown()
 
-        viewModel.setInternalId(internalId)
-        viewModel.item.observe(this) { resource ->
-            binding.swipeRefreshLayout.isRefreshing = (resource?.status == Status.REFRESHING)
-            if (resource?.status == Status.SUCCESS) {
-                resource.data?.let { collectionItem ->
-                    collectionName = collectionItem.collectionName
-                    collectionYearPublished = collectionItem.collectionYearPublished
-                    thumbnailUrl = collectionItem.thumbnailUrl
-                    heroImageUrl = collectionItem.heroImageUrl
-                    safelySetTitle()
-                    changeImage()
-                }
+        viewModel.isRefreshing.observe(this) {
+            it?.let { binding.swipeRefreshLayout.isRefreshing = it }
+        }
+        viewModel.item.observe(this) {
+            it?.let { collectionItem ->
+                collectionName = collectionItem.collectionName
+                collectionYearPublished = collectionItem.collectionYearPublished
+                thumbnailUrl = collectionItem.thumbnailUrl
+                heroImageUrl = collectionItem.heroImageUrl
+                safelySetTitle()
+                changeImage()
             }
         }
         viewModel.isEditMode.observe(this) {
@@ -104,6 +102,7 @@ class GameCollectionItemActivity : HeroActivity() {
             setFabImageResource(if (it) R.drawable.ic_baseline_check_24 else R.drawable.ic_baseline_edit_24)
         }
         viewModel.isEdited.observe(this) { isItemUpdated = it }
+        viewModel.setInternalId(internalId)
     }
 
     override fun readIntent(intent: Intent) {

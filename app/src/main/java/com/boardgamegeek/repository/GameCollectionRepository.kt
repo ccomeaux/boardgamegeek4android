@@ -41,7 +41,7 @@ class GameCollectionRepository(
     private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    suspend fun resetCollectionItems() = withContext(Dispatchers.IO) {
+    fun resetCollectionItems() {
         SyncPrefs.getPrefs(context).clearCollection()
         SyncCollectionWorker.requestSync(context)
     }
@@ -52,11 +52,10 @@ class GameCollectionRepository(
         .map { it.filter { item -> item.deleteTimestamp == 0L } }
         .flowOn(Dispatchers.Default)
 
-    suspend fun loadCollectionItem(internalId: Long): CollectionItem? {
-        return if (internalId == INVALID_ID.toLong())
-            null
-        else
-            collectionDao.load(internalId)?.mapToModel()
+    fun loadCollectionItemFlow(internalId: Long): Flow<CollectionItem?> {
+        return collectionDao.loadFlow(internalId)
+            .map {  it?.mapToModel() }
+            .flowOn(Dispatchers.Default)
     }
 
     suspend fun loadCollectionItemsForGame(gameId: Int): List<CollectionItem> {
@@ -103,9 +102,13 @@ class GameCollectionRepository(
         return item.numberOfPlays > 0 && COLLECTION_STATUS_PLAYED in statusesToSync
     }
 
-    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: Game.Subtype?): CollectionItem? =
+    suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: Game.Subtype?): String? =
         withContext(Dispatchers.IO) {
-            if ((gameId != INVALID_ID || collectionId != INVALID_ID) && !username.isNullOrBlank()) {
+            if (gameId == INVALID_ID && collectionId == INVALID_ID)
+                context.getString(R.string.msg_refresh_collection_item_invalid_id)
+            else if (username.isNullOrBlank())
+                context.getString(R.string.msg_refresh_collection_item_auth_error)
+            else {
                 val timestamp = System.currentTimeMillis()
                 val options = mutableMapOf(
                     BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
@@ -116,30 +119,27 @@ class GameCollectionRepository(
                 else
                     BggService.COLLECTION_QUERY_KEY_ID to gameId.toString()
                 options.addSubtype(subtype)
-                val response = api.collection(username, options)
 
-                val collectionIds = mutableListOf<Int>()
-                var entity: CollectionItem? = null
-                response.items?.forEach { collectionItem ->
-                    val (id, internalId) = upsert(collectionItem, timestamp)
-                    collectionIds += id
-                    val item = collectionItem.mapToCollectionItem()
-                    if (item.collectionId == collectionId) {
-                        entity = item.copy(internalId = internalId, syncTimestamp = timestamp)
+                val result = safeApiCall(context) { api.collection(username, options) }
+                if (result.isSuccess) {
+                    val collectionIds = mutableListOf<Int>()
+                    val items = result.getOrNull()?.items
+                    items?.forEach { collectionItem ->
+                        val (id, _) = upsert(collectionItem, timestamp)
+                        if (collectionId != INVALID_ID) collectionIds += id
                     }
-                }
-                Timber.i("Synced %,d collection item(s) for game '%s'", response.items?.size ?: 0, gameId)
-                entity
-            } else null
+                    Timber.i("Synced ${collectionIds.size} collection item(s) $collectionIds for game ID=[$gameId]")
+                    null
+                } else result.exceptionOrNull()?.localizedMessage
+            }
         }
 
-    suspend fun refreshHeroImage(item: CollectionItem): CollectionItem = withContext(Dispatchers.IO) {
+    suspend fun refreshHeroImage(item: CollectionItem) = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.getImageUrls(item.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
         urls?.firstOrNull()?.let {
             collectionDao.updateHeroImageUrl(item.internalId, it)
-            item.copy(heroImageUrl = it)
-        } ?: item
+        }
     }
 
     suspend fun refreshCollectionItems(gameId: Int, subtype: Game.Subtype? = null) = withContext(Dispatchers.IO) {
@@ -186,19 +186,22 @@ class GameCollectionRepository(
         } else null
     }
 
-    private suspend fun upsert(collectionItem: CollectionItemRemote, timestamp: Long): Pair<Int, Long> {
-        val itemForInsert = collectionItem.mapForInsert(timestamp)
+    private suspend fun upsert(collectionItem: CollectionItemRemote, timestamp: Long): Pair<Int, Long> = withContext(Dispatchers.IO) {
+        val itemForInsert = withContext(Dispatchers.Default) { collectionItem.mapForInsert(timestamp) }
+
+        // upsert info on the Game entity
         val loadedGame = gameDao.loadGame(itemForInsert.gameId)
         if (loadedGame?.game == null || loadedGame.game.gameId == INVALID_ID) {
-            val game = collectionItem.mapToCollectionGame(timestamp)
+            val game =  withContext(Dispatchers.Default) {collectionItem.mapToCollectionGame(timestamp) }
             val internalId = gameDao.insertGame(game)
             Timber.i("Inserted game '${game.gameName}' (${game.gameId}) [$internalId]")
         } else {
-            val game = collectionItem.mapToCollectionGame(timestamp, loadedGame.game.internalId)
+            val game =  withContext(Dispatchers.Default) { collectionItem.mapToCollectionGame(timestamp, loadedGame.game.internalId) }
             gameDao.updateGame(game)
             Timber.i("Updated game '${game.gameName}' (${game.gameId}) [${game.internalId}]")
         }
 
+        // find a candidate collection item in the database that should be replaced with this one
         var candidate: CollectionItemWithGameEntity? = null
         if (itemForInsert.collectionId != INVALID_ID) {
             candidate = collectionDao.load(itemForInsert.collectionId)
@@ -206,13 +209,15 @@ class GameCollectionRepository(
         if (candidate == null) {
             candidate = collectionDao.loadForGame(itemForInsert.gameId).find { it.item.collectionId == INVALID_ID }
         }
+
+        // upsert the collection item
         if (candidate == null) {
             val internalId = collectionDao.insert(itemForInsert)
             Timber.i("Inserted collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId].")
-            return itemForInsert.collectionId to internalId
+            itemForInsert.collectionId to internalId
         } else {
             val internalId = candidate.item.internalId
-            return if ((candidate.item.collectionDirtyTimestamp ?: 0L) > 0L) {
+            if ((candidate.item.collectionDirtyTimestamp ?: 0L) > 0L) {
                 Timber.i("Local copy of collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId] is dirty, skipping sync.")
                 candidate.item.collectionId to INVALID_ID.toLong()
             } else {
@@ -234,17 +239,14 @@ class GameCollectionRepository(
                             statusDirtyTimestamp = 0L,
                         )
                         collectionDao.updateStatuses(statuses)
-                    } else {
-                        Timber.i("Skipping dirty collection statuses")
-                    }
-                    if ((candidate.item.ratingDirtyTimestamp ?: 0L) == 0L)
-                        collectionDao.updateRating(internalId, itemForInsert.rating ?: CollectionItem.UNRATED, 0L)
-                    else
-                        Timber.i("Skipping dirty collection rating")
-                    if ((candidate.item.commentDirtyTimestamp ?: 0L) == 0L)
-                        collectionDao.updateComment(internalId, itemForInsert.comment.orEmpty(), 0L)
-                    else
-                        Timber.i("Skipping dirty collection comment")
+                    } else Timber.i("Skipping dirty collection statuses")
+
+                    if ((candidate.item.ratingDirtyTimestamp ?: 0L) == 0L) collectionDao.updateRating(internalId, itemForInsert.rating ?: CollectionItem.UNRATED, 0L)
+                    else Timber.i("Skipping dirty collection rating")
+
+                    if ((candidate.item.commentDirtyTimestamp ?: 0L) == 0L) collectionDao.updateComment(internalId, itemForInsert.comment.orEmpty(), 0L)
+                    else Timber.i("Skipping dirty collection comment")
+
                     if ((candidate.item.privateInfoDirtyTimestamp ?: 0L) == 0L) {
                         val entity = CollectionPrivateInfoEntity(
                             internalId,
@@ -259,29 +261,25 @@ class GameCollectionRepository(
                             0L,
                         )
                         collectionDao.updatePrivateInfo(entity)
-                    } else {
-                        Timber.i("Skipping dirty collection private info")
-                    }
-                    if ((candidate.item.wishlistCommentDirtyTimestamp ?: 0L) == 0L)
-                        collectionDao.updateWishlistComment(internalId, itemForInsert.wishlistComment.orEmpty(), 0L)
-                    else
-                        Timber.i("Skipping dirty collection wishlist comment")
-                    if ((candidate.item.tradeConditionDirtyTimestamp ?: 0L) == 0L)
-                        collectionDao.updateTradeCondition(internalId, itemForInsert.condition.orEmpty(), 0L)
-                    else
-                        Timber.i("Skipping dirty collection trade condition")
-                    if ((candidate.item.wantPartsDirtyTimestamp ?: 0L) == 0L)
-                        collectionDao.updateWantParts(internalId, itemForInsert.wantpartsList.orEmpty(), 0L)
-                    else
-                        Timber.i("Skipping dirty collection want parts list")
-                    if ((candidate.item.hasPartsDirtyTimestamp ?: 0L) == 0L)
-                        collectionDao.updateHasParts(internalId, itemForInsert.haspartsList.orEmpty(), 0L)
-                    else
-                        Timber.i("Skipping dirty collection has parts list")
+                    } else Timber.i("Skipping dirty collection private info")
+
+                    if ((candidate.item.wishlistCommentDirtyTimestamp ?: 0L) == 0L) collectionDao.updateWishlistComment(internalId, itemForInsert.wishlistComment.orEmpty(), 0L)
+                    else Timber.i("Skipping dirty collection wishlist comment")
+
+                    if ((candidate.item.tradeConditionDirtyTimestamp ?: 0L) == 0L) collectionDao.updateTradeCondition(internalId, itemForInsert.condition.orEmpty(), 0L)
+                    else Timber.i("Skipping dirty collection trade condition")
+
+                    if ((candidate.item.wantPartsDirtyTimestamp ?: 0L) == 0L) collectionDao.updateWantParts(internalId, itemForInsert.wantpartsList.orEmpty(), 0L)
+                    else Timber.i("Skipping dirty collection want parts list")
+
+                    if ((candidate.item.hasPartsDirtyTimestamp ?: 0L) == 0L) collectionDao.updateHasParts(internalId, itemForInsert.haspartsList.orEmpty(), 0L)
+                    else Timber.i("Skipping dirty collection has parts list")
+
                     if (candidate.item.collectionThumbnailUrl != itemForInsert.collectionThumbnailUrl) {
-                        collectionDao.updateHeroImageUrl(internalId, "") // TODO update this with a new one?
+                        collectionDao.updateHeroImageUrl(internalId, "")
                         val thumbnailFileName = FileUtils.getFileNameFromUrl(candidate.item.collectionThumbnailUrl)
-                        imageRepository.deleteThumbnail(thumbnailFileName)
+                        val imageDeletedCount = imageRepository.deleteThumbnail(thumbnailFileName)
+                        Timber.i("Deleted $imageDeletedCount thumbnails no longer needed for collection ID=[${itemForInsert.collectionId}]")
                     }
                     Timber.i("Updated collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) [$internalId]")
                     candidate.item.collectionId to internalId

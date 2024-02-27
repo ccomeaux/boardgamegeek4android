@@ -16,7 +16,7 @@ interface CollectionDao {
 
     @Transaction
     @Query("SELECT * FROM collection WHERE _id = :internalId")
-    suspend fun load(internalId: Long): CollectionItemWithGameEntity?
+    fun loadFlow(internalId: Long): Flow<CollectionItemWithGameEntity?>
 
     @Transaction
     @Query("SELECT * FROM collection WHERE collection_id = :collectionId")

@@ -39,9 +39,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun resetCollectionItems() {
-        viewModelScope.launch {
-            gameCollectionRepository.resetCollectionItems()
-        }
+        gameCollectionRepository.resetCollectionItems()
     }
 
     fun resetPlays() {
