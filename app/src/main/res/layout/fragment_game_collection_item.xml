@@ -52,11 +52,12 @@
 
 				<TextView
 					android:id="@+id/statusView"
-					android:layout_width="wrap_content"
+					android:layout_width="0dp"
 					android:layout_height="wrap_content"
 					android:layout_gravity="center_vertical"
 					android:background="?attr/selectableItemBackground"
 					android:maxLines="2"
+					android:layout_weight="1"
 					android:minHeight="32dp"
 					android:textAppearance="@style/TextAppearance.Title"
 					tools:text="Own" />
