@@ -70,16 +70,18 @@ class ImageRepository(
 
     private suspend fun fetchImageUrls(imageId: Int): Map<ImageType, List<String>> = withContext(Dispatchers.IO) {
         if (imageId > 0 && RemoteConfig.getBoolean(RemoteConfig.KEY_FETCH_IMAGE_WITH_API)) {
-            val response = safeApiCall(context) { geekdoApi.image(imageId) }
-            if (response.isSuccess) {
-                response.getOrNull()?.let {
+            val result = safeApiCall(context) { geekdoApi.image(imageId) }
+            if (result.isSuccess) {
+                result.getOrNull()?.let {
                     return@withContext mapOf(
                         ImageType.THUMBNAIL to listOf(it.images.small.url),
                         ImageType.HERO to listOf(it.images.medium.url, it.images.small.url),
                     )
                 }
             } else {
-                Timber.w("Couldn't resolve image ID $imageId")
+                result.exceptionOrNull()?.let {
+                    Timber.w(it, "Couldn't resolve image ID $imageId")
+                }
             }
         }
         emptyMap()
