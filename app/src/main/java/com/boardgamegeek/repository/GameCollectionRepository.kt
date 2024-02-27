@@ -58,11 +58,8 @@ class GameCollectionRepository(
             .flowOn(Dispatchers.Default)
     }
 
-    suspend fun loadCollectionItemsForGame(gameId: Int): List<CollectionItem> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            collectionDao.loadForGame(gameId).map { it.mapToModel() }
+    suspend fun loadCollectionItemsForGame(gameId: Int): List<CollectionItem> = withContext(Dispatchers.IO) {
+        collectionDao.loadForGame(gameId).map { it.mapToModel() }
     }
 
     suspend fun loadUnupdatedItems() = withContext(Dispatchers.IO) { collectionDao.loadItemsNotUpdated() }
