@@ -54,7 +54,7 @@ class GameCollectionRepository(
 
     fun loadCollectionItemFlow(internalId: Long): Flow<CollectionItem?> {
         return collectionDao.loadFlow(internalId)
-            .map {  it?.mapToModel() }
+            .map { it?.mapToModel() }
             .flowOn(Dispatchers.Default)
     }
 
@@ -192,11 +192,11 @@ class GameCollectionRepository(
         // upsert info on the Game entity
         val loadedGame = gameDao.loadGame(itemForInsert.gameId)
         if (loadedGame?.game == null || loadedGame.game.gameId == INVALID_ID) {
-            val game =  withContext(Dispatchers.Default) {collectionItem.mapToCollectionGame(timestamp) }
+            val game = withContext(Dispatchers.Default) { collectionItem.mapToCollectionGame(timestamp) }
             val internalId = gameDao.insertGame(game)
             Timber.i("Inserted game '${game.gameName}' (${game.gameId}) [$internalId]")
         } else {
-            val game =  withContext(Dispatchers.Default) { collectionItem.mapToCollectionGame(timestamp, loadedGame.game.internalId) }
+            val game = withContext(Dispatchers.Default) { collectionItem.mapToCollectionGame(timestamp, loadedGame.game.internalId) }
             gameDao.updateGame(game)
             Timber.i("Updated game '${game.gameName}' (${game.gameId}) [${game.internalId}]")
         }
@@ -324,33 +324,53 @@ class GameCollectionRepository(
     suspend fun loadItemsPendingUpdate() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingUpdate().map { it.mapToModel() } }
 
     suspend fun uploadDeletedItem(item: CollectionItem): Result<CollectionItemUploadResult> {
-        val response = phpApi.collection(item.mapToFormBodyForDeletion())
-        return if (response.hasAuthError()) {
-            Authenticator.clearPassword(context)
-            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
-        } else if (!response.error.isNullOrBlank()) {
-            Result.failure(Exception(response.error))
-        } else {
-            collectionDao.delete(item.internalId).also {
-                Timber.i("Deleted collection item ${item.collectionName} [${item.collectionId}]")
+        val result = safeApiCall(context) { phpApi.collection(item.mapToFormBodyForDeletion()) }
+        return if (result.isSuccess) {
+            val response = result.getOrNull()
+            if (response == null) {
+                Result.failure(Exception("Unknown error"))
+            } else if (response.hasAuthError()) {
+                Authenticator.clearPassword(context)
+                Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+            } else if (!response.error.isNullOrBlank()) {
+                Result.failure(Exception(response.error))
+            } else {
+                withContext(Dispatchers.IO) {
+                    collectionDao.delete(item.internalId).also {
+                        Timber.i("Deleted collection item ${item.collectionName} [${item.collectionId}]")
+                    }
+                }
+                Result.success(CollectionItemUploadResult.delete(item))
             }
-            Result.success(CollectionItemUploadResult.delete(item))
+        } else {
+            result.exceptionOrNull()?.let {
+                Result.failure(it)
+            } ?: Result.failure(Exception("Unknown error"))
         }
     }
 
     suspend fun uploadNewItem(item: CollectionItem): Result<CollectionItemUploadResult> {
-        val response = phpApi.collection(item.mapToFormBodyForInsert())
-        return if (response.hasAuthError()) {
-            Authenticator.clearPassword(context)
-            Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
-        } else if (!response.error.isNullOrBlank()) {
-            Result.failure(Exception(response.error))
+        val result = safeApiCall(context) { phpApi.collection(item.mapToFormBodyForInsert()) }
+        return if (result.isSuccess) {
+            val response = result.getOrNull()
+            if (response == null) {
+                Result.failure(Exception("Unknown error"))
+            } else if (response.hasAuthError()) {
+                Authenticator.clearPassword(context)
+                Result.failure(Exception(context.getString(R.string.msg_play_update_auth_error)))
+            } else if (!response.error.isNullOrBlank()) {
+                Result.failure(Exception(response.error))
+            } else {
+                val count = withContext(Dispatchers.IO) { collectionDao.clearItemDirtyTimestamp(item.internalId) }
+                if (count == 1)
+                    Result.success(CollectionItemUploadResult.insert(item))
+                else
+                    Result.failure(Exception("Error inserting into database"))
+            }
         } else {
-            val count = collectionDao.clearItemDirtyTimestamp(item.internalId)
-            if (count == 1)
-                Result.success(CollectionItemUploadResult.insert(item))
-            else
-                Result.failure(Exception("Error inserting into database"))
+            result.exceptionOrNull()?.let {
+                Result.failure(it)
+            } ?: Result.failure(Exception("Unknown error"))
         }
     }
 
