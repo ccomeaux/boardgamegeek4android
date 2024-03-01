@@ -10,6 +10,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
@@ -50,11 +51,19 @@ class GameViewModel @Inject constructor(
     val gameId: LiveData<Int>
         get() = _gameId
 
+    private val _gameIsRefreshing = MutableLiveData<Boolean>()
+    val gameIsRefreshing: LiveData<Boolean>
+        get() = _gameIsRefreshing
+
+    private val _itemsAreRefreshing = MutableLiveData<Boolean>()
+    val itemsAreRefreshing: LiveData<Boolean>
+        get() = _itemsAreRefreshing
+
     private val _producerType = MutableLiveData<ProducerType>()
     val producerType: LiveData<ProducerType>
         get() = _producerType
 
-    private val _errorMessage = MutableLiveData<Event<String>>()
+    private val _errorMessage = EventLiveData()
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
 
@@ -86,47 +95,24 @@ class GameViewModel @Inject constructor(
         if (_producerType.value != type) _producerType.value = type
     }
 
-    val game: LiveData<RefreshableResource<Game>> = _gameId.switchMap { gameId ->
-        liveData<RefreshableResource<Game>> {
+    val game: LiveData<Game?> = _gameId.switchMap { gameId ->
+        liveData {
             try {
-                if (gameId == BggContract.INVALID_ID) {
-                    emit(RefreshableResource.success(null))
-                } else {
-                    latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
-                    val game = gameRepository.loadGame(gameId)
-                    emit(RefreshableResource.success(game))
-                    val refreshedGame = if (isGameRefreshing.compareAndSet(false, true)) {
-                        if (game == null || game.updated.isOlderThan(gameRefreshMinutes.minutes)) {
-                            emit(RefreshableResource.refreshing(game))
-                            gameRepository.refreshGame(gameId)
-                            val loadedGame = gameRepository.loadGame(gameId)
-                            emit(RefreshableResource.success(loadedGame))
-                            isGameRefreshing.set(false)
-                            loadedGame
-                        } else {
-                            isGameRefreshing.set(false)
-                            game
-                        }
-                    } else game
-                    refreshedGame?.let {
-                        if (it.heroImageUrl.isBlank()) {
-                            emit(RefreshableResource.refreshing(it))
-                            val gameWithHeroImage = gameRepository.refreshHeroImage(it)
-                            emit(RefreshableResource.success(gameWithHeroImage))
-                        }
+                emitSource(gameRepository.loadGameFlow(gameId).asLiveData().also {
+                    if (it.value == null || it.value?.updated.isOlderThan(gameRefreshMinutes.minutes)) {
+                       refreshGame()
                     }
-                }
+                })
             } catch (e: Exception) {
                 Timber.w(e)
-                emit(RefreshableResource.error(e, application, latestValue?.data))
-                isGameRefreshing.set(false)
+                _errorMessage.setMessage(e)
             }
         }.distinctUntilChanged()
     }
 
     val ranks = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getRanks(it.id)
             })
         }.distinctUntilChanged()
@@ -134,7 +120,7 @@ class GameViewModel @Inject constructor(
 
     val languagePoll = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 gameRepository.getLanguagePoll(it.id)
             })
         }.distinctUntilChanged()
@@ -142,7 +128,7 @@ class GameViewModel @Inject constructor(
 
     val agePoll = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 gameRepository.getAgePoll(it.id)
             })
         }.distinctUntilChanged()
@@ -150,7 +136,7 @@ class GameViewModel @Inject constructor(
 
     val playerPoll = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 gameRepository.getPlayerPoll(it.id)
             })
         }.distinctUntilChanged()
@@ -158,7 +144,7 @@ class GameViewModel @Inject constructor(
 
     val designers = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 gameRepository.getDesigners(it.id)
             })
         }.distinctUntilChanged()
@@ -166,7 +152,7 @@ class GameViewModel @Inject constructor(
 
     val artists = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 gameRepository.getArtists(it.id)
             })
         }.distinctUntilChanged()
@@ -174,7 +160,7 @@ class GameViewModel @Inject constructor(
 
     val publishers = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getPublishers(it.id)
             })
         }.distinctUntilChanged()
@@ -182,7 +168,7 @@ class GameViewModel @Inject constructor(
 
     val categories = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getCategories(it.id)
             })
         }.distinctUntilChanged()
@@ -190,7 +176,7 @@ class GameViewModel @Inject constructor(
 
     val mechanics = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getMechanics(it.id)
             })
         }.distinctUntilChanged()
@@ -198,7 +184,7 @@ class GameViewModel @Inject constructor(
 
     val expansions = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getExpansions(it.id).map { expansion ->
                     GameDetail(expansion.id, expansion.name, describeStatuses(expansion), expansion.thumbnailUrl)
                 }
@@ -208,7 +194,7 @@ class GameViewModel @Inject constructor(
 
     val baseGames = game.switchMap {
         liveData {
-            emit(it.data?.let {
+            emit(it?.let {
                 if (it.id == BggContract.INVALID_ID) null else gameRepository.getBaseGames(it.id).map { baseGame ->
                     GameDetail(baseGame.id, baseGame.name, describeStatuses(baseGame), baseGame.thumbnailUrl)
                 }
@@ -246,42 +232,25 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    val collectionItems: LiveData<RefreshableResource<List<CollectionItem>>> = game.switchMap { game ->
+    val collectionItems: LiveData<List<CollectionItem>> = gameId.switchMap {
         liveData {
-            val gameId = game.data?.id ?: BggContract.INVALID_ID
             try {
-                if (gameId == BggContract.INVALID_ID) {
-                    emit(RefreshableResource.success(emptyList()))
-                } else {
-                    latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
-                    val items = gameCollectionRepository.loadCollectionItemsForGame(gameId)
-                    emit(RefreshableResource.success(items))
-                    val refreshedItems = if (areItemsRefreshing.compareAndSet(false, true)) {
-                        val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-                        val refreshedItems = if (lastUpdated.isOlderThan(itemsRefreshMinutes.minutes)) {
-                            emit(RefreshableResource.refreshing(items))
-                            gameCollectionRepository.refreshCollectionItems(gameId, game.data?.subtype)
-                            val newItems = gameCollectionRepository.loadCollectionItemsForGame(gameId)
-                            emit(RefreshableResource.success(newItems))
-                            newItems
-                        } else items
-                        areItemsRefreshing.set(false)
-                        refreshedItems
-                    } else items
-                    if (refreshedItems.any { it.isDirty })
-                        gameCollectionRepository.enqueueUploadRequest(gameId)
-                }
+                emitSource(gameCollectionRepository.loadCollectionItemsForGameFlow(it).asLiveData().also {
+                    val lastUpdated = it.value?.minOf { item -> item.syncTimestamp } ?: 0L
+                    if (lastUpdated.isOlderThan(itemsRefreshMinutes.minutes)) {
+                        refreshItems()
+                    }
+                })
             } catch (e: Exception) {
                 Timber.w(e)
-                emit(RefreshableResource.error(e, application, latestValue?.data))
-                areItemsRefreshing.set(false)
+                _errorMessage.setMessage(e)
             }
         }
     }
 
     val plays: LiveData<RefreshableResource<List<Play>>> = game.switchMap { game ->
         liveData {
-            val gameId = game.data?.id ?: BggContract.INVALID_ID
+            val gameId = game?.id ?: BggContract.INVALID_ID
             try {
                 if (gameId == BggContract.INVALID_ID) {
                     emit(RefreshableResource.success(emptyList()))
@@ -290,7 +259,7 @@ class GameViewModel @Inject constructor(
                     val plays = playRepository.loadPlaysByGame(gameId)
                     if (arePlaysRefreshing.compareAndSet(false, true)) {
                         emit(RefreshableResource.refreshing(plays))
-                        val lastUpdated = game.data?.updatedPlays ?: System.currentTimeMillis()
+                        val lastUpdated = game?.updatedPlays ?: System.currentTimeMillis()
                         val rPlays = when {
                             lastUpdated.isOlderThan(playsFullMinutes.minutes) -> {
                                 playRepository.refreshPlaysForGame(gameId)
@@ -322,13 +291,50 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    fun refresh() {
+    fun refreshGame() {
+        gameId.value?.let {
+            if (isGameRefreshing.compareAndSet(false, true)) {
+                _gameIsRefreshing.value = true
+                viewModelScope.launch {
+                    val result = gameRepository.refreshGame(it)
+                    if (result.isFailure) {
+                        result.exceptionOrNull()?.let { _errorMessage.setMessage(it) }
+                    } else {
+                        gameRepository.loadGame(it)?.let { newGame ->
+                            if (newGame.doesHeroImageNeedUpdating()) {
+                                gameRepository.refreshHeroImage(newGame)
+                            }
+                        }
+                    }
+                }
+                _gameIsRefreshing.value = false
+                isGameRefreshing.set(false)
+            }
+        }
+    }
+
+    fun refreshItems() {
+        game.value?.let {
+            if (areItemsRefreshing.compareAndSet(false, true)){
+                _itemsAreRefreshing.value = true
+                viewModelScope.launch {
+                    gameCollectionRepository.refreshCollectionItems(it.id, it.subtype)?.let {
+                        _errorMessage.setMessage(it)
+                    }
+                }
+                _itemsAreRefreshing.value = false
+                areItemsRefreshing.set(false)
+            }
+        }
+    }
+
+    fun reload() {
         _gameId.value?.let { _gameId.value = it }
     }
 
     fun updateGameColors(palette: Palette?) {
         palette?.let { p ->
-            game.value?.data?.let { game ->
+            game.value?.let { game ->
                 viewModelScope.launch {
                     @ColorInt
                     val iconColor = p.getIconColor()
@@ -349,7 +355,6 @@ class GameViewModel @Inject constructor(
                             winnablePlaysColor,
                             allPlaysColor,
                         )
-                        refresh()
                     }
                 }
             }
@@ -359,7 +364,6 @@ class GameViewModel @Inject constructor(
     fun updateFavorite(isFavorite: Boolean) {
         viewModelScope.launch {
             gameRepository.updateFavorite(gameId.value ?: BggContract.INVALID_ID, isFavorite)
-            refresh()
         }
     }
 
@@ -367,7 +371,7 @@ class GameViewModel @Inject constructor(
         viewModelScope.launch {
             val result = playRepository.logQuickPlay(gameId, gameName)
             if (result.isFailure)
-                postError(result.exceptionOrNull())
+                result.exceptionOrNull()?.let { _errorMessage.setMessage(it) }
             else {
                 result.getOrNull()?.let {
                     if (it.play.playId != BggContract.INVALID_ID)
@@ -375,10 +379,6 @@ class GameViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun postError(exception: Throwable?) {
-        _errorMessage.value = Event(exception?.message.orEmpty())
     }
 
     fun addCollectionItem(statuses: List<String>, wishListPriority: Int) {
@@ -395,8 +395,8 @@ class GameViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             val context = getApplication<BggApplication>().applicationContext
             val gameId = _gameId.value ?: BggContract.INVALID_ID
-            val gameName = game.value?.data?.name.orEmpty()
-            val thumbnailUrl = game.value?.data?.thumbnailUrl.orEmpty()
+            val gameName = game.value?.name.orEmpty()
+            val thumbnailUrl = game.value?.thumbnailUrl.orEmpty()
             val bitmap = imageRepository.fetchThumbnail(thumbnailUrl.ensureHttpsScheme())
             GameActivity.createShortcutInfo(context, gameId, gameName, bitmap)?.let { info ->
                 ShortcutManagerCompat.requestPinShortcut(context, info, null)

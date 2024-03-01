@@ -2,6 +2,7 @@ package com.boardgamegeek.db
 
 import androidx.room.*
 import com.boardgamegeek.db.model.*
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GameDao {
@@ -110,6 +111,9 @@ interface GameDao {
 
     @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id WHERE game_id = :gameId")
     suspend fun loadGame(gameId: Int): GameWithLastPlayed?
+
+    @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id WHERE game_id = :gameId")
+    fun loadGameFlow(gameId: Int): Flow<GameWithLastPlayed?>
 
     @Query("SELECT game_id, game_name FROM games WHERE (updated != 0 OR updated IS NOT NULL) ORDER BY updated LIMIT :gamesPerFetch")
     suspend fun loadOldestUpdatedGames(gamesPerFetch: Int): List<GameIdAndName>

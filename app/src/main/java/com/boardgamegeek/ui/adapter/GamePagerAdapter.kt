@@ -62,8 +62,8 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
         viewModel.syncPlaysPreference.observe(activity) {
             it?.let { shouldShowPlays = it }
         }
-        viewModel.game.observe(activity) { resource ->
-            resource.data?.let { game ->
+        viewModel.game.observe(activity) {
+            it?.let { game ->
                 gameName = game.name
                 imageUrl = game.imageUrl
                 thumbnailUrl = game.thumbnailUrl

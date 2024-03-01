@@ -22,6 +22,7 @@
 				android:id="@+id/emptyMessage"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
+				android:text="@string/empty_game"
 				android:textAppearance="@style/TextAppearance.Empty"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +65,7 @@
 				app:layout_constraintTop_toBottomOf="@id/barrier" />
 
 			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-				android:id="@+id/progress"
+				android:id="@+id/contentLoadingProgressBar"
 				style="?android:attr/progressBarStyleLarge"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

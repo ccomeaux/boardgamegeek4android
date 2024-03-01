@@ -33,7 +33,7 @@ class GameLinksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewModel.game.observe(viewLifecycleOwner) {
-            it?.data?.let { game ->
+            it?.let { game ->
                 if (game.id != BggContract.INVALID_ID) {
                     binding.geekbuddyAnalysisLink.setOnClickListener { context.linkToBgg("geekbuddy/analyze/thing", game.id) }
                     binding.bggLink.setOnClickListener { context.linkBgg(game.id) }
@@ -47,10 +47,7 @@ class GameLinksFragment : Fragment() {
                     binding.ebayLink.setOnClickListener { context.linkEbay(game.name) }
                 }
             }
-        }
-
-        viewModel.game.observe(viewLifecycleOwner) { game ->
-            colorize(game?.data?.iconColor ?: Color.TRANSPARENT)
+            colorize(it?.iconColor ?: Color.TRANSPARENT)
         }
     }
 

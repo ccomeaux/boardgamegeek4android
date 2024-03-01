@@ -1,6 +1,7 @@
 package com.boardgamegeek.model
 
 import android.graphics.Color
+import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.provider.BggContract
 
 data class Game(
@@ -64,6 +65,10 @@ data class Game(
         }
 
     override fun toString() = "$id: $name"
+
+    fun doesHeroImageNeedUpdating(): Boolean {
+        return heroImageUrl.getImageId() != thumbnailUrl.getImageId()
+    }
 
     enum class Subtype(val code: String) {
         BOARDGAME("boardgame"),

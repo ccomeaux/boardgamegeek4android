@@ -306,7 +306,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             Timber.i("Refreshing game ${(index + 1)} of $maxGameCount: $gameName [$gameId]")
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS))
             try {
-                updatedCount += gameRepository.refreshGame(gameId)
+                updatedCount += gameRepository.refreshGame(gameId).getOrNull() ?: 0
                 Timber.i("Refreshed game $gameName [$gameId]")
             } catch (e: Exception) {
                 return handleException(applicationContext.getString(R.string.sync_notification_games_oldest), e)
@@ -320,7 +320,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             Timber.i("Refreshing game ${(index + 1)} of $maxGameCount: $gameName [$gameId]")
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS))
             try {
-                updatedCount += gameRepository.refreshGame(gameId)
+                updatedCount += gameRepository.refreshGame(gameId).getOrNull() ?: 0
                 Timber.i("Refreshed game $gameName [$gameId]")
             } catch (e: Exception) {
                 return handleException(applicationContext.getString(R.string.sync_notification_games_unupdated), e)

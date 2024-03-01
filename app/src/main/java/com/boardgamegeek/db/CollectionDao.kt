@@ -27,6 +27,10 @@ interface CollectionDao {
     suspend fun loadForGame(gameId: Int): List<CollectionItemWithGameEntity>
 
     @Transaction
+    @Query("SELECT * FROM collection WHERE game_id = :gameId")
+    fun loadForGameFlow(gameId: Int): Flow<List<CollectionItemWithGameEntity>>
+
+    @Transaction
     @Query("SELECT collection.* FROM games_artists INNER JOIN collection ON games_artists.game_id = collection.game_id WHERE artist_id = :artistId")
     suspend fun loadForArtist(artistId: Int): List<CollectionItemWithGameEntity>
 

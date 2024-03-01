@@ -18,7 +18,7 @@
 			android:paddingTop="@dimen/padding_standard">
 
 			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-				android:id="@+id/progressView"
+				android:id="@+id/contentLoadingProgressBar"
 				style="?android:attr/progressBarStyleLarge"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"

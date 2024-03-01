@@ -44,7 +44,7 @@ class GameSuggestedPlayerCountPollDialogFragment : DialogFragment() {
         addKeyRow(R.color.not_recommended, R.string.not_recommended)
 
         viewModel.game.observe(viewLifecycleOwner) {
-            totalVoteCount = it.data?.suggestedPlayerCountPollVoteTotal ?: 0
+            totalVoteCount = it?.suggestedPlayerCountPollVoteTotal ?: 0
             binding.totalVoteView.text = resources.getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount)
 
             binding.pollList.isVisible = totalVoteCount > 0

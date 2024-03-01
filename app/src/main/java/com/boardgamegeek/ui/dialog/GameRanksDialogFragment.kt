@@ -41,8 +41,8 @@ class GameRanksDialogFragment : DialogFragment() {
         dialog?.setTitle(R.string.title_ranks_ratings)
 
         viewModel.game.observe(viewLifecycleOwner) {
-            val voteCount = it?.data?.numberOfRatings ?: 0
-            val standardDeviation = it?.data?.standardDeviation ?: 0.0
+            val voteCount = it?.numberOfRatings ?: 0
+            val standardDeviation = it?.standardDeviation ?: 0.0
             binding.votesView.text = requireContext().getQuantityText(R.plurals.ratings_suffix, voteCount, voteCount)
             binding.standardDeviationView.text = requireContext().getText(R.string.standard_deviation_prefix, standardDeviation)
             binding.standardDeviationView.isVisible = voteCount > 0

@@ -5,12 +5,16 @@ import com.boardgamegeek.db.*
 import com.boardgamegeek.db.model.*
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.lang.Exception
 import javax.inject.Inject
 
 class GameRepository @Inject constructor(
@@ -34,6 +38,11 @@ class GameRepository @Inject constructor(
         }
     }
 
+    fun loadGameFlow(gameId: Int): Flow<Game?> {
+        return gameDao.loadGameFlow(gameId)
+            .map { it?.game?.mapToModel(it.lastPlayedDate) }
+    }
+
     suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> {
         return gameDao.loadOldestUpdatedGames(gamesPerFetch).map { it.gameId to it.gameName }
     }
@@ -50,26 +59,31 @@ class GameRepository @Inject constructor(
         }
     }
 
-    suspend fun refreshGame(vararg gameId: Int): Int = withContext(Dispatchers.IO) {
+    suspend fun refreshGame(vararg gameId: Int): Result<Int> = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val games = api.thing(gameId.first(), 1).games
-        games?.forEach { game ->
-            val internalId = gameDao.loadGame(game.id)?.game?.internalId ?: 0L
-            val gameForUpsert = game.mapForUpsert(internalId, timestamp)
-            Timber.i("Saving game ${gameForUpsert.header.gameName} (${game.id})")
-            game.mapToDesigners().forEach { designerDao.insert(it) }
-            game.mapToArtists().forEach { artistDao.insert(it) }
-            game.mapToPublishers().forEach { publisherDao.insert(it) }
-            game.mapToCategories().forEach { categoryDao.insert(it) }
-            game.mapToMechanics().forEach { mechanicDao.insert(it) }
-            if (gameForUpsert.header.gameName.isBlank()) {
-                Timber.w("Missing name from game ID=${gameForUpsert.header.gameId}")
-            } else {
-                val upsertedInternalId = gameDao.upsert(gameForUpsert)
-                Timber.i("Saved game ${gameForUpsert.header.gameName} (${game.id}) [$upsertedInternalId]")
+        val result = safeApiCall(context) { api.thing(gameId.first(), 1).games }
+        if (result.isSuccess){
+            result.getOrNull()?.forEach { game ->
+                val internalId = gameDao.loadGame(game.id)?.game?.internalId ?: 0L
+                val gameForUpsert = game.mapForUpsert(internalId, timestamp)
+                Timber.i("Saving game ${gameForUpsert.header.gameName} (${game.id})")
+                game.mapToDesigners().forEach { designerDao.insert(it) }
+                game.mapToArtists().forEach { artistDao.insert(it) }
+                game.mapToPublishers().forEach { publisherDao.insert(it) }
+                game.mapToCategories().forEach { categoryDao.insert(it) }
+                game.mapToMechanics().forEach { mechanicDao.insert(it) }
+                if (gameForUpsert.header.gameName.isBlank()) {
+                    Timber.w("Missing name from game ID=${gameForUpsert.header.gameId}")
+                } else {
+                    gameDao.upsert(gameForUpsert).also {
+                        Timber.i("Saved game ${gameForUpsert.header.gameName} (${game.id}) [$it]")
+                    }
+                }
             }
+            Result.success(result.getOrNull()?.size ?: 0)
+        }  else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
         }
-        games?.size ?: 0
     }
 
     suspend fun fetchGameThumbnail(vararg gameId: Int): String? = withContext(Dispatchers.IO) {
@@ -220,7 +234,7 @@ class GameRepository @Inject constructor(
         winsColor: Int,
         winnablePlaysColor: Int,
         allPlaysColor: Int
-    ) {
+    ) = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
             gameDao.updateImageColors(gameId, iconColor, darkColor, winsColor, winnablePlaysColor, allPlaysColor)
         }
@@ -233,7 +247,7 @@ class GameRepository @Inject constructor(
         }
     }
 
-    suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
+    suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) gameDao.updateStarred(gameId, isFavorite)
     }
 

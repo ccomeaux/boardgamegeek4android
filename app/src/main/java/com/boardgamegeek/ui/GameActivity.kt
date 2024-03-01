@@ -17,7 +17,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.ActivityHeroTabBinding
-import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
@@ -67,17 +66,14 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         viewModel.setId(gameId)
 
         viewModel.game.observe(this) {
-            it?.let { (status, data, message) ->
-                if (status == Status.ERROR) toast(message.ifBlank { getString(R.string.empty_game) })
-                data?.let { game ->
-                    changeName(game.name)
-                    changeImage(game.heroImageUrl, game.thumbnailUrl)
-                    isFavorite = game.isFavorite
-                    isUserMenuEnabled = game.maxUsers > 0
-                    thumbnailUrl = game.thumbnailUrl
-                    imageUrl = game.imageUrl
-                    arePlayersCustomSorted = game.customPlayerSort
-                }
+            it?.let { game ->
+                changeName(game.name)
+                changeImage(game.heroImageUrl, game.thumbnailUrl)
+                isFavorite = game.isFavorite
+                isUserMenuEnabled = game.maxUsers > 0
+                thumbnailUrl = game.thumbnailUrl
+                imageUrl = game.imageUrl
+                arePlayersCustomSorted = game.customPlayerSort
             }
         }
 

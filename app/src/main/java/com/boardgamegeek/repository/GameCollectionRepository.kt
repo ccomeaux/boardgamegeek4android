@@ -38,7 +38,6 @@ class GameCollectionRepository(
     private val gameDao: GameDao,
     private val collectionDao: CollectionDao,
 ) {
-    private val username: String? by lazy { context.preferences()[AccountPreferences.KEY_USERNAME, ""] }
     private val prefs: SharedPreferences by lazy { context.preferences() }
 
     fun resetCollectionItems() {
@@ -60,6 +59,14 @@ class GameCollectionRepository(
 
     suspend fun loadCollectionItemsForGame(gameId: Int): List<CollectionItem> = withContext(Dispatchers.IO) {
         collectionDao.loadForGame(gameId).map { it.mapToModel() }
+    }
+
+    fun loadCollectionItemsForGameFlow(gameId: Int): Flow<List<CollectionItem>> {
+        return collectionDao.loadForGameFlow(gameId)
+            .map {
+                list -> list.map { it.mapToModel() }.filter { item -> item.deleteTimestamp == 0L }
+            }
+            .flowOn(Dispatchers.Default)
     }
 
     suspend fun loadUnupdatedItems() = withContext(Dispatchers.IO) { collectionDao.loadItemsNotUpdated() }
@@ -101,6 +108,7 @@ class GameCollectionRepository(
 
     suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: Game.Subtype?): String? =
         withContext(Dispatchers.IO) {
+            val username = prefs[AccountPreferences.KEY_USERNAME, ""]
             if (gameId == INVALID_ID && collectionId == INVALID_ID)
                 context.getString(R.string.msg_refresh_collection_item_invalid_id)
             else if (username.isNullOrBlank())
@@ -139,10 +147,14 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun refreshCollectionItems(gameId: Int, subtype: Game.Subtype? = null) = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID && !username.isNullOrBlank()) {
+    suspend fun refreshCollectionItems(gameId: Int, subtype: Game.Subtype? = null): String? = withContext(Dispatchers.IO) {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        if (gameId == INVALID_ID)
+            context.getString(R.string.msg_refresh_collection_item_invalid_id)
+        else if (username.isNullOrBlank())
+            context.getString(R.string.msg_refresh_collection_item_auth_error)
+        else {
             val timestamp = System.currentTimeMillis()
-            val list = mutableListOf<CollectionItem>()
             val collectionIds = arrayListOf<Int>()
 
             val options = mutableMapOf(
@@ -151,16 +163,16 @@ class GameCollectionRepository(
                 BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
             )
             options.addSubtype(subtype)
-            val response = api.collection(username, options)
-            response.items?.forEach { collectionItem ->
-                val (collectionId, internalId) = upsert(collectionItem, timestamp)
-                val item = collectionItem.mapToCollectionItem()
-                list += item.copy(internalId = internalId, syncTimestamp = timestamp)
+            val result = safeApiCall(context) { api.collection(username, options) }
+            if (result.isFailure)
+                return@withContext result.exceptionMessage()
+
+            result.getOrNull()?.items?.forEach { collectionItem ->
+                val (collectionId, _) = upsert(collectionItem, timestamp)
                 collectionIds += collectionId
             }
-
             val statuses = prefs.getSyncStatusesOrDefault()
-            if ((response.items == null || response.items.isNotEmpty()) && statuses.contains(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
+            if (result.getOrNull()?.items.isNullOrEmpty() && statuses.contains(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
                 val playedOptions = mutableMapOf(
                     BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
                     BggService.COLLECTION_QUERY_KEY_STATS to "1",
@@ -168,20 +180,25 @@ class GameCollectionRepository(
                     BggService.COLLECTION_QUERY_STATUS_PLAYED to "1",
                 )
                 playedOptions.addSubtype(subtype)
-                val playedResponse = api.collection(username, playedOptions)
-                playedResponse.items?.forEach { collectionItem ->
-                    val (collectionId, internalId) = upsert(collectionItem, timestamp)
-                    list += collectionItem.mapToCollectionItem().copy(internalId = internalId, syncTimestamp = timestamp)
+                val playedResponse = safeApiCall(context) { api.collection(username, playedOptions) }
+                if (playedResponse.isFailure)
+                    return@withContext result.exceptionMessage()
+
+                playedResponse.getOrNull()?.items?.forEach { collectionItem ->
+                    val (collectionId, _) = upsert(collectionItem, timestamp)
                     collectionIds += collectionId
                 }
             }
 
-            Timber.i("Synced %,d collection item(s) for game '%s'", list.size, gameId)
-
+            Timber.i("Synced %,d collection item(s) for game '%s'", collectionIds.size, gameId)
             delete(gameId, collectionIds)
-            list
-        } else null
+            null
+        }
     }
+
+    private fun Result<*>.exceptionMessage() = exceptionOrNull()?.localizedMessage ?: "Unknown error"
+
+    private fun Result<*>.exception() = exceptionOrNull() ?: Exception("Unknown error")
 
     private suspend fun upsert(collectionItem: CollectionItemRemote, timestamp: Long): Pair<Int, Long> = withContext(Dispatchers.IO) {
         val itemForInsert = withContext(Dispatchers.Default) { collectionItem.mapForInsert(timestamp) }
@@ -340,9 +357,7 @@ class GameCollectionRepository(
                 Result.success(CollectionItemUploadResult.delete(item))
             }
         } else {
-            result.exceptionOrNull()?.let {
-                Result.failure(it)
-            } ?: Result.failure(Exception("Unknown error"))
+             Result.failure(result.exception())
         }
     }
 
@@ -365,9 +380,7 @@ class GameCollectionRepository(
                     Result.failure(Exception("Error inserting into database"))
             }
         } else {
-            result.exceptionOrNull()?.let {
-                Result.failure(it)
-            } ?: Result.failure(Exception("Unknown error"))
+            Result.failure(result.exception())
         }
     }
 

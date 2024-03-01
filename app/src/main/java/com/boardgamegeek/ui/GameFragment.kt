@@ -44,7 +44,7 @@ class GameFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.constraintLayout.layoutTransition.setAnimateParentHierarchy(false)
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshGame() }
         binding.swipeRefresh.setBggColors()
 
         binding.footer.lastModifiedView.timestamp = 0
@@ -54,16 +54,14 @@ class GameFragment : Fragment() {
             binding.footer.gameIdView.text = gameId.toString()
         }
 
-        viewModel.game.observe(viewLifecycleOwner) { resource ->
-            resource?.let { (status, data, message) ->
-                binding.swipeRefresh.isRefreshing = status == Status.REFRESHING
-                when {
-                    status == Status.ERROR && data == null -> showError(message)
-                    data == null -> showError(getString(R.string.empty_game))
-                    else -> onGameContentChanged(data)
-                }
-                binding.progress.hide()
-
+        viewModel.gameIsRefreshing.observe(viewLifecycleOwner) {
+            it?.let { binding.swipeRefresh.isRefreshing = it }
+        }
+        viewModel.game.observe(viewLifecycleOwner) { game ->
+            if (game == null) {
+                showEmpty()
+            } else {
+                onGameContentChanged(game)
                 viewModel.ranks.observe(viewLifecycleOwner) { it?.let { onRankQueryComplete(it) } }
                 viewModel.languagePoll.observe(viewLifecycleOwner) { gamePollEntity ->
                     gamePollEntity?.let { onLanguagePollQueryComplete(it) }
@@ -75,6 +73,7 @@ class GameFragment : Fragment() {
                     it?.let { onPlayerCountQueryComplete(it) }
                 }
             }
+            binding.contentLoadingProgressBar?.hide()
         }
     }
 
@@ -83,19 +82,16 @@ class GameFragment : Fragment() {
         _binding = null
     }
 
-    private fun showError(message: String?) {
-        if (message?.isNotBlank() == true) {
-            binding.emptyMessage.text = message
-            binding.emptyMessage.isVisible = true
-            binding.ranksInclude.root.isVisible = true
-            binding.ratingsInclude.root.isVisible = true
-            binding.yearInclude.root.isVisible = true
-            binding.playingTimeInclude.root.isVisible = true
-            binding.playerRangeInclude.root.isVisible = true
-            binding.agesInclude.root.isVisible = true
-            binding.weightInclude.root.isVisible = true
-            binding.languageInclude.root.isVisible = false
-        }
+    private fun showEmpty() {
+        binding.emptyMessage.isVisible = true
+        binding.ranksInclude.root.isVisible = true
+        binding.ratingsInclude.root.isVisible = true
+        binding.yearInclude.root.isVisible = true
+        binding.playingTimeInclude.root.isVisible = true
+        binding.playerRangeInclude.root.isVisible = true
+        binding.agesInclude.root.isVisible = true
+        binding.weightInclude.root.isVisible = true
+        binding.languageInclude.root.isVisible = false
     }
 
     private fun colorize(@ColorInt iconColor: Int) {

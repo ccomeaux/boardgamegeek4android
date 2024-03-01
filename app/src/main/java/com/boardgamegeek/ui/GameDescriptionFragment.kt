@@ -7,10 +7,8 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameDescriptionBinding
 import com.boardgamegeek.model.Game
-import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -31,7 +29,7 @@ class GameDescriptionFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshGame() }
         binding.swipeRefresh.setBggColors()
 
         binding.footer.lastModifiedView.timestamp = 0L
@@ -40,29 +38,25 @@ class GameDescriptionFragment : Fragment() {
             binding.footer.gameIdView.text = it.toString()
         }
 
+        viewModel.gameIsRefreshing.observe(viewLifecycleOwner) {
+            it?.let { binding.swipeRefresh.isRefreshing }
+        }
         viewModel.game.observe(viewLifecycleOwner) {
-            it?.let {
-                binding.swipeRefresh.isRefreshing = it.status == Status.REFRESHING
-                when {
-                    it.status == Status.ERROR -> showError(it.message)
-                    it.data == null -> showError(getString(R.string.empty_game))
-                    else -> showData(it.data)
-                }
-                binding.progress.hide()
+            if (it == null) {
+                binding.emptyMessage.isVisible = true
+                binding.gameDescription.isVisible = false
+                binding.footer.gameIdView.isVisible = false
+                binding.footer.lastModifiedView.isVisible = false
+            } else {
+                showData(it)
             }
+            binding.contentLoadingProgressBar.hide()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-    private fun showError(message: String?) {
-        if (message?.isNotBlank() == true) {
-            binding.emptyMessage.text = message
-            binding.emptyMessage.isVisible = true
-        }
     }
 
     private fun showData(game: Game) {
@@ -73,5 +67,7 @@ class GameDescriptionFragment : Fragment() {
 
         binding.footer.gameIdView.text = game.id.toString()
         binding.footer.lastModifiedView.timestamp = game.updated
+        binding.footer.gameIdView.isVisible = true
+        binding.footer.lastModifiedView.isVisible = true
     }
 }

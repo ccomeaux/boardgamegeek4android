@@ -48,13 +48,13 @@ class GamePlaysFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.constraintLayout.layoutTransition.setAnimateParentHierarchy(false)
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshGame() } // TODO refresh game plays
         binding.swipeRefresh.setBggColors()
 
         binding.syncTimestampView.timestamp = 0L
 
         viewModel.game.observe(viewLifecycleOwner) {
-            it?.data?.let { game ->
+            it?.let { game ->
                 gameId = game.id
                 gameName = game.name
                 heroImageUrl = game.heroImageUrl
