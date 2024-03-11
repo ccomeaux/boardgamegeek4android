@@ -16,7 +16,6 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlaysBinding
 import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -48,7 +47,7 @@ class GamePlaysFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.constraintLayout.layoutTransition.setAnimateParentHierarchy(false)
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshGame() } // TODO refresh game plays
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshPlays() }
         binding.swipeRefresh.setBggColors()
 
         binding.syncTimestampView.timestamp = 0L
@@ -68,16 +67,15 @@ class GamePlaysFragment : Fragment() {
             }
         }
 
+        viewModel.playsAreRefreshing.observe(viewLifecycleOwner) {
+            it?.let { binding.swipeRefresh.isRefreshing = it }
+        }
         viewModel.plays.observe(viewLifecycleOwner) {
-            it?.let { (status, data, message) ->
-                binding.swipeRefresh.isRefreshing = status == Status.REFRESHING
-                data.orEmpty().run {
-                    bindTotalPlays(this)
-                    bindPlaysInProgress(this)
-                    bindLastPlay(this)
-                    bindStats(this)
-                }
-                if (status == Status.ERROR) toast(message)
+            it?.let {
+                bindTotalPlays(it)
+                bindPlaysInProgress(it)
+                bindLastPlay(it)
+                bindStats(it)
             }
         }
 

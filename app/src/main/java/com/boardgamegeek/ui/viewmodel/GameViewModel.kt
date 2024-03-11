@@ -38,6 +38,7 @@ class GameViewModel @Inject constructor(
     private val isGameRefreshing = AtomicBoolean()
     private val areItemsRefreshing = AtomicBoolean()
     private val arePlaysRefreshing = AtomicBoolean()
+    private val forcePlaysRefresh = AtomicBoolean(false)
     private val gameRefreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
     private val itemsRefreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
     private val playsFullMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
@@ -58,6 +59,10 @@ class GameViewModel @Inject constructor(
     private val _itemsAreRefreshing = MutableLiveData<Boolean>()
     val itemsAreRefreshing: LiveData<Boolean>
         get() = _itemsAreRefreshing
+
+    private val _playsAreRefreshing = MutableLiveData<Boolean>()
+    val playsAreRefreshing: LiveData<Boolean>
+        get() = _playsAreRefreshing
 
     private val _producerType = MutableLiveData<ProducerType>()
     val producerType: LiveData<ProducerType>
@@ -248,39 +253,16 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    val plays: LiveData<RefreshableResource<List<Play>>> = game.switchMap { game ->
+    val plays: LiveData<List<Play>> = game.switchMap { game ->
         liveData {
-            val gameId = game?.id ?: BggContract.INVALID_ID
             try {
-                if (gameId == BggContract.INVALID_ID) {
-                    emit(RefreshableResource.success(emptyList()))
-                } else {
-                    latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
-                    val plays = playRepository.loadPlaysByGame(gameId)
-                    if (arePlaysRefreshing.compareAndSet(false, true)) {
-                        emit(RefreshableResource.refreshing(plays))
-                        val lastUpdated = game?.updatedPlays ?: System.currentTimeMillis()
-                        val rPlays = when {
-                            lastUpdated.isOlderThan(playsFullMinutes.minutes) -> {
-                                playRepository.refreshPlaysForGame(gameId)
-                                playRepository.loadPlaysByGame(gameId)
-                            }
-                            lastUpdated.isOlderThan(playsPartialMinutes.minutes) -> {
-                                playRepository.refreshPartialPlaysForGame(gameId)
-                                playRepository.loadPlaysByGame(gameId)
-                            }
-                            else -> plays
-                        }
-                        arePlaysRefreshing.set(false)
-                        emit(RefreshableResource.success(rPlays))
-                    } else {
-                        emit(RefreshableResource.success(plays))
-                    }
+                game?.let {
+                    emitSource(playRepository.loadPlaysByGameFlow(it.id).asLiveData())
                 }
+                attemptRefreshPlays()
             } catch (e: Exception) {
                 Timber.w(e)
-                emit(RefreshableResource.error(e, application, latestValue?.data))
-                arePlaysRefreshing.set(false)
+                _errorMessage.setMessage(e)
             }
         }
     }
@@ -324,6 +306,35 @@ class GameViewModel @Inject constructor(
                 }
                 _itemsAreRefreshing.value = false
                 areItemsRefreshing.set(false)
+            }
+        }
+    }
+
+    fun refreshPlays() {
+        forcePlaysRefresh.set(true)
+        attemptRefreshPlays()
+    }
+
+    private fun attemptRefreshPlays() {
+        game.value?.let {
+            if (arePlaysRefreshing.compareAndSet(false, true)) {
+                _playsAreRefreshing.value = true
+                viewModelScope.launch {
+                    val lastUpdated = it.updatedPlays
+                    when {
+                        lastUpdated.isOlderThan(playsFullMinutes.minutes) -> {
+                            playRepository.refreshPlaysForGame(it.id)
+                        }
+                        lastUpdated.isOlderThan(playsPartialMinutes.minutes) -> {
+                            playRepository.refreshPlaysForGame(it.id, 1)
+                        }
+                        forcePlaysRefresh.compareAndSet(true, false) -> {
+                            playRepository.refreshPlaysForGame(it.id, 1)
+                        }
+                    }
+                }
+                _playsAreRefreshing.value = false
+                arePlaysRefreshing.set(false)
             }
         }
     }

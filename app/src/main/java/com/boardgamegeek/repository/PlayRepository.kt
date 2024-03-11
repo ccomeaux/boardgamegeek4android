@@ -98,7 +98,7 @@ class PlayRepository(
     fun loadPlaysByGameFlow(gameId: Int): Flow<List<Play>> {
         return playDao.loadPlaysForGameFlow(gameId).map { list ->
             list.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
-        }
+        }.flowOn(Dispatchers.Default)
     }
 
     fun loadPlaysByLocationFlow(location: String): Flow<List<Play>> {
@@ -263,45 +263,49 @@ class PlayRepository(
         null
     }
 
-    suspend fun refreshPlaysForGame(gameId: Int) = withContext(Dispatchers.Default) {
-        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
-        if (gameId != INVALID_ID && !username.isNullOrBlank()) {
-            val timestamp = System.currentTimeMillis()
-            var page = 1
-            do {
-                val response = api.playsByGame(username, gameId, page++)
-                val playsPage = response.plays.mapToModel(timestamp)
-                saveFromSync(playsPage, timestamp)
-            } while (response.hasMorePages())
+    suspend fun refreshPlaysForGame(gameId: Int, maximumPageCount: Int = Int.MAX_VALUE): String? = withContext(Dispatchers.IO) {
+        if (gameId == INVALID_ID)
+            return@withContext context.getString(R.string.msg_refresh_plays_invalid_id)
 
-            playDao.deleteUnupdatedPlaysForGame(gameId, timestamp)
-            gameDao.updatePlayTimestamp(gameId, timestamp)
-            calculateStats()
-        }
-    }
-
-    suspend fun refreshPartialPlaysForGame(gameId: Int) = withContext(Dispatchers.IO) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
-        if (!username.isNullOrBlank()) {
-            val timestamp = System.currentTimeMillis()
-            val response = api.playsByGame(username, gameId, 1)
-            val plays = response.plays.mapToModel(timestamp)
-            saveFromSync(plays, timestamp)
-            calculateStats()
+        if (username.isNullOrBlank())
+            return@withContext context.getString(R.string.msg_refresh_plays_auth_error)
+
+        val syncInitiatedTimestamp = System.currentTimeMillis()
+        var page = 0
+        do {
+            page++
+            if (page > maximumPageCount) break
+            val response = safeApiCall(context) { api.playsByGame(username, gameId, page) }
+            if (response.isSuccess) {
+                val plays = withContext(Dispatchers.Default) { response.getOrNull()?.plays.mapToModel(syncInitiatedTimestamp) }
+                saveFromSync(plays, syncInitiatedTimestamp)
+                Timber.i("Synced ${plays.size} plays for game $gameId (page $page)")
+            } else {
+                return@withContext response.exceptionOrNull()?.localizedMessage
+            }
+        } while (response.isSuccess && response.getOrNull()?.hasMorePages() == true)
+
+        if (maximumPageCount == Int.MAX_VALUE) {
+            playDao.deleteUnupdatedPlaysForGame(gameId, syncInitiatedTimestamp)
+            gameDao.updatePlayTimestamp(gameId, syncInitiatedTimestamp)
         }
+
+        calculateStats()
+        null
     }
 
     suspend fun refreshRecentPlays(): String? = withContext(Dispatchers.IO) {
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         if (username.isNullOrBlank())
-            return@withContext null
+            return@withContext context.getString(R.string.msg_refresh_plays_auth_error)
 
         val syncInitiatedTimestamp = System.currentTimeMillis()
         val response = safeApiCall(context) { api.plays(username, null, null, 1) }
         if (response.isSuccess) {
             val plays = response.getOrNull()?.plays.mapToModel(syncInitiatedTimestamp)
             saveFromSync(plays, syncInitiatedTimestamp)
-            Timber.i("Synced %,d most recent plays", 1, plays.size)
+            Timber.i("Synced %,d most recent plays", plays.size)
             prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = syncInitiatedTimestamp
             calculateStats()
             null
@@ -321,8 +325,7 @@ class PlayRepository(
                     val playsPage = result.getOrNull()?.plays.mapToModel(timestamp)
                     saveFromSync(playsPage, timestamp)
                     Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page - 1)
-                }
-                else return@withContext result.exceptionOrNull()?.localizedMessage ?: "Error"
+                } else return@withContext result.exceptionOrNull()?.localizedMessage ?: "Error"
             } while (result.getOrNull()?.hasMorePages() == true)
 
             calculateStats()
@@ -518,7 +521,7 @@ class PlayRepository(
 
     // region Save
 
-    suspend fun saveFromSync(plays: List<Play>, syncTimestamp: Long) {
+    suspend fun saveFromSync(plays: List<Play>, syncTimestamp: Long) = withContext(Dispatchers.IO) {
         Timber.i("Saving %d plays", plays.size)
         var updateCount = 0
         var insertCount = 0
@@ -698,7 +701,7 @@ class PlayRepository(
 
     // region Stats
 
-    suspend fun calculateStats() = withContext(Dispatchers.Default) {
+    suspend fun calculateStats() {
         if ((syncPrefs[TIMESTAMP_PLAYS_OLDEST_DATE, Long.MAX_VALUE] ?: Long.MAX_VALUE) == 0L) {
             calculatePlayStats()
             calculatePlayerStats()
@@ -748,14 +751,14 @@ class PlayRepository(
                 name = game.key.second,
                 playCount = game.value,
                 isOwned = itemPairs.any { it.own },
-                bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN
+                bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN,
             )
         }
     }
 
-    private suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<Player> {
+    private suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<Player> = withContext(Dispatchers.Default) {
         val username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
-        return playDao.loadPlayers()
+        playDao.loadPlayers()
             .asSequence()
             .filterNot { it.player.username == username }
             .filter { includeIncompletePlays || !it.incomplete }
@@ -771,8 +774,10 @@ class PlayRepository(
             val old = prefs.getHIndex(type)
             if (old != hIndex) {
                 prefs.setHIndex(type, hIndex)
-                @StringRes val messageId =
-                    if (hIndex > old) R.string.sync_notification_h_index_increase else R.string.sync_notification_h_index_decrease
+                @StringRes val messageId = if (hIndex > old)
+                    R.string.sync_notification_h_index_increase
+                else
+                    R.string.sync_notification_h_index_decrease
                 context.notify(
                     context.createNotificationBuilder(
                         R.string.title_play_stats, NotificationChannels.STATS, PlayStatsActivity::class.java
