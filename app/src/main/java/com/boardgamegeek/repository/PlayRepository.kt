@@ -88,17 +88,10 @@ class PlayRepository(
         return playDao.loadPlayWithPlayersFlow(internalId).map { it?.mapToModel() }.flowOn(Dispatchers.Default)
     }
 
-    suspend fun loadPlaysByGame(gameId: Int): List<Play> = withContext(Dispatchers.Default) {
-        if (gameId == INVALID_ID) emptyList()
-        else withContext(Dispatchers.IO) { playDao.loadPlaysForGame(gameId) }
-            .map { it.mapToModel() }
-            .filterNot { it.deleteTimestamp > 0L }
-    }
-
     fun loadPlaysByGameFlow(gameId: Int): Flow<List<Play>> {
-        return playDao.loadPlaysForGameFlow(gameId).map { list ->
-            list.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L }
-        }.flowOn(Dispatchers.Default)
+        return playDao.loadPlaysForGameFlow(gameId)
+            .map { list -> list.map { it.mapToModel() }.filterNot { it.deleteTimestamp > 0L } }
+            .flowOn(Dispatchers.Default)
     }
 
     fun loadPlaysByLocationFlow(location: String): Flow<List<Play>> {
@@ -167,9 +160,10 @@ class PlayRepository(
             .sortedByDescending { it.playCount }
     }
 
-    suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayer> = withContext(Dispatchers.Default) {
-        if (gameId == INVALID_ID) emptyList()
-        else withContext(Dispatchers.IO) { playDao.loadPlayersForGame(gameId) }.map { it.player.mapToModel() }
+    fun loadPlayersByGameFlow(gameId: Int): Flow<List<PlayPlayer>> {
+        return playDao.loadPlayersForGameFlow(gameId)
+            .map { list -> list.map { it.player.mapToModel() } }
+            .flowOn(Dispatchers.Default)
     }
 
     suspend fun loadPlayer(name: String?, type: PlayerType): Player? = withContext(Dispatchers.Default) {
@@ -587,7 +581,9 @@ class PlayRepository(
 
     suspend fun updateGamePlayCount(gameId: Int) = withContext(Dispatchers.Default) {
         if (gameId != INVALID_ID) {
-            val allPlays = loadPlaysByGame(gameId)
+            val allPlays = withContext(Dispatchers.IO) { playDao.loadPlaysForGame(gameId) }
+                .map { it.mapToModel() }
+                .filterNot { it.deleteTimestamp > 0L }
             val playCount = allPlays.sumOf { it.quantity }
             withContext(Dispatchers.IO) { gameDao.updatePlayCount(gameId, playCount) }
         }

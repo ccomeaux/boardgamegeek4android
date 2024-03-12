@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -28,6 +29,8 @@ import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
@@ -59,9 +62,9 @@ class GamePlayStatsFragment : Fragment() {
     @ColorInt
     private lateinit var playCountColors: IntArray
 
-    private var playingTime = 0
-    private var personalRating = 0.0
-    private var gameOwned = false
+    private var publishedPlayingTime = 0
+    private var personalRating = Game.UNRATED
+    private var isGameOwned = false
     private var playerTransition: Transition? = null
     private val selectedItems = SparseBooleanArray()
 
@@ -131,43 +134,36 @@ class GamePlayStatsFragment : Fragment() {
                 .show()
         }
 
-        viewModel.game.observe(viewLifecycleOwner) { resource ->
-            resource?.let { (_, data, _) ->
-                data?.first()?.let {
-                    playCountColors = intArrayOf(
-                        if (it.winsColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.orange) else it.winsColor,
-                        if (it.winnablePlaysColor == Color.TRANSPARENT) ContextCompat.getColor(
-                            requireContext(),
-                            R.color.dark_blue
-                        ) else it.winnablePlaysColor,
-                        if (it.allPlaysColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.light_blue) else it.allPlaysColor
-                    )
-                }
+        viewModel.collectionItems.observe(viewLifecycleOwner) {
+            it?.first()?.let { item: CollectionItem ->
+                playCountColors = intArrayOf(
+                    item.winsColor.colorOrElse(R.color.orange),
+                    item.winnablePlaysColor.colorOrElse(R.color.dark_blue),
+                    item.allPlaysColor.colorOrElse(R.color.light_blue),
+                )
+            }
 
-                playingTime = data?.first()?.playingTime ?: 0
-                personalRating = data?.filter { it.rating > 0.0 }?.map { it.rating }?.average() ?: 0.0
-                gameOwned = data?.any { it.own } ?: false
+            publishedPlayingTime = it?.first()?.playingTime ?: 0
+            personalRating = it?.filter { item -> item.rating > 0.0 }?.map { item -> item.rating }?.average() ?: Game.UNRATED
+            isGameOwned = it?.any { item -> item.own } ?: false
 
-                viewModel.plays.observe(viewLifecycleOwner) { playList ->
-                    playList?.let { (_, data, _) ->
-                        if (data.isNullOrEmpty()) {
-                            binding.progressView.hide()
-                            binding.dataView.fadeOut()
-                            binding.emptyView.fadeIn()
-                        } else {
-                            plays = data.sortedByDescending { it.dateInMillis }
-                            viewModel.players.observe(viewLifecycleOwner) {
-                                players = it
+            viewModel.plays.observe(viewLifecycleOwner) { plays ->
+                if (plays.isNullOrEmpty()) {
+                    binding.progressView.hide()
+                    binding.dataView.fadeOut()
+                    binding.emptyView.fadeIn()
+                } else {
+                    this.plays = plays.sortedByDescending { play -> play.dateInMillis }
+                    viewModel.players.observe(viewLifecycleOwner) { players ->
+                        this.players = players
 
-                                val stats = Stats()
-                                stats.calculate()
-                                bindUi(stats)
+                        val stats = Stats()
+                        stats.calculate()
+                        bindUi(stats)
 
-                                binding.progressView.hide()
-                                binding.emptyView.fadeOut()
-                                binding.dataView.fadeIn()
-                            }
-                        }
+                        binding.progressView.hide()
+                        binding.emptyView.fadeOut()
+                        binding.dataView.fadeIn()
                     }
                 }
             }
@@ -179,6 +175,8 @@ class GamePlayStatsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun Int.colorOrElse(@ColorRes colorResId: Int) = if (this == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), colorResId) else this
 
     private fun setInterpolator(context: Context?, transition: Transition?) {
         if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
@@ -336,11 +334,11 @@ class GamePlayStatsFragment : Fragment() {
         val average = stats.averagePlayTime
         if (average > 0) {
             addPlayStat(binding.time.playTimeTable, average.asTime(), R.string.play_stat_average_play_time)
-            if (playingTime > 0) {
-                if (average > playingTime) {
-                    addPlayStat(binding.time.playTimeTable, (average - playingTime).asTime(), R.string.play_stat_average_play_time_slower)
-                } else if (playingTime > average) {
-                    addPlayStat(binding.time.playTimeTable, (playingTime - average).asTime(), R.string.play_stat_average_play_time_faster)
+            if (publishedPlayingTime > 0) {
+                if (average > publishedPlayingTime) {
+                    addPlayStat(binding.time.playTimeTable, (average - publishedPlayingTime).asTime(), R.string.play_stat_average_play_time_slower)
+                } else if (publishedPlayingTime > average) {
+                    addPlayStat(binding.time.playTimeTable, (publishedPlayingTime - average).asTime(), R.string.play_stat_average_play_time_faster)
                 }
             } // don't display anything if the average is exactly as expected
         }
@@ -363,7 +361,7 @@ class GamePlayStatsFragment : Fragment() {
         // region ADVANCED
 
         binding.advanced.advancedTable.removeAllViews()
-        if (personalRating > 0.0) {
+        if (personalRating != Game.UNRATED) {
             addPlayStat(
                 binding.advanced.advancedTable,
                 stats.calculateFhm().toString(),
@@ -385,7 +383,7 @@ class GamePlayStatsFragment : Fragment() {
                 R.string.play_stat_ruhm
             ).setInfoText(R.string.play_stat_ruhm_info)
         }
-        if (gameOwned) {
+        if (isGameOwned) {
             addPlayStat(
                 binding.advanced.advancedTable,
                 stats.calculateUtilization().asPercentage(),
@@ -514,7 +512,7 @@ class GamePlayStatsFragment : Fragment() {
                 count += play.quantity
 
                 if (play.length == 0) {
-                    estimatedMinutesPlayed += playingTime * play.quantity
+                    estimatedMinutesPlayed += publishedPlayingTime * play.quantity
                 } else {
                     realMinutesPlayed += play.length
                     playCountWithLength += play.quantity
@@ -549,7 +547,7 @@ class GamePlayStatsFragment : Fragment() {
         fun playCountSince(dateInMillis: Long): Int = plays.filter { it.dateInMillis > dateInMillis }.sumOf { it.quantity }
 
         fun hoursPlayedSince(dateInMillis: Long): Double {
-            val estimated = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length == 0 }.sumOf { playingTime * it.quantity }
+            val estimated = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length == 0 }.sumOf { publishedPlayingTime * it.quantity }
             val actual = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length > 0 }.sumOf { it.length }
             return (estimated + actual) / 60.0
         }
@@ -713,9 +711,9 @@ class GamePlayStatsFragment : Fragment() {
         private var winsTimesPlayers = 0
         private var totalScore: Double = 0.0
         private var winningScore: Double = 0.0
-        var highScore: Double = Int.MIN_VALUE.toDouble()
+        var highScore: Double = Double.MIN_VALUE
             private set
-        var lowScore: Double = Int.MAX_VALUE.toDouble()
+        var lowScore: Double = Double.MAX_VALUE
             private set
 
         private val playsByPlayerCount = SparseIntArray()

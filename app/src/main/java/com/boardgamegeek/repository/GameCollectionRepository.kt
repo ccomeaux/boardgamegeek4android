@@ -57,10 +57,6 @@ class GameCollectionRepository(
             .flowOn(Dispatchers.Default)
     }
 
-    suspend fun loadCollectionItemsForGame(gameId: Int): List<CollectionItem> = withContext(Dispatchers.IO) {
-        collectionDao.loadForGame(gameId).map { it.mapToModel() }
-    }
-
     fun loadCollectionItemsForGameFlow(gameId: Int): Flow<List<CollectionItem>> {
         return collectionDao.loadForGameFlow(gameId)
             .map {
