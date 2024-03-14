@@ -3,6 +3,8 @@ package com.boardgamegeek.util
 import android.content.Context
 import android.graphics.Bitmap
 import com.boardgamegeek.provider.BggContract
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.BufferedOutputStream
 import java.io.File
@@ -41,7 +43,7 @@ object FileUtils {
         return base
     }
 
-    fun saveBitmap(file: File, bitmap: Bitmap) {
+    suspend fun saveBitmap(file: File, bitmap: Bitmap) = withContext(Dispatchers.IO) {
         try {
             BufferedOutputStream(FileOutputStream(file)).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)

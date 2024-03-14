@@ -3,7 +3,6 @@ package com.boardgamegeek.repository
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.annotation.WorkerThread
 import com.boardgamegeek.R
 import com.boardgamegeek.db.ImageDao
 import com.boardgamegeek.io.GeekdoApi
@@ -25,9 +24,8 @@ class ImageRepository(
     private val imageDao = ImageDao(context)
 
     /** Get a bitmap for the given URL, either from disk or from the network. */
-    @WorkerThread
-    fun fetchThumbnail(thumbnailUrl: String?): Bitmap? {
-        return FileUtils.getFile(context, BggContract.PATH_THUMBNAILS, thumbnailUrl)?.let { file ->
+    suspend fun fetchThumbnail(thumbnailUrl: String?): Bitmap? = withContext(Dispatchers.IO) {
+          FileUtils.getFile(context, BggContract.PATH_THUMBNAILS, thumbnailUrl)?.let { file ->
             if (file.exists()) {
                 BitmapFactory.decodeFile(file.absolutePath)
             } else {

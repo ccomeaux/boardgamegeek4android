@@ -20,6 +20,7 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionBinding
@@ -416,7 +417,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
             fun bindView(item: CollectionItem?, position: Int) {
                 if (item == null) return
-                binding.thumbnailView.loadThumbnail(item.thumbnailUrl, saveBitmap =  true)
+                binding.thumbnailView.loadThumbnail(item.thumbnailUrl, lifecycleScope = viewLifecycleOwner.lifecycleScope)
                 binding.nameView.text = item.collectionName
                 binding.yearView.text = item.yearPublished.asYear(context)
                 binding.favoriteView.isVisible = item.isFavorite

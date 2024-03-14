@@ -20,6 +20,8 @@ import com.boardgamegeek.util.PaletteTransformation
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.util.*
 
 fun ImageView.setOrClearColorFilter(@ColorInt color: Int) {
@@ -112,11 +114,11 @@ fun ImageView.loadThumbnail(imageUrl: String?, @DrawableRes errorResId: Int = R.
     })
 }
 
-fun ImageView.loadThumbnail(vararg urls: String, saveBitmap: Boolean = false) {
-    safelyLoadThumbnail(LinkedList(urls.toList()), saveBitmap)
+fun ImageView.loadThumbnail(vararg urls: String, lifecycleScope: CoroutineScope? = null) {
+    safelyLoadThumbnail(LinkedList(urls.toList()), lifecycleScope)
 }
 
-private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>, saveBitmap: Boolean = false) {
+private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>, lifecycleScope: CoroutineScope?) {
     var url: String? = null
     while (url.isNullOrEmpty() && imageUrls.isNotEmpty()) {
         url = imageUrls.poll()
@@ -130,13 +132,15 @@ private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>, saveBitmap: 
         .centerCrop()
         .into(this, object : Callback {
             override fun onSuccess() {
-                if (saveBitmap) {
-                    imageUrl?.let {
+                if (lifecycleScope != null) {
+                    imageUrl?.let { url ->
                         Picasso.with(context).load(imageUrl.ensureHttpsScheme()).into(object : Target {
                             override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                                if (bitmap != null) {
-                                    FileUtils.getFile(context, BggContract.PATH_THUMBNAILS, it)?.let { file ->
-                                        FileUtils.saveBitmap(file, bitmap)
+                                bitmap?.let {
+                                    lifecycleScope.launch {
+                                        FileUtils.getFile(context, BggContract.PATH_THUMBNAILS, url)?.let { file ->
+                                            FileUtils.saveBitmap(file, bitmap)
+                                        }
                                     }
                                 }
                             }
@@ -152,7 +156,7 @@ private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>, saveBitmap: 
             }
 
             override fun onError() {
-                safelyLoadThumbnail(imageUrls)
+                safelyLoadThumbnail(imageUrls, lifecycleScope)
             }
         })
 }
