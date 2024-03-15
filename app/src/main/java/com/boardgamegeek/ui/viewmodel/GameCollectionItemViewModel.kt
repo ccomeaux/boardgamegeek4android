@@ -13,10 +13,9 @@ import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -26,9 +25,9 @@ class GameCollectionItemViewModel @Inject constructor(
     application: Application,
     private val gameCollectionRepository: GameCollectionRepository,
 ) : AndroidViewModel(application) {
-    private val isItemRefreshing = AtomicBoolean()
-    private val isImageRefreshing = AtomicBoolean()
-    private val forceRefresh = AtomicBoolean()
+    private val isItemRefreshing = AtomicBoolean(false)
+    private val isImageRefreshing = AtomicBoolean(false)
+    private val forceRefresh = AtomicBoolean(false)
     private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
 
     private val _internalId = MutableLiveData<Long>()
@@ -72,24 +71,24 @@ class GameCollectionItemViewModel @Inject constructor(
         liveData {
             val flow = gameCollectionRepository.loadCollectionItemFlow(internalId)
             emitSource(flow.distinctUntilChanged()
-                .asLiveData()
-                .also {
+                .onEach {
                     if (latestValue == null) attemptUpload()
-                    attemptRefresh()
+                    attemptRefresh(it)
                     refreshImage()
-                })
+                }
+                .asLiveData()
+            )
         }
     }
 
     fun refresh() {
         forceRefresh.set(true)
-        attemptRefresh()
+        attemptRefresh(item.value)
     }
 
-    private fun attemptRefresh() {
+    private fun attemptRefresh(collectionItem: CollectionItem?) {
         viewModelScope.launch {
-            delay(1_000) // TODO don't wait for item to be set (but unclear why it isn't)
-            item.value?.let {
+            collectionItem?.let {
                 if (forceRefresh.get() || it.syncTimestamp.isOlderThan(refreshMinutes.minutes)) {
                     if (isItemRefreshing.compareAndSet(false, true)) {
                         try {
@@ -106,7 +105,7 @@ class GameCollectionItemViewModel @Inject constructor(
                         forceRefresh.set(false)
                     }
                 }
-            } ?: Timber.w("Attempted to refresh, but no item was loaded")
+            }
         }
     }
 
