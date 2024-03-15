@@ -42,5 +42,5 @@ abstract class CollectionSorter(protected val context: Context) {
 
     open fun getRatingText(item: CollectionItem) = ""
 
-    open fun getTimestamp(item: CollectionItem) = 0L
+    open fun getTimestamp(item: CollectionItem): Long? = null
 }

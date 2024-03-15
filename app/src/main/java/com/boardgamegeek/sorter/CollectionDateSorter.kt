@@ -16,7 +16,7 @@ abstract class CollectionDateSorter(context: Context) : CollectionSorter(context
 
     override fun getHeaderText(item: CollectionItem): String {
         val time =  getTimestamp(item)
-        return if (time == 0L) context.getString(defaultValueResId) else headerDateFormat.format(time)
+        return if (time == null || time == 0L) context.getString(defaultValueResId) else headerDateFormat.format(time)
     }
 
     override fun getDisplayInfo(item: CollectionItem) = ""

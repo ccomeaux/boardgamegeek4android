@@ -7,12 +7,12 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CollectionDao {
     @Transaction
-    @Query("SELECT *, MAX(plays.date) AS lastPlayedDate FROM collection LEFT OUTER JOIN plays ON collection.game_id = plays.object_id GROUP BY collection_id ORDER BY collection_sort_name COLLATE NOCASE")
-    suspend fun loadAll(): List<CollectionItemWithGameEntity>
+    @Query("SELECT collection.*, MAX(plays.date) AS lastPlayedDate FROM collection LEFT OUTER JOIN plays ON collection.game_id = plays.object_id GROUP BY collection_id ORDER BY collection_sort_name COLLATE NOCASE")
+    suspend fun loadAll(): List<CollectionItemWithGameAndLastPlayedEntity>
 
     @Transaction
-    @Query("SELECT *, MAX(plays.date) AS lastPlayedDate FROM collection LEFT OUTER JOIN plays ON collection.game_id = plays.object_id GROUP BY collection_id ORDER BY collection_sort_name COLLATE NOCASE")
-    fun loadAllAsFlow(): Flow<List<CollectionItemWithGameEntity>>
+    @Query("SELECT collection.*, MAX(plays.date) AS lastPlayedDate FROM collection LEFT OUTER JOIN plays ON collection.game_id = plays.object_id GROUP BY collection_id ORDER BY collection_sort_name COLLATE NOCASE")
+    fun loadAllAsFlow(): Flow<List<CollectionItemWithGameAndLastPlayedEntity>>
 
     @Transaction
     @Query("SELECT * FROM collection WHERE _id = :internalId")

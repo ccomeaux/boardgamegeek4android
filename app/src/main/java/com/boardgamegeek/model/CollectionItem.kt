@@ -71,7 +71,7 @@ data class CollectionItem(
     val geekRating: Double = UNRATED,
     val averageWeight: Double = UNWEIGHTED,
     val isFavorite: Boolean = false,
-    val lastPlayDate: Long = 0L,
+    val lastPlayDate: Long? = null,
     val arePlayersCustomSorted: Boolean = false,
     val minPlayerCount: Int = 0,
     val maxPlayerCount: Int = 0,

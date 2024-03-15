@@ -3,7 +3,7 @@ package com.boardgamegeek.db.model
 import androidx.room.Embedded
 import androidx.room.Relation
 
-data class CollectionItemWithGameEntity (
+data class CollectionItemWithGameAndLastPlayedEntity (
     @Embedded
     val item: CollectionItemEntity,
     @Relation(
@@ -11,4 +11,5 @@ data class CollectionItemWithGameEntity (
         entityColumn = "game_id",
     )
     val game: GameEntity,
+    val lastPlayedDate: String?,
 )
