@@ -169,7 +169,7 @@ data class CollectionItem(
 
     companion object {
         const val WISHLIST_PRIORITY_UNKNOWN = 0
-        const val RANK_UNKNOWN = GameRank.RANK_UNKNOWN
+        const val RANK_UNKNOWN = GameSubtype.RANK_UNKNOWN
         const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
         const val UNRATED = Game.UNRATED
         const val UNWEIGHTED = Game.UNWEIGHTED

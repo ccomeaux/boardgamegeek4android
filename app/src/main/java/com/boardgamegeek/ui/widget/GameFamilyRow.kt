@@ -2,29 +2,23 @@ package com.boardgamegeek.ui.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
-import androidx.core.widget.TextViewCompat
 import com.boardgamegeek.R
-import com.boardgamegeek.model.GameRank
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.GameFamily
 import java.text.DecimalFormat
 
 @SuppressLint("ViewConstructor")
-class GameRankRow(context: Context, rank: GameRank) : LinearLayout(context) {
+class GameFamilyRow(context: Context, rank: GameFamily) : LinearLayout(context) {
     init {
-        val isFamily = rank.type == GameRank.RankType.Family
-        LayoutInflater.from(context).inflate(R.layout.row_game_rank_subtype, this)
-        TextViewCompat.setTextAppearance(findViewById(R.id.rankView), if (isFamily) R.style.TextAppearance_Basic else R.style.TextAppearance_Subtitle)
-        TextViewCompat.setTextAppearance(findViewById(R.id.nameView), if (isFamily) R.style.TextAppearance_Basic else R.style.TextAppearance_Subtitle)
-        findViewById<TextView>(R.id.ratingView).apply { setTypeface(typeface, if (isFamily) Typeface.NORMAL else Typeface.BOLD) }
+        LayoutInflater.from(context).inflate(R.layout.row_game_family, this)
 
         findViewById<TextView>(R.id.rankView).apply {
             if (rank.isRankValid()) {
-                text = context.getString(R.string.rank_prefix, rank.value)
+                text = context.getString(R.string.rank_prefix, rank.rank)
                 isVisible = true
             } else {
                 isVisible = false

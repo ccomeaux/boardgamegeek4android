@@ -6,8 +6,7 @@
 	android:baselineAligned="false"
 	android:gravity="center_vertical"
 	android:minHeight="32dp"
-	android:orientation="horizontal"
-	>
+	android:orientation="horizontal">
 
 	<TextView
 		android:id="@+id/rankView"
@@ -24,6 +23,7 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_weight="1"
+		android:textAppearance="@style/TextAppearance.Basic"
 		tools:text="Board Game" />
 
 	<TextView
@@ -34,7 +34,7 @@
 		android:layout_gravity="end|center_vertical"
 		android:gravity="center"
 		android:minWidth="56dp"
-		android:textAppearance="@style/TextAppearance.RowDetail.Bold"
+		android:textAppearance="@style/TextAppearance.RowDetail"
 		tools:background="#0f0"
 		tools:text="8.5" />
 </LinearLayout>

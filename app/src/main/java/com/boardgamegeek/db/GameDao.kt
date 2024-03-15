@@ -137,7 +137,7 @@ interface GameDao {
     suspend fun loadPlayerPollForGame(gameId: Int): List<GameSuggestedPlayerCountPollResultsEntity>
 
     @Query("SELECT * FROM game_ranks WHERE game_id = :gameId")
-    suspend fun loadRanksForGame(gameId: Int): List<GameRankEntity>
+    fun loadRanksForGameFlow(gameId: Int): Flow<List<GameRankEntity>>
 
     @Query("UPDATE games SET custom_player_sort = :isCustom WHERE game_id = :gameId")
     suspend fun updateCustomPlayerSort(gameId: Int, isCustom: Boolean): Int

@@ -62,7 +62,8 @@ class GameFragment : Fragment() {
                 showEmpty()
             } else {
                 onGameContentChanged(game)
-                viewModel.ranks.observe(viewLifecycleOwner) { it?.let { onRankQueryComplete(it) } }
+                viewModel.subtypes.observe(viewLifecycleOwner) { it?.let { onSubtypeQueryComplete(it) } }
+                viewModel.families.observe(viewLifecycleOwner) { it?.let { onFamilyQueryComplete(it) } }
                 viewModel.languagePoll.observe(viewLifecycleOwner) { gamePollEntity ->
                     gamePollEntity?.let { onLanguagePollQueryComplete(it) }
                 }
@@ -165,15 +166,16 @@ class GameFragment : Fragment() {
         binding.emptyMessage.isVisible = false
     }
 
-    private fun onRankQueryComplete(gameRanks: List<GameRank>) {
-        binding.ranksInclude.rankView.text = gameRanks.find { it.type == GameRank.RankType.Subtype }?.describe(requireContext())
+    private fun onSubtypeQueryComplete(gameSubtypes: List<GameSubtype>) {
+        binding.ranksInclude.subtypeView.setTextOrHide(gameSubtypes.map { it.describe(requireContext()) }.joinTo(rankSeparator))
         binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
         binding.ranksInclude.root.isVisible = true
+    }
 
-        val descriptions = gameRanks
-            .filter { it.type == GameRank.RankType.Family }
-            .map { it.describe(requireContext()) }
-        binding.ranksInclude.subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
+    private fun onFamilyQueryComplete(gameRanks: List<GameFamily>) {
+        binding.ranksInclude.familyView.setTextOrHide(gameRanks.map { it.describe(requireContext()) }.joinTo(rankSeparator))
+        binding.ranksInclude.rankContainer.setOnClickListener { GameRanksDialogFragment.launch(this) }
+        binding.ranksInclude.root.isVisible = true
     }
 
     private fun onLanguagePollQueryComplete(poll: GameLanguagePoll) {

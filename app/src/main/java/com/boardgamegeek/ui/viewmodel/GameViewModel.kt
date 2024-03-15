@@ -115,11 +115,19 @@ class GameViewModel @Inject constructor(
         }.distinctUntilChanged()
     }
 
-    val ranks = game.switchMap {
+    val subtypes = game.switchMap {
         liveData {
-            emit(it?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getRanks(it.id)
-            })
+            it?.let {
+                emitSource(gameRepository.getSubtypesFlow(it.id).asLiveData())
+            }
+        }.distinctUntilChanged()
+    }
+
+    val families = game.switchMap {
+        liveData {
+            it?.let {
+                emitSource(gameRepository.getFamiliesFlow(it.id).asLiveData())
+            }
         }.distinctUntilChanged()
     }
 

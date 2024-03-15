@@ -11,10 +11,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogGameRanksBinding
-import com.boardgamegeek.model.GameRank
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.ui.widget.GameRankRow
+import com.boardgamegeek.ui.widget.GameFamilyRow
+import com.boardgamegeek.ui.widget.GameSubtypeRow
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,38 +48,37 @@ class GameRanksDialogFragment : DialogFragment() {
             binding.standardDeviationView.isVisible = voteCount > 0
         }
 
-        viewModel.ranks.observe(viewLifecycleOwner) {
+        viewModel.subtypes.observe(viewLifecycleOwner) {
             binding.unRankedView.isVisible = false
             binding.subtypesView.removeAllViews()
             binding.subtypesView.isVisible = false
-            binding.familiesView.removeAllViews()
-            binding.familiesView.isVisible = false
 
             var hasRankedSubtype = false
             var unRankedSubtype = getText(R.string.game)
 
             it?.forEach { rank ->
                 if (rank.isRankValid()) {
-                    val row = GameRankRow(requireContext(), rank)
-                    when (rank.type) {
-                        GameRank.RankType.Subtype -> {
-                            binding.subtypesView.addView(row)
-                            binding.subtypesView.isVisible = true
-                            binding.unRankedView.isVisible = false
-                            hasRankedSubtype = true
-                        }
-                        GameRank.RankType.Family -> {
-                            binding.familiesView.addView(row)
-                            binding.familiesView.isVisible = true
-                        }
-                    }
-                } else if (rank.type == GameRank.RankType.Subtype) {
+                    val row = GameSubtypeRow(requireContext(), rank)
+                    binding.subtypesView.addView(row)
+                    binding.subtypesView.isVisible = true
+                    binding.unRankedView.isVisible = false
+                    hasRankedSubtype = true
+                } else {
                     unRankedSubtype = rank.describeType(requireContext())
                 }
             }
             if (!hasRankedSubtype && unRankedSubtype.isNotEmpty()) {
                 binding.unRankedView.text = requireContext().getText(R.string.unranked_prefix, unRankedSubtype)
                 binding.unRankedView.isVisible = true
+            }
+        }
+
+        viewModel.families.observe(viewLifecycleOwner) { list ->
+            binding.familiesView.removeAllViews()
+            binding.familiesView.isVisible = false
+            list?.filter { it.isRankValid() }?.forEach { rank ->
+                binding.familiesView.addView(GameFamilyRow(requireContext(), rank))
+                binding.familiesView.isVisible = true
             }
         }
     }

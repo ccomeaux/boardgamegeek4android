@@ -33,5 +33,14 @@ data class GameRankEntity(
 ) {
     companion object {
         const val RANK_UNKNOWN = Integer.MAX_VALUE
+
+        const val FAMILY_NAME_ABSTRACT_GAMES = "abstracts"
+        const val FAMILY_NAME_CUSTOMIZABLE_GAMES = "cgs"
+        const val FAMILY_NAME_CHILDRENS_GAMES = "childrensgames"
+        const val FAMILY_NAME_FAMILY_GAMES = "familygames"
+        const val FAMILY_NAME_PARTY_GAMES = "partygames"
+        const val FAMILY_NAME_STRATEGY_GAMES = "strategygames"
+        const val FAMILY_NAME_THEMATIC_GAMES = "thematic"
+        const val FAMILY_NAME_WAR_GAMES = "wargames"
     }
 }

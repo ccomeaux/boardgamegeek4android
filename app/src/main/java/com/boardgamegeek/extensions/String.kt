@@ -70,7 +70,7 @@ fun String?.asCurrency(): String {
     }
 }
 
-fun String?.toSubtype() = Game.Subtype.values().find { this == it.code }
+fun String?.toSubtype() = Game.Subtype.values().find { this == it.code } ?: Game.Subtype.UNKNOWN
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun String.andMore() = "${this}+"

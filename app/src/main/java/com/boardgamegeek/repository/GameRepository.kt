@@ -11,6 +11,7 @@ import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -114,11 +115,16 @@ class GameRepository @Inject constructor(
         response.games?.firstOrNull()?.mapToRatingModel()
     }
 
-    suspend fun getRanks(gameId: Int): List<GameRank> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            gameDao.loadRanksForGame(gameId).map { it.mapToModel() }
+    fun getSubtypesFlow(gameId: Int): Flow<List<GameSubtype>> {
+        return gameDao.loadRanksForGameFlow(gameId)
+            .map { list -> list.mapNotNull { it.mapToSubtype() } }
+            .flowOn(Dispatchers.Default)
+    }
+
+    fun getFamiliesFlow(gameId: Int): Flow<List<GameFamily>> {
+        return gameDao.loadRanksForGameFlow(gameId)
+            .map { list -> list.mapNotNull { it.mapToFamily() } }
+            .flowOn(Dispatchers.Default)
     }
 
     suspend fun getLanguagePoll(gameId: Int): GameLanguagePoll? {

@@ -18,13 +18,35 @@ private const val PLAYER_POLL_NAME = "suggested_numplayers"
 private const val AGE_POLL_NAME = "suggested_playerage"
 private const val LANGUAGE_POLL_NAME = "language_dependence"
 
-fun GameRankEntity.mapToModel() = GameRank(
-    if (gameRankType == BggService.RANK_TYPE_FAMILY) GameRank.RankType.Family else GameRank.RankType.Subtype,
-    name = gameRankName,
-    friendlyName = gameRankFriendlyName,
-    value = gameRankValue,
-    bayesAverage = gameRankBayesAverage,
-)
+fun GameRankEntity.mapToSubtype(): GameSubtype? {
+    return if (gameRankType == BggService.RANK_TYPE_SUBTYPE) {
+        GameSubtype(
+            subtype = gameRankName.toSubtype(),
+            rank = gameRankValue,
+            bayesAverage = gameRankBayesAverage,
+        )
+    } else null
+}
+
+fun GameRankEntity.mapToFamily(): GameFamily? {
+    return if (gameRankType == BggService.RANK_TYPE_FAMILY)
+        GameFamily(
+            family = when (gameRankName) {
+                GameRankEntity.FAMILY_NAME_ABSTRACT_GAMES -> GameFamily.Family.Abstract
+                GameRankEntity.FAMILY_NAME_CUSTOMIZABLE_GAMES -> GameFamily.Family.Customizable
+                GameRankEntity.FAMILY_NAME_CHILDRENS_GAMES -> GameFamily.Family.Childrens
+                GameRankEntity.FAMILY_NAME_FAMILY_GAMES -> GameFamily.Family.Family
+                GameRankEntity.FAMILY_NAME_PARTY_GAMES -> GameFamily.Family.Party
+                GameRankEntity.FAMILY_NAME_STRATEGY_GAMES -> GameFamily.Family.Strategy
+                GameRankEntity.FAMILY_NAME_THEMATIC_GAMES -> GameFamily.Family.Thematic
+                GameRankEntity.FAMILY_NAME_WAR_GAMES -> GameFamily.Family.War
+                else -> GameFamily.Family.Unknown
+            },
+            rank = gameRankValue,
+            bayesAverage = gameRankBayesAverage,
+        )
+    else null
+}
 
 fun GameRemote.mapToRatingModel(): GameComments {
     val list = comments.comments.map {
@@ -68,7 +90,7 @@ fun GameEntity.mapToModel(lastPlayDate: String?): Game {
         numberOfComments = numberOfComments ?: 0,
         numberOfUsersWeighting = numberOfUsersWeighting ?: 0,
         averageWeight = averageWeight ?: Game.UNWEIGHTED,
-        overallRank = gameRank ?: GameRank.RANK_UNKNOWN,
+        overallRank = gameRank ?: GameSubtype.RANK_UNKNOWN,
         updatedPlays = updatedPlays ?: 0L,
         customPlayerSort = customPlayerSort ?: false,
         isFavorite = isStarred ?: false,
@@ -201,7 +223,7 @@ fun GameRemote.mapForUpsert(internalId: Long, updated: Long): GameForUpsert {
         maxPlayingTime = maxplaytime?.toIntOrNull(),
         minPlayingTime = minplaytime?.toIntOrNull(),
         minimumAge = minage?.toIntOrNull(),
-        gameRank = statistics?.ranks?.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRank.RANK_UNKNOWN,
+        gameRank = statistics?.ranks?.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameSubtype.RANK_UNKNOWN,
         numberOfRatings = statistics?.usersrated?.toIntOrNull(),
         average = statistics?.average?.toDoubleOrNull(),
         bayesAverage = statistics?.bayesaverage?.toDoubleOrNull(),

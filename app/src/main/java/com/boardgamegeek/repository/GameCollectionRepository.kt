@@ -319,6 +319,7 @@ class GameCollectionRepository(
                 Game.Subtype.BOARDGAME -> BggService.ThingSubtype.BOARDGAME
                 Game.Subtype.BOARDGAME_EXPANSION -> BggService.ThingSubtype.BOARDGAME_EXPANSION
                 Game.Subtype.BOARDGAME_ACCESSORY -> BggService.ThingSubtype.BOARDGAME_ACCESSORY
+                Game.Subtype.UNKNOWN -> BggService.ThingSubtype.BOARDGAME
             }.code
         }
     }
