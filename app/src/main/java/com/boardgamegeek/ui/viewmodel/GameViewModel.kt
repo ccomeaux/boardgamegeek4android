@@ -21,6 +21,10 @@ import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.RemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
@@ -35,9 +39,10 @@ class GameViewModel @Inject constructor(
     private val imageRepository: ImageRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val isGameRefreshing = AtomicBoolean()
-    private val areItemsRefreshing = AtomicBoolean()
-    private val arePlaysRefreshing = AtomicBoolean()
+    private val isGameRefreshing = AtomicBoolean(false)
+    private val areItemsRefreshing = AtomicBoolean(false)
+    private val forceItemsRefresh = AtomicBoolean(false)
+    private val arePlaysRefreshing = AtomicBoolean(false)
     private val forcePlaysRefresh = AtomicBoolean(false)
     private val gameRefreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
     private val itemsRefreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
@@ -76,15 +81,15 @@ class GameViewModel @Inject constructor(
     val loggedPlayResult: LiveData<Event<PlayUploadResult>>
         get() = _loggedPlayResult
 
-    enum class ProducerType(val value: Int) {
-        UNKNOWN(0),
-        DESIGNER(1),
-        ARTIST(2),
-        PUBLISHER(3),
-        CATEGORY(4),
-        MECHANIC(5),
-        EXPANSION(6),
-        BASE_GAME(7);
+    enum class ProducerType {
+        UNKNOWN,
+        DESIGNER,
+        ARTIST,
+        PUBLISHER,
+        CATEGORY,
+        MECHANIC,
+        EXPANSION,
+        BASE_GAME,
     }
 
     fun setId(gameId: Int) {
@@ -103,11 +108,14 @@ class GameViewModel @Inject constructor(
     val game: LiveData<Game?> = _gameId.switchMap { gameId ->
         liveData {
             try {
-                emitSource(gameRepository.loadGameFlow(gameId).asLiveData().also {
-                    if (it.value == null || it.value?.updated.isOlderThan(gameRefreshMinutes.minutes)) {
-                       refreshGame()
+                emitSource(gameRepository.loadGameFlow(gameId)
+                    .onEach {
+                        if (it == null || it.updated.isOlderThan(gameRefreshMinutes.minutes)) {
+                            refreshGame()
+                        }
                     }
-                })
+                    .asLiveData()
+                )
             } catch (e: Exception) {
                 Timber.w(e)
                 _errorMessage.setMessage(e)
@@ -116,103 +124,119 @@ class GameViewModel @Inject constructor(
     }
 
     val subtypes = game.switchMap {
-        liveData {
-            it?.let {
-                emitSource(gameRepository.getSubtypesFlow(it.id).asLiveData())
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getSubtypesFlow(it.id).distinctUntilChanged().asLiveData())
             }
-        }.distinctUntilChanged()
+        }
     }
 
     val families = game.switchMap {
-        liveData {
-            it?.let {
-                emitSource(gameRepository.getFamiliesFlow(it.id).asLiveData())
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getFamiliesFlow(it.id).distinctUntilChanged().asLiveData())
             }
-        }.distinctUntilChanged()
+        }
     }
 
     val languagePoll = game.switchMap {
-        liveData {
-            emit(it?.let {
-                gameRepository.getLanguagePoll(it.id)
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getLanguagePollFlow(it.id).distinctUntilChanged().asLiveData())
+            }
+        }
     }
 
     val agePoll = game.switchMap {
-        liveData {
-            emit(it?.let {
-                gameRepository.getAgePoll(it.id)
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getAgePollFlow(it.id).distinctUntilChanged().asLiveData())
+            }
+        }
     }
 
     val playerPoll = game.switchMap {
-        liveData {
-            emit(it?.let {
-                gameRepository.getPlayerPoll(it.id)
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getPlayerPollFlow(it.id).distinctUntilChanged().asLiveData())
+            }
+        }
     }
 
     val designers = game.switchMap {
-        liveData {
-            emit(it?.let {
-                gameRepository.getDesigners(it.id)
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getDesignersFlow(it.id).distinctUntilChanged().asLiveData())
+            }
+        }
     }
 
     val artists = game.switchMap {
-        liveData {
-            emit(it?.let {
-                gameRepository.getArtists(it.id)
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getArtistsFlow(it.id).distinctUntilChanged().asLiveData())
+            }
+        }
     }
 
     val publishers = game.switchMap {
-        liveData {
-            emit(it?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getPublishers(it.id)
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getPublishers(it.id).distinctUntilChanged().asLiveData())
+            }
+        }
     }
 
     val categories = game.switchMap {
-        liveData {
-            emit(it?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getCategories(it.id)
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getCategoriesFlow(it.id).distinctUntilChanged().asLiveData())
+            }
+        }
     }
 
     val mechanics = game.switchMap {
-        liveData {
-            emit(it?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getMechanics(it.id)
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(gameRepository.getMechanicsFlow(it.id).distinctUntilChanged().asLiveData())
+            }
+        }
     }
 
     val expansions = game.switchMap {
-        liveData {
-            emit(it?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getExpansions(it.id).map { expansion ->
-                    GameDetail(expansion.id, expansion.name, describeStatuses(expansion), expansion.thumbnailUrl)
-                }
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(
+                    gameRepository.getExpansionsFlow(it.id)
+                        .distinctUntilChanged()
+                        .map { list ->
+                            list.map { expansion ->
+                                GameDetail(expansion.id, expansion.name, describeStatuses(expansion), expansion.thumbnailUrl)
+                            }
+                        }
+                        .flowOn(Dispatchers.Default)
+                        .asLiveData()
+                )
+            }
+        }
     }
 
     val baseGames = game.switchMap {
-        liveData {
-            emit(it?.let {
-                if (it.id == BggContract.INVALID_ID) null else gameRepository.getBaseGames(it.id).map { baseGame ->
-                    GameDetail(baseGame.id, baseGame.name, describeStatuses(baseGame), baseGame.thumbnailUrl)
-                }
-            })
-        }.distinctUntilChanged()
+        it?.let {
+            liveData {
+                emitSource(
+                    gameRepository.getBaseGamesFlow(it.id)
+                        .distinctUntilChanged()
+                        .map { list ->
+                            list.map { baseGame ->
+                                GameDetail(baseGame.id, baseGame.name, describeStatuses(baseGame), baseGame.thumbnailUrl)
+                            }
+                        }
+                        .flowOn(Dispatchers.Default)
+                        .asLiveData()
+                )
+            }
+        }
     }
 
     private fun describeStatuses(expansion: GameExpansion): String {
@@ -241,19 +265,17 @@ class GameViewModel @Inject constructor(
             ProducerType.MECHANIC -> mechanics
             ProducerType.EXPANSION -> expansions
             ProducerType.BASE_GAME -> baseGames
-            else -> liveData { emit(null) }
+            else -> liveData { emit(emptyList()) }
         }
     }
 
     val collectionItems: LiveData<List<CollectionItem>> = gameId.switchMap {
         liveData {
             try {
-                emitSource(gameCollectionRepository.loadCollectionItemsForGameFlow(it).asLiveData().also {
-                    val lastUpdated = it.value?.minOf { item -> item.syncTimestamp } ?: 0L
-                    if (lastUpdated.isOlderThan(itemsRefreshMinutes.minutes)) {
-                        refreshItems()
-                    }
-                })
+                emitSource(gameCollectionRepository.loadCollectionItemsForGameFlow(it)
+                    .onEach { attemptRefreshItems(it) }
+                    .asLiveData()
+                )
             } catch (e: Exception) {
                 Timber.w(e)
                 _errorMessage.setMessage(e)
@@ -277,7 +299,7 @@ class GameViewModel @Inject constructor(
 
     val playColors = _gameId.switchMap { gameId ->
         liveData {
-            emit(gameRepository.getPlayColors(gameId))
+            emitSource(gameRepository.getPlayColorsFlow(gameId).distinctUntilChanged().asLiveData())
         }
     }
 
@@ -296,24 +318,35 @@ class GameViewModel @Inject constructor(
                             }
                         }
                     }
+                    _gameIsRefreshing.value = false
+                    isGameRefreshing.set(false)
                 }
-                _gameIsRefreshing.value = false
-                isGameRefreshing.set(false)
             }
         }
     }
 
     fun refreshItems() {
+        forceItemsRefresh.set(true)
+        attemptRefreshItems()
+    }
+
+    private fun attemptRefreshItems(list: List<CollectionItem>? = collectionItems.value) {
         game.value?.let {
-            if (areItemsRefreshing.compareAndSet(false, true)){
+            if (areItemsRefreshing.compareAndSet(false, true)) {
                 _itemsAreRefreshing.value = true
                 viewModelScope.launch {
-                    gameCollectionRepository.refreshCollectionItems(it.id, it.subtype)?.let {
-                        _errorMessage.setMessage(it)
+                    if (list?.isEmpty() == true ||
+                        (list != null && list.minOf { item -> item.syncTimestamp }.isOlderThan(itemsRefreshMinutes.minutes)) ||
+                        forceItemsRefresh.compareAndSet(true, false)
+                    ) {
+                        Timber.d("Refreshing items for game $it")
+                        gameCollectionRepository.refreshCollectionItems(it.id, it.subtype)?.let { _errorMessage.setMessage(it) }
+                    } else {
+                        Timber.d("NOT refreshing items for game $it")
                     }
+                    _itemsAreRefreshing.value = false
+                    areItemsRefreshing.set(false)
                 }
-                _itemsAreRefreshing.value = false
-                areItemsRefreshing.set(false)
             }
         }
     }
@@ -331,18 +364,18 @@ class GameViewModel @Inject constructor(
                     val lastUpdated = it.updatedPlays
                     when {
                         lastUpdated.isOlderThan(playsFullMinutes.minutes) -> {
-                            playRepository.refreshPlaysForGame(it.id)
+                            playRepository.refreshPlaysForGame(it.id)?.let { _errorMessage.setMessage(it) }
                         }
                         lastUpdated.isOlderThan(playsPartialMinutes.minutes) -> {
-                            playRepository.refreshPlaysForGame(it.id, 1)
+                            playRepository.refreshPlaysForGame(it.id, 1)?.let { _errorMessage.setMessage(it) }
                         }
                         forcePlaysRefresh.compareAndSet(true, false) -> {
-                            playRepository.refreshPlaysForGame(it.id, 1)
+                            playRepository.refreshPlaysForGame(it.id, 1)?.let { _errorMessage.setMessage(it) }
                         }
                     }
+                    _playsAreRefreshing.value = false
+                    arePlaysRefreshing.set(false)
                 }
-                _playsAreRefreshing.value = false
-                arePlaysRefreshing.set(false)
             }
         }
     }

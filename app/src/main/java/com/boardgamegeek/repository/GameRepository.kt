@@ -127,86 +127,75 @@ class GameRepository @Inject constructor(
             .flowOn(Dispatchers.Default)
     }
 
-    suspend fun getLanguagePoll(gameId: Int): GameLanguagePoll? {
-        return if (gameId == INVALID_ID)
-            null
-        else {
-            gameDao.loadLanguagePollForGame(gameId).mapToModel()
+    fun getLanguagePollFlow(gameId: Int): Flow<GameLanguagePoll?> {
+        return gameDao.loadLanguagePollForGameFlow(gameId).map { it.mapToModel() }
+    }
+
+    fun getAgePollFlow(gameId: Int): Flow<GameAgePoll?> {
+        return gameDao.loadAgePollForGameFlow(gameId).map { it.mapToModel() }
+    }
+
+    fun getPlayerPollFlow(gameId: Int): Flow<List<GamePlayerPollResults>> {
+        return gameDao.loadPlayerPollForGameFlow(gameId).map { list -> list.map { it.mapToModel() } }
+    }
+
+    fun getDesignersFlow(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadDesignersForGameFlow(gameId)
+            .map { it?.designers?.map { designer -> designer.mapToGameDetail() }.orEmpty() }
+            .flowOn(Dispatchers.Default)
+    }
+
+    fun getArtistsFlow(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadArtistsForGameFlow(gameId)
+            .map { it?.artists?.map { artist -> artist.mapToGameDetail() }.orEmpty() }
+            .flowOn(Dispatchers.Default)
+    }
+
+    fun getPublishers(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadPublishersForGameFlow(gameId)
+            .map { it?.publishers?.map { publisher -> publisher.mapToGameDetail() }.orEmpty() }
+            .flowOn(Dispatchers.Default)
+    }
+
+    fun getCategoriesFlow(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadCategoriesForGameFlow(gameId)
+            .map { it?.categories?.map { category -> category.mapToGameDetail() }.orEmpty() }
+            .flowOn(Dispatchers.Default)
+    }
+
+    fun getMechanicsFlow(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadMechanicsForGameFlow(gameId)
+            .map { it?.mechanics?.map { mechanic -> mechanic.mapToGameDetail() }.orEmpty() }
+            .flowOn(Dispatchers.Default)
+    }
+
+    fun getExpansionsFlow(gameId: Int): Flow<List<GameExpansion>> = gameDao.loadExpansionsForGameFlow(gameId).map { list ->
+        list.map { entity ->
+            val items = collectionDao.loadForGame(entity.gameExpansionEntity.expansionId).map { it.mapToModel() }
+            entity.mapToModel(items)
         }
     }
 
-    suspend fun getAgePoll(gameId: Int): GameAgePoll? {
-        return if (gameId == INVALID_ID)
-            null
-        else {
-            gameDao.loadAgePollForGame(gameId).mapToModel()
+    fun getBaseGamesFlow(gameId: Int): Flow<List<GameExpansion>> = gameDao.loadBaseGamesForGameFlow(gameId).map { list ->
+        list.map { entity ->
+            val items = collectionDao.loadForGame(entity.gameExpansionEntity.expansionId).map { it.mapToModel() }
+            entity.mapToModel(items)
         }
-    }
-
-    suspend fun getPlayerPoll(gameId: Int): List<GamePlayerPollResults> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            gameDao.loadPlayerPollForGame(gameId).map { it.mapToModel() }
-    }
-
-    suspend fun getDesigners(gameId: Int): List<GameDetail> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            gameDao.loadDesignersForGame(gameId)?.designers?.map { it.mapToGameDetail() }.orEmpty()
-    }
-
-    suspend fun getArtists(gameId: Int): List<GameDetail> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            gameDao.loadArtistsForGame(gameId)?.artists?.map { it.mapToGameDetail() }.orEmpty()
-    }
-
-    suspend fun getPublishers(gameId: Int): List<GameDetail> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            gameDao.loadPublishersForGame(gameId)?.publishers?.map { it.mapToGameDetail() }.orEmpty()
-    }
-
-    suspend fun getCategories(gameId: Int): List<GameDetail> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            gameDao.loadCategoriesForGame(gameId)?.categories?.map { it.mapToGameDetail() }.orEmpty()
-    }
-
-    suspend fun getMechanics(gameId: Int): List<GameDetail> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            gameDao.loadMechanicsForGame(gameId)?.mechanics?.map { it.mapToGameDetail() }.orEmpty()
-    }
-
-    suspend fun getExpansions(gameId: Int): List<GameExpansion> = gameDao.loadExpansionsForGame(gameId).map { entity ->
-        val items = collectionDao.loadForGame(entity.gameExpansionEntity.expansionId).map { it.mapToModel() }
-        entity.mapToModel(items)
-    }
-
-    suspend fun getBaseGames(gameId: Int) = gameDao.loadBaseGamesForGame(gameId).map { entity ->
-        val items = collectionDao.loadForGame(entity.gameExpansionEntity.expansionId).map { it.mapToModel() }
-        entity.mapToModel(items)
     }
 
     /**
      * Returns a map of all game IDs with player colors.
      */
-    suspend fun getPlayColors(): Map<Int, List<GameColorsEntity>> {
-        return gameColorDao.loadColors().groupBy { it.gameId }
+    suspend fun getPlayColors(): Map<Int, List<GameColorsEntity>> = withContext(Dispatchers.IO) {
+        gameColorDao.loadColors().groupBy { it.gameId }
     }
 
-    suspend fun getPlayColors(gameId: Int): List<String> {
-        return if (gameId == INVALID_ID)
-            emptyList()
-        else
-            gameColorDao.loadColorsForGame(gameId).map { it.color }
+    suspend fun getPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
+        gameColorDao.loadColorsForGame(gameId).map { it.color }
+    }
+
+    fun getPlayColorsFlow(gameId: Int): Flow<List<String>> {
+        return gameColorDao.loadColorsForGameFlow(gameId).map { it.map { it.color } }
     }
 
     suspend fun addPlayColor(gameId: Int, color: String?) {

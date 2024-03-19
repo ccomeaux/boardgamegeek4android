@@ -128,13 +128,13 @@ interface GameDao {
     suspend fun loadNonCollectionAndUnplayedGames(sinceTimestamp: Long): List<GameIdAndName>
 
     @Query("SELECT * FROM game_poll_age_results WHERE game_id = :gameId ORDER BY value")
-    suspend fun loadAgePollForGame(gameId: Int): List<GameAgePollResultEntity>
+    fun loadAgePollForGameFlow(gameId: Int): Flow<List<GameAgePollResultEntity>>
 
     @Query("SELECT * FROM game_poll_language_results WHERE game_id = :gameId ORDER BY level")
-    suspend fun loadLanguagePollForGame(gameId: Int): List<GameLanguagePollResultEntity>
+    fun loadLanguagePollForGameFlow(gameId: Int): Flow<List<GameLanguagePollResultEntity>>
 
     @Query("SELECT * FROM game_suggested_player_count_poll_results WHERE game_id = :gameId")
-    suspend fun loadPlayerPollForGame(gameId: Int): List<GameSuggestedPlayerCountPollResultsEntity>
+    fun loadPlayerPollForGameFlow(gameId: Int): Flow<List<GameSuggestedPlayerCountPollResultsEntity>>
 
     @Query("SELECT * FROM game_ranks WHERE game_id = :gameId")
     fun loadRanksForGameFlow(gameId: Int): Flow<List<GameRankEntity>>
@@ -170,28 +170,28 @@ interface GameDao {
     suspend fun delete(gameId: Int): Int
 
     @Query("SELECT games_expansions.*, games.thumbnail_url AS thumbnailUrl FROM games_expansions LEFT OUTER JOIN games ON games.game_id = games_expansions.expansion_id WHERE inbound=0 AND games_expansions.game_id = :gameId")
-    suspend fun loadExpansionsForGame(gameId: Int): List<GameExpansionWithGame>
+    fun loadExpansionsForGameFlow(gameId: Int): Flow<List<GameExpansionWithGame>>
 
     @Query("SELECT games_expansions.*, games.thumbnail_url AS thumbnailUrl FROM games_expansions LEFT OUTER JOIN games ON games.game_id = games_expansions.expansion_id WHERE inbound=1 AND games_expansions.game_id = :gameId")
-    suspend fun loadBaseGamesForGame(gameId: Int): List<GameExpansionWithGame>
+    fun loadBaseGamesForGameFlow(gameId: Int): Flow<List<GameExpansionWithGame>>
 
     @Transaction
     @Query("SELECT * FROM games WHERE game_id = :gameId")
-    suspend fun loadDesignersForGame(gameId: Int): GameWithDesigners?
+    fun loadDesignersForGameFlow(gameId: Int): Flow<GameWithDesigners?>
 
     @Transaction
     @Query("SELECT * FROM games WHERE game_id = :gameId")
-    suspend fun loadArtistsForGame(gameId: Int): GameWithArtists?
+    fun loadArtistsForGameFlow(gameId: Int): Flow<GameWithArtists?>
 
     @Transaction
     @Query("SELECT * FROM games WHERE game_id = :gameId")
-    suspend fun loadPublishersForGame(gameId: Int): GameWithPublishers?
+    fun loadPublishersForGameFlow(gameId: Int): Flow<GameWithPublishers?>
 
     @Transaction
     @Query("SELECT * FROM games WHERE game_id = :gameId")
-    suspend fun loadCategoriesForGame(gameId: Int): GameWithCategories?
+    fun loadCategoriesForGameFlow(gameId: Int): Flow<GameWithCategories?>
 
     @Transaction
     @Query("SELECT * FROM games WHERE game_id = :gameId")
-    suspend fun loadMechanicsForGame(gameId: Int): GameWithMechanics?
+    fun loadMechanicsForGameFlow(gameId: Int): Flow<GameWithMechanics?>
 }
