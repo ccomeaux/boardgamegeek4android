@@ -92,7 +92,6 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
                 if (it.isNotBlank()) firebase.setUserId(it.hashCode().toString())
             }
             firebase.setCustomKey("BUILD_TIME", BuildConfig.BUILD_TIME)
-            firebase.setCustomKey("GIT_SHA", BuildConfig.GIT_SHA)
         }
         RemoteConfig.init()
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task: Task<String?> ->
