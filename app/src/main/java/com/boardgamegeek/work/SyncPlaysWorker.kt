@@ -44,8 +44,9 @@ class SyncPlaysWorker @AssistedInject constructor(
             startTime = System.currentTimeMillis()
 
             val newestSyncDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
-            val newestPlaysResult = downloadPlays(newestSyncDate, 0L)
-            if (newestPlaysResult is Result.Failure) return newestPlaysResult
+            downloadPlays(newestSyncDate, 0L)?.let { failureData ->
+                return Result.failure(failureData)
+            }
             if (newestSyncDate > 0L) {
                 val deletedCount = playRepository.deleteUnupdatedPlaysSince(startTime, newestSyncDate)
                 Timber.i("Deleted $deletedCount unupdated plays since ${newestSyncDate.toDate()}")
@@ -53,8 +54,9 @@ class SyncPlaysWorker @AssistedInject constructor(
 
             val oldestDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE
             if (oldestDate > 0) {
-                val oldestPlaysResult = downloadPlays(0L, oldestDate)
-                if (oldestPlaysResult is Result.Failure) return oldestPlaysResult
+                downloadPlays(0L, oldestDate)?.let { failureData ->
+                    return Result.failure(failureData)
+                }
                 if (oldestDate != Long.MAX_VALUE) {
                     val deletedCount = playRepository.deleteUnupdatedPlaysBefore(startTime, oldestDate)
                     Timber.i("Deleted $deletedCount unupdated plays before ${oldestDate.toDate()}")
@@ -66,18 +68,19 @@ class SyncPlaysWorker @AssistedInject constructor(
             Timber.i("Plays synced successfully")
             Result.success()
         } catch (e: Exception) {
-            handleException(e)
+            val error = handleException(e)
+            Result.failure(workDataOf(ERROR_MESSAGE to error))
         }
     }
 
-    private suspend fun downloadPlays(minDate: Long, maxDate: Long): Result {
+    private suspend fun downloadPlays(minDate: Long, maxDate: Long): Data? {
         var page = 1
         do {
             if (page > 1) delay(playsFetchPauseMilliseconds)
 
             if (isStopped) {
                 Timber.i("Stopping while downloading plays")
-                return Result.failure(workDataOf(ERROR_MESSAGE to "Worker stopped early while downloading plays"))
+                return workDataOf(STOPPED_REASON to "Worker stopped early while downloading plays")
             }
 
             val message = when {
@@ -116,10 +119,10 @@ class SyncPlaysWorker @AssistedInject constructor(
             }
             page++
         } while (shouldContinue)
-        return Result.success()
+        return null
     }
 
-    private fun handleException(e: Exception): Result {
+    private fun handleException(e: Exception): Data {
         if (e is CancellationException) {
             Timber.i("Canceling plays sync")
         } else {
@@ -127,7 +130,7 @@ class SyncPlaysWorker @AssistedInject constructor(
             val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
             applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_plays), bigText)
         }
-        return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
+        return workDataOf(ERROR_MESSAGE to (e.message ?: "Unknown exception while syncing plays"))
     }
 
     private fun Long.toDate() = this.formatDateTime(applicationContext, flags = DateUtils.FORMAT_SHOW_DATE)
@@ -138,6 +141,7 @@ class SyncPlaysWorker @AssistedInject constructor(
 
     companion object {
         const val UNIQUE_WORK_NAME = "com.boardgamegeek.SYNC_PLAYS"
+        const val STOPPED_REASON = "STOPPED_REASON"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
 
         fun requestSync(context: Context) {

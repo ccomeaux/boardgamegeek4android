@@ -44,7 +44,7 @@ class SyncUsersWorker @AssistedInject constructor(
             return Result.success()
         }
 
-        Timber.i("Begin downloading buddies")
+        Timber.i("Syncing list of buddies")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_list)))
         try {
             val lastCompleteSync = syncPrefs.getBuddiesTimestamp()
@@ -52,26 +52,28 @@ class SyncUsersWorker @AssistedInject constructor(
                 Timber.i("Skipping downloading buddies list; we synced already within the last $buddiesFetchIntervalDays days")
             } else {
                 userRepository.refreshBuddies()?.let {
-                    return handleException(Exception(it))
+                    return Result.failure(workDataOf(ERROR_MESSAGE to it))
                 }
             }
         } catch (e: Exception) {
-            return handleException(e)
+            return Result.failure(handleException(e))
         }
+
+        val allBuddies = userRepository.loadBuddies().sortedBy { it.updatedTimestamp }
+        var updatedBuddyCount = 0
 
         Timber.i("Syncing oldest buddies")
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
-        var updatedBuddyCount = 0
-        val allBuddies = userRepository.loadBuddies().sortedBy { it.updatedTimestamp }
 
         val staleBuddyUsernames = allBuddies.filter { it.updatedTimestamp > 0L }.map { it.username }
         val limit = (staleBuddyUsernames.size / buddySyncSliceCount.coerceAtLeast(1)).coerceAtMost(buddySyncSliceMaxSize)
         Timber.i("Updating $limit buddies; ${staleBuddyUsernames.size} total buddies cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
         for (username in staleBuddyUsernames.take(limit)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during stale buddy update"))
-            val result = updateBuddy(username)
-            if (result is Result.Success) updatedBuddyCount++
-            else return result
+            updateBuddy(username)?.let {
+                return Result.failure(it)
+            }
+            updatedBuddyCount++
         }
 
         Timber.i("Syncing unupdated buddies")
@@ -81,29 +83,30 @@ class SyncUsersWorker @AssistedInject constructor(
         Timber.i("Found ${unupdatedBuddies.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
         for (username in unupdatedBuddies.take(buddySyncSliceMaxSize)) {
             if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled during unupdated buddy update"))
-            val result = updateBuddy(username)
-            if (result is Result.Success) updatedBuddyCount++
-            else return result
+            updateBuddy(username)?.let {
+                return Result.failure(it)
+            }
+            updatedBuddyCount++
         }
         Timber.i("Updated %,d stale & unupdated buddies", updatedBuddyCount)
 
         return Result.success()
     }
 
-    private suspend fun updateBuddy(username: String): Result {
+    private suspend fun updateBuddy(username: String): Data? {
         Timber.i("About to refresh user $username")
         setProgress(workDataOf(PROGRESS_USERNAME to username))
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddy, username)))
         delay(buddiesFetchPauseMilliseconds)
         return try {
             userRepository.refresh(username)
-            Result.success()
+            null
         } catch (e: Exception) {
-            handleException(e)
+             handleException(e)
         }
     }
 
-    private fun handleException(e: Exception): Result {
+    private fun handleException(e: Exception): Data {
         if (e is CancellationException) {
             Timber.i("Canceling users sync")
         } else {
@@ -111,7 +114,7 @@ class SyncUsersWorker @AssistedInject constructor(
             val bigText = if (e is HttpException) e.code().asHttpErrorMessage(applicationContext) else e.localizedMessage
             applicationContext.notifySyncError(applicationContext.getString(R.string.sync_notification_buddies_list), bigText)
         }
-        return Result.failure(workDataOf(ERROR_MESSAGE to e.message))
+        return workDataOf(ERROR_MESSAGE to (e.message ?: "Unknown exception while syncing users"))
     }
 
     private fun createForegroundInfo(contentText: String): ForegroundInfo {

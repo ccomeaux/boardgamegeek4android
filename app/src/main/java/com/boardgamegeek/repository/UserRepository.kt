@@ -103,6 +103,7 @@ class UserRepository(
             result.getOrNull()?.let { user ->
                 upsertUser(user.mapForUpsert(timestamp)) // update the current user
                 user.buddies?.buddies?.let { buddies ->
+                    Timber.d("Downloaded ${buddies.size} buddies")
                     var savedCount = 0
                     buddies
                         .map { it.mapForBuddyUpsert(timestamp) }
@@ -111,7 +112,7 @@ class UserRepository(
                             userDao.upsert(it)
                             savedCount++
                         }
-                    Timber.d("Downloaded ${buddies.size} buddies, saved $savedCount buddies")
+                    Timber.d("Saved $savedCount buddies")
 
                     val deletedCount = userDao.deleteBuddiesAsOf(timestamp)
                     Timber.d("Deleted $deletedCount buddies")

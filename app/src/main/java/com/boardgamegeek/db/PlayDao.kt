@@ -141,7 +141,7 @@ interface PlayDao {
     suspend fun updateSyncTimestamp(internalId: Long, timestamp: Long): Int
 
     @Query("UPDATE plays SET sync_hash_code = 0")
-    suspend fun clearSyncHashCodes()
+    suspend fun clearSyncHashCodes(): Int
 
     @Query("UPDATE plays SET location = :location WHERE _id = :internalId")
     suspend fun updateLocation(internalId: Long, location: String): Int

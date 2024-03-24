@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import timber.log.Timber
 import java.io.IOException
 import java.lang.Exception
 import java.net.SocketTimeoutException
@@ -30,6 +31,7 @@ suspend fun <T> safeApiCall(context: Context, dispatcher: CoroutineDispatcher = 
                 }
                 else -> throwable.localizedMessage
             }
+            Timber.w(errorMessage)
             Result.failure(Exception(errorMessage))
         }
     }

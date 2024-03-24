@@ -67,22 +67,26 @@ class GameCollectionRepository(
 
     suspend fun loadUnupdatedItems() = withContext(Dispatchers.IO) { collectionDao.loadItemsNotUpdated() }
 
-    suspend fun refresh(options: Map<String, String>, updatedTimestamp: Long = System.currentTimeMillis()): Int = withContext(Dispatchers.IO) {
+    suspend fun refresh(options: Map<String, String>, updatedTimestamp: Long): Result<Int> = withContext(Dispatchers.IO) {
         var count = 0
         val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         if (!username.isNullOrBlank()) {
-            val response = api.collection(username, options)
-            response.items?.forEach {
-                val item = it.mapToCollectionItem()
-                if (isItemStatusSetToSync(item)) {
-                    val (collectionId, _) = upsert(it, updatedTimestamp)
-                    if (collectionId != INVALID_ID) count++
-                } else {
-                    Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
+            val result = safeApiCall(context) { api.collection(username, options) }
+            if (result.isSuccess) {
+                result.getOrNull()?.items?.forEach {
+                    val item = it.mapToCollectionItem()
+                    if (isItemStatusSetToSync(item)) {
+                        val (collectionId, _) = upsert(it, updatedTimestamp)
+                        if (collectionId != INVALID_ID) count++
+                    } else {
+                        Timber.i("Skipped collection item '${item.gameName}' [ID=${item.gameId}, collection ID=${item.collectionId}] - collection status not synced")
+                    }
                 }
+            } else {
+                return@withContext Result.failure(result.exception())
             }
         }
-        count
+        Result.success(count)
     }
 
     private fun isItemStatusSetToSync(item: CollectionItem): Boolean {
@@ -554,9 +558,7 @@ class GameCollectionRepository(
     suspend fun resetTimestamps(internalId: Long): Int = withContext(Dispatchers.IO) { collectionDao.clearDirtyTimestamps(internalId) }
 
     suspend fun deleteUnupdatedItems(timestamp: Long): Int = withContext(Dispatchers.IO) {
-        collectionDao.deleteUnupdatedItems(timestamp).also {
-            Timber.i("Deleted $it collection items not updated since ${timestamp.formatTimestamp(context)}")
-        }
+        collectionDao.deleteUnupdatedItems(timestamp)
     }
 
     fun enqueueUploadRequest(gameId: Int) {
