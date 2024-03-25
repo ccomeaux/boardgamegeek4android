@@ -91,7 +91,6 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
             PreferenceManager.getDefaultSharedPreferences(this).getString(AccountPreferences.KEY_USERNAME, "")?.let {
                 if (it.isNotBlank()) firebase.setUserId(it.hashCode().toString())
             }
-            firebase.setCustomKey("BUILD_TIME", BuildConfig.BUILD_TIME)
         }
         RemoteConfig.init()
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task: Task<String?> ->
