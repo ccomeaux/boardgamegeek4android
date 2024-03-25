@@ -19,7 +19,6 @@
 	<application
 		android:name=".BggApplication"
 		android:allowBackup="true"
-		android:fullBackupContent="@xml/backup_no_database"
 		android:icon="@mipmap/ic_launcher"
 		android:label="@string/app_name"
 		android:logo="@drawable/title_logo"
@@ -374,6 +373,7 @@
 
 		<service
 			android:name=".auth.AuthenticationService"
+			android:foregroundServiceType="dataSync"
 			android:exported="true">
 			<intent-filter>
 				<action android:name="android.accounts.AccountAuthenticator" />
@@ -387,6 +387,7 @@
 		<!-- Firebase Cloud Messaging (FCM) -->
 		<service
 			android:name=".firebase.BggFirebaseMessagingService"
+			android:foregroundServiceType="remoteMessaging"
 			android:exported="false">
 			<intent-filter>
 				<action android:name="com.google.firebase.MESSAGING_EVENT" />
