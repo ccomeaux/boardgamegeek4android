@@ -142,7 +142,7 @@ class SettingsActivity : DrawerActivity() {
             if (needsUsersSync) SyncUsersWorker.requestSync(requireContext())
         }
 
-        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
             when (key) {
                 PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
