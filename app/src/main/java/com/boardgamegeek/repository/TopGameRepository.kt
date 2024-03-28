@@ -7,7 +7,6 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 
 class TopGameRepository {
-    @Suppress("BlockingMethodInNonBlockingContext")
     suspend fun findTopGames(): List<TopGame> = withContext(Dispatchers.IO) {
         var rank = 1
         val doc = Jsoup

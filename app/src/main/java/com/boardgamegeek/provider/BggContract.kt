@@ -306,7 +306,7 @@ class BggContract {
 
     object PlayPlayers {
         object Columns {
-            @Suppress("ObjectPropertyName")
+            @Suppress("ConstPropertyName")
             const val _PLAY_ID = "_play_id"
             const val USER_NAME = "user_name"
             const val USER_ID = "user_id"

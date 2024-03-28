@@ -52,6 +52,7 @@ class PlayEntityConverter : Converter<ResponseBody, Any> {
     }
 }
 
+@Suppress("RedundantNullableReturnType")
 class CollectionEntityConverter : Converter<ResponseBody, Any> {
     override fun convert(value: ResponseBody): Any? {
         // <div class='messagebox error'>

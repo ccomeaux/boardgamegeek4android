@@ -343,7 +343,6 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                     }
                     VER_USERS_TABLE -> {
                         buildUsersTable().create(db)
-                        @Suppress("SpellCheckingInspection")
                         db.execSQL(
                             """
                             INSERT INTO users (username, first_name, last_name, avatar_url, play_nickname, buddy_flag, sync_hash_code, updated_detail_timestamp, updated_list_timestamp)
