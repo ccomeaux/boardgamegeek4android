@@ -7,13 +7,9 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionBinding
-import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.extensions.setBggColors
-import com.boardgamegeek.extensions.setTextOrHide
-import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import dagger.hilt.android.AndroidEntryPoint

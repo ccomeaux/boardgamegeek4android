@@ -313,7 +313,6 @@ object NotificationChannels {
 object NotificationTags {
     private const val TAG_PREFIX = "com.boardgamegeek."
     const val PLAY_STATS = TAG_PREFIX + "PLAY_STATS"
-    const val PROVIDER_ERROR = TAG_PREFIX + "PROVIDER_ERROR"
     const val SYNC_PROGRESS = TAG_PREFIX + "SYNC_PROGRESS"
     const val SYNC_ERROR = TAG_PREFIX + "SYNC_ERROR"
     const val UPLOAD_PLAY = TAG_PREFIX + "UPLOAD_PLAY"

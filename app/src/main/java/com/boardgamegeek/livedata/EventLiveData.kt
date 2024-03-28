@@ -1,7 +1,6 @@
 package com.boardgamegeek.livedata
 
 import androidx.lifecycle.LiveData
-import java.lang.Exception
 
 class EventLiveData: LiveData<Event<String>>()  {
     fun setMessage(message: String) {
@@ -13,9 +12,5 @@ class EventLiveData: LiveData<Event<String>>()  {
     }
     fun postMessage(message: String) {
         super.postValue(Event(message))
-    }
-
-    fun postMessage(exception: Throwable) {
-        super.postValue(Event(exception.localizedMessage.orEmpty()))
     }
 }
