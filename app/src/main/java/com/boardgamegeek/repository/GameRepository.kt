@@ -195,7 +195,7 @@ class GameRepository @Inject constructor(
     }
 
     fun getPlayColorsFlow(gameId: Int): Flow<List<String>> {
-        return gameColorDao.loadColorsForGameFlow(gameId).map { it.map { it.color } }
+        return gameColorDao.loadColorsForGameFlow(gameId).map { list -> list.map { entity -> entity.color } }
     }
 
     suspend fun addPlayColor(gameId: Int, color: String?) {
