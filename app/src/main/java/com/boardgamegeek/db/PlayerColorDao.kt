@@ -9,13 +9,13 @@ interface PlayerColorDao {
     @Query("SELECT * FROM player_colors WHERE player_color_sort=1")
     suspend fun loadFavoritePlayerColors(): List<PlayerColorsEntity>
 
-    @Query("SELECT * FROM player_colors WHERE player_type = $TYPE_USER AND player_name = :username  ORDER BY player_color_sort ASC")
+    @Query("SELECT * FROM player_colors WHERE player_type = ${PlayerColorsEntity.TYPE_USER} AND player_name = :username  ORDER BY player_color_sort ASC")
     suspend fun loadColorsForUser(username: String): List<PlayerColorsEntity>
 
-    @Query("SELECT * FROM player_colors WHERE player_type = $TYPE_USER AND player_name = :username  ORDER BY player_color_sort ASC")
+    @Query("SELECT * FROM player_colors WHERE player_type = ${PlayerColorsEntity.TYPE_USER} AND player_name = :username  ORDER BY player_color_sort ASC")
     fun loadColorsForUserFlow(username: String): Flow<List<PlayerColorsEntity>>
 
-    @Query("SELECT * FROM player_colors WHERE player_type = $TYPE_PLAYER AND player_name = :playerName ORDER BY player_color_sort ASC")
+    @Query("SELECT * FROM player_colors WHERE player_type = ${PlayerColorsEntity.TYPE_PLAYER} AND player_name = :playerName ORDER BY player_color_sort ASC")
     suspend fun loadColorsForPlayer(playerName: String): List<PlayerColorsEntity>
 
     @Transaction
@@ -31,9 +31,4 @@ interface PlayerColorDao {
 
     @Query("DELETE FROM player_colors WHERE player_type = :playerType AND player_name = :playerName")
     suspend fun deleteColorsForPlayer(playerType: Int, playerName: String): Int
-
-    companion object {
-        const val TYPE_USER = 1
-        const val TYPE_PLAYER = 2
-    }
 }

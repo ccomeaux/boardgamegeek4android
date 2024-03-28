@@ -10,8 +10,6 @@ import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.*
-import com.boardgamegeek.db.PlayerColorDao.Companion.TYPE_PLAYER
-import com.boardgamegeek.db.PlayerColorDao.Companion.TYPE_USER
 import com.boardgamegeek.db.model.GameColorsEntity
 import com.boardgamegeek.db.model.PlayerColorsEntity
 import com.boardgamegeek.model.*
@@ -609,7 +607,7 @@ class PlayRepository(
 
         val colors = loadNonUserColors(oldName).sortedByDescending { it.sortOrder }.map { it.description }
         savePlayerColors(newName, PlayerType.NON_USER, colors)
-        playerColorDao.deleteColorsForPlayer(TYPE_PLAYER, oldName)
+        playerColorDao.deleteColorsForPlayer(PlayerColorsEntity.TYPE_PLAYER, oldName)
 
         internalIds
     }
@@ -623,7 +621,7 @@ class PlayRepository(
 
         val colors = loadNonUserColors(playerName).sortedByDescending { it.sortOrder }.map { it.description }
         savePlayerColors(username, PlayerType.USER, colors)
-        playerColorDao.deleteColorsForPlayer(TYPE_PLAYER, playerName)
+        playerColorDao.deleteColorsForPlayer(PlayerColorsEntity.TYPE_PLAYER, playerName)
 
         internalIds
     }
@@ -652,7 +650,7 @@ class PlayRepository(
                 val entities = list.filter { it.isNotBlank() }.mapIndexed { index, color ->
                     PlayerColorsEntity(
                         internalId = 0,
-                        if (type == PlayerType.USER) TYPE_USER else TYPE_PLAYER,
+                        if (type == PlayerType.USER) PlayerColorsEntity.TYPE_USER else PlayerColorsEntity.TYPE_PLAYER,
                         name,
                         color,
                         index + 1,
