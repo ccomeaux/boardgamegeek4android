@@ -11,7 +11,7 @@ import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import timber.log.Timber
 
 class ArticleActivity : SimpleSinglePaneActivity() {

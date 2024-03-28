@@ -2,9 +2,9 @@ package com.boardgamegeek.util
 
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.R
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import timber.log.Timber
 
 class RemoteConfig {

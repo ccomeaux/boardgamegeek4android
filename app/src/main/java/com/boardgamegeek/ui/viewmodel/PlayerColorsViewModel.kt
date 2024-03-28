@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.repository.PlayRepository
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

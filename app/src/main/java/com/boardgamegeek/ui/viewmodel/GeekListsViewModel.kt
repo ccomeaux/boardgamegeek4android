@@ -13,7 +13,7 @@ import com.boardgamegeek.io.model.GeekListsResponse
 import com.boardgamegeek.livedata.GeekListsPagingSource
 import com.boardgamegeek.repository.GeekListRepository
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

@@ -27,7 +27,7 @@ import com.boardgamegeek.ui.dialog.ColorPickerWithListenerDialogFragment
 import com.boardgamegeek.ui.viewmodel.LogPlayerViewModel
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

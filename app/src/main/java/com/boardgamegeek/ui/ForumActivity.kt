@@ -18,7 +18,7 @@ import com.boardgamegeek.ui.PersonActivity.Companion.startUpForArtist
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForDesigner
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForPublisher
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
