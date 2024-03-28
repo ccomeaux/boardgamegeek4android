@@ -74,7 +74,7 @@
 				android:layout_height="wrap_content"
 				app:barrierAllowsGoneWidgets="false"
 				app:barrierDirection="bottom"
-				app:constraint_referenced_ids="progressView,emptyMessage,recyclerView" />
+				app:constraint_referenced_ids="contentLoadingProgressBar,emptyMessage,recyclerView" />
 		</androidx.constraintlayout.widget.ConstraintLayout>
 	</androidx.core.widget.NestedScrollView>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
