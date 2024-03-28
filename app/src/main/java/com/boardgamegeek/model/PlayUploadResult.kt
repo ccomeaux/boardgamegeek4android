@@ -1,6 +1,6 @@
 package com.boardgamegeek.model
 
-data class PlayUploadResult private constructor(
+class PlayUploadResult private constructor(
     val play: Play,
     val status: Status = Status.NEW,
     val numberOfPlays: Int = 0,

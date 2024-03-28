@@ -1,6 +1,6 @@
 package com.boardgamegeek.model
 
-data class CollectionItemUploadResult private constructor(val item: CollectionItem, val status: Status) {
+class CollectionItemUploadResult private constructor(val item: CollectionItem, val status: Status) {
     enum class Status {
         NEW,
         UPDATE,
