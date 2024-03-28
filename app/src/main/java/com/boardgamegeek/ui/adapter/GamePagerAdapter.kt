@@ -33,7 +33,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private var iconColor = Color.TRANSPARENT
     private val tabs = arrayListOf<Tab>()
 
-    private val fab by lazy { activity.findViewById(R.id.fab) as FloatingActionButton }
+    private val fab by lazy { activity.findViewById<FloatingActionButton>(R.id.fab) }
     private val viewModel by lazy { ViewModelProvider(activity)[GameViewModel::class.java] }
     private val prefs by lazy { activity.preferences() }
 
