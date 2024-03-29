@@ -36,13 +36,14 @@ class SettingsActivity : DrawerActivity() {
 
         if (savedInstanceState == null) {
             val prefFragment = PrefFragment()
-            val args = Bundle()
             when (intent.action) {
-                getString(R.string.intent_action_account) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_ACCOUNT)
-                getString(R.string.intent_action_sync) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_SYNC)
-                getString(R.string.intent_action_data) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_DATA)
+                getString(R.string.intent_action_account) -> ACTION_ACCOUNT
+                getString(R.string.intent_action_sync) -> ACTION_SYNC
+                getString(R.string.intent_action_data) -> ACTION_DATA
+                else -> null
+            }?.let {
+                prefFragment.arguments = bundleOf(KEY_SETTINGS_FRAGMENT to it)
             }
-            prefFragment.arguments = args
             supportFragmentManager.beginTransaction().add(R.id.root_container, prefFragment, TAG_SINGLE_PANE).commit()
         }
     }
@@ -127,12 +128,12 @@ class SettingsActivity : DrawerActivity() {
 
         override fun onResume() {
             super.onResume()
-            preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+            preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
         }
 
         override fun onPause() {
             super.onPause()
-            preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+            preferenceScreen.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         }
 
         override fun onStop() {
@@ -161,19 +162,20 @@ class SettingsActivity : DrawerActivity() {
         }
 
         private fun updateSyncStatusSummary(key: String) {
-            val pref = findPreference<Preference>(key) ?: return
-            val statuses = requireContext().preferences().getSyncStatusesOrDefault()
-            pref.summary = if (statuses.isEmpty()) {
-                getString(R.string.pref_list_empty)
-            } else {
-                entryValues.indices
-                    .filter { statuses.contains(entryValues[it]) }
-                    .joinToString { entries[it] }
+            findPreference<Preference>(key)?.let { pref ->
+                val statuses = requireContext().preferences().getSyncStatusesOrDefault()
+                pref.summary = if (statuses.isEmpty()) {
+                    getString(R.string.pref_list_empty)
+                } else {
+                    entryValues.indices
+                        .filter { statuses.contains(entryValues[it]) }
+                        .joinToString { entries[it] }
+                }
             }
         }
 
-        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-            return preference?.key?.let {
+        override fun onPreferenceTreeClick(preference: Preference): Boolean {
+            return preference.key?.let {
                 when {
                     it.startsWith(ACTION_PREFIX) -> {
                         (activity as SettingsActivity).replaceFragment(it)
@@ -186,7 +188,7 @@ class SettingsActivity : DrawerActivity() {
 
         private val dialogFragmentTag = "PreferenceFragment.DIALOG"
 
-        override fun onDisplayPreferenceDialog(preference: Preference?) {
+        override fun onDisplayPreferenceDialog(preference: Preference) {
             if (parentFragmentManager.findFragmentByTag(dialogFragmentTag) != null) {
                 return
             }
@@ -199,6 +201,7 @@ class SettingsActivity : DrawerActivity() {
             }
 
             if (dialogFragment != null) {
+                @Suppress("DEPRECATION")
                 dialogFragment.setTargetFragment(this, 0)
                 dialogFragment.show(parentFragmentManager, dialogFragmentTag)
             } else super.onDisplayPreferenceDialog(preference)

@@ -18,11 +18,11 @@ class SelfUserViewModel @Inject constructor(
     application: Application,
     private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
-    val username: LiveSharedPreference<String> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
+    val username: LiveData<String> = LiveSharedPreference<String>(getApplication(), AccountPreferences.KEY_USERNAME).distinctUntilChanged()
 
     val user: LiveData<User?> = username.switchMap { username ->
         liveData {
-            if (username != null && username.isNotBlank()) {
+            if (username.isNotBlank()) {
                 emitSource(userRepository.loadUserFlow(username).distinctUntilChanged().asLiveData().also {
                     if (it.value == null || it.value?.updatedTimestamp.isOlderThan(1.days)) {
                         val errorMessage = userRepository.refresh(username, true)
