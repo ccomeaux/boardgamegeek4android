@@ -132,7 +132,7 @@ dependencies {
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    def arch_lifecycle_version = '2.6.1'
+    def arch_lifecycle_version = '2.7.0'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$arch_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$arch_lifecycle_version"
 
