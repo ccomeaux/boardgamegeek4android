@@ -2,16 +2,19 @@
 
 package com.boardgamegeek.extensions
 
+import android.Manifest
 import android.annotation.TargetApi
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
 import androidx.annotation.StringRes
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -135,7 +138,10 @@ fun Context.cancelNotification(tag: String?, id: Long = 0L) {
  * Display the notification with a unique ID.
  */
 fun Context.notify(builder: NotificationCompat.Builder, tag: String?, id: Int = 0) {
-    NotificationManagerCompat.from(this).notify(tag, id, builder.build())
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        NotificationManagerCompat.from(this).notify(tag, id, builder.build())
+        return
+    }
 }
 
 fun Context.notifySyncError(contentText: String, bigText: String) {
