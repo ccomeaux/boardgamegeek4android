@@ -155,12 +155,12 @@ interface PlayDao {
     @Query("DELETE FROM plays WHERE _id = :internalId")
     suspend fun delete(internalId: Long): Int
 
-    @Query("DELETE FROM plays WHERE object_id = :gameId AND updated_list < :syncTimestamp AND (update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    @Query("DELETE FROM plays WHERE object_id = :gameId AND updated_list < :syncTimestamp AND (update_timestamp = 0 OR update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = 0 OR delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = 0 OR dirty_timestamp = '' OR dirty_timestamp IS NULL)")
     suspend fun deleteUnupdatedPlaysForGame(gameId: Int, syncTimestamp: Long): Int
 
-    @Query("DELETE FROM plays WHERE date <= :date AND updated_list < :syncTimestamp AND (update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    @Query("DELETE FROM plays WHERE date <= :date AND updated_list < :syncTimestamp AND (update_timestamp = 0 OR update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = 0 OR delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = 0 OR dirty_timestamp = '' OR dirty_timestamp IS NULL)")
     suspend fun deleteUnupdatedPlaysBeforeDate(date: String, syncTimestamp: Long): Int
 
-    @Query("DELETE FROM plays WHERE date >= :date AND updated_list < :syncTimestamp AND (update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    @Query("DELETE FROM plays WHERE date >= :date AND updated_list < :syncTimestamp AND (update_timestamp = 0 OR update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = 0 OR delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = 0 OR dirty_timestamp = '' OR dirty_timestamp IS NULL)")
     suspend fun deleteUnupdatedPlaysAfterDate(date: String, syncTimestamp: Long): Int
 }
