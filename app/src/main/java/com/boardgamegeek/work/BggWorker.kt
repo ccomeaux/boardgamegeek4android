@@ -1,6 +1,8 @@
 package com.boardgamegeek.work
 
 import android.content.Context
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.work.ForegroundInfo
@@ -33,5 +35,9 @@ fun Context.createForegroundInfo(titleResId: Int, notificationId: Int, id: UUID,
         )
         .build()
 
-    return ForegroundInfo(notificationId, notification)
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        ForegroundInfo(notificationId, notification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+    } else {
+        ForegroundInfo(notificationId, notification)
+    }
 }
