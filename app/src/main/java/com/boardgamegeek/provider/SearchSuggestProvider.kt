@@ -34,14 +34,14 @@ open class SearchSuggestProvider : BaseProvider() {
         val qb = SQLiteQueryBuilder().apply {
             tables = Tables.COLLECTION_JOIN_GAMES
             projectionMap = suggestionProjectionMap
-            appendWhere("(${Collection.Columns.COLLECTION_NAME} like '$searchTerm%%' OR ${Collection.Columns.COLLECTION_NAME} like '%% $searchTerm%%')")
+            appendWhere("(${Collection.Columns.COLLECTION_NAME} like '$searchTerm%%' OR ${Collection.Columns.COLLECTION_NAME} like '%% $searchTerm%%') AND ${Collection.Columns.COLLECTION_ID}<>-1")
         }
-        return qb.query(db, projection, selection, selectionArgs, groupBy, null, sortBy, limit)
+        return qb.query(db, projection, selection, selectionArgs, GROUP_BY, null, SORT_BY, limit)
     }
 
     companion object {
-        private const val sortBy = "${Collection.Columns.COLLECTION_SORT_NAME}${BggContract.COLLATE_NOCASE} ASC"
-        private const val groupBy = "${Collection.Columns.COLLECTION_NAME}, ${Collection.Columns.COLLECTION_YEAR_PUBLISHED}"
+        private const val SORT_BY = "${Collection.Columns.COLLECTION_SORT_NAME}${BggContract.COLLATE_NOCASE} ASC"
+        private const val GROUP_BY = "${Collection.Columns.COLLECTION_NAME}, ${Collection.Columns.COLLECTION_YEAR_PUBLISHED}"
 
         @Suppress("SpellCheckingInspection")
         val suggestionProjectionMap = mutableMapOf(
