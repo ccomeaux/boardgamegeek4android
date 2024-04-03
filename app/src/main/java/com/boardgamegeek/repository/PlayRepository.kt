@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
+import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import androidx.work.*
 import com.boardgamegeek.R
@@ -279,7 +280,9 @@ class PlayRepository(
         } while (response.isSuccess && response.getOrNull()?.hasMorePages() == true)
 
         if (maximumPageCount == Int.MAX_VALUE) {
-            playDao.deleteUnupdatedPlaysForGame(gameId, syncInitiatedTimestamp)
+            playDao.deleteUnupdatedPlaysForGame(gameId, syncInitiatedTimestamp).also {
+                Timber.i("Deleted $it plays form game $gameId")
+            }
             gameDao.updatePlayTimestamp(gameId, syncInitiatedTimestamp)
         }
 
@@ -547,7 +550,7 @@ class PlayRepository(
             }
         }
         Timber.i(
-            "Saved %1\$,d plays: updated %2$,d, inserted %3$,d, %4$,d unchanged, %5$,d dirty, %6$,d errors",
+            "Saved %1\$,d plays: %2\$,d updated, %3\$,d inserted, %4$,d unchanged, %5$,d dirty, %6$,d errors",
             plays.size,
             updateCount,
             insertCount,
@@ -678,11 +681,15 @@ class PlayRepository(
     // region Delete
 
     suspend fun deleteUnupdatedPlaysSince(syncTimestamp: Long, playDate: Long) = withContext(Dispatchers.IO) {
-        playDao.deleteUnupdatedPlaysAfterDate(playDate.asDateForApi(), syncTimestamp)
+        playDao.deleteUnupdatedPlaysAfterDate(playDate.asDateForApi(), syncTimestamp).also {
+            Timber.i("Deleted $it plays since ${playDate.asDate()} that haven't been updated since ${syncTimestamp.asTime()} ($syncTimestamp)")
+        }
     }
 
     suspend fun deleteUnupdatedPlaysBefore(syncTimestamp: Long, playDate: Long) = withContext(Dispatchers.IO) {
-        playDao.deleteUnupdatedPlaysBeforeDate(playDate.asDateForApi(), syncTimestamp)
+        playDao.deleteUnupdatedPlaysBeforeDate(playDate.asDateForApi(), syncTimestamp).also {
+            Timber.i("Deleted $it plays before ${playDate.asDate()} that haven't been updated since ${syncTimestamp.asTime()} ($syncTimestamp)")
+        }
     }
 
     suspend fun deletePlays() = withContext(Dispatchers.IO) {
@@ -789,6 +796,10 @@ class PlayRepository(
     }
 
     // endregion
+
+    private fun Long.asDate() = this.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_ALL)
+
+    private fun Long.asTime() = this.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
 
     companion object {
         private const val NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX = 0
