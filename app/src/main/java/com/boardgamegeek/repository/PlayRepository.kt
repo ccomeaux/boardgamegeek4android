@@ -281,7 +281,7 @@ class PlayRepository(
 
         if (maximumPageCount == Int.MAX_VALUE) {
             playDao.deleteUnupdatedPlaysForGame(gameId, syncInitiatedTimestamp).also {
-                Timber.i("Deleted $it plays form game $gameId")
+                Timber.i("Deleted $it plays from game $gameId")
             }
             gameDao.updatePlayTimestamp(gameId, syncInitiatedTimestamp)
         }
