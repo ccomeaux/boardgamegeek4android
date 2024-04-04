@@ -187,7 +187,7 @@ fun LocationEntity.mapToModel() = Location(
     playCount = playCount,
 )
 
-fun Play.mapToEntity(syncTimestamp: Long = 0L) = PlayEntity(
+fun Play.mapToEntity(syncTimestamp: Long) = PlayEntity(
     internalId = if (internalId == BggContract.INVALID_ID.toLong()) 0 else internalId,
     playId = playId,
     date = dateForDatabase(),
