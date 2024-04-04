@@ -360,7 +360,7 @@ class PlayRepository(
     suspend fun logPlay(play: Play): Long = withContext(Dispatchers.IO) {
         val id = upsert(play)
 
-        if (play.updateTimestamp > 0L) tryUpload(play)
+        if (play.updateTimestamp > 0L) tryUpload(play.copy(internalId = id))
 
         // remember details about the play if it's being uploaded for the first time
         if (!play.isSynced && (play.updateTimestamp > 0)) {
