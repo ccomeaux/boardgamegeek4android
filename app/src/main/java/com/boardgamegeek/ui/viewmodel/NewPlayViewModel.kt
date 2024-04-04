@@ -392,6 +392,10 @@ class NewPlayViewModel @Inject constructor(
         addStep(Step.COMMENTS)
     }
 
+    fun finishComments() {
+        addStep(Step.SAVING)
+    }
+
     fun filterPlayers(filter: String) {
         playerFilter.value = filter
     }
@@ -564,7 +568,8 @@ class NewPlayViewModel @Inject constructor(
         PLAYERS_SORT,
         PLAYERS_NEW,
         PLAYERS_WIN,
-        COMMENTS
+        COMMENTS,
+        SAVING,
     }
 
     companion object {
