@@ -300,7 +300,11 @@ class PlayRepository(
         if (response.isSuccess) {
             val plays = response.getOrNull()?.plays.mapToModel(syncInitiatedTimestamp)
             saveFromSync(plays, syncInitiatedTimestamp)
-            Timber.i("Synced %,d most recent plays", plays.size)
+            Timber.i("Synced ${plays.size} most recent plays")
+            val date = plays.minOf { it.dateInMillis }
+            if (date != 0L) {
+                deleteUnupdatedPlaysSince(syncInitiatedTimestamp, date.addDay(1))
+            }
             prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = syncInitiatedTimestamp
             calculateStats()
             null

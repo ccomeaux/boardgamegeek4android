@@ -69,6 +69,13 @@ fun Long.formatTimestamp(context: Context, includeTime: Boolean = true, isForumT
     }
 }
 
+fun Long.addDay(amount: Int):Long  {
+    return Calendar.getInstance().apply {
+        timeInMillis = this@addDay
+        add(Calendar.DAY_OF_YEAR, amount)
+    }.timeInMillis
+}
+
 fun Long?.asDateForApi(): String {
     if (this == null) return ""
     if (this == 0L) return ""
