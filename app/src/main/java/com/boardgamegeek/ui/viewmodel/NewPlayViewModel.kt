@@ -546,7 +546,9 @@ class NewPlayViewModel @Inject constructor(
                 _players = players,
             )
 
-            _insertedId.value = playRepository.logPlay(play)
+            val id = playRepository.upsert(play)
+            playRepository.logPlay(play.copy(internalId = id))
+            _insertedId.value = id
         }
     }
 
