@@ -36,7 +36,7 @@ class NewPlayViewModel @Inject constructor(
     val playDate: LiveData<Long>
         get() = _playDate
 
-    val lastPlayDate = LiveSharedPreference<Long>(application, KEY_LAST_PLAY_DATE)
+    val lastPlayDate: LiveData<Long?> = LiveSharedPreference(application, KEY_LAST_PLAY_DATE)
 
     private val _startTime = MutableLiveData<Long>()
     val startTime: LiveData<Long>

@@ -20,9 +20,9 @@ class PlayStatsViewModel @Inject constructor(
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     // TODO switch on these
-    val includeIncomplete = LiveSharedPreference<Boolean>(application, LOG_PLAY_STATS_INCOMPLETE)
-    val includeExpansions = LiveSharedPreference<Boolean>(application, LOG_PLAY_STATS_EXPANSIONS)
-    val includeAccessories = LiveSharedPreference<Boolean>(application, LOG_PLAY_STATS_ACCESSORIES)
+    val includeIncomplete: LiveData<Boolean?> = LiveSharedPreference(application, LOG_PLAY_STATS_INCOMPLETE)
+    val includeExpansions: LiveData<Boolean?> = LiveSharedPreference(application, LOG_PLAY_STATS_EXPANSIONS)
+    val includeAccessories: LiveData<Boolean?> = LiveSharedPreference(application, LOG_PLAY_STATS_ACCESSORIES)
 
     val plays: LiveData<PlayStats> =
         liveData {

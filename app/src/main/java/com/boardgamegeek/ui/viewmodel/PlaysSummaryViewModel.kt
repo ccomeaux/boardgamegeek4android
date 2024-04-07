@@ -22,14 +22,14 @@ class PlaysSummaryViewModel @Inject constructor(
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     private val prefs: SharedPreferences by lazy { application.preferences() }
-    private val h = LiveSharedPreference<Int>(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX)
-    private val n = LiveSharedPreference<Int>(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX)
-    private val username = LiveSharedPreference<String>(getApplication(), AccountPreferences.KEY_USERNAME)
+    private val h: LiveData<Int?> = LiveSharedPreference(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX)
+    private val n: LiveData<Int?> = LiveSharedPreference(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX)
+    private val username: LiveData<String?> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
 
-    val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    val syncPlaysTimestamp = LiveSharedPreference<Long>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP)
-    val oldestSyncDate = LiveSharedPreference<Long>(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
-    val newestSyncDate = LiveSharedPreference<Long>(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
+    val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
+    val syncPlaysTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP)
+    val oldestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
+    val newestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
 
     private val _errorMessage = EventLiveData()
     val errorMessage: LiveData<Event<String>>
@@ -41,7 +41,7 @@ class PlaysSummaryViewModel @Inject constructor(
 
     private val plays = syncPlays.switchMap {
         liveData {
-            if (it) {
+            if (it == true) {
                 emitSource(playRepository.loadPlaysFlow().asLiveData())
                 refresh()
             }
