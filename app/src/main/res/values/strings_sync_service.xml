@@ -25,6 +25,9 @@
 	<string name="sync_notification_buddy">Updating GeekBuddy %s</string>
 	<string name="sync_notification_plays">Downloading plays</string>
 	<string name="sync_notification_plays_upload">Uploading plays</string>
+	<string name="sync_notification_plays_upload_update">Uploading play for %s</string>
+	<string name="sync_notification_plays_upload_delete">Deleting play for %s</string>
+	<string name="sync_notification_plays_upload_stats">Updating play stats</string>
 	<string name="sync_notification_plays_all">Syncing all plays</string>
 	<string name="sync_notification_plays_old">Syncing plays before %s</string>
 	<string name="sync_notification_plays_new">Syncing plays since %s</string>

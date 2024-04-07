@@ -1,6 +1,7 @@
 package com.boardgamegeek.work
 
 import android.content.Context
+import androidx.annotation.StringRes
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
@@ -62,15 +63,16 @@ class PlayUploadWorker @AssistedInject constructor(
         }
 
         Timber.i("Found ${playsToDelete.count()} play(s) marked for deletion")
-        uploadList(playsToDelete) {
+        uploadList(playsToDelete, R.string.sync_notification_plays_upload_delete) {
             playRepository.deletePlay(it)
         }
 
         Timber.i("Found ${playsToUpsert.count()} play(s) marked for upsert")
-        uploadList(playsToUpsert) {
+        uploadList(playsToUpsert, R.string.sync_notification_plays_upload_update) {
             playRepository.uploadPlay(it)
         }
 
+        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays_upload_stats)))
         gameIds.filterNot { it == BggContract.INVALID_ID }.forEach { gameId ->
             playRepository.updateGamePlayCount(gameId)
             Timber.i("Updated game [$gameId]'s game count")
@@ -85,9 +87,11 @@ class PlayUploadWorker @AssistedInject constructor(
 
     private suspend fun uploadList(
         playsToUpsert: MutableList<Play>,
+        @StringRes messageResId: Int,
         uploadItem: suspend (item: Play) -> kotlin.Result<PlayUploadResult>
     ) : Result {
         playsToUpsert.forEach { play ->
+            setForeground(createForegroundInfo(applicationContext.getString(messageResId, play.gameName)))
             val result = uploadItem(play)
             if (result.isSuccess) {
                 result.getOrNull()?.let {
