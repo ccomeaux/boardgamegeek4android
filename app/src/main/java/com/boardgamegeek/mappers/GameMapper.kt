@@ -120,7 +120,7 @@ fun List<GameAgePollResultEntity>.mapToModel() = GameAgePoll(
 fun List<GameLanguagePollResultEntity>.mapToModel() = GameLanguagePoll(
     this.map { entity ->
         GameLanguagePoll.Result(
-            level = GameLanguagePoll.Level.values().find { it.value == (entity.level - 1) % 5 + 1 },
+            level = GameLanguagePoll.Level.entries.find { it.value == (entity.level - 1) % 5 + 1 },
             numberOfVotes = entity.votes,
         )
     }
@@ -286,7 +286,7 @@ fun GameRemote.mapToMechanics() = links.filter {
     MechanicEntity(0L, it.id, it.value)
 }
 
-fun String?.toThingSubtype() = BggService.ThingSubtype.values().find { this == it.code }
+fun String?.toThingSubtype() = BggService.ThingSubtype.entries.find { this == it.code }
 
 const val separator = "|"
 

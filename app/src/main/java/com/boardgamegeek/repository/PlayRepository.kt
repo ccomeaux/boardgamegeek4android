@@ -581,8 +581,7 @@ class PlayRepository(
     suspend fun updateGamePlayCount(gameId: Int) = withContext(Dispatchers.Default) {
         if (gameId != INVALID_ID) {
             val allPlays = withContext(Dispatchers.IO) { playDao.loadPlaysForGame(gameId) }
-                .map { it.mapToModel() }
-                .filterNot { it.deleteTimestamp > 0L }
+                .filterNot { (it.deleteTimestamp ?: 0L) > 0L }
             val playCount = allPlays.sumOf { it.quantity }
             withContext(Dispatchers.IO) { gameDao.updatePlayCount(gameId, playCount) }
         }
@@ -734,24 +733,28 @@ class PlayRepository(
         // TODO make this more efficient (I think we can get it all in 1 query)
         val allPlays = playDao.loadPlays().filter { it.deleteTimestamp == 0L }
         val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
-        val gameMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
+        val playedGamesMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
             accumulator + element.quantity
         }
         val items = collectionDao.loadAll().map { it.mapToModel() }
-        val filteredItems = items.filter {
-            it.subtype == null || it.subtype == Game.Subtype.BOARDGAME ||
-                    (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions) ||
-                    (it.subtype == Game.Subtype.BOARDGAME_ACCESSORY && includeAccessories)
-        }
-        gameMap.filterKeys { it.first in filteredItems.map { item -> item.gameId } }.map { game ->
+        val games = gameDao.loadGameSubtypes()
+        val allGamesForStats = playedGamesMap.map { game ->
             val itemPairs = items.filter { it.gameId == game.key.first }
+            val gameSubtype = games.find { it.gameId == game.key.first }
             GameForPlayStats(
                 id = game.key.first,
                 name = game.key.second,
                 playCount = game.value,
                 isOwned = itemPairs.any { it.own },
                 bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN,
+                subtype = gameSubtype?.subtype.toSubtype()
             )
+        }
+        allGamesForStats.filter {
+            it.subtype == Game.Subtype.UNKNOWN ||
+                    it.subtype == Game.Subtype.BOARDGAME ||
+                    (it.subtype == Game.Subtype.BOARDGAME_ACCESSORY && includeAccessories) ||
+                    (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions)
         }
     }
 
