@@ -2,6 +2,8 @@ package com.boardgamegeek.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.boardgamegeek.db.BggDatabase
 import com.boardgamegeek.db.DatabaseMigrations
 import dagger.Module
@@ -27,5 +29,12 @@ class DatabaseModule {
         DatabaseMigrations.MIGRATION_61_62,
         DatabaseMigrations.MIGRATION_62_63,
         DatabaseMigrations.MIGRATION_63_64,
+    ).addCallback(
+        object : RoomDatabase.Callback() {
+            override fun onOpen(db: SupportSQLiteDatabase) {
+                super.onOpen(db)
+                db.execSQL("PRAGMA synchronous = NORMAL")
+            }
+        }
     ).build()
 }

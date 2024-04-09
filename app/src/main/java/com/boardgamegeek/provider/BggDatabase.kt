@@ -399,6 +399,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         super.onOpen(db)
         if (db?.isReadOnly == false) {
             db.execSQL("PRAGMA foreign_keys=ON;")
+            db.execSQL("PRAGMA synchronous = NORMAL")
         }
     }
 
