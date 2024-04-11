@@ -17,6 +17,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
+import kotlin.math.sin
 
 class GameRepository @Inject constructor(
     val context: Context,
@@ -44,11 +45,11 @@ class GameRepository @Inject constructor(
             .map { it?.game?.mapToModel(it.lastPlayedDate) }
     }
 
-    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> {
-        return gameDao.loadOldestUpdatedGames(gamesPerFetch).map { it.gameId to it.gameName }
+    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int, beforeTimestamp: Long): List<Pair<Int, String>> {
+        return gameDao.loadOldestUpdatedGames(gamesPerFetch, beforeTimestamp).map { it.gameId to it.gameName }
     }
 
-    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> {
+    suspend fun loadUnupdatedGames(gamesPerFetch: Int): List<Pair<Int, String>> {
         return gameDao.loadUnupdatedGames(gamesPerFetch).map { it.gameId to it.gameName }
     }
 
@@ -62,9 +63,15 @@ class GameRepository @Inject constructor(
 
     suspend fun refreshGame(vararg gameId: Int): Result<Int> = withContext(Dispatchers.IO) {
         val timestamp = System.currentTimeMillis()
-        val result = safeApiCall(context) { api.thing(gameId.first(), 1).games }
-        if (result.isSuccess){
-            result.getOrNull()?.forEach { game ->
+        val result = safeApiCall(context) {
+            if (gameId.size == 1) {
+                api.thing(gameId.first(), 1)
+            } else {
+                api.things(gameId.joinToString(), 1)
+            }
+        }
+        if (result.isSuccess) {
+            result.getOrNull()?.games?.forEach { game ->
                 val internalId = gameDao.loadGame(game.id)?.game?.internalId ?: 0L
                 val gameForUpsert = game.mapForUpsert(internalId, timestamp)
                 Timber.i("Saving game ${gameForUpsert.header.gameName} (${game.id})")
@@ -81,7 +88,7 @@ class GameRepository @Inject constructor(
                     }
                 }
             }
-            Result.success(result.getOrNull()?.size ?: 0)
+            Result.success(result.getOrNull()?.games?.size ?: 0)
         }  else {
             Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
         }
