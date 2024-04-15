@@ -9,7 +9,7 @@ interface GameColorDao {
     @Query("SELECT * FROM game_colors")
     suspend fun loadColors(): List<GameColorsEntity>
 
-    @Query("SELECT * FROM game_colors WHERE game_id = :gameId")
+    @Query("SELECT * FROM game_colors WHERE game_id = :gameId ORDER BY color COLLATE NOCASE ASC")
     suspend fun loadColorsForGame(gameId: Int): List<GameColorsEntity>
 
     @Query("SELECT * FROM game_colors WHERE game_id = :gameId")
