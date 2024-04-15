@@ -49,6 +49,10 @@
 	</group>
 	<group android:checkableBehavior="single">
 		<item
+			android:id="@+id/sync"
+			android:icon="@drawable/ic_baseline_sync_24"
+			android:title="@string/title_sync" />
+		<item
 			android:id="@+id/data"
 			android:icon="@drawable/ic_baseline_file_copy_24"
 			android:title="@string/title_backup" />

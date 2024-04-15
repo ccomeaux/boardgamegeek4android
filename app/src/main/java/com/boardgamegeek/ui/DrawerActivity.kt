@@ -114,6 +114,7 @@ abstract class DrawerActivity : BaseActivity() {
                 R.id.plays -> startActivity<PlaysSummaryActivity>()
                 R.id.geek_buddies -> startActivity<BuddiesActivity>()
                 R.id.forums -> startActivity<ForumsActivity>()
+                R.id.sync -> startActivity<SyncActivity>()
                 R.id.data -> startActivity<DataActivity>()
                 R.id.settings -> startActivity<SettingsActivity>()
             }

@@ -338,6 +338,13 @@
 			android:name=".ui.ArticleActivity"
 			android:label="Article" />
 		<activity
+			android:name=".ui.SyncActivity"
+			android:label="@string/title_sync">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
+		<activity
 			android:name=".ui.DataActivity"
 			android:label="@string/title_backup">
 			<meta-data
