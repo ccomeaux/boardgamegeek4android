@@ -81,6 +81,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
     }
 
