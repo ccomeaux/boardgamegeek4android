@@ -4,6 +4,7 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
@@ -170,6 +171,6 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     }
 
     companion object {
-        const val INVALID_RES_ID = 0
+        const val INVALID_RES_ID = ResourcesCompat.ID_NULL
     }
 }
