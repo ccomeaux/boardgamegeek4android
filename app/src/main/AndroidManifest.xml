@@ -22,6 +22,7 @@
 
 	<application
 		android:name=".BggApplication"
+		android:enableOnBackInvokedCallback="true"
 		android:allowBackup="true"
 		android:fullBackupContent="@xml/backup_no_database"
 		android:dataExtractionRules="@xml/backup_rules"
@@ -32,7 +33,7 @@
 		android:supportsRtl="false"
 		android:theme="@style/Theme.bgglight.NavDrawer"
 		tools:ignore="GoogleAppIndexingWarning"
-		tools:targetApi="s">
+		tools:targetApi="tiramisu">
 		<activity
 			android:name=".ui.NewPlayActivity"
 			android:label="@string/title_new_play"
