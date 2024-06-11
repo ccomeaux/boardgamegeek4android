@@ -20,6 +20,6 @@ public class ForumRemote {
 	@NonNull
 	@Override
 	public String toString() {
-		return "" + id + ": " + title + " - " + description;
+		return id + ": " + title + " - " + description;
 	}
 }
