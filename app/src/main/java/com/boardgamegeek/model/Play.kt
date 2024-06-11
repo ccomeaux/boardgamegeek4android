@@ -5,6 +5,9 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 data class Play(
     val internalId: Long = BggContract.INVALID_ID.toLong(),
@@ -48,7 +51,9 @@ data class Play(
     }
 
     fun dateForDatabase(): String {
-        return dateInMillis.forDatabase()
+        val c = Calendar.getInstance()
+        c.timeInMillis = dateInMillis
+        return databaseFormat.format(c.time)
     }
 
     fun hasStarted(): Boolean {
@@ -118,5 +123,6 @@ data class Play(
 
     companion object {
         const val UNKNOWN_DATE: Long = -1L
+        private val databaseFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
     }
 }
