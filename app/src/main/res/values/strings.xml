@@ -133,7 +133,7 @@
 	<string name="are_you_sure_timer_reset">Do you want to continue the timer where you left off or reset it and lose the current play length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
-	<string name="app_name">BoardGameGeek</string>
+	<string name="app_name" translatable="false">BGG4A</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
 	<string name="title_collection">Collection</string>
@@ -316,7 +316,7 @@
 	<string name="title_scores">Scores</string>
 	<string name="title_low_scorers">Low Scorers</string>
 	<string name="title_high_scorers">High Scorers</string>
-	<string name="search_label">BoardGameGeek</string>
+	<string name="search_label" translatable="false">BGG4A</string>
 	<string name="search_hint">Search games</string>
 	<string name="search_voice_prompt">Name a game…</string>
 	<string name="search_searching">Searching for \"%s\"</string>
@@ -478,17 +478,17 @@
 	<string name="share_collection_subject">%1$s (%2$s)\'s collection on BGG4Android</string>
 	<string name="share_collection_complete_footer">Complete collection at %s</string>
 	<string name="share_game_subject">%s on BoardGameGeek</string>
-	<string name="share_game_text">I found this game using BoardGameGeek on Android that I thought you might like:</string>
+	<string name="share_game_text">I found this game using BGG4A that I thought you might like:</string>
 	<string name="share_games_subject">Games on BoardGameGeek</string>
-	<string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
+	<string name="share_games_text">I found these games using BGG4A that I thought you might like:</string>
 	<string name="share_play_title">Share Play</string>
 	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
-	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
-	<string name="share_thread_game_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
-	<string name="share_thread_article_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
-	<string name="share_thread_article_object_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
+	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum using BGG4A.</string>
+	<string name="share_thread_game_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BGG4A.</string>
+	<string name="share_thread_article_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum using BGG4A.</string>
+	<string name="share_thread_article_object_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BGG4A.</string>
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
-	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android.</string>
+	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BGG4A.</string>
 	<string name="timer">Timer</string>
 	<string name="on">on</string>
 	<string name="from">from</string>

@@ -1,4 +1,4 @@
-# BoardGameGeek for Android
+# BGG4A
 This is an unofficial BoardGameGeek application for Android.
 
 <a href='https://play.google.com/store/apps/details?id=com.boardgamegeek&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height=70px/></a><br/>(<em>app currently suspended in Google Play Store</em>)
