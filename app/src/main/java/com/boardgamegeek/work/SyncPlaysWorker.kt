@@ -141,6 +141,7 @@ class SyncPlaysWorker @AssistedInject constructor(
 
     companion object {
         const val UNIQUE_WORK_NAME = "com.boardgamegeek.SYNC_PLAYS"
+        const val UNIQUE_WORK_NAME_AD_HOC = "${UNIQUE_WORK_NAME}.adhoc"
         const val STOPPED_REASON = "STOPPED_REASON"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
 
@@ -149,7 +150,7 @@ class SyncPlaysWorker @AssistedInject constructor(
                 .setConstraints(context.createWorkConstraints(true))
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
                 .build()
-            WorkManager.getInstance(context).enqueue(workRequest)
+            WorkManager.getInstance(context).enqueueUniqueWork(UNIQUE_WORK_NAME_AD_HOC, ExistingWorkPolicy.KEEP, workRequest)
         }
     }
 }
