@@ -49,7 +49,7 @@ class SyncCollectionWorker @AssistedInject constructor(
 
         refreshCollection()
         if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after refreshing collection"))
-        syncUnupdatedCollection()?.let { return Result.failure(workDataOf(ERROR_MESSAGE to it)) }
+        syncUnupdatedCollection()?.let { return Result.failure(it) }
         if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after syncing unupdated collection"))
         removeGames()
         if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after removing old games"))
