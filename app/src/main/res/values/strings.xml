@@ -749,6 +749,21 @@
 	<string name="validate">Validate</string>
 	<string name="not_found">Not Found</string>
 	<string name="valid">Valid</string>
+	<string name="sync_plays">Sync Plays</string>
+	<string name="upload_plays">Upload Plays</string>
+	<string name="sync_plays_step_new">Syncing newest plays</string>
+	<string name="sync_plays_step_old">Syncing oldest plays</string>
+	<string name="sync_plays_step_stats">Calculating play stats</string>
+	<string name="sync_plays_action_waiting">Waiting</string>
+	<string name="sync_plays_action_downloading">Downloading</string>
+	<string name="sync_plays_action_saving">Saving</string>
+	<string name="sync_plays_action_deleting">Deleting</string>
+	<string name="sync_users">Sync Users</string>
+	<string name="sync_buddies_date_zero">List of GeekBuddies hasn\'t been synced</string>
+	<string name="sync_buddies_date">List of GeekBuddies synced as of %s</string>
+	<string name="sync_user_step_list">Syncing GeekBuddy list</string>
+	<string name="sync_user_step_stale">Syncing stale users</string>
+	<string name="sync_user_step_unupdated">Syncing unupdated users</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -885,6 +900,38 @@
 	<plurals name="person_game_h_index_info">
 		<item quantity="one">You\'ve played at least %1$,d game %1$s time or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
 		<item quantity="other">You\'ve played at least %1$,d games %1$s times or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+	</plurals>
+	<plurals name="plays_sync_status_none">
+		<item quantity="one">Plays have never been synced</item>
+		<item quantity="other">Plays have never been synced</item>
+	</plurals>
+	<plurals name="plays_sync_status_new">
+		<item quantity="one"><b>%1$,d</b> plays have been synced through %3$s</item>
+		<item quantity="other"><b>%1$,d</b> plays have been synced through %3$s</item>
+	</plurals>
+	<plurals name="plays_sync_status_old">
+		<item quantity="one"><b>%1$,d</b> plays have been synced since %2$s</item>
+		<item quantity="other"><b>%1$,d</b> plays have been synced since %2$s</item>
+	</plurals>
+	<plurals name="plays_sync_status_range">
+		<item quantity="one"><b>%1$,d</b> play have been synced between %2$s and %3$s</item>
+		<item quantity="other"><b>%1$,d</b> plays have been synced between %2$s and %3$s</item>
+	</plurals>
+	<plurals name="plays_pending_update">
+		<item quantity="one"><b>%,d</b> plays pending update</item>
+		<item quantity="other"><b>%,d</b> plays pending update</item>
+	</plurals>
+	<plurals name="plays_pending_deletion">
+		<item quantity="one"><b>%,d</b> plays pending deletion</item>
+		<item quantity="other"><b>%,d</b> plays pending deletion</item>
+	</plurals>
+	<plurals name="users_synced_total">
+		<item quantity="one"><b>%,d</b> user updated through %s</item>
+		<item quantity="other"><b>%,d</b> users updated through %s</item>
+	</plurals>
+	<plurals name="users_unupdated_total">
+		<item quantity="one"><b>%,d</b> user not updated</item>
+		<item quantity="other"><b>%,d</b> users not updated</item>
 	</plurals>
 
 </resources>

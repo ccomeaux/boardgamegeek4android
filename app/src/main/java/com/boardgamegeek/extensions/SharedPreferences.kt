@@ -61,7 +61,7 @@ object AccountPreferences {
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
 const val PREFERENCES_KEY_SYNC_PLAYS = "syncPlays"
-const val PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp"
+const val PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP = "syncPlaysTimestamp"
 const val PREFERENCES_KEY_SYNC_BUDDIES = "syncBuddies"
 
 const val COLLECTION_STATUS_OWN = "own"

@@ -33,6 +33,8 @@ class SyncPlaysWorker @AssistedInject constructor(
     private var startTime = System.currentTimeMillis()
 
     override suspend fun doWork(): Result {
+        Timber.i("Plays sync request received")
+
         if (prefs[PREFERENCES_KEY_SYNC_PLAYS, false] != true) {
             Timber.i("Plays not set to sync")
             return Result.success()
@@ -44,26 +46,29 @@ class SyncPlaysWorker @AssistedInject constructor(
             startTime = System.currentTimeMillis()
 
             val newestSyncDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
-            downloadPlays(newestSyncDate, 0L)?.let { failureData ->
+            downloadPlays(newestSyncDate, 0L, PROGRESS_STEP_NEW)?.let { failureData ->
                 return Result.failure(failureData)
             }
             if (newestSyncDate > 0L) {
+                setProgress(PROGRESS_STEP_NEW, PROGRESS_ACTION_DELETING, minDate = newestSyncDate)
                 val deletedCount = playRepository.deleteUnupdatedPlaysSince(startTime, newestSyncDate)
                 Timber.i("Deleted $deletedCount unupdated plays since ${newestSyncDate.toDate()}")
             }
 
             val oldestDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE
             if (oldestDate > 0) {
-                downloadPlays(0L, oldestDate)?.let { failureData ->
+                downloadPlays(0L, oldestDate, PROGRESS_STEP_OLD)?.let { failureData ->
                     return Result.failure(failureData)
                 }
                 if (oldestDate != Long.MAX_VALUE) {
+                    setProgress(PROGRESS_STEP_OLD, PROGRESS_ACTION_DELETING, maxDate = oldestDate)
                     val deletedCount = playRepository.deleteUnupdatedPlaysBefore(startTime, oldestDate)
                     Timber.i("Deleted $deletedCount unupdated plays before ${oldestDate.toDate()}")
                 }
                 syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] = 0L
             } else Timber.i("Already downloaded all past plays")
 
+            setProgress(PROGRESS_STEP_STATS, PROGRESS_ACTION_UNKNOWN)
             playRepository.calculateStats()
             Timber.i("Plays synced successfully")
             Result.success()
@@ -73,9 +78,10 @@ class SyncPlaysWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun downloadPlays(minDate: Long, maxDate: Long): Data? {
+    private suspend fun downloadPlays(minDate: Long, maxDate: Long, step: Int): Data? {
         var page = 1
         do {
+            setProgress(step, PROGRESS_ACTION_WAITING, minDate, maxDate, page)
             if (page > 1) delay(playsFetchPauseMilliseconds)
 
             if (isStopped) {
@@ -97,8 +103,11 @@ class SyncPlaysWorker @AssistedInject constructor(
 
             var shouldContinue: Boolean
             try {
+                setProgress(step, PROGRESS_ACTION_DOWNLOADING, minDate, maxDate, page)
                 val (plays, hasMorePages) = playRepository.downloadPlays(minDate, maxDate, page)
                 val gameIds = plays.map { it.gameId }.toSet()
+
+                setProgress(step, PROGRESS_ACTION_SAVING, minDate, maxDate, page)
                 playRepository.saveFromSync(plays, startTime)
                 plays.maxOfOrNull { it.dateInMillis }?.let {
                     if (it > (syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L)) {
@@ -120,6 +129,18 @@ class SyncPlaysWorker @AssistedInject constructor(
             page++
         } while (shouldContinue)
         return null
+    }
+
+    private suspend fun setProgress(step: Int, action: Int, minDate: Long = 0L, maxDate: Long = 0L, page: Int = 1) {
+        setProgress(
+            workDataOf(
+                PROGRESS_STEP to step,
+                PROGRESS_MIN_DATE to minDate,
+                PROGRESS_MAX_DATE to maxDate,
+                PROGRESS_PAGE to page,
+                PROGRESS_ACTION to action,
+            )
+        )
     }
 
     private fun handleException(e: Exception): Data {
@@ -144,6 +165,23 @@ class SyncPlaysWorker @AssistedInject constructor(
         const val UNIQUE_WORK_NAME_AD_HOC = "${UNIQUE_WORK_NAME}.adhoc"
         const val STOPPED_REASON = "STOPPED_REASON"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
+
+        const val PROGRESS_STEP = "STEP"
+        const val PROGRESS_MIN_DATE = "MIN_DATE"
+        const val PROGRESS_MAX_DATE = "MAX_DATE"
+        const val PROGRESS_PAGE = "PAGE"
+        const val PROGRESS_ACTION = "ACTION"
+
+        const val PROGRESS_STEP_UNKNOWN = 0
+        const val PROGRESS_STEP_NEW = 1
+        const val PROGRESS_STEP_OLD = 2
+        const val PROGRESS_STEP_STATS = 3
+
+        const val PROGRESS_ACTION_UNKNOWN = 0
+        const val PROGRESS_ACTION_WAITING = 1
+        const val PROGRESS_ACTION_DOWNLOADING = 2
+        const val PROGRESS_ACTION_SAVING = 3
+        const val PROGRESS_ACTION_DELETING = 4
 
         fun requestSync(context: Context) {
             val workRequest = OneTimeWorkRequestBuilder<SyncPlaysWorker>()

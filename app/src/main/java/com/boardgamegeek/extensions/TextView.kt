@@ -7,16 +7,21 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 
 fun TextView.setTextOrHide(text: CharSequence?) {
-    this.text = text
-    isVisible = !text.isNullOrBlank()
+    this.setTextOrHide(text, !text.isNullOrBlank())
+}
+
+fun TextView.setTextOrHide(text: CharSequence?, shouldShow: Boolean) {
+    isVisible = shouldShow
+    if (shouldShow) this.text = text
 }
 
 fun TextView.setTextOrHide(@StringRes textResId: Int) {
-    isVisible = if (textResId == 0) {
+    isVisible = if (textResId == ResourcesCompat.ID_NULL) {
         false
     } else {
         this.setText(textResId)

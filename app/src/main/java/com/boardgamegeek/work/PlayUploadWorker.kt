@@ -3,11 +3,9 @@ package com.boardgamegeek.work
 import android.content.Context
 import androidx.annotation.StringRes
 import androidx.hilt.work.HiltWorker
-import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
-import androidx.work.WorkerParameters
-import androidx.work.workDataOf
+import androidx.work.*
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.createWorkConstraints
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.extensions.formatList
@@ -17,6 +15,7 @@ import com.boardgamegeek.repository.PlayRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 @HiltWorker
 class PlayUploadWorker @AssistedInject constructor(
@@ -113,5 +112,13 @@ class PlayUploadWorker @AssistedInject constructor(
         const val INTERNAL_IDS = "INTERNAL_IDS"
         const val GAME_ID = "GAME_ID"
         const val ERROR_MESSAGE = "ERROR_MESSAGE"
+
+        fun requestSync(context: Context) {
+            val workRequest = OneTimeWorkRequestBuilder<PlayUploadWorker>()
+                .setConstraints(context.createWorkConstraints())
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 30, TimeUnit.SECONDS)
+                .build()
+            WorkManager.getInstance(context).enqueue(workRequest)
+        }
     }
 }

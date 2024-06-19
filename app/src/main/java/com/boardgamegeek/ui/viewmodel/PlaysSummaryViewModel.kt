@@ -27,7 +27,7 @@ class PlaysSummaryViewModel @Inject constructor(
     private val username: LiveData<String?> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
 
     val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    val syncPlaysTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP)
+    val syncPlaysTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP)
     val oldestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
     val newestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
 
@@ -52,7 +52,7 @@ class PlaysSummaryViewModel @Inject constructor(
         if (enable)
             prefs[PREFERENCES_KEY_SYNC_PLAYS] = true
         else
-            prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = System.currentTimeMillis()
+            prefs[PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP] = System.currentTimeMillis()
     }
 
     fun refresh(): Boolean {

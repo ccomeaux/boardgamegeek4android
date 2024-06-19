@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<LinearLayout
+		android:id="@+id/containerView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
+		android:orientation="vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		tools:context=".ui.SyncActivity">
+
+		<com.google.android.material.switchmaterial.SwitchMaterial
+			android:id="@+id/syncBuddiesSwitch"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/sync" />
+
+		<TextView
+			android:id="@+id/playBuddiesDateView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/padding_standard"
+			android:visibility="gone"
+			tools:text="List of GeekBuddies synced last week."
+			tools:visibility="visible" />
+
+		<TextView
+			android:id="@+id/userCountView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/padding_standard"
+			android:visibility="gone"
+			tools:text="42 users synced as of yesterday"
+			tools:visibility="visible" />
+
+		<TextView
+			android:id="@+id/unupdatedUserCountView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/padding_standard"
+			android:visibility="gone"
+			tools:text="7 users not updated"
+			tools:visibility="visible" />
+
+		<LinearLayout
+			style="?attr/buttonBarStyle"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+			android:paddingVertical="@dimen/padding_standard">
+
+			<Button
+				android:id="@+id/cancelBuddiesButton"
+				style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/cancel" />
+
+			<Space
+				android:layout_width="@dimen/padding_extra"
+				android:layout_height="match_parent" />
+
+			<Button
+				android:id="@+id/syncBuddiesButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/sync_users"
+				tools:ignore="ButtonStyle" />
+		</LinearLayout>
+
+		<TextView
+			android:id="@+id/stepSyncingView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/padding_standard"
+			android:visibility="gone"
+			tools:text="Syncing something"
+			tools:visibility="visible" />
+
+		<TextView
+			android:id="@+id/currentUsernameSyncingView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/padding_standard"
+			android:visibility="gone"
+			tools:text="Meadowlark"
+			tools:visibility="visible" />
+
+		<com.google.android.material.progressindicator.LinearProgressIndicator
+			android:id="@+id/progressBar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:indeterminate="true"
+			android:visibility="gone"
+			tools:visibility="visible" />
+	</LinearLayout>
+</ScrollView>

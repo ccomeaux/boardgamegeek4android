@@ -1,15 +1,19 @@
 package com.boardgamegeek.ui
 
-import androidx.fragment.app.Fragment
-
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.boardgamegeek.R
+import com.boardgamegeek.ui.adapter.SyncPagerAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SyncActivity : TopLevelSinglePaneActivity() {
-    override val firebaseContentType = "Sync"
+class SyncActivity : TabActivity() {
+    private val adapter: SyncPagerAdapter by lazy {
+        SyncPagerAdapter(this)
+    }
 
-    override fun onCreatePane(): Fragment = SyncFragment()
+    override fun getPageTitle(position: Int): CharSequence = adapter.getPageTitle(position)
+
+    override fun createAdapter(): FragmentStateAdapter = adapter
 
     override val navigationItemId: Int = R.id.sync
 }

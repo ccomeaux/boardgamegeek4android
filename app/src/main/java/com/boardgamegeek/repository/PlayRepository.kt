@@ -72,6 +72,15 @@ class PlayRepository(
             .conflate()
     }
 
+    fun loadAllPlaysFlow(): Flow<List<Play>> {
+        return playDao.loadPlaysFlow()
+            .map {
+                it.map { entity -> entity.mapToModel() }
+            }
+            .flowOn(Dispatchers.Default)
+            .conflate()
+    }
+
     suspend fun loadUpdatingPlays(): List<Play> = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playDao.loadUpdatingPlays() }.map { it.mapToModel() }
     }
@@ -307,7 +316,7 @@ class PlayRepository(
             if (date != 0L) {
                 deleteUnupdatedPlaysSince(syncInitiatedTimestamp, date.addDay(1))
             }
-            prefs[PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP] = syncInitiatedTimestamp
+            prefs[PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP] = syncInitiatedTimestamp
             calculateStats()
             null
         } else {
