@@ -13,6 +13,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE_CURRENT
 import com.boardgamegeek.ui.DrawerActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.work.SyncCollectionWorker
@@ -147,7 +149,7 @@ class SettingsActivity : DrawerActivity() {
             when (key) {
                 PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    syncPrefs.requestPartialSync()
+                    syncPrefs[TIMESTAMP_COLLECTION_COMPLETE_CURRENT] = (syncPrefs[TIMESTAMP_COLLECTION_COMPLETE, 0L] ?: 0L)
                     needsCollectionSync = true
                 }
                 PREFERENCES_KEY_SYNC_PLAYS -> {

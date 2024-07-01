@@ -77,17 +77,30 @@ const val COLLECTION_STATUS_RATED = "rated"
 const val COLLECTION_STATUS_COMMENTED = "comment"
 const val COLLECTION_STATUS_HAS_PARTS = "hasparts"
 const val COLLECTION_STATUS_WANT_PARTS = "wantparts"
+private val COLLECTION_STATUSES = listOf(COLLECTION_STATUS_OWN, COLLECTION_STATUS_PREVIOUSLY_OWNED, COLLECTION_STATUS_PREORDERED, COLLECTION_STATUS_FOR_TRADE, COLLECTION_STATUS_WANT_IN_TRADE, COLLECTION_STATUS_WANT_TO_BUY, COLLECTION_STATUS_WANT_TO_PLAY, COLLECTION_STATUS_WISHLIST, COLLECTION_STATUS_PLAYED, COLLECTION_STATUS_RATED, COLLECTION_STATUS_COMMENTED, COLLECTION_STATUS_HAS_PARTS, COLLECTION_STATUS_WANT_PARTS)
 
 fun SharedPreferences.isCollectionSetToSync(): Boolean {
     return this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty().isNotEmpty()
 }
 
-fun SharedPreferences.addSyncStatus(status: String) {
-    if (status.isBlank()) return
-    if (this.isStatusSetToSync(status)) return
+fun SharedPreferences.addSyncStatus(status: String): Boolean {
+    if (status.isBlank()) return false
+    if (!COLLECTION_STATUSES.contains(status)) return false
+    if (this.isStatusSetToSync(status)) return false
     val statuses: MutableSet<String> = this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty().toMutableSet()
     statuses.add(status)
     this.putStringSet(PREFERENCES_KEY_SYNC_STATUSES, statuses)
+    return true
+}
+
+fun SharedPreferences.removeSyncStatus(status: String): Boolean {
+    if (status.isBlank()) return false
+    if (!this.isStatusSetToSync(status)) return false
+    val statuses: MutableSet<String> = this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty().toMutableSet()
+    val success = statuses.remove(status)
+    if (success)
+        this.putStringSet(PREFERENCES_KEY_SYNC_STATUSES, statuses)
+    return success
 }
 
 fun SharedPreferences.setSyncStatuses(statuses: Array<String>) {

@@ -31,7 +31,7 @@ import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.pref.noPreviousCollectionSync
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
@@ -240,7 +240,8 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         if (syncedStatuses.isEmpty()) {
             setEmptyStateForSettingsAction(R.string.empty_collection_sync_off)
         } else {
-            if (SyncPrefs.getPrefs(requireContext()).noPreviousCollectionSync()) {
+            val lastSyncTimestamp = SyncPrefs.getPrefs(requireContext())[TIMESTAMP_COLLECTION_COMPLETE, 0L] ?: 0L
+            if (lastSyncTimestamp == 0L) {
                 setEmptyStateForNoAction(R.string.empty_collection_sync_never)
             } else if (filters.isNotEmpty()) {
                 val appliedStatuses = filters.filterIsInstance<CollectionStatusFilterer>().firstOrNull()?.getSelectedStatusesSet().orEmpty()
