@@ -198,7 +198,6 @@ class SettingsActivity : DrawerActivity() {
             val dialogFragment: DialogFragment? = when (preference) {
                 is SignOutPreference -> SignOutDialogFragment.newInstance(preference.key)
                 is ConfirmDialogPreference -> ConfirmDialogFragment.newInstance(preference.key)
-                is SyncTimestampsDialogPreference -> SyncTimestampsDialogFragment.newInstance(preference.key)
                 else -> null
             }
 
