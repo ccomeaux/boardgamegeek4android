@@ -1,19 +1,36 @@
 package com.boardgamegeek.ui
 
-import androidx.viewpager2.adapter.FragmentStateAdapter
+import android.os.Bundle
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityTabBinding
 import com.boardgamegeek.ui.adapter.SyncPagerAdapter
+import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class SyncActivity : TabActivity() {
+class SyncActivity : TopLevelActivity() {
+    override val navigationItemId: Int = R.id.sync
+
+    private lateinit var binding: ActivityTabBinding
+
     private val adapter: SyncPagerAdapter by lazy {
         SyncPagerAdapter(this)
     }
 
-    override fun getPageTitle(position: Int): CharSequence = adapter.getPageTitle(position)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    override fun createAdapter(): FragmentStateAdapter = adapter
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-    override val navigationItemId: Int = R.id.sync
+        binding.viewPager.adapter = adapter
+
+        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+            tab.text = adapter.getPageTitle(position)
+        }.attach()
+    }
+
+    override fun bindLayout() {
+        binding = ActivityTabBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+    }
 }
