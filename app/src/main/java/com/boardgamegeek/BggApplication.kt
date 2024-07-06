@@ -5,6 +5,7 @@ import android.os.Build.VERSION_CODES
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
+import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
@@ -40,9 +41,13 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
     lateinit var workerFactory: HiltWorkerFactory
 
     override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
+        get() {
+            val factory = Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+            return (if (BuildConfig.DEBUG){
+                factory.setMinimumLoggingLevel(Log.VERBOSE)
+            } else factory).build()
+        }
 
     override fun onCreate() {
         super.onCreate()
