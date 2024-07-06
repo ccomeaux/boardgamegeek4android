@@ -48,9 +48,6 @@ android {
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
 
-        def buildTime = new GregorianCalendar().format("yyyy-MM-dd h:mm:ss a z")
-        buildConfigField 'String', 'BUILD_TIME', "\"${buildTime}\""
-
         vectorDrawables.useSupportLibrary = true
 
         javaCompileOptions {
@@ -61,22 +58,9 @@ android {
     }
 
     buildTypes {
-        applicationVariants.all { variant ->
-            variant.outputs.all { output ->
-                outputFileName = output.outputFile.name.replace(".apk", "-" + defaultConfig.versionName + ".apk")
-            }
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            versionNameSuffix " RC${versionBuild}"
-        }
-        debug {
-            if (versionBuild > 0) {
-                versionNameSuffix " build ${versionBuild}"
-            } else {
-                versionNameSuffix
-            }
         }
     }
     compileOptions {
