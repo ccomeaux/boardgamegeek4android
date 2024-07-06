@@ -175,7 +175,7 @@ class LogPlayViewModel @Inject constructor(
                         _dateInMillis.postValue(today())
                         val players = if (gameSupportsCustomSort) play.players.map { player ->
                             player.copy(score = "", rating = 0.0, isWin = false, isNew = false, startingPosition = "")
-                        } else play.players.map { player ->
+                        } else play.sortedPlayers.map { player ->
                             player.copy(score = "", rating = 0.0, isWin = false, isNew = false)
                         }
                         _players.postValue(players)
@@ -185,7 +185,7 @@ class LogPlayViewModel @Inject constructor(
                         _incomplete.postValue(play.incomplete)
                         _doNotCountWinStats.postValue(play.noWinStats)
                         _comments.postValue(play.comments)
-                        _players.postValue(play.players)
+                        _players.postValue(play.sortedPlayers)
                     }
                     _location.postValue(play.location)
                     when {

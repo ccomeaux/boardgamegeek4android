@@ -185,7 +185,7 @@ class PlayFragment : Fragment() {
 
         // players
         binding.playersLabel.isVisible = play.players.isNotEmpty()
-        adapter.players = play.players
+        adapter.players = play.sortedPlayers
 
         binding.progressBar.hide()
         binding.emptyView.isVisible = false
@@ -312,7 +312,7 @@ class PlayFragment : Fragment() {
                                         sb.append("\n").append(describePlayer(player))
                                     }
                                 } else {
-                                    for (i in it.players.indices) {
+                                    for (i in it.sortedPlayers.indices) {
                                         it.getPlayerAtSeat(i + 1)?.let { player ->
                                             sb.append("\n").append(describePlayer(player))
                                         }

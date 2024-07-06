@@ -68,7 +68,7 @@ fun Play.mapToFormBodyForUpsert(): FormBody.Builder {
         .add("incomplete", if (this.incomplete) "1" else "0")
         .add("nowinstats", if (this.noWinStats) "1" else "0")
         .add("comments", this.comments)
-    players.forEachIndexed { i, player ->
+    sortedPlayers.forEachIndexed { i, player ->
         bodyBuilder
             .add(createIndexedKey(i, "playerid"), "player_$i")
             .add(createIndexedKey(i, "name"), player.name)
@@ -123,7 +123,7 @@ fun PlayWithPlayersEntity.mapToModel() = Play(
     dirtyTimestamp = play.dirtyTimestamp ?: 0L,
     deleteTimestamp = play.deleteTimestamp ?: 0L,
     updateTimestamp = play.updateTimestamp ?: 0L,
-    _players = players.map { it.mapToModel() }.sortedBy { it.seat },
+    _players = players.map { it.mapToModel() },
 )
 
 fun PlayWithPlayersAndImagesEntity.mapToModel() = Play(
@@ -147,7 +147,7 @@ fun PlayWithPlayersAndImagesEntity.mapToModel() = Play(
     imageUrl = gameImageUrl.orEmpty(),
     thumbnailUrl = gameThumbnailUrl.orEmpty(),
     heroImageUrl = gameHeroImageUrl.orEmpty(),
-    _players = players.map { it.mapToModel() }.sortedBy { it.seat },
+    _players = players.map { it.mapToModel() },
 )
 
 fun PlayPlayerEntity.mapToModel() = PlayPlayer(

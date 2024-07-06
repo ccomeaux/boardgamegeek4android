@@ -38,6 +38,9 @@ data class Play(
     val players
         get() = _players.orEmpty()
 
+    val sortedPlayers
+        get() = players.sortedBy { it.seat }
+
     val isSynced
         get() = playId > 0
 
@@ -87,7 +90,7 @@ data class Play(
         sb.append(noWinStats).append("\n")
         sb.append(location).append("\n")
         sb.append(comments).append("\n")
-        players.forEach { player ->
+        sortedPlayers.forEach { player ->
             sb.append(player.username).append("\n")
             sb.append(player.userId).append("\n")
             sb.append(player.name).append("\n")
