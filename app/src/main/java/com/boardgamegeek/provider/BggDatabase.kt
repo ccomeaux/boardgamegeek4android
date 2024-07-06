@@ -24,7 +24,7 @@ import java.io.IOException
 import java.util.*
 
 class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    var syncPrefs: SharedPreferences = SyncPrefs.getPrefs(context!!)
+    private var syncPrefs: SharedPreferences = SyncPrefs.getPrefs(context!!)
 
     object GamesDesigners {
         const val GAME_ID = Games.Columns.GAME_ID
