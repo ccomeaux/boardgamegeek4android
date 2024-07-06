@@ -119,14 +119,14 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
         binding.progressBar.show()
         viewModel.selectedViewId.observe(viewLifecycleOwner) {
-            binding.progressBar.show()
-            binding.listView.isVisible = false
-            viewId = it
-            binding.footerToolbar.menu.findItem(R.id.menu_create_shortcut)?.isEnabled = it > 0
+            it?.let {
+                binding.progressBar.show()
+                binding.listView.isVisible = false
+                viewId = it
+                binding.footerToolbar.menu.findItem(R.id.menu_create_shortcut)?.isEnabled = it > 0
+            }
         }
-        viewModel.selectedViewName.observe(viewLifecycleOwner) {
-            viewName = it
-        }
+        viewModel.selectedViewName.observe(viewLifecycleOwner) { it?.let { viewName = it } }
         viewModel.views.observe(viewLifecycleOwner) {
             binding.footerToolbar.menu.findItem(R.id.menu_collection_view_delete)?.isEnabled = it?.isNotEmpty() == true
         }

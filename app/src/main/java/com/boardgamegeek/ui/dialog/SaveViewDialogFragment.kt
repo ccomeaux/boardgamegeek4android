@@ -83,8 +83,10 @@ class SaveViewDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val viewModel = ViewModelProvider(requireActivity())[CollectionViewViewModel::class.java]
         binding.nameView.setAndSelectExistingText(name)
+        val defaultViewId = viewModel.defaultViewId.value
         binding.defaultViewCheckBox.isChecked =
-            viewModel.defaultViewId != CollectionViewPrefs.DEFAULT_DEFAULT_ID && viewModel.findViewId(name) == viewModel.defaultViewId
+            defaultViewId != CollectionViewPrefs.DEFAULT_DEFAULT_ID &&
+            viewModel.findViewId(name) == defaultViewId
         binding.descriptionView.text = description
     }
 

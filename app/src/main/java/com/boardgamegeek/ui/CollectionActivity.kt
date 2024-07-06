@@ -26,7 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class CollectionActivity : TopLevelSinglePaneActivity() {
-    private var viewId: Int = 0
+    private var viewId: Int = CollectionViewPrefs.DEFAULT_DEFAULT_ID
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = BggContract.INVALID_ID.toLong()
     private var hideNavigation = false
@@ -69,14 +69,14 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 notifyLoggedPlay(it)
             }
         }
-        viewModel.selectedViewId.observe(this) { id: Int -> viewId = id }
+        viewModel.selectedViewId.observe(this) { id -> id?.let { viewId = it } }
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
             }
             selectView(
-                if (hideNavigation) CollectionViewPrefs.DEFAULT_DEFAULT_ID else intent.getIntExtra(KEY_VIEW_ID, viewModel.defaultViewId),
-                !hideNavigation
+                if (hideNavigation) CollectionViewPrefs.DEFAULT_DEFAULT_ID else intent.getIntExtra(KEY_VIEW_ID, viewModel.defaultViewId.value ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID),
+                false
             )
         }
     }

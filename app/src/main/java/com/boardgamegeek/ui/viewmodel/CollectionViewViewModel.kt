@@ -14,6 +14,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.livedata.ThrottledLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionViewRepository
@@ -40,8 +41,7 @@ class CollectionViewViewModel @Inject constructor(
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
-    val defaultViewId
-        get() = prefs[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID, CollectionViewPrefs.DEFAULT_DEFAULT_ID] ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID
+    val defaultViewId: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID)
 
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
 
@@ -117,7 +117,7 @@ class CollectionViewViewModel @Inject constructor(
 
     init {
         viewModelScope.launch { initMediators() }
-        _selectedViewId.value = defaultViewId
+        _selectedViewId.value = defaultViewId.value
     }
 
     private suspend fun initMediators() = withContext(Dispatchers.Default) {
@@ -346,7 +346,7 @@ class CollectionViewViewModel @Inject constructor(
                 logAction("Delete", name)
                 postToastMessage(R.string.msg_collection_view_deleted, name)
                 if (viewId == _selectedViewId.value) {
-                    selectView(defaultViewId)
+                    defaultViewId.value?.let { selectView(it) }
                 }
             }
         }
