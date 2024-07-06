@@ -39,18 +39,18 @@ interface BggService {
     ): PlaysResponse
 
     @GET("/xmlapi2/user")
-    suspend fun user(@Query("name") name: String?): User
+    suspend fun user(@Query("name") name: String?): UserRemote
 
     @GET("/xmlapi2/user")
-    suspend fun user(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): User
+    suspend fun user(@Query("name") name: String?, @Query("buddies") buddies: Int, @Query("page") page: Int): UserRemote
 
     @GET("/xmlapi/{type}/{id}")
-    suspend fun person(@Path("type") type: PersonType?, @Path("id") id: Int): Person
+    suspend fun person(@Path("type") type: PersonType?, @Path("id") id: Int): PersonResponseV1
 
     @GET("/xmlapi2/person")
     suspend fun person(@Query("id") id: Int): PersonResponse
 
-    @GET("/xmlapi2/company/{id}")
+    @GET("/xmlapi2/company")
     suspend fun company(@Query("id") id: Int): CompanyResponse
 
     @GET("/xmlapi2/search")

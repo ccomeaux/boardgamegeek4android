@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE", "unused")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package com.boardgamegeek.extensions
 
@@ -60,7 +60,7 @@ fun PackageManager.getPackageInfoCompat(packageName: String, flags: Int = 0): Pa
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getPackageInfo(packageName, PackageInfoFlags.of(flags.toLong()))
     } else {
-        @Suppress("DEPRECATION") getPackageInfo(packageName, flags)
+        getPackageInfo(packageName, flags)
     }
 /**
  * Get the version name of the package, or "?.?" if not found.

@@ -1,789 +1,200 @@
 package com.boardgamegeek.db
 
-import android.content.ContentProviderOperation
-import android.content.ContentProviderOperation.Builder
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
-import android.graphics.Color
-import android.net.Uri
-import android.provider.BaseColumns
-import android.text.format.DateUtils
-import androidx.core.content.contentValuesOf
-import androidx.core.database.getDoubleOrNull
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
-import androidx.core.database.getStringOrNull
-import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.Collection
-import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.provider.BggContract.Companion.PATH_ARTISTS
-import com.boardgamegeek.provider.BggContract.Companion.PATH_CATEGORIES
-import com.boardgamegeek.provider.BggContract.Companion.PATH_DESIGNERS
-import com.boardgamegeek.provider.BggContract.Companion.PATH_EXPANSIONS
-import com.boardgamegeek.provider.BggContract.Companion.PATH_MECHANICS
-import com.boardgamegeek.provider.BggContract.Companion.PATH_PUBLISHERS
-import com.boardgamegeek.provider.BggDatabase.*
-import com.boardgamegeek.util.DataUtils
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import timber.log.Timber
+import androidx.room.*
+import com.boardgamegeek.db.model.*
+import kotlinx.coroutines.flow.Flow
 
-class GameDao(private val context: Context) {
-    private val resolver: ContentResolver = context.contentResolver
-
-    suspend fun load(gameId: Int): GameEntity? = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadEntity(
-                Games.buildGameUri(gameId),
-                arrayOf(
-                    Games.Columns.GAME_ID,
-                    Games.Columns.GAME_NAME,
-                    Games.Columns.DESCRIPTION,
-                    Games.Columns.SUBTYPE,
-                    Games.Columns.THUMBNAIL_URL,
-                    Games.Columns.IMAGE_URL, // 5
-                    Games.Columns.YEAR_PUBLISHED,
-                    Games.Columns.MIN_PLAYERS,
-                    Games.Columns.MAX_PLAYERS,
-                    Games.Columns.PLAYING_TIME,
-                    Games.Columns.MIN_PLAYING_TIME, // 10
-                    Games.Columns.MAX_PLAYING_TIME,
-                    Games.Columns.MINIMUM_AGE,
-                    Games.Columns.HERO_IMAGE_URL,
-                    Games.Columns.STATS_AVERAGE,
-                    Games.Columns.STATS_USERS_RATED, // 15
-                    Games.Columns.STATS_NUMBER_COMMENTS,
-                    Games.Columns.UPDATED,
-                    Games.Columns.UPDATED_PLAYS,
-                    Games.Columns.GAME_RANK,
-                    Games.Columns.STATS_STANDARD_DEVIATION, // 20
-                    Games.Columns.STATS_BAYES_AVERAGE,
-                    Games.Columns.STATS_AVERAGE_WEIGHT,
-                    Games.Columns.STATS_NUMBER_WEIGHTS,
-                    Games.Columns.STATS_NUMBER_OWNED,
-                    Games.Columns.STATS_NUMBER_TRADING, // 25
-                    Games.Columns.STATS_NUMBER_WANTING,
-                    Games.Columns.STATS_NUMBER_WISHING,
-                    Games.Columns.CUSTOM_PLAYER_SORT,
-                    Games.Columns.STARRED,
-                    Games.Columns.POLLS_COUNT, // 30
-                    Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                    Games.Columns.ICON_COLOR,
-                    Games.Columns.DARK_COLOR,
-                    Games.Columns.WINS_COLOR,
-                    Games.Columns.WINNABLE_PLAYS_COLOR, // 35
-                    Games.Columns.ALL_PLAYS_COLOR,
-                    Games.Columns.GAME_SORT_NAME,
-                )
-            ) {
-                GameEntity(
-                    id = it.getInt(0),
-                    name = it.getStringOrNull(1).orEmpty(),
-                    description = it.getStringOrNull(2).orEmpty(),
-                    subtype = it.getStringOrNull(3).toSubtype(),
-                    thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                    imageUrl = it.getStringOrNull(5).orEmpty(),
-                    yearPublished = it.getIntOrNull(6) ?: GameEntity.YEAR_UNKNOWN,
-                    minPlayers = it.getIntOrNull(7) ?: 0,
-                    maxPlayers = it.getIntOrNull(8) ?: 0,
-                    playingTime = it.getIntOrNull(9) ?: 0,
-                    minPlayingTime = it.getIntOrNull(10) ?: 0,
-                    maxPlayingTime = it.getIntOrNull(11) ?: 0,
-                    minimumAge = it.getIntOrNull(12) ?: 0,
-                    heroImageUrl = it.getStringOrNull(13).orEmpty(),
-                    rating = it.getDoubleOrNull(14) ?: 0.0,
-                    numberOfRatings = it.getIntOrNull(15) ?: 0,
-                    numberOfComments = it.getIntOrNull(16) ?: 0,
-                    overallRank = it.getIntOrNull(19) ?: GameRankEntity.RANK_UNKNOWN,
-                    standardDeviation = it.getDoubleOrNull(20) ?: 0.0,
-                    bayesAverage = it.getDoubleOrNull(21) ?: 0.0,
-                    averageWeight = it.getDoubleOrNull(22) ?: 0.0,
-                    numberOfUsersWeighting = it.getIntOrNull(23) ?: 0,
-                    numberOfUsersOwned = it.getIntOrNull(24) ?: 0,
-                    numberOfUsersTrading = it.getIntOrNull(25) ?: 0,
-                    numberOfUsersWanting = it.getIntOrNull(26) ?: 0,
-                    numberOfUsersWishListing = it.getIntOrNull(27) ?: 0,
-                    updated = it.getLongOrNull(17) ?: 0L,
-                    updatedPlays = it.getLongOrNull(18) ?: 0L,
-                    customPlayerSort = it.getBoolean(28),
-                    isFavorite = it.getBoolean(29),
-                    pollVoteTotal = it.getIntOrNull(30) ?: 0,
-                    suggestedPlayerCountPollVoteTotal = it.getIntOrNull(31) ?: 0,
-                    iconColor = it.getIntOrNull(32) ?: Color.TRANSPARENT,
-                    darkColor = it.getIntOrNull(33) ?: Color.TRANSPARENT,
-                    winsColor = it.getIntOrNull(34) ?: Color.TRANSPARENT,
-                    winnablePlaysColor = it.getIntOrNull(35) ?: Color.TRANSPARENT,
-                    allPlaysColor = it.getIntOrNull(36) ?: Color.TRANSPARENT,
-                    sortName = it.getStringOrNull(37).orEmpty(),
-                )
-            }
-        } else null
-    }
-
-    suspend fun loadRanks(gameId: Int): List<GameRankEntity> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            val uri = Games.buildRanksUri(gameId)
-            context.contentResolver.loadList(
-                uri,
-                arrayOf(
-                    GameRanks.Columns.GAME_RANK_ID,
-                    GameRanks.Columns.GAME_RANK_TYPE,
-                    GameRanks.Columns.GAME_RANK_NAME,
-                    GameRanks.Columns.GAME_RANK_FRIENDLY_NAME,
-                    GameRanks.Columns.GAME_RANK_VALUE,
-                    GameRanks.Columns.GAME_RANK_BAYES_AVERAGE,
-                )
-            ) {
-                GameRankEntity(
-                    id = it.getIntOrNull(0) ?: INVALID_ID,
-                    type = it.getStringOrNull(1).orEmpty(),
-                    name = it.getStringOrNull(2).orEmpty(),
-                    friendlyName = it.getStringOrNull(3).orEmpty(),
-                    value = it.getIntOrNull(4) ?: GameRankEntity.RANK_UNKNOWN,
-                    bayesAverage = it.getDoubleOrNull(5) ?: 0.0,
-                )
-            }
-        } else emptyList()
-    }
-
-    enum class PollType(val code: String) {
-        LANGUAGE_DEPENDENCE("language_dependence"),
-
-        @Suppress("SpellCheckingInspection")
-        SUGGESTED_PLAYER_AGE("suggested_playerage"),
-    }
-
-    suspend fun loadPoll(gameId: Int, pollType: PollType): GamePollEntity? = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            val results = context.contentResolver.loadList(
-                Games.buildPollResultsResultUri(gameId, pollType.code),
-                arrayOf(
-                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL,
-                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE,
-                    GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES,
-                )
-            ) {
-                GamePollResultEntity(
-                    level = it.getIntOrNull(0) ?: 0,
-                    value = it.getStringOrNull(1).orEmpty(),
-                    numberOfVotes = it.getIntOrNull(2) ?: 0,
-                )
-            }
-            GamePollEntity(results)
-        } else null
-    }
-
-    suspend fun loadPlayerPoll(gameId: Int): GamePlayerPollEntity? = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            val results = context.contentResolver.loadList(
-                Games.buildSuggestedPlayerCountPollResultsUri(gameId),
-                arrayOf(
-                    Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL,
-                    GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT,
-                    GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT,
-                    GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT,
-                    GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT,
-                    GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION,
-                )
-            ) {
-                GamePlayerPollResultsEntity(
-                    totalVotes = it.getIntOrNull(0) ?: 0,
-                    playerCount = it.getStringOrNull(1).orEmpty(),
-                    bestVoteCount = it.getIntOrNull(2) ?: 0,
-                    recommendedVoteCount = it.getIntOrNull(3) ?: 0,
-                    notRecommendedVoteCount = it.getIntOrNull(4) ?: 0,
-                    recommendation = it.getIntOrNull(5) ?: GamePlayerPollResultsEntity.UNKNOWN,
-                )
-            }
-            GamePlayerPollEntity(results)
-        } else null
-    }
-
-    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
-        val games = mutableListOf<Pair<Int, String>>()
-        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
-        context.contentResolver.loadList(
-            Games.CONTENT_URI,
-            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
-            "${Tables.GAMES}.${Games.Columns.UPDATED}".whereNotZeroOrNull(),
-            null,
-            "${Tables.GAMES}.${Games.Columns.UPDATED_LIST}$limit"
-        ) {
-            games += it.getInt(0) to it.getString(1)
-        }
-        games
-    }
-
-    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
-        val games = mutableListOf<Pair<Int, String>>()
-        val limit = if (gamesPerFetch > 0) " LIMIT $gamesPerFetch" else ""
-        context.contentResolver.loadList(
-            Games.CONTENT_URI,
-            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
-            "${Tables.GAMES}.${Games.Columns.UPDATED}".whereZeroOrNull(),
-            null,
-            "${Tables.GAMES}.${Games.Columns.UPDATED_LIST}$limit",
-        ) {
-            games += it.getInt(0) to it.getString(1)
-        }
-        games
-    }
-
-
-    /**
-     * Get a list of games, sorted by least recently updated, that
-     * 1. have no associated collection record
-     * 2. haven't been viewed in a configurable number of hours
-     * 3. and have 0 plays (if plays are being synced)
-     */
-    suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
-        val games = mutableListOf<Pair<Int, String>>()
-        var selection = "${Tables.COLLECTION}.${Collection.Columns.GAME_ID} IS NULL AND ${Tables.GAMES}.${Games.Columns.LAST_VIEWED}<?"
-        if (includeUnplayedGames) {
-            selection += " AND ${Tables.GAMES}.${Games.Columns.NUM_PLAYS}=0"
-        }
-        context.contentResolver.loadList(
-            Games.CONTENT_URI,
-            arrayOf(Games.Columns.GAME_ID, Games.Columns.GAME_NAME),
-            selection,
-            arrayOf(hoursAgo.toString()),
-            "${Tables.GAMES}.${Games.Columns.UPDATED}"
-        ) {
-            games += it.getInt(0) to it.getString(1)
-        }
-        games
-    }
-
-    suspend fun loadDesigners(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildDesignersUri(gameId),
-            arrayOf(
-                Designers.Columns.DESIGNER_ID,
-                Designers.Columns.DESIGNER_NAME,
-                Designers.Columns.DESIGNER_THUMBNAIL_URL,
-            )
-        )
-    }
-
-    suspend fun loadArtists(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildArtistsUri(gameId),
-            arrayOf(
-                Artists.Columns.ARTIST_ID,
-                Artists.Columns.ARTIST_NAME,
-                Artists.Columns.ARTIST_THUMBNAIL_URL,
-            )
-        )
-    }
-
-    suspend fun loadPublishers(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildPublishersUri(gameId),
-            arrayOf(
-                Publishers.Columns.PUBLISHER_ID,
-                Publishers.Columns.PUBLISHER_NAME,
-                Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
-            )
-        )
-    }
-
-    suspend fun loadCategories(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildCategoriesUri(gameId),
-            arrayOf(
-                Categories.Columns.CATEGORY_ID,
-                Categories.Columns.CATEGORY_NAME,
-            )
-        )
-    }
-
-    suspend fun loadMechanics(gameId: Int): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        loadDetails(
-            gameId,
-            Games.buildMechanicsUri(gameId),
-            arrayOf(
-                Mechanics.Columns.MECHANIC_ID,
-                Mechanics.Columns.MECHANIC_NAME,
-            )
-        )
-    }
-
-    private suspend fun loadDetails(gameId: Int, uri: Uri, projection: Array<String>): List<GameDetailEntity> = withContext(Dispatchers.IO) {
-        if (gameId != INVALID_ID) {
-            context.contentResolver.loadList(uri, projection) {
-                val url = if (projection.size > 2) it.getString(2).orEmpty() else ""
-                GameDetailEntity(
-                    it.getInt(0),
-                    it.getString(1),
-                    thumbnailUrl = url,
-                )
-            }
-        } else emptyList()
-    }
-
-    suspend fun loadExpansions(gameId: Int, inbound: Boolean = false): List<GameExpansionsEntity> =
-        withContext(Dispatchers.IO) {
-            val results = arrayListOf<GameExpansionsEntity>()
-            if (gameId != INVALID_ID) {
-                val briefResults = context.contentResolver.loadList(
-                    Games.buildExpansionsUri(gameId),
-                    arrayOf(
-                        GamesExpansions.Columns.EXPANSION_ID,
-                        GamesExpansions.Columns.EXPANSION_NAME,
-                        Games.Columns.THUMBNAIL_URL,
-                    ),
-                    selection = "${GamesExpansions.Columns.INBOUND}=?",
-                    selectionArgs = arrayOf(if (inbound) "1" else "0")
-                ) {
-                    GameExpansionsEntity(
-                        it.getInt(0),
-                        it.getString(1),
-                        it.getString(2).orEmpty(),
-                    )
-                }
-                for (result in briefResults) {
-                    val resultsWithCollectionInfo = context.contentResolver.loadList(
-                        Collection.CONTENT_URI,
-                        projection = arrayOf(
-                            Collection.Columns.STATUS_OWN,
-                            Collection.Columns.STATUS_PREVIOUSLY_OWNED,
-                            Collection.Columns.STATUS_PREORDERED,
-                            Collection.Columns.STATUS_FOR_TRADE,
-                            Collection.Columns.STATUS_WANT,
-                            Collection.Columns.STATUS_WANT_TO_PLAY,
-                            Collection.Columns.STATUS_WANT_TO_BUY,
-                            Collection.Columns.STATUS_WISHLIST,
-                            Collection.Columns.STATUS_WISHLIST_PRIORITY,
-                            Games.Columns.NUM_PLAYS,
-                            Collection.Columns.RATING,
-                            Collection.Columns.COMMENT
-                        ),
-                        selection = "collection.${Collection.Columns.GAME_ID}=?",
-                        selectionArgs = arrayOf(result.id.toString())
-                    ) {
-                        result.copy(
-                            own = it.getBoolean(0),
-                            previouslyOwned = it.getBoolean(1),
-                            preOrdered = it.getBoolean(2),
-                            forTrade = it.getBoolean(3),
-                            wantInTrade = it.getBoolean(4),
-                            wantToPlay = it.getBoolean(5),
-                            wantToBuy = it.getBoolean(6),
-                            wishList = it.getBoolean(7),
-                            wishListPriority = it.getIntOrNull(8) ?: GameExpansionsEntity.WISHLIST_PRIORITY_UNKNOWN,
-                            numberOfPlays = it.getIntOrNull(9) ?: 0,
-                            rating = it.getDoubleOrNull(10) ?: 0.0,
-                            comment = it.getStringOrNull(11).orEmpty(),
-                        )
-                    }
-                    if (resultsWithCollectionInfo.isEmpty())
-                        results += result
-                    else
-                        results += resultsWithCollectionInfo
-                }
-            }
-            results
-        }
-
-    suspend fun loadPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
-        context.contentResolver.queryStrings(Games.buildColorsUri(gameId), GameColors.Columns.COLOR).filterNot { it.isBlank() }
-    }
-
-    suspend fun loadPlayColors(): List<Pair<Int, String>> = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            GameColors.CONTENT_URI,
-            arrayOf(GameColors.Columns.GAME_ID, GameColors.Columns.COLOR),
-        ) {
-            (it.getIntOrNull(0) ?: INVALID_ID) to it.getStringOrNull(1).orEmpty()
-        }
-    }
-
-    suspend fun loadGamesForPlayStats(
-        includeIncompletePlays: Boolean,
-        includeExpansions: Boolean,
-        includeAccessories: Boolean
-    ): List<GameForPlayStatEntity> = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            Games.CONTENT_PLAYS_URI,
-            arrayOf(
-                Games.Columns.GAME_ID,
-                Games.Columns.GAME_NAME,
-                Games.Columns.GAME_RANK,
-                Plays.Columns.SUM_QUANTITY,
-            ),
-            selection = mutableListOf<String>().apply {
-                add(Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull())
-                if (!includeIncompletePlays) {
-                    add(Plays.Columns.INCOMPLETE.whereZeroOrNull())
-                }
-                if (!includeExpansions && !includeAccessories) {
-                    add(Games.Columns.SUBTYPE.whereEqualsOrNull())
-                } else if (!includeExpansions || !includeAccessories) {
-                    add(Games.Columns.SUBTYPE.whereNotEqualsOrNull())
-                }
-            }.joinTo(" AND ").toString(),
-            selectionArgs = mutableListOf<String>().apply {
-                if (!includeExpansions && !includeAccessories) {
-                    add(GameEntity.Subtype.BOARDGAME.code)
-                } else if (!includeExpansions) {
-                    add(GameEntity.Subtype.BOARDGAME_EXPANSION.code)
-                } else if (!includeAccessories) {
-                    add(GameEntity.Subtype.BOARDGAME_ACCESSORY.code)
-                }
-            }.toTypedArray(),
-            sortOrder = "${Plays.Columns.SUM_QUANTITY} DESC, ${Games.Columns.GAME_SORT_NAME} ASC"
-        ) {
-            GameForPlayStatEntity(
-                id = it.getIntOrNull(0) ?: INVALID_ID,
-                name = it.getStringOrNull(1).orEmpty(),
-                playCount = it.getIntOrNull(3) ?: 0,
-                bggRank = it.getIntOrNull(2) ?: GameRankEntity.RANK_UNKNOWN,
-            )
-        }
-    }
-
-    suspend fun delete(gameId: Int): Int = withContext(Dispatchers.IO) {
-        if (gameId == INVALID_ID) 0
-        else resolver.delete(Games.buildGameUri(gameId), null, null)
-    }
-
-    suspend fun delete(): Int = withContext(Dispatchers.IO) {
-        resolver.delete(Games.CONTENT_URI, null, null)
-    }
-
-    suspend fun insertColor(gameId: Int, color: String) = withContext(Dispatchers.IO) {
-        resolver.insert(Games.buildColorsUri(gameId), contentValuesOf(GameColors.Columns.COLOR to color))
-    }
-
-    suspend fun deleteColor(gameId: Int, color: String): Int = withContext(Dispatchers.IO) {
-        resolver.delete(Games.buildColorsUri(gameId, color), null, null)
-    }
-
-    suspend fun insertColors(gameId: Int, colors: List<String>): Int = withContext(Dispatchers.IO) {
-        if (colors.isEmpty()) 0
-        else {
-            val values = colors.map { contentValuesOf(GameColors.Columns.COLOR to it) }
-            resolver.bulkInsert(Games.buildColorsUri(gameId), values.toTypedArray())
-        }
-    }
-
-    suspend fun update(gameId: Int, values: ContentValues) = withContext(Dispatchers.IO) {
-        resolver.update(Games.buildGameUri(gameId), values, null, null)
-    }
-
-    suspend fun save(game: GameEntity, updateTime: Long) = withContext(Dispatchers.IO) {
-        if (game.name.isBlank()) {
-            Timber.w("Missing name from game ID=${game.id}")
+@Dao
+interface GameDao {
+    @Transaction
+    suspend fun upsert(game: GameForUpsert): Long {
+        val internalId = if (game.header.internalId == 0L) {
+            insertGame(game.header)
         } else {
-            Timber.i("Saving game ${game.name} [${game.id}]")
-
-            val batch = arrayListOf<ContentProviderOperation>()
-
-            val cpoBuilder: Builder
-            val values = toValues(game, updateTime)
-            val internalId = resolver.queryLong(Games.buildGameUri(game.id), BaseColumns._ID, INVALID_ID.toLong())
-            cpoBuilder = if (internalId != INVALID_ID.toLong()) {
-                values.remove(Games.Columns.GAME_ID)
-                if (shouldClearHeroImageUrl(game)) {
-                    values.put(Games.Columns.HERO_IMAGE_URL, "")
-                }
-                ContentProviderOperation.newUpdate(Games.buildGameUri(game.id))
-            } else {
-                ContentProviderOperation.newInsert(Games.CONTENT_URI)
-            }
-
-            batch += cpoBuilder.withValues(values).withYieldAllowed(true).build()
-            batch += createRanksBatch(game)
-            batch += createPollsBatch(game)
-            batch += createPlayerPollBatch(game.id, game.playerPoll)
-            batch += createExpansionsBatch(game.id, game.expansions)
-
-            saveReference(game.designers, Designers.CONTENT_URI, Designers.Columns.DESIGNER_ID, Designers.Columns.DESIGNER_NAME)
-            saveReference(game.artists, Artists.CONTENT_URI, Artists.Columns.ARTIST_ID, Artists.Columns.ARTIST_NAME)
-            saveReference(game.publishers, Publishers.CONTENT_URI, Publishers.Columns.PUBLISHER_ID, Publishers.Columns.PUBLISHER_NAME)
-            saveReference(game.categories, Categories.CONTENT_URI, Categories.Columns.CATEGORY_ID, Categories.Columns.CATEGORY_NAME)
-            saveReference(game.mechanics, Mechanics.CONTENT_URI, Mechanics.Columns.MECHANIC_ID, Mechanics.Columns.MECHANIC_NAME)
-
-            batch += createAssociationBatch(game.id, game.designers, PATH_DESIGNERS, GamesDesigners.DESIGNER_ID)
-            batch += createAssociationBatch(game.id, game.artists, PATH_ARTISTS, GamesArtists.ARTIST_ID)
-            batch += createAssociationBatch(game.id, game.publishers, PATH_PUBLISHERS, GamesPublishers.PUBLISHER_ID)
-            batch += createAssociationBatch(game.id, game.categories, PATH_CATEGORIES, GamesCategories.CATEGORY_ID)
-            batch += createAssociationBatch(game.id, game.mechanics, PATH_MECHANICS, GamesMechanics.MECHANIC_ID)
-
-            resolver.applyBatch(batch, "Game ${game.name} [${game.id}]")
-            val dateTime = DateUtils.formatDateTime(context, updateTime, DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME)
-            if (internalId == INVALID_ID.toLong()) {
-                Timber.i("Inserted game ${game.name} [${game.id}] at $dateTime")
-            } else {
-                Timber.i("Updated game ${game.name} [${game.id}] (${internalId}) at $dateTime")
-            }
+            updateGame(game.header)
+            deleteGameRanksForGame(game.header.gameId)
+            deleteAgePollForGame(game.header.gameId)
+            deleteLanguagePollForGame(game.header.gameId)
+            deletePlayerPollForGame(game.header.gameId)
+            deleteDesignersForGame(game.header.gameId)
+            deleteArtistsForGame(game.header.gameId)
+            deletePublishersForGame(game.header.gameId)
+            deleteCategoriesForGame(game.header.gameId)
+            deleteMechanicsForGame(game.header.gameId)
+            deleteExpansionsForGame(game.header.gameId)
+            game.header.internalId
         }
+        insertRanks(game.ranks)
+        insertAgePoll(game.agePollResults)
+        insertLanguagePoll(game.languagePollResults)
+        insertPlayerPoll(game.playerPoll)
+        insertDesigners(game.designers)
+        insertArtists(game.artists)
+        insertPublishers(game.publishers)
+        insertCategories(game.categories)
+        insertMechanics(game.mechanics)
+        insertExpansions(game.expansions)
+        return internalId
     }
 
-    suspend fun resetPlaySync(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.update(Games.CONTENT_URI, contentValuesOf(Games.Columns.UPDATED_PLAYS to 0), null, null)
-    }
+    @Insert(GameEntity::class, onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertGame(game: GameForUpsertHeader): Long
 
-    private fun toValues(game: GameEntity, updateTime: Long): ContentValues {
-        val values = contentValuesOf(
-            Games.Columns.UPDATED to updateTime,
-            Games.Columns.UPDATED_LIST to updateTime,
-            Games.Columns.GAME_ID to game.id,
-            Games.Columns.GAME_NAME to game.name,
-            Games.Columns.GAME_SORT_NAME to game.sortName,
-            Games.Columns.THUMBNAIL_URL to game.thumbnailUrl,
-            Games.Columns.IMAGE_URL to game.imageUrl,
-            Games.Columns.DESCRIPTION to game.description,
-            Games.Columns.SUBTYPE to game.subtype?.code.orEmpty(),
-            Games.Columns.YEAR_PUBLISHED to game.yearPublished,
-            Games.Columns.MIN_PLAYERS to game.minPlayers,
-            Games.Columns.MAX_PLAYERS to game.maxPlayers,
-            Games.Columns.PLAYING_TIME to game.playingTime,
-            Games.Columns.MIN_PLAYING_TIME to game.minPlayingTime,
-            Games.Columns.MAX_PLAYING_TIME to game.maxPlayingTime,
-            Games.Columns.MINIMUM_AGE to game.minimumAge,
-            Games.Columns.GAME_RANK to game.overallRank,
-        )
-        val statsValues = if (game.hasStatistics) {
-            contentValuesOf(
-                Games.Columns.STATS_AVERAGE to game.rating,
-                Games.Columns.STATS_BAYES_AVERAGE to game.bayesAverage,
-                Games.Columns.STATS_STANDARD_DEVIATION to game.standardDeviation,
-                Games.Columns.STATS_MEDIAN to game.median,
-                Games.Columns.STATS_USERS_RATED to game.numberOfRatings,
-                Games.Columns.STATS_NUMBER_OWNED to game.numberOfUsersOwned,
-                Games.Columns.STATS_NUMBER_TRADING to game.numberOfUsersTrading,
-                Games.Columns.STATS_NUMBER_WANTING to game.numberOfUsersWanting,
-                Games.Columns.STATS_NUMBER_WISHING to game.numberOfUsersWishListing,
-                Games.Columns.STATS_NUMBER_COMMENTS to game.numberOfComments,
-                Games.Columns.STATS_NUMBER_WEIGHTS to game.numberOfUsersWeighting,
-                Games.Columns.STATS_AVERAGE_WEIGHT to game.averageWeight,
-            )
-        } else contentValuesOf()
-        val pollValues = game.playerPoll?.let {
-            contentValuesOf(
-                Games.Columns.SUGGESTED_PLAYER_COUNT_POLL_VOTE_TOTAL to it.totalVotes,
-                Games.Columns.PLAYER_COUNTS_BEST to it.bestCounts.forDatabase(GamePlayerPollEntity.separator),
-                Games.Columns.PLAYER_COUNTS_RECOMMENDED to it.recommendedAndBestCounts.forDatabase(GamePlayerPollEntity.separator),
-                Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED to it.notRecommendedCounts.forDatabase(GamePlayerPollEntity.separator),
-            )
-        } ?: contentValuesOf()
-        values.putAll(statsValues)
-        values.putAll(pollValues)
-        return values
-    }
+    @Update(GameEntity::class)
+    suspend fun updateGame(game: GameForUpsertHeader)
 
-    private suspend fun shouldClearHeroImageUrl(game: GameEntity): Boolean = withContext(Dispatchers.IO) {
-        resolver.load(Games.buildGameUri(game.id), arrayOf(Games.Columns.IMAGE_URL, Games.Columns.THUMBNAIL_URL))?.use {
-            if (it.moveToFirst()) {
-                val imageUrl = it.getStringOrNull(0).orEmpty()
-                val thumbnailUrl = it.getStringOrNull(1).orEmpty()
-                imageUrl != game.imageUrl || thumbnailUrl != game.thumbnailUrl
-            } else false
-        } ?: false
-    }
+    @Insert(GameEntity::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertGame(game: CollectionGameForUpsert): Long
 
-    private suspend fun createPollsBatch(game: GameEntity): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        val existingPollNames = resolver.queryStrings(Games.buildPollsUri(game.id), GamePolls.Columns.POLL_NAME)
-            .filterNot { it.isBlank() }.toMutableList()
-        for (poll in game.polls) {
-            val values = contentValuesOf(
-                GamePolls.Columns.POLL_TITLE to poll.title,
-                GamePolls.Columns.POLL_TOTAL_VOTES to poll.totalVotes,
-            )
+    @Update(GameEntity::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun updateGame(game: CollectionGameForUpsert)
 
-            val existingResultKeys = mutableListOf<String>()
-            batch += if (existingPollNames.remove(poll.name)) {
-                existingResultKeys += resolver.queryStrings(
-                    Games.buildPollResultsUri(game.id, poll.name),
-                    GamePollResults.Columns.POLL_RESULTS_PLAYERS
-                ).filterNot { it.isBlank() }
-                ContentProviderOperation.newUpdate(Games.buildPollsUri(game.id, poll.name))
-            } else {
-                values.put(GamePolls.Columns.POLL_NAME, poll.name)
-                ContentProviderOperation.newInsert(Games.buildPollsUri(game.id))
-            }.withValues(values).build()
+    @Insert
+    suspend fun insertRanks(ranks: List<GameRankEntity>)
 
-            for ((resultsIndex, results) in poll.results.withIndex()) {
-                val resultsValues = contentValuesOf(GamePollResults.Columns.POLL_RESULTS_SORT_INDEX to resultsIndex + 1)
+    @Insert
+    suspend fun insertAgePoll(pollResults: List<GameAgePollResultEntity>)
 
-                val existingResultsResultKeys = mutableListOf<String>()
-                batch += if (existingResultKeys.remove(results.key)) {
-                    existingResultsResultKeys += resolver.queryStrings(
-                        Games.buildPollResultsResultUri(game.id, poll.name, results.key),
-                        GamePollResultsResult.Columns.POLL_RESULTS_RESULT_KEY
-                    ).filterNot { it.isBlank() }
-                    ContentProviderOperation.newUpdate(Games.buildPollResultsUri(game.id, poll.name, results.key))
-                } else {
-                    resultsValues.put(GamePollResults.Columns.POLL_RESULTS_PLAYERS, results.key)
-                    ContentProviderOperation.newInsert(Games.buildPollResultsUri(game.id, poll.name))
-                }.withValues(resultsValues).build()
+    @Insert
+    suspend fun insertLanguagePoll(pollResults: List<GameLanguagePollResultEntity>)
 
-                for ((resultSortIndex, result) in results.result.withIndex()) {
-                    val resultsResultValues = contentValuesOf(
-                        GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VALUE to result.value,
-                        GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES to result.numberOfVotes,
-                        GamePollResultsResult.Columns.POLL_RESULTS_RESULT_SORT_INDEX to resultSortIndex + 1,
-                    )
-                    if (result.level > 0) resultsResultValues.put(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_LEVEL, result.level)
+    @Insert
+    suspend fun insertPlayerPoll(pollResults: List<GameSuggestedPlayerCountPollResultsEntity>)
 
-                    val key = DataUtils.generatePollResultsKey(result.level, result.value)
-                    batch += if (existingResultsResultKeys.remove(key)) {
-                        ContentProviderOperation.newUpdate(Games.buildPollResultsResultUri(game.id, poll.name, results.key, key))
-                    } else {
-                        ContentProviderOperation.newInsert(Games.buildPollResultsResultUri(game.id, poll.name, results.key))
-                    }.withValues(resultsResultValues).build()
-                }
+    @Insert
+    suspend fun insertDesigners(designers: List<GameDesignerEntity>)
 
-                existingResultsResultKeys.mapTo(batch) {
-                    ContentProviderOperation.newDelete(Games.buildPollResultsResultUri(game.id, poll.name, results.key, it)).build()
-                }
-            }
+    @Insert
+    suspend fun insertArtists(designers: List<GameArtistEntity>)
 
-            existingResultKeys.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPollResultsUri(game.id, poll.name, it)).build() }
-        }
-        existingPollNames.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPollsUri(game.id, it)).build() }
-    }
+    @Insert
+    suspend fun insertPublishers(designers: List<GamePublisherEntity>)
 
-    private suspend fun createPlayerPollBatch(gameId: Int, poll: GamePlayerPollEntity?): ArrayList<ContentProviderOperation> =
-        withContext(Dispatchers.IO) {
-            val batch = arrayListOf<ContentProviderOperation>()
-            if (poll == null)
-                batch
-            else {
-                val existingResults = resolver.queryStrings(
-                    Games.buildSuggestedPlayerCountPollResultsUri(gameId),
-                    GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT
-                ).filterNot { it.isBlank() }.toMutableList()
-                for ((sortIndex, results) in poll.results.withIndex()) {
-                    val values = contentValuesOf(
-                        GameSuggestedPlayerCountPollPollResults.Columns.SORT_INDEX to sortIndex + 1,
-                        GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT to results.bestVoteCount,
-                        GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT to results.recommendedVoteCount,
-                        GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT to results.notRecommendedVoteCount,
-                        GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION to results.calculatedRecommendation,
-                    )
-                    batch += if (existingResults.remove(results.playerCount)) {
-                        val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId, results.playerCount)
-                        ContentProviderOperation.newUpdate(uri).withValues(values).build()
-                    } else {
-                        values.put(GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT, results.playerCount)
-                        val uri = Games.buildSuggestedPlayerCountPollResultsUri(gameId)
-                        ContentProviderOperation.newInsert(uri).withValues(values).build()
-                    }
-                }
-                existingResults.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildSuggestedPlayerCountPollResultsUri(gameId, it)).build() }
-            }
-        }
+    @Insert
+    suspend fun insertCategories(designers: List<GameCategoryEntity>)
 
-    private suspend fun createRanksBatch(game: GameEntity): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        val existingRankIds = resolver.queryInts(
-            GameRanks.CONTENT_URI,
-            GameRanks.Columns.GAME_RANK_ID,
-            "${GameRanks.Columns.GAME_RANK_ID}=?",
-            arrayOf(game.id.toString())
-        ).toMutableList()
-        for ((id, type, name, friendlyName, value, bayesAverage) in game.ranks) {
-            val values = contentValuesOf(
-                GameRanks.Columns.GAME_RANK_TYPE to type,
-                GameRanks.Columns.GAME_RANK_NAME to name,
-                GameRanks.Columns.GAME_RANK_FRIENDLY_NAME to friendlyName,
-                GameRanks.Columns.GAME_RANK_VALUE to value,
-                GameRanks.Columns.GAME_RANK_BAYES_AVERAGE to bayesAverage,
-            )
-            batch += if (existingRankIds.remove(id)) {
-                ContentProviderOperation.newUpdate(Games.buildRanksUri(game.id, id)).withValues(values).build()
-            } else {
-                values.put(GameRanks.Columns.GAME_RANK_ID, id)
-                ContentProviderOperation.newInsert(Games.buildRanksUri(game.id)).withValues(values).build()
-            }
-        }
-        existingRankIds.mapTo(batch) { ContentProviderOperation.newDelete(GameRanks.buildGameRankUri(it)).build() }
-    }
+    @Insert
+    suspend fun insertMechanics(designers: List<GameMechanicEntity>)
 
-    private suspend fun createExpansionsBatch(
-        gameId: Int,
-        newLinks: List<Triple<Int, String, Boolean>>
-    ): ArrayList<ContentProviderOperation> = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        val pathUri = Games.buildPathUri(gameId, PATH_EXPANSIONS)
-        val existingIds = resolver.queryInts(pathUri, GamesExpansions.Columns.EXPANSION_ID).toMutableList()
+    @Insert
+    suspend fun insertExpansions(designers: List<GameExpansionEntity>)
 
-        for ((id, name, inbound) in newLinks) {
-            if (!existingIds.remove(id)) {
-                // insert association row
-                batch.add(
-                    ContentProviderOperation.newInsert(pathUri).withValues(
-                        contentValuesOf(
-                            GamesExpansions.Columns.EXPANSION_ID to id,
-                            GamesExpansions.Columns.EXPANSION_NAME to name,
-                            GamesExpansions.Columns.INBOUND to inbound,
-                        )
-                    ).build()
-                )
-            }
-        }
-        // remove unused associations
-        existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, PATH_EXPANSIONS, it)).build() }
-    }
+    @Query("DELETE FROM game_ranks WHERE game_id = :gameId") // TODO test that this cascades the delete
+    suspend fun deleteGameRanksForGame(gameId: Int)
 
-    /**
-     * Upsert each ID/name pair.
-     */
-    private fun saveReference(newLinks: List<Pair<Int, String>>, baseUri: Uri, idColumn: String, nameColumn: String) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        for ((id, name) in newLinks) {
-            val uri = baseUri.buildUpon().appendPath(id.toString()).build()
-            batch += if (resolver.rowExists(uri)) {
-                ContentProviderOperation.newUpdate(uri).withValue(nameColumn, name).build()
-            } else {
-                ContentProviderOperation.newInsert(baseUri).withValues(
-                    contentValuesOf(
-                        idColumn to id,
-                        nameColumn to name,
-                    )
-                ).build()
-            }
-        }
-        resolver.applyBatch(batch, "Saving ${baseUri.lastPathSegment}")
-    }
+    @Query("DELETE FROM game_poll_age_results WHERE game_id = :gameId")
+    suspend fun deleteAgePollForGame(gameId: Int)
 
-    private fun createAssociationBatch(
-        gameId: Int,
-        newLinks: List<Pair<Int, String>>,
-        uriPath: String,
-        idColumn: String
-    ): ArrayList<ContentProviderOperation> {
-        val batch = arrayListOf<ContentProviderOperation>()
-        val associationUri = Games.buildPathUri(gameId, uriPath)
-        val existingIds = resolver.queryInts(associationUri, idColumn).toMutableList()
-        for ((id, _) in newLinks) {
-            if (!existingIds.remove(id)) {
-                // insert association row
-                batch += ContentProviderOperation.newInsert(associationUri).withValue(idColumn, id).build()
-            }
-        }
-        // remove unused associations
-        return existingIds.mapTo(batch) { ContentProviderOperation.newDelete(Games.buildPathUri(gameId, uriPath, it)).build() }
-    }
+    @Query("DELETE FROM game_poll_language_results WHERE game_id = :gameId")
+    suspend fun deleteLanguagePollForGame(gameId: Int)
 
-    suspend fun updateColors(gameId: Int, colors: List<String>) = withContext(Dispatchers.IO) {
-        if (resolver.rowExists(Games.buildGameUri(gameId))) {
-            val gameColorsUri = Games.buildColorsUri(gameId)
-            resolver.delete(gameColorsUri, null, null)
-            val values = colors.filter { it.isNotBlank() }.map { contentValuesOf(GameColors.Columns.COLOR to it) }
-            if (values.isNotEmpty()) {
-                resolver.bulkInsert(gameColorsUri, values.toTypedArray())
-            }
-        }
-    }
+    @Query("DELETE FROM game_suggested_player_count_poll_results WHERE game_id = :gameId")
+    suspend fun deletePlayerPollForGame(gameId: Int)
+
+    @Query("DELETE FROM games_designers WHERE game_id = :gameId")
+    suspend fun deleteDesignersForGame(gameId: Int)
+
+    @Query("DELETE FROM games_artists WHERE game_id = :gameId")
+    suspend fun deleteArtistsForGame(gameId: Int)
+
+    @Query("DELETE FROM games_publishers WHERE game_id = :gameId")
+    suspend fun deletePublishersForGame(gameId: Int)
+
+    @Query("DELETE FROM games_categories WHERE game_id = :gameId")
+    suspend fun deleteCategoriesForGame(gameId: Int)
+
+    @Query("DELETE FROM games_mechanics WHERE game_id = :gameId")
+    suspend fun deleteMechanicsForGame(gameId: Int)
+
+    @Query("DELETE FROM games_expansions WHERE game_id = :gameId")
+    suspend fun deleteExpansionsForGame(gameId: Int)
+
+    @Query("SELECT game_id, game_name, subtype FROM games")
+    suspend fun loadGameSubtypes() : List<GameIdNameSubtype>
+
+    @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id WHERE game_id = :gameId")
+    suspend fun loadGame(gameId: Int): GameWithLastPlayed?
+
+    @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id WHERE game_id = :gameId")
+    fun loadGameFlow(gameId: Int): Flow<GameWithLastPlayed?>
+
+    @Query("SELECT game_id, game_name FROM games WHERE updated > 0 AND updated < :beforeTimestamp ORDER BY updated ASC LIMIT :gamesPerFetch")
+    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int, beforeTimestamp: Long): List<GameIdAndName>
+
+    @Query("SELECT game_id, game_name FROM games WHERE (updated = 0 OR updated IS NULL) ORDER BY updated_list ASC LIMIT :gamesPerFetch")
+    suspend fun loadUnupdatedGames(gamesPerFetch: Int): List<GameIdAndName>
+
+    @Query("SELECT games.game_id, game_name FROM games LEFT OUTER JOIN collection ON games.game_id = collection.game_id WHERE collection_id IS NULL AND last_viewed < :sinceTimestamp ORDER BY games.updated")
+    suspend fun loadNonCollectionGamesByLastViewed(sinceTimestamp: Long): List<GameIdAndName>
+
+    @Query("SELECT games.game_id, game_name FROM games LEFT OUTER JOIN collection ON games.game_id = collection.game_id WHERE collection_id IS NULL AND last_viewed < :sinceTimestamp AND num_of_plays = 0 ORDER BY games.updated")
+    suspend fun loadNonCollectionAndUnplayedGamesByLastViewed(sinceTimestamp: Long): List<GameIdAndName>
+
+    @Query("SELECT * FROM game_poll_age_results WHERE game_id = :gameId ORDER BY value")
+    fun loadAgePollForGameFlow(gameId: Int): Flow<List<GameAgePollResultEntity>>
+
+    @Query("SELECT * FROM game_poll_language_results WHERE game_id = :gameId ORDER BY level")
+    fun loadLanguagePollForGameFlow(gameId: Int): Flow<List<GameLanguagePollResultEntity>>
+
+    @Query("SELECT * FROM game_suggested_player_count_poll_results WHERE game_id = :gameId")
+    fun loadPlayerPollForGameFlow(gameId: Int): Flow<List<GameSuggestedPlayerCountPollResultsEntity>>
+
+    @Query("SELECT * FROM game_ranks WHERE game_id = :gameId")
+    fun loadRanksForGameFlow(gameId: Int): Flow<List<GameRankEntity>>
+
+    @Query("UPDATE games SET custom_player_sort = :isCustom WHERE game_id = :gameId")
+    suspend fun updateCustomPlayerSort(gameId: Int, isCustom: Boolean): Int
+
+    @Query("UPDATE games SET hero_image_url = :heroUrl WHERE game_id = :gameId")
+    suspend fun updateHeroUrl(gameId: Int, heroUrl: String): Int
+
+    @Query("UPDATE games SET icon_color = :iconColor, dark_color = :darkColor, wins_color = :winsColor, winnable_plays_color = :winnablePlaysColor, all_plays_color = :allPlaysColor WHERE game_id = :gameId")
+    suspend fun updateImageColors(gameId: Int, iconColor: Int, darkColor: Int, winsColor: Int, winnablePlaysColor: Int, allPlaysColor: Int)
+
+    @Query("UPDATE games SET last_viewed = :lastViewed WHERE game_id = :gameId")
+    suspend fun updateLastViewed(gameId: Int, lastViewed: Long): Int
+
+    @Query("UPDATE games SET num_of_plays = :playCount WHERE game_id = :gameId")
+    suspend fun updatePlayCount(gameId: Int, playCount: Int): Int
+
+    @Query("UPDATE games SET updated_plays = :timestamp WHERE game_id = :gameId")
+    suspend fun updatePlayTimestamp(gameId: Int, timestamp: Long): Int
+
+    @Query("UPDATE games SET starred = :isStarred WHERE game_id = :gameId")
+    suspend fun updateStarred(gameId: Int, isStarred: Boolean): Int
+
+    @Query("UPDATE games SET updated_plays = 0")
+    suspend fun resetPlaySync()
+
+    @Query("DELETE FROM games")
+    suspend fun deleteAll(): Int
+
+    @Query("DELETE FROM games WHERE game_id = :gameId")
+    suspend fun delete(gameId: Int): Int
+
+    @Query("SELECT games_expansions.*, games.thumbnail_url AS thumbnailUrl FROM games_expansions LEFT OUTER JOIN games ON games.game_id = games_expansions.expansion_id WHERE inbound=0 AND games_expansions.game_id = :gameId")
+    fun loadExpansionsForGameFlow(gameId: Int): Flow<List<GameExpansionWithGame>>
+
+    @Query("SELECT games_expansions.*, games.thumbnail_url AS thumbnailUrl FROM games_expansions LEFT OUTER JOIN games ON games.game_id = games_expansions.expansion_id WHERE inbound=1 AND games_expansions.game_id = :gameId")
+    fun loadBaseGamesForGameFlow(gameId: Int): Flow<List<GameExpansionWithGame>>
+
+    @Transaction
+    @Query("SELECT * FROM games WHERE game_id = :gameId")
+    fun loadDesignersForGameFlow(gameId: Int): Flow<GameWithDesigners?>
+
+    @Transaction
+    @Query("SELECT * FROM games WHERE game_id = :gameId")
+    fun loadArtistsForGameFlow(gameId: Int): Flow<GameWithArtists?>
+
+    @Transaction
+    @Query("SELECT * FROM games WHERE game_id = :gameId")
+    fun loadPublishersForGameFlow(gameId: Int): Flow<GameWithPublishers?>
+
+    @Transaction
+    @Query("SELECT * FROM games WHERE game_id = :gameId")
+    fun loadCategoriesForGameFlow(gameId: Int): Flow<GameWithCategories?>
+
+    @Transaction
+    @Query("SELECT * FROM games WHERE game_id = :gameId")
+    fun loadMechanicsForGameFlow(gameId: Int): Flow<GameWithMechanics?>
 }

@@ -12,5 +12,5 @@ public class ThreadResponse {
 	@Attribute(required = false) private int numarticles;
 	@Attribute(required = false) private String link;
 	@Element(required = false) public String subject;
-	@ElementList(required = false) public List<ArticleElement> articles;
+	@ElementList(required = false) public List<ArticleRemote> articles;
 }

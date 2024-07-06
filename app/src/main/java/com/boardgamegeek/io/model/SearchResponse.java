@@ -8,5 +8,5 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class SearchResponse {
 	@Attribute public int total;
-	@ElementList(inline = true, required = false) public List<SearchResult> items;
+	@ElementList(inline = true, required = false) public List<SearchResultRemote> items;
 }

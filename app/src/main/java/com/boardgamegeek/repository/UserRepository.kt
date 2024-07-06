@@ -2,120 +2,153 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.core.content.contentValuesOf
+import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.ImageDao
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.User
 import com.boardgamegeek.db.UserDao
-import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.db.model.UserForUpsert
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToEntities
-import com.boardgamegeek.mappers.mapToEntity
+import com.boardgamegeek.io.*
+import com.boardgamegeek.mappers.*
+import com.boardgamegeek.model.User.Companion.applySort
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
-import com.boardgamegeek.provider.BggContract.Buddies
-import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.pref.setBuddiesTimestamp
+import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.work.SyncUsersWorker
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class UserRepository(
     val context: Context,
     private val api: BggService,
+    private val userDao: UserDao,
 ) {
-    private val userDao = UserDao(context)
     private val imageDao = ImageDao(context)
     private val prefs: SharedPreferences by lazy { context.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(context) }
 
-    suspend fun load(username: String): UserEntity? = withContext(Dispatchers.IO) {
-        userDao.loadUser(username)
+    suspend fun loadAllUsers(): List<User> = withContext(Dispatchers.IO) {
+        userDao.loadUsers().map { it.mapToModel() }
     }
 
-    suspend fun refresh(username: String): UserEntity = withContext(Dispatchers.IO) {
-        val response = api.user(username)
-        val user = response.mapToEntity()
-        userDao.saveUser(user)
+    fun loadUserFlow(username: String): Flow<User?> {
+        return userDao.loadUserFlow(username).map { it?.mapToModel() }
     }
 
-    suspend fun refreshCollection(username: String, status: String): List<CollectionItemEntity> =
+    suspend fun loadBuddies(sortBy: User.SortType = User.SortType.USERNAME): List<User> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { userDao.loadUsers() }
+            .map { it.mapToModel() }
+            .filterBuddies()
+            .applySort(sortBy)
+    }
+
+    fun loadBuddiesFlow(sortBy: User.SortType = User.SortType.USERNAME): Flow<List<User>> {
+        return userDao.loadUsersFlow()
+            .map { it.map { entity -> entity.mapToModel() } }
+            .flowOn(Dispatchers.Default)
+            .map { list -> list.filterBuddies() }
+            .flowOn(Dispatchers.Default)
+            .map { it.applySort(sortBy) }
+            .flowOn(Dispatchers.Default)
+            .conflate()
+    }
+
+    private fun List<User>.filterBuddies(): List<User> {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
+        return this.filter { it.isBuddy && it.username != username }
+    }
+
+    suspend fun refresh(username: String, isSelf: Boolean = false): String? = withContext(Dispatchers.IO) {
+        if (username.isBlank()) return@withContext null
+        val timestamp = System.currentTimeMillis()
+        val result = safeApiCall(context) { api.user(username) }
+        if (result.isSuccess) {
+            result.getOrNull()?.mapForUpsert(timestamp)?.let { user ->
+                upsertUser(user)
+                if (isSelf && username == Authenticator.getAccount(context)?.name) {
+                    userDao.loadUser(username)?.let {
+                        updateSelf(it.mapToModel())
+                    }
+                }
+            }
+        }
+        result.exceptionOrNull()?.localizedMessage
+    }
+
+    suspend fun refreshCollection(username: String, status: String): List<CollectionItem> = // TODO use an enum for status
         withContext(Dispatchers.IO) {
-            val items = mutableListOf<CollectionItemEntity>()
             val response = api.collection(
                 username, mapOf(
                     status to "1",
                     BggService.COLLECTION_QUERY_KEY_BRIEF to "1"
                 )
             )
-            response.items?.forEach {
-                items += it.mapToEntities().first
-            }
-            items
+            response.items?.map { it.mapToCollectionItem() }.orEmpty()
         }
 
-    suspend fun loadBuddies(sortBy: UserDao.UsersSortBy = UserDao.UsersSortBy.USERNAME): List<UserEntity> = withContext(Dispatchers.IO) {
-        userDao.loadUsers(sortBy, buddiesOnly = true)
-    }
-
-    suspend fun loadAllUsers(): List<UserEntity> = withContext(Dispatchers.IO) {
-        userDao.loadUsers(buddiesOnly = false)
-    }
-
-    suspend fun refreshBuddies(timestamp: Long): Pair<Int, Int> = withContext(Dispatchers.IO) {
+    suspend fun refreshBuddies(): String? = withContext(Dispatchers.IO) {
         val accountName = Authenticator.getAccount(context)?.name
-        if (accountName.isNullOrBlank()) return@withContext 0 to 0
+        if (accountName.isNullOrBlank()) return@withContext context.getString(R.string.msg_sync_unauthed)
 
-        val response = api.user(accountName, 1, 1)
+        val timestamp = System.currentTimeMillis()
+        val result = safeApiCall(context) { api.user(accountName, 1, 1) }
+        if (result.isSuccess) {
+            result.getOrNull()?.let { user ->
+                upsertUser(user.mapForUpsert(timestamp)) // update the current user
+                user.buddies?.buddies?.let { buddies ->
+                    Timber.d("Downloaded ${buddies.size} buddies")
+                    var savedCount = 0
+                    buddies
+                        .map { it.mapForBuddyUpsert(timestamp) }
+                        .filter { it.username.isNotBlank() }
+                        .forEach {
+                            userDao.upsert(it)
+                            savedCount++
+                        }
+                    Timber.d("Saved $savedCount buddies")
 
-        val userEntity = response.mapToEntity()
-        userDao.saveUser(userEntity, timestamp)
+                    val deletedCount = userDao.deleteBuddiesAsOf(timestamp)
+                    Timber.d("Deleted $deletedCount buddies")
 
-        val downloadedCount = response.buddies?.buddies?.size ?: 0
-        var savedCount = 0
-        response.buddies?.buddies.orEmpty()
-            .map { it.mapToEntity(timestamp) }
-            .filter { it.id != INVALID_ID && it.userName.isNotBlank() }
-            .forEach {
-                userDao.saveBuddy(it)
-                savedCount++
+                    Timber.i("Saved $savedCount buddies; pruned $deletedCount users who are no longer buddies")
+                    syncPrefs.setBuddiesTimestamp(timestamp)
+                }
             }
-        Timber.d("Downloaded $downloadedCount users, saved $savedCount users")
-
-        val deletedCount = userDao.deleteUsersAsOf(timestamp)
-        Timber.d("Deleted $deletedCount users")
-
-        savedCount to deletedCount
+        }
+        result.exceptionOrNull()?.localizedMessage
     }
 
-    suspend fun validateUsername(username: String): Boolean = withContext(Dispatchers.IO) {
-        val response = api.user(username)
-        val user = response.mapToEntity()
-        user.userName == username
-    }
-
-    suspend fun updateNickName(username: String, nickName: String) {
-        if (username.isNotBlank()) {
-            userDao.upsert(contentValuesOf(Buddies.Columns.PLAY_NICKNAME to nickName), username)
+    private suspend fun upsertUser(user: UserForUpsert) = withContext(Dispatchers.IO) {
+        val storedUser = userDao.loadUser(user.username)
+        if (storedUser == null) {
+            userDao.insert(user)
+        } else if (storedUser.syncHashCode == user.syncHashCode) {
+            userDao.updateTimestamp(user.username, user.updatedDetailTimestamp.time)
+        } else {
+            userDao.update(user)
+            if (user.avatarUrl != storedUser.avatarUrl) {
+                val avatarFileName = FileUtils.getFileNameFromUrl(storedUser.avatarUrl)
+                imageDao.deleteFile(avatarFileName, BggContract.PATH_AVATARS)
+            }
         }
     }
 
-    fun updateSelf(user: UserEntity?) {
-        Authenticator.putUserId(context, user?.id ?: INVALID_ID)
-        if (!user?.userName.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.userName.hashCode().toString())
-        prefs[AccountPreferences.KEY_USERNAME] = user?.userName.orEmpty()
+    suspend fun updateNickName(username: String, nickName: String) = withContext(Dispatchers.IO) {
+        if (username.isNotBlank()) userDao.updateNickname(username, nickName)
+    }
+
+    fun updateSelf(user: User?) {
+        if (!user?.username.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.username.hashCode().toString())
+        prefs[AccountPreferences.KEY_USERNAME] = user?.username.orEmpty()
         prefs[AccountPreferences.KEY_FULL_NAME] = user?.fullName.orEmpty()
         prefs[AccountPreferences.KEY_AVATAR_URL] = user?.avatarUrl.orEmpty()
-    }
-
-    suspend fun deleteUsers(): Int {
-        syncPrefs.clearBuddyListTimestamps()
-        val count = userDao.deleteUsers()
-        imageDao.deleteAvatars()
-        Timber.i("Removed %d users", count)
-        return count
     }
 
     suspend fun resetUsers() {
@@ -123,5 +156,17 @@ class UserRepository(
         SyncUsersWorker.requestSync(context)
     }
 
-    suspend fun updateColors(username: String, colors: List<Pair<Int, String>>) = userDao.updateColors(username, colors)
+    suspend fun deleteUsers() = withContext(Dispatchers.IO) {
+        syncPrefs.clearBuddyListTimestamps()
+        userDao.deleteAll().also { Timber.i("Deleted $it users") }
+        imageDao.deleteAvatars().also { Timber.i("Deleted $it user avatars") }
+    }
+
+    suspend fun validateUsername(username: String): Boolean {
+        return if (username.isBlank()) false
+        else {
+            val result = safeApiCall(context) { api.user(username) }
+            result.getOrNull()?.name == username
+        }
+    }
 }

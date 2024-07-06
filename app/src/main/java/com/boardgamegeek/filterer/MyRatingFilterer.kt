@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract.Collection
 
 class MyRatingFilterer(context: Context) : RatingFilterer(context) {
@@ -17,5 +17,5 @@ class MyRatingFilterer(context: Context) : RatingFilterer(context) {
 
     override fun description() = describe(R.string.unrated, R.string.my_rating)
 
-    override fun filter(item: CollectionItemEntity) = filter(item.rating)
+    override fun filter(item: CollectionItem) = filter(item.rating)
 }

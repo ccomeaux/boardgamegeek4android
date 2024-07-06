@@ -2,7 +2,7 @@
 
 ## Data Use
 
-*BoardGameGeek for Android* (the application) does not share, in any way, personal information about you with other people or companies. You will not get on a spammer's list because of your interactions with this application.
+*BGG4A* (the application) does not share, in any way, personal information about you with other people or companies. You will not get on a spammer's list because of your interactions with this application.
 
 Since this application is primarily an interface for the BoardGameGeek.com website (the website), it is import to review their [privacy policy](https://www.boardgamegeek.com/privacy).
 The application collects data publicly available from the website. If you authenticate with the website through the application, it also collects the private information from your collection.

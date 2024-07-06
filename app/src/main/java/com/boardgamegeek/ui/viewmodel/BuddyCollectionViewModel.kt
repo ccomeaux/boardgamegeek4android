@@ -2,11 +2,11 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.repository.UserRepository
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -36,7 +36,7 @@ class BuddyCollectionViewModel @Inject constructor(
         it.second
     }
 
-    val collection: LiveData<RefreshableResource<List<CollectionItemEntity>>> =
+    val collection: LiveData<RefreshableResource<List<CollectionItem>>> =
         usernameAndStatus.switchMap {
             liveData {
                 emit(RefreshableResource.refreshing(null))

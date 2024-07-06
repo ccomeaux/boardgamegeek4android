@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPersonStatsBinding
-import com.boardgamegeek.entities.PersonStatsEntity
+import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.boardgamegeek.work.SyncCollectionWorker
@@ -52,13 +52,15 @@ class PersonStatsFragment : Fragment() {
         bindCollectionStatusMessage()
 
         objectDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
-        viewModel.person.observe(viewLifecycleOwner) {
-            val resourceId = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> R.string.title_artist
-                PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
-                PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
+        viewModel.type.observe(viewLifecycleOwner) {
+            it?.let {
+                val resourceId = when (it) {
+                    PersonViewModel.PersonType.ARTIST -> R.string.title_artist
+                    PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
+                    PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
+                }
+                objectDescription = getString(resourceId).lowercase(Locale.getDefault())
             }
-            objectDescription = getString(resourceId).lowercase(Locale.getDefault())
         }
 
         viewModel.stats.observe(viewLifecycleOwner) {
@@ -82,7 +84,7 @@ class PersonStatsFragment : Fragment() {
         binding.collectionStatusGroup.isVisible = !requireContext().preferences().isStatusSetToSync(COLLECTION_STATUS_RATED)
     }
 
-    private fun showData(stats: PersonStatsEntity) {
+    private fun showData(stats: PersonStats) {
         if (stats.averageRating > 0.0) {
             binding.averageRating.text = stats.averageRating.asBoundedRating(context, DecimalFormat("#0.0"), defaultResId = R.string.unrated)
             binding.averageRating.setTextViewBackground(stats.averageRating.toColor(BggColors.ratingColors))

@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPersonDescriptionBinding
-import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Person
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setBggColors
@@ -41,14 +41,18 @@ class PersonDescriptionFragment : Fragment() {
         emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
         binding.lastUpdated.timestamp = 0L
 
-        viewModel.person.observe(viewLifecycleOwner) {
-            binding.idView.text = it.id.toString()
-            val resourceId = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> R.string.title_artist
-                PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
-                PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
+        viewModel.id.observe(viewLifecycleOwner){
+            binding.idView.text = it.toString()
+        }
+        viewModel.type.observe(viewLifecycleOwner) {
+            it?.let {
+                val resourceId = when (it) {
+                    PersonViewModel.PersonType.ARTIST -> R.string.title_artist
+                    PersonViewModel.PersonType.DESIGNER -> R.string.title_designer
+                    PersonViewModel.PersonType.PUBLISHER -> R.string.title_publisher
+                }
+                emptyMessageDescription = getString(resourceId).lowercase(Locale.getDefault())
             }
-            emptyMessageDescription = getString(resourceId).lowercase(Locale.getDefault())
         }
 
         viewModel.details.observe(viewLifecycleOwner) {
@@ -76,7 +80,7 @@ class PersonDescriptionFragment : Fragment() {
         }
     }
 
-    private fun showData(person: PersonEntity) {
+    private fun showData(person: Person) {
         if (person.description.isBlank()) {
             showError(getString(R.string.empty_person_description, emptyMessageDescription))
         } else {
@@ -84,6 +88,6 @@ class PersonDescriptionFragment : Fragment() {
             binding.descriptionView.fadeIn()
             binding.emptyMessageView.fadeOut()
         }
-        binding.lastUpdated.timestamp = person.updatedTimestamp
+        binding.lastUpdated.timestamp = person.updatedTimestamp?.time ?: 0L
     }
 }

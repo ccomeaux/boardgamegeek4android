@@ -14,5 +14,5 @@ public class ForumResponse {
 	@Attribute private String numposts;
 	@Attribute private String lastpostdate;
 	@Attribute private int noposting;
-	@ElementList public List<ForumThread> threads;
+	@ElementList public List<ThreadRemote> threads;
 }

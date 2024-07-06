@@ -1,110 +1,42 @@
 package com.boardgamegeek.db
 
-import android.content.ContentValues
-import android.content.Context
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
-import androidx.core.database.getStringOrNull
-import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.Designers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import timber.log.Timber
+import androidx.room.*
+import com.boardgamegeek.db.model.*
+import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
-class DesignerDao(private val context: Context) {
-    private val collectionDao = CollectionDao(context)
+@Dao
+interface DesignerDao {
+    @Query("SELECT * FROM designers")
+    suspend fun loadDesigners(): List<DesignerEntity>
 
-    enum class SortType {
-        NAME, ITEM_COUNT, WHITMORE_SCORE
-    }
+    @Query("SELECT designers.*, COUNT(game_id) AS itemCount FROM designers LEFT OUTER JOIN games_designers ON designers.designer_id = games_designers.designer_id GROUP BY games_designers.designer_id")
+    fun loadDesignersFlow(): Flow<List<DesignerWithItemCount>>
 
-    suspend fun loadDesigners(sortBy: SortType): List<PersonEntity> = withContext(Dispatchers.IO) {
-        val sortByName = Designers.Columns.DESIGNER_NAME.collateNoCase().ascending()
-        val sortOrder = when (sortBy) {
-            SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> Designers.Columns.ITEM_COUNT.descending().plus(", $sortByName")
-            SortType.WHITMORE_SCORE -> Designers.Columns.WHITMORE_SCORE.descending().plus(", $sortByName")
-        }
-        context.contentResolver.loadList(
-            Designers.CONTENT_URI,
-            arrayOf(
-                Designers.Columns.DESIGNER_ID,
-                Designers.Columns.DESIGNER_NAME,
-                Designers.Columns.DESIGNER_DESCRIPTION,
-                Designers.Columns.UPDATED,
-                Designers.Columns.DESIGNER_THUMBNAIL_URL,
-                Designers.Columns.DESIGNER_HERO_IMAGE_URL,
-                Designers.Columns.ITEM_COUNT,
-                Designers.Columns.WHITMORE_SCORE,
-                Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP
-            ),
-            sortOrder = sortOrder
-        ) {
-            PersonEntity(
-                id = it.getInt(0),
-                name = it.getStringOrNull(1).orEmpty(),
-                description = it.getStringOrNull(2).orEmpty(),
-                updatedTimestamp = it.getLongOrNull(3) ?: 0L,
-                thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                heroImageUrl = it.getStringOrNull(5).orEmpty(),
-                itemCount = it.getIntOrNull(6) ?: 0,
-                whitmoreScore = it.getIntOrNull(7) ?: 0,
-                statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
-            )
-        }
-    }
+    @Query("SELECT * FROM designers WHERE designer_id=:designerId")
+    suspend fun loadDesigner(designerId: Int): DesignerEntity?
 
-    suspend fun loadDesigner(id: Int): PersonEntity? = withContext(Dispatchers.IO) {
-        context.contentResolver.loadEntity(
-            Designers.buildDesignerUri(id),
-            arrayOf(
-                Designers.Columns.DESIGNER_ID,
-                Designers.Columns.DESIGNER_NAME,
-                Designers.Columns.DESIGNER_DESCRIPTION,
-                Designers.Columns.UPDATED,
-                Designers.Columns.WHITMORE_SCORE,
-                Designers.Columns.DESIGNER_THUMBNAIL_URL,
-                Designers.Columns.DESIGNER_IMAGE_URL,
-                Designers.Columns.DESIGNER_HERO_IMAGE_URL,
-                Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP,
-                Designers.Columns.DESIGNER_IMAGES_UPDATED_TIMESTAMP,
-            )
-        ) {
-            PersonEntity(
-                id = it.getInt(0),
-                name = it.getStringOrNull(1).orEmpty(),
-                description = it.getStringOrNull(2).orEmpty(),
-                updatedTimestamp = it.getLongOrNull(3) ?: 0L,
-                whitmoreScore = it.getIntOrNull(4) ?: 0,
-                thumbnailUrl = it.getStringOrNull(5).orEmpty(),
-                imageUrl = it.getStringOrNull(6).orEmpty(),
-                heroImageUrl = it.getStringOrNull(7).orEmpty(),
-                statsUpdatedTimestamp = it.getLongOrNull(8) ?: 0L,
-                imagesUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
-            )
-        }
-    }
+    @Query("SELECT * FROM designers WHERE designer_id=:designerId")
+    fun loadDesignerFlow(designerId: Int): Flow<DesignerEntity?>
 
-    suspend fun loadCollection(designerId: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING) =
-        collectionDao.loadLinkedCollection(Designers.buildDesignerCollectionUri(designerId), sortBy)
+    @Query("UPDATE designers SET designer_image_url=:imageUrl, designer_thumbnail_url=:thumbnailUrl, designer_images_updated_timestamp=:timestamp WHERE designer_id=:designerId")
+    suspend fun updateImageUrls(designerId: Int, imageUrl: String, thumbnailUrl: String, timestamp: Date)
 
-    suspend fun upsert(designerId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
-        val resolver = context.contentResolver
-        val uri = Designers.buildDesignerUri(designerId)
-        if (resolver.rowExists(uri)) {
-            val count = resolver.update(uri, values, null, null)
-            Timber.d("Updated %,d designer rows at %s", count, uri)
-            count
-        } else {
-            values.put(Designers.Columns.DESIGNER_ID, designerId)
-            val insertedUri = resolver.insert(Designers.CONTENT_URI, values)
-            Timber.d("Inserted designer at %s", insertedUri)
-            1
-        }
-    }
+    @Query("UPDATE designers SET designer_hero_image_url=:url WHERE designer_id=:designerId")
+    suspend fun updateHeroImageUrl(designerId: Int, url: String)
 
-    suspend fun delete(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Designers.CONTENT_URI, null, null)
-    }
+    @Query("UPDATE designers SET whitmore_score=:score, designer_stats_updated_timestamp=:timestamp WHERE designer_id=:designerId")
+    suspend fun updateWhitmoreScore(designerId: Int, score: Int, timestamp: Date)
+
+    @Insert(DesignerEntity::class)
+    suspend fun insert(designer: DesignerForUpsert)
+
+    @Update(DesignerEntity::class)
+    suspend fun update(designer: DesignerForUpsert)
+
+    @Insert(DesignerEntity::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(artist: DesignerBriefForUpsert)
+
+    @Query("DELETE FROM designers")
+    suspend fun deleteAll(): Int
 }

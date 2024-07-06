@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayLocationsBinding
 import com.boardgamegeek.databinding.RowNewPlayLocationBinding
-import com.boardgamegeek.entities.LocationEntity
+import com.boardgamegeek.model.Location
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.inflate
@@ -74,7 +74,7 @@ class NewPlayLocationsFragment : Fragment() {
 
     private class LocationsAdapter(private val viewModel: NewPlayViewModel) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(),
         AutoUpdatableAdapter {
-        var locations: List<LocationEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var locations: List<Location> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name
             }
@@ -93,7 +93,7 @@ class NewPlayLocationsFragment : Fragment() {
         inner class LocationsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowNewPlayLocationBinding.bind(itemView)
 
-            fun bind(location: LocationEntity?) {
+            fun bind(location: Location?) {
                 location?.let { l ->
                     binding.nameView.text = l.name
                     itemView.setOnClickListener { viewModel.setLocation(l.name) }

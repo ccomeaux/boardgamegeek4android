@@ -12,7 +12,7 @@ import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -41,7 +41,7 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
 
         viewModel.setPlayerName(name)
         viewModel.plays.observe(this) {
-            playCount = it.data?.sumOf { play -> play.quantity } ?: 0
+            playCount = it?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         }
     }

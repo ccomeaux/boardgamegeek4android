@@ -1,102 +1,142 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
-import android.content.SharedPreferences
-import androidx.core.content.contentValuesOf
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
-import com.boardgamegeek.entities.PersonEntity
-import com.boardgamegeek.entities.PersonStatsEntity
+import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
+import com.boardgamegeek.model.Person
+import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.provider.BggContract.Artists
+import com.boardgamegeek.io.safeApiCall
+import com.boardgamegeek.mappers.mapArtistForUpsert
+import com.boardgamegeek.mappers.mapToModel
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionItem.Companion.applySort
+import com.boardgamegeek.model.Person.Companion.applySort
+import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.conflate
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import timber.log.Timber
+import java.util.Date
 
 class ArtistRepository(
     val context: Context,
     private val api: BggService,
+    private val artistDao: ArtistDao,
+    private val collectionDao: CollectionDao,
     private val imageRepository: ImageRepository,
 ) {
-    private val dao = ArtistDao(context)
-    private val prefs: SharedPreferences by lazy { context.preferences() }
+    fun loadArtistsFlow(sortBy: Person.SortType): Flow<List<Person>> {
+        return artistDao.loadArtistsFlow()
+            .map {
+                it.map { entity -> entity.mapToModel() }
+            }.flowOn(Dispatchers.Default)
+            .map {
+                it.applySort(sortBy)
+            }.flowOn(Dispatchers.Default)
+            .conflate()
+    }
 
-    suspend fun loadArtists(sortBy: ArtistDao.SortType) = dao.loadArtists(sortBy)
+    fun loadArtistFlow(artistId: Int) = artistDao.loadArtistFlow(artistId).map { it?.mapToModel() }.flowOn(Dispatchers.Default)
 
-    suspend fun loadArtist(artistId: Int) = dao.loadArtist(artistId)
+    fun loadCollectionFlow(id: Int, sortBy: CollectionItem.SortType): Flow<List<CollectionItem>> {
+        return collectionDao.loadForArtistAsLiveData(id)
+            .map { it.map { entity -> entity.mapToModel() } }
+            .flowOn(Dispatchers.Default)
+            .map { list ->
+                list.filter { it.deleteTimestamp == 0L }
+                    .filter { it.filterBySyncedStatues(context) }
+                    .applySort(sortBy)
+            }
+            .flowOn(Dispatchers.Default)
+            .conflate()
+    }
 
-    suspend fun loadCollection(id: Int, sortBy: CollectionDao.SortType) = dao.loadCollection(id, sortBy)
+    suspend fun deleteAll() = withContext(Dispatchers.IO) { artistDao.deleteAll() }
 
-    suspend fun delete() = dao.delete()
+    suspend fun refreshMissingImages(limit: Int = 10) = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { artistDao.loadArtists() }
+            .filter { it.artistThumbnailUrl.isNullOrBlank() }
+            .sortedByDescending { it.whitmoreScore }
+            .take(limit.coerceIn(0, 25))
+            .map { it.mapToModel() }
+            .forEach {
+                Timber.i("Refreshing missing images for artist $it")
+                refreshImages(it)
+                delay(2_000)
+            }
+    }
 
-    suspend fun refreshArtist(artistId: Int): PersonEntity = withContext(Dispatchers.IO) {
-        val response = api.person(BggService.PersonType.ARTIST, artistId)
-        if (!response.name.isNullOrBlank()) {
-            val missingArtistMessage = "This page does not exist. You can edit this page to create it."
-            dao.upsert(
-                artistId, contentValuesOf(
-                    Artists.Columns.ARTIST_NAME to response.name,
-                    Artists.Columns.ARTIST_DESCRIPTION to (if (response.description == missingArtistMessage) "" else response.description),
-                    Artists.Columns.UPDATED to System.currentTimeMillis(),
-                )
-            )
+    suspend fun refreshArtist(artistId: Int) = withContext(Dispatchers.IO) {
+        if (artistId == BggContract.INVALID_ID) return@withContext
+        val timestamp = Date()
+        val response = safeApiCall(context) { api.person(BggService.PersonType.ARTIST, artistId) }
+        if (response.isSuccess) {
+            response.getOrNull()?.mapToModel(artistId, timestamp)?.let {
+                val artist = artistDao.loadArtist(it.id)
+                if (artist == null) {
+                    artistDao.insert(it.mapArtistForUpsert())
+                } else {
+                    artistDao.update(it.mapArtistForUpsert(artist.internalId))
+                }
+                refreshImages(it)
+            }
         }
-        response.mapToEntity(artistId)
     }
 
-    suspend fun refreshImages(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val response = api.person(artist.id)
-        response.items.firstOrNull()?.let {
-            dao.upsert(
-                artist.id, contentValuesOf(
-                    Artists.Columns.ARTIST_THUMBNAIL_URL to it.thumbnail,
-                    Artists.Columns.ARTIST_IMAGE_URL to it.image,
-                    Artists.Columns.ARTIST_IMAGES_UPDATED_TIMESTAMP to System.currentTimeMillis(),
-                )
+    private suspend fun refreshImages(artist: Person) = withContext(Dispatchers.IO) {
+        val timestamp = Date()
+        val response = safeApiCall(context) { api.person(artist.id) }
+        if (response.isSuccess) {
+            response.getOrNull()?.items?.firstOrNull()?.mapToModel(artist, timestamp)?.let { newArtist ->
+                artistDao.updateImageUrls(artist.id, newArtist.imageUrl, newArtist.thumbnailUrl, newArtist.imagesUpdatedTimestamp ?: timestamp)
+                val thumbnailId = newArtist.thumbnailUrl.getImageId()
+                if (thumbnailId != artist.heroImageUrl.getImageId()) {
+                    Timber.d("Artist $artist's hero URL doesn't match thumbnail ID $thumbnailId")
+                    val urlMap = imageRepository.getImageUrls(thumbnailId)
+                    urlMap[ImageRepository.ImageType.HERO]?.firstOrNull()?.let { heroUrl ->
+                        Timber.d("Updating artist $artist with hero URL $heroUrl")
+                        artistDao.updateHeroImageUrl(artist.id, heroUrl)
+                    }
+                }
+                Timber.i("Updated images for artist $artist")
+            }
+        } else Timber.w("Unable to refresh images for artist $artist" )
+    }
+
+    suspend fun calculateStats(progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+        val artists = withContext(Dispatchers.IO) { artistDao.loadArtists() }
+            .map { it.mapToModel() }
+            .sortedWith(
+                compareBy<Person> { it.statsUpdatedTimestamp}
+                    .thenByDescending { it.itemCount }
             )
-            artist.copy(thumbnailUrl = it.thumbnail.orEmpty(), imageUrl = it.image.orEmpty())
-        } ?: artist
-    }
-
-    suspend fun refreshHeroImage(artist: PersonEntity): PersonEntity = withContext(Dispatchers.IO) {
-        val urlMap = imageRepository.fetchImageUrls(artist.thumbnailUrl.getImageId())
-        val urls = urlMap[ImageRepository.ImageType.HERO]
-        if (urls?.isNotEmpty()  == true) {
-            dao.upsert(artist.id, contentValuesOf(Artists.Columns.ARTIST_HERO_IMAGE_URL to urls.first()))
-            artist.copy(heroImageUrl = urls.first())
-        } else artist
-    }
-
-    suspend fun calculateWhitmoreScores(artists: List<PersonEntity>, progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
-        val sortedList = artists.sortedBy { it.statsUpdatedTimestamp }
-        val maxProgress = sortedList.size
-        sortedList.forEachIndexed { i, data ->
+        val maxProgress = artists.size
+        artists.forEachIndexed { i, person ->
             progress.postValue(i to maxProgress)
-            calculateStats(data.id, data.whitmoreScore)
+            calculateStats(person.id, person.whitmoreScore)
+            Timber.i("Updated stats for artist $person")
         }
-        prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS] = System.currentTimeMillis()
+        context.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS] = System.currentTimeMillis()
         progress.postValue(0 to 0)
     }
 
-    suspend fun calculateStats(artistId: Int, whitmoreScore: Int = -1): PersonStatsEntity = withContext(Dispatchers.Default) {
-        val collection = dao.loadCollection(artistId)
-        val statsEntity = PersonStatsEntity.fromLinkedCollection(collection, context)
-        updateWhitmoreScore(artistId, statsEntity.whitmoreScore, whitmoreScore)
-        statsEntity
-    }
-
-    private suspend fun updateWhitmoreScore(artistId: Int, newScore: Int, oldScore: Int = -1) = withContext(Dispatchers.IO) {
-        val realOldScore = if (oldScore == -1) dao.loadArtist(artistId)?.whitmoreScore ?: 0 else oldScore
-        if (newScore != realOldScore) {
-            dao.upsert(
-                artistId,
-                contentValuesOf(
-                    Artists.Columns.WHITMORE_SCORE to newScore,
-                    Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP to System.currentTimeMillis(),
-                )
-            )
+    suspend fun calculateStats(artistId: Int, whitmoreScore: Int? = null): PersonStats? = withContext(Dispatchers.Default) {
+        if (artistId == BggContract.INVALID_ID) return@withContext null
+        val timestamp = Date()
+        val collection = withContext(Dispatchers.IO) { collectionDao.loadForArtist(artistId) }.map { it.mapToModel() }
+        val stats = PersonStats.fromLinkedCollection(collection, context)
+        val currentWhitmoreScore = (whitmoreScore ?: withContext(Dispatchers.IO) { artistDao.loadArtist(artistId) }?.whitmoreScore ?: 0).coerceAtLeast(0)
+        if (stats.whitmoreScore != currentWhitmoreScore) {
+            withContext(Dispatchers.IO) { artistDao.updateWhitmoreScore(artistId, stats.whitmoreScore, timestamp) }
         }
+        stats
     }
 }

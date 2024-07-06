@@ -6,8 +6,6 @@ import android.net.Uri
 import androidx.preference.Preference
 import android.util.AttributeSet
 
-import com.boardgamegeek.BuildConfig
-
 class ChangeLogPreference(context: Context, attrs: AttributeSet) : Preference(context, attrs) {
     init {
         val changeLogUrl = "https://github.com/ccomeaux/boardgamegeek4android/blob/master/CHANGELOG.md"

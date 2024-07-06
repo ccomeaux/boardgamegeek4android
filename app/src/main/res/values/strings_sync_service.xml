@@ -12,7 +12,7 @@
 	<string name="sync_notification_collection_partial">Finding latest changes to your collection</string>
 	<string name="sync_notification_collection_unupdated">Incomplete collection</string>
 	<string name="sync_notification_collection_syncing">Syncing \"%1$s\" collection %2$s</string>
-	<string name="sync_notification_collection_detail">\"%1$s\"“ %2$s</string>
+	<string name="sync_notification_collection_detail">\"%1$s\" %2$s</string>
 	<string name="sync_notification_collection_since">%1$s modified since %2$s</string>
 	<string name="sync_notification_collection_since_syncing">Syncing collection %1$s modified since %2$s</string>
 	<string name="sync_notification_collection_update_games">%1$,d %2$s for games %3$s</string>
@@ -22,9 +22,12 @@
 	<string name="sync_notification_buddies_list">Syncing list of GeekBuddies</string>
 	<string name="sync_notification_buddies_oldest">Refreshing stale buddies</string>
 	<string name="sync_notification_buddies_unupdated">Updating newly added buddies</string>
-	<string name="sync_notification_buddy">Updating GeekBuddy %s</string>
+	<string name="sync_notification_user">Updating user %s</string>
 	<string name="sync_notification_plays">Downloading plays</string>
 	<string name="sync_notification_plays_upload">Uploading plays</string>
+	<string name="sync_notification_plays_upload_update">Uploading play for %s</string>
+	<string name="sync_notification_plays_upload_delete">Deleting play for %s</string>
+	<string name="sync_notification_plays_upload_stats">Updating play stats</string>
 	<string name="sync_notification_plays_all">Syncing all plays</string>
 	<string name="sync_notification_plays_old">Syncing plays before %s</string>
 	<string name="sync_notification_plays_new">Syncing plays since %s</string>
@@ -69,8 +72,8 @@
 		<item quantity="other">Syncing %1$,d games: %2$s</item>
 	</plurals>
 	<plurals name="sync_notification_games_remove">
-		<item quantity="one">Deleting %,d game from your collection</item>
-		<item quantity="other">Deleting %,d games from your collection</item>
+		<item quantity="one">Removing %,d game from your collection</item>
+		<item quantity="other">Removing %,d games from your collection</item>
 	</plurals>
 	<plurals name="sync_notification_collection_sleeping">
 		<item quantity="one">Taking a break for a second</item>

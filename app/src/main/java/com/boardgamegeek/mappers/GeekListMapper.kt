@@ -1,19 +1,17 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.entities.GeekListCommentEntity
-import com.boardgamegeek.entities.GeekListEntity
-import com.boardgamegeek.entities.GeekListItemEntity
+import com.boardgamegeek.model.GeekListComment
+import com.boardgamegeek.model.GeekList
+import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.*
 import com.boardgamegeek.provider.BggContract
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun GeekListsResponse.mapToEntity() = this.lists.map { it.mapToEntity() }
-
-fun GeekListResponse.mapToEntity(): GeekListEntity {
-    val dateFormat = SimpleDateFormat(datePattern, Locale.US)
-    return GeekListEntity(
+fun GeekListResponse.mapToModel(): GeekList {
+    val dateFormat = SimpleDateFormat(DATE_PATTERN, Locale.US)
+    return GeekList(
         id = id,
         title = title.orEmpty().trim(),
         username = username.orEmpty(),
@@ -22,32 +20,33 @@ fun GeekListResponse.mapToEntity(): GeekListEntity {
         numberOfThumbs = thumbs.toIntOrNull() ?: 0,
         postTicks = postdate.toMillis(dateFormat),
         editTicks = editdate.toMillis(dateFormat),
-        items = items?.map { it.mapToEntity() }.orEmpty(),
-        comments = comments.mapToEntity()
+        items = items?.map { it.mapToModel() }.orEmpty(),
+        comments = comments.mapToModel()
     )
 }
 
-fun GeekListEntry.mapToEntity(): GeekListEntity {
+fun GeekListEntry.mapToModel(): GeekList {
     val id = if (this.href.isEmpty()) {
         BggContract.INVALID_ID
     } else {
+        @Suppress("SpellCheckingInspection")
         this.href.substring(
-                this.href.indexOf("/geeklist/") + 10,
-                this.href.lastIndexOf("/"),
+            this.href.indexOf("/geeklist/") + 10,
+            this.href.lastIndexOf("/"),
         ).toIntOrNull() ?: BggContract.INVALID_ID
     }
-    return GeekListEntity(
-            id = id,
-            title = this.title.orEmpty().trim(),
-            username = this.username.orEmpty().trim(),
-            numberOfItems = this.numitems,
-            numberOfThumbs = this.numpositive
+    return GeekList(
+        id = id,
+        title = this.title.orEmpty().trim(),
+        username = this.username.orEmpty().trim(),
+        numberOfItems = this.numitems,
+        numberOfThumbs = this.numpositive
     )
 }
 
-private fun GeekListItem.mapToEntity(): GeekListItemEntity {
-    val dateFormat = SimpleDateFormat(datePattern, Locale.US)
-    return GeekListItemEntity(
+private fun GeekListItemRemote.mapToModel(): GeekListItem {
+    val dateFormat = SimpleDateFormat(DATE_PATTERN, Locale.US)
+    return GeekListItem(
         id = this.id.toLongOrNull() ?: BggContract.INVALID_ID.toLong(),
         objectId = this.objectid.toIntOrNull() ?: BggContract.INVALID_ID,
         objectName = this.objectname.orEmpty(),
@@ -59,13 +58,13 @@ private fun GeekListItem.mapToEntity(): GeekListItemEntity {
         numberOfThumbs = this.thumbs.toIntOrNull() ?: 0,
         postDateTime = this.postdate.toMillis(dateFormat),
         editDateTime = this.editdate.toMillis(dateFormat),
-        comments = this.comments.mapToEntity()
+        comments = this.comments.mapToModel()
     )
 }
 
-private fun GeekListComment.mapToEntity(): GeekListCommentEntity {
-    val dateFormat = SimpleDateFormat(datePattern, Locale.US)
-    return GeekListCommentEntity(
+private fun GeekListCommentRemote.mapToModel(): GeekListComment {
+    val dateFormat = SimpleDateFormat(DATE_PATTERN, Locale.US)
+    return GeekListComment(
         postDate = this.postdate.toMillis(dateFormat),
         editDate = this.editdate.toMillis(dateFormat),
         numberOfThumbs = this.thumbs.toIntOrNull() ?: 0,
@@ -74,6 +73,6 @@ private fun GeekListComment.mapToEntity(): GeekListCommentEntity {
     )
 }
 
-private fun List<GeekListComment>?.mapToEntity() = this?.map { it.mapToEntity() }.orEmpty()
+private fun List<GeekListCommentRemote>?.mapToModel() = this?.map { it.mapToModel() }.orEmpty()
 
-private const val datePattern = "EEE, dd MMM yyyy HH:mm:ss Z"
+private const val DATE_PATTERN = "EEE, dd MMM yyyy HH:mm:ss Z"

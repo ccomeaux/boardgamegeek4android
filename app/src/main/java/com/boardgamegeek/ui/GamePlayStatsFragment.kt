@@ -16,6 +16,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TableLayout
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -25,10 +26,11 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding
-import com.boardgamegeek.entities.HIndexEntity
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
@@ -39,8 +41,6 @@ import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
-import java.text.DateFormat
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -62,17 +62,17 @@ class GamePlayStatsFragment : Fragment() {
     @ColorInt
     private lateinit var playCountColors: IntArray
 
-    private var playingTime = 0
-    private var personalRating = 0.0
-    private var gameOwned = false
+    private var publishedPlayingTime = 0
+    private var personalRating = Game.UNRATED
+    private var isGameOwned = false
     private var playerTransition: Transition? = null
     private val selectedItems = SparseBooleanArray()
 
     private val prefs: SharedPreferences by lazy { requireContext().preferences() }
     private val viewModel by viewModels<GamePlayStatsViewModel>()
 
-    private var playEntities = listOf<PlayEntity>()
-    private var playerEntities = listOf<PlayPlayerEntity>()
+    private var plays = listOf<Play>()
+    private var players = listOf<PlayPlayer>()
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -134,43 +134,36 @@ class GamePlayStatsFragment : Fragment() {
                 .show()
         }
 
-        viewModel.game.observe(viewLifecycleOwner) { resource ->
-            resource?.let { (_, data, _) ->
-                data?.first()?.let {
-                    playCountColors = intArrayOf(
-                        if (it.winsColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.orange) else it.winsColor,
-                        if (it.winnablePlaysColor == Color.TRANSPARENT) ContextCompat.getColor(
-                            requireContext(),
-                            R.color.dark_blue
-                        ) else it.winnablePlaysColor,
-                        if (it.allPlaysColor == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), R.color.light_blue) else it.allPlaysColor
-                    )
-                }
+        viewModel.collectionItems.observe(viewLifecycleOwner) {
+            it?.first()?.let { item: CollectionItem ->
+                playCountColors = intArrayOf(
+                    item.winsColor.colorOrElse(R.color.orange),
+                    item.winnablePlaysColor.colorOrElse(R.color.dark_blue),
+                    item.allPlaysColor.colorOrElse(R.color.light_blue),
+                )
+            }
 
-                playingTime = data?.first()?.playingTime ?: 0
-                personalRating = data?.filter { it.rating > 0.0 }?.map { it.rating }?.average() ?: 0.0
-                gameOwned = data?.any { it.own } ?: false
+            publishedPlayingTime = it?.first()?.playingTime ?: 0
+            personalRating = it?.filter { item -> item.rating > 0.0 }?.map { item -> item.rating }?.average() ?: Game.UNRATED
+            isGameOwned = it?.any { item -> item.own } ?: false
 
-                viewModel.plays.observe(viewLifecycleOwner) { playList ->
-                    playList?.let { (_, data, _) ->
-                        if (data.isNullOrEmpty()) {
-                            binding.progressView.hide()
-                            binding.dataView.fadeOut()
-                            binding.emptyView.fadeIn()
-                        } else {
-                            playEntities = data.sortedByDescending { it.dateInMillis }
-                            viewModel.players.observe(viewLifecycleOwner) {
-                                playerEntities = it
+            viewModel.plays.observe(viewLifecycleOwner) { plays ->
+                if (plays.isNullOrEmpty()) {
+                    binding.progressView.hide()
+                    binding.dataView.fadeOut()
+                    binding.emptyView.fadeIn()
+                } else {
+                    this.plays = plays.sortedByDescending { play -> play.dateInMillis }
+                    viewModel.players.observe(viewLifecycleOwner) { players ->
+                        this.players = players
 
-                                val stats = Stats()
-                                stats.calculate()
-                                bindUi(stats)
+                        val stats = Stats()
+                        stats.calculate()
+                        bindUi(stats)
 
-                                binding.progressView.hide()
-                                binding.emptyView.fadeOut()
-                                binding.dataView.fadeIn()
-                            }
-                        }
+                        binding.progressView.hide()
+                        binding.emptyView.fadeOut()
+                        binding.dataView.fadeIn()
                     }
                 }
             }
@@ -182,6 +175,8 @@ class GamePlayStatsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    private fun Int.colorOrElse(@ColorRes colorResId: Int) = if (this == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), colorResId) else this
 
     private fun setInterpolator(context: Context?, transition: Transition?) {
         if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
@@ -314,7 +309,7 @@ class GamePlayStatsFragment : Fragment() {
             }
             binding.players.playersList.addView(view)
         }
-        binding.players.playersCard.isVisible = playerEntities.isNotEmpty()
+        binding.players.playersCard.isVisible = players.isNotEmpty()
 
         // endregion PLAYERS
 
@@ -339,11 +334,11 @@ class GamePlayStatsFragment : Fragment() {
         val average = stats.averagePlayTime
         if (average > 0) {
             addPlayStat(binding.time.playTimeTable, average.asTime(), R.string.play_stat_average_play_time)
-            if (playingTime > 0) {
-                if (average > playingTime) {
-                    addPlayStat(binding.time.playTimeTable, (average - playingTime).asTime(), R.string.play_stat_average_play_time_slower)
-                } else if (playingTime > average) {
-                    addPlayStat(binding.time.playTimeTable, (playingTime - average).asTime(), R.string.play_stat_average_play_time_faster)
+            if (publishedPlayingTime > 0) {
+                if (average > publishedPlayingTime) {
+                    addPlayStat(binding.time.playTimeTable, (average - publishedPlayingTime).asTime(), R.string.play_stat_average_play_time_slower)
+                } else if (publishedPlayingTime > average) {
+                    addPlayStat(binding.time.playTimeTable, (publishedPlayingTime - average).asTime(), R.string.play_stat_average_play_time_faster)
                 }
             } // don't display anything if the average is exactly as expected
         }
@@ -366,7 +361,7 @@ class GamePlayStatsFragment : Fragment() {
         // region ADVANCED
 
         binding.advanced.advancedTable.removeAllViews()
-        if (personalRating > 0.0) {
+        if (personalRating != Game.UNRATED) {
             addPlayStat(
                 binding.advanced.advancedTable,
                 stats.calculateFhm().toString(),
@@ -388,18 +383,17 @@ class GamePlayStatsFragment : Fragment() {
                 R.string.play_stat_ruhm
             ).setInfoText(R.string.play_stat_ruhm_info)
         }
-        if (gameOwned) {
+        if (isGameOwned) {
             addPlayStat(
                 binding.advanced.advancedTable,
                 stats.calculateUtilization().asPercentage(),
                 R.string.play_stat_utilization
             ).setInfoText(R.string.play_stat_utilization_info)
         }
-        val hIndexOffset = stats.hIndexOffset
-        if (hIndexOffset == HIndexEntity.INVALID_H_INDEX) {
-            addPlayStat(binding.advanced.advancedTable, "", R.string.play_stat_game_h_index_offset_in)
+        if (stats.playCountShortOfHIndex > 0) {
+            addPlayStat(binding.advanced.advancedTable, stats.playCountShortOfHIndex.toString(), R.string.play_stat_game_h_index_offset_out)
         } else {
-            addPlayStat(binding.advanced.advancedTable, hIndexOffset.toString(), R.string.play_stat_game_h_index_offset_out)
+            addPlayStat(binding.advanced.advancedTable, "", R.string.play_stat_game_h_index_offset_in)
         }
 
         // endregion ADVANCED
@@ -482,7 +476,7 @@ class GamePlayStatsFragment : Fragment() {
             highScore = Int.MIN_VALUE.toDouble()
             lowScore = Int.MAX_VALUE.toDouble()
 
-            playCountIncomplete = playEntities.sumOf { it.quantity }
+            playCountIncomplete = this@GamePlayStatsFragment.plays.sumOf { it.quantity }
 
             firstPlayDate = plays.first().date
             firstPlayDateInMillis = plays.first().dateInMillis
@@ -518,14 +512,14 @@ class GamePlayStatsFragment : Fragment() {
                 count += play.quantity
 
                 if (play.length == 0) {
-                    estimatedMinutesPlayed += playingTime * play.quantity
+                    estimatedMinutesPlayed += publishedPlayingTime * play.quantity
                 } else {
                     realMinutesPlayed += play.length
                     playCountWithLength += play.quantity
                     playerCountSumWithLength += play.playerCount * play.quantity
                 }
 
-                for (player in playerEntities.filter { it.playId == play.playId }) {
+                for (player in players.filter { it.playInternalId == play.internalId }) {
                     if (player.description.isNotEmpty()) {
                         val playerStats = playerStats[player.id] ?: PlayerStats()
                         playerStats.add(play, player)
@@ -546,14 +540,14 @@ class GamePlayStatsFragment : Fragment() {
             }
         }
 
-        val plays: List<PlayEntity> = playEntities.filter { prefs[PlayStats.LOG_PLAY_STATS_INCOMPLETE, false] ?: false || !it.incomplete }.reversed()
+        val plays: List<Play> = this@GamePlayStatsFragment.plays.filter { prefs[PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE, false] ?: false || !it.incomplete }.reversed()
 
         val playCount: Int by lazy { plays.sumOf { it.quantity } }
 
         fun playCountSince(dateInMillis: Long): Int = plays.filter { it.dateInMillis > dateInMillis }.sumOf { it.quantity }
 
         fun hoursPlayedSince(dateInMillis: Long): Double {
-            val estimated = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length == 0 }.sumOf { playingTime * it.quantity }
+            val estimated = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length == 0 }.sumOf { publishedPlayingTime * it.quantity }
             val actual = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length > 0 }.sumOf { it.length }
             return (estimated + actual) / 60.0
         }
@@ -642,15 +636,10 @@ class GamePlayStatsFragment : Fragment() {
             return if (raw < 1.0) 0.0 else ln(raw)
         }
 
-        val hIndexOffset: Int
-            get() {
-                val hIndex = prefs[PlayStats.KEY_GAME_H_INDEX, 0] ?: 0
-                return if (playCount >= hIndex) {
-                    HIndexEntity.INVALID_H_INDEX
-                } else {
-                    hIndex - playCount
-                }
-            }
+        val playCountShortOfHIndex: Int by lazy {
+            val hIndex = prefs[PlayStatPrefs.KEY_GAME_H_INDEX, 0] ?: 0
+            (hIndex - playCount).coerceAtLeast(0)
+        }
 
 //        fun getMonthsPerPlay(): Int {
 //            val days = calculateSpan()
@@ -722,9 +711,9 @@ class GamePlayStatsFragment : Fragment() {
         private var winsTimesPlayers = 0
         private var totalScore: Double = 0.0
         private var winningScore: Double = 0.0
-        var highScore: Double = Int.MIN_VALUE.toDouble()
+        var highScore: Double = Double.MIN_VALUE
             private set
-        var lowScore: Double = Int.MAX_VALUE.toDouble()
+        var lowScore: Double = Double.MAX_VALUE
             private set
 
         private val playsByPlayerCount = SparseIntArray()
@@ -733,7 +722,7 @@ class GamePlayStatsFragment : Fragment() {
 
         val invalidScore = Int.MIN_VALUE.toDouble()
 
-        fun add(play: PlayEntity, player: PlayPlayerEntity) {
+        fun add(play: Play, player: PlayPlayer) {
             username = player.username
             description = player.description
             numberOfPlays += play.quantity
@@ -788,16 +777,16 @@ class GamePlayStatsFragment : Fragment() {
             get() = if (numberOfPlaysWonWithScore == 0) invalidScore else winningScore / numberOfPlaysWonWithScore
     }
 
-    val PlayEntity.date: String
+    val Play.date: String
         get() = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(this.dateInMillis)
 
-//    val PlayEntity.year: String
+//    val Play.year: String
 //        get() = this.date.substring(0, 4)
 
-    val PlayEntity.yearAndMonth: String
+    val Play.yearAndMonth: String
         get() = this.date.substring(0, 7)
 
-    val PlayEntity.isWinnable: Boolean
+    val Play.isWinnable: Boolean
         get() {
             return when {
                 noWinStats -> false

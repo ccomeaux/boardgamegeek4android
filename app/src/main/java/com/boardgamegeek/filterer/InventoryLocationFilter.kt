@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 
 class InventoryLocationFilter(context: Context) : CollectionTextFilter(context) {
     override val typeResourceId = R.string.collection_filter_type_inventory_location
@@ -14,5 +14,5 @@ class InventoryLocationFilter(context: Context) : CollectionTextFilter(context) 
 
     override fun description() = description(context.getString(R.string.inventory_location))
 
-    override fun filter(item: CollectionItemEntity) = filterByText(item.inventoryLocation)
+    override fun filter(item: CollectionItem) = filterByText(item.inventoryLocation)
 }

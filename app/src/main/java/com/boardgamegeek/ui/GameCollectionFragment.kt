@@ -7,14 +7,9 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionBinding
-import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.extensions.setBggColors
-import com.boardgamegeek.extensions.setTextOrHide
-import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -44,48 +39,34 @@ class GameCollectionFragment : Fragment() {
         binding.recyclerView.adapter = adapter
 
         viewModel.game.observe(viewLifecycleOwner) {
-            adapter.gameYearPublished = it?.data?.yearPublished ?: GameEntity.YEAR_UNKNOWN
+            adapter.gameYearPublished = it?.yearPublished ?: Game.YEAR_UNKNOWN
         }
 
-        viewModel.collectionItems.observe(viewLifecycleOwner) {
-            it?.let { (status, data, message) ->
-                binding.swipeRefresh.isRefreshing = status == Status.REFRESHING
-                if (status == Status.ERROR) {
-                    showError(
-                        message.ifBlank { getString(R.string.empty_game_collection) },
-                        hasData = data?.isNotEmpty() ?: false,
-                    )
+        viewModel.itemsAreRefreshing.observe(viewLifecycleOwner) {
+            binding.swipeRefresh.isRefreshing = it ?: false
+        }
+        viewModel.collectionItems.observe(viewLifecycleOwner) { items ->
+            if (items == null){
+                binding.emptyMessage.isVisible = true
+            } else {
+                adapter.items = items
+                if (items.isNotEmpty()) {
+                    binding.syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
+                    binding.emptyMessage.isVisible = false
+                } else {
+                    binding.syncTimestamp.timestamp = System.currentTimeMillis()
+                    binding.emptyMessage.isVisible = true
                 }
-                showData(data.orEmpty())
-                binding.progressView.hide()
+                binding.swipeRefresh.setOnRefreshListener { viewModel.refreshItems() }
+                binding.swipeRefresh.isEnabled = true
             }
+            binding.contentLoadingProgressBar.hide()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
-    }
-
-    private fun showData(items: List<CollectionItemEntity>) {
-        adapter.items = items
-        if (items.isNotEmpty()) {
-            binding.syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-            binding.emptyMessage.isVisible = false
-        } else {
-            binding.syncTimestamp.timestamp = System.currentTimeMillis()
-            showError(hasData = false)
-        }
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
-        binding.swipeRefresh.isEnabled = true
-    }
-
-    private fun showError(message: String = getString(R.string.empty_game_collection), hasData: Boolean = false) {
-        if (hasData) {
-            toast(message)
-            binding.emptyMessage.isVisible = false
-        } else {
-            binding.emptyMessage.setTextOrHide(message)
-        }
     }
 }

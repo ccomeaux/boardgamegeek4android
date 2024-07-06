@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.asBoundedRating
 import com.boardgamegeek.extensions.firstChar
 import java.text.DecimalFormat
@@ -23,15 +23,15 @@ class CollectionNameSorter(context: Context) : CollectionSorter(context) {
         @StringRes
         get() = R.string.collection_sort_collection_name
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>): List<CollectionItemEntity> {
+    override fun sortAscending(items: Iterable<CollectionItem>): List<CollectionItem> {
         return items.sortedBy { it.sortName } // Needs to be case insensitive?
     }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.sortName }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.sortName }
 
-    override fun getHeaderText(item: CollectionItemEntity) = item.sortName.firstChar()
+    override fun getHeaderText(item: CollectionItem) = item.sortName.firstChar()
 
-    override fun getRating(item: CollectionItemEntity): Double = item.averageRating
+    override fun getRating(item: CollectionItem): Double = item.averageRating
 
-    override fun getRatingText(item: CollectionItemEntity) = getRating(item).asBoundedRating(context, displayFormat, R.string.unrated_abbr)
+    override fun getRatingText(item: CollectionItem) = getRating(item).asBoundedRating(context, displayFormat, R.string.unrated_abbr)
 }

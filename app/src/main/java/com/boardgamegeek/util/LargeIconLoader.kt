@@ -61,12 +61,12 @@ class LargeIconLoader(private val context: Context, vararg urls: String, private
     }
 
     override fun onBitmapLoaded(bitmap: Bitmap, from: LoadedFrom?) {
-        Timber.i("Found an image at %s", currentImageUrl)
+        Timber.d("Found an image at %s", currentImageUrl)
         callback?.onSuccessfulIconLoad(bitmap)
     }
 
     override fun onBitmapFailed(errorDrawable: Drawable?) {
-        Timber.i("Didn't find an image at %s", currentImageUrl)
+        Timber.d("Didn't find an image at %s", currentImageUrl)
         callback?.onFailedIconLoad()
     }
 

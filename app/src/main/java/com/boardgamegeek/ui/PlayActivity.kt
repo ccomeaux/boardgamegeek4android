@@ -8,7 +8,7 @@ import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

@@ -2,15 +2,15 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.PlayUploadResult
-import com.boardgamegeek.entities.RefreshableResource
-import com.boardgamegeek.entities.SearchResultEntity
+import com.boardgamegeek.model.PlayUploadResult
+import com.boardgamegeek.model.RefreshableResource
+import com.boardgamegeek.model.SearchResult
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.SearchRepository
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,7 +49,7 @@ class SearchViewModel @Inject constructor(
         if (_query.value?.first != query || _query.value?.second != false) _query.value = query to false
     }
 
-    val searchResults: LiveData<RefreshableResource<List<SearchResultEntity>>> = _query.switchMap { q ->
+    val searchResults: LiveData<RefreshableResource<List<SearchResult>>> = _query.switchMap { q ->
         liveData {
             when {
                 q.first.isNotBlank() ->

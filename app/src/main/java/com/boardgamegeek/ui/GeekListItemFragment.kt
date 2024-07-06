@@ -8,7 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.databinding.FragmentGeeklistItemBinding
-import com.boardgamegeek.entities.GeekListItemEntity
+import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.extensions.getParcelableCompat
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -18,14 +18,14 @@ class GeekListItemFragment : Fragment() {
     private val binding get() = _binding!!
     private var order = 0
     private var geekListTitle = ""
-    private var glItem = GeekListItemEntity()
+    private var geekListItem = GeekListItem()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             order = it.getInt(KEY_ORDER, 0)
             geekListTitle = it.getString(KEY_TITLE).orEmpty()
-            glItem = it.getParcelableCompat(KEY_ITEM) ?: GeekListItemEntity()
+            geekListItem = it.getParcelableCompat(KEY_ITEM) ?: GeekListItem()
         }
     }
 
@@ -40,14 +40,14 @@ class GeekListItemFragment : Fragment() {
         val markupConverter = XmlApiMarkupConverter(requireContext())
         binding.orderView.text = order.toString()
         binding.geekListTitleView.text = geekListTitle
-        binding.typeView.text = glItem.objectTypeDescription(requireContext())
-        binding.usernameView.text = glItem.username
-        binding.thumbsView.text = glItem.numberOfThumbs.toString()
-        binding.bodyView.setWebViewText(markupConverter.toHtml(glItem.body))
-        binding.postedDateView.timestamp = glItem.postDateTime
-        binding.editedDateView.timestamp = glItem.editDateTime
-        binding.datetimeDividerView.isVisible = glItem.editDateTime != glItem.postDateTime
-        binding.editedDateView.isVisible = glItem.editDateTime != glItem.postDateTime
+        binding.typeView.text = geekListItem.objectTypeDescription(requireContext())
+        binding.usernameView.text = geekListItem.username
+        binding.thumbsView.text = geekListItem.numberOfThumbs.toString()
+        binding.bodyView.setWebViewText(markupConverter.toHtml(geekListItem.body))
+        binding.postedDateView.timestamp = geekListItem.postDateTime
+        binding.editedDateView.timestamp = geekListItem.editDateTime
+        binding.datetimeDividerView.isVisible = geekListItem.editDateTime != geekListItem.postDateTime
+        binding.editedDateView.isVisible = geekListItem.editDateTime != geekListItem.postDateTime
     }
 
     override fun onDestroyView() {
@@ -60,7 +60,7 @@ class GeekListItemFragment : Fragment() {
         private const val KEY_TITLE = "GEEK_LIST_TITLE"
         private const val KEY_ITEM = "ITEM"
 
-        fun newInstance(order: Int, title: String, item: GeekListItemEntity): GeekListItemFragment {
+        fun newInstance(order: Int, title: String, item: GeekListItem): GeekListItemFragment {
             return GeekListItemFragment().apply {
                 arguments = bundleOf(
                     KEY_ORDER to order,

@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 
@@ -39,7 +39,7 @@ class PlayCountFilterer(context: Context) : CollectionFilterer(context) {
         else -> String.format(Locale.getDefault(), "%,d$rangeDelimiter%,d", min, max)
     }
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         return when {
             max >= upperBound -> item.numberOfPlays >= min
             else -> item.numberOfPlays in min..max

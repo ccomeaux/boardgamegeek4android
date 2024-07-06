@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.joinTo
 
 class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
@@ -38,7 +38,7 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
         return context.getString(R.string.status_of_prefix, chipText())
     }
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         val statuses = selectedStatuses.indices.filter { selectedStatuses[it] }
 
         if (shouldJoinWithOr) {

@@ -16,11 +16,10 @@ import androidx.drawerlayout.widget.DrawerLayout
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.ActivityDrawerBaseBinding
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
-import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.google.android.material.navigation.NavigationView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,8 +34,7 @@ abstract class DrawerActivity : BaseActivity() {
     private lateinit var toolbar: Toolbar
     var rootContainer: ViewGroup? = null
 
-    private val viewModel by viewModels<SelfUserViewModel>()
-    private val syncViewModel by viewModels<SyncViewModel>()
+    private val selfUserViewModel by viewModels<SelfUserViewModel>()
 
     protected open val navigationItemId: Int
         get() = 0
@@ -77,13 +75,9 @@ abstract class DrawerActivity : BaseActivity() {
             it.setOnClickListener { startActivity<LoginActivity>() }
         }
 
-        viewModel.user.observe(this) {
+        selfUserViewModel.user.observe(this) {
             navigationView.menu.setGroupVisible(R.id.personal, Authenticator.isSignedIn(this))
-            refreshHeader(it?.data)
-        }
-
-        syncViewModel.username.observe(this) {
-            viewModel.setUsername(it)
+            refreshHeader(it)
         }
     }
 
@@ -120,6 +114,7 @@ abstract class DrawerActivity : BaseActivity() {
                 R.id.plays -> startActivity<PlaysSummaryActivity>()
                 R.id.geek_buddies -> startActivity<BuddiesActivity>()
                 R.id.forums -> startActivity<ForumsActivity>()
+                R.id.sync -> startActivity<SyncActivity>()
                 R.id.data -> startActivity<DataActivity>()
                 R.id.settings -> startActivity<SettingsActivity>()
             }
@@ -127,7 +122,7 @@ abstract class DrawerActivity : BaseActivity() {
         drawerLayout.closeDrawer(navigationView)
     }
 
-    private fun refreshHeader(user: UserEntity?) {
+    private fun refreshHeader(user: User?) {
         val view = navigationView.getHeaderView(0)
         val primaryView = view.findViewById<TextView>(R.id.accountInfoPrimaryView)
         val secondaryView = view.findViewById<TextView>(R.id.accountInfoSecondaryView)
@@ -136,18 +131,16 @@ abstract class DrawerActivity : BaseActivity() {
         val signInButton = view.findViewById<Button>(R.id.signInButton)
 
         if (Authenticator.isSignedIn(this) && user != null) {
-            if (user.fullName.isNotBlank() && user.userName.isNotBlank()) {
+            if (user.fullName.isNotBlank() && user.username.isNotBlank()) {
                 primaryView.text = user.fullName
-                secondaryView.text = user.userName
+                secondaryView.text = user.username
                 primaryView.setOnClickListener { }
-                secondaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
-            } else if (user.userName.isNotBlank()) {
-                primaryView.text = user.userName
+                secondaryView.setOnClickListener { linkToBgg("user/${user.username}") }
+            } else if (user.username.isNotBlank()) {
+                primaryView.text = user.username
                 secondaryView.text = ""
-                primaryView.setOnClickListener { linkToBgg("user/${user.userName}") }
+                primaryView.setOnClickListener { linkToBgg("user/${user.username}") }
                 secondaryView.setOnClickListener { }
-            } else {
-                Authenticator.getAccount(this)?.let { viewModel.setUsername(it.name) }
             }
             if (user.avatarUrl.isBlank()) {
                 imageView.isVisible = false

@@ -13,7 +13,7 @@ class SettingsViewModel @Inject constructor(
     application: Application,
     private val artistRepository: ArtistRepository,
     private val categoryRepository: CategoryRepository,
-    private val collectionItemRepository: CollectionItemRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
     private val collectionViewRepository: CollectionViewRepository,
     private val designerRepository: DesignerRepository,
     private val gameRepository: GameRepository,
@@ -25,23 +25,21 @@ class SettingsViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     fun clearAllData() {
         viewModelScope.launch {
-            gameRepository.delete()
-            designerRepository.delete()
-            artistRepository.delete()
-            publisherRepository.delete()
-            categoryRepository.delete()
-            mechanicRepository.delete()
-            collectionViewRepository.delete()
+            gameRepository.deleteAll()
+            designerRepository.deleteAll()
+            artistRepository.deleteAll()
+            publisherRepository.deleteAll()
+            categoryRepository.deleteAll()
+            mechanicRepository.deleteAll()
+            collectionViewRepository.deleteAll()
             playRepository.deletePlays()
             userRepository.deleteUsers()
-            imageRepository.delete()
+            imageRepository.deleteAll()
         }
     }
 
     fun resetCollectionItems() {
-        viewModelScope.launch {
-            collectionItemRepository.resetCollectionItems()
-        }
+        gameCollectionRepository.resetCollectionItems()
     }
 
     fun resetPlays() {

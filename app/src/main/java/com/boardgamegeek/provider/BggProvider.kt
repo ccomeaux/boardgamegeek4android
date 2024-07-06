@@ -2,21 +2,15 @@ package com.boardgamegeek.provider
 
 import android.content.ContentProvider
 import android.content.ContentValues
-import android.content.Context
 import android.content.UriMatcher
 import android.database.Cursor
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import androidx.collection.SimpleArrayMap
-import androidx.core.content.contentValuesOf
 import java.io.FileNotFoundException
 
 class BggProvider : ContentProvider() {
     private lateinit var openHelper: BggDatabase
-
-    private fun reqContext(): Context {
-        return context ?: throw IllegalStateException("Cannot find context from the provider.")
-    }
 
     override fun onCreate(): Boolean {
         openHelper = BggDatabase(context)
@@ -29,41 +23,30 @@ class BggProvider : ContentProvider() {
 
     override fun query(uri: Uri, projection: Array<String>?, selection: String?, selectionArgs: Array<String>?, sortOrder: String?): Cursor? {
         return getProvider(uri)?.query(
-            reqContext().contentResolver,
             openHelper.readableDatabase,
             uri,
             projection,
             selection,
             selectionArgs,
             sortOrder
-        )?.also {
-            it.setNotificationUri(reqContext().contentResolver, uri)
-        }
+        )
     }
 
     override fun insert(uri: Uri, values: ContentValues?): Uri? {
-        return getProvider(uri)?.insert(reqContext(), openHelper.writableDatabase, uri, values ?: contentValuesOf())?.also {
-            context?.contentResolver?.notifyChange(it, null)
-        }
+        throw UnsupportedOperationException("Unknown uri inserting: $uri")
     }
 
     override fun update(uri: Uri, values: ContentValues?, selection: String?, selectionArgs: Array<String>?): Int {
-        return getProvider(uri)?.update(reqContext(), openHelper.writableDatabase, uri, values, selection, selectionArgs) ?: 0
+        throw UnsupportedOperationException("Unknown uri updating: $uri")
     }
 
     override fun delete(uri: Uri, selection: String?, selectionArgs: Array<String>?): Int {
-        return getProvider(uri)?.delete(
-            reqContext(),
-            openHelper.writableDatabase,
-            uri,
-            selection,
-            selectionArgs
-        ) ?: 0
+        throw UnsupportedOperationException("Unknown uri deleting: $uri")
     }
 
     @Throws(FileNotFoundException::class)
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
-        return getProvider(uri)?.openFile(reqContext(), uri, mode)
+        return context?.let { getProvider(uri)?.openFile(it, openHelper.readableDatabase, uri, mode) }
     }
 
     private fun getProvider(uri: Uri): BaseProvider? {
@@ -81,87 +64,9 @@ class BggProvider : ContentProvider() {
 
         private fun buildProviderMap(): SimpleArrayMap<Int, BaseProvider> {
             val map = SimpleArrayMap<Int, BaseProvider>()
-            addProvider(map, GamesProvider())
             addProvider(map, GamesIdProvider())
-            addProvider(map, GamesIdRankProvider())
-            addProvider(map, GamesIdRankIdProvider())
-            addProvider(map, GamesIdExpansionsProvider())
-            addProvider(map, GamesIdExpansionsIdProvider())
-            addProvider(map, GamesIdDesignersProvider())
-            addProvider(map, GamesIdDesignersIdProvider())
-            addProvider(map, GamesIdArtistsProvider())
-            addProvider(map, GamesIdArtistsIdProvider())
-            addProvider(map, GamesIdPublishersProvider())
-            addProvider(map, GamesIdPublishersIdProvider())
-            addProvider(map, GamesIdCategoriesProvider())
-            addProvider(map, GamesIdCategoriesIdProvider())
-            addProvider(map, GamesIdMechanicsProvider())
-            addProvider(map, GamesIdMechanicsIdProvider())
-            addProvider(map, GamesRanksProvider())
-            addProvider(map, GamesRanksIdProvider())
-            addProvider(map, GamesDesignersIdProvider())
-            addProvider(map, GamesArtistsIdProvider())
-            addProvider(map, GamesPublishersIdProvider())
-            addProvider(map, GamesMechanicsIdProvider())
-            addProvider(map, GamesCategoriesIdProvider())
-            addProvider(map, GamesColorsProviders())
-            addProvider(map, GamesIdSuggestedPlayerCountPollResultsProvider())
-            addProvider(map, GamesIdSuggestedPlayerCountPollResultProvider())
-            addProvider(map, GamesIdPollsProvider())
-            addProvider(map, GamesIdPollsNameProvider())
-            addProvider(map, GamesIdPollsNameResultsProvider())
-            addProvider(map, GamesIdPollsNameResultsResultProvider())
-            addProvider(map, GamesIdPollsNameResultsKeyProvider())
-            addProvider(map, GamesIdPollsNameResultsKeyResultProvider())
-            addProvider(map, GamesIdPollsNameResultsKeyResultKeyProvider())
-            addProvider(map, GamesIdColorsProvider())
-            addProvider(map, GamesIdColorsNameProvider())
-            addProvider(map, GamesIdPlaysProvider())
-            addProvider(map, DesignersProvider())
-            addProvider(map, DesignersIdProvider())
-            addProvider(map, DesignersIdCollectionProvider())
-            addProvider(map, ArtistsProvider())
-            addProvider(map, ArtistsIdProvider())
-            addProvider(map, ArtistsIdCollectionProvider())
-            addProvider(map, PublishersProvider())
-            addProvider(map, PublishersIdProvider())
-            addProvider(map, PublishersIdCollectionProvider())
-            addProvider(map, MechanicsProvider())
-            addProvider(map, MechanicsIdProvider())
-            addProvider(map, MechanicsIdCollectionProvider())
-            addProvider(map, CategoriesProvider())
-            addProvider(map, CategoriesIdProvider())
-            addProvider(map, CategoriesIdCollectionProvider())
-            addProvider(map, CollectionProvider())
-            addProvider(map, CollectionIdProvider())
-            addProvider(map, CollectionAcquiredFromProvider())
-            addProvider(map, CollectionInventoryLocationProvider())
-            addProvider(map, PlaysProvider())
-            addProvider(map, PlaysIdProvider())
-            addProvider(map, PlaysIdPlayersProvider())
-            addProvider(map, PlaysIdPlayersIdProvider())
-            addProvider(map, PlaysLocationsProvider())
-            addProvider(map, PlaysPlayersProvider())
-            addProvider(map, CollectionViewProvider())
-            addProvider(map, CollectionViewIdProvider())
-            addProvider(map, CollectionViewIdFiltersProvider())
-            addProvider(map, CollectionViewIdFiltersIdProvider())
-            addProvider(map, BuddiesProvider())
-            addProvider(map, BuddiesIdProvider())
-            addProvider(map, ThumbnailsProvider())
-            addProvider(map, ThumbnailsIdProvider())
-            addProvider(map, GamesIdThumbnailProvider())
             addProvider(map, CollectionIdThumbnailProvider())
-            addProvider(map, AvatarsProvider())
-            addProvider(map, BuddiesIdAvatarProvider())
             addProvider(map, SearchSuggestProvider())
-            addProvider(map, SearchSuggestTextProvider())
-            addProvider(map, SearchRefreshProvider())
-            addProvider(map, PlayerColorsProvider())
-            addProvider(map, UsersNameColorsProvider())
-            addProvider(map, UsersNameColorsOrderProvider())
-            addProvider(map, PlayersNameColorsProvider())
-            addProvider(map, PlayersNameColorsOrderProvider())
             return map
         }
 

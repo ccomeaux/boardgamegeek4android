@@ -17,7 +17,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.ActivityHeroTabBinding
-import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.GamePagerAdapter
@@ -25,7 +24,7 @@ import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -67,17 +66,14 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         viewModel.setId(gameId)
 
         viewModel.game.observe(this) {
-            it?.let { (status, data, message) ->
-                if (status == Status.ERROR) toast(message.ifBlank { getString(R.string.empty_game) })
-                data?.let { game ->
-                    changeName(game.name)
-                    changeImage(game.heroImageUrl, game.thumbnailUrl)
-                    isFavorite = game.isFavorite
-                    isUserMenuEnabled = game.maxUsers > 0
-                    thumbnailUrl = game.thumbnailUrl
-                    imageUrl = game.imageUrl
-                    arePlayersCustomSorted = game.customPlayerSort
-                }
+            it?.let { game ->
+                changeName(game.name)
+                changeImage(game.heroImageUrl, game.thumbnailUrl)
+                isFavorite = game.isFavorite
+                isUserMenuEnabled = game.maxUsers > 0
+                thumbnailUrl = game.thumbnailUrl
+                imageUrl = game.imageUrl
+                arePlayersCustomSorted = game.customPlayerSort
             }
         }
 
@@ -143,7 +139,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 binding.coordinatorLayout.snackbar(R.string.msg_logging_play)
                 viewModel.logQuickPlay(gameId, gameName)
             }
-            R.id.menu_log_play -> LogPlayActivity.logPlay(this, gameId, gameName, heroImageUrl.ifBlank { thumbnailUrl }, arePlayersCustomSorted)
+            R.id.menu_log_play -> LogPlayActivity.logPlay(this, gameId, gameName, heroImageUrl.ifBlank { thumbnailUrl.ifBlank { imageUrl } }, arePlayersCustomSorted)
             R.id.menu_log_play_wizard -> NewPlayActivity.start(this, gameId, gameName)
             R.id.menu_view_image -> ImageActivity.start(this, heroImageUrl)
             R.id.menu_users -> GameUsersDialogFragment.launch(this)
@@ -195,7 +191,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
             context.startActivity(intent)
         }
 
-        fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = "") {
+        fun startUp(context: Context, gameId: Int, gameName: String, thumbnailUrl: String = "", heroImageUrl: String = thumbnailUrl) {
             val intent = createIntent(context, gameId, gameName, thumbnailUrl, heroImageUrl) ?: return
             context.startActivity(intent.clearTask().clearTop())
         }

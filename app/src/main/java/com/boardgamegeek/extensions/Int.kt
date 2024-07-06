@@ -5,9 +5,7 @@ import android.graphics.Color
 import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.io.BggService
+import com.boardgamegeek.model.Game
 import java.math.BigDecimal
 import java.math.MathContext
 import java.text.NumberFormat
@@ -47,7 +45,7 @@ fun Int.asRangeDescription(quantity: Int): String {
 fun Int.asYear(context: Context?): String {
     return when {
         context == null -> this.toString()
-        this == GameEntity.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
+        this == Game.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
         this > 0 -> context.getString(R.string.year_positive, this.toString())
         else -> context.getString(R.string.year_negative, (-this).toString())
     }
@@ -64,18 +62,6 @@ fun Int.asAge(context: Context?): CharSequence {
 fun Int.asWishListPriority(context: Context?): String {
     if (context == null) return ""
     return context.resources.getStringArray(R.array.wishlist_priority).getOrElse(this) { context.getString(R.string.wishlist) }
-}
-
-fun Int.isRankValid(): Boolean {
-    return this != GameRankEntity.RANK_UNKNOWN
-}
-
-fun Int.asRank(context: Context, name: String, type: String = BggService.RANK_TYPE_SUBTYPE): CharSequence {
-    val subtype = name.asRankDescription(context, type)
-    return when {
-        isRankValid() -> context.getText(R.string.rank_description, this, subtype)
-        else -> subtype
-    }
 }
 
 /**

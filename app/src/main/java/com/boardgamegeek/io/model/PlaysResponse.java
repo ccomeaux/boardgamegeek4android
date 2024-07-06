@@ -13,7 +13,7 @@ public class PlaysResponse {
 	@Attribute(required = false) private int userid;
 	@Attribute(required = false) private int total;
 	@Attribute(required = false) private int page;
-	@ElementList(inline = true, required = false) public List<Play> plays;
+	@ElementList(inline = true, required = false) public List<PlayRemote> plays;
 
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean hasMorePages() {

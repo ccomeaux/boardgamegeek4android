@@ -6,5 +6,5 @@ import java.util.List;
 
 public class ThingResponse {
 	@ElementList(name = "items", inline = true, required = false)
-	public List<Game> games;
+	public List<GameRemote> games;
 }

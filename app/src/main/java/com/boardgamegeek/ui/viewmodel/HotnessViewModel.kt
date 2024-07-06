@@ -7,9 +7,9 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.boardgamegeek.entities.HotGameEntity
-import com.boardgamegeek.entities.PlayUploadResult
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.HotGame
+import com.boardgamegeek.model.PlayUploadResult
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.HotnessRepository
@@ -24,7 +24,6 @@ class HotnessViewModel @Inject constructor(
     private val hotnessRepository: HotnessRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-
     private val _errorMessage = MediatorLiveData<Event<String>>()
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
@@ -33,7 +32,7 @@ class HotnessViewModel @Inject constructor(
     val loggedPlayResult: LiveData<Event<PlayUploadResult>>
         get() = _loggedPlayResult
 
-    val hotness: LiveData<RefreshableResource<List<HotGameEntity>>> = liveData {
+    val hotGames: LiveData<RefreshableResource<List<HotGame>>> = liveData {
         try {
             emit(RefreshableResource.refreshing(latestValue?.data))
             val games = hotnessRepository.getHotness()

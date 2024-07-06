@@ -1,11 +1,7 @@
 package com.boardgamegeek.extensions
 
-import android.content.Context
 import android.net.Uri
-import androidx.annotation.StringRes
-import com.boardgamegeek.R
-import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.io.BggService
+import com.boardgamegeek.model.Game
 import timber.log.Timber
 import java.text.DateFormat
 import java.util.*
@@ -37,38 +33,6 @@ fun String.findFirstNumber() = "\\d+".toRegex().find(this)?.value?.toIntOrNull()
 
 fun String?.encodeForUrl(): String? = Uri.encode(this, "UTF-8")
 
-/**
- * Describes the rank with either the subtype or the family name.
- */
-fun String.asRankDescription(context: Context, type: String = BggService.RANK_TYPE_SUBTYPE): CharSequence {
-    when (type) {
-        BggService.RANK_TYPE_SUBTYPE -> {
-            @StringRes val resId = when (this.toSubtype()) {
-                GameEntity.Subtype.BOARDGAME -> R.string.title_board_game
-                GameEntity.Subtype.BOARDGAME_EXPANSION -> R.string.title_expansion
-                GameEntity.Subtype.BOARDGAME_ACCESSORY -> R.string.title_accessory
-                else -> return this
-            }
-            return context.getText(resId)
-        }
-        BggService.RANK_TYPE_FAMILY -> {
-            @StringRes val resId = when (this) {
-                BggService.RANK_FAMILY_NAME_ABSTRACT_GAMES -> R.string.title_abstract
-                BggService.RANK_FAMILY_NAME_CHILDRENS_GAMES -> R.string.title_childrens
-                BggService.RANK_FAMILY_NAME_CUSTOMIZABLE_GAMES -> R.string.title_customizable
-                BggService.RANK_FAMILY_NAME_FAMILY_GAMES -> R.string.title_family
-                BggService.RANK_FAMILY_NAME_PARTY_GAMES -> R.string.title_party
-                BggService.RANK_FAMILY_NAME_STRATEGY_GAMES -> R.string.title_strategy
-                BggService.RANK_FAMILY_NAME_THEMATIC_GAMES -> R.string.title_thematic
-                BggService.RANK_FAMILY_NAME_WAR_GAMES -> R.string.title_war
-                else -> return this
-            }
-            return context.getText(resId)
-        }
-        else -> return context.getText(R.string.title_game)
-    }
-}
-
 fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     return if (isNullOrBlank()) {
         defaultMillis
@@ -82,7 +46,7 @@ fun String?.toMillis(format: DateFormat, defaultMillis: Long = 0L): Long {
     }
 }
 
-fun String?.asYear(unknownYear: Int = GameEntity.YEAR_UNKNOWN): Int {
+fun String?.asYear(unknownYear: Int = Game.YEAR_UNKNOWN): Int {
     if (this.isNullOrBlank()) return unknownYear
     val l = this.toLong()
     return if (l > Integer.MAX_VALUE) {
@@ -106,9 +70,7 @@ fun String?.asCurrency(): String {
     }
 }
 
-fun String?.toThingSubtype() = BggService.ThingSubtype.values().find { this == it.code }
-
-fun String?.toSubtype() = GameEntity.Subtype.values().find { this == it.code }
+fun String?.toSubtype() = Game.Subtype.entries.find { this == it.code } ?: Game.Subtype.UNKNOWN
 
 @Suppress("NOTHING_TO_INLINE")
 inline fun String.andMore() = "${this}+"
@@ -116,8 +78,8 @@ inline fun String.andMore() = "${this}+"
 @Suppress("NOTHING_TO_INLINE")
 inline fun String.andLess() = "<${this}"
 
-fun String?.firstChar(): String {
-    if (isNullOrEmpty()) return "-"
+fun String?.firstChar(default: String= "-"): String {
+    if (isNullOrEmpty()) return default
     return substring(0, 1).uppercase(Locale.getDefault())
 }
 

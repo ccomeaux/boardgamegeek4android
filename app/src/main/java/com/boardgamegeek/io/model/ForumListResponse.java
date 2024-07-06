@@ -9,5 +9,5 @@ import java.util.List;
 public class ForumListResponse {
 	@Attribute public String type;
 	@Attribute public int id;
-	@ElementList(inline = true) public List<Forum> forums;
+	@ElementList(inline = true) public List<ForumRemote> forums;
 }

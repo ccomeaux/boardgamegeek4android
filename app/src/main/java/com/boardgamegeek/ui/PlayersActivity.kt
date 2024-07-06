@@ -5,15 +5,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.startActivity
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,7 +23,7 @@ class PlayersActivity : SimpleSinglePaneActivity() {
     private val viewModel by viewModels<PlayersViewModel>()
 
     private var playerCount = -1
-    private var sortType = PlayersViewModel.SortType.NAME
+    private var sortType: Player.SortType? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,14 +33,16 @@ class PlayersActivity : SimpleSinglePaneActivity() {
             }
         }
 
-        viewModel.sort(intent.extras?.getSerializableCompat(KEY_SORT_TYPE) ?: PlayersViewModel.SortType.NAME)
+        viewModel.sort(intent.extras?.getSerializableCompat(KEY_SORT_TYPE) ?: Player.SortType.NAME)
         viewModel.players.observe(this) {
             playerCount = it?.size ?: 0
             invalidateOptionsMenu()
         }
-        viewModel.sort.observe(this) {
-            sortType = it?.sortType ?: PlayersViewModel.SortType.NAME
-            invalidateOptionsMenu()
+        viewModel.sortType.observe(this) {
+            it?.let {
+                sortType = it
+                invalidateOptionsMenu()
+            }
         }
     }
 
@@ -50,11 +54,14 @@ class PlayersActivity : SimpleSinglePaneActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
-        when (sortType) {
-            PlayersViewModel.SortType.NAME -> menu.findItem(R.id.menu_sort_name)
-            PlayersViewModel.SortType.PLAY_COUNT -> menu.findItem(R.id.menu_sort_quantity)
-            PlayersViewModel.SortType.WIN_COUNT -> menu.findItem(R.id.menu_sort_wins)
-        }.apply {
+        menu.findItem(
+            when (sortType) {
+                Player.SortType.NAME -> R.id.menu_sort_name
+                Player.SortType.PLAY_COUNT -> R.id.menu_sort_quantity
+                Player.SortType.WIN_COUNT -> R.id.menu_sort_wins
+                else -> View.NO_ID
+            }
+        ).apply {
             isChecked = true
             menu.setActionBarCount(R.id.menu_list_count, playerCount, title.toString())
         }
@@ -63,9 +70,9 @@ class PlayersActivity : SimpleSinglePaneActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sort_name -> viewModel.sort(PlayersViewModel.SortType.NAME)
-            R.id.menu_sort_quantity -> viewModel.sort(PlayersViewModel.SortType.PLAY_COUNT)
-            R.id.menu_sort_wins -> viewModel.sort(PlayersViewModel.SortType.WIN_COUNT)
+            R.id.menu_sort_name -> viewModel.sort(Player.SortType.NAME)
+            R.id.menu_sort_quantity -> viewModel.sort(Player.SortType.PLAY_COUNT)
+            R.id.menu_sort_wins -> viewModel.sort(Player.SortType.WIN_COUNT)
             else -> return super.onOptionsItemSelected(item)
         }
         return true
@@ -80,7 +87,7 @@ class PlayersActivity : SimpleSinglePaneActivity() {
 
         fun startByPlayCount(context: Context) {
             context.startActivity<PlayersActivity>(
-                KEY_SORT_TYPE to PlayersViewModel.SortType.PLAY_COUNT
+                KEY_SORT_TYPE to Player.SortType.PLAY_COUNT
             )
         }
     }

@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayCommentsBinding
-import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -31,7 +30,7 @@ class NewPlayCommentsFragment : Fragment() {
         binding.doneButton.setOnClickListener {
             viewModel.setComments(binding.commentsView.text.toString())
             viewModel.save()
-            toast(R.string.msg_logging_play)
+            viewModel.finishComments()
         }
     }
 

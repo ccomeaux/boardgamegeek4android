@@ -5,6 +5,7 @@ import android.os.Build.VERSION_CODES
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import android.os.StrictMode.VmPolicy
+import android.util.Log
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.multidex.MultiDexApplication
 import androidx.preference.PreferenceManager
@@ -39,10 +40,14 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
-    override fun getWorkManagerConfiguration() =
-        Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
+    override val workManagerConfiguration: Configuration
+        get() {
+            val factory = Configuration.Builder()
+                .setWorkerFactory(workerFactory)
+            return (if (BuildConfig.DEBUG){
+                factory.setMinimumLoggingLevel(Log.VERBOSE)
+            } else factory).build()
+        }
 
     override fun onCreate() {
         super.onCreate()
@@ -52,7 +57,10 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         initializeTimber()
         initializePicasso()
         migrateData()
+        initializePeriodicWorkRequests()
+    }
 
+    private fun initializePeriodicWorkRequests() {
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             SyncCollectionWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncCollectionWorker>(1, TimeUnit.DAYS)
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 15, TimeUnit.MINUTES)
@@ -61,7 +69,7 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
         )
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork(
-                PlayUploadWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<SyncPlaysWorker>(2, TimeUnit.HOURS)
+                PlayUploadWorker.UNIQUE_WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, PeriodicWorkRequestBuilder<PlayUploadWorker>(2, TimeUnit.HOURS)
                     .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.MINUTES)
                     .setConstraints(createWorkConstraints(true))
                     .build()

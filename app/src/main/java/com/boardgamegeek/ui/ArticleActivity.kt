@@ -6,12 +6,12 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.ArticleEntity
-import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.model.Article
+import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import timber.log.Timber
 
 class ArticleActivity : SimpleSinglePaneActivity() {
@@ -21,8 +21,8 @@ class ArticleActivity : SimpleSinglePaneActivity() {
     private var forumTitle = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
-    private var objectType = ForumEntity.ForumType.REGION
-    private var article = ArticleEntity()
+    private var objectType = Forum.Type.REGION
+    private var article = Article()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,8 +56,8 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
-        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
-        article = intent.getParcelableCompat(KEY_ARTICLE) ?: ArticleEntity()
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
+        article = intent.getParcelableCompat(KEY_ARTICLE) ?: Article()
     }
 
     override fun onCreatePane(intent: Intent): Fragment {
@@ -117,8 +117,8 @@ class ArticleActivity : SimpleSinglePaneActivity() {
             forumTitle: String?,
             objectId: Int,
             objectName: String?,
-            objectType: ForumEntity.ForumType?,
-            article: ArticleEntity?
+            objectType: Forum.Type?,
+            article: Article?
         ) {
             context.startActivity<ArticleActivity>(
                 KEY_THREAD_ID to threadId,

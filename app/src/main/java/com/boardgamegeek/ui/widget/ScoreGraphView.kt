@@ -7,6 +7,7 @@ import android.graphics.Paint
 import android.graphics.Paint.Style
 import android.util.AttributeSet
 import android.util.TypedValue
+import android.util.TypedValue.COMPLEX_UNIT_SP
 import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
@@ -72,7 +73,7 @@ class ScoreGraphView @JvmOverloads constructor(
         scorePaint.strokeWidth = SCORE_STROKE_WIDTH.toFloat()
 
         textPaint.color = ContextCompat.getColor(getContext(), R.color.secondary_text)
-        textPaint.textSize = 8f * getContext().resources.displayMetrics.scaledDensity
+        textPaint.textSize = TypedValue.applyDimension(COMPLEX_UNIT_SP, 8f, getContext().resources.displayMetrics)
 
         scoreRadius = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6f, context.resources.displayMetrics)
         smallTickHeight = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, context.resources.displayMetrics)

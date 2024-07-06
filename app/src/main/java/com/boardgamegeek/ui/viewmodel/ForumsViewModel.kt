@@ -2,8 +2,8 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository
@@ -40,7 +40,7 @@ class ForumsViewModel @Inject constructor(
         if (_id.value != ForumType.COMPANY to companyId) _id.value = (ForumType.COMPANY to companyId)
     }
 
-    val forums: LiveData<RefreshableResource<List<ForumEntity>>> = _id.switchMap { pair ->
+    val forums: LiveData<RefreshableResource<List<Forum>>> = _id.switchMap { pair ->
         liveData {
             emit(RefreshableResource.refreshing(latestValue?.data))
             emit(

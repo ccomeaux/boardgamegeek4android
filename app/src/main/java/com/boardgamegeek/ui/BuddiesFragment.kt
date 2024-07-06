@@ -8,19 +8,18 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentBuddiesBinding
 import com.boardgamegeek.databinding.RowBuddyBinding
-import com.boardgamegeek.entities.Status
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class BuddiesFragment : Fragment() {
@@ -49,20 +48,27 @@ class BuddiesFragment : Fragment() {
         )
         binding.recyclerView.addItemDecoration(sectionItemDecoration)
 
+        viewModel.refreshing.observe(viewLifecycleOwner) {
+            it?.let { binding.swipeRefresh.isRefreshing = it }
+        }
+
+        viewModel.error.observe(viewLifecycleOwner) {
+            it?.let { it.getContentIfNotHandled()?.let { message ->
+                showError(message)
+            } }
+        }
+
         viewModel.buddies.observe(viewLifecycleOwner) {
-            binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
-
-            when (it.status) {
-                Status.ERROR -> showError(it.message)
-                else -> it.data?.let { data -> showData(data) }
+            it?.let {
+                showData(it)
+                binding.progressBar.hide()
             }
-
-            binding.progressBar.hide()
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
     }
 
@@ -70,8 +76,8 @@ class BuddiesFragment : Fragment() {
         binding.coordinatorLayout.indefiniteSnackbar(message ?: getString(R.string.msg_error_buddies))
     }
 
-    private fun showData(buddies: List<UserEntity>) {
-        adapter.buddies = buddies
+    private fun showData(buddies: List<User>) {
+        adapter.submitList(buddies)
         if (buddies.isEmpty()) {
             binding.recyclerView.isVisible = false
             showEmpty()
@@ -99,62 +105,57 @@ class BuddiesFragment : Fragment() {
     }
 
     private fun triggerRefresh() {
-        binding.swipeRefresh.isRefreshing = viewModel.refresh()
+        viewModel.refresh()
     }
 
     class BuddiesAdapter(private val viewModel: BuddiesViewModel) :
-        RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
-        var buddies: List<UserEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            autoNotify(oldValue, newValue) { old, new ->
-                old.id == new.id
+        ListAdapter<User, BuddiesAdapter.BuddyViewHolder>(
+            object : DiffUtil.ItemCallback<User>() {
+                override fun areItemsTheSame(oldItem: User, newItem: User) = oldItem.username == newItem.username
+                override fun areContentsTheSame(oldItem: User, newItem: User) = oldItem == newItem
             }
-        }
-
+        ), SectionCallback {
         init {
             setHasStableIds(true)
         }
 
-        override fun getItemCount() = buddies.size
-
-        override fun getItemId(position: Int) = buddies.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
+        override fun getItemId(position: Int) = getItem(position).username.hashCode().toLong()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BuddyViewHolder {
             return BuddyViewHolder(parent.inflate(R.layout.row_buddy))
         }
 
         override fun onBindViewHolder(holder: BuddyViewHolder, position: Int) {
-            holder.bind(buddies.getOrNull(position))
+            holder.bind(getItem(position))
         }
 
         override fun isSection(position: Int): Boolean {
             if (position == RecyclerView.NO_POSITION) return false
-            if (buddies.isEmpty()) return false
+            if (currentList.isEmpty()) return false
             if (position == 0) return true
-            val thisLetter = viewModel.getSectionHeader(buddies.getOrNull(position))
-            val lastLetter = viewModel.getSectionHeader(buddies.getOrNull(position - 1))
-            return thisLetter != lastLetter
+            val thisHeader = viewModel.getSectionHeader(currentList.getOrNull(position))
+            val lastHeader = viewModel.getSectionHeader(currentList.getOrNull(position - 1))
+            return thisHeader != lastHeader
         }
 
         override fun getSectionHeader(position: Int): CharSequence {
-            return viewModel.getSectionHeader(buddies.getOrNull(position)) ?: "-"
+            return viewModel.getSectionHeader(getItem(position))
         }
 
         inner class BuddyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowBuddyBinding.bind(itemView)
 
-            fun bind(buddy: UserEntity?) {
-                buddy?.let { b ->
-                    binding.avatarView.loadThumbnail(b.avatarUrl, R.drawable.person_image_empty)
-                    if (b.fullName.isBlank()) {
-                        binding.fullNameView.text = b.userName
-                        binding.usernameView.isVisible = false
-                    } else {
-                        binding.fullNameView.text = b.fullName
-                        binding.usernameView.setTextOrHide(b.userName)
-                    }
-                    itemView.setOnClickListener {
-                        BuddyActivity.start(itemView.context, b.userName, b.fullName)
-                    }
+            fun bind(buddy: User) {
+                binding.avatarView.loadThumbnail(buddy.avatarUrl, R.drawable.person_image_empty)
+                if (buddy.fullName.isBlank()) {
+                    binding.fullNameView.text = buddy.username
+                    binding.usernameView.isVisible = false
+                } else {
+                    binding.fullNameView.text = buddy.fullName
+                    binding.usernameView.setTextOrHide(buddy.username)
+                }
+                itemView.setOnClickListener {
+                    BuddyActivity.start(itemView.context, buddy.username, buddy.fullName)
                 }
             }
         }

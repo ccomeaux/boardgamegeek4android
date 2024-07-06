@@ -133,7 +133,7 @@
 	<string name="are_you_sure_timer_reset">Do you want to continue the timer where you left off or reset it and lose the current play length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
-	<string name="app_name">BoardGameGeek</string>
+	<string name="app_name" translatable="false">BGG4A</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
 	<string name="title_collection">Collection</string>
@@ -176,6 +176,7 @@
 	<string name="title_winners">Scores &amp; Winners</string>
 	<string name="title_add_players">Add Players</string>
 	<string name="title_comments">Comments</string>
+	<string name="title_saving">Saving</string>
 	<string name="title_private_info">Private Info</string>
 	<string name="title_ratings">Ratings</string>
 	<string name="title_ranks_ratings">Ranks &amp; Ratings</string>
@@ -213,9 +214,14 @@
 	<string name="title_delete_view">Delete View</string>
 	<string name="title_add_color">Add Color</string>
 	<string name="title_add_team_color">Add Team/Color</string>
+	<string name="title_sync">Sync</string>
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
+	<string name="currently_syncing">Currently syncing</string>
+	<string name="title_statuses">Statues</string>
+	<string name="complete">Complete</string>
+	<string name="partial">Partial</string>
 	<string name="comment">Comment</string>
 	<string name="title_sort">Sort</string>
 	<string name="title_sort_by">Sort by</string>
@@ -262,7 +268,7 @@
 	<string name="empty_publishers">No publishers.</string>
 	<string name="empty_mechanics">No mechanics.</string>
 	<string name="empty_categories">No categories.</string>
-	<string name="msg_error_buddies">Unkonwn error trying to load your Geek Buddies.</string>
+	<string name="msg_error_buddies">Unknown error trying to load your Geek Buddies.</string>
 	<string name="empty_buddies_sync_off">You are not currently syncing your GeekBuddies. Would you like to enable that feature now?</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
 	<string name="empty_collection_sync_never">We\'re performing an initial sync. Go play a game. When you come back, you\'ll probably see some of your collection here.</string>
@@ -314,10 +320,9 @@
 	<string name="title_scores">Scores</string>
 	<string name="title_low_scorers">Low Scorers</string>
 	<string name="title_high_scorers">High Scorers</string>
-	<string name="search_label">BoardGameGeek</string>
-	<string name="search_hint">Search…</string>
+	<string name="search_label" translatable="false">BGG4A</string>
+	<string name="search_hint">Search games</string>
 	<string name="search_voice_prompt">Name a game…</string>
-	<string name="search_settings_description">Games in collection</string>
 	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="empty_search">No results.\n\nThe search function doesn\'t like some common words. Try again, dropping \"the\", \"a\", and \"of\", etc.</string>
 	<string name="search_error">Had a problem searching for \"%1$s\".\n\n%2$s</string>
@@ -443,6 +448,11 @@
 	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
 	<string name="msg_saving_draft">Saving draft</string>
+	<string name="msg_refresh_not_enabled">Sync not enabled</string>
+	<string name="msg_refresh_collection_item_invalid_id">Invalid game and collection ID</string>
+	<string name="msg_refresh_collection_item_auth_error">Not logged in</string>
+	<string name="msg_refresh_plays_invalid_id">Invalid game ID</string>
+	<string name="msg_refresh_plays_auth_error">Not logged in</string>
 	<string name="msg_play_added">Logged play</string>
 	<string name="msg_play_added_quantity">Logged your <b>%1$s</b> play</string>
 	<string name="msg_play_updated">Updated play</string>
@@ -472,17 +482,17 @@
 	<string name="share_collection_subject">%1$s (%2$s)\'s collection on BGG4Android</string>
 	<string name="share_collection_complete_footer">Complete collection at %s</string>
 	<string name="share_game_subject">%s on BoardGameGeek</string>
-	<string name="share_game_text">I found this game using BoardGameGeek on Android that I thought you might like:</string>
+	<string name="share_game_text">I found this game using BGG4A that I thought you might like:</string>
 	<string name="share_games_subject">Games on BoardGameGeek</string>
-	<string name="share_games_text">I found these games using BoardGameGeek on Android that I thought you might like:</string>
+	<string name="share_games_text">I found these games using BGG4A that I thought you might like:</string>
 	<string name="share_play_title">Share Play</string>
 	<string name="share_thread_subject">Forum Thread on BoardGameGeek</string>
-	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
-	<string name="share_thread_game_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
-	<string name="share_thread_article_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum using BoardGameGeek on Android.</string>
-	<string name="share_thread_article_object_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BoardGameGeek on Android.</string>
+	<string name="share_thread_text">I found the thread \"%1$s\" in the \"%2$s\" forum using BGG4A.</string>
+	<string name="share_thread_game_text">I found the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BGG4A.</string>
+	<string name="share_thread_article_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum using BGG4A.</string>
+	<string name="share_thread_article_object_text">I found this article in the thread \"%1$s\" in the \"%2$s\" forum for \"%3$s\" using BGG4A.</string>
 	<string name="share_geeklist_subject">GeekList on BoardGameGeek</string>
-	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BoardGameGeek on Android.</string>
+	<string name="share_geeklist_text">I found the GeekList \"%1$s\" using BGG4A.</string>
 	<string name="timer">Timer</string>
 	<string name="on">on</string>
 	<string name="from">from</string>
@@ -527,6 +537,11 @@
 	<string name="player_description_score_segment">: %s</string>
 	<string name="player_description_win_segment">\u0020- Win!</string>
 	<string name="language_dependence">Language dependence</string>
+	<string name="language_dependence_level_1">No necessary in-game text</string>
+	<string name="language_dependence_level_2">Some necessary text - easily memorized or small crib sheet</string>
+	<string name="language_dependence_level_3">Moderate in-game text - needs crib sheet or paste ups</string>
+	<string name="language_dependence_level_4">Extensive use of text - massive conversion needed to be playable</string>
+	<string name="language_dependence_level_5">Unplayable in another language</string>
 	<string name="suggested_playerage">Suggested minimum ages</string>
 	<string name="suggested_numplayers">Suggested players</string>
 	<string name="age_prefix">Ages <b>%d+</b></string>
@@ -665,16 +680,30 @@
 	<string name="incomplete_plays">incomplete plays</string>
 	<string name="items">Items</string>
 	<string name="accessories">Accessories</string>
+	<string name="games_expansions">Games and Expansions</string>
+	<string name="sync_complete_collection">Syncing complete collection of %s</string>
+	<string name="sync_complete_collection_status">Syncing %s collection of %s</string>
+	<string name="sync_partial_collection">Syncing recent collection modifications to %s</string>
+	<string name="sync_stale_collection">Syncing stale collection %s</string>
+	<string name="sync_delete_collection">Deleting %s no longer in your collection</string>
+	<string name="sync_remove_games">Removing games no longer in your collection</string>
+	<string name="sync_stale_games">Syncing stale games</string>
+	<string name="sync_new_games">Syncing new games</string>
 	<string name="show_missing_votes">Show missing votes</string>
 	<string name="msg_collection_item_deleted">Deleted!</string>
 	<string name="collection_status_own">Own</string>
-	<string name="collection_status_prev_owned">Prev. Owned</string>
+	<string name="collection_status_prev_owned">Previously Owned</string>
 	<string name="collection_status_for_trade">For Trade</string>
 	<string name="collection_status_want_to_play">Want to Play</string>
 	<string name="collection_status_want_in_trade">Want in Trade</string>
 	<string name="collection_status_want_to_buy">Want to Buy</string>
 	<string name="collection_status_preordered">Pre-ordered</string>
 	<string name="collection_status_wishlist">Wishlist</string>
+	<string name="collection_status_played">Played</string>
+	<string name="collection_status_rated">Rated</string>
+	<string name="collection_status_commented">Commented</string>
+	<string name="collection_status_has_parts">Has Parts</string>
+	<string name="collection_status_want_parts">Want Parts</string>
 	<string name="empty_top_games">Error loading top games</string>
 	<string name="title_top_games">Top Games</string>
 	<string name="title_description">Description</string>
@@ -707,6 +736,7 @@
 	<string name="msg_sync_error_null">Problem communicating with BoardGameGeek (no response)</string>
 	<string name="msg_sync_error_timeout">Timed out trying to communicate with BoardGameGeek</string>
 	<string name="msg_sync_error">Problem communicating with BoardGameGeek</string>
+	<string name="msg_sync_unauthed">Not logged in</string>
 	<string name="profile_updated">Profile updated</string>
 	<string name="game">game</string>
 	<string name="play">play</string>
@@ -737,6 +767,22 @@
 	<string name="validate">Validate</string>
 	<string name="not_found">Not Found</string>
 	<string name="valid">Valid</string>
+	<string name="sync_plays">Sync Plays</string>
+	<string name="upload">Upload</string>
+	<string name="upload_plays">Upload Plays</string>
+	<string name="sync_plays_step_new">Syncing newest plays</string>
+	<string name="sync_plays_step_old">Syncing oldest plays</string>
+	<string name="sync_plays_step_stats">Calculating play stats</string>
+	<string name="sync_plays_action_waiting">Waiting</string>
+	<string name="sync_plays_action_downloading">Downloading</string>
+	<string name="sync_plays_action_saving">Saving</string>
+	<string name="sync_plays_action_deleting">Deleting</string>
+	<string name="sync_users">Sync Users</string>
+	<string name="sync_buddies_date_zero">List of GeekBuddies hasn\'t been synced</string>
+	<string name="sync_buddies_date">List of GeekBuddies synced as of %s</string>
+	<string name="sync_user_step_list">Syncing GeekBuddy list</string>
+	<string name="sync_user_step_stale">Syncing stale users</string>
+	<string name="sync_user_step_unupdated">Syncing unupdated users</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -873,6 +919,42 @@
 	<plurals name="person_game_h_index_info">
 		<item quantity="one">You\'ve played at least %1$,d game %1$s time or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
 		<item quantity="other">You\'ve played at least %1$,d games %1$s times or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+	</plurals>
+	<plurals name="items_pending_upload">
+		<item quantity="one"><b>%,d</b> collection items pending deletion</item>
+		<item quantity="other"><b>%,d</b> collection items pending deletion</item>
+	</plurals>
+	<plurals name="plays_sync_status_none">
+		<item quantity="one">Plays have never been synced</item>
+		<item quantity="other">Plays have never been synced</item>
+	</plurals>
+	<plurals name="plays_sync_status_new">
+		<item quantity="one"><b>%1$,d</b> plays have been synced through %3$s</item>
+		<item quantity="other"><b>%1$,d</b> plays have been synced through %3$s</item>
+	</plurals>
+	<plurals name="plays_sync_status_old">
+		<item quantity="one"><b>%1$,d</b> plays have been synced since %2$s</item>
+		<item quantity="other"><b>%1$,d</b> plays have been synced since %2$s</item>
+	</plurals>
+	<plurals name="plays_sync_status_range">
+		<item quantity="one"><b>%1$,d</b> play have been synced between %2$s and %3$s</item>
+		<item quantity="other"><b>%1$,d</b> plays have been synced between %2$s and %3$s</item>
+	</plurals>
+	<plurals name="plays_pending_update">
+		<item quantity="one"><b>%,d</b> plays pending update</item>
+		<item quantity="other"><b>%,d</b> plays pending update</item>
+	</plurals>
+	<plurals name="plays_pending_deletion">
+		<item quantity="one"><b>%,d</b> plays pending deletion</item>
+		<item quantity="other"><b>%,d</b> plays pending deletion</item>
+	</plurals>
+	<plurals name="users_synced_total">
+		<item quantity="one"><b>%,d</b> user updated through %s</item>
+		<item quantity="other"><b>%,d</b> users updated through %s</item>
+	</plurals>
+	<plurals name="users_unupdated_total">
+		<item quantity="one"><b>%,d</b> user not updated</item>
+		<item quantity="other"><b>%,d</b> users not updated</item>
 	</plurals>
 
 </resources>

@@ -24,7 +24,7 @@ import java.io.IOException
 import java.util.*
 
 class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    var syncPrefs: SharedPreferences = SyncPrefs.getPrefs(context!!)
+    private var syncPrefs: SharedPreferences = SyncPrefs.getPrefs(context!!)
 
     object GamesDesigners {
         const val GAME_ID = Games.Columns.GAME_ID
@@ -66,7 +66,6 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         const val GAMES_CATEGORIES = "games_categories"
         const val GAMES_EXPANSIONS = "games_expansions"
         const val COLLECTION = "collection"
-        const val BUDDIES = "buddies"
         const val GAME_POLLS = "game_polls"
         const val GAME_POLL_RESULTS = "game_poll_results"
         const val GAME_POLL_RESULTS_RESULT = "game_poll_results_result"
@@ -77,104 +76,56 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         const val COLLECTION_VIEWS = "collection_filters"
         const val COLLECTION_VIEW_FILTERS = "collection_filters_details"
         const val PLAYER_COLORS = "player_colors"
+        const val USERS = "users"
 
-        val GAMES_JOIN_COLLECTION = createJoin(GAMES, COLLECTION, Games.Columns.GAME_ID)
-        val GAMES_DESIGNERS_JOIN_DESIGNERS = createJoin(GAMES_DESIGNERS, DESIGNERS, Designers.Columns.DESIGNER_ID)
-        val GAMES_ARTISTS_JOIN_ARTISTS = createJoin(GAMES_ARTISTS, ARTISTS, Artists.Columns.ARTIST_ID)
-        val GAMES_PUBLISHERS_JOIN_PUBLISHERS = createJoin(GAMES_PUBLISHERS, PUBLISHERS, Publishers.Columns.PUBLISHER_ID)
-        val GAMES_MECHANICS_JOIN_MECHANICS = createJoin(GAMES_MECHANICS, MECHANICS, Mechanics.Columns.MECHANIC_ID)
-        val GAMES_CATEGORIES_JOIN_CATEGORIES = createJoin(GAMES_CATEGORIES, CATEGORIES, Categories.Columns.CATEGORY_ID)
-        val GAMES_EXPANSIONS_JOIN_GAMES = createJoin(GAMES_EXPANSIONS, GAMES, GamesExpansions.Columns.EXPANSION_ID, Games.Columns.GAME_ID)
-        val GAMES_RANKS_JOIN_GAMES = createJoin(GAME_RANKS, GAMES, GameRanks.Columns.GAME_ID, Games.Columns.GAME_ID)
-        val POLLS_JOIN_POLL_RESULTS = createJoin(GAME_POLLS, GAME_POLL_RESULTS, BaseColumns._ID, GamePollResults.Columns.POLL_ID)
-        val POLLS_JOIN_GAMES = createJoin(GAMES, GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, Games.Columns.GAME_ID, GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID)
-        val POLL_RESULTS_JOIN_POLL_RESULTS_RESULT =
-            createJoin(GAME_POLL_RESULTS, GAME_POLL_RESULTS_RESULT, BaseColumns._ID, GamePollResultsResult.Columns.POLL_RESULTS_ID)
-        val COLLECTION_JOIN_GAMES = createJoin(COLLECTION, GAMES, Games.Columns.GAME_ID)
-        val GAMES_JOIN_PLAYS = GAMES + createJoinSuffix(GAMES, PLAYS, Games.Columns.GAME_ID, Plays.Columns.OBJECT_ID)
-        val PLAYS_JOIN_GAMES = PLAYS + createJoinSuffix(PLAYS, GAMES, Plays.Columns.OBJECT_ID, Games.Columns.GAME_ID)
-        val PLAY_PLAYERS_JOIN_PLAYS = createJoin(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID)
-        val PLAY_PLAYERS_JOIN_PLAYS_JOIN_USERS = PLAY_PLAYERS +
-                createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID) +
-                createJoinSuffix(PLAY_PLAYERS, BUDDIES, PlayPlayers.Columns.USER_NAME, Buddies.Columns.BUDDY_NAME)
-        val PLAY_PLAYERS_JOIN_PLAYS_JOIN_GAMES = PLAY_PLAYERS +
-                createJoinSuffix(PLAY_PLAYERS, PLAYS, PlayPlayers.Columns._PLAY_ID, BaseColumns._ID) +
-                createJoinSuffix(PLAYS, GAMES, Plays.Columns.OBJECT_ID, Games.Columns.GAME_ID)
-        val COLLECTION_VIEW_FILTERS_JOIN_COLLECTION_VIEWS =
-            createJoin(COLLECTION_VIEWS, COLLECTION_VIEW_FILTERS, BaseColumns._ID, CollectionViewFilters.Columns.VIEW_ID)
-        val POLLS_RESULTS_RESULT_JOIN_POLLS_RESULTS_JOIN_POLLS =
-            createJoin(GAME_POLL_RESULTS_RESULT, GAME_POLL_RESULTS, GamePollResultsResult.Columns.POLL_RESULTS_ID, BaseColumns._ID) +
-                    createJoinSuffix(GAME_POLL_RESULTS, GAME_POLLS, GamePollResults.Columns.POLL_ID, BaseColumns._ID)
-        val ARTIST_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_ARTISTS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val DESIGNER_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_DESIGNERS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val PUBLISHER_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_PUBLISHERS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val MECHANIC_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_MECHANICS, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val CATEGORY_JOIN_GAMES_JOIN_COLLECTION =
-            createJoin(GAMES_CATEGORIES, GAMES, Games.Columns.GAME_ID) + createJoinSuffix(GAMES, COLLECTION, Games.Columns.GAME_ID, Collection.Columns.GAME_ID)
-        val ARTISTS_JOIN_COLLECTION = createJoin(ARTISTS, GAMES_ARTISTS, Artists.Columns.ARTIST_ID) +
-                createInnerJoinSuffix(GAMES_ARTISTS, COLLECTION, GamesArtists.GAME_ID, Collection.Columns.GAME_ID)
-        val DESIGNERS_JOIN_COLLECTION = createJoin(DESIGNERS, GAMES_DESIGNERS, Designers.Columns.DESIGNER_ID) +
-                createInnerJoinSuffix(GAMES_DESIGNERS, COLLECTION, GamesDesigners.GAME_ID, Collection.Columns.GAME_ID)
-        val PUBLISHERS_JOIN_COLLECTION = createJoin(PUBLISHERS, GAMES_PUBLISHERS, Publishers.Columns.PUBLISHER_ID) +
-                createInnerJoinSuffix(GAMES_PUBLISHERS, COLLECTION, GamesPublishers.GAME_ID, Collection.Columns.GAME_ID)
-        val MECHANICS_JOIN_COLLECTION = createJoin(MECHANICS, GAMES_MECHANICS, Mechanics.Columns.MECHANIC_ID) +
-                createInnerJoinSuffix(GAMES_MECHANICS, COLLECTION, GamesMechanics.GAME_ID, Collection.Columns.GAME_ID)
-        val CATEGORIES_JOIN_COLLECTION = createJoin(CATEGORIES, GAMES_CATEGORIES, Categories.Columns.CATEGORY_ID) +
-                createInnerJoinSuffix(GAMES_CATEGORIES, COLLECTION, GamesCategories.GAME_ID, Collection.Columns.GAME_ID)
-
-        private fun createJoin(table1: String, table2: String, column: String) = table1 + createJoinSuffix(table1, table2, column, column)
-
-        private fun createJoin(table1: String, table2: String, column1: String, column2: String) =
-            table1 + createJoinSuffix(table1, table2, column1, column2)
-
-        private fun createJoinSuffix(table1: String, table2: String, column1: String, column2: String) =
-            " LEFT OUTER JOIN $table2 ON $table1.$column1=$table2.$column2"
-
-        private fun createInnerJoinSuffix(table1: String, table2: String, column1: String, column2: String) =
-            " INNER JOIN $table2 ON $table1.$column1=$table2.$column2"
+        const val COLLECTION_JOIN_GAMES = "$COLLECTION LEFT OUTER JOIN $GAMES ON $COLLECTION.${Games.Columns.GAME_ID}=$GAMES.${Games.Columns.GAME_ID}"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        db?.let {
-            buildDesignersTable().create(it)
-            buildArtistsTable().create(it)
-            buildPublishersTable().create(it)
-            buildMechanicsTable().create(it)
-            buildCategoriesTable().create(it)
+        Timber.i("Creating BGG database")
+        try {
+            db?.let {
+                buildDesignersTable().create(it)
+                buildArtistsTable().create(it)
+                buildPublishersTable().create(it)
+                buildMechanicsTable().create(it)
+                buildCategoriesTable().create(it)
 
-            buildGamesTable().create(it)
-            buildGameRanksTable().create(it)
-            buildGamesDesignersTable().create(it)
-            buildGamesArtistsTable().create(it)
-            buildGamesPublishersTable().create(it)
-            buildGamesMechanicsTable().create(it)
-            buildGamesCategoriesTable().create(it)
-            buildGameExpansionsTable().create(it)
-            buildGamePollsTable().create(it)
-            buildGamePollResultsTable().create(it)
-            buildGamePollResultsResultTable().create(it)
-            buildGameSuggestedPlayerCountPollResultsTable().create(it)
-            buildGameColorsTable().create(it)
+                buildGamesTable().create(it)
+                buildGameRanksTable().create(it)
+                buildGamesDesignersTable().create(it)
+                buildGamesArtistsTable().create(it)
+                buildGamesPublishersTable().create(it)
+                buildGamesMechanicsTable().create(it)
+                buildGamesCategoriesTable().create(it)
+                buildGamesExpansionsTable().create(it)
+                buildGamePollsTable().create(it)
+                buildGamePollResultsTable().create(it)
+                buildGamePollResultsResultTable().create(it)
+                buildGameSuggestedPlayerCountPollResultsTable().create(it)
+                buildGameColorsTable().create(it)
 
-            buildPlaysTable().create(it)
-            buildPlayPlayersTable().create(it)
+                buildPlaysTable().create(it)
+                buildPlayPlayersTable().create(it)
 
-            buildCollectionTable().create(it)
+                buildCollectionTable().create(it)
 
-            buildBuddiesTable().create(it)
-            buildPlayerColorsTable().create(it)
+                buildUsersTable().create(it)
+                buildPlayerColorsTable().create(it)
 
-            buildCollectionViewsTable().create(it)
-            buildCollectionViewFiltersTable().create(it)
+                buildCollectionViewsTable().create(it)
+                buildCollectionViewFiltersTable().create(it)
+
+                createIndices(db)
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
         }
+        Timber.i("Created BGG database")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        Timber.d("Upgrading database from $oldVersion to $newVersion")
+        Timber.i("Upgrading database from $oldVersion to $newVersion")
         if (db == null) return
         var needsCollectionSync = false
         var needsPlaysSync = false
@@ -184,7 +135,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                     VER_INITIAL -> {}
                     VER_WISHLIST_PRIORITY -> addColumn(db, Tables.COLLECTION, Collection.Columns.STATUS_WISHLIST_PRIORITY, ColumnType.INTEGER)
                     VER_GAME_COLORS -> buildGameColorsTable().create(db)
-                    VER_EXPANSIONS -> buildGameExpansionsTable().create(db)
+                    VER_EXPANSIONS -> buildGamesExpansionsTable().create(db)
                     VER_VARIOUS -> {
                         addColumn(db, Tables.COLLECTION, Collection.Columns.LAST_MODIFIED, ColumnType.INTEGER)
                         addColumn(db, Tables.GAMES, Games.Columns.LAST_VIEWED, ColumnType.INTEGER)
@@ -194,7 +145,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         buildPlaysTable().create(db)
                         buildPlayPlayersTable().create(db)
                     }
-                    VER_PLAY_NICKNAME -> addColumn(db, Tables.BUDDIES, Buddies.Columns.PLAY_NICKNAME, ColumnType.TEXT)
+                    VER_PLAY_NICKNAME -> addColumn(db, "buddies", "play_nickname", ColumnType.TEXT)
                     VER_PLAY_SYNC_STATUS -> {
                         addColumn(db, Tables.PLAYS, "sync_status", ColumnType.INTEGER)
                         addColumn(db, Tables.PLAYS, "updated", ColumnType.INTEGER)
@@ -211,7 +162,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         buildGamesPublishersTable().replace(db)
                         buildGamesMechanicsTable().replace(db)
                         buildGamesCategoriesTable().replace(db)
-                        buildGameExpansionsTable().replace(db)
+                        buildGamesExpansionsTable().replace(db)
                         buildGamePollsTable().replace(db)
                         buildGamePollResultsTable().replace(db)
                         buildGamePollResultsResultTable().replace(db)
@@ -265,9 +216,9 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                     VER_GAMES_SUBTYPE -> addColumn(db, Tables.GAMES, Games.Columns.SUBTYPE, ColumnType.TEXT)
                     VER_COLLECTION_ID_NULLABLE -> buildCollectionTable().replace(db)
                     VER_GAME_CUSTOM_PLAYER_SORT -> addColumn(db, Tables.GAMES, Games.Columns.CUSTOM_PLAYER_SORT, ColumnType.INTEGER)
-                    VER_BUDDY_FLAG -> addColumn(db, Tables.BUDDIES, Buddies.Columns.BUDDY_FLAG, ColumnType.INTEGER)
+                    VER_BUDDY_FLAG -> addColumn(db, "buddies", "buddy_flag", ColumnType.INTEGER)
                     VER_GAME_RANK -> addColumn(db, Tables.GAMES, Games.Columns.GAME_RANK, ColumnType.INTEGER)
-                    VER_BUDDY_SYNC_HASH_CODE -> addColumn(db, Tables.BUDDIES, Buddies.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+                    VER_BUDDY_SYNC_HASH_CODE -> addColumn(db, "buddies", "sync_hash_code", ColumnType.INTEGER)
                     VER_PLAY_SYNC_HASH_CODE -> addColumn(db, Tables.PLAYS, Plays.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
                     VER_PLAYER_COLORS -> buildPlayerColorsTable().create(db)
                     VER_RATING_DIRTY_TIMESTAMP -> addColumn(db, Tables.COLLECTION, Collection.Columns.RATING_DIRTY_TIMESTAMP, ColumnType.INTEGER)
@@ -390,6 +341,50 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
                         db.execSQL("UPDATE ${Tables.GAMES} SET ${Games.Columns.UPDATED_LIST}=0, ${Games.Columns.UPDATED}=0, ${Games.Columns.UPDATED_PLAYS}=0")
                         needsCollectionSync = true
                     }
+                    VER_USERS_TABLE -> {
+                        buildUsersTable().create(db)
+                        db.execSQL(
+                            """
+                            INSERT INTO users (username, first_name, last_name, avatar_url, play_nickname, buddy_flag, sync_hash_code, updated_detail_timestamp, updated_list_timestamp)
+                            SELECT buddy_name, buddy_firtname, buddy_lastname, avatar_url, play_nickname, buddy_flag, sync_hash_code, updated, updated_list FROM buddies
+                            """.trimIndent()
+                        )
+                        db.dropTable("buddies")
+                    }
+                    VER_NOT_NULL_INTERNAL_ID -> {
+                        recreateTable(db, Tables.ARTISTS, ::buildArtistsTable)
+                        recreateTable(db, Tables.CATEGORIES, ::buildCategoriesTable)
+                        recreateTable(db, Tables.DESIGNERS, ::buildDesignersTable)
+                        recreateTable(db, Tables.MECHANICS, ::buildMechanicsTable)
+                        recreateTable(db, Tables.PUBLISHERS, ::buildPublishersTable)
+
+                        recreateTable(db, Tables.GAMES, ::buildGamesTable)
+                        recreateTable(db, Tables.GAME_RANKS, ::buildGameRanksTable)
+                        recreateTable(db, Tables.GAMES_ARTISTS, ::buildGamesDesignersTable)
+                        recreateTable(db, Tables.GAMES_ARTISTS, ::buildGamesArtistsTable)
+                        recreateTable(db, Tables.GAMES_ARTISTS, ::buildGamesPublishersTable)
+                        recreateTable(db, Tables.GAMES_ARTISTS, ::buildGamesCategoriesTable)
+                        recreateTable(db, Tables.GAMES_ARTISTS, ::buildGamesMechanicsTable)
+                        recreateTable(db, Tables.GAMES_EXPANSIONS, ::buildGamesExpansionsTable)
+                        recreateTable(db, Tables.GAME_POLLS, ::buildGamePollsTable)
+                        recreateTable(db, Tables.GAME_POLL_RESULTS, ::buildGamePollResultsTable)
+                        recreateTable(db, Tables.GAME_POLL_RESULTS_RESULT, ::buildGamePollResultsResultTable)
+                        recreateTable(db, Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS, ::buildGameSuggestedPlayerCountPollResultsTable)
+                        recreateTable(db, Tables.GAME_COLORS, ::buildGameColorsTable)
+
+                        recreateTable(db, Tables.PLAYS, ::buildPlaysTable)
+                        recreateTable(db, Tables.PLAY_PLAYERS, ::buildPlayPlayersTable)
+
+                        recreateTable(db, Tables.COLLECTION, ::buildCollectionTable)
+
+                        recreateTable(db, Tables.PLAYER_COLORS, ::buildPlayerColorsTable)
+
+                        recreateTable(db, Tables.COLLECTION_VIEWS, ::buildCollectionViewsTable)
+                        recreateTable(db, Tables.COLLECTION_VIEW_FILTERS, ::buildCollectionViewFiltersTable)
+                    }
+                    VER_INDICES -> {
+                        createIndices(db)
+                    }
                 }
             }
             if (needsCollectionSync) context?.let { ctx -> SyncCollectionWorker.requestSync(ctx) }
@@ -404,11 +399,12 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         super.onOpen(db)
         if (db?.isReadOnly == false) {
             db.execSQL("PRAGMA foreign_keys=ON;")
+            db.execSQL("PRAGMA synchronous = NORMAL")
         }
     }
 
-    private fun buildDesignersTable() = TableBuilder()
-        .setTable(Tables.DESIGNERS)
+    private fun buildDesignersTable(tableName: String = Tables.DESIGNERS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(Designers.Columns.UPDATED, ColumnType.INTEGER)
         .addColumn(Designers.Columns.DESIGNER_ID, ColumnType.INTEGER, notNull = true, unique = true)
@@ -421,8 +417,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Designers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
         .addColumn(Designers.Columns.DESIGNER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
 
-    private fun buildArtistsTable() = TableBuilder()
-        .setTable(Tables.ARTISTS)
+    private fun buildArtistsTable(tableName: String = Tables.ARTISTS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(Artists.Columns.UPDATED, ColumnType.INTEGER)
         .addColumn(Artists.Columns.ARTIST_ID, ColumnType.INTEGER, notNull = true, unique = true)
@@ -435,8 +431,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Artists.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
         .addColumn(Artists.Columns.ARTIST_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
 
-    private fun buildPublishersTable() = TableBuilder()
-        .setTable(Tables.PUBLISHERS)
+    private fun buildPublishersTable(tableName: String = Tables.PUBLISHERS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(Publishers.Columns.UPDATED, ColumnType.INTEGER)
         .addColumn(Publishers.Columns.PUBLISHER_ID, ColumnType.INTEGER, true, unique = true)
@@ -449,20 +445,20 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Publishers.Columns.WHITMORE_SCORE, ColumnType.INTEGER)
         .addColumn(Publishers.Columns.PUBLISHER_STATS_UPDATED_TIMESTAMP, ColumnType.INTEGER)
 
-    private fun buildMechanicsTable() = TableBuilder()
-        .setTable(Tables.MECHANICS)
+    private fun buildMechanicsTable(tableName: String = Tables.MECHANICS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(Mechanics.Columns.MECHANIC_ID, ColumnType.INTEGER, notNull = true, unique = true)
         .addColumn(Mechanics.Columns.MECHANIC_NAME, ColumnType.TEXT, true)
 
-    private fun buildCategoriesTable() = TableBuilder()
-        .setTable(Tables.CATEGORIES)
+    private fun buildCategoriesTable(tableName: String = Tables.CATEGORIES) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(Categories.Columns.CATEGORY_ID, ColumnType.INTEGER, notNull = true, unique = true)
         .addColumn(Categories.Columns.CATEGORY_NAME, ColumnType.TEXT, true)
 
-    private fun buildGamesTable() = TableBuilder()
-        .setTable(Tables.GAMES)
+    private fun buildGamesTable(tableName: String = Tables.GAMES) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(Games.Columns.UPDATED, ColumnType.INTEGER)
         .addColumn(Games.Columns.UPDATED_LIST, ColumnType.INTEGER, true)
@@ -485,7 +481,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Games.Columns.STATS_AVERAGE, ColumnType.REAL)
         .addColumn(Games.Columns.STATS_BAYES_AVERAGE, ColumnType.REAL)
         .addColumn(Games.Columns.STATS_STANDARD_DEVIATION, ColumnType.REAL)
-        .addColumn(Games.Columns.STATS_MEDIAN, ColumnType.INTEGER)
+        .addColumn(Games.Columns.STATS_MEDIAN, ColumnType.REAL)
         .addColumn(Games.Columns.STATS_NUMBER_OWNED, ColumnType.INTEGER)
         .addColumn(Games.Columns.STATS_NUMBER_TRADING, ColumnType.INTEGER)
         .addColumn(Games.Columns.STATS_NUMBER_WANTING, ColumnType.INTEGER)
@@ -510,8 +506,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Games.Columns.PLAYER_COUNTS_NOT_RECOMMENDED, ColumnType.TEXT)
         .setConflictResolution(ConflictResolution.ABORT)
 
-    private fun buildGameRanksTable() = TableBuilder()
-        .setTable(Tables.GAME_RANKS)
+    private fun buildGameRanksTable(tableName: String = Tables.GAME_RANKS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GameRanks.Columns.GAME_ID, ColumnType.INTEGER,
@@ -529,8 +525,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(GameRanks.Columns.GAME_RANK_BAYES_AVERAGE, ColumnType.REAL, true)
         .setConflictResolution(ConflictResolution.REPLACE)
 
-    private fun buildGamesDesignersTable() = TableBuilder()
-        .setTable(Tables.GAMES_DESIGNERS)
+    private fun buildGamesDesignersTable(tableName: String = Tables.GAMES_DESIGNERS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GamesDesigners.GAME_ID, ColumnType.INTEGER,
@@ -547,7 +543,9 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
             referenceColumn = Designers.Columns.DESIGNER_ID
         )
 
-    private fun buildGamesArtistsTable() = TableBuilder().setTable(Tables.GAMES_ARTISTS).useDefaultPrimaryKey()
+    private fun buildGamesArtistsTable(tableName: String = Tables.GAMES_ARTISTS) = TableBuilder()
+        .setTable(tableName)
+        .useDefaultPrimaryKey()
         .addColumn(
             GamesArtists.GAME_ID,
             ColumnType.INTEGER,
@@ -566,8 +564,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
             referenceColumn = Artists.Columns.ARTIST_ID
         )
 
-    private fun buildGamesPublishersTable() = TableBuilder()
-        .setTable(Tables.GAMES_PUBLISHERS)
+    private fun buildGamesPublishersTable(tableName: String = Tables.GAMES_PUBLISHERS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GamesPublishers.GAME_ID,
@@ -587,8 +585,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
             referenceColumn = Publishers.Columns.PUBLISHER_ID
         )
 
-    private fun buildGamesMechanicsTable() = TableBuilder()
-        .setTable(Tables.GAMES_MECHANICS)
+    private fun buildGamesMechanicsTable(tableName: String = Tables.GAMES_MECHANICS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GamesMechanics.GAME_ID,
@@ -608,8 +606,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
             referenceColumn = Mechanics.Columns.MECHANIC_ID
         )
 
-    private fun buildGamesCategoriesTable() = TableBuilder()
-        .setTable(Tables.GAMES_CATEGORIES)
+    private fun buildGamesCategoriesTable(tableName: String = Tables.GAMES_CATEGORIES) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GamesCategories.GAME_ID,
@@ -629,8 +627,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
             referenceColumn = Categories.Columns.CATEGORY_ID
         )
 
-    private fun buildGameExpansionsTable() = TableBuilder()
-        .setTable(Tables.GAMES_EXPANSIONS)
+    private fun buildGamesExpansionsTable(tableName: String = Tables.GAMES_EXPANSIONS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GamesExpansions.Columns.GAME_ID, ColumnType.INTEGER,
@@ -644,8 +642,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(GamesExpansions.Columns.EXPANSION_NAME, ColumnType.TEXT, true)
         .addColumn(GamesExpansions.Columns.INBOUND, ColumnType.INTEGER)
 
-    private fun buildGamePollsTable() = TableBuilder()
-        .setTable(Tables.GAME_POLLS)
+    private fun buildGamePollsTable(tableName: String = Tables.GAME_POLLS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GamePolls.Columns.GAME_ID,
@@ -660,8 +658,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(GamePolls.Columns.POLL_TITLE, ColumnType.TEXT, true)
         .addColumn(GamePolls.Columns.POLL_TOTAL_VOTES, ColumnType.INTEGER, true)
 
-    private fun buildGamePollResultsTable() = TableBuilder()
-        .setTable(Tables.GAME_POLL_RESULTS)
+    private fun buildGamePollResultsTable(tableName: String = Tables.GAME_POLL_RESULTS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GamePollResults.Columns.POLL_ID,
@@ -676,8 +674,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(GamePollResults.Columns.POLL_RESULTS_PLAYERS, ColumnType.TEXT)
         .addColumn(GamePollResults.Columns.POLL_RESULTS_SORT_INDEX, ColumnType.INTEGER, true)
 
-    private fun buildGamePollResultsResultTable() = TableBuilder()
-        .setTable(Tables.GAME_POLL_RESULTS_RESULT)
+    private fun buildGamePollResultsResultTable(tableName: String = Tables.GAME_POLL_RESULTS_RESULT) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GamePollResultsResult.Columns.POLL_RESULTS_ID,
@@ -694,8 +692,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_VOTES, ColumnType.INTEGER, true)
         .addColumn(GamePollResultsResult.Columns.POLL_RESULTS_RESULT_SORT_INDEX, ColumnType.INTEGER, true)
 
-    private fun buildGameSuggestedPlayerCountPollResultsTable() = TableBuilder()
-        .setTable(Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS)
+    private fun buildGameSuggestedPlayerCountPollResultsTable(tableName: String = Tables.GAME_SUGGESTED_PLAYER_COUNT_POLL_RESULTS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GameSuggestedPlayerCountPollPollResults.Columns.GAME_ID,
@@ -706,15 +704,15 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
             referenceColumn = Games.Columns.GAME_ID,
             onCascadeDelete = true
         )
-        .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT, ColumnType.INTEGER, notNull = true, unique = true)
+        .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.PLAYER_COUNT, ColumnType.TEXT, notNull = true, unique = true)
         .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.SORT_INDEX, ColumnType.INTEGER)
         .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.BEST_VOTE_COUNT, ColumnType.INTEGER)
         .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDED_VOTE_COUNT, ColumnType.INTEGER)
         .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.NOT_RECOMMENDED_VOTE_COUNT, ColumnType.INTEGER)
         .addColumn(GameSuggestedPlayerCountPollPollResults.Columns.RECOMMENDATION, ColumnType.INTEGER)
 
-    private fun buildGameColorsTable() = TableBuilder()
-        .setTable(Tables.GAME_COLORS)
+    private fun buildGameColorsTable(tableName: String = Tables.GAME_COLORS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             GameColors.Columns.GAME_ID,
@@ -727,8 +725,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         )
         .addColumn(GameColors.Columns.COLOR, ColumnType.TEXT, notNull = true, unique = true)
 
-    private fun buildPlaysTable() = TableBuilder()
-        .setTable(Tables.PLAYS)
+    private fun buildPlaysTable(tableName: String = Tables.PLAYS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(Plays.Columns.SYNC_TIMESTAMP, ColumnType.INTEGER, true)
         .addColumn(Plays.Columns.PLAY_ID, ColumnType.INTEGER)
@@ -748,8 +746,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Plays.Columns.UPDATE_TIMESTAMP, ColumnType.INTEGER)
         .addColumn(Plays.Columns.DIRTY_TIMESTAMP, ColumnType.INTEGER)
 
-    private fun buildPlayPlayersTable() = TableBuilder()
-        .setTable(Tables.PLAY_PLAYERS)
+    private fun buildPlayPlayersTable(tableName: String = Tables.PLAY_PLAYERS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             PlayPlayers.Columns._PLAY_ID,
@@ -770,8 +768,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(PlayPlayers.Columns.RATING, ColumnType.REAL)
         .addColumn(PlayPlayers.Columns.WIN, ColumnType.INTEGER)
 
-    private fun buildCollectionTable(): TableBuilder = TableBuilder()
-        .setTable(Tables.COLLECTION)
+    private fun buildCollectionTable(tableName: String = Tables.COLLECTION): TableBuilder = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(Collection.Columns.UPDATED, ColumnType.INTEGER)
         .addColumn(Collection.Columns.UPDATED_LIST, ColumnType.INTEGER)
@@ -828,19 +826,19 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(Collection.Columns.PRIVATE_INFO_INVENTORY_LOCATION, ColumnType.TEXT)
         .setConflictResolution(ConflictResolution.ABORT)
 
-    private fun buildBuddiesTable() = TableBuilder().setTable(Tables.BUDDIES).useDefaultPrimaryKey()
-        .addColumn(Buddies.Columns.UPDATED, ColumnType.INTEGER)
-        .addColumn(Buddies.Columns.UPDATED_LIST, ColumnType.INTEGER, true)
-        .addColumn(Buddies.Columns.BUDDY_ID, ColumnType.INTEGER, notNull = true, unique = true)
-        .addColumn(Buddies.Columns.BUDDY_NAME, ColumnType.TEXT, true)
-        .addColumn(Buddies.Columns.BUDDY_FIRSTNAME, ColumnType.TEXT)
-        .addColumn(Buddies.Columns.BUDDY_LASTNAME, ColumnType.TEXT)
-        .addColumn(Buddies.Columns.AVATAR_URL, ColumnType.TEXT)
-        .addColumn(Buddies.Columns.PLAY_NICKNAME, ColumnType.TEXT)
-        .addColumn(Buddies.Columns.BUDDY_FLAG, ColumnType.INTEGER)
-        .addColumn(Buddies.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+    private fun buildUsersTable() = TableBuilder().setTable(Tables.USERS)
+        .setPrimaryKey(Users.Columns.USERNAME, ColumnType.TEXT)
+        .addColumn(Users.Columns.FIRST_NAME, ColumnType.TEXT)
+        .addColumn(Users.Columns.LAST_NAME, ColumnType.TEXT)
+        .addColumn(Users.Columns.AVATAR_URL, ColumnType.TEXT)
+        .addColumn(Users.Columns.PLAY_NICKNAME, ColumnType.TEXT)
+        .addColumn(Users.Columns.BUDDY_FLAG, ColumnType.INTEGER)
+        .addColumn(Users.Columns.SYNC_HASH_CODE, ColumnType.INTEGER)
+        .addColumn(Users.Columns.UPDATED_DETAIL_TIMESTAMP, ColumnType.INTEGER)
+        .addColumn(Users.Columns.UPDATED_LIST_TIMESTAMP, ColumnType.INTEGER)
 
-    private fun buildPlayerColorsTable() = TableBuilder().setTable(Tables.PLAYER_COLORS)
+    private fun buildPlayerColorsTable(tableName: String = Tables.PLAYER_COLORS) = TableBuilder()
+        .setTable(tableName)
         .setConflictResolution(ConflictResolution.REPLACE)
         .useDefaultPrimaryKey()
         .addColumn(PlayerColors.Columns.PLAYER_TYPE, ColumnType.INTEGER, notNull = true, unique = true)
@@ -848,8 +846,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(PlayerColors.Columns.PLAYER_COLOR, ColumnType.TEXT, notNull = true, unique = true)
         .addColumn(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, ColumnType.INTEGER, true)
 
-    private fun buildCollectionViewsTable() = TableBuilder()
-        .setTable(Tables.COLLECTION_VIEWS)
+    private fun buildCollectionViewsTable(tableName: String = Tables.COLLECTION_VIEWS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(CollectionViews.Columns.NAME, ColumnType.TEXT)
         .addColumn(CollectionViews.Columns.STARRED, ColumnType.INTEGER)
@@ -857,8 +855,8 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         .addColumn(CollectionViews.Columns.SELECTED_COUNT, ColumnType.INTEGER)
         .addColumn(CollectionViews.Columns.SELECTED_TIMESTAMP, ColumnType.INTEGER)
 
-    private fun buildCollectionViewFiltersTable() = TableBuilder()
-        .setTable(Tables.COLLECTION_VIEW_FILTERS)
+    private fun buildCollectionViewFiltersTable(tableName: String = Tables.COLLECTION_VIEW_FILTERS) = TableBuilder()
+        .setTable(tableName)
         .useDefaultPrimaryKey()
         .addColumn(
             CollectionViewFilters.Columns.VIEW_ID, ColumnType.INTEGER,
@@ -870,6 +868,23 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         )
         .addColumn(CollectionViewFilters.Columns.TYPE, ColumnType.INTEGER)
         .addColumn(CollectionViewFilters.Columns.DATA, ColumnType.TEXT)
+
+    private fun recreateTable(db: SQLiteDatabase, tableName: String, builder: (String) -> TableBuilder) {
+        val tempTableName = tableName + "_temp"
+        builder(tempTableName).create(db)
+        db.execSQL("INSERT INTO $tempTableName SELECT * FROM $tableName")
+        db.dropTable(tableName)
+        db.execSQL("ALTER TABLE $tempTableName RENAME TO $tableName")
+    }
+
+    private fun createIndices(db: SQLiteDatabase){
+        db.execSQL("CREATE UNIQUE INDEX index_games_game_id ON games(game_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_designers_designer_id ON designers(designer_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_artists_artist_id ON artists(artist_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_publishers_publisher_id ON publishers(publisher_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_categories_category_id ON categories(category_id)")
+        db.execSQL("CREATE UNIQUE INDEX index_mechanics_mechanic_id ON mechanics(mechanic_id)")
+    }
 
     private fun recreateDatabase(db: SQLiteDatabase?) {
         if (db == null) return
@@ -887,7 +902,7 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         db.dropTable(Tables.GAMES_CATEGORIES)
         db.dropTable(Tables.GAMES_EXPANSIONS)
         db.dropTable(Tables.COLLECTION)
-        db.dropTable(Tables.BUDDIES)
+        db.dropTable("buddies")
         db.dropTable(Tables.GAME_POLLS)
         db.dropTable(Tables.GAME_POLL_RESULTS)
         db.dropTable(Tables.GAME_POLL_RESULTS_RESULT)
@@ -968,6 +983,9 @@ class BggDatabase(private val context: Context?) : SQLiteOpenHelper(context, DAT
         private const val VER_WHITMORE_SCORE = 55
         private const val VER_DAP_STATS_UPDATED_TIMESTAMP = 56
         private const val VER_RECOMMENDED_PLAYER_COUNTS = 57
-        private const val DATABASE_VERSION = VER_RECOMMENDED_PLAYER_COUNTS
+        private const val VER_USERS_TABLE = 58
+        private const val VER_NOT_NULL_INTERNAL_ID = 59
+        private const val VER_INDICES = 60
+        private const val DATABASE_VERSION = 64
     }
 }

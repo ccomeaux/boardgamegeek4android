@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 
 class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
     var filterText = ""
@@ -24,7 +24,7 @@ class CollectionNameFilter(context: Context) : CollectionFilterer(context) {
 
     override fun description() = context.getString(if (startsWith) R.string.starts_with_prefix else R.string.named_prefix, filterText)
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         return if (startsWith) {
             item.collectionName.startsWith(filterText, true)
         } else {

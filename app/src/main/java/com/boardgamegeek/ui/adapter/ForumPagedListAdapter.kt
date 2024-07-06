@@ -7,8 +7,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowForumThreadBinding
-import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.entities.ThreadEntity
+import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.Thread
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.toFormattedString
 import com.boardgamegeek.ui.ThreadActivity
@@ -18,14 +18,14 @@ class ForumPagedListAdapter(
     private val forumTitle: String,
     private val objectId: Int,
     private val objectName: String,
-    private val objectType: ForumEntity.ForumType
-) : PagingDataAdapter<ThreadEntity, ForumPagedListAdapter.ForumViewHolder>(diffCallback) {
+    private val objectType: Forum.Type,
+) : PagingDataAdapter<Thread, ForumPagedListAdapter.ForumViewHolder>(diffCallback) {
 
     companion object {
-        val diffCallback = object : DiffUtil.ItemCallback<ThreadEntity>() {
-            override fun areItemsTheSame(oldItem: ThreadEntity, newItem: ThreadEntity) = oldItem.threadId == newItem.threadId
+        val diffCallback = object : DiffUtil.ItemCallback<Thread>() {
+            override fun areItemsTheSame(oldItem: Thread, newItem: Thread) = oldItem.threadId == newItem.threadId
 
-            override fun areContentsTheSame(oldItem: ThreadEntity, newItem: ThreadEntity) = oldItem == newItem
+            override fun areContentsTheSame(oldItem: Thread, newItem: Thread) = oldItem == newItem
         }
     }
 
@@ -40,7 +40,7 @@ class ForumPagedListAdapter(
     inner class ForumViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowForumThreadBinding.bind(itemView)
 
-        fun bind(thread: ThreadEntity?) {
+        fun bind(thread: Thread?) {
             binding.subjectView.text = thread?.subject.orEmpty()
             binding.authorView.text = thread?.author.orEmpty()
             binding.numberOfArticlesView.text = ((thread?.numberOfArticles ?: 1) - 1).toFormattedString()

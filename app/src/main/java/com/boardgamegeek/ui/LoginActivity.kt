@@ -16,7 +16,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.ActivityLoginBinding
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.entities.AuthEntity
+import com.boardgamegeek.model.AuthToken
 import com.boardgamegeek.ui.viewmodel.LoginViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
@@ -135,11 +135,11 @@ class LoginActivity : AppCompatActivity() {
         binding.loginFormView.fade(!show)
     }
 
-    private fun createAccount(authEntity: AuthEntity) {
+    private fun createAccount(authToken: AuthToken) {
         Timber.i("Creating account")
         val account = Account(username, Authenticator.ACCOUNT_TYPE)
         try {
-            accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, authEntity.token)
+            accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, authToken.token)
         } catch (e: SecurityException) {
             AlertDialog.Builder(this)
                 .setTitle(R.string.title_error)
@@ -147,7 +147,7 @@ class LoginActivity : AppCompatActivity() {
                 .show()
             return
         }
-        val userData = bundleOf(Authenticator.KEY_AUTH_TOKEN_EXPIRY to authEntity.expiry.toString())
+        val userData = bundleOf(Authenticator.KEY_AUTH_TOKEN_EXPIRY to authToken.expiry.toString())
         if (isRequestingNewAccount) {
             try {
                 var success = accountManager.addAccountExplicitly(account, password, userData)

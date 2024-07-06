@@ -15,7 +15,6 @@ import com.boardgamegeek.extensions.fromLocalToUtc
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import java.util.*
 
 @AndroidEntryPoint
@@ -61,7 +60,6 @@ class NewPlayDateFragment : Fragment() {
         viewModel.lastPlayDate.observe(viewLifecycleOwner) {
             it?.let {
                 lastPlayDate = it
-                Timber.i(it.formatDateTime(requireContext()).toString() + " / " + earlierDate().formatDateTime(requireContext()))
                 if (it < earlierDate()) {
                     binding.lastPlayDateButton.text = it.formatDateTime(requireContext())
                     binding.lastPlayDateButton.isVisible = true

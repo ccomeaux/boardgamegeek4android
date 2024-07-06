@@ -13,7 +13,7 @@ import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -44,20 +44,19 @@ class BuddyActivity : SimpleSinglePaneActivity() {
             viewModel.setPlayerName(name)
         }
 
-        viewModel.user.observe(this) {
+        viewModel.username.observe(this) {
             it?.let {
-                when {
-                    it.second == BuddyViewModel.TYPE_PLAYER && it.first != name -> {
-                        name = it.first
-                        intent.putExtra(KEY_PLAYER_NAME, name)
-                        setSubtitle()
-                    }
-                    it.second == BuddyViewModel.TYPE_USER && it.first != username -> {
-                        username = it.first
-                        intent.putExtra(KEY_USERNAME, username)
-                        setSubtitle()
-                    }
-                }
+                username = it
+                intent.putExtra(KEY_USERNAME, username)
+                setSubtitle()
+            }
+        }
+
+        viewModel.playerName.observe(this) {
+            it?.let {
+                name = it
+                intent.putExtra(KEY_PLAYER_NAME, name)
+                setSubtitle()
             }
         }
 
@@ -104,7 +103,7 @@ class BuddyActivity : SimpleSinglePaneActivity() {
     }
 
     private fun showSnackbar(message: String?) {
-        if (message == null || message.isBlank()) {
+        if (message.isNullOrBlank()) {
             snackbar?.dismiss()
         } else {
             snackbar = rootContainer?.longSnackbar(message)

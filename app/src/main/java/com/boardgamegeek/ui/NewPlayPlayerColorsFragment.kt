@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayPlayerColorsBinding
 import com.boardgamegeek.databinding.RowNewPlayPlayerColorBinding
-import com.boardgamegeek.entities.NewPlayPlayerEntity
+import com.boardgamegeek.model.NewPlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.dialog.NewPlayPlayerColorPickerDialogFragment
@@ -63,6 +63,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
     }
 
@@ -82,7 +83,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
             }
         }
 
-        var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var players: List<NewPlayPlayer> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
             }
@@ -101,8 +102,8 @@ class NewPlayPlayerColorsFragment : Fragment() {
         inner class PlayersViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowNewPlayPlayerColorBinding.bind(itemView)
 
-            fun bind(entity: NewPlayPlayerEntity?) {
-                entity?.let { player ->
+            fun bind(newPlayPlayer: NewPlayPlayer?) {
+                newPlayPlayer?.let { player ->
                     binding.nameView.text = player.name
                     binding.usernameView.setTextOrHide(player.username)
 
@@ -153,7 +154,7 @@ class NewPlayPlayerColorsFragment : Fragment() {
                 }
             }
 
-            private fun pickTeamOrColor(player: NewPlayPlayerEntity) {
+            private fun pickTeamOrColor(player: NewPlayPlayer) {
                 if (useColorPicker) {
                     NewPlayPlayerColorPickerDialogFragment.launch(
                         activity,

@@ -1,12 +1,10 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.core.os.bundleOf
 import com.boardgamegeek.auth.BggCookieJar
-import com.boardgamegeek.entities.AuthEntity
+import com.boardgamegeek.model.AuthToken
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.util.RemoteConfig
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.JsonObject
 import okhttp3.OkHttpClient
@@ -21,9 +19,8 @@ class AuthRepository(
     private val httpClient: OkHttpClient,
 ) {
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(context)
-    private val prefs: SharedPreferences by lazy { context.preferences() }
 
-    fun authenticate(username: String, password: String, method: String): AuthEntity? {
+    fun authenticate(username: String, password: String, method: String): AuthToken? {
         return try {
             tryAuthenticate(username, password, method)
         } catch (e: IOException) {
@@ -35,13 +32,13 @@ class AuthRepository(
     }
 
     @Throws(IOException::class)
-    private fun tryAuthenticate(username: String, password: String, method: String): AuthEntity? {
+    private fun tryAuthenticate(username: String, password: String, method: String): AuthToken? {
         val cookieJar = BggCookieJar()
         val client = httpClient.newBuilder().cookieJar(cookieJar).build()
         val response = client.newCall(buildRequest(username, password)).execute()
         return if (response.isSuccessful && !cookieJar.authToken.isNullOrBlank()) {
             log(method)
-            AuthEntity(
+            AuthToken(
                 cookieJar.authToken,
                 cookieJar.authTokenExpiry,
             )
@@ -77,31 +74,5 @@ class AuthRepository(
                 "Error" to error,
             )
         )
-    }
-
-    /***
-     * Determines if the user has accepted BGG's new privacy statement.
-     */
-    fun hasPrivacyError(url: String): Boolean {
-        val weeksToCompare = RemoteConfig.getInt(RemoteConfig.KEY_PRIVACY_CHECK_WEEKS)
-        val weeks = prefs.getLastPrivacyCheckTimestamp().howManyWeeksOld()
-        if (weeks < weeksToCompare) {
-            Timber.i("We checked the privacy statement less than %,d weeks ago; skipping", weeksToCompare)
-            return false
-        }
-        val request: Request = Request.Builder().url(url).build()
-        return try {
-            val response = httpClient.newCall(request).execute()
-            val content = response.body?.string()?.trim().orEmpty()
-            if (content.contains("Please update your privacy and marketing preferences")) {
-                true
-            } else {
-                prefs.setLastPrivacyCheckTimestamp()
-                false
-            }
-        } catch (e: IOException) {
-            Timber.w(e)
-            true
-        }
     }
 }

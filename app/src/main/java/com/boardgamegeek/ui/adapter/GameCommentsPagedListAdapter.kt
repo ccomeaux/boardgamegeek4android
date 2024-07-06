@@ -8,16 +8,16 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowCommentBinding
-import com.boardgamegeek.entities.GameCommentEntity
+import com.boardgamegeek.model.GameComment
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.util.XmlApiMarkupConverter
 
-class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCommentsPagedListAdapter.CommentViewHolder>(diffCallback) {
+class GameCommentsPagedListAdapter : PagingDataAdapter<GameComment, GameCommentsPagedListAdapter.CommentViewHolder>(diffCallback) {
     companion object {
-        val diffCallback = object : DiffUtil.ItemCallback<GameCommentEntity>() {
-            override fun areItemsTheSame(oldItem: GameCommentEntity, newItem: GameCommentEntity) = oldItem.username == newItem.username
+        val diffCallback = object : DiffUtil.ItemCallback<GameComment>() {
+            override fun areItemsTheSame(oldItem: GameComment, newItem: GameComment) = oldItem.username == newItem.username
 
-            override fun areContentsTheSame(oldItem: GameCommentEntity, newItem: GameCommentEntity) = oldItem == newItem
+            override fun areContentsTheSame(oldItem: GameComment, newItem: GameComment) = oldItem == newItem
         }
     }
 
@@ -33,12 +33,12 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameCommentEntity, GameCo
         private val binding = RowCommentBinding.bind(itemView)
         private val markupConverter = XmlApiMarkupConverter(itemView.context)
 
-        fun bind(entity: GameCommentEntity?) {
-            if (entity != null) {
-                binding.usernameView.text = entity.username
-                binding.ratingView.text = entity.rating.asPersonalRating(itemView.context)
-                binding.ratingView.setTextViewBackground(entity.rating.toColor(BggColors.ratingColors))
-                binding.commentView.setTextMaybeHtml(markupConverter.toHtml(entity.comment))
+        fun bind(gameComment: GameComment?) {
+            if (gameComment != null) {
+                binding.usernameView.text = gameComment.username
+                binding.ratingView.text = gameComment.rating.asPersonalRating(itemView.context)
+                binding.ratingView.setTextViewBackground(gameComment.rating.toColor(BggColors.ratingColors))
+                binding.commentView.setTextMaybeHtml(markupConverter.toHtml(gameComment.comment))
                 binding.commentView.isVisible = binding.commentView.text.isNotBlank()
                 binding.root.isVisible = true
             } else

@@ -11,8 +11,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentForumsBinding
-import com.boardgamegeek.entities.ForumEntity
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
@@ -23,7 +23,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class ForumsFragment : Fragment() {
     private var _binding: FragmentForumsBinding? = null
     private val binding get() = _binding!!
-    private var forumType = ForumEntity.ForumType.REGION
+    private var forumType = Forum.Type.REGION
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
 
@@ -42,7 +42,7 @@ class ForumsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         arguments?.let {
-            forumType = it.getSerializableCompat(KEY_TYPE) ?: ForumEntity.ForumType.REGION
+            forumType = it.getSerializableCompat(KEY_TYPE) ?: Forum.Type.REGION
             objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
             objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
         }
@@ -51,15 +51,15 @@ class ForumsFragment : Fragment() {
             setHasFixedSize(true)
             addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
             adapter = recyclerViewAdapter
-            if (forumType == ForumEntity.ForumType.REGION) setPadding(paddingLeft, 0, paddingRight, paddingBottom)
+            if (forumType == Forum.Type.REGION) setPadding(paddingLeft, 0, paddingRight, paddingBottom)
         }
 
         when (forumType) {
-            ForumEntity.ForumType.GAME -> viewModel.setGameId(objectId)
-            ForumEntity.ForumType.REGION -> viewModel.setRegion()
-            ForumEntity.ForumType.ARTIST,
-            ForumEntity.ForumType.DESIGNER -> viewModel.setPersonId(objectId)
-            ForumEntity.ForumType.PUBLISHER -> viewModel.setCompanyId(objectId)
+            Forum.Type.GAME -> viewModel.setGameId(objectId)
+            Forum.Type.REGION -> viewModel.setRegion()
+            Forum.Type.ARTIST,
+            Forum.Type.DESIGNER -> viewModel.setPersonId(objectId)
+            Forum.Type.PUBLISHER -> viewModel.setCompanyId(objectId)
         }
         viewModel.forums.observe(viewLifecycleOwner) {
             it?.let {
@@ -91,7 +91,7 @@ class ForumsFragment : Fragment() {
         fun newInstance(): ForumsFragment {
             return ForumsFragment().apply {
                 arguments = bundleOf(
-                    KEY_TYPE to ForumEntity.ForumType.REGION,
+                    KEY_TYPE to Forum.Type.REGION,
                     KEY_OBJECT_ID to BggContract.INVALID_ID,
                     KEY_OBJECT_NAME to "",
                 )
@@ -101,7 +101,7 @@ class ForumsFragment : Fragment() {
         fun newInstanceForGame(id: Int, name: String): ForumsFragment {
             return ForumsFragment().apply {
                 arguments = bundleOf(
-                    KEY_TYPE to ForumEntity.ForumType.GAME,
+                    KEY_TYPE to Forum.Type.GAME,
                     KEY_OBJECT_ID to id,
                     KEY_OBJECT_NAME to name,
                 )
@@ -111,7 +111,7 @@ class ForumsFragment : Fragment() {
         fun newInstanceForArtist(id: Int, name: String): ForumsFragment {
             return ForumsFragment().apply {
                 arguments = bundleOf(
-                    KEY_TYPE to ForumEntity.ForumType.ARTIST,
+                    KEY_TYPE to Forum.Type.ARTIST,
                     KEY_OBJECT_ID to id,
                     KEY_OBJECT_NAME to name,
                 )
@@ -121,7 +121,7 @@ class ForumsFragment : Fragment() {
         fun newInstanceForDesigner(id: Int, name: String): ForumsFragment {
             return ForumsFragment().apply {
                 arguments = bundleOf(
-                    KEY_TYPE to ForumEntity.ForumType.DESIGNER,
+                    KEY_TYPE to Forum.Type.DESIGNER,
                     KEY_OBJECT_ID to id,
                     KEY_OBJECT_NAME to name,
                 )
@@ -131,7 +131,7 @@ class ForumsFragment : Fragment() {
         fun newInstanceForPublisher(id: Int, name: String): ForumsFragment {
             return ForumsFragment().apply {
                 arguments = bundleOf(
-                    KEY_TYPE to ForumEntity.ForumType.PUBLISHER,
+                    KEY_TYPE to Forum.Type.PUBLISHER,
                     KEY_OBJECT_ID to id,
                     KEY_OBJECT_NAME to name,
                 )

@@ -13,7 +13,7 @@ import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.util.PaletteTransformation
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import timber.log.Timber

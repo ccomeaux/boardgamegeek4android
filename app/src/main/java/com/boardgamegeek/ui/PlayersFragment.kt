@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayersBinding
 import com.boardgamegeek.databinding.RowPlayersPlayerBinding
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
@@ -54,11 +54,12 @@ class PlayersFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
     }
 
     class PlayersAdapter(val viewModel: PlayersViewModel) : RecyclerView.Adapter<PlayersAdapter.ViewHolder>(), SectionCallback {
-        var players: List<PlayerEntity> = emptyList()
+        var players: List<Player> = emptyList()
             @SuppressLint("NotifyDataSetChanged")
             set(value) {
                 field = value
@@ -102,13 +103,13 @@ class PlayersFragment : Fragment() {
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowPlayersPlayerBinding.bind(itemView)
-            fun bind(playerEntity: PlayerEntity?) {
-                playerEntity?.let { player ->
-                    binding.nameView.text = player.name
-                    binding.usernameView.setTextOrHide(player.username)
-                    binding.quantityView.setTextOrHide(viewModel.getDisplayText(player))
-                    itemView.setOnClickListener {
-                        BuddyActivity.start(itemView.context, player.username, player.name)
+            fun bind(player: Player?) {
+                player?.let {
+                    binding.nameView.text = it.name
+                    binding.usernameView.setTextOrHide(it.username)
+                    binding.quantityView.setTextOrHide(viewModel.getDisplayText(it))
+                    itemView.setOnClickListener { _ ->
+                        BuddyActivity.start(itemView.context, it.username, it.name)
                     }
                 }
             }

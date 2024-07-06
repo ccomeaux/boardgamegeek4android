@@ -60,13 +60,6 @@
 	<string name="pref_sync_reset_collection_info_message">Nastąpi wymuszona pełna synchronizacja wszystkich danych całej kolekcji. Zazwyczaj synchronizowane są tylko ostatnio zmodyfikowane pozycje. Może to trochę potrwać, ale jest zalecane jeśli nie wszystkie pozycje z kolekcji są widoczne.</string>
 	<string name="pref_sync_re_sync_plays_info_message">Nastąpi wymuszona pełna synchronizacja wszystkich danych rozgrywek. (Zazwyczaj synchronizowane są tylko ostatnio rozgrywki). Może to trochę potrwać, ale jest zalecane jeśli nie wszystkie rozgrywki są widoczne.</string>
 	<string name="pref_sync_reset_buddies_info_message">Nastąpi usunięcie wszystkich GeekBuddies a potem wymuszona pełna synchronizacja. Zazwyczaj synchronizowane są tylko ostatnio zmodyfikowane pozycje. Może to trochę potrwać, ale jest zalecane jeśli nie wszyscy GeekBudyy są widoczni.</string>
-	<string name="pref_sync_timestamps">Pokaż stan sychronizacji</string>
-	<string name="pref_sync_timestamps_title">Stan sychronizacji</string>
-	<string name="pref_sync_timestamps_collection_full">Pełna</string>
-	<string name="pref_sync_timestamps_collection_partial">Częściowa</string>
-	<string name="pref_sync_timestamps_plays_newest_date">Data najnowszej zsynchronizowanej rozgrywki</string>
-	<string name="pref_sync_timestamps_plays_oldest_date">Data najstarszej zsynchronizowanej rozgrywki</string>
-	<string name="pref_sync_timestamps_buddy">Ostatnia synchronizacja GeekBuddies</string>
 	<string name="pref_list_empty">&lt;Puste&gt;</string>
 	<string name="pref_advanced">Zaawansowane</string>
 	<string name="pref_advanced_summary">Ustawienia, których prawdopodobnie nie powinieneś zmieniać</string>

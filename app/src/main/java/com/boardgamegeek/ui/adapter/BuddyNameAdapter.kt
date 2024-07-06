@@ -5,15 +5,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.entities.UserEntity
+import com.boardgamegeek.model.Player
+import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.extensions.setTextOrHide
 
 class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
-    private var playerList = listOf<PlayerEntity>()
-    private var userList = listOf<UserEntity>()
+    private var playerList = listOf<Player>()
+    private var userList = listOf<User>()
     private var resultList = listOf<Result>()
 
     class Result(
@@ -40,7 +40,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
         return view
     }
 
-    fun addPlayers(list: List<PlayerEntity>) {
+    fun addPlayers(list: List<Player>) {
         playerList = list
             .filter { it.username.isNotBlank() }
             .sortedByDescending { it.playCount }
@@ -48,8 +48,8 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
         notifyDataSetChanged()
     }
 
-    fun addUsers(list: List<UserEntity>) {
-        userList = list.sortedBy { it.userName }
+    fun addUsers(list: List<User>) {
+        userList = list.sortedBy { it.username }
         notifyDataSetChanged()
     }
 
@@ -62,7 +62,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
             }
 
             val userListFiltered = if (filter.isEmpty()) userList else {
-                userList.filter { it.userName.startsWith(filter, ignoreCase = true) }
+                userList.filter { it.username.startsWith(filter, ignoreCase = true) }
             }
 
             val playerResults = playerListFiltered.map { player ->
@@ -77,13 +77,13 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
             val userResults = userListFiltered
                 .asSequence()
                 .filterNot {
-                    usernames.contains(it.userName)
+                    usernames.contains(it.username)
                 }
                 .map {
                     Result(
                         it.fullName,
-                        it.userName,
-                        it.userName,
+                        it.username,
+                        it.username,
                         it.avatarUrl,
                     )
                 }

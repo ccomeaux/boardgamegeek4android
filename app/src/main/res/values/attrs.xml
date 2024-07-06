@@ -41,4 +41,7 @@
 		<attr name="titleLabel" format="string"/>
 		<attr name="descriptionLabel" format="string"/>
 	</declare-styleable>
+	<declare-styleable name="CollectionStatusSync">
+		<attr name="switchLabel" format="string"/>
+	</declare-styleable>
 </resources>

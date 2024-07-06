@@ -3,7 +3,7 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.IntervalDelegate
 import com.boardgamegeek.extensions.andLess
 import com.boardgamegeek.extensions.andMore
@@ -59,7 +59,7 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
         }
     }
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         return when {
             min == lowerBound && max == upperBound -> true
             min == lowerBound -> item.collectionYearPublished <= max

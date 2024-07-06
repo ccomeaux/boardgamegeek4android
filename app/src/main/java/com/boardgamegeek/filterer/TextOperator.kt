@@ -11,8 +11,7 @@ enum class TextOperator(val key: Int) {
     IsNotEmpty(8);
 
     companion object {
-        private val VALUES = values()
-        fun getByKey(value: Int) = VALUES.firstOrNull { it.key == value }
+        fun getByKey(value: Int) = entries.firstOrNull { it.key == value }
         val default = Contains
     }
 }

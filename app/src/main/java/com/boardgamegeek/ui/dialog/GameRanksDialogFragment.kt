@@ -13,9 +13,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogGameRanksBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.ui.widget.GameRankRow
+import com.boardgamegeek.ui.widget.GameFamilyRow
+import com.boardgamegeek.ui.widget.GameSubtypeRow
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
 class GameRanksDialogFragment : DialogFragment() {
@@ -41,50 +41,44 @@ class GameRanksDialogFragment : DialogFragment() {
         dialog?.setTitle(R.string.title_ranks_ratings)
 
         viewModel.game.observe(viewLifecycleOwner) {
-            val voteCount = it?.data?.numberOfRatings ?: 0
-            val standardDeviation = it?.data?.standardDeviation ?: 0.0
+            val voteCount = it?.numberOfRatings ?: 0
+            val standardDeviation = it?.standardDeviation ?: 0.0
             binding.votesView.text = requireContext().getQuantityText(R.plurals.ratings_suffix, voteCount, voteCount)
             binding.standardDeviationView.text = requireContext().getText(R.string.standard_deviation_prefix, standardDeviation)
             binding.standardDeviationView.isVisible = voteCount > 0
         }
 
-        viewModel.ranks.observe(viewLifecycleOwner) { gameRankEntities ->
+        viewModel.subtypes.observe(viewLifecycleOwner) {
             binding.unRankedView.isVisible = false
             binding.subtypesView.removeAllViews()
             binding.subtypesView.isVisible = false
-            binding.familiesView.removeAllViews()
-            binding.familiesView.isVisible = false
 
             var hasRankedSubtype = false
             var unRankedSubtype = getText(R.string.game)
 
-            gameRankEntities?.forEach { rank ->
-                if (rank.value.isRankValid()) {
-                    val row = GameRankRow(requireContext(), rank.isFamilyType).apply {
-                        setRank(rank.value)
-                        setName(rank.name.asRankDescription(requireContext(), rank.type))
-                        setRatingView(rank.bayesAverage)
-                    }
-                    when {
-                        rank.isSubType -> {
-                            binding.subtypesView.addView(row)
-                            binding.subtypesView.isVisible = true
-                            binding.unRankedView.isVisible = false
-                            hasRankedSubtype = true
-                        }
-                        rank.isFamilyType -> {
-                            binding.familiesView.addView(row)
-                            binding.familiesView.isVisible = true
-                        }
-                        else -> Timber.i("Invalid rank type: ${rank.type}")
-                    }
-                } else if (rank.isSubType) {
-                    unRankedSubtype = rank.name.asRankDescription(requireContext(), rank.type)
+            it?.forEach { rank ->
+                if (rank.isRankValid()) {
+                    val row = GameSubtypeRow(requireContext(), rank)
+                    binding.subtypesView.addView(row)
+                    binding.subtypesView.isVisible = true
+                    binding.unRankedView.isVisible = false
+                    hasRankedSubtype = true
+                } else {
+                    unRankedSubtype = rank.describeType(requireContext())
                 }
             }
             if (!hasRankedSubtype && unRankedSubtype.isNotEmpty()) {
                 binding.unRankedView.text = requireContext().getText(R.string.unranked_prefix, unRankedSubtype)
                 binding.unRankedView.isVisible = true
+            }
+        }
+
+        viewModel.families.observe(viewLifecycleOwner) { list ->
+            binding.familiesView.removeAllViews()
+            binding.familiesView.isVisible = false
+            list?.filter { it.isRankValid() }?.forEach { rank ->
+                binding.familiesView.addView(GameFamilyRow(requireContext(), rank))
+                binding.familiesView.isVisible = true
             }
         }
     }

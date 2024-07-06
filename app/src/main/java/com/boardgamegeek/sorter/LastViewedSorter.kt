@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.asPastDaySpan
 
 class LastViewedSorter(context: Context) : CollectionSorter(context) {
@@ -19,13 +19,13 @@ class LastViewedSorter(context: Context) : CollectionSorter(context) {
         @StringRes
         get() = R.string.collection_sort_last_viewed
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.lastViewedDate }
+    override fun sortAscending(items: Iterable<CollectionItem>) = items.sortedBy { it.lastViewedDate }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.lastViewedDate }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.lastViewedDate }
 
-    override fun getHeaderText(item: CollectionItemEntity) = item.lastViewedDate.asPastDaySpan(context).toString()
+    override fun getHeaderText(item: CollectionItem) = item.lastViewedDate.asPastDaySpan(context).toString()
 
-    override fun getDisplayInfo(item: CollectionItemEntity) = ""
+    override fun getDisplayInfo(item: CollectionItem) = ""
 
-    override fun getTimestamp(item: CollectionItemEntity) = item.lastViewedDate
+    override fun getTimestamp(item: CollectionItem) = item.lastViewedDate
 }

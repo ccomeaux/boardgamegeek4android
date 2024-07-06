@@ -4,6 +4,7 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
@@ -33,7 +34,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     private var iconColor = Color.TRANSPARENT
     private val tabs = arrayListOf<Tab>()
 
-    private val fab by lazy { activity.findViewById(R.id.fab) as FloatingActionButton }
+    private val fab by lazy { activity.findViewById<FloatingActionButton>(R.id.fab) }
     private val viewModel by lazy { ViewModelProvider(activity)[GameViewModel::class.java] }
     private val prefs by lazy { activity.preferences() }
 
@@ -62,15 +63,15 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
         viewModel.syncPlaysPreference.observe(activity) {
             it?.let { shouldShowPlays = it }
         }
-        viewModel.game.observe(activity) { resource ->
-            resource.data?.let { entity ->
-                gameName = entity.name
-                imageUrl = entity.imageUrl
-                thumbnailUrl = entity.thumbnailUrl
-                heroImageUrl = entity.heroImageUrl
-                arePlayersCustomSorted = entity.customPlayerSort
-                iconColor = entity.iconColor
-                isFavorite = entity.isFavorite
+        viewModel.game.observe(activity) {
+            it?.let { game ->
+                gameName = game.name
+                imageUrl = game.imageUrl
+                thumbnailUrl = game.thumbnailUrl
+                heroImageUrl = game.heroImageUrl
+                arePlayersCustomSorted = game.customPlayerSort
+                iconColor = game.iconColor
+                isFavorite = game.isFavorite
                 updateFavIcon(isFavorite)
                 fab.colorize(iconColor)
                 fab.setOnClickListener { tabs.getOrNull(currentPosition)?.listener?.invoke() }
@@ -124,7 +125,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
 
     private fun logPlay() {
         when (prefs.logPlayPreference()) {
-            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, heroImageUrl.ifBlank { thumbnailUrl }, arePlayersCustomSorted)
+            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(activity, gameId, gameName, heroImageUrl.ifBlank { thumbnailUrl.ifBlank { imageUrl } }, arePlayersCustomSorted)
             LOG_PLAY_TYPE_QUICK -> viewModel.logQuickPlay(gameId, gameName)
             LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(activity, gameId, gameName)
         }
@@ -170,6 +171,6 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
     }
 
     companion object {
-        const val INVALID_RES_ID = 0
+        const val INVALID_RES_ID = ResourcesCompat.ID_NULL
     }
 }

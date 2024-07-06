@@ -1,873 +1,166 @@
 package com.boardgamegeek.db
 
-import android.content.ContentProviderOperation
-import android.content.ContentResolver
-import android.content.ContentValues
-import android.content.Context
-import android.net.Uri
-import android.provider.BaseColumns
-import androidx.core.content.contentValuesOf
-import androidx.core.database.getDoubleOrNull
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
-import androidx.core.database.getStringOrNull
-import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.*
-import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import timber.log.Timber
+import androidx.room.*
+import com.boardgamegeek.db.model.*
+import kotlinx.coroutines.flow.Flow
 
-class PlayDao(private val context: Context) {
-    enum class PlaysSortBy {
-        DATE, LOCATION, GAME, LENGTH, UPDATED_DATE, DELETED_DATE
-    }
-
-    suspend fun loadPlay(id: Long): PlayEntity? = withContext(Dispatchers.IO) {
-        if (id != INVALID_ID.toLong()) {
-            context.contentResolver.loadEntity(
-                Plays.buildPlayWithGameUri(id),
-                arrayOf(
-                    BaseColumns._ID,
-                    Plays.Columns.PLAY_ID,
-                    Plays.Columns.DATE,
-                    Plays.Columns.OBJECT_ID,
-                    Plays.Columns.ITEM_NAME,
-                    Plays.Columns.QUANTITY,
-                    Plays.Columns.LENGTH,
-                    Plays.Columns.LOCATION,
-                    Plays.Columns.INCOMPLETE,
-                    Plays.Columns.NO_WIN_STATS,
-                    Plays.Columns.COMMENTS,
-                    Plays.Columns.SYNC_TIMESTAMP,
-                    Plays.Columns.PLAYER_COUNT,
-                    Plays.Columns.DIRTY_TIMESTAMP,
-                    Plays.Columns.UPDATE_TIMESTAMP,
-                    Plays.Columns.DELETE_TIMESTAMP,
-                    Plays.Columns.START_TIME,
-                    Games.Columns.IMAGE_URL,
-                    Games.Columns.THUMBNAIL_URL,
-                    Games.Columns.HERO_IMAGE_URL,
-                    Games.Columns.UPDATED_PLAYS,
-                    Games.Columns.CUSTOM_PLAYER_SORT,
-                ),
-            ) {
-                val internalId = it.getLong(0)
-                val players = loadPlayers(internalId)
-                PlayEntity(
-                    internalId = internalId,
-                    playId = it.getInt(1),
-                    rawDate = it.getString(2),
-                    gameId = it.getInt(3),
-                    gameName = it.getString(4),
-                    quantity = it.getIntOrNull(5) ?: 1,
-                    length = it.getIntOrNull(6) ?: 0,
-                    location = it.getStringOrNull(7).orEmpty(),
-                    incomplete = it.getBoolean(8),
-                    noWinStats = it.getBoolean(9),
-                    comments = it.getStringOrNull(10).orEmpty(),
-                    syncTimestamp = it.getLong(11),
-                    initialPlayerCount = it.getInt(12),
-                    dirtyTimestamp = it.getLong(13),
-                    updateTimestamp = it.getLong(14),
-                    deleteTimestamp = it.getLong(15),
-                    startTime = it.getLong(16),
-                    imageUrl = it.getStringOrNull(17).orEmpty(),
-                    thumbnailUrl = it.getStringOrNull(18).orEmpty(),
-                    heroImageUrl = it.getStringOrNull(19).orEmpty(),
-                    updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
-                    gameIsCustomSorted = it.getBoolean(21),
-                    _players = players,
-                )
-            }
-        } else null
-    }
-
-    private suspend fun loadPlayers(internalId: Long): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            Plays.buildPlayerUri(internalId),
-            arrayOf(
-                BaseColumns._ID,
-                PlayPlayers.Columns.NAME,
-                PlayPlayers.Columns.USER_NAME,
-                PlayPlayers.Columns.START_POSITION,
-                PlayPlayers.Columns.COLOR,
-                PlayPlayers.Columns.SCORE,
-                PlayPlayers.Columns.RATING,
-                PlayPlayers.Columns.USER_ID,
-                PlayPlayers.Columns.NEW,
-                PlayPlayers.Columns.WIN,
-                Plays.Columns.PLAY_ID,
-                BaseColumns._ID,
-            ),
-        ) {
-            PlayPlayerEntity(
-                name = it.getStringOrNull(1).orEmpty(),
-                username = it.getStringOrNull(2).orEmpty(),
-                startingPosition = it.getStringOrNull(3).orEmpty(),
-                color = it.getStringOrNull(4).orEmpty(),
-                score = it.getStringOrNull(5).orEmpty(),
-                rating = it.getDoubleOrNull(6) ?: 0.0,
-                userId = it.getIntOrNull(7),
-                isNew = it.getBoolean(8),
-                isWin = it.getBoolean(9),
-                playId = it.getIntOrNull(10) ?: INVALID_ID,
-                internalId = it.getLongOrNull(11) ?: INVALID_ID.toLong(),
-            )
-        }
-    }
-
-    suspend fun loadPlays(sortBy: PlaysSortBy) = loadPlays(Plays.CONTENT_URI, createPlaySelectionAndArgs(), sortBy)
-
-    suspend fun loadPendingPlays() = loadPlays(Plays.CONTENT_URI, createPendingPlaySelectionAndArgs())
-
-    suspend fun loadDraftPlays() = loadPlays(Plays.CONTENT_URI, createDraftPlaySelectionAndArgs())
-
-    suspend fun loadPlaysByGame(gameId: Int, sortBy: PlaysSortBy = PlaysSortBy.DATE): List<PlayEntity> {
-        return if (gameId == INVALID_ID) emptyList()
-        else loadPlays(Plays.CONTENT_URI, createGamePlaySelectionAndArgs(gameId), sortBy)
-    }
-
-    suspend fun loadPlaysByLocation(locationName: String?): List<PlayEntity> {
-        return if (locationName == null) emptyList()
-        else loadPlays(Plays.CONTENT_URI, createLocationPlaySelectionAndArgs(locationName))
-    }
-
-    suspend fun loadPlaysByUsername(username: String, includePlayers: Boolean = false): List<PlayEntity> {
-        return if (username.isBlank()) emptyList()
-        else loadPlays(Plays.buildPlayersByPlayUri(), createUsernamePlaySelectionAndArgs(username), includePlayers = includePlayers)
-    }
-
-    suspend fun loadPlaysByPlayerName(playerName: String, includePlayers: Boolean = false): List<PlayEntity> {
-        return if (playerName.isBlank()) emptyList()
-        else loadPlays(Plays.buildPlayersByPlayUri(), createPlayerNamePlaySelectionAndArgs(playerName), includePlayers = includePlayers)
-    }
-
-    suspend fun loadPlaysByPlayerAndGame(name: String, gameId: Int, isUser: Boolean): List<PlayEntity> {
-        return if (name.isBlank() || gameId == INVALID_ID) emptyList() else {
-            val uri = Plays.buildPlayersByPlayUri()
-            val selection = createNamePlaySelectionAndArgs(name, isUser)
-            loadPlays(uri, addGamePlaySelectionAndArgs(selection, gameId))
-        }
-    }
-
-    suspend fun loadPlays(
-        uri: Uri = Plays.CONTENT_URI,
-        selection: Pair<String?, Array<String>?> = null to null,
-        sortBy: PlaysSortBy = PlaysSortBy.DATE,
-        includePlayers: Boolean = false,
-    ): List<PlayEntity> = withContext(Dispatchers.IO) {
-        val sortOrder = when (sortBy) {
-            PlaysSortBy.DATE -> ""
-            PlaysSortBy.LOCATION -> Plays.Columns.LOCATION.ascending()
-            PlaysSortBy.GAME -> Plays.Columns.ITEM_NAME.ascending()
-            PlaysSortBy.LENGTH -> Plays.Columns.LENGTH.descending()
-            PlaysSortBy.UPDATED_DATE -> Plays.Columns.UPDATE_TIMESTAMP.descending()
-            PlaysSortBy.DELETED_DATE -> Plays.Columns.DELETE_TIMESTAMP.descending()
-        }
-        context.contentResolver.loadList(
-            uri,
-            arrayOf(
-                BaseColumns._ID,
-                Plays.Columns.PLAY_ID,
-                Plays.Columns.DATE,
-                Plays.Columns.OBJECT_ID,
-                Plays.Columns.ITEM_NAME,
-                Plays.Columns.QUANTITY,
-                Plays.Columns.LENGTH,
-                Plays.Columns.LOCATION,
-                Plays.Columns.INCOMPLETE,
-                Plays.Columns.NO_WIN_STATS,
-                Plays.Columns.COMMENTS,
-                Plays.Columns.SYNC_TIMESTAMP,
-                Plays.Columns.PLAYER_COUNT,
-                Plays.Columns.DIRTY_TIMESTAMP,
-                Plays.Columns.UPDATE_TIMESTAMP,
-                Plays.Columns.DELETE_TIMESTAMP,
-                Plays.Columns.START_TIME,
-                Games.Columns.IMAGE_URL,
-                Games.Columns.THUMBNAIL_URL,
-                Games.Columns.HERO_IMAGE_URL,
-                Games.Columns.UPDATED_PLAYS,
-            ),
-            selection.first,
-            selection.second,
-            sortOrder,
-        ) {
-            val internalId = it.getLong(0)
-            val players = if (includePlayers) loadPlayers(internalId) else null
-            PlayEntity(
-                internalId = internalId,
-                playId = it.getInt(1),
-                rawDate = it.getString(2),
-                gameId = it.getInt(3),
-                gameName = it.getString(4),
-                quantity = it.getIntOrNull(5) ?: 1,
-                length = it.getIntOrNull(6) ?: 0,
-                location = it.getStringOrNull(7).orEmpty(),
-                incomplete = it.getInt(8) == 1,
-                noWinStats = it.getInt(9) == 1,
-                comments = it.getStringOrNull(10).orEmpty(),
-                syncTimestamp = it.getLong(11),
-                initialPlayerCount = it.getInt(12),
-                dirtyTimestamp = it.getLong(13),
-                updateTimestamp = it.getLong(14),
-                deleteTimestamp = it.getLong(15),
-                startTime = it.getLong(16),
-                imageUrl = it.getStringOrNull(17).orEmpty(),
-                thumbnailUrl = it.getStringOrNull(18).orEmpty(),
-                heroImageUrl = it.getStringOrNull(19).orEmpty(),
-                updatedPlaysTimestamp = it.getLongOrNull(20) ?: 0L,
-                _players = players,
-            )
-        }
-    }
-
-    private fun createPlaySelectionAndArgs() =
-        Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull() to emptyArray<String>()
-
-    private fun createPendingPlaySelectionAndArgs() =
-        "${Plays.Columns.DELETE_TIMESTAMP}>0 OR ${Plays.Columns.UPDATE_TIMESTAMP}>0" to emptyArray<String>()
-
-    private fun createDraftPlaySelectionAndArgs() = "${Plays.Columns.DIRTY_TIMESTAMP}>0" to emptyArray<String>()
-
-    fun createPendingUpdatePlaySelectionAndArgs() = "${Plays.Columns.UPDATE_TIMESTAMP}>0" to emptyArray<String>()
-
-    fun createPendingDeletePlaySelectionAndArgs() = "${Plays.Columns.DELETE_TIMESTAMP}>0" to emptyArray<String>()
-
-    private fun createGamePlaySelectionAndArgs(gameId: Int) =
-        "${Plays.Columns.OBJECT_ID}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(gameId.toString())
-
-    private fun createLocationPlaySelectionAndArgs(locationName: String) =
-        "${Plays.Columns.LOCATION}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(locationName)
-
-    private fun createNamePlaySelectionAndArgs(name: String, isUser: Boolean) =
-        if (isUser) createUsernamePlaySelectionAndArgs(name) else createPlayerNamePlaySelectionAndArgs(name)
-
-    private fun createUsernamePlaySelectionAndArgs(username: String) =
-        "${PlayPlayers.Columns.USER_NAME}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(username)
-
-    private fun createPlayerNamePlaySelectionAndArgs(playerName: String) =
-        "${PlayPlayers.Columns.USER_NAME.whereNullOrBlank()} AND play_players.${PlayPlayers.Columns.NAME}=? AND ${Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull()}" to arrayOf(playerName)
-
-    private fun addGamePlaySelectionAndArgs(existing: Pair<String, Array<String>>, gameId: Int) =
-        "${existing.first} AND ${Plays.Columns.OBJECT_ID}=?" to (existing.second + arrayOf(gameId.toString()))
-
-    suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<PlayerEntity> {
-        val username = context.preferences()[AccountPreferences.KEY_USERNAME, ""]
-        val selection = arrayListOf<String>().apply {
-            add(Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull())
-            if (!username.isNullOrBlank()) {
-                add(PlayPlayers.Columns.USER_NAME + "!=?")
-            }
-            if (!includeIncompletePlays) {
-                add(Plays.Columns.INCOMPLETE.whereZeroOrNull())
-            }
-        }.joinTo(" AND ").toString()
-        val selectionArgs = username?.let {
-            when {
-                it.isBlank() -> null
-                else -> arrayOf(it)
-            }
-        }
-        return loadPlayers(Plays.buildPlayersByUniquePlayerUri(), selection to selectionArgs, PlayerSortBy.PLAY_COUNT)
-    }
-
-    suspend fun loadPlayerFavoriteColors() = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            PlayerColors.CONTENT_URI,
-            arrayOf(
-                PlayerColors.Columns.PLAYER_NAME,
-                PlayerColors.Columns.PLAYER_TYPE,
-                PlayerColors.Columns.PLAYER_COLOR,
-            ),
-            "${PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER}=1",
-        ) {
-            val name = it.getStringOrNull(0).orEmpty()
-            val type = it.getIntOrNull(1) ?: PlayerColors.TYPE_PLAYER
-            val player = if (type == PlayerColors.TYPE_USER)
-                PlayerEntity(name = "", username = name)
-            else
-                PlayerEntity(name = name, username = "")
-            player to (it.getStringOrNull(2).orEmpty())
-        }.toMap()
-    }
-
-    suspend fun loadUserPlayer(username: String): PlayerEntity? = withContext(Dispatchers.IO) {
-        loadPlayer(
-            Plays.buildPlayersByUniqueUserUri(),
-            "${PlayPlayers.Columns.USER_NAME}=? AND ${Plays.Columns.NO_WIN_STATS.whereZeroOrNull()}",
-            arrayOf(username)
-        )
-    }
-
-    suspend fun loadNonUserPlayer(playerName: String): PlayerEntity? = withContext(Dispatchers.IO) {
-        loadPlayer(
-            Plays.buildPlayersByUniquePlayerUri(),
-            "${PlayPlayers.Columns.USER_NAME.whereEqualsOrNull()} AND play_players.${PlayPlayers.Columns.NAME}=? AND ${Plays.Columns.NO_WIN_STATS.whereZeroOrNull()}",
-            arrayOf("", playerName)
-        )
-    }
-
-    private suspend fun loadPlayer(uri: Uri, selection: String, selectionArgs: Array<String>): PlayerEntity? = withContext(Dispatchers.IO) {
-        context.contentResolver.loadEntity(
-            uri,
-            arrayOf(
-                PlayPlayers.Columns.NAME,
-                PlayPlayers.Columns.USER_NAME,
-                Plays.Columns.SUM_QUANTITY,
-                Plays.Columns.SUM_WINS
-            ),
-            selection,
-            selectionArgs
-        ) {
-            PlayerEntity(
-                name = it.getStringOrNull(0).orEmpty(),
-                username = it.getStringOrNull(1).orEmpty(),
-                playCount = it.getIntOrNull(2) ?: 0,
-                winCount = it.getIntOrNull(3) ?: 0,
-            )
-        }
-    }
-
-    suspend fun loadColors(uri: Uri): List<PlayerColorEntity> = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            uri,
-            arrayOf(
-                BaseColumns._ID,
-                PlayerColors.Columns.PLAYER_COLOR,
-                PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER,
-            )
-        ) {
-            PlayerColorEntity(
-                description = it.getStringOrNull(1).orEmpty(),
-                sortOrder = it.getIntOrNull(2) ?: 0,
-            )
-        }
-    }
-
-    suspend fun loadPlayerDetail(uri: Uri, selection: String, selectionArgs: Array<String>): List<PlayerDetailEntity> = withContext(Dispatchers.IO) {
-        context.contentResolver.loadList(
-            uri,
-            arrayOf(
-                BaseColumns._ID,
-                PlayPlayers.Columns.NAME,
-                PlayPlayers.Columns.USER_NAME,
-                PlayPlayers.Columns.COLOR
-            ),
-            selection,
-            selectionArgs
-        ) {
-            PlayerDetailEntity(
-                id = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
-                name = it.getStringOrNull(1).orEmpty(),
-                username = it.getStringOrNull(2).orEmpty(),
-                color = it.getStringOrNull(3).orEmpty(),
-            )
-        }
-    }
-
-    enum class LocationSortBy {
-        NAME, PLAY_COUNT
-    }
-
-    suspend fun loadLocations(sortBy: LocationSortBy = LocationSortBy.NAME): List<LocationEntity> =
-        withContext(Dispatchers.IO) {
-            val sortOrder = when (sortBy) {
-                LocationSortBy.NAME -> ""
-                LocationSortBy.PLAY_COUNT -> Plays.Columns.SUM_QUANTITY.descending()
-            }
-            context.contentResolver.loadList(
-                Plays.buildLocationsUri(),
-                arrayOf(
-                    BaseColumns._ID,
-                    Plays.Columns.LOCATION,
-                    Plays.Columns.SUM_QUANTITY
-                ),
-                sortOrder = sortOrder
-            ) {
-                LocationEntity(
-                    name = it.getStringOrNull(1).orEmpty(),
-                    playCount = it.getIntOrNull(2) ?: 0,
-                )
-            }
-        }
-
-    suspend fun loadPlayersByLocation(location: String = ""): List<PlayerEntity> = withContext(Dispatchers.IO) {
-        val selection = if (location.isNotBlank()) "${Plays.Columns.LOCATION}=?" else null
-        val selectionArgs = if (location.isNotBlank()) arrayOf(location) else null
-        context.contentResolver.loadList(
-            Plays.buildPlayersByUniqueNameUri(),
-            arrayOf(
-                PlayPlayers.Columns.NAME,
-                PlayPlayers.Columns.USER_NAME,
-                Buddies.Columns.AVATAR_URL,
-                Plays.Columns.SUM_QUANTITY,
-                PlayPlayers.Columns.UNIQUE_NAME
-            ),
-            selection,
-            selectionArgs,
-            PlayPlayers.SORT_BY_SUM_QUANTITY
-        ) {
-            PlayerEntity(
-                name = it.getStringOrNull(0).orEmpty(),
-                username = it.getStringOrNull(1).orEmpty(),
-                playCount = it.getIntOrNull(3) ?: 0,
-                rawAvatarUrl = it.getStringOrNull(2).orEmpty(),
-            )
-        }
-    }
-
-    /**
-     * Load all non-blank colors/teams in the specified game's logged plays.
-     */
-    suspend fun loadPlayerColors(gameId: Int) = withContext(Dispatchers.IO) {
-        context.contentResolver.queryStrings(
-            Plays.buildPlayersByColor(),
-            PlayPlayers.Columns.COLOR,
-            "${Plays.Columns.OBJECT_ID}=?",
-            arrayOf(gameId.toString()),
-        ).filter { it.isNotBlank() }
-    }
-
-    enum class PlayerSortBy {
-        NAME, PLAY_COUNT, WIN_COUNT
-    }
-
-    suspend fun loadPlayers(
-        uri: Uri,
-        selection: Pair<String?, Array<String>?>? = null,
-        sortBy: PlayerSortBy = PlayerSortBy.NAME
-    ): List<PlayerEntity> = withContext(Dispatchers.IO) {
-        val sortOrder = when (sortBy) {
-            PlayerSortBy.NAME -> PlayPlayers.Columns.NAME.collateNoCase()
-            PlayerSortBy.PLAY_COUNT -> Plays.Columns.SUM_QUANTITY.descending()
-            PlayerSortBy.WIN_COUNT -> Plays.Columns.SUM_WINS.descending()
-        }
-        context.contentResolver.loadList(
-            uri,
-            arrayOf(
-                PlayPlayers.Columns.NAME,
-                PlayPlayers.Columns.USER_NAME,
-                Plays.Columns.SUM_QUANTITY,
-                Plays.Columns.SUM_WINS,
-                Buddies.Columns.AVATAR_URL,
-            ),
-            selection?.first,
-            selection?.second,
-            sortOrder
-        ) {
-            PlayerEntity(
-                name = it.getStringOrNull(0).orEmpty(),
-                username = it.getStringOrNull(1).orEmpty(),
-                playCount = it.getIntOrNull(2) ?: 0,
-                winCount = it.getIntOrNull(3) ?: 0,
-                rawAvatarUrl = it.getStringOrNull(4).orEmpty(),
-            )
-        }
-    }
-
-    suspend fun delete(internalId: Long): Boolean = withContext(Dispatchers.IO) {
-        if (internalId == INVALID_ID.toLong())
-            false
-        else
-            context.contentResolver.delete(Plays.buildPlayUri(internalId), null, null) > 0
-    }
-
-    enum class SaveStatus {
-        UPDATED, INSERTED, DIRTY, ERROR, UNCHANGED
-    }
-
-    suspend fun save(play: PlayEntity, startTime: Long = System.currentTimeMillis()): SaveStatus = withContext(Dispatchers.IO) {
-        val candidate = PlaySyncCandidate.find(context.contentResolver, play.playId)
-        when {
-            !play.isSynced -> {
-                Timber.i("Can't sync a play without a play ID.")
-                SaveStatus.ERROR
-            }
-
-            candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
-                upsert(play, INVALID_ID.toLong())
-                SaveStatus.INSERTED
-            }
-
-            candidate.isDirty -> {
-                Timber.i("Not saving during the sync; local play is modified.")
-                SaveStatus.DIRTY
-            }
-
-            candidate.syncHashCode == play.generateSyncHashCode() -> {
-                context.contentResolver.update(
-                    Plays.buildPlayUri(candidate.internalId),
-                    contentValuesOf(Plays.Columns.SYNC_TIMESTAMP to startTime),
-                    null,
-                    null
-                )
-                SaveStatus.UNCHANGED
-            }
-
-            else -> {
-                upsert(play, candidate.internalId)
-                SaveStatus.UPDATED
-            }
-        }
-    }
-
-    suspend fun upsert(play: PlayEntity, internalId: Long = play.internalId): Long = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
-
-        val values = contentValuesOf(
-            Plays.Columns.PLAY_ID to play.playId,
-            Plays.Columns.DATE to play.dateForDatabase(),
-            Plays.Columns.ITEM_NAME to play.gameName,
-            Plays.Columns.OBJECT_ID to play.gameId,
-            Plays.Columns.QUANTITY to play.quantity,
-            Plays.Columns.LENGTH to play.length,
-            Plays.Columns.INCOMPLETE to play.incomplete,
-            Plays.Columns.NO_WIN_STATS to play.noWinStats,
-            Plays.Columns.LOCATION to play.location,
-            Plays.Columns.COMMENTS to play.comments,
-            Plays.Columns.PLAYER_COUNT to play.players.size,
-            Plays.Columns.SYNC_TIMESTAMP to play.syncTimestamp,
-            Plays.Columns.START_TIME to if (play.length > 0) 0 else play.startTime,
-            Plays.Columns.SYNC_HASH_CODE to play.generateSyncHashCode(),
-            Plays.Columns.DELETE_TIMESTAMP to play.deleteTimestamp,
-            Plays.Columns.UPDATE_TIMESTAMP to play.updateTimestamp,
-            Plays.Columns.DIRTY_TIMESTAMP to play.dirtyTimestamp,
-        )
-
-        batch += if (internalId != INVALID_ID.toLong()) {
-            ContentProviderOperation.newUpdate(Plays.buildPlayUri(internalId))
+@Dao
+interface PlayDao {
+    @Transaction
+    suspend fun upsert(play: PlayEntity, players: List<PlayPlayerEntity>): Long {
+        val internalId = if (play.internalId == 0L) {
+            insertPlay(play)
         } else {
-            ContentProviderOperation.newInsert(Plays.CONTENT_URI)
-        }.withValues(values).build()
-
-        if (play.deleteTimestamp == 0L) {
-            deletePlayerWithEmptyUserNameInBatch(internalId, batch)
-            val existingPlayerIds = removeDuplicateUserNamesFromBatch(internalId, batch).toMutableList()
-            addPlayersToBatch(play, existingPlayerIds, internalId, batch)
-            removeUnusedPlayersFromBatch(internalId, existingPlayerIds, batch)
-
-            if (play.isSynced || play.updateTimestamp > 0) {
-                // Do these when a new play is ready to be synced
-                saveGamePlayerSortOrderToBatch(play, batch)
-                updateColorsInBatch(play, batch)
-                saveBuddyNicknamesToBatch(play, batch)
-            }
-
-            val results = context.contentResolver.applyBatch(batch)
-            var insertedId = internalId
-            if (insertedId == INVALID_ID.toLong() && results.isNotEmpty()) {
-                insertedId = results.getOrNull(0)?.uri?.lastPathSegment?.toLong() ?: INVALID_ID.toLong()
-            }
-            Timber.d("Saved play _ID=$insertedId")
-            insertedId
-        } else {
-            Timber.i("Skipping upserting a deleted play")
-            INVALID_ID.toLong()
+            updatePlay(play)
+            deletePlayers(play.internalId)
+            play.internalId
         }
+        insertPlayers(players.map { it.copy(internalPlayId = internalId) })
+        return internalId
     }
 
-    suspend fun updateAllPlays(contentValues: ContentValues): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.update(Plays.CONTENT_URI, contentValues, null, null)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertPlay(play: PlayEntity): Long
+
+    @Update
+    suspend fun updatePlay(play: PlayEntity)
+
+    @Query("DELETE FROM play_players WHERE _play_id = :playInternalId")
+    suspend fun deletePlayers(playInternalId: Long)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertPlayers(players: List<PlayPlayerEntity>)
+
+    @Query("SELECT * FROM plays ORDER BY date DESC, play_id DESC")
+    suspend fun loadPlays(): List<PlayEntity>
+
+    @Query("SELECT * FROM plays ORDER BY date DESC, play_id DESC")
+    fun loadPlaysFlow(): Flow<List<PlayEntity>>
+
+    @Query("SELECT * FROM plays WHERE play_id = :playId")
+    suspend fun loadPlay(playId: Int): PlayEntity?
+
+    @Query("SELECT * FROM plays WHERE object_id = :gameId ORDER BY date DESC, play_id DESC")
+    suspend fun loadPlaysForGame(gameId: Int): List<PlayEntity>
+
+    @Query("SELECT * FROM plays WHERE object_id = :gameId ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForGameFlow(gameId: Int): Flow<List<PlayEntity>>
+
+    @Query("SELECT * FROM plays WHERE location = :location ORDER BY date DESC, play_id DESC")
+    suspend fun loadPlaysForLocation(location: String): List<PlayEntity>
+
+    @Query("SELECT * FROM plays WHERE location = :location ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForLocationFlow(location: String): Flow<List<PlayEntity>>
+
+    @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE user_name = :username ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForUserFlow(username: String): Flow<List<PlayEntity>>
+
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE user_name = :username AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
+    suspend fun loadPlayersForUser(username: String): List<PlayerWithPlayEntity>
+
+    @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE user_name = :username AND object_id = :gameId ORDER BY date DESC, play_id DESC")
+    suspend fun loadPlaysForUserAndGame(username: String, gameId: Int): List<PlayEntity>
+
+    @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE name = :name AND (user_name = '' OR user_name IS NULL) ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForPlayerFlow(name: String): Flow<List<PlayEntity>>
+
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE name = :name AND (user_name = '' OR user_name IS NULL)")
+    suspend fun loadPlayersForPlayer(name: String): List<PlayerWithPlayEntity>
+
+    @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE name = :name AND object_id = :gameId AND (user_name = '' OR user_name IS NULL) ORDER BY date DESC, play_id DESC")
+    suspend fun loadPlaysForPlayerAndGame(name: String, gameId: Int): List<PlayEntity>
+
+    @Transaction
+    @Query("SELECT * FROM plays WHERE update_timestamp>0 ORDER BY date DESC, play_id DESC")
+    suspend fun loadUpdatingPlays(): List<PlayWithPlayersEntity>
+
+    @Transaction
+    @Query("SELECT * FROM plays WHERE delete_timestamp>0 ORDER BY date DESC, play_id DESC")
+    suspend fun loadDeletingPlays(): List<PlayWithPlayersEntity>
+
+    @Transaction
+    @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT JOIN games ON games.game_id = plays.object_id WHERE plays._id = :internalId")
+    suspend fun loadPlayWithPlayers(internalId: Long): PlayWithPlayersAndImagesEntity?
+
+    @Transaction
+    @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT JOIN games ON games.game_id = plays.object_id WHERE plays._id = :internalId")
+    fun loadPlayWithPlayersFlow(internalId: Long): Flow<PlayWithPlayersAndImagesEntity?>
+
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE object_id = :gameId AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
+    suspend fun loadPlayersForGame(gameId: Int): List<PlayerWithPlayEntity>
+
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE object_id = :gameId AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
+    fun loadPlayersForGameFlow(gameId: Int): Flow<List<PlayerWithPlayEntity>>
+
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE delete_timestamp=0 OR delete_timestamp IS NULL")
+    suspend fun loadPlayers(): List<PlayerWithPlayEntity>
+
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE delete_timestamp=0 OR delete_timestamp IS NULL")
+    fun loadPlayersFlow(): Flow<List<PlayerWithPlayEntity>>
+
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE location = :location AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
+    suspend fun loadPlayersForLocation(location: String): List<PlayerWithPlayEntity>
+
+    @Query("SELECT location AS name, SUM(quantity) AS playCount from plays WHERE delete_timestamp IS NULL OR delete_timestamp = 0 GROUP BY location ORDER BY playCount DESC")
+    suspend fun loadLocations(): List<LocationEntity>
+
+    @Query("SELECT location AS name, SUM(quantity) AS playCount from plays WHERE delete_timestamp IS NULL OR delete_timestamp = 0 GROUP BY location ORDER BY playCount DESC")
+    fun loadLocationsFlow(): Flow<List<LocationEntity>>
+
+    @Transaction
+    suspend fun updateUsername(playInternalId: Long, playerInternalId: Long, username: String) {
+        updatePlayerUsername(playerInternalId, username)
+        markAsUpdated(playInternalId)
     }
 
-    private fun deletePlayerWithEmptyUserNameInBatch(internalId: Long, batch: ArrayList<ContentProviderOperation>) {
-        if (internalId == INVALID_ID.toLong()) return
-        batch += ContentProviderOperation
-            .newDelete(Plays.buildPlayerUri(internalId))
-            .withSelection(String.format("%1\$s IS NULL OR %1\$s=''", PlayPlayers.Columns.USER_NAME), null)
-            .build()
+    @Transaction
+    suspend fun updateNickname(playInternalId: Long, playerInternalId: Long, nickname: String) {
+        updatePlayerNickname(playerInternalId, nickname)
+        markAsUpdated(playInternalId)
     }
 
-    private fun removeDuplicateUserNamesFromBatch(
-        internalId: Long,
-        batch: ArrayList<ContentProviderOperation>
-    ): List<String> {
-        if (internalId == INVALID_ID.toLong()) return emptyList()
-        val playerUri = Plays.buildPlayerUri(internalId)
+    @Query("UPDATE play_players SET user_name = :username WHERE _id = :internalId")
+    suspend fun updatePlayerUsername(internalId: Long, username: String)
 
-        val userNames = context.contentResolver.queryStrings(playerUri, PlayPlayers.Columns.USER_NAME).filterNot { it.isBlank() }
-        if (userNames.isEmpty()) return emptyList()
+    @Query("UPDATE play_players SET name = :nickname WHERE _id = :internalId")
+    suspend fun updatePlayerNickname(internalId: Long, nickname: String)
 
-        val uniqueUserNames = mutableListOf<String>()
-        val userNamesToDelete = mutableListOf<String>()
-        userNames.filter { it.isNotEmpty() }.forEach { userName ->
-            if (uniqueUserNames.contains(userName)) {
-                userNamesToDelete += userName
-            } else {
-                uniqueUserNames += userName
-            }
-        }
-        userNamesToDelete.forEach { userName ->
-            batch += ContentProviderOperation
-                .newDelete(playerUri)
-                .withSelection("${PlayPlayers.Columns.USER_NAME}=?", arrayOf(userName))
-                .build()
-            uniqueUserNames.remove(userName)
-        }
-        return uniqueUserNames
-    }
+    @Query("UPDATE plays SET update_timestamp = :timestamp, dirty_timestamp = 0, delete_timestamp = 0 WHERE _id = :internalId")
+    suspend fun markAsUpdated(internalId: Long, timestamp: Long = System.currentTimeMillis()): Int
 
-    private fun addPlayersToBatch(
-        play: PlayEntity,
-        playerUserNames: MutableList<String>,
-        internalId: Long,
-        batch: ArrayList<ContentProviderOperation>
-    ) {
-        for (player in play.players) {
-            val userName = player.username
-            val values = contentValuesOf(
-                PlayPlayers.Columns.USER_NAME to userName,
-                PlayPlayers.Columns.NAME to player.name,
-                PlayPlayers.Columns.USER_ID to player.userId,
-                PlayPlayers.Columns.START_POSITION to player.startingPosition,
-                PlayPlayers.Columns.COLOR to player.color,
-                PlayPlayers.Columns.SCORE to player.score,
-                PlayPlayers.Columns.RATING to player.rating,
-                PlayPlayers.Columns.NEW to player.isNew,
-                PlayPlayers.Columns.WIN to player.isWin
-            )
-            if (playerUserNames.remove(userName)) {
-                batch += ContentProviderOperation
-                    .newUpdate(Plays.buildPlayerUri(internalId))
-                    .withSelection("${PlayPlayers.Columns.USER_NAME}=?", arrayOf(userName))
-                    .withValues(values).build()
-            } else {
-                batch += if (internalId == INVALID_ID.toLong()) {
-                    ContentProviderOperation
-                        .newInsert(Plays.buildPlayerUri())
-                        .withValueBackReference(PlayPlayers.Columns._PLAY_ID, 0)
-                        .withValues(values)
-                        .build()
-                } else {
-                    ContentProviderOperation
-                        .newInsert(Plays.buildPlayerUri(internalId))
-                        .withValues(values)
-                        .build()
-                }
-            }
-        }
-    }
+    @Query("UPDATE plays SET delete_timestamp = :timestamp, update_timestamp = 0, dirty_timestamp = 0 WHERE _id = :internalId")
+    suspend fun markAsDeleted(internalId: Long, timestamp: Long = System.currentTimeMillis()): Int
 
-    private fun removeUnusedPlayersFromBatch(
-        internalId: Long,
-        playerUserNames: List<String>,
-        batch: ArrayList<ContentProviderOperation>
-    ) {
-        if (internalId == INVALID_ID.toLong()) return
-        for (playerUserName in playerUserNames) {
-            batch += ContentProviderOperation
-                .newDelete(Plays.buildPlayerUri(internalId))
-                .withSelection("${PlayPlayers.Columns.USER_NAME}=?", arrayOf(playerUserName))
-                .build()
-        }
-    }
+    @Query("UPDATE plays SET delete_timestamp = 0, update_timestamp = 0, dirty_timestamp = 0 WHERE _id = :internalId")
+    suspend fun markAsDiscarded(internalId: Long): Int
 
-    /**
-     * Determine if the players are custom sorted or not, and save it to the game.
-     */
-    private suspend fun saveGamePlayerSortOrderToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        // We can't determine the sort order without players
-        if (play.playerCount > 0) {
-            // We can't save the sort order if we aren't storing the game
-            val gameUri = Games.buildGameUri(play.gameId)
-            if (context.contentResolver.rowExists(gameUri)) {
-                batch += ContentProviderOperation
-                    .newUpdate(gameUri)
-                    .withValue(Games.Columns.CUSTOM_PLAYER_SORT, play.arePlayersCustomSorted())
-                    .build()
-            }
-        }
-    }
+    @Query("UPDATE plays SET play_id = :playId, delete_timestamp = 0, update_timestamp = 0, dirty_timestamp = 0 WHERE _id = :internalId")
+    suspend fun markAsSynced(internalId: Long, playId: Int): Int
 
-    /**
-     * Add the current players' team/colors to the permanent list for the game.
-     */
-    private suspend fun updateColorsInBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        // There are no players, so there are no colors to save
-        if (play.playerCount > 0) {
-            // We can't save the colors if we aren't storing the game
-            if (context.contentResolver.rowExists(Games.buildGameUri(play.gameId))) {
-                val insertUri = Games.buildColorsUri(play.gameId)
-                play.players.filter { it.color.isNotBlank() }.distinctBy { it.color }.forEach {
-                    if (!context.contentResolver.rowExists(Games.buildColorsUri(play.gameId, it.color))) {
-                        batch += ContentProviderOperation
-                            .newInsert(insertUri)
-                            .withValue(GameColors.Columns.COLOR, it.color)
-                            .build()
-                    }
-                }
-            }
-        }
-    }
+    @Query("UPDATE plays SET updated_list = :timestamp WHERE _id = :internalId")
+    suspend fun updateSyncTimestamp(internalId: Long, timestamp: Long): Int
 
-    /**
-     * Update GeekBuddies' nicknames with the names used here.
-     */
-    private suspend fun saveBuddyNicknamesToBatch(play: PlayEntity, batch: ArrayList<ContentProviderOperation>) = withContext(Dispatchers.IO) {
-        play.players.filter { it.username.isNotBlank() && it.name.isNotBlank() }.forEach { player ->
-            val uri = Buddies.buildBuddyUri(player.username)
-            if (context.contentResolver.rowExists(uri)) {
-                val nickname = context.contentResolver.queryString(uri, Buddies.Columns.PLAY_NICKNAME)
-                if (nickname.isNullOrBlank()) {
-                    batch += ContentProviderOperation
-                        .newUpdate(Buddies.CONTENT_URI)
-                        .withSelection("${Buddies.Columns.BUDDY_NAME}=?", arrayOf(player.username))
-                        .withValue(Buddies.Columns.PLAY_NICKNAME, player.name)
-                        .build()
-                }
-            }
-        }
-    }
+    @Query("UPDATE plays SET sync_hash_code = 0")
+    suspend fun clearSyncHashCodes(): Int
 
-    suspend fun loadPlayersByGame(gameId: Int): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
-        if (gameId == INVALID_ID) emptyList()
-        else loadPlayPlayers(Plays.buildPlayersUri(), createGamePlaySelectionAndArgs(gameId))
-    }
+    @Query("UPDATE plays SET location = :location WHERE _id = :internalId")
+    suspend fun updateLocation(internalId: Long, location: String): Int
 
-    private suspend fun loadPlayPlayers(
-        uri: Uri,
-        selection: Pair<String?, Array<String>?>? = null,
-        sortBy: PlayerSortBy = PlayerSortBy.NAME
-    ): List<PlayPlayerEntity> = withContext(Dispatchers.IO) {
-        val defaultSortOrder = "${PlayPlayers.Columns.START_POSITION.ascending()}, ${PlayPlayers.Columns.NAME.collateNoCase()}"
-        val sortOrder = when (sortBy) {
-            PlayerSortBy.NAME -> defaultSortOrder
-            PlayerSortBy.PLAY_COUNT -> "${Plays.Columns.SUM_QUANTITY.descending()}, $defaultSortOrder"
-            PlayerSortBy.WIN_COUNT -> "${Plays.Columns.SUM_WINS.descending()}, $defaultSortOrder"
-        }
-        context.contentResolver.loadList(
-            uri,
-            arrayOf(
-                PlayPlayers.Columns.NAME,
-                PlayPlayers.Columns.USER_NAME,
-                PlayPlayers.Columns.START_POSITION,
-                PlayPlayers.Columns.COLOR,
-                PlayPlayers.Columns.SCORE,
-                PlayPlayers.Columns.RATING,
-                PlayPlayers.Columns.USER_ID,
-                PlayPlayers.Columns.NEW,
-                PlayPlayers.Columns.WIN,
-                Plays.Columns.PLAY_ID,
-            ),
-            selection?.first,
-            selection?.second,
-            sortOrder
-        ) {
-            PlayPlayerEntity(
-                name = it.getStringOrNull(0).orEmpty(),
-                username = it.getStringOrNull(1).orEmpty(),
-                startingPosition = it.getStringOrNull(2).orEmpty(),
-                color = it.getStringOrNull(3).orEmpty(),
-                score = it.getStringOrNull(4).orEmpty(),
-                rating = it.getDoubleOrNull(5) ?: 0.0,
-                userId = it.getIntOrNull(6),
-                isNew = it.getBoolean(7),
-                isWin = it.getBoolean(8),
-                playId = it.getIntOrNull(9) ?: INVALID_ID,
-            )
-        }
-    }
+    @Query("UPDATE plays SET location = :location, update_timestamp = :timestamp WHERE _id = :internalId")
+    suspend fun updateLocation(internalId: Long, location: String, timestamp: Long): Int
 
-    suspend fun saveColorsForPlayer(uri: Uri, colors: List<String>?) = withContext(Dispatchers.IO) {
-        val batch = arrayListOf<ContentProviderOperation>()
-        batch += ContentProviderOperation.newDelete(uri).build()
-        var sortOrder = 1
-        colors?.filter { it.isNotBlank() }?.forEach {
-            batch += ContentProviderOperation
-                .newInsert(uri)
-                .withValue(PlayerColors.Columns.PLAYER_COLOR_SORT_ORDER, sortOrder++)
-                .withValue(PlayerColors.Columns.PLAYER_COLOR, it)
-                .build()
-        }
-        context.contentResolver.applyBatch(batch)
-    }
+    @Query("DELETE FROM plays")
+    suspend fun deleteAll(): Int
 
-    suspend fun deletePlays(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Plays.CONTENT_URI, null, null)
-    }
+    @Query("DELETE FROM plays WHERE _id = :internalId")
+    suspend fun delete(internalId: Long): Int
 
-    suspend fun deleteUnupdatedPlaysByDate(syncTimestamp: Long, playDate: Long, dateComparator: String): Int = withContext(Dispatchers.IO) {
-        val selection = createDeleteSelectionAndArgs(syncTimestamp)
-        context.contentResolver.delete(
-            Plays.CONTENT_URI,
-            "${selection.first} AND ${Plays.Columns.DATE}$dateComparator?",
-            selection.second + playDate.asDateForApi()
-        )
-    }
+    @Query("DELETE FROM plays WHERE object_id = :gameId AND updated_list < :syncTimestamp AND (update_timestamp = 0 OR update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = 0 OR delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = 0 OR dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    suspend fun deleteUnupdatedPlaysForGame(gameId: Int, syncTimestamp: Long): Int
 
-    suspend fun deleteUnupdatedPlays(gameId: Int, syncTimestamp: Long) = withContext(Dispatchers.IO) {
-        val selection = createDeleteSelectionAndArgs(syncTimestamp)
-        val count = context.contentResolver.delete(
-            Plays.CONTENT_URI,
-            "${selection.first} AND ${Plays.Columns.OBJECT_ID}=?",
-            selection.second + gameId.toString()
-        )
-        Timber.d("Deleted %,d unupdated play(s) of game ID=%s", count, gameId)
-    }
+    @Query("DELETE FROM plays WHERE date <= :date AND updated_list < :syncTimestamp AND (update_timestamp = 0 OR update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = 0 OR delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = 0 OR dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    suspend fun deleteUnupdatedPlaysBeforeDate(date: String, syncTimestamp: Long): Int
 
-    private fun createDeleteSelectionAndArgs(syncTimestamp: Long): Pair<String, Array<String>> {
-        val selection = arrayOf(
-            "${Plays.Columns.SYNC_TIMESTAMP}<?",
-            Plays.Columns.UPDATE_TIMESTAMP.whereZeroOrNull(),
-            Plays.Columns.DELETE_TIMESTAMP.whereZeroOrNull(),
-            Plays.Columns.DIRTY_TIMESTAMP.whereZeroOrNull()
-        ).joinToString(" AND ")
-        val selectionArgs = arrayOf(syncTimestamp.toString())
-        return selection to selectionArgs
-    }
-
-    suspend fun update(internalId: Long, values: ContentValues): Boolean = withContext(Dispatchers.IO) {
-        val rowsUpdated = context.contentResolver.update(Plays.buildPlayUri(internalId), values, null, null)
-        if (rowsUpdated == 1) {
-            Timber.d("Updated play internal ID=$internalId")
-            true
-        } else {
-            Timber.w("Updated $rowsUpdated plays when trying to set internal ID=$internalId")
-            false
-        }
-    }
-
-    data class PlaySyncCandidate(
-        val internalId: Long = INVALID_ID.toLong(),
-        val syncHashCode: Int = 0,
-        private val deleteTimestamp: Long = 0L,
-        private val updateTimestamp: Long = 0L,
-        private val dirtyTimestamp: Long = 0L,
-    ) {
-        val isDirty: Boolean
-            get() = dirtyTimestamp > 0 || deleteTimestamp > 0 || updateTimestamp > 0
-
-        companion object {
-            suspend fun find(resolver: ContentResolver, playId: Int): PlaySyncCandidate? = withContext(Dispatchers.IO) {
-                if (playId <= 0) {
-                    Timber.i("Can't sync a play without a play ID.")
-                    null
-                } else {
-                    resolver.loadEntity(
-                        Plays.CONTENT_URI,
-                        arrayOf(
-                            BaseColumns._ID,
-                            Plays.Columns.SYNC_HASH_CODE,
-                            Plays.Columns.DELETE_TIMESTAMP,
-                            Plays.Columns.UPDATE_TIMESTAMP,
-                            Plays.Columns.DIRTY_TIMESTAMP,
-                        ),
-                        "${Plays.Columns.PLAY_ID}=?",
-                        arrayOf(playId.toString()),
-                    ) {
-                        PlaySyncCandidate(
-                            internalId = it.getLongOrNull(0) ?: INVALID_ID.toLong(),
-                            syncHashCode = it.getIntOrNull(1) ?: 0,
-                            deleteTimestamp = it.getLongOrNull(2) ?: 0L,
-                            updateTimestamp = it.getLongOrNull(3) ?: 0L,
-                            dirtyTimestamp = it.getLongOrNull(4) ?: 0L,
-                        )
-                    }
-                }
-            }
-        }
-    }
+    @Query("DELETE FROM plays WHERE date >= :date AND updated_list < :syncTimestamp AND (update_timestamp = 0 OR update_timestamp = '' OR update_timestamp IS NULL) AND (delete_timestamp = 0 OR delete_timestamp = '' OR delete_timestamp IS NULL) AND (dirty_timestamp = 0 OR dirty_timestamp = '' OR dirty_timestamp IS NULL)")
+    suspend fun deleteUnupdatedPlaysAfterDate(date: String, syncTimestamp: Long): Int
 }

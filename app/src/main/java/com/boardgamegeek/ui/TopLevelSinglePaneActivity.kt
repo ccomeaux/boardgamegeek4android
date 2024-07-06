@@ -6,7 +6,7 @@ import androidx.fragment.app.Fragment
 
 import com.boardgamegeek.R
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 
 abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
     var fragment: Fragment? = null

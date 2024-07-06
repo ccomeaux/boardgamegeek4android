@@ -22,7 +22,7 @@ import com.boardgamegeek.ui.dialog.PlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import kotlin.math.abs
@@ -174,7 +174,7 @@ class PlayerColorsActivity : BaseActivity() {
             viewModel.generate()
         }
 
-        binding.fab.colorize(R.color.primary)
+        binding.fab.colorize(ContextCompat.getColor(this, R.color.primary))
         binding.fab.setOnClickListener {
             PlayerColorPickerDialogFragment.launch(this, usedColors)
         }

@@ -20,17 +20,18 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionBinding
 import com.boardgamegeek.databinding.RowCollectionBinding
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.pref.noPreviousCollectionSync
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
@@ -40,8 +41,8 @@ import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.google.android.material.chip.Chip
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.text.NumberFormat
@@ -50,7 +51,7 @@ import java.text.NumberFormat
 class CollectionFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentCollectionBinding? = null
     private val binding get() = _binding!!
-    private var viewId = CollectionView.DEFAULT_DEFAULT_ID
+    private var viewId = CollectionViewPrefs.DEFAULT_DEFAULT_ID
     private var viewName = ""
     private var sorter: Pair<CollectionSorter, Boolean>? = null
     private val filters = mutableListOf<CollectionFilterer>()
@@ -62,7 +63,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     private val viewModel by activityViewModels<CollectionViewViewModel>()
     private val adapter by lazy { CollectionAdapter() }
     private val prefs: SharedPreferences by lazy { requireContext().preferences() }
-    private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(requireContext()) }
     private val numberFormat = NumberFormat.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,19 +119,19 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
         binding.progressBar.show()
         viewModel.selectedViewId.observe(viewLifecycleOwner) {
-            binding.progressBar.show()
-            binding.listView.isVisible = false
-            viewId = it
-            binding.footerToolbar.menu.findItem(R.id.menu_create_shortcut)?.isEnabled = it > 0
+            it?.let {
+                binding.progressBar.show()
+                binding.listView.isVisible = false
+                viewId = it
+                binding.footerToolbar.menu.findItem(R.id.menu_create_shortcut)?.isEnabled = it > 0
+            }
         }
-        viewModel.selectedViewName.observe(viewLifecycleOwner) {
-            viewName = it
-        }
+        viewModel.selectedViewName.observe(viewLifecycleOwner) { it?.let { viewName = it } }
         viewModel.views.observe(viewLifecycleOwner) {
             binding.footerToolbar.menu.findItem(R.id.menu_collection_view_delete)?.isEnabled = it?.isNotEmpty() == true
         }
-        viewModel.effectiveSortType.observe(viewLifecycleOwner) { sortType: Int ->
-            sorter = collectionSorterFactory.create(sortType)
+        viewModel.effectiveSort.observe(viewLifecycleOwner) {
+            sorter = it
             bindSortAndFilterButtons()
         }
         viewModel.effectiveFilters.observe(viewLifecycleOwner) { filterList ->
@@ -154,7 +154,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         viewModel.refresh()
     }
 
-    private fun showData(items: List<CollectionItemEntity>) {
+    private fun showData(items: List<CollectionItem>) {
         adapter.items = items
         binding.footerToolbar.menu.apply {
             findItem(R.id.menu_collection_random_game)?.isEnabled = items.isNotEmpty()
@@ -240,7 +240,8 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         if (syncedStatuses.isEmpty()) {
             setEmptyStateForSettingsAction(R.string.empty_collection_sync_off)
         } else {
-            if (SyncPrefs.getPrefs(requireContext()).noPreviousCollectionSync()) {
+            val lastSyncTimestamp = SyncPrefs.getPrefs(requireContext())[TIMESTAMP_COLLECTION_COMPLETE, 0L] ?: 0L
+            if (lastSyncTimestamp == 0L) {
                 setEmptyStateForNoAction(R.string.empty_collection_sync_never)
             } else if (filters.isNotEmpty()) {
                 val appliedStatuses = filters.filterIsInstance<CollectionStatusFilterer>().firstOrNull()?.getSelectedStatusesSet().orEmpty()
@@ -299,9 +300,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                     )
                     chipIconTint = ColorStateList.valueOf(ContextCompat.getColor(requireContext(), R.color.primary_dark))
                     setOnClickListener { _ ->
-                        collectionSorterFactory.reverse(it.first.getType(it.second))?.let { reversedSortType ->
-                            viewModel.setSort(reversedSortType)
-                        }
+                        viewModel.reverseSort()
                     }
                 } else binding.chipGroup.removeView(this)
             }
@@ -360,7 +359,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     }
 
     inner class CollectionAdapter : RecyclerView.Adapter<CollectionItemViewHolder>(), SectionCallback {
-        var items: List<CollectionItemEntity> = emptyList()
+        var items: List<CollectionItem> = emptyList()
             @SuppressLint("NotifyDataSetChanged")
             set(value) {
                 field = value
@@ -417,9 +416,9 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         inner class CollectionItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val binding = RowCollectionBinding.bind(itemView)
 
-            fun bindView(item: CollectionItemEntity?, position: Int) {
+            fun bindView(item: CollectionItem?, position: Int) {
                 if (item == null) return
-                binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
+                binding.thumbnailView.loadThumbnail(item.thumbnailUrl, lifecycleScope = viewLifecycleOwner.lifecycleScope)
                 binding.nameView.text = item.collectionName
                 binding.yearView.text = item.yearPublished.asYear(context)
                 binding.favoriteView.isVisible = item.isFavorite
@@ -459,7 +458,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                                 changingGamePlayId,
                                 item.gameId,
                                 item.gameName,
-                                item.heroImageUrl.ifBlank { item.thumbnailUrl },
+                                item.robustHeroImageUrl,
                             )
                             requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
                         }
@@ -528,7 +527,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                         requireContext(),
                         it.gameId,
                         it.gameName,
-                        it.heroImageUrl.ifBlank { it.thumbnailUrl },
+                        it.robustHeroImageUrl,
                         it.arePlayersCustomSorted,
                     )
                 }

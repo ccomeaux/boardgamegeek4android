@@ -10,7 +10,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowPlayPlayerBinding
-import com.boardgamegeek.entities.PlayPlayerEntity
+import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.BuddyActivity
 
@@ -19,7 +19,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
         setHasStableIds(false)
     }
 
-    var players: List<PlayPlayerEntity> = emptyList()
+    var players: List<PlayPlayer> = emptyList()
         @SuppressLint("NotifyDataSetChanged")
         set(value) {
             field = value
@@ -39,7 +39,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
     inner class PlayerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowPlayPlayerBinding.bind(itemView)
 
-        fun bind(player: PlayPlayerEntity?) {
+        fun bind(player: PlayPlayer?) {
             val nameColor = binding.nameView.textColors.defaultColor
 
             if (player == null) {
@@ -57,7 +57,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
             } else {
                 // name & username
                 if (player.name.isBlank() && player.username.isBlank()) {
-                    val name = if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN)
+                    val name = if (player.seat == PlayPlayer.SEAT_UNKNOWN)
                         itemView.context.resources.getString(R.string.title_player)
                     else
                         itemView.context.resources.getString(R.string.generic_player, player.seat)
@@ -103,7 +103,7 @@ class PlayPlayerAdapter : RecyclerView.Adapter<PlayPlayerAdapter.PlayerViewHolde
                 binding.teamColorView.isVisible = color == Color.TRANSPARENT && player.color.isNotBlank()
 
                 // starting position, team/color
-                if (player.seat == PlayPlayerEntity.SEAT_UNKNOWN) {
+                if (player.seat == PlayPlayer.SEAT_UNKNOWN) {
                     binding.seatView.isVisible = false
                     binding.startingPositionView.setTextOrHide(player.startingPosition)
                 } else {
