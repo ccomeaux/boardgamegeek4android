@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:fillViewport="true">
+
+	<LinearLayout
+		android:id="@+id/containerView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
+		android:orientation="vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		tools:context=".ui.SyncActivity">
+
+		<LinearLayout
+			android:id="@+id/collectionCompleteCurrentSyncStatusContainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingVertical="@dimen/padding_standard"
+				android:text="@string/currently_syncing" />
+
+			<TextView
+				android:id="@+id/collectionCompleteCurrentSyncStatusView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="end"
+				android:paddingVertical="@dimen/padding_standard"
+				tools:text="Today" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/collectionCompleteContainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingVertical="@dimen/padding_standard"
+				android:text="@string/complete" />
+
+			<TextView
+				android:id="@+id/collectionCompleteSyncStatusView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="end"
+				android:paddingVertical="@dimen/padding_standard"
+				tools:text="Today" />
+		</LinearLayout>
+
+		<LinearLayout
+			android:id="@+id/collectionPartialContainer"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:visibility="gone"
+			tools:visibility="visible">
+
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:paddingVertical="@dimen/padding_standard"
+				android:text="@string/partial" />
+
+			<TextView
+				android:id="@+id/collectionPartialSyncStatusView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="end"
+				android:paddingVertical="@dimen/padding_standard"
+				tools:text="Today" />
+		</LinearLayout>
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingTop="@dimen/padding_extra"
+			android:text="@string/title_statuses"
+			android:textAppearance="@style/TextAppearance.Headline" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/ownedStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_own" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/previouslyOwnedStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_prev_owned" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/forTradeStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_for_trade" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/wantInTradeStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_want_in_trade" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/wantToBuyStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_want_to_buy" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/wantToPlayStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_want_to_play" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/preorderedStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_preordered" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/wishlistStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_wishlist" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/playedStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/played" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/ratedStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_rated" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/commentedStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_commented" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/hasPartsStatusView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_has_parts" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<com.boardgamegeek.ui.widget.CollectionStatusSync
+			android:id="@+id/wantPartsView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:switchLabel="@string/collection_status_want_parts" />
+
+		<LinearLayout
+			style="?attr/buttonBarStyle"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:orientation="horizontal"
+			android:paddingVertical="@dimen/padding_standard">
+
+			<Button
+				android:id="@+id/cancelCollectionButton"
+				style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/cancel" />
+
+			<Space
+				android:layout_width="@dimen/padding_extra"
+				android:layout_height="match_parent" />
+
+			<com.google.android.material.button.MaterialButton
+				android:id="@+id/syncCollectionButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/sync" />
+		</LinearLayout>
+
+		<TextView
+			android:id="@+id/syncCollectionStep"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingVertical="@dimen/padding_half"
+			android:visibility="gone"
+			tools:text="Syncing newest plays (page 2)"
+			tools:visibility="visible" />
+
+		<com.google.android.material.progressindicator.LinearProgressIndicator
+			android:id="@+id/progressBar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:indeterminate="true"
+			android:visibility="gone"
+			tools:visibility="visible" />
+
+		<View
+			android:id="@+id/dividerView"
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<TextView
+			android:id="@+id/syncCollectionUpdate"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingVertical="@dimen/padding_half"
+			tools:text="0 Collection items need to be uploaded" />
+
+		<com.google.android.material.button.MaterialButton
+			android:id="@+id/uploadCollectionButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:enabled="false"
+			android:text="@string/upload" />
+	</LinearLayout>
+</androidx.core.widget.NestedScrollView>

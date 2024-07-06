@@ -218,6 +218,10 @@
 	<string name="title_backup">Backup</string>
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
+	<string name="currently_syncing">Currently syncing</string>
+	<string name="title_statuses">Statues</string>
+	<string name="complete">Complete</string>
+	<string name="partial">Partial</string>
 	<string name="comment">Comment</string>
 	<string name="title_sort">Sort</string>
 	<string name="title_sort_by">Sort by</string>
@@ -676,16 +680,30 @@
 	<string name="incomplete_plays">incomplete plays</string>
 	<string name="items">Items</string>
 	<string name="accessories">Accessories</string>
+	<string name="games_expansions">Games and Expansions</string>
+	<string name="sync_complete_collection">Syncing complete collection of %s</string>
+	<string name="sync_complete_collection_status">Syncing %s collection of %s</string>
+	<string name="sync_partial_collection">Syncing recent collection modifications to %s</string>
+	<string name="sync_stale_collection">Syncing stale collection %s</string>
+	<string name="sync_delete_collection">Deleting %s no longer in your collection</string>
+	<string name="sync_remove_games">Removing games no longer in your collection</string>
+	<string name="sync_stale_games">Syncing stale games</string>
+	<string name="sync_new_games">Syncing new games</string>
 	<string name="show_missing_votes">Show missing votes</string>
 	<string name="msg_collection_item_deleted">Deleted!</string>
 	<string name="collection_status_own">Own</string>
-	<string name="collection_status_prev_owned">Prev. Owned</string>
+	<string name="collection_status_prev_owned">Previously Owned</string>
 	<string name="collection_status_for_trade">For Trade</string>
 	<string name="collection_status_want_to_play">Want to Play</string>
 	<string name="collection_status_want_in_trade">Want in Trade</string>
 	<string name="collection_status_want_to_buy">Want to Buy</string>
 	<string name="collection_status_preordered">Pre-ordered</string>
 	<string name="collection_status_wishlist">Wishlist</string>
+	<string name="collection_status_played">Played</string>
+	<string name="collection_status_rated">Rated</string>
+	<string name="collection_status_commented">Commented</string>
+	<string name="collection_status_has_parts">Has Parts</string>
+	<string name="collection_status_want_parts">Want Parts</string>
 	<string name="empty_top_games">Error loading top games</string>
 	<string name="title_top_games">Top Games</string>
 	<string name="title_description">Description</string>
@@ -750,6 +768,7 @@
 	<string name="not_found">Not Found</string>
 	<string name="valid">Valid</string>
 	<string name="sync_plays">Sync Plays</string>
+	<string name="upload">Upload</string>
 	<string name="upload_plays">Upload Plays</string>
 	<string name="sync_plays_step_new">Syncing newest plays</string>
 	<string name="sync_plays_step_old">Syncing oldest plays</string>
@@ -900,6 +919,10 @@
 	<plurals name="person_game_h_index_info">
 		<item quantity="one">You\'ve played at least %1$,d game %1$s time or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
 		<item quantity="other">You\'ve played at least %1$,d games %1$s times or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+	</plurals>
+	<plurals name="items_pending_upload">
+		<item quantity="one"><b>%,d</b> collection items pending deletion</item>
+		<item quantity="other"><b>%,d</b> collection items pending deletion</item>
 	</plurals>
 	<plurals name="plays_sync_status_none">
 		<item quantity="one">Plays have never been synced</item>

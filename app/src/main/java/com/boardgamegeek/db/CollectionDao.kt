@@ -75,6 +75,10 @@ interface CollectionDao {
     suspend fun loadItemsPendingUpdate(): List<CollectionItemWithGameEntity>
 
     @Transaction
+    @Query("SELECT * FROM collection WHERE collection_delete_timestamp > 0 OR collection_dirty_timestamp > 0 OR  status_dirty_timestamp > 0 OR rating_dirty_timestamp > 0 OR comment_dirty_timestamp > 0 OR private_info_dirty_timestamp > 0 OR wishlist_comment_dirty_timestamp > 0 OR trade_condition_dirty_timestamp > 0 OR want_parts_dirty_timestamp > 0 OR has_parts_dirty_timestamp > 0")
+    fun loadItemsPendingUploadAsFlow(): Flow<List<CollectionItemWithGameEntity>>
+
+    @Transaction
     @Query("SELECT * FROM collection WHERE updated = 0 OR updated IS NULL ORDER BY updated_list ASC")
     suspend fun loadItemsNotUpdated(): List<CollectionItemWithGameEntity>
 

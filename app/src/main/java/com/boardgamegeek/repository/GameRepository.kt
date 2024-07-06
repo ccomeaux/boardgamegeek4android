@@ -17,7 +17,6 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.lang.Exception
 import javax.inject.Inject
-import kotlin.math.sin
 
 class GameRepository @Inject constructor(
     val context: Context,
@@ -53,11 +52,11 @@ class GameRepository @Inject constructor(
         return gameDao.loadUnupdatedGames(gamesPerFetch).map { it.gameId to it.gameName }
     }
 
-    suspend fun loadDeletableGames(sinceTimestamp: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> {
+    suspend fun loadGamesByLastViewed(sinceTimestamp: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> {
         return if (includeUnplayedGames) {
-            gameDao.loadNonCollectionAndUnplayedGames(sinceTimestamp).map { it.gameId to it.gameName }
+            gameDao.loadNonCollectionAndUnplayedGamesByLastViewed(sinceTimestamp).map { it.gameId to it.gameName }
         } else {
-            gameDao.loadNonCollectionGames(sinceTimestamp).map { it.gameId to it.gameName }
+            gameDao.loadNonCollectionGamesByLastViewed(sinceTimestamp).map { it.gameId to it.gameName }
         }
     }
 

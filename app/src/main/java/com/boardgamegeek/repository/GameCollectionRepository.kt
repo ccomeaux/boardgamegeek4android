@@ -338,6 +338,8 @@ class GameCollectionRepository(
 
     suspend fun loadItemsPendingUpdate() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingUpdate().map { it.mapToModel() } }
 
+    fun loadItemsPendingUploadAsFlow() = collectionDao.loadItemsPendingUploadAsFlow().map { list -> list.map { it.mapToModel() } }.flowOn(Dispatchers.Default)
+
     suspend fun uploadDeletedItem(item: CollectionItem): Result<CollectionItemUploadResult> {
         val result = safeApiCall(context) { phpApi.collection(item.mapToFormBodyForDeletion()) }
         return if (result.isSuccess) {

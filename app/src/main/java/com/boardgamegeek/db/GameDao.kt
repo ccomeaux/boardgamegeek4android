@@ -125,10 +125,10 @@ interface GameDao {
     suspend fun loadUnupdatedGames(gamesPerFetch: Int): List<GameIdAndName>
 
     @Query("SELECT games.game_id, game_name FROM games LEFT OUTER JOIN collection ON games.game_id = collection.game_id WHERE collection_id IS NULL AND last_viewed < :sinceTimestamp ORDER BY games.updated")
-    suspend fun loadNonCollectionGames(sinceTimestamp: Long): List<GameIdAndName>
+    suspend fun loadNonCollectionGamesByLastViewed(sinceTimestamp: Long): List<GameIdAndName>
 
     @Query("SELECT games.game_id, game_name FROM games LEFT OUTER JOIN collection ON games.game_id = collection.game_id WHERE collection_id IS NULL AND last_viewed < :sinceTimestamp AND num_of_plays = 0 ORDER BY games.updated")
-    suspend fun loadNonCollectionAndUnplayedGames(sinceTimestamp: Long): List<GameIdAndName>
+    suspend fun loadNonCollectionAndUnplayedGamesByLastViewed(sinceTimestamp: Long): List<GameIdAndName>
 
     @Query("SELECT * FROM game_poll_age_results WHERE game_id = :gameId ORDER BY value")
     fun loadAgePollForGameFlow(gameId: Int): Flow<List<GameAgePollResultEntity>>

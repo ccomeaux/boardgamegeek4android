@@ -22,7 +22,7 @@ class RemoteConfig {
         const val KEY_SYNC_GAMES_FETCH_MAX = "sync_games_fetch_max"
         const val KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED = "sync_games_fetch_max_unupdated"
         const val KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS = "sync_games_fetch_pause_millis"
-        const val KEY_SYNC_GAMES_DELETE_VIEW_HOURS = "sync_games_delete_view_hours"
+        const val KEY_SYNC_GAMES_REMOVE_VIEW_HOURS = "sync_games_delete_view_hours"
         const val KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS = "sync_plays_fetch_pause_millis"
 
         const val KEY_REFRESH_GAME_MINUTES = "refresh_game_minutes"

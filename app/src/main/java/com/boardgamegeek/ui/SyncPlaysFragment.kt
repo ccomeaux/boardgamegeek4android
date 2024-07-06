@@ -77,7 +77,7 @@ class SyncPlaysFragment : Fragment() {
             }
         }
 
-        viewModel.playSyncProgres.observe(viewLifecycleOwner) {
+        viewModel.playSyncProgress.observe(viewLifecycleOwner) {
             it?.let {
                 binding.syncPlaysButton.isEnabled = (it.step == SyncViewModel.PlaySyncProgressStep.NotSyncing)
                 binding.cancelPlaysButton.isEnabled = (it.step != SyncViewModel.PlaySyncProgressStep.NotSyncing)
