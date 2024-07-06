@@ -77,7 +77,7 @@ class CollectionViewViewModel @Inject constructor(
     val isFiltering: LiveData<Boolean>
         get() = _isFiltering
 
-    val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(workName).map { list ->
+    val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(WORK_NAME).map { list ->
         list.any { workInfo -> !workInfo.state.isFinished }
     }
 
@@ -302,7 +302,7 @@ class CollectionViewViewModel @Inject constructor(
 
     fun refresh() {
         if (isRefreshing.value == false) {
-            gameCollectionRepository.enqueueRefreshRequest(workName)
+            gameCollectionRepository.enqueueRefreshRequest(WORK_NAME)
         }
     }
 
@@ -391,6 +391,6 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     companion object {
-        const val workName = "CollectionViewViewModel"
+        const val WORK_NAME = "CollectionViewViewModel"
     }
 }
