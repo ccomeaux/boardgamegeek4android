@@ -448,6 +448,11 @@
 		<item name="android:layout_marginRight">0dp</item>
 	</style>
 
+	<style name="circleImageView" parent="">
+		<item name="cornerFamily">rounded</item>
+		<item name="cornerSize">50%</item>
+	</style>
+
 	<!-- Misc -->
 
 	<style name="EmptyMessage">
