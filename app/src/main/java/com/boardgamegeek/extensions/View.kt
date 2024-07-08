@@ -11,7 +11,6 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.PaintDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
-import android.os.Build
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -28,7 +27,6 @@ import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import androidx.core.view.ViewCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import com.boardgamegeek.R
@@ -133,8 +131,7 @@ fun View.setColorViewValue(color: Int) {
 
 fun View.applyDarkScrim() {
     val color = ContextCompat.getColor(context, R.color.black_overlay)
-    val drawable = makeCubicGradientScrimDrawable(color)
-    ViewCompat.setBackground(this, drawable)
+    background = makeCubicGradientScrimDrawable(color)
 }
 
 @SuppressLint("RtlHardcoded")
@@ -177,7 +174,7 @@ private fun makeCubicGradientScrimDrawable(
 }
 
 /**
- * Set the background of a [View] o the specified color, with a darker version of the color as a 1dp border.
+ * Set the background of a [View] to the specified color, with a darker version of the color as a 1dp border.
  */
 fun View.setViewBackground(@ColorInt color: Int) {
     val r = this.resources
@@ -197,15 +194,7 @@ fun View.setViewBackground(@ColorInt color: Int) {
         color.darkenColor()
     )
 
-    ViewCompat.setBackground(this, backgroundDrawable)
-}
-
-fun View.setSelectableBackgroundBorderless() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        setSelectableBackground(android.R.attr.selectableItemBackgroundBorderless)
-    } else {
-        setSelectableBackground()
-    }
+    background = backgroundDrawable
 }
 
 fun View.setSelectableBackground(backgroundResId: Int = android.R.attr.selectableItemBackground) {

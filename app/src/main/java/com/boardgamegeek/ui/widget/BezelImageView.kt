@@ -155,15 +155,15 @@ class BezelImageView @JvmOverloads constructor(
             maskDrawable?.state = drawableState
         }
         if (isDuplicateParentStateEnabled) {
-            ViewCompat.postInvalidateOnAnimation(this)
+            this.postInvalidateOnAnimation()
         }
     }
 
-    override fun invalidateDrawable(who: Drawable) {
-        if (who === borderDrawable || who === maskDrawable) {
+    override fun invalidateDrawable(dr: Drawable) {
+        if (dr === borderDrawable || dr === maskDrawable) {
             invalidate()
         } else {
-            super.invalidateDrawable(who)
+            super.invalidateDrawable(dr)
         }
     }
 

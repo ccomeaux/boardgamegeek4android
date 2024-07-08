@@ -127,7 +127,7 @@ class NewPlayPlayerWinFragment : Fragment() {
                     binding.scoreView.text = player.getScoreDescription(itemView.context)
 
                     binding.scoreButton.setColorFilter(ContextCompat.getColor(itemView.context, R.color.button_under_text), PorterDuff.Mode.SRC_IN)
-                    binding.scoreButton.setSelectableBackgroundBorderless()
+                    binding.scoreButton.setSelectableBackground(android.R.attr.selectableItemBackgroundBorderless)
                     binding.scoreButton.setOnClickListener { score(player) }
 
                     binding.winCheckBox.isChecked = player.isWin

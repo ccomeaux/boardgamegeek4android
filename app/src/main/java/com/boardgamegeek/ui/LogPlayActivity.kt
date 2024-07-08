@@ -971,7 +971,7 @@ class LogPlayActivity : AppCompatActivity() {
                     binding.nameView.setTextWithStyle(player.name, player.isNew, player.isWin)
                     binding.usernameView.setTextWithStyle(player.username, player.isNew, player.isWin)
                 }
-                binding.nameView.setSelectableBackgroundBorderless()
+                binding.nameView.setSelectableBackground(android.R.attr.selectableItemBackgroundBorderless)
                 binding.nameContainer.setOnClickListener { editPlayer(position) }
 
                 // score

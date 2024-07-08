@@ -79,7 +79,7 @@ class TimestampView @JvmOverloads constructor(
 
     @Synchronized
     override fun updateText() {
-        if (!ViewCompat.isAttachedToWindow(this@TimestampView)) return
+        if (!this@TimestampView.isAttachedToWindow) return
         if (timestamp <= 0) {
             if (hideWhenEmpty) visibility = View.GONE
             text = defaultMessage

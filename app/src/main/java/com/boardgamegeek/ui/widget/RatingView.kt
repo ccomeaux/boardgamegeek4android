@@ -34,7 +34,7 @@ class RatingView @JvmOverloads constructor(
         gravity = Gravity.CENTER_VERTICAL
         minimumHeight = resources.getDimensionPixelSize(R.dimen.edit_row_height)
         orientation = VERTICAL
-        setSelectableBackgroundBorderless()
+        setSelectableBackground(android.R.attr.selectableItemBackgroundBorderless)
 
         context.withStyledAttributes(attrs, R.styleable.RatingView, defStyleAttr, defStyleRes) {
             hideWhenZero = getBoolean(R.styleable.RatingView_hideWhenZero, false)
