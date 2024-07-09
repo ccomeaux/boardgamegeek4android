@@ -18,7 +18,11 @@
 
 	<style name="Theme.bgglight.Base" parent="@style/Theme.MaterialComponents.Light.NoActionBar"/>
 
-	<style name="Theme.bgglight.NavDrawer"/>
+	<style name="Theme.bgglight.NavDrawer">
+		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
+		<item name="android:windowTranslucentStatus">true</item>
+	</style>
 
 	<style name="Theme.bgglight.About">
 		<item name="drawerArrowStyle">@style/MyDrawerArrowStyle</item>
