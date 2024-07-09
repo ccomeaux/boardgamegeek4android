@@ -10,16 +10,16 @@ import kotlin.math.roundToInt
 abstract class RatingFilterDialog<T : RatingFilterer> : SliderFilterDialog() {
     override fun getType(context: Context) = createFilterer(context).type
     override val checkboxTextResId = R.string.unrated
-    override val valueFrom = RatingFilterer.lowerBound.toFloat()
-    override val valueTo = RatingFilterer.upperBound.toFloat()
+    override val valueFrom = RatingFilterer.LOWER_BOUND.toFloat()
+    override val valueTo = RatingFilterer.UPPER_BOUND.toFloat()
     override val stepSize = 0.1f
 
     override fun initValues(filter: CollectionFilterer?): InitialValues {
         @Suppress("UNCHECKED_CAST")
         val f = filter as? T
         return InitialValues(
-            ((f?.min ?: RatingFilterer.lowerBound)).toFloat(),
-            ((f?.max ?: RatingFilterer.upperBound)).toFloat(),
+            (f?.min ?: RatingFilterer.LOWER_BOUND).toFloat(),
+            (f?.max ?: RatingFilterer.UPPER_BOUND).toFloat(),
             f?.includeUndefined ?: false,
             f?.ignoreRange ?: false
         )

@@ -42,12 +42,12 @@ class PersonStats(
             )
         }
 
-        private const val neutralWhitmoreRating = 6.5
-        private const val maxWhitmoreRating = 7
+        private const val NEUTRAL_WHITMORE_RATING = 6.5
+        private const val MAX_WHITMORE_RATING = 7
 
         private fun calculateWhitmoreScore(games: List<CollectionItem>) = games
-            .filter { it.rating > neutralWhitmoreRating }
-            .sumOf { (it.rating - neutralWhitmoreRating) * (maxWhitmoreRating / (10 - neutralWhitmoreRating)) }
+            .filter { it.rating > NEUTRAL_WHITMORE_RATING }
+            .sumOf { (it.rating - NEUTRAL_WHITMORE_RATING) * (MAX_WHITMORE_RATING / (10 - NEUTRAL_WHITMORE_RATING)) }
             .toInt()
     }
 }

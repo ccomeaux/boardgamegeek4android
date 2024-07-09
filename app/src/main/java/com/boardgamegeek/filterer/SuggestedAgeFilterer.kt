@@ -8,8 +8,8 @@ import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 
 class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
-    var min by IntervalDelegate(lowerBound, lowerBound, upperBound)
-    var max by IntervalDelegate(upperBound, lowerBound, upperBound)
+    var min by IntervalDelegate(LOWER_BOUND, LOWER_BOUND, UPPER_BOUND)
+    var max by IntervalDelegate(UPPER_BOUND, LOWER_BOUND, UPPER_BOUND)
     var includeUndefined = false
     var ignoreRange = false
 
@@ -17,8 +17,8 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun inflate(data: String) {
         data.split(DELIMITER).run {
-            min = getOrNull(0)?.toIntOrNull() ?: lowerBound
-            max = getOrNull(1)?.toIntOrNull() ?: upperBound
+            min = getOrNull(0)?.toIntOrNull() ?: LOWER_BOUND
+            max = getOrNull(1)?.toIntOrNull() ?: UPPER_BOUND
             includeUndefined = getOrNull(2) == "1"
             ignoreRange = getOrNull(3) == "1"
         }
@@ -50,7 +50,7 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
     fun describeRange(@StringRes andUpResId: Int = R.string.and_up_suffix_abbr, rangeSeparator: String = "-"): String {
         val range = when {
             ignoreRange -> ""
-            max == upperBound -> context.getString(andUpResId, min)
+            max == UPPER_BOUND -> context.getString(andUpResId, min)
             min == max -> String.format(Locale.getDefault(), "%,d", max)
             else -> String.format(Locale.getDefault(), "%,d$rangeSeparator%,d", min, max)
         }
@@ -60,13 +60,13 @@ class SuggestedAgeFilterer(context: Context) : CollectionFilterer(context) {
     override fun filter(item: CollectionItem): Boolean {
         return when {
             ignoreRange -> false
-            max == upperBound -> item.minimumAge >= min
+            max == UPPER_BOUND -> item.minimumAge >= min
             else -> item.minimumAge in min..max
         } || if (includeUndefined) item.minimumAge == 0 else false
     }
 
     companion object {
-        const val lowerBound = 1
-        const val upperBound = 21
+        const val LOWER_BOUND = 1
+        const val UPPER_BOUND = 21
     }
 }

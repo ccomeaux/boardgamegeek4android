@@ -75,14 +75,14 @@ class PublishersViewModel @Inject constructor(
 
     fun getSectionHeader(publisher: Company?): String {
         return when(sort.value) {
-            Company.SortType.NAME -> if (publisher?.name == "(Uncredited)") defaultHeader else publisher?.name.firstChar()
+            Company.SortType.NAME -> if (publisher?.name == "(Uncredited)") DEFAULT_HEADER else publisher?.name.firstChar()
             Company.SortType.ITEM_COUNT -> (publisher?.itemCount ?: 0).orderOfMagnitude()
             Company.SortType.WHITMORE_SCORE -> (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
-            else -> defaultHeader
+            else -> DEFAULT_HEADER
         }
     }
 
     companion object {
-        const val defaultHeader = "-"
+        private const val DEFAULT_HEADER = "-"
     }
 }

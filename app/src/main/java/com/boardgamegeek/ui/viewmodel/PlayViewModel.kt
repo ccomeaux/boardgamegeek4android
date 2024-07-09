@@ -25,7 +25,7 @@ class PlayViewModel @Inject constructor(
     private val internalId = MutableLiveData<Long>()
 
     private val _isDownloading = MutableLiveData(false)
-    private val _isUploading = WorkManager.getInstance(getApplication()).getWorkInfosByTagLiveData(workTag).map { list ->
+    private val _isUploading = WorkManager.getInstance(getApplication()).getWorkInfosByTagLiveData(WORK_TAG).map { list ->
         list.any { workInfo -> !workInfo.state.isFinished }
     }
 
@@ -98,7 +98,7 @@ class PlayViewModel @Inject constructor(
         viewModelScope.launch {
             play.value?.let {
                 if (repository.markAsUpdated(it.internalId)) {
-                    repository.enqueueUploadRequest(it.internalId, workTag)
+                    repository.enqueueUploadRequest(it.internalId, WORK_TAG)
                 }
             }
         }
@@ -108,13 +108,13 @@ class PlayViewModel @Inject constructor(
         viewModelScope.launch {
             play.value?.let {
                 if (repository.markAsDeleted(it.internalId)) {
-                    repository.enqueueUploadRequest(it.internalId, workTag)
+                    repository.enqueueUploadRequest(it.internalId, WORK_TAG)
                 }
             }
         }
     }
 
     companion object {
-        const val workTag = "PlayViewModel"
+        private const val WORK_TAG = "PlayViewModel"
     }
 }

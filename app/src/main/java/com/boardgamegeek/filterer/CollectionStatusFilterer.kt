@@ -44,28 +44,28 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
         if (shouldJoinWithOr) {
             statuses.forEach {
                 when (it) {
-                    own -> if (item.own) return true
-                    previouslyOwned -> if (item.previouslyOwned) return true
-                    forTrade -> if (item.forTrade) return true
-                    wantInTrade -> if (item.wantInTrade) return true
-                    wantToBuy -> if (item.wantToBuy) return true
-                    wishList -> if (item.wishList) return true
-                    wantToPlay -> if (item.wantToPlay) return true
-                    preOrdered -> if (item.preOrdered) return true
+                    OWN -> if (item.own) return true
+                    PREVIOUSLY_OWNED -> if (item.previouslyOwned) return true
+                    FOR_TRADE -> if (item.forTrade) return true
+                    WANT_IN_TRADE -> if (item.wantInTrade) return true
+                    WANT_TO_BUY -> if (item.wantToBuy) return true
+                    WISHLIST -> if (item.wishList) return true
+                    WANT_TO_PLAY -> if (item.wantToPlay) return true
+                    PREORDERED -> if (item.preOrdered) return true
                 }
             }
             return false
         } else {
             statuses.forEach {
                 when (it) {
-                    own -> if (!item.own) return false
-                    previouslyOwned -> if (!item.previouslyOwned) return false
-                    forTrade -> if (!item.forTrade) return false
-                    wantInTrade -> if (!item.wantInTrade) return false
-                    wantToBuy -> if (!item.wantToBuy) return false
-                    wishList -> if (!item.wishList) return false
-                    wantToPlay -> if (!item.wantToPlay) return false
-                    preOrdered -> if (!item.preOrdered) return false
+                    OWN -> if (!item.own) return false
+                    PREVIOUSLY_OWNED -> if (!item.previouslyOwned) return false
+                    FOR_TRADE -> if (!item.forTrade) return false
+                    WANT_IN_TRADE -> if (!item.wantInTrade) return false
+                    WANT_TO_BUY -> if (!item.wantToBuy) return false
+                    WISHLIST -> if (!item.wishList) return false
+                    WANT_TO_PLAY -> if (!item.wantToPlay) return false
+                    PREORDERED -> if (!item.preOrdered) return false
                 }
             }
             return true
@@ -85,13 +85,13 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
     }
 
     companion object {
-        const val own = 0
-        const val previouslyOwned = 1
-        const val forTrade = 2
-        const val wantInTrade = 3
-        const val wantToBuy = 4
-        const val wishList = 5
-        const val wantToPlay = 6
-        const val preOrdered = 7
+        private const val OWN = 0
+        private const val PREVIOUSLY_OWNED = 1
+        private const val FOR_TRADE = 2
+        private const val WANT_IN_TRADE = 3
+        private const val WANT_TO_BUY = 4
+        private const val WISHLIST = 5
+        private const val WANT_TO_PLAY = 6
+        private const val PREORDERED = 7
     }
 }

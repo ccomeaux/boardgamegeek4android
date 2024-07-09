@@ -48,7 +48,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
         val featuredColors = arguments?.getStringArrayList(KEY_FEATURED_COLORS)
         val requestCode = arguments?.getInt(KEY_REQUEST_CODE) ?: 0
 
-        val numColumns = arguments?.getInt(KEY_COLUMNS) ?: DEFAULT_NUMBER_Of_COLUMNS
+        val numColumns = arguments?.getInt(KEY_COLUMNS) ?: DEFAULT_NUMBER_OF_COLUMNS
         binding.colorGrid.numColumns = numColumns
         binding.featuredColorGrid.numColumns = numColumns
 
@@ -140,7 +140,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
         private const val KEY_REQUEST_CODE = "request_code"
         private const val KEY_SHOW_ADD_BUTTON = "show_add_button"
 
-        private const val DEFAULT_NUMBER_Of_COLUMNS = 4
+        private const val DEFAULT_NUMBER_OF_COLUMNS = 4
 
         /**
          * Constructor
@@ -160,7 +160,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
             featuredColors: ArrayList<String>? = null,
             selectedColor: String? = null,
             disabledColors: ArrayList<String>? = null,
-            columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
+            columns: Int = DEFAULT_NUMBER_OF_COLUMNS,
             requestCode: Int = 0,
             hiddenColors: ArrayList<String>? = null,
             showAddButton: Boolean = false
@@ -189,7 +189,7 @@ abstract class ColorPickerDialogFragment : DialogFragment() {
             featuredColors: ArrayList<String>?,
             selectedColor: String?,
             disabledColors: ArrayList<String>?,
-            columns: Int = DEFAULT_NUMBER_Of_COLUMNS,
+            columns: Int = DEFAULT_NUMBER_OF_COLUMNS,
             requestCode: Int = 0,
             hiddenColors: ArrayList<String>? = null,
             showAddButton: Boolean = false

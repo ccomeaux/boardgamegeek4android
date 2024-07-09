@@ -11,14 +11,14 @@ class SuggestedAgeFilterDialog : SliderFilterDialog() {
     override fun getType(context: Context) = SuggestedAgeFilterer(context).type
     override val titleResId = R.string.menu_suggested_age
     override val descriptionResId = R.string.filter_description_include_missing_suggested_age
-    override val valueFrom = SuggestedAgeFilterer.lowerBound.toFloat()
-    override val valueTo = SuggestedAgeFilterer.upperBound.toFloat()
+    override val valueFrom = SuggestedAgeFilterer.LOWER_BOUND.toFloat()
+    override val valueTo = SuggestedAgeFilterer.UPPER_BOUND.toFloat()
 
     override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as? SuggestedAgeFilterer
         return InitialValues(
-            (f?.min ?: SuggestedAgeFilterer.lowerBound).toFloat(),
-            (f?.max ?: SuggestedAgeFilterer.upperBound).toFloat(),
+            (f?.min ?: SuggestedAgeFilterer.LOWER_BOUND).toFloat(),
+            (f?.max ?: SuggestedAgeFilterer.UPPER_BOUND).toFloat(),
             f?.includeUndefined ?: false,
             f?.ignoreRange ?: false,
         )
@@ -39,7 +39,7 @@ class SuggestedAgeFilterDialog : SliderFilterDialog() {
 
     override fun formatSliderLabel(context: Context, value: Float): String {
         return when (val age = value.roundToInt()) {
-            SuggestedAgeFilterer.upperBound -> age.toString().andMore()
+            SuggestedAgeFilterer.UPPER_BOUND -> age.toString().andMore()
             else -> age.toString()
         }
     }

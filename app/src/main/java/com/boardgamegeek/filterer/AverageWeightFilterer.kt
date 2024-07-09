@@ -7,8 +7,8 @@ import com.boardgamegeek.extensions.DoubleIntervalDelegate
 import java.util.*
 
 class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
-    var min by DoubleIntervalDelegate(lowerBound, lowerBound, upperBound)
-    var max by DoubleIntervalDelegate(upperBound, lowerBound, upperBound)
+    var min by DoubleIntervalDelegate(LOWER_BOUND, LOWER_BOUND, UPPER_BOUND)
+    var max by DoubleIntervalDelegate(UPPER_BOUND, LOWER_BOUND, UPPER_BOUND)
     var includeUndefined = false
     var ignoreRange = false
 
@@ -16,8 +16,8 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun inflate(data: String) {
         data.split(DELIMITER).run {
-            min = getOrNull(0)?.toDoubleOrNull() ?: lowerBound
-            max = getOrNull(1)?.toDoubleOrNull() ?: upperBound
+            min = getOrNull(0)?.toDoubleOrNull() ?: LOWER_BOUND
+            max = getOrNull(1)?.toDoubleOrNull() ?: UPPER_BOUND
             includeUndefined = getOrNull(2) == "1"
             ignoreRange = getOrNull(3) == "1"
         }
@@ -58,7 +58,7 @@ class AverageWeightFilterer(context: Context) : CollectionFilterer(context) {
     }
 
     companion object {
-        const val lowerBound = 1.0
-        const val upperBound = 5.0
+        const val LOWER_BOUND = 1.0
+        const val UPPER_BOUND = 5.0
     }
 }

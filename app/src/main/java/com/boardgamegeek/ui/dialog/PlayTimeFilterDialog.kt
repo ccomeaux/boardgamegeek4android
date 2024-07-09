@@ -13,15 +13,15 @@ class PlayTimeFilterDialog : SliderFilterDialog() {
     override val titleResId = R.string.menu_play_time
     override val descriptionResId = R.string.filter_description_include_missing_play_time
     override val supportsSlider = false
-    override val valueFrom = PlayTimeFilterer.lowerBound.toFloat()
-    override val valueTo = PlayTimeFilterer.upperBound.toFloat()
+    override val valueFrom = PlayTimeFilterer.LOWER_BOUND.toFloat()
+    override val valueTo = PlayTimeFilterer.UPPER_BOUND.toFloat()
     override val stepSize = 5f
 
     override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as? PlayTimeFilterer
         return InitialValues(
-            (f?.min ?: PlayTimeFilterer.lowerBound).toFloat(),
-            (f?.max ?: PlayTimeFilterer.upperBound).toFloat(),
+            (f?.min ?: PlayTimeFilterer.LOWER_BOUND).toFloat(),
+            (f?.max ?: PlayTimeFilterer.UPPER_BOUND).toFloat(),
             f?.includeUndefined ?: false,
         )
     }
@@ -42,7 +42,7 @@ class PlayTimeFilterDialog : SliderFilterDialog() {
 
     override fun formatSliderLabel(context: Context, value: Float): String {
         return when (val time = value.roundToInt()) {
-            PlayTimeFilterer.upperBound -> time.asTime().andMore()
+            PlayTimeFilterer.UPPER_BOUND -> time.asTime().andMore()
             else -> time.asTime()
         }
     }

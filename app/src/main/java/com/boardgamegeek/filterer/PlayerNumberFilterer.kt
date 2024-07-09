@@ -7,16 +7,16 @@ import com.boardgamegeek.extensions.IntervalDelegate
 import java.util.*
 
 class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
-    var min by IntervalDelegate(lowerBound, lowerBound, upperBound)
-    var max by IntervalDelegate(upperBound, lowerBound, upperBound)
+    var min by IntervalDelegate(LOWER_BOUND, LOWER_BOUND, UPPER_BOUND)
+    var max by IntervalDelegate(UPPER_BOUND, LOWER_BOUND, UPPER_BOUND)
     var isExact = false
 
     override val typeResourceId = R.string.collection_filter_type_number_of_players
 
     override fun inflate(data: String) {
         val d = data.split(DELIMITER)
-        min = d.getOrNull(0)?.toIntOrNull() ?: lowerBound
-        max = d.getOrNull(1)?.toIntOrNull() ?: upperBound
+        min = d.getOrNull(0)?.toIntOrNull() ?: LOWER_BOUND
+        max = d.getOrNull(1)?.toIntOrNull() ?: UPPER_BOUND
         isExact = d.getOrNull(2) == "1"
     }
 
@@ -47,7 +47,7 @@ class PlayerNumberFilterer(context: Context) : CollectionFilterer(context) {
     }
 
     companion object {
-        const val lowerBound = 1
-        const val upperBound = 12
+        const val LOWER_BOUND = 1
+        const val UPPER_BOUND = 12
     }
 }

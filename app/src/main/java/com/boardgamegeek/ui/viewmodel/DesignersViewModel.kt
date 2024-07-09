@@ -70,14 +70,14 @@ class DesignersViewModel @Inject constructor(
 
     fun getSectionHeader(designer: Person?): String {
         return when(sort.value) {
-            Person.SortType.NAME -> if (designer?.name == "(Uncredited)") defaultHeader else designer?.name.firstChar()
+            Person.SortType.NAME -> if (designer?.name == "(Uncredited)") DEFAULT_HEADER else designer?.name.firstChar()
             Person.SortType.ITEM_COUNT -> (designer?.itemCount ?: 0).orderOfMagnitude()
             Person.SortType.WHITMORE_SCORE -> (designer?.whitmoreScore ?: 0).orderOfMagnitude()
-            else -> defaultHeader
+            else -> DEFAULT_HEADER
         }
     }
 
     companion object {
-        const val defaultHeader = "-"
+        private const val DEFAULT_HEADER = "-"
     }
 }

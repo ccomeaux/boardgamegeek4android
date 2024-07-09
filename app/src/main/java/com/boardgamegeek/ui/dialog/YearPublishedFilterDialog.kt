@@ -14,13 +14,13 @@ class YearPublishedFilterDialog : SliderFilterDialog() {
     override val titleResId = R.string.menu_year_published
     override val supportsNone = false
     override val supportsCheckbox = false
-    override val valueFrom = YearPublishedFilterer.lowerBound.toFloat()
+    override val valueFrom = YearPublishedFilterer.LOWER_BOUND.toFloat()
     override val valueTo = YearPublishedFilterer.upperBound.toFloat()
 
     override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as? YearPublishedFilterer
         return InitialValues(
-            (f?.min ?: YearPublishedFilterer.lowerBound).toFloat(),
+            (f?.min ?: YearPublishedFilterer.LOWER_BOUND).toFloat(),
             (f?.max ?: YearPublishedFilterer.upperBound).toFloat(),
         )
     }
@@ -39,7 +39,7 @@ class YearPublishedFilterDialog : SliderFilterDialog() {
 
     override fun formatSliderLabel(context: Context, value: Float): String {
         return when (val year = value.roundToInt()) {
-            YearPublishedFilterer.lowerBound -> year.asYear(context).andLess()
+            YearPublishedFilterer.LOWER_BOUND -> year.asYear(context).andLess()
             YearPublishedFilterer.upperBound -> year.asYear(context).andMore()
             else -> year.asYear(context)
         }

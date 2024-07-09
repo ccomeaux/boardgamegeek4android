@@ -12,14 +12,14 @@ class PlayCountFilterDialog : SliderFilterDialog() {
     override val titleResId = R.string.menu_play_count
     override val supportsCheckbox = false
     override val supportsNone = false
-    override val valueFrom = PlayCountFilterer.lowerBound.toFloat()
-    override val valueTo = PlayCountFilterer.upperBound.toFloat()
+    override val valueFrom = PlayCountFilterer.LOWER_BOUND.toFloat()
+    override val valueTo = PlayCountFilterer.UPPER_BOUND.toFloat()
 
     override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as? PlayCountFilterer
         return InitialValues(
-            (f?.min ?: PlayCountFilterer.lowerBound).toFloat(),
-            (f?.max ?: PlayCountFilterer.upperBound).toFloat(),
+            (f?.min ?: PlayCountFilterer.LOWER_BOUND).toFloat(),
+            (f?.max ?: PlayCountFilterer.UPPER_BOUND).toFloat(),
         )
     }
 
@@ -36,7 +36,7 @@ class PlayCountFilterDialog : SliderFilterDialog() {
 
     override fun formatSliderLabel(context: Context, value: Float): String {
         return when (val count = value.roundToInt()) {
-            PlayCountFilterer.upperBound -> count.toString().andMore()
+            PlayCountFilterer.UPPER_BOUND -> count.toString().andMore()
             else -> count.toString()
         }
     }

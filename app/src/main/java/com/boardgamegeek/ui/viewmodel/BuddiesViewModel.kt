@@ -86,12 +86,12 @@ class BuddiesViewModel @Inject constructor(
             User.SortType.FIRST_NAME -> user?.firstName.firstChar()
             User.SortType.LAST_NAME -> user?.lastName.firstChar()
             User.SortType.USERNAME -> user?.username.firstChar()
-            null -> defaultHeader
+            null -> DEFAULT_HEADER
         }
     }
 
     companion object {
-        const val defaultHeader = "-"
+        private const val DEFAULT_HEADER = "-"
     }
 }
 

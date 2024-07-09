@@ -10,8 +10,8 @@ import com.boardgamegeek.extensions.asPersonalRating
 import java.util.*
 
 abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
-    var min by DoubleIntervalDelegate(lowerBound, lowerBound, upperBound)
-    var max by DoubleIntervalDelegate(upperBound, lowerBound, upperBound)
+    var min by DoubleIntervalDelegate(LOWER_BOUND, LOWER_BOUND, UPPER_BOUND)
+    var max by DoubleIntervalDelegate(UPPER_BOUND, LOWER_BOUND, UPPER_BOUND)
     var includeUndefined = false
     var ignoreRange = false
 
@@ -19,8 +19,8 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun inflate(data: String) {
         data.split(DELIMITER).run {
-            min = getOrNull(0)?.toDoubleOrNull() ?: lowerBound
-            max = getOrNull(1)?.toDoubleOrNull() ?: upperBound
+            min = getOrNull(0)?.toDoubleOrNull() ?: LOWER_BOUND
+            max = getOrNull(1)?.toDoubleOrNull() ?: UPPER_BOUND
             includeUndefined = getOrNull(2) == "1"
             ignoreRange = getOrNull(3) == "1"
         }
@@ -31,10 +31,10 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
     protected fun describe(@StringRes unratedResId: Int, @StringRes prefixResId: Int = -1): String {
         val range = when {
             ignoreRange -> ""
-            max == lowerBound -> formatRating(max)
-            min == upperBound -> formatRating(min)
-            min == lowerBound -> formatRating(max).andLess()
-            max == upperBound -> formatRating(min).andMore()
+            max == LOWER_BOUND -> formatRating(max)
+            min == UPPER_BOUND -> formatRating(min)
+            min == LOWER_BOUND -> formatRating(max).andLess()
+            max == UPPER_BOUND -> formatRating(min).andMore()
             min == max -> formatRating(max)
             else -> String.format(Locale.getDefault(), "%.1f - %.1f", min, max)
         }
@@ -58,7 +58,7 @@ abstract class RatingFilterer(context: Context) : CollectionFilterer(context) {
     }
 
     companion object {
-        const val lowerBound = 1.0
-        const val upperBound = 10.0
+        const val LOWER_BOUND = 1.0
+        const val UPPER_BOUND = 10.0
     }
 }
