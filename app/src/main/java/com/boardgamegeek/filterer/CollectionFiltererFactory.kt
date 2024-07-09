@@ -3,10 +3,9 @@ package com.boardgamegeek.filterer
 import android.content.Context
 
 class CollectionFiltererFactory(context: Context) {
-    private val filterers: MutableList<CollectionFilterer>
+    private val filterers: MutableList<CollectionFilterer> = arrayListOf()
 
     init {
-        filterers = arrayListOf()
         filterers.add(CollectionStatusFilterer(context))
         filterers.add(CollectionNameFilter(context))
         filterers.add(PlayerNumberFilterer(context))
