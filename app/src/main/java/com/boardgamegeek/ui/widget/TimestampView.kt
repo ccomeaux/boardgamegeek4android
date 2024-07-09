@@ -8,7 +8,6 @@ import android.text.SpannedString
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.withStyledAttributes
-import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.extensions.trimTrailingWhitespace
