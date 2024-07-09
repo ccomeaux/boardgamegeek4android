@@ -2,6 +2,7 @@ package com.boardgamegeek.model
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
     init {
@@ -13,7 +14,7 @@ data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
         get() = (if (isValid()) h + 1 - n.toDouble() / (2 * h + 1) else 0.0)
 
     val description: String
-        get() = (if (isValid()) String.format("%.2f", rational) else "?")
+        get() = (if (isValid()) String.format(Locale.getDefault(), "%.2f", rational) else "?")
 
     fun isValid() = (h > 0 || n > 0)
 

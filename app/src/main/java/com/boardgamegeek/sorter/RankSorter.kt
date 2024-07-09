@@ -6,6 +6,7 @@ import androidx.annotation.StringRes
 import com.boardgamegeek.R
 import com.boardgamegeek.model.CollectionItem
 import java.text.NumberFormat
+import java.util.Locale
 
 class RankSorter(context: Context) : CollectionSorter(context) {
     private val defaultHeaderText = context.resources.getString(R.string.unranked)
@@ -48,9 +49,9 @@ class RankSorter(context: Context) : CollectionSorter(context) {
             val rankSteps = listOf(100, 250, 500, 1000, 2500, 5000, 10000)
             val ranks = SparseArray<String>()
             for (i in rankSteps.indices) {
-                ranks.put(rankSteps[i], String.format("%,d - %,d", (rankSteps.getOrElse(i - 1) { 0 }) + 1, rankSteps[i]))
+                ranks.put(rankSteps[i], String.format(Locale.getDefault(), "%,d - %,d", (rankSteps.getOrElse(i - 1) { 0 }) + 1, rankSteps[i]))
             }
-            ranks.put(CollectionItem.RANK_UNKNOWN - 1, String.format("%,d+", rankSteps.last() + 1))
+            ranks.put(CollectionItem.RANK_UNKNOWN - 1, String.format(Locale.getDefault(), "%,d+", rankSteps.last() + 1))
             return ranks
         }
     }

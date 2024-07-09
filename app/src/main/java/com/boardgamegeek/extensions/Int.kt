@@ -9,6 +9,7 @@ import com.boardgamegeek.model.Game
 import java.math.BigDecimal
 import java.math.MathContext
 import java.text.NumberFormat
+import java.util.Locale
 import kotlin.reflect.KProperty
 
 /**
@@ -103,7 +104,7 @@ fun Int.asTime(): String {
     if (this > 0) {
         val hours = this / 60
         val minutes = this % 60
-        return String.format("%d:%02d", hours, minutes)
+        return String.format(Locale.getDefault(), "%d:%02d", hours, minutes)
     }
     return "0:00"
 }

@@ -5,6 +5,7 @@ import com.boardgamegeek.model.PlayerColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.Locale
 
 class PlayerColorAssigner(
     private val gameId: Int,
@@ -107,7 +108,7 @@ class PlayerColorAssigner(
         val playerChoice = playerChoiceScores.maxByOrNull { it.second }
         val topChoice = playerChoice?.first?.topChoice
         if (topChoice != null) {
-            assignColorToPlayer(topChoice.description, playerChoice.first, String.format("most preferred (%,.2f)", playerChoice.second))
+            assignColorToPlayer(topChoice.description, playerChoice.first, String.format(Locale.getDefault(), "most preferred (%,.2f)", playerChoice.second))
             return true
         }
         Timber.d("Something went horribly wrong")
