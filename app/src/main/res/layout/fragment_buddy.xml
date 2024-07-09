@@ -84,10 +84,10 @@
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
 						android:background="?attr/selectableItemBackground"
-						android:drawableEnd="@drawable/ic_baseline_edit_24"
-						android:drawableRight="@drawable/ic_baseline_edit_24"
 						android:gravity="center_vertical"
 						android:textAppearance="@style/TextAppearance.Title"
+						app:drawableEndCompat="@drawable/ic_baseline_edit_24"
+						app:drawableRightCompat="@drawable/ic_baseline_edit_24"
 						tools:text="Chris" />
 
 					<TextView

@@ -52,7 +52,7 @@
 		style="@style/TextWithImage.Secondary"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:drawableStart="@drawable/ic_outline_account_circle_18"
+		app:drawableStartCompat="@drawable/ic_outline_account_circle_18"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="@id/itemNameView"
 		app:layout_constraintStart_toStartOf="@id/itemNameView"
