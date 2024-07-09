@@ -1,17 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-	<style name="ActionBar">
-		<item name="android:layout_width">match_parent</item>
-		<item name="android:layout_height">wrap_content</item>
-		<item name="android:background">?attr/colorPrimary</item>
-		<item name="android:elevation">@dimen/material_elevation</item>
-		<item name="android:minHeight">?attr/actionBarSize</item>
-		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
-		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
-		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
-	</style>
-
 	<style name="ColoredButton" parent="Widget.MaterialComponents.Button">
 		<item name="android:backgroundTint">@color/medium_blue</item>
 	</style>

@@ -247,6 +247,7 @@
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:background">?attr/colorPrimary</item>
+		<item name="android:elevation">@dimen/material_elevation</item>
 		<item name="android:minHeight">?attr/actionBarSize</item>
 		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
