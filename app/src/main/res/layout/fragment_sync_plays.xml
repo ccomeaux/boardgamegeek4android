@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -20,7 +21,7 @@
 			android:id="@+id/syncPlaysSwitch"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/sync" />
+			android:text="@string/sync_plays" />
 
 		<TextView
 			android:id="@+id/playSyncStatusView"
@@ -32,15 +33,15 @@
 			tools:visibility="visible" />
 
 		<LinearLayout
-			style="?attr/buttonBarStyle"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
 			android:orientation="horizontal"
 			android:paddingVertical="@dimen/padding_standard">
 
 			<Button
 				android:id="@+id/cancelPlaysButton"
-				style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+				style="?attr/materialButtonOutlinedStyle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/cancel" />
@@ -49,11 +50,13 @@
 				android:layout_width="@dimen/padding_extra"
 				android:layout_height="match_parent" />
 
-			<com.google.android.material.button.MaterialButton
+			<Button
 				android:id="@+id/syncPlaysButton"
+				style="@style/Widget.MaterialComponents.Button.Icon"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/sync_plays" />
+				android:text="@string/sync_plays"
+				app:icon="@drawable/ic_baseline_sync_24" />
 		</LinearLayout>
 
 		<TextView
@@ -116,11 +119,14 @@
 			tools:text="2 plays pending deletion"
 			tools:visibility="visible" />
 
-		<com.google.android.material.button.MaterialButton
+		<Button
 			android:id="@+id/uploadPlaysButton"
+			style="@style/Widget.MaterialComponents.Button.Icon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:enabled="false"
-			android:text="@string/upload_plays" />
+			android:layout_gravity="center_horizontal"
+			android:text="@string/upload_plays"
+			app:icon="@drawable/ic_upload_24" />
 	</LinearLayout>
 </ScrollView>

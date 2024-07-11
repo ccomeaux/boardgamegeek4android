@@ -55,11 +55,12 @@
 			tools:text="Yesterday" />
 	</LinearLayout>
 
-	<com.google.android.material.button.MaterialButton
+	<Button
 		android:id="@+id/syncStatusButton"
+		style="@style/Widget.MaterialComponents.Button.TextButton"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center_horizontal"
+		android:layout_gravity="end"
 		android:layout_marginTop="@dimen/padding_standard"
 		android:text="@string/sync"
 		android:visibility="gone"

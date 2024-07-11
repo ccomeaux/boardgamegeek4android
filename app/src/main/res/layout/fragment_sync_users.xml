@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -18,7 +19,7 @@
 
 		<com.google.android.material.switchmaterial.SwitchMaterial
 			android:id="@+id/syncBuddiesSwitch"
-			android:layout_width="wrap_content"
+			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/sync" />
 
@@ -50,15 +51,15 @@
 			tools:visibility="visible" />
 
 		<LinearLayout
-			style="?attr/buttonBarStyle"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
 			android:orientation="horizontal"
 			android:paddingVertical="@dimen/padding_standard">
 
 			<Button
 				android:id="@+id/cancelBuddiesButton"
-				style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+				style="?attr/materialButtonOutlinedStyle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/cancel" />
@@ -69,9 +70,11 @@
 
 			<Button
 				android:id="@+id/syncBuddiesButton"
+				style="@style/Widget.MaterialComponents.Button.Icon"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/sync_users"
+				app:icon="@drawable/ic_baseline_sync_24"
 				tools:ignore="ButtonStyle" />
 		</LinearLayout>
 

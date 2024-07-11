@@ -242,16 +242,15 @@
 			app:switchLabel="@string/collection_status_want_parts" />
 
 		<LinearLayout
-			style="?attr/buttonBarStyle"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center"
+			android:gravity="center_horizontal"
 			android:orientation="horizontal"
 			android:paddingVertical="@dimen/padding_standard">
 
 			<Button
 				android:id="@+id/cancelCollectionButton"
-				style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+				style="?attr/materialButtonOutlinedStyle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/cancel" />
@@ -260,11 +259,13 @@
 				android:layout_width="@dimen/padding_extra"
 				android:layout_height="match_parent" />
 
-			<com.google.android.material.button.MaterialButton
+			<Button
 				android:id="@+id/syncCollectionButton"
+				style="@style/Widget.MaterialComponents.Button.Icon"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:text="@string/sync" />
+				android:text="@string/sync"
+				app:icon="@drawable/ic_baseline_sync_24" />
 		</LinearLayout>
 
 		<TextView
@@ -298,12 +299,14 @@
 			android:paddingVertical="@dimen/padding_half"
 			tools:text="0 Collection items need to be uploaded" />
 
-		<com.google.android.material.button.MaterialButton
+		<Button
 			android:id="@+id/uploadCollectionButton"
+			style="@style/Widget.MaterialComponents.Button.Icon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_gravity="center_horizontal"
 			android:enabled="false"
-			android:text="@string/upload" />
+			android:text="@string/upload"
+			app:icon="@drawable/ic_upload_24" />
 	</LinearLayout>
 </androidx.core.widget.NestedScrollView>

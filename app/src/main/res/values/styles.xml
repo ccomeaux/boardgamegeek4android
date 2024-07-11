@@ -151,11 +151,9 @@
 
 	<!-- Buttons -->
 
-	<style name="ColoredButton" parent="Widget.MaterialComponents.Button" />
-
 	<style name="ColoredIconButton" parent="Widget.MaterialComponents.Button.Icon" />
 
-	<style name="ColoredButton.Small">
+	<style name="ColoredButton.Small" parent="Widget.MaterialComponents.Button">
 		<item name="android:minHeight">32dp</item>
 		<item name="android:textSize">12sp</item>
 	</style>

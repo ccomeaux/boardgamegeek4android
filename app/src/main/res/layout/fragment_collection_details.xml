@@ -9,7 +9,7 @@
 
 	<Button
 		android:id="@+id/designersButton"
-		style="@style/ColoredIconButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_standard"
@@ -22,7 +22,7 @@
 
 	<Button
 		android:id="@+id/artistsButton"
-		style="@style/ColoredIconButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_standard"
@@ -35,7 +35,7 @@
 
 	<Button
 		android:id="@+id/publishersButton"
-		style="@style/ColoredIconButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_standard"
@@ -48,7 +48,7 @@
 
 	<Button
 		android:id="@+id/mechanicsButton"
-		style="@style/ColoredIconButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_standard"
@@ -61,7 +61,7 @@
 
 	<Button
 		android:id="@+id/categoriesButton"
-		style="@style/ColoredIconButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_standard"
