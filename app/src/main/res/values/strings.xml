@@ -219,7 +219,7 @@
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
 	<string name="currently_syncing">Currently syncing</string>
-	<string name="title_statuses">Statues</string>
+	<string name="title_statuses">Statuses</string>
 	<string name="complete">Complete</string>
 	<string name="partial">Partial</string>
 	<string name="comment">Comment</string>
@@ -697,7 +697,7 @@
 	<string name="collection_status_want_to_play">Want to Play</string>
 	<string name="collection_status_want_in_trade">Want in Trade</string>
 	<string name="collection_status_want_to_buy">Want to Buy</string>
-	<string name="collection_status_preordered">Pre-ordered</string>
+	<string name="collection_status_preordered">Preordered</string>
 	<string name="collection_status_wishlist">Wishlist</string>
 	<string name="collection_status_played">Played</string>
 	<string name="collection_status_rated">Rated</string>
