@@ -374,7 +374,7 @@ class PlayRepository(
             if (!play.isSynced) {
                 // remember the location and players to be used in the next play
                 val lastPlayDate = prefs[KEY_LAST_PLAY_DATE, 0L] ?: 0L
-                if (play.dateInMillis > lastPlayDate) {
+                if (play.dateInMillis >= lastPlayDate) {
                     prefs[KEY_LAST_PLAY_DATE] = play.dateInMillis
                     prefs[KEY_LAST_PLAY_TIME] = System.currentTimeMillis()
                     prefs[KEY_LAST_PLAY_LOCATION] = play.location
