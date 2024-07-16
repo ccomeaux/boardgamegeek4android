@@ -1,5 +1,3 @@
-@file:Suppress("SpellCheckingInspection")
-
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
