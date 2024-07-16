@@ -30,7 +30,8 @@
 				app:expandedTitleMarginEnd="@dimen/material_margin_horizontal"
 				app:expandedTitleMarginStart="@dimen/material_margin_horizontal"
 				app:layout_scrollFlags="scroll|exitUntilCollapsed"
-				app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light">
+				app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+				tools:title="Terra Mystica">
 
 				<androidx.constraintlayout.widget.ConstraintLayout
 					android:layout_width="match_parent"
@@ -62,7 +63,7 @@
 					android:layout_height="match_parent"
 					android:layout_gravity="bottom"/>
 
-				<androidx.appcompat.widget.Toolbar
+				<com.google.android.material.appbar.MaterialToolbar
 					android:id="@+id/toolbar"
 					style="@style/Toolbar"
 					android:layout_width="match_parent"

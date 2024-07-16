@@ -6,7 +6,7 @@
 	android:orientation="vertical"
 	tools:context=".ui.NewPlayActivity">
 
-	<androidx.appcompat.widget.Toolbar
+	<com.google.android.material.appbar.MaterialToolbar
 		android:id="@+id/toolbar"
 		style="@style/ActionBar"
 		android:layout_width="match_parent"

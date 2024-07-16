@@ -27,6 +27,7 @@
 				android:fitsSystemWindows="true"
 				android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
 				app:contentScrim="?attr/colorPrimary"
+				tools:title="Terra Mystica"
 				app:expandedTitleMarginEnd="@dimen/material_margin_horizontal"
 				app:expandedTitleMarginStart="@dimen/material_margin_horizontal"
 				app:layout_scrollFlags="scroll|exitUntilCollapsed">
@@ -61,7 +62,7 @@
 					android:layout_height="match_parent"
 					android:layout_gravity="bottom" />
 
-				<androidx.appcompat.widget.Toolbar
+				<com.google.android.material.appbar.MaterialToolbar
 					android:id="@+id/toolbar"
 					style="@style/Toolbar"
 					android:layout_width="match_parent"
