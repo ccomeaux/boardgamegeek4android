@@ -437,7 +437,7 @@
 		<item name="android:padding">4dp</item>
 		<item name="android:layout_marginBottom">8dp</item>
 		<item name="android:layout_marginLeft">0dp</item>
-		<item name="android:layout_marginRight">@dimen/game_row_icon_margin</item>
+		<item name="android:layout_marginRight">24dp</item>
 		<item name="android:layout_marginTop">8dp</item>
 		<item name="android:scaleType">centerInside</item>
 	</style>
