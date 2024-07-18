@@ -243,11 +243,11 @@ class SyncViewModel @Inject constructor(
     val userSyncState: LiveData<UserSyncState> = buddies.map { list ->
         val updatedOrNotLists = list.partition { it.updatedTimestamp == 0L }
         val numberOfUnupdatedBuddies = updatedOrNotLists.first.filter { user -> user.updatedTimestamp == 0L }.size
-        val oldestSyncedUser = updatedOrNotLists.second.minBy { it.updatedTimestamp }
+        val oldestSyncedUser = updatedOrNotLists.second.minByOrNull { it.updatedTimestamp }
         UserSyncState(
             updatedOrNotLists.second.size,
             numberOfUnupdatedBuddies,
-            oldestSyncedUser.updatedTimestamp,
+            oldestSyncedUser?.updatedTimestamp,
         )
     }.distinctUntilChanged()
 
@@ -318,7 +318,7 @@ class SyncViewModel @Inject constructor(
         Deleting,
     }
 
-    data class UserSyncState(val count: Int, val numberOfUnupdatedBuddies: Int, val oldestUpdatedBuddyTimestamp: Long)
+    data class UserSyncState(val count: Int, val numberOfUnupdatedBuddies: Int, val oldestUpdatedBuddyTimestamp: Long?)
 
     data class UserSyncProgress(val step: UserSyncProgressStep, val username: String? = null, val progress: Int = 0, val max: Int = 0)
 

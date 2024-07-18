@@ -118,10 +118,12 @@ class SyncUsersFragment : Fragment() {
         binding.progressBar.setProgressOrIndeterminate(progress, max)
     }
 
-    private fun Long.asDateTime() = this.formatDateTime(
-        requireContext(),
-        flags = DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
-    )
+    private fun Long?.asDateTime(): CharSequence {
+        return this?.formatDateTime(
+            requireContext(),
+            flags = DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+        ) ?: getString(R.string.never)
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
