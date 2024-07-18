@@ -91,7 +91,7 @@ class NewPlayAddPlayersFragment : Fragment() {
             it?.let { playerList ->
                 for (player in playerList) {
                     findOrCreateChip(player.id).apply {
-                        text = player.description
+                        text = player.description.padEnd(5) // short names cause the icon to be black instead of gray; this is a workaround
                         isCloseIconVisible = true
                         if (player.avatarUrl.isBlank()) {
                             setChipIconResource(R.drawable.ic_baseline_account_circle_24)
