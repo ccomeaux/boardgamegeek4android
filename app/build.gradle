@@ -127,7 +127,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
 
-    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.google.code.gson:gson:2.11.0'
 
     def retrofit_version = '2.11.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
