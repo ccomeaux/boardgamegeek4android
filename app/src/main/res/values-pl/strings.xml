@@ -412,7 +412,6 @@
 	<string name="msg_play_added_quantity">Zapisano Twoją <b>%1$s</b> rozgrywkę</string>
 	<string name="msg_play_updated">Zaktualizowano rozgrywkę</string>
 	<string name="msg_play_deleted">Usunięto rozgrywkę</string>
-	<string name="msg_play_deleted_draft">Usunięto wersję roboczą</string>
 	<string name="msg_play_update_bad_id">Rozgrywka <b>%s</b> nie istnieje!</string>
 	<string name="msg_play_update_null_response">Błąd komunikacji z BGG.</string>
 	<string name="msg_play_player_change">Zmieniono nazwę gracza z \"%1$s\" na \"%2$s\"</string>
@@ -499,10 +498,7 @@
 	<string name="notification_start_player">%s zaczyna!</string>
 	<string name="unrated">Nieoceniona</string>
 	<string name="undefined">Nieokreślone</string>
-	<string name="one_more">1 więcej</string>
-	<string name="some_more" tools:ignore="PluralsCandidate">%,d więcej</string>
 	<string name="and_more" tools:ignore="PluralsCandidate">…i %,d więcej</string>
-	<string name="close">Zamknij</string>
 	<string name="view">Pokaż</string>
 	<string name="needs_updating">Wymaga aktualizacji</string>
 	<string name="set_as_default">Ustaw jako domyślny</string>
@@ -749,11 +745,6 @@
 		<item quantity="few"><b>%,d</b> gry</item>
 		<item quantity="other"><b>%,d</b> gier</item>
 	</plurals>
-	<plurals name="collection_items_suffix">
-		<item quantity="one"><b>%,d</b> pozycja kolekcji</item>
-		<item quantity="few"><b>%,d</b> pozycje kolekcji</item>
-		<item quantity="other"><b>%,d</b> pozycji kolekcji</item>
-	</plurals>
 	<plurals name="winnable_plays_suffix">
 		<item quantity="one"><b>%,d</b> rozgrywka do wygrania</item>
 		<item quantity="few"><b>%,d</b> rozgrywki do wygrania</item>
@@ -808,11 +799,6 @@
 		<item quantity="one">%1$s z %2$,d graczem</item>
 		<item quantity="few">%1$s with %2$,d graczami</item>
 		<item quantity="other">%1$s with %2$,d graczami</item>
-	</plurals>
-	<plurals name="more">
-		<item quantity="one">%,d więcej</item>
-		<item quantity="few">%,d więcej</item>
-		<item quantity="other">%,d więcej</item>
 	</plurals>
 	<plurals name="pie_chart_click_description">
 		<item quantity="one">%1$s głos na \"%2$s\"</item>

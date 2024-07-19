@@ -320,7 +320,6 @@
 	<string name="title_scores">Scores</string>
 	<string name="title_low_scorers">Low Scorers</string>
 	<string name="title_high_scorers">High Scorers</string>
-	<string name="search_label" translatable="false">BGG4A</string>
 	<string name="search_hint">Search games</string>
 	<string name="search_voice_prompt">Name a game…</string>
 	<string name="search_searching">Searching for \"%s\"</string>
@@ -457,20 +456,15 @@
 	<string name="msg_play_added_quantity">Logged your <b>%1$s</b> play</string>
 	<string name="msg_play_updated">Updated play</string>
 	<string name="msg_play_deleted">Deleted play</string>
-	<string name="msg_play_deleted_draft">Deleted draft</string>
-	<string name="msg_play_update_not_set">Play isn\'t set to update.</string>
-	<string name="msg_play_delete_not_set">Play isn\'t set to delete.</string>
 	<string name="msg_play_update_auth_error">Not logged in. Try again later.</string>
 	<string name="msg_play_delete_unsuccessful">Unsuccessful trying to delete a play</string>
 	<string name="msg_play_update_bad_id">Play <b>%s</b> doesn\'t exist!</string>
 	<string name="msg_play_queued_for_upload">Queued for upload</string>
-	<string name="msg_play_upload"><b>%1$s</b> - %2$s</string>
 	<string name="msg_play_update_null_response">Trouble communicating with the \'Geek.</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
 	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_play_sync">You are not currently syncing your plays. Would you like to enable that feature now?</string>
-	<string name="msg_collection_view_inserted">Saved \"%s\" as a collection view.</string>
 	<string name="msg_collection_view_updated">Updated collection view \"%s\".</string>
 	<string name="msg_collection_view_deleted">Collection view \"%1$s\" deleted successfully.</string>
 	<string name="msg_sign_out_success">Sign out successful!</string>
@@ -570,10 +564,7 @@
 	<string name="unrated_abbr" translatable="false">\?.\?</string>
 	<string name="undefined">Undefined</string>
 	<string name="undefined_weight_abbr" translatable="false">\?.\?</string>
-	<string name="one_more">1 more</string>
-	<string name="some_more" tools:ignore="PluralsCandidate">%,d more</string>
 	<string name="and_more" tools:ignore="PluralsCandidate">…and %,d more</string>
-	<string name="close">Close</string>
 	<string name="view">View</string>
 	<string name="needs_updating">Needs updating</string>
 	<string name="set_as_default">Set as default</string>
@@ -860,10 +851,6 @@
 		<item quantity="one"><b>%,d</b> game</item>
 		<item quantity="other"><b>%,d</b> games</item>
 	</plurals>
-	<plurals name="collection_items_suffix">
-		<item quantity="one"><b>%,d</b> collection item</item>
-		<item quantity="other"><b>%,d</b> collection items</item>
-	</plurals>
 	<plurals name="winnable_plays_suffix">
 		<item quantity="one"><b>%,d</b> winnable play</item>
 		<item quantity="other"><b>%,d</b> winnable plays</item>
@@ -907,10 +894,6 @@
 	<plurals name="recommended_player_count_description">
 		<item quantity="one">%1$s with %2$,d player</item>
 		<item quantity="other">%1$s with %2$,d players</item>
-	</plurals>
-	<plurals name="more">
-		<item quantity="one">%,d more</item>
-		<item quantity="other">%,d more</item>
 	</plurals>
 	<plurals name="pie_chart_click_description">
 		<item quantity="one">%1$s vote for \"%2$s\"</item>

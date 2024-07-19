@@ -11,10 +11,8 @@
 	<string name="sync_notification_collection_full">Entire collection</string>
 	<string name="sync_notification_collection_partial">Finding latest changes to your collection</string>
 	<string name="sync_notification_collection_unupdated">Incomplete collection</string>
-	<string name="sync_notification_collection_syncing">Syncing \"%1$s\" collection %2$s</string>
 	<string name="sync_notification_collection_detail">\"%1$s\" %2$s</string>
 	<string name="sync_notification_collection_since">%1$s modified since %2$s</string>
-	<string name="sync_notification_collection_since_syncing">Syncing collection %1$s modified since %2$s</string>
 	<string name="sync_notification_collection_update_games">%1$,d %2$s for games %3$s</string>
 	<string name="sync_notification_games_oldest">Refreshing stale games</string>
 	<string name="sync_notification_games_unupdated">Getting the details of newly added games</string>
@@ -51,33 +49,8 @@
 		<item quantity="one">Uploading %,d collection item.</item>
 		<item quantity="other">Uploading %,d collection items.</item>
 	</plurals>
-	<plurals name="sync_notification_plays_update">
-		<item quantity="one">Updating %,d play</item>
-		<item quantity="other">Updating %,d plays</item>
-	</plurals>
-	<plurals name="sync_notification_plays_update_increment">
-		<item quantity="one">Updating %,d of %,d play</item>
-		<item quantity="other">Updating %,d of %,d plays</item>
-	</plurals>
-	<plurals name="sync_notification_plays_delete">
-		<item quantity="one">Deleting %,d play</item>
-		<item quantity="other">Deleting %,d plays</item>
-	</plurals>
-	<plurals name="sync_notification_plays_delete_increment">
-		<item quantity="one">Deleting %,d of %,d play</item>
-		<item quantity="other">Deleting %,d of %,d plays</item>
-	</plurals>
-	<plurals name="sync_notification_games">
-		<item quantity="one">Syncing %1$,d game: %2$s</item>
-		<item quantity="other">Syncing %1$,d games: %2$s</item>
-	</plurals>
 	<plurals name="sync_notification_games_remove">
 		<item quantity="one">Removing %,d game from your collection</item>
 		<item quantity="other">Removing %,d games from your collection</item>
 	</plurals>
-	<plurals name="sync_notification_collection_sleeping">
-		<item quantity="one">Taking a break for a second</item>
-		<item quantity="other">Taking a break for %,d seconds</item>
-	</plurals>
-
 </resources>
