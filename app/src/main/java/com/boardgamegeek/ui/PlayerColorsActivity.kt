@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.*
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import androidx.activity.viewModels
@@ -259,9 +258,7 @@ class PlayerColorsActivity : BaseActivity() {
             fun bind(color: String) {
                 binding.titleView.text = color
                 binding.colorView.setColorViewValue(color.asColorRgb())
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    binding.dragHandle.imageTintList = ColorStateList.valueOf(color.asColorRgb().getTextColor())
-                }
+                binding.dragHandle.imageTintList = ColorStateList.valueOf(color.asColorRgb().getTextColor())
                 binding.dragHandle.setOnTouchListener { v, event ->
                     if (event.action == MotionEvent.ACTION_DOWN) {
                         itemTouchHelper?.startDrag(this@ColorViewHolder)

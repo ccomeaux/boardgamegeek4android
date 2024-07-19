@@ -1,10 +1,7 @@
 package com.boardgamegeek.ui
 
-import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.Color
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.transition.AutoTransition
 import android.transition.Transition
@@ -118,7 +115,7 @@ class GamePlayStatsFragment : Fragment() {
 
         playerTransition = AutoTransition()
         playerTransition?.duration = 150
-        setInterpolator(context, playerTransition)
+        playerTransition?.interpolator = android.view.animation.AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in)
 
         binding.scores.scoreHelpView.setOnClickListener {
             AlertDialog.Builder(requireContext())
@@ -177,12 +174,6 @@ class GamePlayStatsFragment : Fragment() {
     }
 
     private fun Int.colorOrElse(@ColorRes colorResId: Int) = if (this == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), colorResId) else this
-
-    private fun setInterpolator(context: Context?, transition: Transition?) {
-        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-            transition?.interpolator = android.view.animation.AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in)
-        }
-    }
 
     private fun bindUi(stats: Stats) {
         // region PLAY COUNT

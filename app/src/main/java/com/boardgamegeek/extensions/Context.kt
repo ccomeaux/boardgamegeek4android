@@ -133,8 +133,6 @@ fun Context.showDialog(message: String, okButtonResId: Int = R.string.ok, okList
 
 fun Context.getBitmap(@DrawableRes resId: Int, tintColor: Int? = null): Bitmap {
     return AppCompatResources.getDrawable(this, resId)!!.apply {
-        if (tintColor != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setTint(tintColor)
-        }
+        tintColor?.let { setTint(it) }
     }.toBitmap()
 }
