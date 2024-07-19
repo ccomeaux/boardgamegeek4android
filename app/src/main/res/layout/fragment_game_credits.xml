@@ -53,7 +53,7 @@
 			<View
 				android:id="@+id/designersDividerView"
 				android:layout_width="match_parent"
-				android:layout_height="1dp"
+				android:layout_height="@dimen/divider_height"
 				android:background="@color/list_divider" />
 
 			<TextView
@@ -71,7 +71,7 @@
 			<View
 				android:id="@+id/artistsDividerView"
 				android:layout_width="match_parent"
-				android:layout_height="1dp"
+				android:layout_height="@dimen/divider_height"
 				android:background="@color/list_divider" />
 
 			<TextView
@@ -89,7 +89,7 @@
 			<View
 				android:id="@+id/publishersDividerView"
 				android:layout_width="match_parent"
-				android:layout_height="1dp"
+				android:layout_height="@dimen/divider_height"
 				android:background="@color/list_divider" />
 
 			<TextView
@@ -107,7 +107,7 @@
 			<View
 				android:id="@+id/categoriesDividerView"
 				android:layout_width="match_parent"
-				android:layout_height="1dp"
+				android:layout_height="@dimen/divider_height"
 				android:background="@color/list_divider" />
 
 			<TextView
@@ -125,7 +125,7 @@
 			<View
 				android:id="@+id/mechanicsDividerView"
 				android:layout_width="match_parent"
-				android:layout_height="1dp"
+				android:layout_height="@dimen/divider_height"
 				android:background="@color/list_divider" />
 
 			<include
