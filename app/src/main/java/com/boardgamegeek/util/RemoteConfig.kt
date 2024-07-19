@@ -39,6 +39,7 @@ class RemoteConfig {
 
         const val KEY_FETCH_IMAGE_WITH_API = "fetch_image_with_api"
 
+        @Suppress("unused")
         const val KEY_PRIVACY_CHECK_WEEKS = "privacy_check_weeks"
 
         fun init() {
@@ -50,6 +51,7 @@ class RemoteConfig {
             firebaseRemoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
         }
 
+        @Suppress("unused")
         fun fetch() {
             val firebaseRemoteConfig = Firebase.remoteConfig
             firebaseRemoteConfig.fetch().addOnCompleteListener { task ->
