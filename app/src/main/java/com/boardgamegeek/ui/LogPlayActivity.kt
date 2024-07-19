@@ -301,7 +301,7 @@ class LogPlayActivity : AppCompatActivity() {
             }
             else -> {
                 binding.timerGroup.isVisible = false
-                binding.lengthView.setText("")
+                binding.lengthView.text?.clear()
                 if (isUserShowingLength || preferences().showLogPlayLength())
                     binding.lengthGroup.isVisible = true
             }

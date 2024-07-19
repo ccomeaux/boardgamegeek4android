@@ -136,7 +136,7 @@ class PlayFragment : Fragment() {
             }
             play.hasStarted() -> {
                 binding.lengthLabel.isVisible = true
-                binding.lengthView.text = ""
+                binding.lengthView.clearText()
                 binding.lengthView.isVisible = true
                 binding.timerView.isVisible = true
                 binding.timerView.startTimerWithSystemTime(play.startTime)

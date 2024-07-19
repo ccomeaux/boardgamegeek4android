@@ -65,7 +65,7 @@ class NewPlayAddPlayersFragment : Fragment() {
         binding.nextOrAddButton.setOnClickListener {
             if (binding.filterEditText.text?.isNotBlank() == true) {
                 viewModel.addPlayer(Player(binding.filterEditText.text.toString(), ""))
-                binding.filterEditText.setText("")
+                binding.filterEditText.text?.clear()
             } else {
                 viewModel.finishAddingPlayers()
             }
@@ -174,7 +174,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                     }
                     itemView.setOnClickListener {
                         viewModel.addPlayer(p)
-                        filterView.text = ""
+                        filterView.clearText()
                     }
                 }
             }

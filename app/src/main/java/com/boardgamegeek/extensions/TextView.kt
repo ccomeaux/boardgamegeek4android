@@ -1,5 +1,6 @@
 package com.boardgamegeek.extensions
 
+import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -10,6 +11,11 @@ import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
+
+@SuppressLint("SetTextI18n")
+fun TextView.clearText() {
+    this.text = ""
+}
 
 fun TextView.setTextOrHide(text: CharSequence?) {
     this.setTextOrHide(text, !text.isNullOrBlank())
@@ -36,8 +42,8 @@ fun TextView.setTextMaybeHtml(
     tagHandler: Html.TagHandler? = null
 ) {
     when {
-        text == null -> this.text = ""
-        text.isBlank() -> this.text = ""
+        text == null -> this.clearText()
+        text.isBlank() -> this.clearText()
         text.contains("<") && text.contains(">") || text.contains("&") && text.contains(";") -> {
             var html = text.trim()
             // Fix up problematic HTML

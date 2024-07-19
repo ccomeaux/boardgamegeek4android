@@ -101,7 +101,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
             }
         }
         binding.deleteView.setOnLongClickListener {
-            binding.outputView.text = ""
+            binding.outputView.clearText()
             enableDelete()
             true
         }

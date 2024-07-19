@@ -138,7 +138,7 @@ abstract class DrawerActivity : BaseActivity() {
                 secondaryView.setOnClickListener { linkToBgg("user/${user.username}") }
             } else if (user.username.isNotBlank()) {
                 primaryView.text = user.username
-                secondaryView.text = ""
+                secondaryView.clearText()
                 primaryView.setOnClickListener { linkToBgg("user/${user.username}") }
                 secondaryView.setOnClickListener { }
             }
