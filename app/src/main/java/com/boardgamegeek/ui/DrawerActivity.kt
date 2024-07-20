@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.Group
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -36,8 +37,9 @@ abstract class DrawerActivity : BaseActivity() {
 
     private val selfUserViewModel by viewModels<SelfUserViewModel>()
 
+    @Suppress("SameReturnValue")
     protected open val navigationItemId: Int
-        get() = 0
+        get() = ResourcesCompat.ID_NULL
 
     protected open fun bindLayout() {
         binding = ActivityDrawerBaseBinding.inflate(layoutInflater)

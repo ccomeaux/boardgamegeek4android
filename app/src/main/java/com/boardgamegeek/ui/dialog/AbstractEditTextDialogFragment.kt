@@ -6,6 +6,7 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.DialogEditTextBinding
@@ -26,7 +27,7 @@ abstract class AbstractEditTextDialogFragment : DialogFragment() {
             .setPositiveButton(R.string.ok) { _, _ ->
                 onPositiveButton()
             }
-        if (titleResId != 0) builder.setTitle(titleResId)
+        if (titleResId != ResourcesCompat.ID_NULL) builder.setTitle(titleResId)
         return builder.create().apply {
             requestFocus(binding.editText)
         }
@@ -37,7 +38,7 @@ abstract class AbstractEditTextDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (hintResId != 0) binding.editTextContainer.hint = getString(hintResId)
+        if (hintResId != ResourcesCompat.ID_NULL) binding.editTextContainer.hint = getString(hintResId)
         binding.editText.inputType = binding.editText.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
         if (savedInstanceState == null) {
             binding.editText.setAndSelectExistingText(originalText)
@@ -49,11 +50,13 @@ abstract class AbstractEditTextDialogFragment : DialogFragment() {
         _binding = null
     }
 
+    @Suppress("SameReturnValue")
     open val titleResId
-        get() = 0
+        get() = ResourcesCompat.ID_NULL
 
+    @Suppress("SameReturnValue")
     open val hintResId
-        get() = 0
+        get() = ResourcesCompat.ID_NULL
 
     open val originalText: String?
         get() = null
