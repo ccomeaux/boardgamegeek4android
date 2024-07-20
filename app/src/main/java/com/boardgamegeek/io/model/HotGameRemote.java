@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 
+/** @noinspection unused*/
 @SuppressWarnings("SpellCheckingInspection" )
 @Root(name = "item")
 public class HotGameRemote {

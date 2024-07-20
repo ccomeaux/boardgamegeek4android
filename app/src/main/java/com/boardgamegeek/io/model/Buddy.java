@@ -3,6 +3,7 @@ package com.boardgamegeek.io.model;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Root;
 
+/** @noinspection unused*/
 @Root(name = "buddy")
 public class Buddy {
 	@Attribute public String id;
