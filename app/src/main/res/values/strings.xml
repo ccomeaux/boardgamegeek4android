@@ -774,6 +774,7 @@
 	<string name="sync_user_step_list">Syncing GeekBuddy list</string>
 	<string name="sync_user_step_stale">Syncing stale users</string>
 	<string name="sync_user_step_unupdated">Syncing unupdated users</string>
+	<string name="favorite_color">Favorite Color</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
