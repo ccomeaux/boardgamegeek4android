@@ -106,6 +106,7 @@ class Authenticator(
         )
     }
 
+    @Suppress("SameParameterValue")
     private fun isKeyExpired(am: AccountManager, account: Account, key: String): Boolean {
         val expiration = am.getUserData(account, key).toLongOrNull()
         return expiration == null || expiration < System.currentTimeMillis()

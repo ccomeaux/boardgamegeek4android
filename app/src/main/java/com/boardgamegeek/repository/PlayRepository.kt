@@ -567,6 +567,7 @@ class PlayRepository(
         )
     }
 
+    @Suppress("SameParameterValue")
     private suspend fun markAsSynced(internalId: Long, playId: Int): Boolean = withContext(Dispatchers.IO) {
         if (internalId == INVALID_ID.toLong() || playId == INVALID_ID) false
         else playDao.markAsSynced(internalId, playId) > 0

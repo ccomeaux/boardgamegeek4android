@@ -80,6 +80,7 @@ private fun setUpMoneyFormatter(): DecimalFormat {
     return format
 }
 
+@Suppress("unused")
 class DoubleIntervalDelegate(var value: Double, private val minValue: Double, private val maxValue: Double) {
     operator fun getValue(thisRef: Any, property: KProperty<*>): Double {
         return value

@@ -49,6 +49,7 @@ class YearPublishedFilterer(context: Context) : CollectionFilterer(context) {
         return context.getString(R.string.published_prefix, context.getString(prepositionResId), year)
     }
 
+    @Suppress("SameParameterValue")
     private fun describeRange(rangeSeparator: String = " - "): String {
         return when {
             min == LOWER_BOUND && max == upperBound -> return ""

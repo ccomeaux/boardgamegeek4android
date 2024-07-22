@@ -167,6 +167,7 @@ fun Int.toFormattedString(): String {
     return this.toString().format(NumberFormat.getInstance())
 }
 
+@Suppress("unused")
 class IntervalDelegate(var value: Int, private val minValue: Int, private val maxValue: Int) {
     operator fun getValue(thisRef: Any, property: KProperty<*>): Int {
         return value

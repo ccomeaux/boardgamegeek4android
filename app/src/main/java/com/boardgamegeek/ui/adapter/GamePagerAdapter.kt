@@ -137,6 +137,7 @@ class GamePagerAdapter(private val activity: FragmentActivity, private val gameI
         }
     }
 
+    @Suppress("SameParameterValue")
     private fun displayFab(animateChange: Boolean = true) {
         @DrawableRes val resId = tabs.getOrNull(currentPosition)?.imageResId ?: INVALID_RES_ID
         if (resId != INVALID_RES_ID) {

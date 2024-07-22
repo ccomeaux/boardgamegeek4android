@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.net.Uri
 import android.os.ParcelFileDescriptor
@@ -114,6 +115,7 @@ class DataPortViewModel @Inject constructor(
         }
     }
 
+    @SuppressLint("Recycle")
     private suspend fun openFile(uri: Uri): ParcelFileDescriptor? = withContext(Dispatchers.IO) {
         val pfd = try {
             getApplication<BggApplication>().contentResolver.openFileDescriptor(uri, "w")
@@ -132,6 +134,7 @@ class DataPortViewModel @Inject constructor(
         pfd
     }
 
+    @Suppress("SameParameterValue")
     private suspend fun <T : ExportModel> export(
         uri: Uri,
         typeDescription: String,

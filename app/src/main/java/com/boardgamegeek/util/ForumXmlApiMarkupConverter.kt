@@ -15,6 +15,7 @@ class ForumXmlApiMarkupConverter(spoilerTag: String) {
         replacerList.add(SimpleReplacer("\\[hr\\]", "<hr/>"))
     }
 
+    @Suppress("SameParameterValue")
     private fun createPair(tag: String, replacementTag: String) {
         replacerList.add(SimpleReplacer.createStart(tag, replacementTag))
         replacerList.add(SimpleReplacer.createEnd(tag, replacementTag))

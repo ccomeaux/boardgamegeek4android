@@ -272,6 +272,7 @@ fun SharedPreferences.putLastPlayPlayers(players: List<PlayPlayer>?) {
 
 //endregion LAST PLAY
 
+@Suppress("SameParameterValue")
 private fun SharedPreferences.putStringSet(key: String, value: Set<String>) {
     this.edit {
         putStringSet(key, value)

@@ -19,6 +19,7 @@ inline fun <reified T : Parcelable> Bundle.getParcelableCompat(key: String): T? 
     else -> @Suppress("DEPRECATION") getParcelable(key) as? T
 }
 
+@Suppress("SameParameterValue")
 inline fun <reified T : Parcelable> Bundle.getParcelableArrayListCompat(key: String): ArrayList<T>? = when {
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> getParcelableArrayList(key, T::class.java)
     else -> @Suppress("DEPRECATION") getParcelableArrayList(key)
