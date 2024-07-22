@@ -167,7 +167,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
         outState.putBoolean(KEY_USER_HAS_SHOWN_WIN, userHasShownWin)
     }
 
-    override fun onColorSelected(description: String, color: Int, requestCode: Int) {
+    override fun onColorSelected(description: String) {
         binding.teamColorView.setText(description)
     }
 

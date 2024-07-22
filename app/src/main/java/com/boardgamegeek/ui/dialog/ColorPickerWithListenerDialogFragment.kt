@@ -8,7 +8,7 @@ class ColorPickerWithListenerDialogFragment : ColorPickerDialogFragment() {
     private var listener: Listener? = null
 
     interface Listener {
-        fun onColorSelected(description: String, color: Int, requestCode: Int)
+        fun onColorSelected(description: String)
     }
 
     override fun onAttach(context: Context) {
@@ -18,7 +18,7 @@ class ColorPickerWithListenerDialogFragment : ColorPickerDialogFragment() {
     }
 
     override fun onColorClicked(item: Pair<String, Int>?, requestCode: Int) {
-        if (item != null) listener?.onColorSelected(item.first, item.second, requestCode)
+        if (item != null) listener?.onColorSelected(item.first)
     }
 
     companion object {
