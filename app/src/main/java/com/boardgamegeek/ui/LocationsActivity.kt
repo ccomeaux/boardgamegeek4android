@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.model.Location
@@ -45,9 +43,7 @@ class LocationsActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return LocationsFragment()
-    }
+    override fun createPane() = LocationsFragment()
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)

@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
@@ -67,14 +66,12 @@ class BuddyActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         name = intent.getStringExtra(KEY_PLAYER_NAME)
         username = intent.getStringExtra(KEY_USERNAME)
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return BuddyFragment()
-    }
+    override fun createPane() = BuddyFragment()
 
     override val optionsMenuId = R.menu.buddy
 

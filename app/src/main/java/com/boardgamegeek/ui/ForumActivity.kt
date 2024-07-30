@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.clearTop
@@ -46,7 +45,7 @@ class ForumActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
@@ -54,9 +53,7 @@ class ForumActivity : SimpleSinglePaneActivity() {
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return ForumFragment.newInstance(forumId, forumTitle, objectId, objectName, objectType)
-    }
+    override fun createPane() = ForumFragment.newInstance(forumId, forumTitle, objectId, objectName, objectType)
 
     override val optionsMenuId = R.menu.view
 

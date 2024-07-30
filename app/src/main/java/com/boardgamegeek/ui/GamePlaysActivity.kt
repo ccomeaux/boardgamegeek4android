@@ -8,7 +8,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.setActionBarCount
@@ -47,7 +46,7 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
@@ -56,9 +55,7 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
         iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT)
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstanceForGame(gameId, gameName, heroImageUrl, arePlayersCustomSorted, iconColor)
-    }
+    override fun createPane() = PlaysFragment.newInstanceForGame(gameId, gameName, heroImageUrl, arePlayersCustomSorted, iconColor)
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)

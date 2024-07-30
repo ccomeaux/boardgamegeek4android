@@ -17,7 +17,7 @@ abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        readIntent(intent)
+        readIntent()
 
         if (savedInstanceState == null) {
             createFragment()
@@ -31,7 +31,7 @@ abstract class TopLevelSinglePaneActivity : TopLevelActivity() {
         }
     }
 
-    protected open fun readIntent(intent: Intent) {}
+    protected open fun readIntent() {}
 
     public override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)

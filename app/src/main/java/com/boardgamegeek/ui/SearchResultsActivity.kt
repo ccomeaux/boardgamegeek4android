@@ -7,7 +7,6 @@ import android.view.Menu
 import android.widget.SearchView
 import androidx.activity.viewModels
 import androidx.core.content.getSystemService
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.longToast
 import com.boardgamegeek.provider.BggContract.Games
@@ -84,9 +83,13 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
         })
     }
 
-    override fun onCreatePane(intent: Intent): Fragment = SearchResultsFragment()
+    override fun createPane() = SearchResultsFragment()
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
+        readIntent(intent)
+    }
+
+    fun readIntent(intent: Intent) {
         when (intent.action) {
             Intent.ACTION_VIEW -> {
                 // selected a search suggestion

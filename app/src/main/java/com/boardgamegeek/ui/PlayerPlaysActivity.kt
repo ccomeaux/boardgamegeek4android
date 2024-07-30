@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.startActivity
@@ -46,13 +44,11 @@ class PlayerPlaysActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         name = intent.getStringExtra(KEY_PLAYER_NAME).orEmpty()
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstanceForPlayer()
-    }
+    override fun createPane() = PlaysFragment.newInstanceForPlayer()
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)

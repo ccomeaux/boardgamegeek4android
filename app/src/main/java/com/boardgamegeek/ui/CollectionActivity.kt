@@ -81,9 +81,9 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
-        isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT == getIntent().action
-        changingGamePlayId = getIntent().getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong())
+    override fun readIntent() {
+        isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT == intent.action
+        changingGamePlayId = intent.getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong())
         hideNavigation = isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()
     }
 

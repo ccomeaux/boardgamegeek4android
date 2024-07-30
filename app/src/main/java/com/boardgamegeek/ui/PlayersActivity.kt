@@ -1,13 +1,11 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.extensions.setActionBarCount
@@ -46,9 +44,7 @@ class PlayersActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlayersFragment()
-    }
+    override fun createPane() = PlayersFragment()
 
     override val optionsMenuId = R.menu.players
 

@@ -36,11 +36,11 @@ class PlayActivity : SimpleSinglePaneActivity() {
         viewModel.reload()
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         internalId = intent.getLongExtra(KEY_ID, BggContract.INVALID_ID.toLong())
     }
 
-    override fun onCreatePane(intent: Intent) = PlayFragment()
+    override fun createPane() = PlayFragment()
 
     companion object {
         private const val KEY_ID = "ID"

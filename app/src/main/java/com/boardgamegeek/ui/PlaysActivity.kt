@@ -2,14 +2,12 @@ package com.boardgamegeek.ui
 
 import android.app.DatePickerDialog
 import android.app.Dialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.DatePicker
 import androidx.activity.viewModels
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.longSnackbar
 import com.boardgamegeek.extensions.setActionBarCount
@@ -66,9 +64,7 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
         viewModel.setAll()
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstance()
-    }
+    override fun createPane() = PlaysFragment.newInstance()
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)

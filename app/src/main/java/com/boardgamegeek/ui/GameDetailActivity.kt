@@ -1,11 +1,9 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
@@ -42,16 +40,14 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
         viewModel.setProducerType(type)
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         title = intent.getStringExtra(KEY_TITLE).orEmpty()
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         type = intent.getSerializableCompat(KEY_TYPE) ?: ProducerType.UNKNOWN
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return GameDetailFragment()
-    }
+    override fun createPane() = GameDetailFragment()
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

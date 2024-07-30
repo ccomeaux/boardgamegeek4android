@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.*
@@ -43,7 +42,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID)
         threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT).orEmpty()
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
@@ -53,9 +52,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return ThreadFragment.newInstance(threadId, forumId, forumTitle, objectId, objectName, objectType)
-    }
+    override fun createPane() = ThreadFragment.newInstance(threadId, forumId, forumTitle, objectId, objectName, objectType)
 
     override val optionsMenuId = R.menu.view_share
 

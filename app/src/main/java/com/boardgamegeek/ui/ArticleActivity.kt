@@ -1,10 +1,8 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Article
 import com.boardgamegeek.model.Forum
@@ -49,7 +47,7 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID)
         threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT).orEmpty()
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
@@ -60,9 +58,7 @@ class ArticleActivity : SimpleSinglePaneActivity() {
         article = intent.getParcelableCompat(KEY_ARTICLE) ?: Article()
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return ArticleFragment.newInstance(article)
-    }
+    override fun createPane() = ArticleFragment.newInstance(article)
 
     override val optionsMenuId = R.menu.view_share
 

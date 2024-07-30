@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
@@ -19,7 +17,5 @@ class PlayStatsActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlayStatsFragment()
-    }
+    override fun createPane() = PlayStatsFragment()
 }

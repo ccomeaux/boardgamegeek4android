@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -51,11 +50,11 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         buddyName = intent.getStringExtra(KEY_BUDDY_NAME).orEmpty()
     }
 
-    override fun onCreatePane(intent: Intent) = BuddyCollectionFragment()
+    override fun createPane() = BuddyCollectionFragment()
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.longSnackbar
 import com.boardgamegeek.extensions.setActionBarCount
@@ -63,7 +61,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
         viewModel.setLocation(locationName)
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         locationName = intent.getStringExtra(KEY_LOCATION_NAME).orEmpty()
     }
 
@@ -71,9 +69,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
         supportActionBar?.subtitle = locationName.ifBlank { getString(R.string.no_location) }
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstanceForLocation()
-    }
+    override fun createPane() = PlaysFragment.newInstanceForLocation()
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
