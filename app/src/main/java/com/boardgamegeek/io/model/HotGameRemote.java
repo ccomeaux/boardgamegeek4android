@@ -8,15 +8,17 @@ import org.simpleframework.xml.Root;
 @SuppressWarnings("SpellCheckingInspection" )
 @Root(name = "item")
 public class HotGameRemote {
+	/** @noinspection unused*/
 	@Attribute public int id;
+	/** @noinspection unused*/
 	@Attribute public int rank;
-
+	/** @noinspection unused*/
 	@Attribute(name = "value")
 	@Path("thumbnail") public String thumbnailUrl;
-
+	/** @noinspection unused*/
 	@Attribute(name = "value")
 	@Path("name") public String name;
-
+	/** @noinspection unused*/
 	@Attribute(name = "value")
 	@Path("yearpublished") public int yearPublished;
 }
