@@ -16,7 +16,6 @@
 	<string name="expansions">Expansions</string>
 	<string name="base_games">Base Games</string>
 	<string name="collection_item">Collection Item</string>
-	<string name="play_time">Play Time</string>
 	<string name="year_published">Year Published</string>
 	<string name="published_prefix">Published %1$s %2$s</string>
 	<string name="weight">Weight</string>
@@ -51,7 +50,6 @@
 	<string name="reset">Reset</string>
 	<string name="sort">Sort</string>
 	<string name="keep_editing">Keep Editing</string>
-	<string name="cancelled">Cancelled</string>
 	<string name="exact">Exact</string>
 	<string name="exactly">Exactly</string>
 	<string name="range">Range</string>
@@ -95,13 +93,11 @@
 	<string name="rating">Rating</string>
 	<string name="geek_rating">Geek rating</string>
 	<string name="my_rating">My rating</string>
-	<string name="my_rating_abbr">Me</string>
 	<string name="high_score">High Score</string>
 	<string name="low_score">Low Score</string>
 	<string name="average_score">Average Score</string>
 	<string name="average_winning_score">Average Winning Score</string>
 	<string name="average_rating">Average rating</string>
-	<string name="average_rating_abbr">Avg.</string>
 	<string name="new_label">New</string>
 	<string name="win">Win</string>
 	<string name="yes">Yes</string>
@@ -122,7 +118,6 @@
 	<string name="spoiler">Spoiler</string>
 	<string name="title_clear_colors">Clear Colors?</string>
 	<string name="msg_clear_colors">Do you want to clear the existing colors before assigning new ones?</string>
-	<string name="msg_color_success">You get a color and you get a color. Everybody gets a color!</string>
 	<string name="msg_fragment_error">You shouldn\'t be seeing this message. But if you are, please send a screenshot of this to bgg4android@gmail.com. Thanks!</string>
 	<string name="are_you_sure_title">Are You Sure?</string>
 	<string name="discard_new_message">"Are you sure you want to discard this %s?"</string>
@@ -202,7 +197,6 @@
 	<string name="title_mechanics">Mechanics</string>
 	<string name="title_category">Category</string>
 	<string name="title_categories">Categories</string>
-	<string name="title_user">User</string>
 	<string name="title_users">Users</string>
 	<string name="title_collection_view_name_in_use">Name in Use!</string>
 	<string name="title_edit_nickname">Edit Nickname</string>
@@ -229,18 +223,11 @@
 	<string name="color_name">Color name</string>
 	<string name="description_backup">Export will save data from the app to the selected file locations, overwriting the existing file if necessary. Import will restore data from these same files, potentially overwriting existing data.</string>
 	<string name="msg_export_success">Export successful.</string>
-	<string name="msg_export_failed">Export failed.</string>
-	<string name="msg_export_failed_external_permissions">No permissions to write to external storage.</string>
-	<string name="msg_export_failed_external_unavailable">External storage is unavailable.</string>
-	<string name="msg_export_failed_external_not_created">Export path \'%s\' can\'t be created.</string>
 	<string name="msg_export_failed_file_not_found">File \'%s\' not found.</string>
 	<string name="msg_export_failed_write_json">Couldn\'t write JSON.</string>
 	<string name="msg_export_failed_null_pfd">ParcelFileDescriptor for \'%s\' is null.</string>
-	<string name="msg_export_failed_null_cursor">Cursor is null.</string>
 	<string name="msg_export_failed_permissions">No permissions to write to \'%s\'.</string>
 	<string name="msg_import_success">Import successful.</string>
-	<string name="msg_import_failed">Import failed.</string>
-	<string name="msg_import_failed_external_not_exist">Import path \'%s\' doesn\'t exist.</string>
 	<string name="msg_import_failed_file_not_exist">File \'%s\' doesn\'t exist.</string>
 	<string name="msg_import_failed_file_not_read">File \'%s\' can\'t be read.</string>
 	<string name="msg_import_failed_parse_json">Couldn\'t parse JSON.</string>
@@ -251,14 +238,11 @@
 	<string name="backup_description_collection_view">Sorting and filtering applied to your collection and saved as views.</string>
 	<string name="backup_description_game">The list of colors associated with each game.</string>
 	<string name="backup_description_user">Users\' favorite colors, which includes both GeekBuddies and players you\'ve played against.</string>
-	<string name="msg_export_permission_rationale">To write the export files, the app needs permission to write to the external storage.</string>
 	<string name="msg_shortcut_create">Select a game to place it on the home screen.</string>
 	<string name="msg_change_play_game">Select a new game for this play</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
-	<string name="loading">Loading…</string>
-	<string name="empty">Nothing to see here</string>
 	<string name="empty_game">No information</string>
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
 	<string name="empty_players">It appears as if you have played against no one.</string>
@@ -310,7 +294,6 @@
 	<string name="empty_person_description">This %s is indescribable.</string>
 	<string name="empty_person_stats">No stats have been calculated yet.</string>
 	<string name="empty_linked_collection">No games for this %s.</string>
-	<string name="parse_error">Uh-oh. BGG sent us some text that we can\'t read. You\'ll need to view this on the website.</string>
 	<string name="title_play_count">Play Count</string>
 	<string name="title_date">Date</string>
 	<string name="title_dates">Dates</string>
@@ -322,7 +305,6 @@
 	<string name="title_high_scorers">High Scorers</string>
 	<string name="search_hint">Search games</string>
 	<string name="search_voice_prompt">Name a game…</string>
-	<string name="search_searching">Searching for \"%s\"</string>
 	<string name="empty_search">No results.\n\nThe search function doesn\'t like some common words. Try again, dropping \"the\", \"a\", and \"of\", etc.</string>
 	<string name="search_error">Had a problem searching for \"%1$s\".\n\n%2$s</string>
 	<string name="search_error_no_data">Trying to view an unspecified game.</string>
@@ -332,9 +314,7 @@
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_short">Form</string>
-	<string name="menu_log_play_wizard">Log play wizard</string>
 	<string name="menu_log_play_wizard_short">Wizard</string>
-	<string name="menu_log_play_quick">Quick log play</string>
 	<string name="menu_log_play_quick_short">Quick</string>
 	<string name="menu_favorite">Favorite</string>
 	<string name="menu_unfavorite">Unfavorite</string>
@@ -463,7 +443,6 @@
 	<string name="msg_play_update_null_response">Trouble communicating with the \'Geek.</string>
 	<string name="msg_play_player_change">Changed player name from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_player_add_username">Added user name \"%1$s\" to player name \"%2$s\"</string>
-	<string name="msg_play_location_change">Changed location from \"%1$s\" to \"%2$s\"</string>
 	<string name="msg_play_sync">You are not currently syncing your plays. Would you like to enable that feature now?</string>
 	<string name="msg_collection_view_updated">Updated collection view \"%s\".</string>
 	<string name="msg_collection_view_deleted">Collection view \"%1$s\" deleted successfully.</string>
@@ -492,10 +471,8 @@
 	<string name="from">from</string>
 	<string name="with">with</string>
 	<string name="players">players</string>
-	<string name="_players">…players</string>
 	<string name="at">at</string>
 	<string name="for_">for</string>
-	<string name="_with_">…with…</string>
 	<string name="minutes_abbr">mins</string>
 	<string name="hours_abbr">hrs</string>
 	<string name="text_not_available">N/A</string>
@@ -507,7 +484,6 @@
 	<string name="ages">Ages</string>
 	<string name="player_ages">Player Ages</string>
 	<string name="ages_unknown">Unknown ages</string>
-	<string name="and_up_suffix" tools:ignore="PluralsCandidate">%,d and up</string>
 	<string name="and_up_suffix_abbr">%,d+</string>
 	<string name="player_range">Player Range</string>
 	<string name="best_prefix">Best w/<b>%s</b></string>
@@ -559,7 +535,6 @@
 	<string name="menu_random_start_player">Random start player</string>
 	<string name="menu_random_player_order">Random player order</string>
 	<string name="generic_player">Player #%,d</string>
-	<string name="notification_start_player">%s starts!</string>
 	<string name="unrated">Unrated</string>
 	<string name="unrated_abbr" translatable="false">\?.\?</string>
 	<string name="undefined">Undefined</string>
@@ -572,17 +547,6 @@
 	<string name="nickname_description">This will be used as the player\'s name when logging plays.</string>
 	<string name="nickname_update_plays">Change existing plays to the new name.</string>
 	<string name="help_title">Help</string>
-	<string name="help_plays">If plays aren\'t uploading, please try signing out and back in.</string>
-	<string name="help_game_menu">From here you can…\n- Share\n- Pin a shortcut on the home screen\n- View a larger version of the game image</string>
-	<string name="help_game_poll">- View polls</string>
-	<string name="help_collection">Got lots of games? Why don\'t you…</string>
-	<string name="help_collection_sort">- Sort</string>
-	<string name="help_collection_filter">- Filter</string>
-	<string name="help_collection_save">- Save the applied sort and filter settings as a view</string>
-	<string name="help_collection_random">- Choose a random game from the currently-applied filter</string>
-	<string name="help_collection_long_click">- You can also long-click on a game for more options</string>
-	<string name="help_logplayer">When adding players, we will automatically add another until you cancel out of this screen.\n\nToo many fields? Check out the settings for ways to customize this form.</string>
-	<string name="help_thread">Missing images? Click the icon in an article\'s header to see the entire article.</string>
 	<string name="last_modified_prefix">Last modified %s</string>
 	<string name="invalid_collection_status">This game isn\'t in your collection.</string>
 	<string name="private_info">Private Info</string>
@@ -666,7 +630,6 @@
 	<string name="playing_for_prefix">Playing for <b>%s</b></string>
 	<string name="playing_since_prefix">Playing since <b>%s</b></string>
 	<string name="removed_suffix">%s removed.</string>
-	<string name="msg_invalid_username">Invalid user name \"%1$s\".</string>
 	<string name="msg_color_deleted">Deleted \"%s\"</string>
 	<string name="incomplete_plays">incomplete plays</string>
 	<string name="items">Items</string>
@@ -716,19 +679,13 @@
 	<string name="ends_with_prefix">ends with \'%s\'</string>
 	<string name="is_empty">is empty</string>
 	<string name="is_not_empty">"is not empty</string>
-	<string name="msg_offline">Offline</string>
-	<string name="msg_sync_remotely_disabled">Sync has been remotely disabled</string>
-	<string name="msg_update_invalid_request">Request to fetch %s is invalid</string>
-	<string name="msg_update_invalid_response">Invalid %s received</string>
 	<string name="msg_sync_response_500">There\'s a problem with BoardGameGeek. Be patient while they fix it. (HTTP code: %s)</string>
 	<string name="msg_sync_response_429">Rate limit exceeded.</string>
 	<string name="msg_sync_response_202">BoardGameGeek is still processing this request.</string>
 	<string name="msg_sync_error_http_code">Problem communicating with BoardGameGeek (HTTP code: %s)</string>
-	<string name="msg_sync_error_null">Problem communicating with BoardGameGeek (no response)</string>
 	<string name="msg_sync_error_timeout">Timed out trying to communicate with BoardGameGeek</string>
 	<string name="msg_sync_error">Problem communicating with BoardGameGeek</string>
 	<string name="msg_sync_unauthed">Not logged in</string>
-	<string name="profile_updated">Profile updated</string>
 	<string name="game">game</string>
 	<string name="play">play</string>
 	<string name="player">player</string>
@@ -867,10 +824,6 @@
 	<plurals name="times_suffix">
 		<item quantity="one">%,d time</item>
 		<item quantity="other">%,d times</item>
-	</plurals>
-	<plurals name="players_suffix">
-		<item quantity="one">%,d player</item>
-		<item quantity="other">%,d players</item>
 	</plurals>
 	<plurals name="player_range_suffix">
 		<item quantity="one"><b>%s</b> player</item>

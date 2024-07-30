@@ -46,7 +46,6 @@
 	<string name="reset">Resetuj</string>
 	<string name="sort">Sortuj</string>
 	<string name="keep_editing">Edytuj</string>
-	<string name="cancelled">Anulowano</string>
 	<string name="exact">Dokładny</string>
 	<string name="exactly">Dokładnie</string>
 	<string name="range">Zakres</string>
@@ -87,13 +86,11 @@
 	<string name="rating">Ocena</string>
 	<string name="geek_rating">Ocena BGG</string>
 	<string name="my_rating">Moja ocena</string>
-	<string name="my_rating_abbr">Ja</string>
 	<string name="high_score">Najlepszy wynik</string>
 	<string name="low_score">Najgorszy wynik</string>
 	<string name="average_score">Średni wynik</string>
 	<string name="average_winning_score">Średnik zwycięski wynik</string>
 	<string name="average_rating">Średnia ocena</string>
-	<string name="average_rating_abbr">Śr.</string>
 	<string name="new_label">Nowy</string>
 	<string name="win">Zwycięzca</string>
 	<string name="yes">Tak</string>
@@ -113,7 +110,6 @@
 	<string name="spoiler">Spoiler</string>
 	<string name="title_clear_colors">Wyczyścić kolory?</string>
 	<string name="msg_clear_colors">Chcesz wyczyścić bieżące kolory przed przypisaniem nowych?</string>
-	<string name="msg_color_success">Ty masz kolor i ty masz kolor. Każdy ma kolor!</string>
 	<string name="msg_fragment_error">Nie powinieneś zobaczyć tego komunikatu. Jeśli go widzisz wyślij proszę zrzut ekranu na bgg4android@gmail.com. Dzięki!</string>
 	<string name="are_you_sure_title">Na pewno?</string>
 	<string name="discard_new_message">"Na pewno chcesz odrzucić %s?"</string>
@@ -190,7 +186,6 @@
 	<string name="title_mechanics">Mechaniki</string>
 	<string name="title_category">Kategoria</string>
 	<string name="title_categories">Kategorie</string>
-	<string name="title_user">Użytkownik</string>
 	<string name="title_users">Użytkownicy</string>
 	<string name="title_collection_view_name_in_use">Nazwa jest już używana!</string>
 	<string name="title_edit_nickname">Edytuj nick</string>
@@ -211,18 +206,11 @@
 	<string name="color_name">Nazwa koloru</string>
 	<string name="description_backup">Eksport zapisze dane aplikacji we wskazancyh lokalizacjach nadpisując istniejące pliki. Import odtworzy dane z tych samych plików potencjalnie nadpisując istniejące dane.</string>
 	<string name="msg_export_success">Eksport pomyślny.</string>
-	<string name="msg_export_failed">Eksport nieudany.</string>
-	<string name="msg_export_failed_external_permissions">Brak uprawnień na zapis w pamięci zewnętrznej.</string>
-	<string name="msg_export_failed_external_unavailable">Pamięć zewnętrzna niedostępna.</string>
-	<string name="msg_export_failed_external_not_created">Nie można utworzyć ścieżki eksportu \'%s\'.</string>
 	<string name="msg_export_failed_file_not_found">Nie znaleziono pliku \'%s\'.</string>
 	<string name="msg_export_failed_write_json">Nie udało się zapisać JSON.</string>
 	<string name="msg_export_failed_null_pfd">ParcelFileDescriptor dla \'%s\' jest pusty (null).</string>
-	<string name="msg_export_failed_null_cursor">Cursor jest pusty (null).</string>
 	<string name="msg_export_failed_permissions">Brak uprawnień do zapisu w \'%s\'.</string>
 	<string name="msg_import_success">Import pomyślny.</string>
-	<string name="msg_import_failed">Import nieudany.</string>
-	<string name="msg_import_failed_external_not_exist">Ścieżka importu \'%s\' nie istnieje.</string>
 	<string name="msg_import_failed_file_not_exist">Plik \'%s\' nie istnieje.</string>
 	<string name="msg_import_failed_file_not_read">Nie można odczytać pliku \'%s\'.</string>
 	<string name="msg_import_failed_parse_json">Nie można przetworzyć JSON.</string>
@@ -233,14 +221,11 @@
 	<string name="backup_description_collection_view">Sortowanie i filtry zastosowano do Twojej kolekcji i zapisane jako widoki.</string>
 	<string name="backup_description_game">Lista kolorów powiązana z każdą grą.</string>
 	<string name="backup_description_user">Ulubione kolory użytkowników, włączając GeekBuddies oraz graczy, z którymi grałeś.</string>
-	<string name="msg_export_permission_rationale">Aplikacja potrzebuje uprawnień zapisywania w pamięci zewnętrznej, aby zapisywać pliki eksportu.</string>
 	<string name="msg_shortcut_create">Wybierz grę do umieszczenie na ekranie głównym.</string>
 	<string name="msg_change_play_game">Wybierz grę do tej rozgrywki</string>
 	<string name="msg_missing_nickname">Musisz podać nazwę aby zaktualizować rozgrywki</string>
 	<string name="msg_updated_nickname">Imię Twojego GeekBuddy-ego zostało zmienione na \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">Już istnieje widok kolekcji o tej nazwie. Zaktualizować istniejący widok czy utworzyć nowy?</string>
-	<string name="loading">Ładowanie…</string>
-	<string name="empty">Nic tu nie ma</string>
 	<string name="empty_game">Brak informacji</string>
 	<string name="empty_buddies">Wygląda na to, że nie masz GeekBuddies.</string>
 	<string name="empty_players">Wygląda na to, że z nikim jeszcze nie grałeś.</string>
@@ -291,7 +276,6 @@
 	<string name="empty_person_description">Ten %s jest nieopisany.</string>
 	<string name="empty_person_stats">Nie obliczono jeszcze żadnych statystyk.</string>
 	<string name="empty_linked_collection">%s nie ma gier.</string>
-	<string name="parse_error">Ups. BGG przysłał tekst, którego nie można odczytać. Musisz obejrzeć to na stronie BGG.</string>
 	<string name="title_play_count">Liczba rozgrywek</string>
 	<string name="title_dates">Daty</string>
 	<string name="title_play_time">Czas rozgrywki</string>
@@ -302,7 +286,6 @@
 	<string name="title_high_scorers">Najwyżej punktujący</string>
 	<string name="search_hint">Szukaj…</string>
 	<string name="search_voice_prompt">Nazwij grę…</string>
-	<string name="search_searching">Wyszukiwanie \"%s\"</string>
 	<string name="empty_search">Brak wyników.\n\nWyszukiwarka nie lubi najpopularniejszych słów. Spróbuj ponownie pomijając \"the\", \"a\", \"of\", itd.</string>
 	<string name="search_error_no_data">Próba załądowania nieokreślonej gry.</string>
 	<string name="search_initial_help">Użyj wyszukiwarki powyżej, aby przeszukać całą bazę danych BoardGameGeek. Autouzupełnianie pokaże tylko gry z Twojej kolekcji.</string>
@@ -311,9 +294,7 @@
 	<string name="menu_view_in_browser">Pokaż w przeglądarce</string>
 	<string name="menu_log_play">Zapisz rozgrywkę</string>
 	<string name="menu_log_play_short">Formularz</string>
-	<string name="menu_log_play_wizard">Kreator zapisu rozgrywki</string>
 	<string name="menu_log_play_wizard_short">Kreator</string>
-	<string name="menu_log_play_quick">Szybki zapis rozgrywki</string>
 	<string name="menu_log_play_quick_short">Szybki</string>
 	<string name="menu_favorite">Dodaj do Ulubionych</string>
 	<string name="menu_unfavorite">Usuń z Ulubionych</string>
@@ -416,7 +397,6 @@
 	<string name="msg_play_update_null_response">Błąd komunikacji z BGG.</string>
 	<string name="msg_play_player_change">Zmieniono nazwę gracza z \"%1$s\" na \"%2$s\"</string>
 	<string name="msg_player_add_username">Dodano nazwę użytkownika \"%1$s\" do gracza \"%2$s\"</string>
-	<string name="msg_play_location_change">Zmieniono lokalizację z \"%1$s\" na \"%2$s\"</string>
 	<string name="msg_play_sync">Obecnie nie synchronizujesz swoich rozgrywek. Włączyć tę funkcję?</string>
 	<string name="msg_collection_view_deleted">Pomyślnie usunięto widok kolekcji \"%1$s\"</string>
 	<string name="msg_sign_out_success">Pomyślnie wylogowano!</string>
@@ -444,10 +424,8 @@
 	<string name="from">z</string>
 	<string name="with">z</string>
 	<string name="players">graczy</string>
-	<string name="_players">…graczy</string>
 	<string name="at">w</string>
 	<string name="for_">przez</string>
-	<string name="_with_">…z…</string>
 	<string name="minutes_abbr">min.</string>
 	<string name="hours_abbr">godz.</string>
 	<string name="text_not_available">B/D</string>
@@ -457,7 +435,6 @@
 	<string name="ages">Wiek</string>
 	<string name="player_ages">Wiek graczy</string>
 	<string name="ages_unknown">Nieznany wiek graczy</string>
-	<string name="and_up_suffix" tools:ignore="PluralsCandidate">%,d i więcej</string>
 	<string name="player_range">Liczba graczy</string>
 	<string name="best_prefix">Najlepsza dla <b>%s</b></string>
 	<string name="recommended_prefix">Dobra dla <b>%s</b></string>
@@ -495,7 +472,6 @@
 	<string name="menu_random_start_player">Losowy gracz rozpoczynający</string>
 	<string name="menu_random_player_order">Losowa kolejność graczy</string>
 	<string name="generic_player">Gracz #%,d</string>
-	<string name="notification_start_player">%s zaczyna!</string>
 	<string name="unrated">Nieoceniona</string>
 	<string name="undefined">Nieokreślone</string>
 	<string name="and_more" tools:ignore="PluralsCandidate">…i %,d więcej</string>
@@ -506,17 +482,6 @@
 	<string name="nickname_description">Będzie użyty jako nazwa gracza podczas zapisywania rozgrywek.</string>
 	<string name="nickname_update_plays">Zmień na nowe imię w dotychczasowych rozgrywkach.</string>
 	<string name="help_title">Pomoc</string>
-	<string name="help_plays">Jeśli dane rozgrywek nie przesyłają się spróbuj wylogować się i zalogować ponownie.</string>
-	<string name="help_game_menu">Stąd możesz…\n- Udostępnić\n- Utworzyć skrót na ekranie głównym\n- Zobaczyć większą wersję obrazu gry</string>
-	<string name="help_game_poll">- Pokaż ankiety</string>
-	<string name="help_collection">Masz dużo gier? Dlaczego by nie…</string>
-	<string name="help_collection_sort">- Posortować</string>
-	<string name="help_collection_filter">- Przefiltrować</string>
-	<string name="help_collection_save">- Zapisać jako widok wybranego sposobu sortowania i filtrowania</string>
-	<string name="help_collection_random">- Wybrać losowej gry spośród widocznych po przefiltorwaniu</string>
-	<string name="help_collection_long_click">- Możesz również dotknąć i przytrzymać grę, aby uzyskać więcej opcji</string>
-	<string name="help_logplayer">Podczas dodawania gracza zostanie automatycznie dodany kolejny gracz dopóki nie wyjdziesz z tego ekranu.\n\nZa dużo pól? Sprawdź w ustawienich jak skofigurować ten formularz.</string>
-	<string name="help_thread">Brakuje obrazów? Kliknij ikonę w nagłówku artykułu, aby zobaczyć cały artykuł.</string>
 	<string name="last_modified_prefix">Ostatnia modyfikacja %s</string>
 	<string name="invalid_collection_status">Tej gry nie ma w Twojej kolekcji.</string>
 	<string name="private_info">Prywatne informacje</string>
@@ -587,7 +552,6 @@
 	<string name="playing_for_prefix">Grane przez <b>%s</b></string>
 	<string name="playing_since_prefix">Grane od <b>%s</b></string>
 	<string name="removed_suffix">%s usunięto.</string>
-	<string name="msg_invalid_username">Nieprawdiłowa nazwa użytkownika \"%1$s\".</string>
 	<string name="msg_color_deleted">Usunięto \"%s\"</string>
 	<string name="incomplete_plays">Niezakończone rozgrywki</string>
 	<string name="items">Pozycje</string>
@@ -614,15 +578,10 @@
 	<string name="plays_sync_status_range">Zsynchronizowano rozgrywki pomiędzy %1$s i %2$s.</string>
 	<string name="starts_with">Zaczyna się od</string>
 	<string name="starts_with_prefix">Zaczyna się od \"%s\"</string>
-	<string name="msg_sync_remotely_disabled">Synchronizacja została wyłączona zdalnie.</string>
-	<string name="msg_update_invalid_request">Zapytanie o pobranie %s jest nieprawidłowe.</string>
-	<string name="msg_update_invalid_response">Otrzymano nieprawdiłowe %s</string>
 	<string name="msg_sync_response_500">Jest problem z BoardGameGeek.com. Cierpliwie poczekaj aż naprawią błąd. (Kod HTTP: %s)</string>
 	<string name="msg_sync_response_429">Przekroczono limit częstości żądań.</string>
 	<string name="msg_sync_response_202">BoardGameGeek.com wciąż przetwarza zapytanie.</string>
 	<string name="msg_sync_error_http_code">Problem w połączeniu z BoardGameGeek.com (kod HTTP: %s)</string>
-	<string name="msg_sync_error_null">Problem w połączeniu z BoardGameGeek.com (brak odpowiedzi)</string>
-	<string name="profile_updated">Profil zaktualizowano</string>
 	<string name="game">gra</string>
 	<string name="play">rozgrywka</string>
 	<string name="player">gracz</string>
@@ -650,162 +609,157 @@
 	<string name="whitmore_score_info">Wskaźnik wymyślony, aby określić który %s jest Twoim ulubionym.\n\nhttps://boardgamegeek.com/thread/2420064/whats-whitmore-score</string>
 	<string name="ampersand">%1$s amp; %2$s</string>
 
-	<plurals name="msg_colors_selected">
+	<plurals name="msg_colors_selected" tools:ignore="MissingQuantity">
 		<item quantity="one">%s kolor</item>
 		<item quantity="few">%s kolory</item>
 		<item quantity="other">%s kolorów</item>
 	</plurals>
-	<plurals name="msg_colors_deleted">
+	<plurals name="msg_colors_deleted" tools:ignore="MissingQuantity">
 		<item quantity="one">Usunięto %s kolor</item>
 		<item quantity="few">Usunięto %s kolory</item>
 		<item quantity="other">Usunięto %s kolorów</item>
 	</plurals>
-	<plurals name="plays">
+	<plurals name="plays" tools:ignore="MissingQuantity">
 		<item quantity="one">%s rozgrywka</item>
 		<item quantity="few">%s rozgrywki</item>
 		<item quantity="other">%s rozgrywek</item>
 	</plurals>
-	<plurals name="msg_plays_selected">
+	<plurals name="msg_plays_selected" tools:ignore="MissingQuantity">
 		<item quantity="one">%s rozgrywka</item>
 		<item quantity="few">%s rozgrywki</item>
 		<item quantity="other">%s rozgrywek</item>
 	</plurals>
-	<plurals name="msg_games_selected">
+	<plurals name="msg_games_selected" tools:ignore="MissingQuantity">
 		<item quantity="one">%s gra</item>
 		<item quantity="few">%s gry</item>
 		<item quantity="other">%s gier</item>
 	</plurals>
-	<plurals name="are_you_sure_delete_play">
+	<plurals name="are_you_sure_delete_play" tools:ignore="MissingQuantity">
 		<item quantity="one">Na pewno chcesz usunąć tę rozgrywkę?</item>
 		<item quantity="few">Na pewno chcesz usunąć te rozgrywki?</item>
 		<item quantity="other">Na pewno chcesz usunąć te rozgrywki?</item>
 	</plurals>
-	<plurals name="are_you_sure_send_play">
+	<plurals name="are_you_sure_send_play" tools:ignore="MissingQuantity">
 		<item quantity="one">Na pewno chcesz przesłać tę rozgrywkę?</item>
 		<item quantity="few">Na pewno chcesz przesłać te rozgrywki?</item>
 		<item quantity="other">Na pewno chcesz przesłać te rozgrywki?</item>
 	</plurals>
-	<plurals name="play_title_suffix">
+	<plurals name="play_title_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one">%,d Rozgrywka</item>
 		<item quantity="few">%,d Rozgrywki</item>
 		<item quantity="other">%,d Rozgrywek</item>
 	</plurals>
-	<plurals name="msg_updated_plays_buddy_nickname">
+	<plurals name="msg_updated_plays_buddy_nickname" tools:ignore="MissingQuantity">
 		<item quantity="one">Zaktualizowano %1$,d rozgrywkę dla %2$s z nazwą \"%3$s\".</item>
 		<item quantity="few">Zaktualizowano %1$,d rozgrywki dla %2$s z nazwą \"%3$s\".</item>
 		<item quantity="other">Zaktualizowano %1$,d rozgrywek dla %2$s z nazwą \"%3$s\".</item>
 	</plurals>
-	<plurals name="player_description">
+	<plurals name="player_description" tools:ignore="MissingQuantity">
 		<item quantity="one">z %s graczem</item>
 		<item quantity="few">z %s graczami</item>
 		<item quantity="other">z %s graczami</item>
 	</plurals>
-	<plurals name="msg_logging_plays">
+	<plurals name="msg_logging_plays" tools:ignore="MissingQuantity">
 		<item quantity="one">Zapisywanie rozgrywki…</item>
 		<item quantity="few">Zapisywanie rozgrywek…</item>
 		<item quantity="other">Zapisywanie rozgrywek…</item>
 	</plurals>
-	<plurals name="colors_suffix">
+	<plurals name="colors_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%,d</b> kolor/drużyna</item>
 		<item quantity="few"><b>%,d</b> kolory/drużyny</item>
 		<item quantity="other"><b>%,d</b> kolorów/drużyn</item>
 	</plurals>
-	<plurals name="ratings_suffix">
+	<plurals name="ratings_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%,d</b> ocena</item>
 		<item quantity="few"><b>%,d</b> oceny</item>
 		<item quantity="other"><b>%,d</b> ocen</item>
 	</plurals>
-	<plurals name="comments_suffix">
+	<plurals name="comments_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%,d</b> komentarz</item>
 		<item quantity="few"><b>%,d</b> komentarze</item>
 		<item quantity="other"><b>%,d</b> komentarzy</item>
 	</plurals>
-	<plurals name="msg_play_location_change">
+	<plurals name="msg_play_location_change" tools:ignore="MissingQuantity">
 		<item quantity="one">Zmieniono %1$s rozgrywkę z \"%2$s\" na \"%3$s\"</item>
 		<item quantity="few">Zmieniono %1$s rozgrywki z \"%2$s\" na \"%3$s\"</item>
 		<item quantity="other">Zmieniono %1$s rozgrywek z \"%2$s\" na \"%3$s\"</item>
 	</plurals>
-	<plurals name="search_results">
+	<plurals name="search_results" tools:ignore="MissingQuantity">
 		<item quantity="one">%1$s wynik dla \"%2$s\"</item>
 		<item quantity="few">%1$s wyniki dla \"%2$s\"</item>
 		<item quantity="other">%1$s wyników dla \"%2$s\"</item>
 	</plurals>
-	<plurals name="search_results_exact">
+	<plurals name="search_results_exact" tools:ignore="MissingQuantity">
 		<item quantity="one">%1$s dokładne dopasowanie dla \"%2$s\"</item>
 		<item quantity="few">%1$s dokładne dopasowania dla \"%2$s\"</item>
 		<item quantity="other">%1$s dokładnych dopasowań dla \"%2$s\"</item>
 	</plurals>
-	<plurals name="plays_suffix">
+	<plurals name="plays_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%,d</b> rozgrywka</item>
 		<item quantity="few"><b>%,d</b> rozgrywki</item>
 		<item quantity="other"><b>%,d</b> rozgrywek</item>
 	</plurals>
-	<plurals name="games_suffix">
+	<plurals name="games_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%,d</b> gra</item>
 		<item quantity="few"><b>%,d</b> gry</item>
 		<item quantity="other"><b>%,d</b> gier</item>
 	</plurals>
-	<plurals name="winnable_plays_suffix">
+	<plurals name="winnable_plays_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%,d</b> rozgrywka do wygrania</item>
 		<item quantity="few"><b>%,d</b> rozgrywki do wygrania</item>
 		<item quantity="other"><b>%,d</b> rozgrywek do wygrania</item>
 	</plurals>
-	<plurals name="wins_suffix">
+	<plurals name="wins_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%,d</b> wygrana</item>
 		<item quantity="few"><b>%,d</b> wygrane</item>
 		<item quantity="other"><b>%,d</b> wygranych</item>
 	</plurals>
-	<plurals name="edit_timestamp">
+	<plurals name="edit_timestamp" tools:ignore="MissingQuantity">
 		<item quantity="one">%1$s (%2$s edycja)</item>
 		<item quantity="few">%1$s (%2$s edycje)</item>
 		<item quantity="other">%1$s (%2$s edycji)</item>
 	</plurals>
-	<plurals name="times_suffix">
+	<plurals name="times_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one">%,d raz</item>
 		<item quantity="few">%,d razy</item>
 		<item quantity="other">%,d razy</item>
 	</plurals>
-	<plurals name="players_suffix">
-		<item quantity="one">%,d gracz</item>
-		<item quantity="few">%,d gracze</item>
-		<item quantity="other">%,d graczy</item>
-	</plurals>
-	<plurals name="player_range_suffix">
+	<plurals name="player_range_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%s</b> gracz</item>
 		<item quantity="few"><b>%s</b> gracze</item>
 		<item quantity="other"><b>%s</b> graczy</item>
 	</plurals>
-	<plurals name="votes_suffix">
+	<plurals name="votes_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%,d</b> głos</item>
 		<item quantity="few"><b>%,d</b> głosy</item>
 		<item quantity="other"><b>%,d</b> głosów</item>
 	</plurals>
-	<plurals name="mins_suffix">
+	<plurals name="mins_suffix" tools:ignore="MissingQuantity">
 		<item quantity="one"><b>%s</b> min.</item>
 		<item quantity="few"><b>%s</b> min.</item>
 		<item quantity="other"><b>%s</b> min.</item>
 	</plurals>
-	<plurals name="play_description_quantity_segment">
+	<plurals name="play_description_quantity_segment" tools:ignore="MissingQuantity">
 		<item quantity="one">\u0020%,d raz</item>
 		<item quantity="few">\u0020%,d razy</item>
 		<item quantity="other">\u0020%,d razy</item>
 	</plurals>
-	<plurals name="play_description_players_segment">
+	<plurals name="play_description_players_segment" tools:ignore="MissingQuantity">
 		<item quantity="one">\u0020with %,d gracz</item>
 		<item quantity="few">\u0020with %,d gracze</item>
 		<item quantity="other">\u0020with %,d graczy</item>
 	</plurals>
-	<plurals name="recommended_player_count_description">
+	<plurals name="recommended_player_count_description" tools:ignore="MissingQuantity">
 		<item quantity="one">%1$s z %2$,d graczem</item>
 		<item quantity="few">%1$s with %2$,d graczami</item>
 		<item quantity="other">%1$s with %2$,d graczami</item>
 	</plurals>
-	<plurals name="pie_chart_click_description">
+	<plurals name="pie_chart_click_description" tools:ignore="MissingQuantity">
 		<item quantity="one">%1$s głos na \"%2$s\"</item>
 		<item quantity="few">%1$s głosy na \"%2$s\"</item>
 		<item quantity="other">%1$s głosów na \"%2$s\"</item>
 	</plurals>
-	<plurals name="person_game_h_index_info">
+	<plurals name="person_game_h_index_info" tools:ignore="MissingQuantity">
 		<item quantity="one">Zagrałeś w min. %1$,d grę %1$s lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nTen wynik zawiera również niezakończone rozgrywki, niezależnie od tego czy zaznaczyłeś, żeby je wliczać czy nie.\n\nhttps://boardgamegeek.com/thread/953084</item>
 		<item quantity="few">Zagrałeś w min. %1$,d gry %1$s lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nTen wynik zawiera również niezakończone rozgrywki, niezależnie od tego czy zaznaczyłeś, żeby je wliczać czy nie.\n\nhttps://boardgamegeek.com/thread/953084</item>
 		<item quantity="other">Zagrałeś w min. %1$,d gier %1$s lub więcej razy. Aby zwiększyć tę liczbę potrzebujesz min. %2$,d rozgrywek.\n\nTen wynik zawiera również niezakończone rozgrywki, niezależnie od tego czy zaznaczyłeś, żeby je wliczać czy nie.\n\nhttps://boardgamegeek.com/thread/953084</item>

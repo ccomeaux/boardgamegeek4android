@@ -34,7 +34,6 @@
 	<string name="pref_sync_summary">Co i jak sychronizować</string>
 	<string name="pref_sync_group_what">Co</string>
 	<string name="pref_sync_group_how">Jak</string>
-	<string name="pref_sync_group_tasks">Zadania</string>
 	<string name="pref_sync_statuses">Kolekcja</string>
 	<string name="pref_sync_plays">Rozgrywki</string>
 	<string name="pref_sync_upload">Pokazuj powiadomienia przesyłania</string>
@@ -68,12 +67,6 @@
 	<string name="pref_advanced_forum_dates_on">Zawsze pokazuj pełną datę/czas dla wszystkich dat powiązanych z forum</string>
 	<string name="pref_advanced_haptic_feedback">Reakcja na dotyk</string>
 	<string name="pref_advanced_haptic_feedback_summary">Wibracje klawiatury numerycznej przy wybieraniu klawisza.</string>
-	<string name="pref_advanced_polls">Ankiety do gier</string>
-	<string name="pref_advanced_polls_off">Ankiety do gier nie będą działać, ale powinny zniknąć awarie aplikacji. (To nie ma nic wspólnego z ankietami na forum – te nie będą działać nigdy.)</string>
-	<string name="pref_advanced_polls_on">Pozostaw włączone jeśli nie występują awarie</string>
-	<string name="pref_advanced_notify_errors">Powiadamiaj o błędach</string>
-	<string name="pref_advanced_notify_errors_off">Pozostaw wyłączone jeśli nie występują awarie</string>
-	<string name="pref_advanced_notify_errors_on">Będziesz widział szczegóły awarii na pasku powiadomień – wyśli te informacje do twórców aplikacji!</string>
 	<string name="pref_about">O aplikacji</string>
 	<string name="pref_about_summary">Informacje a powstaniu aplikacji</string>
 	<string name="pref_about_version">Wersja</string>

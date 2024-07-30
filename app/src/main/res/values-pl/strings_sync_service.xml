@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
 	<string name="sync_notification_title_error">Błąd synchronizacji</string>
 	<string name="sync_notification_title_play_upload">Prześlij rozgrywki</string>
@@ -29,22 +29,22 @@
 	<string name="sync_notification_h_index_decrease">Twój wskaźnik H-index (w kategorii %1$s) zmienił się na <b>%2$s</b>.</string>
 	<string name="sync_notification_page_suffix">%1$s (strona %2$,d)</string>
 
-	<plurals name="sync_notification_collection_deleting">
+	<plurals name="sync_notification_collection_deleting" tools:ignore="MissingQuantity">
 		<item quantity="one">Usuwanie %,d pozycji kolekcji.</item>
 		<item quantity="few">Usuwanie %,d pozycji kolekcji.</item>
 		<item quantity="other">Usuwanie %,d pozycji kolekcji.</item>
 	</plurals>
-	<plurals name="sync_notification_collection_adding">
+	<plurals name="sync_notification_collection_adding" tools:ignore="MissingQuantity">
 		<item quantity="one">Dodawanie %,d pozycji kolekcji.</item>
 		<item quantity="few">Dodawanie %,d pozycji kolekcji.</item>
 		<item quantity="other">Dodawanie %,d pozycji kolekcji.</item>
 	</plurals>
-	<plurals name="sync_notification_collection_uploading">
+	<plurals name="sync_notification_collection_uploading" tools:ignore="MissingQuantity">
 		<item quantity="one">Przesyłanie %,d pozycji kolekcji.</item>
 		<item quantity="few">Przesyłanie %,d pozycji kolekcji.</item>
 		<item quantity="other">Przesyłanie %,d pozycji kolekcji.</item>
 	</plurals>
-	<plurals name="sync_notification_games_remove">
+	<plurals name="sync_notification_games_remove" tools:ignore="MissingQuantity">
 		<item quantity="one">Usuwanie %,d gry z Twojej kolekcji</item>
 		<item quantity="few">Usuwanie %,d gier z Twojej kolekcji</item>
 		<item quantity="other">Usuwanie %,d gier z Twojej kolekcji</item>
