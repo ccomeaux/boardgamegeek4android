@@ -80,12 +80,13 @@ private fun setUpMoneyFormatter(): DecimalFormat {
     return format
 }
 
-@Suppress("unused")
 class DoubleIntervalDelegate(var value: Double, private val minValue: Double, private val maxValue: Double) {
+    @SuppressWarnings("unused")
     operator fun getValue(thisRef: Any, property: KProperty<*>): Double {
         return value
     }
 
+    @SuppressWarnings("unused")
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Double) {
         this.value = value.coerceIn(minValue, maxValue)
     }

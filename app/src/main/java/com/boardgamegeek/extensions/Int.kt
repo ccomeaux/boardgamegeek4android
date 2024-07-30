@@ -167,12 +167,13 @@ fun Int.toFormattedString(): String {
     return this.toString().format(NumberFormat.getInstance())
 }
 
-@Suppress("unused")
 class IntervalDelegate(var value: Int, private val minValue: Int, private val maxValue: Int) {
+    @SuppressWarnings("unused")
     operator fun getValue(thisRef: Any, property: KProperty<*>): Int {
         return value
     }
 
+    @SuppressWarnings("unused")
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
         this.value = value.coerceIn(minValue, maxValue)
     }
