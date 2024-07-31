@@ -30,7 +30,7 @@
 				app:expandedTitleMarginStart="@dimen/material_margin_horizontal"
 				app:layout_scrollFlags="scroll|exitUntilCollapsed"
 				app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
-				tools:title="Terra Mystica">
+				tools:title="Ark Nova">
 
 				<androidx.constraintlayout.widget.ConstraintLayout
 					android:layout_width="match_parent"
