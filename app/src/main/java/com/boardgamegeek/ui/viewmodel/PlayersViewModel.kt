@@ -9,6 +9,7 @@ import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import javax.inject.Inject
 
 @HiltViewModel
@@ -26,7 +27,11 @@ class PlayersViewModel @Inject constructor(
 
     val players: LiveData<List<Player>> = sortType.switchMap {
         liveData {
-            emit(playRepository.loadPlayers(it))
+            emitSource(
+                playRepository.loadPlayersFlow(it)
+                    .distinctUntilChanged()
+                    .asLiveData()
+            )
         }
     }
 
