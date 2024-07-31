@@ -84,9 +84,7 @@
 					</LinearLayout>
 				</FrameLayout>
 
-				<LinearLayout
-					android:id="@+id/details"
-					style="@style/FormContainer">
+				<LinearLayout style="@style/FormContainer">
 
 					<com.google.android.material.textfield.TextInputLayout
 						android:id="@+id/nameContainer"
