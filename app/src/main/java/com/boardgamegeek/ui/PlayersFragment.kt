@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayersBinding
 import com.boardgamegeek.databinding.RowPlayersPlayerBinding
+import com.boardgamegeek.extensions.appendBold
 import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
@@ -105,7 +107,19 @@ class PlayersFragment : Fragment() {
             val binding = RowPlayersPlayerBinding.bind(itemView)
             fun bind(player: Player?) {
                 player?.let {
-                    binding.nameView.text = it.name
+                    val builder = SpannableStringBuilder()
+                    if (it.fullName.isEmpty()) {
+                        builder.append(it.name)
+                    } else if (it.fullName.contains(it.name)) {
+                        val splits = it.fullName.split(it.name)
+                        splits.forEachIndexed { i, split ->
+                            if (i > 0) builder.appendBold(it.name)
+                            builder.append(split)
+                        }
+                    } else {
+                        builder.append(it.fullName + " (").appendBold(it.name).append(")")
+                    }
+                    binding.nameView.text = builder
                     binding.usernameView.setTextOrHide(it.username)
                     binding.quantityView.setTextOrHide(viewModel.getDisplayText(it))
                     itemView.setOnClickListener { _ ->

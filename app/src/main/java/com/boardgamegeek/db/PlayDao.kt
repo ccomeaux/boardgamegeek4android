@@ -55,7 +55,7 @@ interface PlayDao {
     @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE user_name = :username ORDER BY date DESC, play_id DESC")
     fun loadPlaysForUserFlow(username: String): Flow<List<PlayEntity>>
 
-    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE user_name = :username AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE user_name = :username AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
     suspend fun loadPlayersForUser(username: String): List<PlayerWithPlayEntity>
 
     @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE user_name = :username AND object_id = :gameId ORDER BY date DESC, play_id DESC")
@@ -64,7 +64,7 @@ interface PlayDao {
     @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE name = :name AND (user_name = '' OR user_name IS NULL) ORDER BY date DESC, play_id DESC")
     fun loadPlaysForPlayerFlow(name: String): Flow<List<PlayEntity>>
 
-    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE name = :name AND (user_name = '' OR user_name IS NULL)")
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE name = :name AND (user_name = '' OR user_name IS NULL)")
     suspend fun loadPlayersForPlayer(name: String): List<PlayerWithPlayEntity>
 
     @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE name = :name AND object_id = :gameId AND (user_name = '' OR user_name IS NULL) ORDER BY date DESC, play_id DESC")
@@ -86,19 +86,19 @@ interface PlayDao {
     @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT JOIN games ON games.game_id = plays.object_id WHERE plays._id = :internalId")
     fun loadPlayWithPlayersFlow(internalId: Long): Flow<PlayWithPlayersAndImagesEntity?>
 
-    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE object_id = :gameId AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE object_id = :gameId AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
     suspend fun loadPlayersForGame(gameId: Int): List<PlayerWithPlayEntity>
 
-    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE object_id = :gameId AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE object_id = :gameId AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
     fun loadPlayersForGameFlow(gameId: Int): Flow<List<PlayerWithPlayEntity>>
 
-    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE delete_timestamp=0 OR delete_timestamp IS NULL")
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE delete_timestamp=0 OR delete_timestamp IS NULL")
     suspend fun loadPlayers(): List<PlayerWithPlayEntity>
 
-    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE delete_timestamp=0 OR delete_timestamp IS NULL")
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE delete_timestamp=0 OR delete_timestamp IS NULL")
     fun loadPlayersFlow(): Flow<List<PlayerWithPlayEntity>>
 
-    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE location = :location AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
+    @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE location = :location AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
     suspend fun loadPlayersForLocation(location: String): List<PlayerWithPlayEntity>
 
     @Query("SELECT location AS name, SUM(quantity) AS playCount from plays WHERE delete_timestamp IS NULL OR delete_timestamp = 0 GROUP BY location ORDER BY playCount DESC")

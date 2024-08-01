@@ -173,6 +173,7 @@ fun List<PlayerWithPlayEntity>.mapToModel() =
                 sumOf { play -> play.quantity },
                 filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
                 it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
+                it.fullName(),
             )
         } else null
     }

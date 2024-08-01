@@ -9,7 +9,17 @@ data class PlayerWithPlayEntity(
     val noWinStats: Boolean,
     val incomplete: Boolean,
     val avatarUrl: String?,
+    val firstName: String?,
+    val lastName: String?,
 ) {
+    fun fullName(): String {
+        return firstName?.let { fn ->
+            lastName?.let { ln ->
+                "$fn $ln".trim()
+            } ?: fn.trim()
+        } ?: ""
+    }
+
     fun key(): String {
         return if (player.username.isNullOrBlank()) {
             "P|${player.name}"
