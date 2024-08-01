@@ -174,15 +174,20 @@ class BuddyViewModel @Inject constructor(
         viewModelScope.launch {
             user.value?.let { (playerName, type) ->
                 if (type == PlayRepository.PlayerType.NON_USER && username.isNotBlank() && !playerName.isNullOrBlank()) {
-                    val internalIds = playRepository.addUsernameToPlayer(playerName, username)
-                    playRepository.enqueueUploadRequest(internalIds)
-                    setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_player_add_username, username, playerName))
-                    setUsername(username)
-                    firebaseAnalytics.logEvent("DataManipulation") {
-                        param(FirebaseAnalytics.Param.CONTENT_TYPE, "AddUserName")
-                        param("PlayerName", playerName)
-                        param("Username", username)
-                        param("Action", "Edit")
+                    val error = userRepository.refresh(username)
+                    if (error.isNullOrEmpty()) {
+                        userRepository.updateNickName(username, playerName)
+
+                        val internalIds = playRepository.addUsernameToPlayer(playerName, username)
+                        playRepository.enqueueUploadRequest(internalIds)
+                        setUpdateMessage(getApplication<BggApplication>().getString(R.string.msg_player_add_username, username, playerName))
+                        setUsername(username)
+                        firebaseAnalytics.logEvent("DataManipulation") {
+                            param(FirebaseAnalytics.Param.CONTENT_TYPE, "AddUserName")
+                            param("PlayerName", playerName)
+                            param("Username", username)
+                            param("Action", "Edit")
+                        }
                     }
                 }
             }
