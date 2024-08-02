@@ -626,6 +626,7 @@
 	<string name="title_modify_collection_status">Modify sync statuses?</string>
 	<string name="msg_modify_collection_status">You can undo this action by navigating to the app\'s Sync Settings and modifying the collection statuses.</string>
 	<string name="last_played_prefix">Last played <b>%s</b></string>
+	<string name="playing">Playing</string>
 	<string name="playing_prefix">Playing <b>%s</b></string>
 	<string name="playing_for_prefix">Playing for <b>%s</b></string>
 	<string name="playing_since_prefix">Playing since <b>%s</b></string>

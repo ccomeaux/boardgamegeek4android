@@ -111,8 +111,8 @@ private fun Context.buildAndNotifyPlaying(
         PendingIntent.FLAG_CANCEL_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
     )
 
-    var info = getString(R.string.playing_prefix)
-    if (location.isNotBlank()) info += "${getString(R.string.at)} $location "
+    var info = getString(R.string.playing)
+    if (location.isNotBlank()) info += " ${getString(R.string.at)} $location "
     if (playerCount > 0) info += resources.getQuantityString(R.plurals.player_description, playerCount, playerCount)
 
     builder
