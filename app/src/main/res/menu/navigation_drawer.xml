@@ -22,7 +22,9 @@
 			android:icon="@drawable/ic_baseline_person_24"
 			android:title="@string/title_buddies" />
 	</group>
-	<group android:checkableBehavior="single">
+	<group
+		android:id="@+id/content"
+		android:checkableBehavior="single">
 		<item
 			android:id="@+id/search"
 			android:icon="@drawable/ic_baseline_search_24"
@@ -45,7 +47,9 @@
 			android:icon="@drawable/ic_baseline_forum_24"
 			android:title="@string/title_forums" />
 	</group>
-	<group android:checkableBehavior="single">
+	<group
+		android:id="@+id/device"
+		android:checkableBehavior="single">
 		<item
 			android:id="@+id/sync"
 			android:icon="@drawable/ic_baseline_sync_24"
