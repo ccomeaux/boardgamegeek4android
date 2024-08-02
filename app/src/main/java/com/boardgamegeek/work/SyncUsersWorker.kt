@@ -6,8 +6,10 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
+import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.assisted.Assisted
@@ -30,85 +32,97 @@ class SyncUsersWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val userRepository: UserRepository,
+    private val playRepository: PlayRepository,
 ) : CoroutineWorker(appContext, workerParams) {
     private val prefs: SharedPreferences by lazy { appContext.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(appContext) }
 
-    private val buddiesFetchPauseMilliseconds = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_BUDDIES_FETCH_PAUSE_MILLIS)
+    private val userFetchPauseMilliseconds = RemoteConfig.getLong(RemoteConfig.KEY_SYNC_BUDDIES_FETCH_PAUSE_MILLIS)
     private val buddiesFetchIntervalDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_BUDDIES_FETCH_INTERVAL_DAYS)
     private val buddySyncSliceCount = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_BUDDIES_DAYS).coerceAtLeast(1)
     private val buddySyncSliceMaxSize = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_BUDDIES_MAX).coerceAtLeast(0)
 
     override suspend fun doWork(): Result {
-        if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] != true) {
-            Timber.i("Buddies not set to sync")
-            return Result.success()
-        }
-
-        Timber.i("Syncing list of buddies")
-        setProgress(PROGRESS_STEP_BUDDY_LIST)
-        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_list)))
         try {
-            val forceBuddySync = inputData.getBoolean(KEY_FORCE_BUDDY_SYNC, false)
-            if (forceBuddySync) {
-                Timber.i("Forced downloading buddies list")
-                userRepository.refreshBuddies()?.let {
-                    return Result.failure(workDataOf(ERROR_MESSAGE to it))
-                }
-            } else {
-                val lastCompleteSync = syncPrefs.getBuddiesTimestamp()
-                if (lastCompleteSync >= 0 && !lastCompleteSync.isOlderThan(buddiesFetchIntervalDays.days)) {
-                    Timber.i("Skipping downloading buddies list; we synced already within the last $buddiesFetchIntervalDays days")
-                } else {
+            Timber.i("Syncing list of buddies")
+            setProgress(PROGRESS_STEP_BUDDY_LIST)
+            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_list)))
+
+            if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true) {
+                val forceBuddySync = inputData.getBoolean(KEY_FORCE_BUDDY_SYNC, false)
+                if (forceBuddySync) {
+                    Timber.i("Forced downloading buddies list")
                     userRepository.refreshBuddies()?.let {
                         return Result.failure(workDataOf(ERROR_MESSAGE to it))
                     }
+                } else {
+                    val lastCompleteSync = syncPrefs.getBuddiesTimestamp()
+                    if (lastCompleteSync >= 0 && !lastCompleteSync.isOlderThan(buddiesFetchIntervalDays.days)) {
+                        Timber.i("Skipping downloading buddies list; we synced already within the last $buddiesFetchIntervalDays days")
+                    } else {
+                        userRepository.refreshBuddies()?.let {
+                            return Result.failure(workDataOf(ERROR_MESSAGE to it))
+                        }
+                    }
                 }
+            } else {
+                Timber.i("Buddies not set to sync")
             }
 
             val allBuddies = userRepository.loadBuddies().sortedBy { it.updatedTimestamp }
-            var updatedBuddyCount = 0
+            val (newBuddies, staleBuddies) = allBuddies.partition { it.updatedTimestamp == 0L }
 
-            Timber.i("Syncing oldest buddies")
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
-
-            val unupdatedBuddyUsernames = allBuddies.filter { it.updatedTimestamp == 0L }.map { it.username }
-            Timber.i("Found ${unupdatedBuddyUsernames.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
-            val limitedUnupdatedBuddyUsernames = unupdatedBuddyUsernames.take(buddySyncSliceMaxSize)
-            limitedUnupdatedBuddyUsernames.forEachIndexed { index, username ->
-                if (isStopped) {
-                    return Result.failure(workDataOf(STOPPED_REASON to "Canceled during unupdated buddy update"))
-                }
-                setProgress(PROGRESS_STEP_UNUPDATED_USERS, username, index, limitedUnupdatedBuddyUsernames.size)
-                updateBuddy(username)?.let {
-                    return Result.failure(it)
-                }
-                updatedBuddyCount++
-            }
-            Timber.i("Updated %,d stale & unupdated buddies", updatedBuddyCount)
-
-            val staleBuddyUsernames = allBuddies.filter { it.updatedTimestamp > 0L }.map { it.username }
-            val limit = (staleBuddyUsernames.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
-            Timber.i("Updating $limit buddies; ${staleBuddyUsernames.size} total buddies cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
-            val limitedStaleBuddyUsernames = staleBuddyUsernames.take(limit)
-            limitedStaleBuddyUsernames.forEachIndexed { index, username ->
-                if (isStopped) {
-                    return Result.failure(workDataOf(STOPPED_REASON to "Canceled during stale buddy update"))
-                }
-                setProgress(PROGRESS_STEP_STALE_USERS, username, index, limitedStaleBuddyUsernames.size)
-                updateBuddy(username)?.let {
-                    return Result.failure(it)
-                }
-                updatedBuddyCount++
-            }
-
-            Timber.i("Syncing unupdated buddies")
+            Timber.i("Syncing new buddies")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_unupdated)))
+            Timber.i("Found ${newBuddies.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
+            syncUsers(newBuddies.take(buddySyncSliceMaxSize).map { it.username }, PROGRESS_STEP_UNUPDATED_USERS)?.let { return Result.failure(it) }
+
+            Timber.i("Syncing stale buddies")
+            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
+            val limit = (staleBuddies.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
+            Timber.i("Updating $limit users; ${staleBuddies.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
+            syncUsers(staleBuddies.take(limit).map { it.username }, PROGRESS_STEP_STALE_USERS)?.let { return Result.failure(it) }
+
+            val allPlayers = playRepository.loadPlayers(Player.SortType.PLAY_COUNT).filter { it.username.isNotEmpty() }
+            val (newPlayers, stalePlayers) = allPlayers.partition { it.userUpdatedTimestamp == null || it.userUpdatedTimestamp == 0L }
+
+            Timber.i("Syncing new players")
+            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_unupdated)))
+            Timber.i("Found ${newPlayers.size} players that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
+            syncUsers(newPlayers.take(buddySyncSliceMaxSize).map { it.username }, PROGRESS_STEP_UNUPDATED_USERS)?.let { return Result.failure(it) }
+
+            Timber.i("Syncing stale players")
+            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_oldest)))
+            val playerLimit = (stalePlayers.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
+            Timber.i("Updating $playerLimit users; ${stalePlayers.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
+            syncUsers(stalePlayers.sortedBy { it.userUpdatedTimestamp }.take(playerLimit).map { it.username }, PROGRESS_STEP_STALE_USERS)?.let { return Result.failure(it) }
 
             return Result.success()
         } catch (e: Exception) {
             return Result.failure(handleException(e))
         }
+    }
+
+    private suspend fun syncUsers(
+        usernames: List<String>,
+        step: Int,
+    ): Data? {
+        usernames.forEachIndexed { index, username ->
+            if (isStopped) {
+                return workDataOf(STOPPED_REASON to "Canceled")
+            }
+            setProgress(step, username, index, usernames.size)
+
+            Timber.i("About to refresh user $username")
+            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_user, username)))
+            delay(userFetchPauseMilliseconds)
+            try {
+                userRepository.refresh(username)
+            } catch (e: Exception) {
+                return handleException(e)
+            }
+        }
+        return null
     }
 
     private suspend fun setProgress(step: Int, username: String? = null, progress: Int = 0, max: Int = 0) {
@@ -120,18 +134,6 @@ class SyncUsersWorker @AssistedInject constructor(
                 PROGRESS_TOTAL to max,
             )
         )
-    }
-
-    private suspend fun updateBuddy(username: String): Data? {
-        Timber.i("About to refresh user $username")
-        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_user, username)))
-        delay(buddiesFetchPauseMilliseconds)
-        return try {
-            userRepository.refresh(username)
-            null
-        } catch (e: Exception) {
-            handleException(e)
-        }
     }
 
     private fun handleException(e: Exception): Data {

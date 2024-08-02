@@ -20,6 +20,12 @@ interface UserDao {
     @Query("SELECT * FROM users")
     fun loadUsersFlow(): Flow<List<UserEntity>>
 
+    @Query("SELECT * FROM users WHERE buddy_flag=1")
+    suspend fun loadBuddies(): List<UserEntity>
+
+    @Query("SELECT * FROM users WHERE buddy_flag=1")
+    fun loadBuddiesFlow(): Flow<List<UserEntity>>
+
     @Insert(entity = UserEntity::class)
     suspend fun insert(user: UserForUpsert)
 

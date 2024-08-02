@@ -9,6 +9,7 @@ data class Player(
     val winCount: Int = 0,
     val avatarUrl: String = "",
     val fullName: String = "",
+    val userUpdatedTimestamp: Long? = null,
 ) {
     val id: String
         get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"

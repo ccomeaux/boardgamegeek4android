@@ -42,27 +42,37 @@ class UserRepository(
         return userDao.loadUserFlow(username).map { it?.mapToModel() }
     }
 
-    suspend fun loadBuddies(sortBy: User.SortType = User.SortType.USERNAME): List<User> = withContext(Dispatchers.Default) {
+    suspend fun loadUsers(sortBy: User.SortType = User.SortType.USERNAME): List<User> = withContext(Dispatchers.Default) {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         withContext(Dispatchers.IO) { userDao.loadUsers() }
             .map { it.mapToModel() }
-            .filterBuddies()
+            .filter { it.username != username }
             .applySort(sortBy)
     }
 
-    fun loadBuddiesFlow(sortBy: User.SortType = User.SortType.USERNAME): Flow<List<User>> {
+    fun loadUsersFlow(sortBy: User.SortType = User.SortType.USERNAME): Flow<List<User>> {
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         return userDao.loadUsersFlow()
             .map { it.map { entity -> entity.mapToModel() } }
-            .flowOn(Dispatchers.Default)
-            .map { list -> list.filterBuddies() }
             .flowOn(Dispatchers.Default)
             .map { it.applySort(sortBy) }
             .flowOn(Dispatchers.Default)
             .conflate()
     }
 
-    private fun List<User>.filterBuddies(): List<User> {
-        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
-        return this.filter { it.isBuddy && it.username != username }
+    suspend fun loadBuddies(sortBy: User.SortType = User.SortType.USERNAME): List<User> = withContext(Dispatchers.Default) {
+        withContext(Dispatchers.IO) { userDao.loadBuddies() }
+            .map { it.mapToModel() }
+            .applySort(sortBy)
+    }
+
+    fun loadBuddiesFlow(sortBy: User.SortType = User.SortType.USERNAME): Flow<List<User>> {
+        return userDao.loadBuddiesFlow()
+            .map { it.map { entity -> entity.mapToModel() } }
+            .flowOn(Dispatchers.Default)
+            .map { it.applySort(sortBy) }
+            .flowOn(Dispatchers.Default)
+            .conflate()
     }
 
     suspend fun refresh(username: String, isSelf: Boolean = false): String? = withContext(Dispatchers.IO) {

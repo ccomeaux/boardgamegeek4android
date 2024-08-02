@@ -174,6 +174,7 @@ fun List<PlayerWithPlayEntity>.mapToModel() =
                 filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
                 it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
                 it.fullName(),
+                it.userUpdatedTimestamp?.time,
             )
         } else null
     }

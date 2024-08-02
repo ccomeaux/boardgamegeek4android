@@ -58,7 +58,7 @@ class SyncUsersFragment : Fragment() {
                 binding.playBuddiesDateView.setTextOrHide(
                     when {
                         it <= 0L -> getString(R.string.sync_buddies_date_zero)
-                        else -> getString(R.string.sync_buddies_date, it.asDateTime())
+                        else -> getString(R.string.sync_buddies_date, it.asDateTime()) // TODO - include how many are buddies?
                     }
                 )
             }
@@ -70,16 +70,16 @@ class SyncUsersFragment : Fragment() {
                         R.plurals.users_synced_total,
                         it.count,
                         it.count,
-                        it.oldestUpdatedBuddyTimestamp.asDateTime(),
+                        it.oldestUpdatedUserTimestamp.asDateTime(),
                     )
                 )
                 binding.unupdatedUserCountView.setTextOrHide(
                     requireContext().getQuantityText(
                         R.plurals.users_unupdated_total,
-                        it.numberOfUnupdatedBuddies,
-                        it.numberOfUnupdatedBuddies,
+                        it.numberOfUnupdatedUsers,
+                        it.numberOfUnupdatedUsers,
                     ),
-                    it.numberOfUnupdatedBuddies > 0
+                    it.numberOfUnupdatedUsers > 0
                 )
             }
         }

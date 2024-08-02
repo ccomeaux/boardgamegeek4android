@@ -109,7 +109,7 @@ class LogPlayerActivity : AppCompatActivity(), ColorPickerWithListenerDialogFrag
             playerNameAdapter.addPlayers(it)
             buddyNameAdapter.addPlayers(it)
         }
-        viewModel.buddies.observe(this) {
+        viewModel.users.observe(this) {
             playerNameAdapter.addUsers(it)
             buddyNameAdapter.addUsers(it)
         }

@@ -20,6 +20,8 @@
 	<string name="sync_notification_buddies_list">Syncing list of GeekBuddies</string>
 	<string name="sync_notification_buddies_oldest">Refreshing stale buddies</string>
 	<string name="sync_notification_buddies_unupdated">Updating newly added buddies</string>
+	<string name="sync_notification_players_oldest">Refreshing stale players</string>
+	<string name="sync_notification_players_unupdated">Updating newly added players</string>
 	<string name="sync_notification_user">Updating user %s</string>
 	<string name="sync_notification_plays">Downloading plays</string>
 	<string name="sync_notification_plays_upload">Uploading plays</string>

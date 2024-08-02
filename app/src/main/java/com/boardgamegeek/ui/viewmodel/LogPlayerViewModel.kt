@@ -29,9 +29,9 @@ class LogPlayerViewModel @Inject constructor(
         }
     }.distinctUntilChanged()
 
-    val buddies: LiveData<List<User>> = _gameId.switchMap {
+    val users: LiveData<List<User>> = _gameId.switchMap {
         liveData {
-            emit(userRepository.loadBuddies())
+            emit(userRepository.loadUsers())
         }
     }.distinctUntilChanged()
 
