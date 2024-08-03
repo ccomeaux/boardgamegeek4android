@@ -257,8 +257,10 @@ class SyncViewModel @Inject constructor(
             val progress = workInfo.progress
             val stepEnum = when (progress.getInt(SyncUsersWorker.PROGRESS_STEP, SyncUsersWorker.PROGRESS_STEP_UNKNOWN)) {
                 SyncUsersWorker.PROGRESS_STEP_BUDDY_LIST -> UserSyncProgressStep.BuddyList
-                SyncUsersWorker.PROGRESS_STEP_STALE_USERS -> UserSyncProgressStep.StaleUsers
-                SyncUsersWorker.PROGRESS_STEP_UNUPDATED_USERS -> UserSyncProgressStep.UnupdatedUsers
+                SyncUsersWorker.PROGRESS_STEP_STALE_BUDDIES -> UserSyncProgressStep.StaleBuddies
+                SyncUsersWorker.PROGRESS_STEP_NEW_BUDDIES -> UserSyncProgressStep.NewBuddies
+                SyncUsersWorker.PROGRESS_STEP_STALE_PLAYERS -> UserSyncProgressStep.StalePlayers
+                SyncUsersWorker.PROGRESS_STEP_NEW_PLAYERS -> UserSyncProgressStep.NewPlayers
                 else -> UserSyncProgressStep.NotSyncing
             }
             UserSyncProgress(
@@ -325,7 +327,9 @@ class SyncViewModel @Inject constructor(
     enum class UserSyncProgressStep {
         NotSyncing,
         BuddyList,
-        StaleUsers,
-        UnupdatedUsers,
+        StaleBuddies,
+        NewBuddies,
+        StalePlayers,
+        NewPlayers,
     }
 }

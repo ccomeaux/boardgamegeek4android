@@ -75,13 +75,13 @@ class SyncUsersWorker @AssistedInject constructor(
             Timber.i("Syncing new buddies")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_unupdated)))
             Timber.i("Found ${newBuddies.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
-            syncUsers(newBuddies.take(buddySyncSliceMaxSize).map { it.username }, PROGRESS_STEP_UNUPDATED_USERS)?.let { return Result.failure(it) }
+            syncUsers(newBuddies.take(buddySyncSliceMaxSize).map { it.username }, PROGRESS_STEP_NEW_BUDDIES)?.let { return Result.failure(it) }
 
             Timber.i("Syncing stale buddies")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
             val limit = (staleBuddies.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
             Timber.i("Updating $limit users; ${staleBuddies.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
-            syncUsers(staleBuddies.take(limit).map { it.username }, PROGRESS_STEP_STALE_USERS)?.let { return Result.failure(it) }
+            syncUsers(staleBuddies.take(limit).map { it.username }, PROGRESS_STEP_STALE_BUDDIES)?.let { return Result.failure(it) }
 
             val allPlayers = playRepository.loadPlayers(Player.SortType.PLAY_COUNT).filter { it.username.isNotEmpty() }
             val (newPlayers, stalePlayers) = allPlayers.partition { it.userUpdatedTimestamp == null || it.userUpdatedTimestamp == 0L }
@@ -89,13 +89,13 @@ class SyncUsersWorker @AssistedInject constructor(
             Timber.i("Syncing new players")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_unupdated)))
             Timber.i("Found ${newPlayers.size} players that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
-            syncUsers(newPlayers.take(buddySyncSliceMaxSize).map { it.username }, PROGRESS_STEP_UNUPDATED_USERS)?.let { return Result.failure(it) }
+            syncUsers(newPlayers.take(buddySyncSliceMaxSize).map { it.username }, PROGRESS_STEP_NEW_PLAYERS)?.let { return Result.failure(it) }
 
             Timber.i("Syncing stale players")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_oldest)))
             val playerLimit = (stalePlayers.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
             Timber.i("Updating $playerLimit users; ${stalePlayers.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
-            syncUsers(stalePlayers.sortedBy { it.userUpdatedTimestamp }.take(playerLimit).map { it.username }, PROGRESS_STEP_STALE_USERS)?.let { return Result.failure(it) }
+            syncUsers(stalePlayers.sortedBy { it.userUpdatedTimestamp }.take(playerLimit).map { it.username }, PROGRESS_STEP_STALE_PLAYERS)?.let { return Result.failure(it) }
 
             return Result.success()
         } catch (e: Exception) {
@@ -164,8 +164,10 @@ class SyncUsersWorker @AssistedInject constructor(
 
         const val PROGRESS_STEP_UNKNOWN = 0
         const val PROGRESS_STEP_BUDDY_LIST = 1
-        const val PROGRESS_STEP_UNUPDATED_USERS = 2
-        const val PROGRESS_STEP_STALE_USERS = 3
+        const val PROGRESS_STEP_NEW_BUDDIES = 2
+        const val PROGRESS_STEP_STALE_BUDDIES = 3
+        const val PROGRESS_STEP_NEW_PLAYERS = 4
+        const val PROGRESS_STEP_STALE_PLAYERS = 5
 
         private const val KEY_FORCE_BUDDY_SYNC = "KEY_FORCE_BUDDY_SYNC"
 

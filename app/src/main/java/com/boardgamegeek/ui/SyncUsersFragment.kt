@@ -89,11 +89,17 @@ class SyncUsersFragment : Fragment() {
                     SyncViewModel.UserSyncProgressStep.BuddyList -> {
                         updateSyncProgress(R.string.sync_user_step_list, it.progress, it.max)
                     }
-                    SyncViewModel.UserSyncProgressStep.StaleUsers -> {
-                        updateSyncProgress(R.string.sync_user_step_stale, it.progress, it.max)
+                    SyncViewModel.UserSyncProgressStep.StaleBuddies -> {
+                        updateSyncProgress(R.string.sync_user_step_stale_buddies, it.progress, it.max)
                     }
-                    SyncViewModel.UserSyncProgressStep.UnupdatedUsers -> {
-                        updateSyncProgress(R.string.sync_user_step_unupdated, it.progress, it.max)
+                    SyncViewModel.UserSyncProgressStep.NewBuddies -> {
+                        updateSyncProgress(R.string.sync_user_step_unupdated_buddies, it.progress, it.max)
+                    }
+                    SyncViewModel.UserSyncProgressStep.StalePlayers -> {
+                        updateSyncProgress(R.string.sync_user_step_stale_players, it.progress, it.max)
+                    }
+                    SyncViewModel.UserSyncProgressStep.NewPlayers -> {
+                        updateSyncProgress(R.string.sync_user_step_unupdated_players, it.progress, it.max)
                     }
                     SyncViewModel.UserSyncProgressStep.NotSyncing -> {
                         binding.stepSyncingView.isVisible = false
