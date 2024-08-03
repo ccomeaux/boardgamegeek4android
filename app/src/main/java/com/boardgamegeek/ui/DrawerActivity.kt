@@ -65,7 +65,6 @@ abstract class DrawerActivity : BaseActivity() {
             }
         }
 
-        drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START)
         drawerLayout.setStatusBarBackgroundColor(ContextCompat.getColor(this, R.color.primary_dark))
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
