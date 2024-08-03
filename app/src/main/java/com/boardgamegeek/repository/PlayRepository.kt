@@ -404,9 +404,9 @@ class PlayRepository(
                         }
                     }
                 }
-
-                enqueueUploadRequest(play.internalId)
             }
+
+            enqueueUploadRequest(play.internalId)
         }
     }
 
