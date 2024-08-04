@@ -20,7 +20,8 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
         val title: String,
         val subtitle: String,
         val username: String,
-        val avatarUrl: String = "",
+        val avatarUrl: String,
+        val nickname: String,
     ) {
         override fun toString() = username
     }
@@ -36,7 +37,7 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
         view.findViewById<TextView>(R.id.player_title)?.setTextOrHide(result.title)
         view.findViewById<TextView>(R.id.player_subtitle)?.setTextOrHide(result.subtitle)
         view.findViewById<ImageView>(R.id.player_avatar)?.loadThumbnail(result.avatarUrl, R.drawable.person_image_empty)
-        view.tag = result.title
+        view.tag = result.nickname
         return view
     }
 
@@ -66,31 +67,18 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
             }
 
             val playerResults = playerListFiltered.map { player ->
-                Result(
-                    player.name,
-                    player.username,
-                    player.username,
-                    player.avatarUrl,
-                )
+                player.mapToResult()
             }
             val usernames = playerResults.map { it.username }
             val userResults = userListFiltered
                 .asSequence()
-                .filterNot {
-                    usernames.contains(it.username)
-                }
-                .map {
-                    Result(
-                        it.fullName,
-                        it.username,
-                        it.username,
-                        it.avatarUrl,
-                    )
-                }
+                .filterNot { usernames.contains(it.username) }
+                .map { it.mapToResult() }
+            val results = playerResults + userResults
 
             return FilterResults().apply {
-                values = playerResults + userResults
-                count = (playerResults + userResults).size
+                values = results
+                count = results.size
             }
         }
 
@@ -100,4 +88,20 @@ class BuddyNameAdapter(context: Context) : ArrayAdapter<BuddyNameAdapter.Result>
             notifyDataSetChanged()
         }
     }
+
+    private fun User.mapToResult() = Result(
+        title = fullName,
+        subtitle = if (playNickname.isBlank()) username else "$fullName ($username)",
+        username = username,
+        avatarUrl = avatarUrl,
+        nickname = playNickname,
+    )
+
+    private fun Player.mapToResult() = Result(
+        title = fullName,
+        subtitle = username,
+        username = username,
+        avatarUrl = avatarUrl,
+        nickname = name,
+    )
 }

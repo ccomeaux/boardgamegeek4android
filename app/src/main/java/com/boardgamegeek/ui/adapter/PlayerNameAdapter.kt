@@ -5,11 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
-import com.boardgamegeek.model.Player
-import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.extensions.setTextOrHide
+import com.boardgamegeek.model.Player
+import com.boardgamegeek.model.User
 
 class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
     private var playerList = listOf<Player>()
@@ -20,9 +20,10 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
         val title: String,
         val subtitle: String,
         val username: String,
-        val avatarUrl: String = "",
+        val avatarUrl: String,
+        val nickname: String,
     ) {
-        override fun toString() = title
+        override fun toString() = nickname
     }
 
     override fun getCount() = resultsFiltered.size
@@ -69,28 +70,18 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             }
 
             val playerResults = playerListFiltered.map { player ->
-                Result(
-                    player.name,
-                    player.username,
-                    player.username,
-                    player.avatarUrl,
-                )
+                player.mapToResult()
             }
             val usernames = playerResults.map { it.username }
-            val userResults = userListFiltered.filterNot {
-                usernames.contains(it.username)
-            }.map {
-                Result(
-                    it.playNickname.ifBlank { it.fullName },
-                    if (it.playNickname.isBlank()) it.username else "${it.fullName} (${it.username})",
-                    it.username,
-                    it.avatarUrl,
-                )
-            }
+            val userResults = userListFiltered
+                .asSequence()
+                .filterNot { usernames.contains(it.username) }
+                .map { it.mapToResult() }
+            val results = playerResults + userResults
 
             return FilterResults().apply {
-                values = playerResults + userResults
-                count = (playerResults + userResults).size
+                values = results
+                count = results.size
             }
         }
 
@@ -100,4 +91,20 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             notifyDataSetChanged()
         }
     }
+
+    private fun User.mapToResult() = Result(
+        title = fullName,
+        subtitle = if (playNickname.isBlank()) username else "$fullName ($username)",
+        username = username,
+        avatarUrl = avatarUrl,
+        nickname = playNickname,
+    )
+
+    private fun Player.mapToResult() = Result(
+        title = fullName,
+        subtitle = username,
+        username = username,
+        avatarUrl = avatarUrl,
+        nickname = name,
+    )
 }
