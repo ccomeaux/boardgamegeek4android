@@ -694,14 +694,16 @@ class LogPlayActivity : AppCompatActivity() {
 
     private fun updateNotification() {
         if (internalId != INVALID_ID.toLong()) {
-            this.launchPlayingNotification(
-                internalId,
-                gameName,
-                location,
-                playerCount,
-                startTime,
-                heroImageUrl
-            )
+            if (startTime > 0L) {
+                this.launchPlayingNotification(
+                    internalId,
+                    gameName,
+                    location,
+                    playerCount,
+                    startTime,
+                    heroImageUrl
+                )
+            } else cancelPlayingNotification()
         }
     }
 

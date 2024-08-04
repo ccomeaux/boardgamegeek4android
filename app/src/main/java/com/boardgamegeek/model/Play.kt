@@ -60,7 +60,7 @@ data class Play(
     }
 
     fun hasStarted(): Boolean {
-        return length == 0 && startTime > 0
+        return length == 0 && startTime > 0L
     }
 
     val playerCount: Int
