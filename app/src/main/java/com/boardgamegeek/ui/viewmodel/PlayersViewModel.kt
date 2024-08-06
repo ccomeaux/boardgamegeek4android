@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -17,15 +17,17 @@ class PlayersViewModel @Inject constructor(
     application: Application,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
+    val players = MediatorLiveData<List<Player>>()
+
     private val _sortType = MutableLiveData<Player.SortType>()
     val sortType: LiveData<Player.SortType>
         get() = _sortType
 
-    init {
-        sort(Player.SortType.NAME)
-    }
+    private val _filter = MutableLiveData<String>()
+    val filter: LiveData<String>
+        get() = _filter
 
-    val players: LiveData<List<Player>> = sortType.switchMap {
+    private val _allPlayers: LiveData<List<Player>> = _sortType.switchMap {
         liveData {
             emitSource(
                 playRepository.loadPlayersFlow(it)
@@ -35,8 +37,28 @@ class PlayersViewModel @Inject constructor(
         }
     }
 
+    init {
+        players.addSource(_allPlayers) { result ->
+            result?.let {
+                players.value = assembleAvailablePlayers(allPlayers = result)
+            }
+        }
+        players.addSource(_filter) { result ->
+            result?.let {
+                players.value = assembleAvailablePlayers(filter = result)
+            }
+        }
+
+        sort(Player.SortType.NAME)
+        filter("")
+    }
+
     fun sort(sortType: Player.SortType) {
         if (_sortType.value != sortType) _sortType.value = sortType
+    }
+
+    fun filter(filter: String) {
+        if (_filter.value != filter) _filter.value = filter
     }
 
     fun getSectionHeader(player: Player?): String {
@@ -60,5 +82,18 @@ class PlayersViewModel @Inject constructor(
                 context.resources.getQuantityString(R.plurals.plays_suffix, playCount, playCount)
             }
         }
+    }
+
+    private fun assembleAvailablePlayers(
+        allPlayers: List<Player>? = _allPlayers.value,
+        filter: String? = _filter.value,
+    ): List<Player> {
+        return filter?.let { filterText ->
+            allPlayers?.filter {
+                it.name.contains(filterText, true) ||
+                        it.username.contains(filterText, true) ||
+                        it.fullName.contains(filterText, true)
+            }
+        } ?: emptyList()
     }
 }

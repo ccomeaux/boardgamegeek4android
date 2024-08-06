@@ -3,20 +3,18 @@ package com.boardgamegeek.ui
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.SpannableStringBuilder
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayersBinding
 import com.boardgamegeek.databinding.RowPlayersPlayerBinding
-import com.boardgamegeek.extensions.appendBold
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Player
-import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
@@ -29,14 +27,32 @@ class PlayersFragment : Fragment() {
     private val viewModel by activityViewModels<PlayersViewModel>()
     private val adapter: PlayersAdapter by lazy { PlayersAdapter(viewModel) }
 
+    private var hasFilter = false
+    private var playerCount = -1
+        set(value) {
+            field = value
+            requireActivity().invalidateOptionsMenu()
+        }
+    private var sortType: Player.SortType? = null
+        set(value) {
+            field = value
+            requireActivity().invalidateOptionsMenu()
+        }
+
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         _binding = FragmentPlayersBinding.inflate(inflater, container, false)
         return binding.root
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        addMenuProvider()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
         binding.recyclerView.addItemDecoration(
@@ -46,18 +62,86 @@ class PlayersFragment : Fragment() {
             )
         )
 
-        viewModel.players.observe(viewLifecycleOwner) {
-            adapter.players = it
-            binding.progressBar.hide()
-            binding.emptyContainer.isVisible = it.isNullOrEmpty()
-            binding.recyclerView.isVisible = !it.isNullOrEmpty()
+        binding.filterEditText.doAfterTextChanged { s ->
+            viewModel.filter(s.toString())
         }
+
+        viewModel.sortType.observe(viewLifecycleOwner) {
+            it?.let { sortType = it }
+        }
+
+        viewModel.filter.observe(viewLifecycleOwner) {
+            it?.let {
+                hasFilter = it.isNotEmpty()
+                setVisibility()
+            }
+        }
+
+        viewModel.players.observe(viewLifecycleOwner) {
+            playerCount = it?.size ?: 0
+            it?.let {
+                adapter.players = it
+                binding.progressBar.hide()
+                setVisibility()
+            }
+        }
+    }
+
+    private fun setVisibility() {
+        binding.emptyContainer.isVisible = playerCount == 0
+        binding.contentContainer.isVisible = playerCount > 0 || hasFilter
+        binding.recyclerView.isVisible = playerCount > 0
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         binding.recyclerView.adapter = null
         _binding = null
+    }
+
+    private fun addMenuProvider() {
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.players, menu)
+            }
+
+            override fun onPrepareMenu(menu: Menu) {
+                super.onPrepareMenu(menu)
+                menu.findItem(
+                    when (sortType) {
+                        Player.SortType.NAME -> R.id.menu_sort_name
+                        Player.SortType.PLAY_COUNT -> R.id.menu_sort_quantity
+                        Player.SortType.WIN_COUNT -> R.id.menu_sort_wins
+                        else -> View.NO_ID
+                    }
+                )?.apply {
+                    isChecked = true
+                    menu.setActionBarCount(R.id.menu_list_count, playerCount, title.toString())
+                }
+                menu.findItem(R.id.menu_filter)?.let {
+                    it.isEnabled = playerCount > 0 || !hasFilter
+                }
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                when (menuItem.itemId) {
+                    R.id.menu_sort_name -> viewModel.sort(Player.SortType.NAME)
+                    R.id.menu_sort_quantity -> viewModel.sort(Player.SortType.PLAY_COUNT)
+                    R.id.menu_sort_wins -> viewModel.sort(Player.SortType.WIN_COUNT)
+                    R.id.menu_filter -> {
+                        if (binding.filterView.isVisible) {
+                            if (hasFilter) return true
+                            binding.filterView.isVisible = false
+                        } else {
+                            binding.filterView.isVisible = true
+                            binding.filterEditText.requestFocusAndKeyboard()
+                        }
+                    }
+                    else -> return false
+                }
+                return true
+            }
+        })
     }
 
     class PlayersAdapter(val viewModel: PlayersViewModel) : RecyclerView.Adapter<PlayersAdapter.ViewHolder>(), SectionCallback {
