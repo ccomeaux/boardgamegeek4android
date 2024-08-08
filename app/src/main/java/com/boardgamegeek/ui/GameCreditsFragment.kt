@@ -13,9 +13,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCreditsBinding
-import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.extensions.loadIcon
 import com.boardgamegeek.extensions.setBggColors
+import com.boardgamegeek.extensions.setOrClearOnClickListener
+import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.android.material.chip.Chip
@@ -164,13 +165,11 @@ class GameCreditsFragment : Fragment() {
             text = producer.name
             if (producer.thumbnailUrl.isNotBlank())
                 loadIcon(producer.thumbnailUrl)
-            setOnClickListener {
-                when (type) {
-                    GameViewModel.ProducerType.ARTIST -> PersonActivity.startForArtist(context, producer.id, producer.name)
-                    GameViewModel.ProducerType.DESIGNER -> PersonActivity.startForDesigner(context, producer.id, producer.name)
-                    GameViewModel.ProducerType.PUBLISHER -> PersonActivity.startForPublisher(context, producer.id, producer.name)
-                    else -> {}
-                }
+            when (type) {
+                GameViewModel.ProducerType.ARTIST -> setOnClickListener { PersonActivity.startForArtist(context, producer.id, producer.name) }
+                GameViewModel.ProducerType.DESIGNER -> setOnClickListener { PersonActivity.startForDesigner(context, producer.id, producer.name) }
+                GameViewModel.ProducerType.PUBLISHER -> setOnClickListener { PersonActivity.startForPublisher(context, producer.id, producer.name) }
+                else -> setOrClearOnClickListener()
             }
         }
     }
