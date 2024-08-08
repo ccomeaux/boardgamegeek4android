@@ -212,14 +212,14 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun deletePlayColor(gameId: Int, color: String) {
-        if (gameId != INVALID_ID && color.isNotBlank())
+        if (gameId != INVALID_ID)
             gameColorDao.deleteColorForGame(gameId, color)
     }
 
     suspend fun computePlayColors(gameId: Int) {
         val usedColors = playDao.loadPlayersForGame(gameId).mapNotNull { it.player.color }.toSet()
         val currentColors = gameColorDao.loadColorsForGame(gameId).map { it.color }.toSet()
-        val colors = usedColors - currentColors
+        val colors = (usedColors - currentColors).filterNot { it.isBlank() }
         val entities = colors.map { GameColorsEntity(internalId = 0L, gameId = gameId, color = it) }
         gameColorDao.insert(entities)
     }

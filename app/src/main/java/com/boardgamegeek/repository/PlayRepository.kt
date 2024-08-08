@@ -388,7 +388,7 @@ class PlayRepository(
 
                         // update game colors
                         val existingColors = gameColorDao.loadColorsForGame(play.gameId).map { it.color }
-                        play.players.map { it.color }.distinct().forEach {
+                        play.players.map { it.color }.distinct().filter { it.isNotBlank() }.forEach {
                             if (!existingColors.contains(it)) {
                                 gameColorDao.insert(listOf(GameColorsEntity(internalId = 0L, gameId = play.gameId, it)))
                             }
@@ -657,7 +657,7 @@ class PlayRepository(
     suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
         if (!name.isNullOrBlank()) {
             colors?.let { list ->
-                val entities = list.filter { it.isNotBlank() }.mapIndexed { index, color ->
+                val entities = list.filterNot { it.isBlank() }.mapIndexed { index, color ->
                     PlayerColorsEntity(
                         internalId = 0,
                         if (type == PlayerType.USER) PlayerColorsEntity.TYPE_USER else PlayerColorsEntity.TYPE_PLAYER,
