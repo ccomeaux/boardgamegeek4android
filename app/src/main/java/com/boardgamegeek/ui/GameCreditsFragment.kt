@@ -28,6 +28,7 @@ class GameCreditsFragment : Fragment() {
     private var _binding: FragmentGameCreditsBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<GameViewModel>()
+    private val limit = 4
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -122,6 +123,10 @@ class GameCreditsFragment : Fragment() {
                 binding.mechanicsDividerView.isGone = list.isEmpty()
             }
         }
+
+        viewModel.refreshDesignerImages(limit)
+        viewModel.refreshArtistImages(limit)
+        viewModel.refreshPublisherImages(limit)
     }
 
     private fun ChipGroup.bindData(
@@ -134,7 +139,6 @@ class GameCreditsFragment : Fragment() {
             visibility = View.GONE
         } else {
             removeAllViews()
-            val limit = 4
             if (list.size <= limit) {
                 list.forEach { producer ->
                     addView(createChip(producer, type))

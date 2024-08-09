@@ -77,20 +77,21 @@ class ArtistRepository(
             }
     }
 
-//    suspend fun refreshMissingImagesForGame(gameId: Int, daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
-//        withContext(Dispatchers.IO) { gameDao.loadArtistsForGame(gameId) }?.artists?.let {
-//            it.filter { it.artistThumbnailUrl.isNullOrBlank() &&
-//                    (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days)) }
-//                .sortedByDescending { it.whitmoreScore }
-//                .take(limit.coerceIn(0, 25))
-//                .map { it.mapToModel() }.toList()
-//                .forEach {
-//                    Timber.i("Refreshing missing images for artist $it")
-//                    refreshImages(it)
-//                    delay(2_000)
-//                }
-//        }
-//    }
+    suspend fun refreshMissingImagesForGame(gameId: Int, daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
+        Timber.i("Refreshing up to $limit artist images from game $gameId missing for more than $daysOld days")
+        withContext(Dispatchers.IO) { artistDao.loadArtistsForGame(gameId) }
+            .asSequence()
+            .filter { it.artistThumbnailUrl.isNullOrBlank() &&
+                    (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days)) }
+            .sortedByDescending { it.whitmoreScore }
+            .take(limit.coerceIn(0, 25))
+            .map { it.mapToModel() }.toList()
+            .forEach {
+                Timber.i("Refreshing missing images for artist $it")
+                refreshImages(it)
+                delay(2_000)
+            }
+    }
 
     suspend fun refreshArtist(artistId: Int) = withContext(Dispatchers.IO) {
         if (artistId == BggContract.INVALID_ID) return@withContext

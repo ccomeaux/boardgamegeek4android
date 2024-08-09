@@ -13,10 +13,7 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.repository.GameCollectionRepository
-import com.boardgamegeek.repository.GameRepository
-import com.boardgamegeek.repository.ImageRepository
-import com.boardgamegeek.repository.PlayRepository
+import com.boardgamegeek.repository.*
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.util.RemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,9 +35,15 @@ class GameViewModel @Inject constructor(
     private val gameCollectionRepository: GameCollectionRepository,
     private val imageRepository: ImageRepository,
     private val playRepository: PlayRepository,
+    private val designerRepository: DesignerRepository,
+    private val artistRepository: ArtistRepository,
+    private val publisherRepository: PublisherRepository,
 ) : AndroidViewModel(application) {
     private val isGameRefreshing = AtomicBoolean(false)
     private val areItemsRefreshing = AtomicBoolean(false)
+    private val areDesignerImagesRefreshing = AtomicBoolean(false)
+    private val areArtistImagesRefreshing = AtomicBoolean(false)
+    private val arePublisherImagesRefreshing = AtomicBoolean(false)
     private val forceItemsRefresh = AtomicBoolean(false)
     private val arePlaysRefreshing = AtomicBoolean(false)
     private val forcePlaysRefresh = AtomicBoolean(false)
@@ -235,6 +238,39 @@ class GameViewModel @Inject constructor(
                         .flowOn(Dispatchers.Default)
                         .asLiveData()
                 )
+            }
+        }
+    }
+
+    fun refreshDesignerImages(limit: Int = 10) {
+        gameId.value?.let {
+            if (areDesignerImagesRefreshing.compareAndSet(false, true)) {
+                viewModelScope.launch {
+                    designerRepository.refreshMissingImagesForGame(it, limit = limit)
+                    areDesignerImagesRefreshing.set(false)
+                }
+            }
+        }
+    }
+
+    fun refreshArtistImages(limit: Int = 10) {
+        gameId.value?.let {
+            if (areArtistImagesRefreshing.compareAndSet(false, true)) {
+                viewModelScope.launch {
+                    artistRepository.refreshMissingImagesForGame(it, limit = limit)
+                    areArtistImagesRefreshing.set(false)
+                }
+            }
+        }
+    }
+
+    fun refreshPublisherImages(limit: Int = 10) {
+        gameId.value?.let {
+            if (arePublisherImagesRefreshing.compareAndSet(false, true)) {
+                viewModelScope.launch {
+                    publisherRepository.refreshMissingThumbnailsForGame(it, limit = limit)
+                    arePublisherImagesRefreshing.set(false)
+                }
             }
         }
     }

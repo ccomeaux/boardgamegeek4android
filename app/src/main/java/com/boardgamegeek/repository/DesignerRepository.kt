@@ -116,6 +116,22 @@ class DesignerRepository(
         }
     }
 
+    suspend fun refreshMissingImagesForGame(gameId: Int, daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
+        Timber.i("Refreshing up to $limit designer images from game $gameId missing for more than $daysOld days")
+        withContext(Dispatchers.IO) { designerDao.loadDesignersForGame(gameId) }
+            .asSequence()
+            .filter { it.designerThumbnailUrl.isNullOrBlank() &&
+                    (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days)) }
+            .sortedByDescending { it.whitmoreScore }
+            .take(limit.coerceIn(0, 25))
+            .map { it.mapToModel() }.toList()
+            .forEach {
+                Timber.i("Refreshing missing images for designer $it")
+                refreshImages(it)
+                delay(2_000)
+            }
+    }
+
     suspend fun calculateStats(progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
         val designers = withContext(Dispatchers.IO) { designerDao.loadDesigners() }
             .map { it.mapToModel() }

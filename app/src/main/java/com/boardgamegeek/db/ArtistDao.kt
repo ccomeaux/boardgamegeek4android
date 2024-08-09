@@ -19,6 +19,9 @@ interface ArtistDao {
     @Query("SELECT * FROM artists WHERE artist_id=:artistId")
     fun loadArtistFlow(artistId: Int): Flow<ArtistEntity?>
 
+    @Query("SELECT * FROM artists LEFT OUTER JOIN games_artists ON artists.artist_id = games_artists.artist_id  WHERE game_id = :gameId")
+    suspend fun loadArtistsForGame(gameId: Int): List<ArtistEntity>
+
     @Query("UPDATE artists SET artist_image_url=:imageUrl, artist_thumbnail_url=:thumbnailUrl, artist_images_updated_timestamp=:timestamp WHERE artist_id=:artistId")
     suspend fun updateImageUrls(artistId: Int, imageUrl: String, thumbnailUrl: String, timestamp: Date)
 

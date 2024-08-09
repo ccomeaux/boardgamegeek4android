@@ -19,6 +19,9 @@ interface DesignerDao {
     @Query("SELECT * FROM designers WHERE designer_id=:designerId")
     fun loadDesignerFlow(designerId: Int): Flow<DesignerEntity?>
 
+    @Query("SELECT * FROM designers LEFT OUTER JOIN games_designers ON designers.designer_id = games_designers.designer_id  WHERE game_id = :gameId")
+    suspend fun loadDesignersForGame(gameId: Int): List<DesignerEntity>
+
     @Query("UPDATE designers SET designer_image_url=:imageUrl, designer_thumbnail_url=:thumbnailUrl, designer_images_updated_timestamp=:timestamp WHERE designer_id=:designerId")
     suspend fun updateImageUrls(designerId: Int, imageUrl: String, thumbnailUrl: String, timestamp: Date)
 

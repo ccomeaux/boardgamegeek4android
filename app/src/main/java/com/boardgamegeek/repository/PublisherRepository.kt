@@ -93,6 +93,23 @@ class PublisherRepository(
             }
     }
 
+    suspend fun refreshMissingThumbnailsForGame(gameId: Int, daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
+        Timber.i("Refreshing up to $limit publisher images from game $gameId missing for more than $daysOld days")
+        withContext(Dispatchers.IO) { publisherDao.loadPublishersForGame(gameId) }
+            .asSequence()
+            .filter { it.publisherThumbnailUrl.isNullOrBlank() &&
+                    (it.updatedTimestamp == null || it.updatedTimestamp.time.isOlderThan(daysOld.days)) }
+            .sortedByDescending { it.whitmoreScore }
+            .take(limit.coerceIn(0, 25))
+            .map { it.mapToModel() }.toList()
+            .forEach {
+                Timber.d("Refreshing missing images for publisher $it")
+                refreshPublisher(it.id)
+                attemptRefreshHeroImage(it)
+                delay(2_000)
+            }
+    }
+
     private suspend fun attemptRefreshHeroImage(publisher: Company) = withContext(Dispatchers.IO) {
         val thumbnailId = publisher.thumbnailUrl.getImageId()
         if (thumbnailId != publisher.heroImageUrl.getImageId()) {

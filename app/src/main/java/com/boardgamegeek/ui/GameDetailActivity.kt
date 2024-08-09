@@ -38,6 +38,12 @@ class GameDetailActivity : SimpleSinglePaneActivity() {
 
         viewModel.setId(gameId)
         viewModel.setProducerType(type)
+        when (type) {
+            ProducerType.DESIGNER -> viewModel.refreshDesignerImages()
+            ProducerType.ARTIST -> viewModel.refreshArtistImages()
+            ProducerType.PUBLISHER -> viewModel.refreshPublisherImages()
+            else -> {}
+        }
     }
 
     override fun readIntent() {
