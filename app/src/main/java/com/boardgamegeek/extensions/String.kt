@@ -1,6 +1,7 @@
 package com.boardgamegeek.extensions
 
 import android.net.Uri
+import com.boardgamegeek.export.Constants.INVALID_IMAGE_ID
 import com.boardgamegeek.model.Game
 import timber.log.Timber
 import java.text.DateFormat
@@ -18,15 +19,14 @@ fun String?.sortName(sortIndex: Int): String {
 }
 
 fun String.getImageId(): Int {
-    val invalidImageId = 0
-    if (isBlank()) return invalidImageId
+    if (isBlank()) return INVALID_IMAGE_ID
     "/pic\\d+.".toRegex().find(this)?.let {
-        return it.value.findFirstNumber() ?: invalidImageId
+        return it.value.findFirstNumber() ?: INVALID_IMAGE_ID
     }
     "/avatar_\\d+.".toRegex().find(this)?.let {
-        return it.value.findFirstNumber() ?: invalidImageId
+        return it.value.findFirstNumber() ?: INVALID_IMAGE_ID
     }
-    return invalidImageId
+    return INVALID_IMAGE_ID
 }
 
 fun String.findFirstNumber() = "\\d+".toRegex().find(this)?.value?.toIntOrNull()

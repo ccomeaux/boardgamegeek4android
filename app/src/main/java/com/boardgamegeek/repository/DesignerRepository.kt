@@ -4,16 +4,18 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.DesignerDao
-import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
-import com.boardgamegeek.model.Person
-import com.boardgamegeek.model.PersonStats
+import com.boardgamegeek.export.Constants.INVALID_IMAGE_ID
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.safeApiCall
-import com.boardgamegeek.mappers.*
+import com.boardgamegeek.mappers.mapDesignerForUpsert
+import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionItem.Companion.applySort
+import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
+import com.boardgamegeek.model.Person
 import com.boardgamegeek.model.Person.Companion.applySort
+import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -24,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Date
+import kotlin.time.Duration.Companion.days
 
 class DesignerRepository(
     val context: Context,
@@ -75,9 +78,10 @@ class DesignerRepository(
         }
     }
 
-    suspend fun refreshMissingImages(limit: Int = 10) = withContext(Dispatchers.Default) {
+    suspend fun refreshMissingImages(daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { designerDao.loadDesigners() }
-            .filter { it.designerThumbnailUrl.isNullOrBlank() }
+            .filter { it.designerThumbnailUrl.isNullOrBlank() &&
+                    (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days)) }
             .sortedByDescending { it.whitmoreScore }
             .take(limit.coerceIn(0, 25))
             .map { it.mapToModel() }
@@ -94,13 +98,18 @@ class DesignerRepository(
         if (response.isSuccess) {
             response.getOrNull()?.items?.firstOrNull()?.mapToModel(designer, timestamp)?.let { person ->
                 designerDao.updateImageUrls(person.id, person.imageUrl, person.thumbnailUrl, person.imagesUpdatedTimestamp ?: timestamp)
-                val newThumbnailId = person.thumbnailUrl.getImageId()
-                if (newThumbnailId != designer.heroImageUrl.getImageId()) {
-                    Timber.d("Designer $designer's hero URL doesn't match thumbnail ID $newThumbnailId")
-                    val urlMap = imageRepository.getImageUrls(newThumbnailId)
-                    urlMap[ImageRepository.ImageType.HERO]?.firstOrNull()?.let { heroUrl ->
-                        Timber.d("Updating designer $designer with hero URL $heroUrl")
-                        designerDao.updateHeroImageUrl(designer.id, heroUrl)
+                val thumbnailId = person.thumbnailUrl.getImageId()
+                if (thumbnailId != person.heroImageUrl.getImageId()) {
+                    Timber.d("Designer $designer's hero URL doesn't match thumbnail ID $thumbnailId")
+                    if (thumbnailId == INVALID_IMAGE_ID) {
+                        Timber.d("Updating designer $designer with blank hero URL")
+                        designerDao.updateHeroImageUrl(designer.id, "")
+                    } else {
+                        val urlMap = imageRepository.getImageUrls(thumbnailId)
+                        urlMap[ImageRepository.ImageType.HERO]?.firstOrNull()?.let { heroUrl ->
+                            Timber.d("Updating designer $designer with hero URL $heroUrl")
+                            designerDao.updateHeroImageUrl(designer.id, heroUrl)
+                        }
                     }
                 }
             }

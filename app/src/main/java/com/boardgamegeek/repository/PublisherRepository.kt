@@ -4,9 +4,7 @@ import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
-import com.boardgamegeek.model.Company
-import com.boardgamegeek.model.PersonStats
+import com.boardgamegeek.export.Constants.INVALID_IMAGE_ID
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.safeApiCall
@@ -14,7 +12,10 @@ import com.boardgamegeek.mappers.mapForUpsert
 import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionItem.Companion.applySort
+import com.boardgamegeek.model.CollectionItem.Companion.filterBySyncedStatues
+import com.boardgamegeek.model.Company
 import com.boardgamegeek.model.Company.Companion.applySort
+import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.provider.BggContract
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Date
+import kotlin.time.Duration.Companion.days
 
 class PublisherRepository(
     val context: Context,
@@ -76,9 +78,10 @@ class PublisherRepository(
         }
     }
 
-    suspend fun refreshMissingThumbnails(limit: Int = 10) = withContext(Dispatchers.Default) {
+    suspend fun refreshMissingThumbnails(daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { publisherDao.loadPublishers() }
-            .filter { it.publisherThumbnailUrl.isNullOrBlank() }
+            .filter { it.publisherThumbnailUrl.isNullOrBlank() &&
+                    (it.updatedTimestamp == null || it.updatedTimestamp.time.isOlderThan(daysOld.days)) }
             .sortedByDescending { it.whitmoreScore }
             .take(limit.coerceIn(0, 25))
             .map { it.mapToModel() }
@@ -91,10 +94,15 @@ class PublisherRepository(
     }
 
     private suspend fun attemptRefreshHeroImage(publisher: Company) = withContext(Dispatchers.IO) {
-        if (publisher.thumbnailUrl.getImageId() != publisher.heroImageUrl.getImageId()) {
-            val urlMap = imageRepository.getImageUrls(publisher.thumbnailUrl.getImageId())
-            urlMap[ImageRepository.ImageType.HERO]?.firstOrNull()?.let {
-                publisherDao.updateHeroImageUrl(publisher.id, it)
+        val thumbnailId = publisher.thumbnailUrl.getImageId()
+        if (thumbnailId != publisher.heroImageUrl.getImageId()) {
+            if (thumbnailId == INVALID_IMAGE_ID) {
+                publisherDao.updateHeroImageUrl(publisher.id, "")
+            } else {
+                val urlMap = imageRepository.getImageUrls(thumbnailId)
+                urlMap[ImageRepository.ImageType.HERO]?.firstOrNull()?.let {
+                    publisherDao.updateHeroImageUrl(publisher.id, it)
+                }
             }
         }
     }
