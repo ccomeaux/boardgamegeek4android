@@ -178,23 +178,18 @@ interface GameDao {
     @Query("SELECT games_expansions.*, games.thumbnail_url AS thumbnailUrl FROM games_expansions LEFT OUTER JOIN games ON games.game_id = games_expansions.expansion_id WHERE inbound=1 AND games_expansions.game_id = :gameId")
     fun loadBaseGamesForGameFlow(gameId: Int): Flow<List<GameExpansionWithGame>>
 
-    @Transaction
-    @Query("SELECT * FROM games WHERE game_id = :gameId")
-    fun loadDesignersForGameFlow(gameId: Int): Flow<GameWithDesigners?>
+    @Query("SELECT designers.* FROM designers LEFT OUTER JOIN games_designers ON designers.designer_id = games_designers.designer_id  WHERE game_id = :gameId")
+    fun loadDesignersForGameFlow(gameId: Int): Flow<List<DesignerEntity>>
 
-    @Transaction
-    @Query("SELECT * FROM games WHERE game_id = :gameId")
-    fun loadArtistsForGameFlow(gameId: Int): Flow<GameWithArtists?>
+    @Query("SELECT artists.* FROM artists LEFT OUTER JOIN games_artists ON artists.artist_id = games_artists.artist_id  WHERE game_id = :gameId")
+    fun loadArtistsForGameFlow(gameId: Int): Flow<List<ArtistEntity>>
 
-    @Transaction
-    @Query("SELECT * FROM games WHERE game_id = :gameId")
-    fun loadPublishersForGameFlow(gameId: Int): Flow<GameWithPublishers?>
+    @Query("SELECT publishers.* FROM publishers LEFT OUTER JOIN games_publishers ON publishers.publisher_id = games_publishers.publisher_id  WHERE game_id = :gameId")
+    fun loadPublishersForGameFlow(gameId: Int): Flow<List<PublisherEntity>>
 
-    @Transaction
-    @Query("SELECT * FROM games WHERE game_id = :gameId")
-    fun loadCategoriesForGameFlow(gameId: Int): Flow<GameWithCategories?>
+    @Query("SELECT categories.* FROM categories LEFT OUTER JOIN games_categories ON categories.category_id = games_categories.category_id  WHERE game_id = :gameId")
+    fun loadCategoriesForGameFlow(gameId: Int): Flow<List<CategoryEntity>>
 
-    @Transaction
-    @Query("SELECT * FROM games WHERE game_id = :gameId")
-    fun loadMechanicsForGameFlow(gameId: Int): Flow<GameWithMechanics?>
+    @Query("SELECT mechanics.* FROM mechanics LEFT OUTER JOIN games_mechanics ON mechanics.mechanic_id = games_mechanics.mechanic_id  WHERE game_id = :gameId")
+    fun loadMechanicsForGameFlow(gameId: Int): Flow<List<MechanicEntity>>
 }

@@ -147,31 +147,31 @@ class GameRepository @Inject constructor(
 
     fun getDesignersFlow(gameId: Int): Flow<List<GameDetail>> {
         return gameDao.loadDesignersForGameFlow(gameId)
-            .map { it?.designers?.map { designer -> designer.mapToGameDetail() }.orEmpty() }
+            .map { it.map { designer -> designer.mapToGameDetail() } }
             .flowOn(Dispatchers.Default)
     }
 
     fun getArtistsFlow(gameId: Int): Flow<List<GameDetail>> {
         return gameDao.loadArtistsForGameFlow(gameId)
-            .map { it?.artists?.map { artist -> artist.mapToGameDetail() }.orEmpty() }
+            .map { it.map { artist -> artist.mapToGameDetail() } }
             .flowOn(Dispatchers.Default)
     }
 
     fun getPublishers(gameId: Int): Flow<List<GameDetail>> {
         return gameDao.loadPublishersForGameFlow(gameId)
-            .map { it?.publishers?.map { publisher -> publisher.mapToGameDetail() }.orEmpty() }
+            .map { it.map { publisher -> publisher.mapToGameDetail() } }
             .flowOn(Dispatchers.Default)
     }
 
     fun getCategoriesFlow(gameId: Int): Flow<List<GameDetail>> {
         return gameDao.loadCategoriesForGameFlow(gameId)
-            .map { it?.categories?.map { category -> category.mapToGameDetail() }.orEmpty() }
+            .map { it.map { category -> category.mapToGameDetail() } }
             .flowOn(Dispatchers.Default)
     }
 
     fun getMechanicsFlow(gameId: Int): Flow<List<GameDetail>> {
         return gameDao.loadMechanicsForGameFlow(gameId)
-            .map { it?.mechanics?.map { mechanic -> mechanic.mapToGameDetail() }.orEmpty() }
+            .map { it.map { mechanic -> mechanic.mapToGameDetail() } }
             .flowOn(Dispatchers.Default)
     }
 

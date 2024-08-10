@@ -19,7 +19,7 @@ interface PublisherDao {
     @Query("SELECT * FROM publishers WHERE publisher_id=:publisherId")
     fun loadPublisherFlow(publisherId: Int): Flow<PublisherEntity?>
 
-    @Query("SELECT * FROM publishers LEFT OUTER JOIN games_publishers ON publishers.publisher_id = games_publishers.publisher_id  WHERE game_id = :gameId")
+    @Query("SELECT publishers.* FROM publishers LEFT OUTER JOIN games_publishers ON publishers.publisher_id = games_publishers.publisher_id  WHERE game_id = :gameId")
     suspend fun loadPublishersForGame(gameId: Int): List<PublisherEntity>
 
     @Query("UPDATE publishers SET publisher_hero_image_url=:url WHERE publisher_id=:publisherId")

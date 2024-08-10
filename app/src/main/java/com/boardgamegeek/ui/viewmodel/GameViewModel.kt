@@ -166,43 +166,37 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    val designers = game.switchMap {
-        it?.let {
+    val designers = gameId.switchMap {
+        it.let {
             liveData {
-                emitSource(gameRepository.getDesignersFlow(it.id).distinctUntilChanged().asLiveData())
+                emitSource(gameRepository.getDesignersFlow(it).distinctUntilChanged().asLiveData())
             }
         }
     }
 
-    val artists = game.switchMap {
-        it?.let {
+    val artists = gameId.switchMap {
+        it.let {
             liveData {
-                emitSource(gameRepository.getArtistsFlow(it.id).distinctUntilChanged().asLiveData())
+                emitSource(gameRepository.getArtistsFlow(it).distinctUntilChanged().asLiveData())
             }
         }
     }
 
-    val publishers = game.switchMap {
-        it?.let {
-            liveData {
-                emitSource(gameRepository.getPublishers(it.id).distinctUntilChanged().asLiveData())
-            }
+    val publishers = gameId.switchMap {
+        liveData {
+            emitSource(gameRepository.getPublishers(it).distinctUntilChanged().asLiveData())
         }
     }
 
-    val categories = game.switchMap {
-        it?.let {
-            liveData {
-                emitSource(gameRepository.getCategoriesFlow(it.id).distinctUntilChanged().asLiveData())
-            }
+    val categories = gameId.switchMap {
+        liveData {
+            emitSource(gameRepository.getCategoriesFlow(it).distinctUntilChanged().asLiveData())
         }
     }
 
-    val mechanics = game.switchMap {
-        it?.let {
-            liveData {
-                emitSource(gameRepository.getMechanicsFlow(it.id).distinctUntilChanged().asLiveData())
-            }
+    val mechanics = gameId.switchMap {
+        liveData {
+            emitSource(gameRepository.getMechanicsFlow(it).distinctUntilChanged().asLiveData())
         }
     }
 
