@@ -5,16 +5,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.boardgamegeek.databinding.FragmentCollectionDetailsBinding
+import com.boardgamegeek.databinding.FragmentCollectionCreditsBinding
 import com.boardgamegeek.extensions.startActivity
 
-class CollectionDetailsFragment : Fragment() {
-    private var _binding: FragmentCollectionDetailsBinding? = null
+class CollectionCreditsFragment : Fragment() {
+    private var _binding: FragmentCollectionCreditsBinding? = null
     private val binding get() = _binding!!
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentCollectionDetailsBinding.inflate(inflater, container, false)
+        _binding = FragmentCollectionCreditsBinding.inflate(inflater, container, false)
         return binding.root
     }
 
