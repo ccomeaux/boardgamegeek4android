@@ -48,8 +48,8 @@
 		<item quantity="other">Adding %,d collection items.</item>
 	</plurals>
 	<plurals name="sync_notification_collection_uploading">
-		<item quantity="one">Uploading %,d collection item.</item>
-		<item quantity="other">Uploading %,d collection items.</item>
+		<item quantity="one">Updating %,d collection item.</item>
+		<item quantity="other">Updating %,d collection items.</item>
 	</plurals>
 	<plurals name="sync_notification_games_remove">
 		<item quantity="one">Removing %,d game from your collection</item>
