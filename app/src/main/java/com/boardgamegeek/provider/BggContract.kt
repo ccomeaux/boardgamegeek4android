@@ -53,6 +53,8 @@ class BggContract {
             const val UPDATED_LIST = COL_UPDATED_LIST
         }
 
+        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_GAMES).build()
+
         const val CONTENT_TYPE = "vnd.android.cursor.dir/vnd.boardgamegeek.game"
         const val CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.boardgamegeek.game"
 
@@ -200,7 +202,7 @@ class BggContract {
             const val UPDATED_LIST = COL_UPDATED_LIST
         }
 
-        val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build()
+        // val CONTENT_URI: Uri = BASE_CONTENT_URI.buildUpon().appendPath(PATH_COLLECTION).build()
 
         fun getCollectionId(uri: Uri): Int {
             val index = uri.pathSegments.indexOf(PATH_COLLECTION)

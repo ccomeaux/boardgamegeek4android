@@ -65,6 +65,7 @@ class BggProvider : ContentProvider() {
         private fun buildProviderMap(): SimpleArrayMap<Int, BaseProvider> {
             val map = SimpleArrayMap<Int, BaseProvider>()
             addProvider(map, GamesIdProvider())
+            addProvider(map, GameIdThumbnailProvider())
             addProvider(map, CollectionIdThumbnailProvider())
             addProvider(map, SearchSuggestProvider())
             return map

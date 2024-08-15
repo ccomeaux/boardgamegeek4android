@@ -34,7 +34,7 @@ open class SearchSuggestProvider : BaseProvider() {
         val qb = SQLiteQueryBuilder().apply {
             tables = Tables.COLLECTION_JOIN_GAMES
             projectionMap = suggestionProjectionMap
-            appendWhere("(${Collection.Columns.COLLECTION_NAME} like '$searchTerm%%' OR ${Collection.Columns.COLLECTION_NAME} like '%% $searchTerm%%') AND ${Collection.Columns.COLLECTION_ID}<>-1")
+            appendWhere("(${Collection.Columns.COLLECTION_NAME} like '$searchTerm%%' OR ${Collection.Columns.COLLECTION_NAME} like '%% $searchTerm%%')")
         }
         return qb.query(db, projection, selection, selectionArgs, GROUP_BY, null, SORT_BY, limit)
     }
@@ -48,7 +48,8 @@ open class SearchSuggestProvider : BaseProvider() {
             BaseColumns._ID to "${Tables.GAMES}.${BaseColumns._ID}",
             SearchManager.SUGGEST_COLUMN_TEXT_1 to "${Collection.Columns.COLLECTION_NAME} AS ${SearchManager.SUGGEST_COLUMN_TEXT_1}",
             SearchManager.SUGGEST_COLUMN_TEXT_2 to "IFNULL(CASE WHEN ${Collection.Columns.COLLECTION_YEAR_PUBLISHED}=0 THEN NULL ELSE ${Collection.Columns.COLLECTION_YEAR_PUBLISHED} END, '?') AS ${SearchManager.SUGGEST_COLUMN_TEXT_2}",
-            SearchManager.SUGGEST_COLUMN_ICON_2 to "'${Collection.CONTENT_URI}/' || ${Tables.COLLECTION}.${Collection.Columns.COLLECTION_ID} || '/$PATH_THUMBNAILS' AS ${SearchManager.SUGGEST_COLUMN_ICON_2}",
+            SearchManager.SUGGEST_COLUMN_ICON_2 to "'${Games.CONTENT_URI}/' || ${Tables.GAMES}.${Games.Columns.GAME_ID} || '/$PATH_THUMBNAILS' AS ${SearchManager.SUGGEST_COLUMN_ICON_2}",
+            //SearchManager.SUGGEST_COLUMN_ICON_2 to "'${Collection.CONTENT_URI}/' || ${Tables.COLLECTION}.${Collection.Columns.COLLECTION_ID} || '/$PATH_THUMBNAILS' AS ${SearchManager.SUGGEST_COLUMN_ICON_2}",
             SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID to "${Tables.GAMES}.${Games.Columns.GAME_ID} AS ${SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID}",
             SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA to "${Collection.Columns.COLLECTION_NAME} AS ${SearchManager.SUGGEST_COLUMN_INTENT_EXTRA_DATA}",
             SearchManager.SUGGEST_COLUMN_LAST_ACCESS_HINT to "${Games.Columns.LAST_VIEWED} AS ${SearchManager.SUGGEST_COLUMN_LAST_ACCESS_HINT}",
