@@ -113,7 +113,7 @@ data class Play(
                     R.string.play_description_date_segment,
                     dateInMillis.formatDateTime(
                         context,
-                        flags = DateUtils.FORMAT_SHOW_YEAR or DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_WEEKDAY
+                        flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL or DateUtils.FORMAT_SHOW_WEEKDAY
                     )
                 )
             )
