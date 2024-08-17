@@ -7,7 +7,8 @@
 	android:layout_height="match_parent"
 	android:fitsSystemWindows="true">
 
-	<androidx.coordinatorlayout.widget.CoordinatorLayout
+	<LinearLayout
+		android:orientation="vertical"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 
@@ -31,15 +32,15 @@
 				android:clipToPadding="false"
 				android:gravity="bottom"
 				app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
-				app:tabMode="scrollable"/>
+				app:tabMode="auto"/>
 		</com.google.android.material.appbar.AppBarLayout>
 
 		<androidx.viewpager2.widget.ViewPager2
 			android:id="@+id/viewPager"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
-	</androidx.coordinatorlayout.widget.CoordinatorLayout>
+			android:layout_height="0dp"
+			android:layout_weight="1"/>
+	</LinearLayout>
 
 	<com.google.android.material.navigation.NavigationView
 		android:id="@+id/navigation"
