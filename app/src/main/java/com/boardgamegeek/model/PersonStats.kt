@@ -19,8 +19,8 @@ class PersonStats(
         suspend fun fromLinkedCollection(collection: List<CollectionItem>, context: Context): PersonStats = withContext(Dispatchers.Default) {
             val baseGameCollection = collection.filter { it.subtype == Game.Subtype.BOARDGAME }
 
-            val whitmoreScore = calculateWhitmoreScore(baseGameCollection)
-            val whitmoreScoreWithExpansions = calculateWhitmoreScore(collection.filter { it.subtype != Game.Subtype.BOARDGAME_ACCESSORY })
+            val whitmoreScore = baseGameCollection.sumOf { it.whitmoreScore }.toInt()
+            val whitmoreScoreWithExpansions = collection.filter { it.subtype != Game.Subtype.BOARDGAME_ACCESSORY }.sumOf { it.whitmoreScore }.toInt()
 
             val includeExpansions = context.preferences()[LOG_PLAY_STATS_EXPANSIONS, false] ?: false
             val includeAccessories = context.preferences()[LOG_PLAY_STATS_ACCESSORIES, false] ?: false
@@ -41,13 +41,5 @@ class PersonStats(
                 hIndex = HIndex.fromList(playCountsByGame)
             )
         }
-
-        private const val NEUTRAL_WHITMORE_RATING = 6.5
-        private const val MAX_WHITMORE_RATING = 7
-
-        private fun calculateWhitmoreScore(games: List<CollectionItem>) = games
-            .filter { it.rating > NEUTRAL_WHITMORE_RATING }
-            .sumOf { (it.rating - NEUTRAL_WHITMORE_RATING) * (MAX_WHITMORE_RATING / (10 - NEUTRAL_WHITMORE_RATING)) }
-            .toInt()
     }
 }

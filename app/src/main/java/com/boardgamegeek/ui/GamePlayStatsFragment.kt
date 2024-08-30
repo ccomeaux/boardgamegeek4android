@@ -652,23 +652,6 @@ class GamePlayStatsFragment : Fragment() {
             return s * s * sqrt(intervalPlayCount.toDouble()) * calculateHhmSince(sinceDateInMillis)
         }
 
-//        fun calculateWhitmoreScore(): Int {
-//            // A score that ranges from 0 for a completely neutral game (6.5) to 7 for a perfect 10.
-//            // https://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23
-//            return (personalRating * 2 - 13).toInt().coerceAtLeast(0)
-//        }
-
-//        fun calculateZefquaaviusScore(): Double {
-//            // A score that ranges from -10 to 10, with more weight given to the ends than the middle
-//            // modified Whitmore score, see: http://boardgamegeek.com/user/zefquaavius
-//            val neutralRating = 5.5
-//            var squared = (personalRating - neutralRating).pow(2)
-//            if (personalRating < neutralRating) {
-//                squared *= -1.0
-//            }
-//            return squared / 2.025
-//        }
-
 //        fun calculateZefquaaviusHotness(sinceDateInMillis: Long): Double {
 //            return calculateGrayHotness(sinceDateInMillis) * calculateZefquaaviusScore()
 //        }

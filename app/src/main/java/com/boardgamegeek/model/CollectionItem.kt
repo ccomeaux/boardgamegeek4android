@@ -7,6 +7,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
+import kotlin.math.pow
 
 data class CollectionItem(
     val internalId: Long = BggContract.INVALID_ID.toLong(),
@@ -111,7 +112,7 @@ data class CollectionItem(
     val yearPublished: Int
         get() = if (collectionYearPublished == YEAR_UNKNOWN) gameYearPublished else collectionYearPublished
 
-    val robustName:String
+    val robustName: String
         get() = collectionName.ifBlank { gameName }
 
     val robustThumbnailUrl: String
@@ -124,8 +125,33 @@ data class CollectionItem(
         return heroImageUrl.getImageId() != thumbnailUrl.getImageId()
     }
 
+    val ratingDelta = (rating - averageRating) / standardDeviation
+
+    val whitmoreScore: Double by lazy {
+        // personal rating on a linear scale of 0 - MAX_WHITMORE_RATING
+        // 0 = game rated NEUTRAL_WHITMORE_RATING or less
+        // MAX_WHITMORE_RATING = 10
+        if (rating < NEUTRAL_WHITMORE_RATING) 0.0
+        else (rating - NEUTRAL_WHITMORE_RATING) * (MAX_WHITMORE_RATING / (10 - NEUTRAL_WHITMORE_RATING))
+    }
+
+    val modifiedWhitmoreScore: Double by lazy {
+        // converts personal rating to a geometric scale from -10 to 10, centered on NEUTRAL_MODIFIED_WHITMORE_RATING
+        // http://www.boardgamegeek.com/geeklist/37832
+        // https://boardgamegeek.com/geeklist/39165/extended-statistics-for-zefquaavius-2009-01-28?commentid=224943
+        // w = (myRating - neutralRating)² × SIGN(myRating - neutralRating) / 2.025, where neutralRating is 5.5
+        if (rating == UNRATED) {
+            UNRATED
+        } else {
+            val divisor = (10 - NEUTRAL_MODIFIED_WHITMORE_RATING).pow(2) / 10
+            val negativeDivisor = (1 - NEUTRAL_MODIFIED_WHITMORE_RATING).pow(2) / -10
+            val d = rating - NEUTRAL_MODIFIED_WHITMORE_RATING
+            d * d / (if (rating < NEUTRAL_MODIFIED_WHITMORE_RATING) negativeDivisor else divisor)
+        }
+    }
+
     fun getPrivateInfo(context: Context): CharSequence {
-        val initialText = context.resources.getString(R.string.acquired)
+        val initialText = context.getString(R.string.acquired)
         val sb = SpannableStringBuilder()
         sb.append(initialText)
         if (quantity > 1) {
@@ -173,6 +199,9 @@ data class CollectionItem(
         const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
         const val UNRATED = Game.UNRATED
         const val UNWEIGHTED = Game.UNWEIGHTED
+        private const val NEUTRAL_WHITMORE_RATING = 6.5 // Rating translated to a Whitmore score of 0
+        private const val MAX_WHITMORE_RATING = 7 // Whitmore score of a 10
+        private const val NEUTRAL_MODIFIED_WHITMORE_RATING = 5.5
 
         fun List<CollectionItem>.applySort(sortBy: SortType): List<CollectionItem> {
             return sortedWith(
