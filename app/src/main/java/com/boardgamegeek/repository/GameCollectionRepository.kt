@@ -2,19 +2,25 @@ package com.boardgamegeek.repository
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.work.*
+import androidx.work.ExistingWorkPolicy
+import androidx.work.WorkManager
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.db.model.*
-import com.boardgamegeek.model.*
+import com.boardgamegeek.db.model.CollectionItemWithGameEntity
+import com.boardgamegeek.db.model.CollectionPrivateInfoEntity
+import com.boardgamegeek.db.model.CollectionStatusEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.io.model.CollectionItemRemote
 import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.*
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionItem.Companion.UNRATED
+import com.boardgamegeek.model.CollectionItemUploadResult
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearCollection
 import com.boardgamegeek.provider.BggContract
@@ -59,8 +65,8 @@ class GameCollectionRepository(
 
     fun loadCollectionItemsForGameFlow(gameId: Int): Flow<List<CollectionItem>> {
         return collectionDao.loadForGameFlow(gameId)
-            .map {
-                list -> list.map { it.mapToModel() }.filter { item -> item.deleteTimestamp == 0L }
+            .map { list ->
+                list.map { it.mapToModel() }.filter { item -> item.deleteTimestamp == 0L }
             }
             .flowOn(Dispatchers.Default)
     }
@@ -255,7 +261,7 @@ class GameCollectionRepository(
                         collectionDao.updateStatuses(statuses)
                     } else Timber.i("Skipping dirty collection statuses")
 
-                    if ((candidate.item.ratingDirtyTimestamp ?: 0L) == 0L) collectionDao.updateRating(internalId, itemForInsert.rating ?: CollectionItem.UNRATED, 0L)
+                    if ((candidate.item.ratingDirtyTimestamp ?: 0L) == 0L) collectionDao.updateRating(internalId, itemForInsert.rating ?: UNRATED, 0L)
                     else Timber.i("Skipping dirty collection rating")
 
                     if ((candidate.item.commentDirtyTimestamp ?: 0L) == 0L) collectionDao.updateComment(internalId, itemForInsert.comment.orEmpty(), 0L)
@@ -360,7 +366,7 @@ class GameCollectionRepository(
                 Result.success(CollectionItemUploadResult.delete(item))
             }
         } else {
-             Result.failure(result.exception())
+            Result.failure(result.exception())
         }
     }
 
@@ -541,7 +547,14 @@ class GameCollectionRepository(
         collectionDao.updateStatuses(entity)
     }
 
-    suspend fun updateRating(internalId: Long, rating: Double): Int = withContext(Dispatchers.IO) { collectionDao.updateRating(internalId, rating, System.currentTimeMillis()) }
+    suspend fun updateRating(internalId: Long, rating: Double): Int = withContext(Dispatchers.IO) {
+        val clampedRating = if (rating > 10.0) {
+            10.0
+        } else if (rating < 1.0) {
+            UNRATED
+        } else rating
+        collectionDao.updateRating(internalId, clampedRating, System.currentTimeMillis())
+    }
 
     suspend fun updateComment(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateComment(internalId, text, System.currentTimeMillis()) }
 
