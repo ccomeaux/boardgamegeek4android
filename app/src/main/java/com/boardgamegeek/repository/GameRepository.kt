@@ -32,6 +32,12 @@ class GameRepository @Inject constructor(
     private val mechanicDao: MechanicDao,
     private val collectionDao: CollectionDao,
 ) {
+    fun loadAllAsFlow(): Flow<List<Game?>> {
+        return gameDao.loadAllAsFlow().map { list ->
+            list.map { it.game?.mapToModel(it.lastPlayedDate) }
+        }
+    }
+
     suspend fun loadGame(gameId: Int): Game? {
         return if (gameId == INVALID_ID) null else {
             val game = gameDao.loadGame(gameId)

@@ -57,7 +57,7 @@ class SyncCollectionFragment : Fragment() {
         }
         viewModel.collectionCompleteCurrentTimestamp.observe(viewLifecycleOwner) {
             it?.let {
-                binding.collectionCompleteCurrentSyncStatusContainer.isVisible = it >0L
+                binding.collectionCompleteCurrentSyncStatusContainer.isVisible = it > 0L
                 binding.collectionCompleteCurrentSyncStatusView.text = it.asDateTime()
             }
         }
@@ -72,6 +72,10 @@ class SyncCollectionFragment : Fragment() {
                 binding.collectionPartialContainer.isVisible = true
                 binding.collectionPartialSyncStatusView.text = it.asDateTime()
             }
+        }
+
+        viewModel.numberOfUnsyncedGames.observe(viewLifecycleOwner) {
+            binding.syncGameCount.text = requireContext().getQuantityText(R.plurals.games_pending_download, it, it)
         }
 
         viewModel.numberOfCollectionItemsToUpload.observe(viewLifecycleOwner) {

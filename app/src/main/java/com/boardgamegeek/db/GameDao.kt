@@ -109,6 +109,9 @@ interface GameDao {
     @Query("DELETE FROM games_expansions WHERE game_id = :gameId")
     suspend fun deleteExpansionsForGame(gameId: Int)
 
+    @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id GROUP BY game_id")
+    fun loadAllAsFlow(): Flow<List<GameWithLastPlayed>>
+
     @Query("SELECT game_id, game_name, subtype FROM games")
     suspend fun loadGameSubtypes() : List<GameIdNameSubtype>
 

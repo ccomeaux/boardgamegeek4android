@@ -85,6 +85,86 @@
 		</LinearLayout>
 
 		<TextView
+			android:id="@+id/syncGameCount"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingVertical="@dimen/padding_half"
+			tools:text="100 games not synced" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="center_horizontal"
+			android:orientation="horizontal"
+			android:paddingVertical="@dimen/padding_standard">
+
+			<Button
+				android:id="@+id/cancelCollectionButton"
+				style="?attr/materialButtonOutlinedStyle"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/cancel" />
+
+			<Space
+				android:layout_width="@dimen/padding_extra"
+				android:layout_height="match_parent" />
+
+			<Button
+				android:id="@+id/syncCollectionButton"
+				style="@style/Widget.MaterialComponents.Button.Icon"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/sync"
+				app:icon="@drawable/ic_baseline_sync_24" />
+		</LinearLayout>
+
+		<TextView
+			android:id="@+id/syncCollectionStep"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingVertical="@dimen/padding_half"
+			android:visibility="gone"
+			tools:text="Syncing newest plays (page 2)"
+			tools:visibility="visible" />
+
+		<com.google.android.material.progressindicator.LinearProgressIndicator
+			android:id="@+id/progressBar"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:indeterminate="true"
+			android:visibility="gone"
+			tools:visibility="visible" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/divider_height"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<TextView
+			android:id="@+id/syncCollectionUpdate"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingVertical="@dimen/padding_half"
+			tools:text="0 Collection items need to be uploaded" />
+
+		<Button
+			android:id="@+id/uploadCollectionButton"
+			style="@style/Widget.MaterialComponents.Button.Icon"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center_horizontal"
+			android:enabled="false"
+			android:text="@string/upload"
+			app:icon="@drawable/ic_upload_24" />
+
+		<View
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/divider_height"
+			android:layout_marginVertical="@dimen/padding_extra"
+			android:background="@color/list_divider" />
+
+		<TextView
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:paddingTop="@dimen/padding_extra"
@@ -240,73 +320,5 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			app:switchLabel="@string/collection_status_want_parts" />
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center_horizontal"
-			android:orientation="horizontal"
-			android:paddingVertical="@dimen/padding_standard">
-
-			<Button
-				android:id="@+id/cancelCollectionButton"
-				style="?attr/materialButtonOutlinedStyle"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/cancel" />
-
-			<Space
-				android:layout_width="@dimen/padding_extra"
-				android:layout_height="match_parent" />
-
-			<Button
-				android:id="@+id/syncCollectionButton"
-				style="@style/Widget.MaterialComponents.Button.Icon"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:text="@string/sync"
-				app:icon="@drawable/ic_baseline_sync_24" />
-		</LinearLayout>
-
-		<TextView
-			android:id="@+id/syncCollectionStep"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:paddingVertical="@dimen/padding_half"
-			android:visibility="gone"
-			tools:text="Syncing newest plays (page 2)"
-			tools:visibility="visible" />
-
-		<com.google.android.material.progressindicator.LinearProgressIndicator
-			android:id="@+id/progressBar"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:indeterminate="true"
-			android:visibility="gone"
-			tools:visibility="visible" />
-
-		<View
-			android:id="@+id/dividerView"
-			android:layout_width="match_parent"
-			android:layout_height="@dimen/divider_height"
-			android:layout_marginVertical="@dimen/padding_extra"
-			android:background="@color/list_divider" />
-
-		<TextView
-			android:id="@+id/syncCollectionUpdate"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:paddingVertical="@dimen/padding_half"
-			tools:text="0 Collection items need to be uploaded" />
-
-		<Button
-			android:id="@+id/uploadCollectionButton"
-			style="@style/Widget.MaterialComponents.Button.Icon"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_horizontal"
-			android:enabled="false"
-			android:text="@string/upload"
-			app:icon="@drawable/ic_upload_24" />
 	</LinearLayout>
 </androidx.core.widget.NestedScrollView>

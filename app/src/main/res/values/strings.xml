@@ -862,8 +862,12 @@
 		<item quantity="other">You\'ve played at least %1$,d games %1$s times or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
 	</plurals>
 	<plurals name="items_pending_upload">
-		<item quantity="one"><b>%,d</b> collection items pending upload</item>
+		<item quantity="one"><b>%,d</b> collection item pending upload</item>
 		<item quantity="other"><b>%,d</b> collection items pending upload</item>
+	</plurals>
+	<plurals name="games_pending_download">
+		<item quantity="one"><b>%,d</b> game still needing to be synced</item>
+		<item quantity="other"><b>%,d</b> games still needing to be synced</item>
 	</plurals>
 	<plurals name="plays_sync_status_none">
 		<item quantity="one">Plays have never been synced</item>

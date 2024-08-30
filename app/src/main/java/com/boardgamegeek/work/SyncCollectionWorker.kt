@@ -25,6 +25,7 @@ import timber.log.Timber
 import java.util.Date
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 @HiltWorker
 class SyncCollectionWorker @AssistedInject constructor(
@@ -72,22 +73,32 @@ class SyncCollectionWorker @AssistedInject constructor(
 
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_title_collection)))
 
-        return if (quickSync && (syncPrefs[TIMESTAMP_COLLECTION_PARTIAL, 0L] ?: 0L) > 0L) {
-            Timber.i("Quick sync requested; syncing recently modified collection")
-            syncCollectionModifiedSince()
+        return if (quickSync) {
+            val lastPartialSync = syncPrefs[TIMESTAMP_COLLECTION_PARTIAL, 0L] ?: 0L
+            if (lastPartialSync > 0L && lastPartialSync.isOlderThan(15.minutes)) {
+                Timber.i("Quick sync requested; syncing recently modified collection")
+                syncCollectionModifiedSince()
+            } else {
+                Timber.i("Quick sync requested; skipping collection sync entirely")
+                null
+            }
         } else if (!requestedStatus.isNullOrBlank()) {
             Timber.i("Syncing requested status of $requestedStatus")
             syncCompleteCollectionByStatus(requestedStatus!!)
         } else if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
             val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
             val lastCompleteSync = syncPrefs[TIMESTAMP_COLLECTION_COMPLETE, 0L] ?: 0L
+            val lastPartialSync = syncPrefs[TIMESTAMP_COLLECTION_PARTIAL, 0L] ?: 0L
             if (lastCompleteSync == 0L || lastCompleteSync.isOlderThan(fetchIntervalInDays.days)) {
                 Timber.i("It's been more than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.toDateTime()}]; syncing entire collection")
                 syncPrefs[TIMESTAMP_COLLECTION_COMPLETE_CURRENT] = System.currentTimeMillis()
                 syncCompleteCollection()
-            } else {
+            } else if (lastPartialSync.isOlderThan(15.minutes)) {
                 Timber.i("It's been less than $fetchIntervalInDays days since we synced completely [${lastCompleteSync.toDateTime()}]; syncing recently modified collection instead")
                 syncCollectionModifiedSince()
+            } else {
+                Timber.i("It's been less than 15 minutes since we synced partially; skipping sync")
+                null
             }
         } else {
             Timber.i("Continuing an in-progress sync of entire collection")

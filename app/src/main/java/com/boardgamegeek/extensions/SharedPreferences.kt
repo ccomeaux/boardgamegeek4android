@@ -6,6 +6,7 @@ import androidx.core.content.edit
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.PlayStatPrefs.KEY_GAME_H_INDEX
 import com.boardgamegeek.extensions.PlayStatPrefs.KEY_PLAYER_H_INDEX
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.HIndex
 import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.model.Player
@@ -78,6 +79,23 @@ const val COLLECTION_STATUS_COMMENTED = "comment"
 const val COLLECTION_STATUS_HAS_PARTS = "hasparts"
 const val COLLECTION_STATUS_WANT_PARTS = "wantparts"
 private val COLLECTION_STATUSES = listOf(COLLECTION_STATUS_OWN, COLLECTION_STATUS_PREVIOUSLY_OWNED, COLLECTION_STATUS_PREORDERED, COLLECTION_STATUS_FOR_TRADE, COLLECTION_STATUS_WANT_IN_TRADE, COLLECTION_STATUS_WANT_TO_BUY, COLLECTION_STATUS_WANT_TO_PLAY, COLLECTION_STATUS_WISHLIST, COLLECTION_STATUS_PLAYED, COLLECTION_STATUS_RATED, COLLECTION_STATUS_COMMENTED, COLLECTION_STATUS_HAS_PARTS, COLLECTION_STATUS_WANT_PARTS)
+
+fun String?.mapStatusToEnum() = when (this) {
+    COLLECTION_STATUS_OWN -> CollectionStatus.Own
+    COLLECTION_STATUS_PREVIOUSLY_OWNED -> CollectionStatus.PreviouslyOwned
+    COLLECTION_STATUS_PREORDERED -> CollectionStatus.Preordered
+    COLLECTION_STATUS_PLAYED -> CollectionStatus.Played
+    COLLECTION_STATUS_FOR_TRADE -> CollectionStatus.ForTrade
+    COLLECTION_STATUS_WANT_IN_TRADE -> CollectionStatus.WantInTrade
+    COLLECTION_STATUS_WANT_TO_BUY -> CollectionStatus.WantToBuy
+    COLLECTION_STATUS_WANT_TO_PLAY -> CollectionStatus.WantToPlay
+    COLLECTION_STATUS_WISHLIST -> CollectionStatus.Wishlist
+    COLLECTION_STATUS_RATED -> CollectionStatus.Rated
+    COLLECTION_STATUS_COMMENTED -> CollectionStatus.Commented
+    COLLECTION_STATUS_HAS_PARTS -> CollectionStatus.HasParts
+    COLLECTION_STATUS_WANT_PARTS -> CollectionStatus.WantParts
+    else -> CollectionStatus.Unknown
+}
 
 fun SharedPreferences.isCollectionSetToSync(): Boolean {
     return this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty().isNotEmpty()

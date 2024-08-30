@@ -14,6 +14,7 @@ import com.boardgamegeek.model.User
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getCompleteCollectionTimestampKey
 import com.boardgamegeek.repository.GameCollectionRepository
+import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.work.*
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class SyncViewModel @Inject constructor(
     application: Application,
     private val collectionRepository: GameCollectionRepository,
+    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
@@ -57,11 +59,19 @@ class SyncViewModel @Inject constructor(
     }
     val numberOfCollectionItemsToUpload = collectionItemsToUpload.map { it.size }
 
+    private val games = liveData {
+        emitSource(gameRepository.loadAllAsFlow().distinctUntilChanged().asLiveData())
+    }
+
+    val numberOfUnsyncedGames = games.map { list ->
+        list.filter { it?.updated == 0L }.size
+    }
+
     private val allPlays: LiveData<List<Play>> = liveData {
         emitSource(playRepository.loadAllPlaysFlow().distinctUntilChanged().asLiveData())
     }
 
-    private val numberOfSyncPlays: LiveData<Int> = allPlays.map { list ->
+    private val numberOfSyncPlays = allPlays.map { list ->
         list.filter { it.isSynced }.size
     }
 
@@ -139,23 +149,6 @@ class SyncViewModel @Inject constructor(
         CollectionStatus.HasParts -> COLLECTION_STATUS_HAS_PARTS
         CollectionStatus.WantParts -> COLLECTION_STATUS_WANT_PARTS
         CollectionStatus.Unknown -> ""
-    }
-
-    private fun String?.mapStatusToEnum() = when (this) {
-        COLLECTION_STATUS_OWN -> CollectionStatus.Own
-        COLLECTION_STATUS_PREVIOUSLY_OWNED -> CollectionStatus.PreviouslyOwned
-        COLLECTION_STATUS_PREORDERED -> CollectionStatus.Preordered
-        COLLECTION_STATUS_PLAYED -> CollectionStatus.Played
-        COLLECTION_STATUS_FOR_TRADE -> CollectionStatus.ForTrade
-        COLLECTION_STATUS_WANT_IN_TRADE -> CollectionStatus.WantInTrade
-        COLLECTION_STATUS_WANT_TO_BUY -> CollectionStatus.WantToBuy
-        COLLECTION_STATUS_WANT_TO_PLAY -> CollectionStatus.WantToPlay
-        COLLECTION_STATUS_WISHLIST -> CollectionStatus.Wishlist
-        COLLECTION_STATUS_RATED -> CollectionStatus.Rated
-        COLLECTION_STATUS_COMMENTED -> CollectionStatus.Commented
-        COLLECTION_STATUS_HAS_PARTS -> CollectionStatus.HasParts
-        COLLECTION_STATUS_WANT_PARTS -> CollectionStatus.WantParts
-        else -> CollectionStatus.Unknown
     }
 
     val collectionSyncProgress: LiveData<CollectionSyncProgress> = collectionWorkInfos.map {
