@@ -17,8 +17,8 @@ fun CompanyItem.mapToModel(timestamp: Date) = Company(
     name = name,
     sortName = if (nameType == "primary") name.sortName(sortindex) else name,
     description = description.orEmpty(),
-    imageUrl = image,
-    thumbnailUrl = thumbnail,
+    imageUrl = image.orEmpty(),
+    thumbnailUrl = thumbnail.orEmpty(),
     updatedTimestamp = timestamp,
 )
 
