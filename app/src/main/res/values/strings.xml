@@ -128,6 +128,7 @@
 	<string name="are_you_sure_timer_reset">Do you want to continue the timer where you left off or reset it and lose the current play length?</string>
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
+	<string name="are_you_sure_log_quick_play">Are you sure you want to log a play of %s?</string>
 	<string name="app_name" translatable="false">BGG4A</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>
@@ -667,6 +668,25 @@
 	<string name="title_info">Info</string>
 	<string name="title_credits">Credits</string>
 	<string name="title_linked_items">Linked Items</string>
+	<string name="title_browse">Browse</string>
+	<string name="title_acquire">Acquire</string>
+	<string name="title_analyze">Analyze</string>
+	<string name="title_recently_viewd">Recently Viewed</string>
+	<string name="title_your_top_rated">Your Top Rated</string>
+	<string name="title_hidden_gems">Hidden Gems</string>
+	<string name="title_hawt">Hawt</string>
+	<string name="title_favorite_unowned">Favorite Unowned</string>
+	<string name="title_played_unowned">Played but Unowned</string>
+	<string name="title_hawt_unowned">Hawt but Unowned</string>
+	<string name="title_recently_played">Recently Played</string>
+	<string name="title_shelf_of_opportunity">Shelf of Opportunity</string>
+	<string name="title_shelf_of_new_opportunity">Shelf of New Opportunity</string>
+	<string name="title_games_to_rate">Games to Rate</string>
+	<string name="title_games_to_comment">Games to Comment</string>
+	<string name="info_hidden_gems">Games you rate higher than the average.</string>
+	<string name="info_hawt">I got a copy of this - jealous much?!</string>
+	<string name="info_shelf_of_opportunity">Games you own but haven\'t played yet</string>
+	<string name="info_shelf_of_new_opportunity">Games you\'ve just acquired but haven\'t played yet</string>
 	<string name="plays_sync_status_none">Plays have never been synced.</string>
 	<string name="plays_sync_status_new">Plays have been synced through %s.</string>
 	<string name="plays_sync_status_old">Plays have been synced since %s.</string>

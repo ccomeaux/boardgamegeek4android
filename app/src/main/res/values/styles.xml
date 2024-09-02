@@ -45,6 +45,11 @@
 
 	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1" />
 
+	<style name="TextAppearance.Subtitle.Tight" >
+		<item name="fontFamily">sans-serif-condensed</item>
+		<item name="android:fontFamily">sans-serif-condensed</item>
+	</style>
+
 	<style name="TextAppearance.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5" />
 
 	<style name="TextAppearance.Caption.Primary" parent="@style/TextAppearance.MaterialComponents.Caption">

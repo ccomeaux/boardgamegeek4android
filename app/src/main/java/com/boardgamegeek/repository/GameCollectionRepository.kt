@@ -57,6 +57,10 @@ class GameCollectionRepository(
         .map { it.filter { item -> item.deleteTimestamp == 0L } }
         .flowOn(Dispatchers.Default)
 
+    suspend fun loadCollectionItem(internalId: Long): CollectionItem? = withContext(Dispatchers.IO) {
+        collectionDao.load(internalId)?.mapToModel()
+    }
+
     fun loadCollectionItemFlow(internalId: Long): Flow<CollectionItem?> {
         return collectionDao.loadFlow(internalId)
             .map { it?.mapToModel() }

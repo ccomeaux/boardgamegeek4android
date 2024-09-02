@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/linearLayout"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:background="?android:attr/selectableItemBackground">
+
+	<com.google.android.material.imageview.ShapeableImageView
+		android:id="@+id/thumbnailView"
+		android:layout_width="98dp"
+		android:layout_height="98dp"
+		android:contentDescription="@string/thumbnail"
+		android:scaleType="centerCrop"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintBottom_toTopOf="@id/nameView"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:shapeAppearanceOverlay="@style/circleImageView"
+		app:srcCompat="@drawable/thumbnail_image_empty"
+		app:strokeWidth="1px" />
+
+	<TextView
+		android:id="@+id/badgeView"
+		style="@style/RatingSmall"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="end|center_vertical"
+		android:layout_marginStart="@dimen/padding_standard"
+		android:layout_marginLeft="@dimen/padding_standard"
+		android:gravity="center_horizontal"
+		android:minWidth="48dp"
+		android:textAppearance="@style/TextAppearance.RowDetail.Bold"
+		app:layout_constraintBottom_toBottomOf="@id/thumbnailView"
+		app:layout_constraintEnd_toEndOf="@id/thumbnailView"
+		tools:background="#0f0"
+		tools:text="9.8" />
+
+	<TextView
+		android:id="@+id/nameView"
+		style="@style/TextAppearance.Subtitle.Tight"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:ellipsize="end"
+		android:gravity="center_horizontal"
+		android:lines="2"
+		android:paddingTop="@dimen/padding_half"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/thumbnailView"
+		tools:text="Gaia Project" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

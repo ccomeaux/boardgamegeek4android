@@ -39,4 +39,8 @@
 	<declare-styleable name="CollectionStatusSync">
 		<attr name="switchLabel" format="string"/>
 	</declare-styleable>
+	<declare-styleable name="CollectionShelf">
+		<attr name="headerLabel" format="string"/>
+		<attr name="helpText" format="string"/>
+	</declare-styleable>
 </resources>

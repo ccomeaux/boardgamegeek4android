@@ -82,6 +82,7 @@ data class CollectionItem(
     val numberOfUsersOwned: Int = 0,
     val numberOfUsersWanting: Int = 0,
     val numberOfUsersRating: Int = 0,
+    val numberOfUsersWishing: Int = 0,
     val standardDeviation: Double = 0.0,
 ) {
     val isDirty: Boolean by lazy {
@@ -137,6 +138,7 @@ data class CollectionItem(
 
     val modifiedWhitmoreScore: Double by lazy {
         // converts personal rating to a geometric scale from -10 to 10, centered on NEUTRAL_MODIFIED_WHITMORE_RATING
+        // https://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23
         // http://www.boardgamegeek.com/geeklist/37832
         // https://boardgamegeek.com/geeklist/39165/extended-statistics-for-zefquaavius-2009-01-28?commentid=224943
         // w = (myRating - neutralRating)² × SIGN(myRating - neutralRating) / 2.025, where neutralRating is 5.5

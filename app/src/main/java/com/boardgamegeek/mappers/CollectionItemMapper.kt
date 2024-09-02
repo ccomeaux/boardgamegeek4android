@@ -357,6 +357,7 @@ private fun CollectionItem.addGame(game: GameEntity): CollectionItem {
         numberOfUsersOwned = game.numberOfUsersOwned ?: 0,
         numberOfUsersWanting = game.numberOfUsersWanting ?: 0,
         numberOfUsersRating = game.numberOfRatings ?: 0,
+        numberOfUsersWishing = game.numberOfUsersWishListing ?: 0,
         standardDeviation = game.standardDeviation ?: 0.0,
     )
 }

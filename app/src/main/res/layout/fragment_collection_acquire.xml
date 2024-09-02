@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:animateLayoutChanges="true">
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/preorderedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_preordered" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/wishlistWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_wishlist" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/wantToBuyWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_want_to_buy" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/favoriteUnownedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_favorite_unowned" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/playedUnownedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_played_unowned" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/hawtUnownedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_hawt_unowned" />
+	</LinearLayout>
+</ScrollView>
