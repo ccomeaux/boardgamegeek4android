@@ -20,7 +20,11 @@ data class NewPlayPlayer(
     constructor(player: Player) : this(player.name, player.username, rawAvatarUrl = player.avatarUrl)
 
     val id: String
-        get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"
+        get() = if (isUser()) "U|${username.lowercase(Locale.getDefault())}" else "P|$name"
+
+    val playerName = username.ifBlank { name }
+
+    fun isUser() = username.isNotBlank()
 
     val avatarUrl: String = rawAvatarUrl
         get() = if (field == "N/A") "" else field

@@ -3,9 +3,9 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.LiveSharedPreference
+import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -163,7 +163,12 @@ class NewPlayViewModel @Inject constructor(
 
         mightBeNewPlayers.addSource(addedPlayers) { list ->
             list?.let {
-                assembleMightBeNewPlayers(list)
+                assembleMightBeNewPlayers(players = list)
+            }
+        }
+        mightBeNewPlayers.addSource(playDate) { date ->
+            date?.let {
+                assembleMightBeNewPlayers(playDate = date)
             }
         }
 
@@ -228,15 +233,6 @@ class NewPlayViewModel @Inject constructor(
                 } else {
                     playRepository.loadNonUserColors(player.name)
                 }
-                assemblePlayers()
-
-                val plays = playRepository.loadPlaysByPlayer(
-                    player.playerName,
-                    gameId.value ?: BggContract.INVALID_ID,
-                    player.isUser()
-                )
-                playerMightBeNewMap[player.id] = plays.sumOf { it.quantity } == 0
-                assembleMightBeNewPlayers()
 
                 _addedPlayers.value = newList
             }
@@ -253,9 +249,6 @@ class NewPlayViewModel @Inject constructor(
 
         val newColorMap = playerColorMap.value ?: mutableMapOf()
         newColorMap.remove(removedPlayer.id)?.let { playerColorMap.value = newColorMap }
-
-        playerMightBeNewMap.remove(removedPlayer.id)
-        assembleMightBeNewPlayers()
 
         val newSortMap = playerSortMap.value ?: mutableMapOf()
         if (newSortMap.isNotEmpty()) {
@@ -356,12 +349,8 @@ class NewPlayViewModel @Inject constructor(
     }
 
     fun finishPlayerSort() {
-        val step = when {
-            playerMightBeNewMap.values.any { it } -> Step.PLAYERS_NEW
-            (startTime.value ?: 0L) == 0L -> Step.PLAYERS_WIN
-            else -> Step.COMMENTS
-        }
-        addStep(step)
+        // TODO skip PLAYERS_NEW step if no players might be new. Currently this isn't calculated until the fragment is visibile
+        addStep(Step.PLAYERS_NEW)
     }
 
     fun addIsNewToPlayer(playerId: String, isNew: Boolean) {
@@ -485,10 +474,25 @@ class NewPlayViewModel @Inject constructor(
     }
 
     private fun assembleMightBeNewPlayers(
-        players: List<NewPlayPlayer> = mightBeNewPlayers.value.orEmpty(),
-        newMap: MutableMap<String, Boolean> = playerMightBeNewMap
+        players: List<NewPlayPlayer> = addedPlayers.value.orEmpty(),
+        playDate: Long = _playDate.value ?: Long.MAX_VALUE,
     ) {
-        mightBeNewPlayers.value = players.filter { newMap[it.id] ?: false }
+        viewModelScope.launch {
+            players.forEach { player ->
+                if (!playerMightBeNewMap.containsKey(player.id)) {
+                    val plays = playRepository.loadPlaysByPlayer(
+                        player.playerName,
+                        gameId.value ?: BggContract.INVALID_ID,
+                        player.isUser()
+                    )
+                    playerMightBeNewMap[player.id] = plays
+                        .filter { it.dateInMillis < (playDate) }
+                        .sumOf { it.quantity } == 0
+                }
+                // TODO handle removing (not strictly necessary)
+            }
+            mightBeNewPlayers.postValue(players.filter { playerMightBeNewMap[it.id] ?: true })
+        }
     }
 
     private fun isLastPlayRecent(): Boolean {
