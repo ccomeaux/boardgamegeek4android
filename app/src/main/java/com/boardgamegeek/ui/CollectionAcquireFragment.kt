@@ -81,6 +81,18 @@ class CollectionAcquireFragment : Fragment() {
             binding.wantToBuyWidget.bindList(it)
         }
 
+        binding.wantInTradeWidget.setAdapter(
+            CollectionShelf.CollectionItemAdapter(
+                { item: CollectionItem ->
+                    buyGame(item)
+                },
+                { rating(it.averageRating) }
+            )
+        )
+        viewModel.wantInTrade.observe(viewLifecycleOwner) {
+            binding.wantInTradeWidget.bindList(it)
+        }
+
         binding.favoriteUnownedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 { item: CollectionItem ->

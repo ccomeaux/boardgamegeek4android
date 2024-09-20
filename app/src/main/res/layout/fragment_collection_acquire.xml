@@ -29,6 +29,12 @@
 			app:headerLabel="@string/collection_status_want_to_buy" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/wantInTradeWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_want_in_trade" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/favoriteUnownedWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

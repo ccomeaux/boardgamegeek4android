@@ -137,6 +137,16 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
+    val wantInTrade: LiveData<List<CollectionItem>> = _allItems.switchMap {
+        liveData {
+            emit(
+                it.filter { it.wantInTrade }
+                    .sortedByDescending { it.geekRating }
+                    .take(ITEM_LIMIT)
+            )
+        }
+    }
+
     val favoriteUnownedItems: LiveData<List<CollectionItem>> = _allItems.switchMap {
         liveData {
             emit(
