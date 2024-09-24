@@ -12,6 +12,7 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.PlayUploadResult
+import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -265,6 +266,12 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
+    // Related data
+
+    val acquiredFrom = liveData {
+        emit(gameCollectionRepository.loadAcquiredFrom())
+    }
+
     // Actions
 
     fun refresh() {
@@ -293,6 +300,47 @@ class CollectionDetailsViewModel @Inject constructor(
                     if (it.play.playId != INVALID_ID)
                         _loggedPlayResult.value = Event(it)
                 }
+            }
+        }
+    }
+
+    fun updatePrivateInfo(
+        internalId: Long,
+        priceCurrency: String?,
+        pricePaid: Double?,
+        quantity: Int?,
+        acquisitionDate: Long?,
+        acquiredFrom: String?,
+    ) {
+        _allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
+            viewModelScope.launch {
+                // disable wishlist, want in trade, want to buy, and preordered; enable own
+                val statuses = mutableListOf(Collection.Columns.STATUS_OWN)
+                if (originalItem.previouslyOwned) statuses.add(Collection.Columns.STATUS_PREVIOUSLY_OWNED)
+                if (originalItem.forTrade) statuses.add(Collection.Columns.STATUS_FOR_TRADE)
+                if (originalItem.wantToPlay) statuses.add(Collection.Columns.STATUS_WANT_TO_PLAY)
+                gameCollectionRepository.updateStatuses(internalId, statuses, originalItem.wishListPriority) // TODO set this to WISHLIST_PRIORITY_UNKNOWN?
+
+                val itemModified = priceCurrency != originalItem.pricePaidCurrency ||
+                        pricePaid != originalItem.pricePaid ||
+                        quantity != originalItem.quantity ||
+                        acquisitionDate != originalItem.acquisitionDate ||
+                        acquiredFrom != originalItem.acquiredFrom
+
+                if (itemModified) {
+                    gameCollectionRepository.updatePrivateInfo(
+                        internalId,
+                        priceCurrency,
+                        pricePaid,
+                        originalItem.currentValueCurrency,
+                        originalItem.currentValue,
+                        quantity,
+                        acquisitionDate,
+                        acquiredFrom,
+                        originalItem.inventoryLocation,
+                    )
+                }
+                gameCollectionRepository.enqueueUploadRequest(originalItem.gameId)
             }
         }
     }

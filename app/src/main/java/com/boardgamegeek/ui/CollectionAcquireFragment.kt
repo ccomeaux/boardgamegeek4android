@@ -15,6 +15,7 @@ import com.boardgamegeek.databinding.FragmentCollectionAcquireBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.ui.dialog.CollectionDetailPrivateInfoDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionDetailsViewModel
 import com.boardgamegeek.ui.widget.CollectionShelf
 
@@ -134,7 +135,16 @@ class CollectionAcquireFragment : Fragment() {
     }
 
     private fun buyGame(item: CollectionItem) {
-        toast("Buy ${item.gameName}!") // TODO
+        val privateInfoDialogFragment = CollectionDetailPrivateInfoDialogFragment.newInstance(
+            item.internalId,
+            item.collectionName,
+            item.pricePaidCurrency,
+            item.pricePaid,
+            item.quantity,
+            item.acquisitionDate,
+            item.acquiredFrom,
+        )
+        this.showAndSurvive(privateInfoDialogFragment)
     }
 
     private fun rating(rating: Double): Pair<String, Int> {

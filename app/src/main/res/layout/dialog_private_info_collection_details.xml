@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:importantForAutofill="noExcludeDescendants"
+		android:orientation="vertical"
+		android:paddingLeft="@dimen/material_margin_horizontal"
+		android:paddingTop="@dimen/material_margin_vertical"
+		android:paddingRight="@dimen/material_margin_horizontal"
+		android:paddingBottom="@dimen/material_margin_vertical"
+		tools:ignore="UnusedAttribute">
+
+		<TextView
+			android:id="@+id/gameNameView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/padding_standard"
+			android:textAppearance="@style/TextAppearance.Title"
+			tools:text="Spirit Island" />
+
+		<TextView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/padding_standard"
+			android:text="@string/message_acquiring"
+			android:textAppearance="@style/TextAppearance.Subtitle" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginVertical="@dimen/padding_half"
+			android:gravity="center_vertical"
+			android:orientation="horizontal">
+
+			<Spinner
+				android:id="@+id/priceCurrencyView"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content" />
+
+			<com.google.android.material.textfield.TextInputLayout
+				style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:hint="@string/price">
+
+				<com.google.android.material.textfield.TextInputEditText
+					android:id="@+id/priceView"
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:inputType="numberDecimal"
+					android:maxLines="1" />
+			</com.google.android.material.textfield.TextInputLayout>
+		</LinearLayout>
+
+		<com.google.android.material.textfield.TextInputLayout
+			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginVertical="@dimen/padding_half"
+			android:hint="@string/quantity">
+
+			<com.google.android.material.textfield.TextInputEditText
+				android:id="@+id/quantityView"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:inputType="number"
+				android:maxLines="1" />
+		</com.google.android.material.textfield.TextInputLayout>
+
+		<TextView
+			android:id="@+id/acquisitionDateLabelView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="8dp"
+			android:layout_marginLeft="8dp"
+			android:layout_marginTop="@dimen/padding_half"
+			android:layout_marginBottom="-8dp"
+			android:paddingHorizontal="@dimen/padding_half"
+			android:text="@string/acquisition_date"
+			android:textAppearance="?attr/textAppearanceCaption"
+			android:textColor="#99000000" />
+
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/padding_half"
+			android:gravity="center"
+			android:orientation="horizontal">
+
+			<TextView
+				android:id="@+id/acquisitionDateView"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginStart="8dp"
+				android:layout_marginLeft="8dp"
+				android:layout_weight="1"
+				android:background="?attr/selectableItemBackground"
+				android:clickable="true"
+				android:focusable="true"
+				android:gravity="start|center_vertical"
+				android:hint="@string/acquisition_date"
+				android:minHeight="48dp"
+				android:paddingHorizontal="4dp"
+				android:textAppearance="@style/TextAppearance.Subtitle"
+				tools:text="January 1, 1970" />
+
+			<ImageView
+				android:id="@+id/clearDateView"
+				style="@style/FormButton"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:background="?attr/selectableItemBackgroundBorderless"
+				android:contentDescription="@string/clear"
+				android:scaleType="center"
+				android:src="@drawable/ic_baseline_clear_24" />
+		</LinearLayout>
+
+		<com.google.android.material.textfield.TextInputLayout
+			style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginVertical="@dimen/padding_half"
+			android:hint="@string/acquired_from"
+			app:endIconMode="dropdown_menu">
+
+			<androidx.appcompat.widget.AppCompatAutoCompleteTextView
+				android:id="@+id/acquiredFromView"
+				style="@style/Widget.MaterialComponents.AutoCompleteTextView.OutlinedBox.Dense"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:imeOptions="actionNext"
+				android:inputType="textCapWords" />
+		</com.google.android.material.textfield.TextInputLayout>
+	</LinearLayout>
+</ScrollView>
+
