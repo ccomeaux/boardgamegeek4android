@@ -338,9 +338,9 @@ class GameCollectionRepository(
         }
     }
 
-    suspend fun loadAcquiredFrom() = withContext(Dispatchers.IO) { collectionDao.loadAcquiredFrom().filterNot { it.isNullOrBlank() } }
+    suspend fun loadAcquiredFrom() = withContext(Dispatchers.IO) { collectionDao.loadAcquiredFrom().filterNotNull().filterNot { it.isBlank() } }
 
-    suspend fun loadInventoryLocation() = withContext(Dispatchers.IO) { collectionDao.loadInventoryLocation().filterNot { it.isNullOrBlank() } }
+    suspend fun loadInventoryLocation() = withContext(Dispatchers.IO) { collectionDao.loadInventoryLocation().filterNotNull().filterNot { it.isBlank() } }
 
     suspend fun loadItemsPendingDeletion() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingDeletion().map { it.mapToModel() } }
 
