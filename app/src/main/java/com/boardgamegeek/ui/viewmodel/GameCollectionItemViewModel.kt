@@ -196,7 +196,18 @@ class GameCollectionItemViewModel @Inject constructor(
         if (itemModified) {
             _isEdited.value = true
             viewModelScope.launch {
-                gameCollectionRepository.updateStatuses(getInternalId(), statuses, wishlistPriority)
+                gameCollectionRepository.updateStatus(
+                    getInternalId(),
+                    statusOwn = statuses.contains(Collection.Columns.STATUS_OWN),
+                    statusPreordered = statuses.contains(Collection.Columns.STATUS_PREORDERED),
+                    statusPreviouslyOwned = statuses.contains(Collection.Columns.STATUS_PREVIOUSLY_OWNED),
+                    statusForTrade = statuses.contains(Collection.Columns.STATUS_FOR_TRADE),
+                    statusWant = statuses.contains(Collection.Columns.STATUS_WANT),
+                    statusWantToPlay = statuses.contains(Collection.Columns.STATUS_WANT_TO_PLAY),
+                    statusWantToBuy = statuses.contains(Collection.Columns.STATUS_WANT_TO_BUY),
+                    statusWishlist = statuses.contains(Collection.Columns.STATUS_WISHLIST),
+                    statusWishlistPriority = wishlistPriority,
+                )
             }
         }
     }

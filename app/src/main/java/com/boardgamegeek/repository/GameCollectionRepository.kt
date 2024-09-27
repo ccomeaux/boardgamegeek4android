@@ -19,11 +19,11 @@ import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionItem.Companion.UNRATED
+import com.boardgamegeek.model.CollectionItem.Companion.WISHLIST_PRIORITY_UNKNOWN
 import com.boardgamegeek.model.CollectionItemUploadResult
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearCollection
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.work.CollectionUploadWorker
@@ -531,21 +531,32 @@ class GameCollectionRepository(
         collectionDao.updatePrivateInfo(entity)
     }
 
-    suspend fun updateStatuses(internalId: Long, statuses: List<String>, wishlistPriority: Int): Int = withContext(Dispatchers.IO) {
-        val priority = if (statuses.contains(BggContract.Collection.Columns.STATUS_WISHLIST))
-            wishlistPriority.coerceIn(1..5)
+    suspend fun updateStatus(
+        internalId: Long,
+        statusOwn: Boolean = false,
+        statusPreordered: Boolean = false,
+        statusPreviouslyOwned: Boolean = false,
+        statusForTrade: Boolean = false,
+        statusWant: Boolean = false,
+        statusWantToPlay: Boolean = false,
+        statusWantToBuy: Boolean = false,
+        statusWishlist: Boolean = false,
+        statusWishlistPriority: Int = WISHLIST_PRIORITY_UNKNOWN,
+    ): Int = withContext(Dispatchers.IO) {
+        val priority = if (statusWishlist)
+            statusWishlistPriority.coerceIn(1..5)
         else null
-        val entity = CollectionStatusEntity( // TODO don't use column names!
+        val entity = CollectionStatusEntity(
             internalId = internalId,
-            statusOwn = statuses.contains(BggContract.Collection.Columns.STATUS_OWN),
-            statusPreviouslyOwned = statuses.contains(BggContract.Collection.Columns.STATUS_PREVIOUSLY_OWNED),
-            statusForTrade = statuses.contains(BggContract.Collection.Columns.STATUS_FOR_TRADE),
-            statusWant = statuses.contains(BggContract.Collection.Columns.STATUS_WANT),
-            statusWantToPlay = statuses.contains(BggContract.Collection.Columns.STATUS_WANT_TO_PLAY),
-            statusWantToBuy = statuses.contains(BggContract.Collection.Columns.STATUS_WANT_TO_BUY),
-            statusWishlist = statuses.contains(BggContract.Collection.Columns.STATUS_WISHLIST),
+            statusOwn = statusOwn,
+            statusPreviouslyOwned = statusPreviouslyOwned,
+            statusForTrade = statusForTrade,
+            statusWant = statusWant,
+            statusWantToPlay = statusWantToPlay,
+            statusWantToBuy = statusWantToBuy,
+            statusWishlist = statusWishlist,
             statusWishlistPriority = priority,
-            statusPreordered = statuses.contains(BggContract.Collection.Columns.STATUS_PREORDERED),
+            statusPreordered = statusPreordered,
             statusDirtyTimestamp = System.currentTimeMillis(),
         )
         collectionDao.updateStatuses(entity)
