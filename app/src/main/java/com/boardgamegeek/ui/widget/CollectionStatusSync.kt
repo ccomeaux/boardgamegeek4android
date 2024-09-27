@@ -46,12 +46,13 @@ class CollectionStatusSync @JvmOverloads constructor(
         switchListener = listener
     }
 
-    fun setProgress(inProgress: Boolean) {
+    fun setProgress(inProgress: Boolean, isOtherInProgress: Boolean) {
         findViewById<LinearProgressIndicator>(R.id.progressIndicator).isVisible = inProgress
-        findViewById<Button>(R.id.syncStatusButton).isEnabled = !inProgress
+        findViewById<Button>(R.id.syncStatusButton).isEnabled = !inProgress && !isOtherInProgress
+        findViewById<SwitchCompat>(R.id.statusSwitch).isEnabled = !inProgress && !isOtherInProgress
     }
 
-    fun enable(enabled: Boolean) {
+    fun check(enabled: Boolean) {
         findViewById<SwitchCompat>(R.id.statusSwitch).isChecked = enabled
     }
 

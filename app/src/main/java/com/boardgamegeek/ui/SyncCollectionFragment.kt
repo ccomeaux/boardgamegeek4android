@@ -11,7 +11,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentSyncCollectionBinding
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.formatDateTime
+import com.boardgamegeek.extensions.getQuantityText
+import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.boardgamegeek.ui.widget.CollectionStatusSync
@@ -103,7 +105,7 @@ class SyncCollectionFragment : Fragment() {
             statuses?.let {
                 binding.root.allViews.filterIsInstance<CollectionStatusSync>().forEach { view ->
                     (view.tag as? CollectionStatus)?.let { status ->
-                        view.enable(statuses.contains(status))
+                        view.check(statuses.contains(status))
                     }
                 }
             }
@@ -116,12 +118,12 @@ class SyncCollectionFragment : Fragment() {
                 binding.progressBar.isVisible = (it.step != SyncViewModel.CollectionSyncProgressStep.NotSyncing)
                 binding.syncCollectionStep.isVisible = (it.step != SyncViewModel.CollectionSyncProgressStep.NotSyncing)
 
-                binding.root.allViews.filterIsInstance<CollectionStatusSync>().forEach { v -> v.setProgress(false) }
+                binding.root.allViews.filterIsInstance<CollectionStatusSync>().forEach { v -> v.setProgress(false, it.step != SyncViewModel.CollectionSyncProgressStep.NotSyncing) }
                 binding.root.allViews.filterIsInstance<CollectionStatusSync>().find { v ->
                     (v.tag as? CollectionStatus) == it.status
-                }?.setProgress(true)
+                }?.setProgress(true, it.step != SyncViewModel.CollectionSyncProgressStep.NotSyncing)
 
-                if (it.step == SyncViewModel.CollectionSyncProgressStep.NotSyncing){
+                if (it.step == SyncViewModel.CollectionSyncProgressStep.NotSyncing) {
                     binding.syncCollectionStep.isVisible = false
                 } else {
                     val subtype = getString(
@@ -131,22 +133,24 @@ class SyncCollectionFragment : Fragment() {
                             SyncViewModel.CollectionSyncProgressSubtype.Accessory -> R.string.accessories
                         }
                     )
-                    val statusDescription = getString(when (it.status) {
-                        CollectionStatus.Own -> R.string.collection_status_own
-                        CollectionStatus.PreviouslyOwned -> R.string.collection_status_prev_owned
-                        CollectionStatus.Preordered -> R.string.collection_status_preordered
-                        CollectionStatus.ForTrade -> R.string.collection_status_for_trade
-                        CollectionStatus.WantInTrade -> R.string.collection_status_want_in_trade
-                        CollectionStatus.WantToBuy -> R.string.collection_status_want_to_buy
-                        CollectionStatus.WantToPlay -> R.string.collection_status_want_to_play
-                        CollectionStatus.Wishlist -> R.string.collection_status_wishlist
-                        CollectionStatus.Played -> R.string.collection_status_played
-                        CollectionStatus.Rated -> R.string.collection_status_rated
-                        CollectionStatus.Commented -> R.string.collection_status_commented
-                        CollectionStatus.HasParts -> R.string.collection_status_has_parts
-                        CollectionStatus.WantParts -> R.string.collection_status_want_parts
-                        CollectionStatus.Unknown -> R.string.unknown
-                    })
+                    val statusDescription = getString(
+                        when (it.status) {
+                            CollectionStatus.Own -> R.string.collection_status_own
+                            CollectionStatus.PreviouslyOwned -> R.string.collection_status_prev_owned
+                            CollectionStatus.Preordered -> R.string.collection_status_preordered
+                            CollectionStatus.ForTrade -> R.string.collection_status_for_trade
+                            CollectionStatus.WantInTrade -> R.string.collection_status_want_in_trade
+                            CollectionStatus.WantToBuy -> R.string.collection_status_want_to_buy
+                            CollectionStatus.WantToPlay -> R.string.collection_status_want_to_play
+                            CollectionStatus.Wishlist -> R.string.collection_status_wishlist
+                            CollectionStatus.Played -> R.string.collection_status_played
+                            CollectionStatus.Rated -> R.string.collection_status_rated
+                            CollectionStatus.Commented -> R.string.collection_status_commented
+                            CollectionStatus.HasParts -> R.string.collection_status_has_parts
+                            CollectionStatus.WantParts -> R.string.collection_status_want_parts
+                            CollectionStatus.Unknown -> R.string.unknown
+                        }
+                    )
                     val message = when (it.step) {
                         SyncViewModel.CollectionSyncProgressStep.CompleteCollection -> {
                             if (statusDescription.isBlank()) {
