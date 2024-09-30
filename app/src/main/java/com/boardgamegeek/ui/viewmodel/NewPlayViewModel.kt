@@ -349,7 +349,7 @@ class NewPlayViewModel @Inject constructor(
     }
 
     fun finishPlayerSort() {
-        // TODO skip PLAYERS_NEW step if no players might be new. Currently this isn't calculated until the fragment is visibile
+        // TODO skip PLAYERS_NEW step if no players might be new. Currently this isn't calculated until the fragment is visible
         addStep(Step.PLAYERS_NEW)
     }
 
@@ -422,7 +422,10 @@ class NewPlayViewModel @Inject constructor(
         }
         // then filter out added players and those not matching the current filter
         val filteredList = newList.filter {
-            !(addedPlayers.orEmpty()).contains(it) && (it.name.contains(filter.orEmpty(), true) || it.username.contains(filter.orEmpty(), true))
+            !(addedPlayers.orEmpty()).contains(it) &&
+                    (it.name.contains(filter.orEmpty(), true) ||
+                            it.username.contains(filter.orEmpty(), true) ||
+                            it.fullName.contains(filter.orEmpty(), true))
         }
         val favColors = favoriteColors.orEmpty()
         filteredList.forEach { player ->

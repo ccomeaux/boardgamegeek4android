@@ -53,13 +53,13 @@ class NewPlayAddPlayersFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
-        binding.filterEditText.doAfterTextChanged { s ->
-            if (s.isNullOrBlank()) {
+        binding.filterEditText.doAfterTextChanged { text ->
+            if (text.isNullOrBlank()) {
                 binding.nextOrAddButton.setImageResource(R.drawable.ic_baseline_check_circle_24)
             } else {
                 binding.nextOrAddButton.setImageResource(R.drawable.ic_baseline_add_circle_outline_24)
             }
-            viewModel.filterPlayers(s.toString())
+            viewModel.filterPlayers(text.toString())
         }
 
         binding.nextOrAddButton.setOnClickListener {
