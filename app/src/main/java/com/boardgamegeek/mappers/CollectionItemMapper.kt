@@ -21,8 +21,8 @@ fun CollectionItemRemote.mapForInsert(updatedTimestamp: Long) = CollectionItemFo
     updatedListTimestamp = updatedTimestamp,
     gameId = objectid,
     collectionId = collid.toIntOrNull() ?: BggContract.INVALID_ID,
-    collectionName = name,
-    collectionSortName = if (name.isNullOrBlank()) name.sortName(sortindex) else name,
+    collectionName = name.orEmpty(),
+    collectionSortName = name.sortName(sortindex),
     statusOwn = own?.equals("1") ?: false,
     statusPreviouslyOwned = prevowned?.equals("1") ?: false,
     statusForTrade = fortrade?.equals("1") ?: false,
@@ -61,8 +61,8 @@ fun CollectionItemRemote.mapForUpdate(internalId: Long, updatedTimestamp: Long) 
     updatedListTimestamp = updatedTimestamp,
     gameId = objectid,
     collectionId = collid.toIntOrNull() ?: BggContract.INVALID_ID,
-    collectionName = name,
-    collectionSortName = if (name.isNullOrBlank()) name.sortName(sortindex) else name,
+    collectionName = name.orEmpty(),
+    collectionSortName = name.sortName(sortindex),
     lastModified = lastmodified.toMillis(SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)),
     collectionYearPublished = yearpublished?.toIntOrNull() ?: CollectionItem.YEAR_UNKNOWN,
     collectionThumbnailUrl = thumbnail.orEmpty(),
@@ -115,10 +115,10 @@ fun GameEntity.mapForInsert(
 
 fun CollectionItemRemote.mapToCollectionItem() = CollectionItem(
     gameId = objectid,
-    gameName = if (originalname.isNullOrBlank()) name else originalname,
+    gameName = if (originalname.isNullOrBlank()) name.orEmpty() else originalname.orEmpty(),
     collectionId = collid.toIntOrNull() ?: BggContract.INVALID_ID,
-    collectionName = name,
-    sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
+    collectionName = name.orEmpty(),
+    sortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else originalname.orEmpty(),
     gameYearPublished = yearpublished?.toIntOrNull() ?: CollectionItem.YEAR_UNKNOWN,
     collectionYearPublished = yearpublished?.toIntOrNull() ?: CollectionItem.YEAR_UNKNOWN,
     imageUrl = image.orEmpty(),
@@ -151,14 +151,31 @@ fun CollectionItemRemote.mapToCollectionItem() = CollectionItem(
     inventoryLocation = inventorylocation.orEmpty()
 )
 
-fun CollectionItemRemote.mapToCollectionGame(updatedTimestamp: Long, internalId: Long = 0L) = CollectionGameForUpsert(
+fun CollectionItemRemote.mapToCollectionGameForInsert(updatedTimestamp: Long, internalId: Long = 0L) = CollectionGameForInsert(
     internalId = internalId,
     gameId = objectid,
-    gameName = if (originalname.isNullOrBlank()) name else originalname,
-    gameSortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else name,
+    gameName = if (originalname.isNullOrBlank()) name.orEmpty() else originalname.orEmpty(),
+    gameSortName = if (originalname.isNullOrBlank()) name.sortName(sortindex) else originalname,
     yearPublished = yearpublished?.toIntOrNull() ?: CollectionItem.YEAR_UNKNOWN,
     imageUrl = image.orEmpty(),
     thumbnailUrl = thumbnail.orEmpty(),
+    minPlayers = stats?.minplayers ?: 0,
+    maxPlayers = stats?.maxplayers ?: 0,
+    playingTime = stats?.playingtime ?: 0,
+    minPlayingTime = stats?.minplaytime ?: 0,
+    maxPlayingTime = stats?.maxplaytime ?: 0,
+    numberOfUsersOwned = stats?.numowned?.toIntOrNull() ?: 0,
+    numberOfRatings = stats?.usersrated?.toIntOrNull() ?: 0,
+    average = stats?.average?.toDoubleOrNull() ?: 0.0,
+    bayesAverage = stats?.bayesaverage?.toDoubleOrNull() ?: 0.0,
+    standardDeviation = stats?.stddev?.toDoubleOrNull() ?: 0.0,
+    median = stats?.median?.toDoubleOrNull() ?: 0.0,
+    numberOfPlays = numplays,
+    updatedList = updatedTimestamp,
+)
+
+fun CollectionItemRemote.mapToCollectionGameForUpdate(updatedTimestamp: Long, internalId: Long = 0L) = CollectionGameForUpdate(
+    internalId = internalId,
     minPlayers = stats?.minplayers ?: 0,
     maxPlayers = stats?.maxplayers ?: 0,
     playingTime = stats?.playingtime ?: 0,

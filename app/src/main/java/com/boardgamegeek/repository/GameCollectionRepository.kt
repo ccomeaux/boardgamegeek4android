@@ -216,13 +216,13 @@ class GameCollectionRepository(
         // upsert info on the Game entity
         val loadedGame = gameDao.loadGame(itemForInsert.gameId)
         if (loadedGame?.game == null || loadedGame.game.gameId == INVALID_ID) {
-            val game = withContext(Dispatchers.Default) { collectionItem.mapToCollectionGame(timestamp) }
+            val game = withContext(Dispatchers.Default) { collectionItem.mapToCollectionGameForInsert(timestamp) }
             val internalId = gameDao.insertGame(game)
             Timber.i("Inserted game '${game.gameName}' (${game.gameId}) [$internalId]")
         } else {
-            val game = withContext(Dispatchers.Default) { collectionItem.mapToCollectionGame(timestamp, loadedGame.game.internalId) }
+            val game = withContext(Dispatchers.Default) { collectionItem.mapToCollectionGameForUpdate(timestamp, loadedGame.game.internalId) }
             gameDao.updateGame(game)
-            Timber.i("Updated game '${game.gameName}' (${game.gameId}) [${game.internalId}]")
+            Timber.i("Updated game '${collectionItem.name}' (${collectionItem.objectid}) [${game.internalId}]")
         }
 
         // find a candidate collection item in the database that should be replaced with this one

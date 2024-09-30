@@ -44,10 +44,10 @@ interface GameDao {
     suspend fun updateGame(game: GameForUpsertHeader)
 
     @Insert(GameEntity::class, onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertGame(game: CollectionGameForUpsert): Long
+    suspend fun insertGame(game: CollectionGameForInsert): Long
 
     @Update(GameEntity::class, onConflict = OnConflictStrategy.IGNORE)
-    suspend fun updateGame(game: CollectionGameForUpsert)
+    suspend fun updateGame(game: CollectionGameForUpdate)
 
     @Insert
     suspend fun insertRanks(ranks: List<GameRankEntity>)
