@@ -45,7 +45,7 @@
 
 	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1" />
 
-	<style name="TextAppearance.Subtitle.Tight" >
+	<style name="TextAppearance.Subtitle.Condensed" parent="@style/TextAppearance.MaterialComponents.Subtitle2" >
 		<item name="fontFamily">sans-serif-condensed</item>
 		<item name="android:fontFamily">sans-serif-condensed</item>
 	</style>
@@ -324,6 +324,10 @@
 		<item name="android:lines">1</item>
 	</style>
 
+	<style name="RatingNarrow" parent="RatingSmall">
+		<item name="android:maxWidth">48dp</item>
+	</style>
+
 	<!-- Forms -->
 
 	<style name="FormContainer">
@@ -432,6 +436,11 @@
 
 	<style name="EditSpinnerItemStyle" parent="Base.Widget.AppCompat.TextView.SpinnerItem">
 		<item name="android:textSize">14sp</item>
+	</style>
+
+	<style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+		<item name="cornerFamily">rounded</item>
+		<item name="cornerSize">8dp</item>
 	</style>
 
 	<!-- Images -->

@@ -30,36 +30,39 @@ class CollectionBrowseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.recentlyViewedWidget.setAdapter(CollectionShelf.CollectionItemAdapter { item: CollectionItem ->
-            rating(item.averageRating)
-        })
+        binding.recentlyViewedWidget.setAdapter(
+            CollectionShelf.CollectionItemAdapter(bindBadge = { item: CollectionItem ->
+                rating(item.averageRating)
+            }),
+        )
         viewModel.recentlyViewedItems.observe(viewLifecycleOwner) {
             binding.recentlyViewedWidget.bindList(it)
         }
 
         binding.highlyRatedWidget.setAdapter(
-            CollectionShelf.CollectionItemAdapter
-            { item ->
-                rating(item.rating)
-            }
+            CollectionShelf.CollectionItemAdapter(
+                bindBadge = { item ->
+                    rating(item.rating)
+                })
         )
         viewModel.highlyRatedItems.observe(viewLifecycleOwner) {
             binding.highlyRatedWidget.bindList(it)
         }
 
-        binding.hiddenGemsWidget.setAdapter(CollectionShelf.CollectionItemAdapter()
-            { item ->
-                item.ratingDelta.asPersonalRating(context, ResourcesCompat.ID_NULL) to Color.WHITE
-            }
+        binding.hiddenGemsWidget.setAdapter(
+            CollectionShelf.CollectionItemAdapter(
+                bindBadge = { item ->
+                    item.ratingDelta.asPersonalRating(context, ResourcesCompat.ID_NULL) to Color.WHITE
+                })
         )
         viewModel.underratedItems.observe(viewLifecycleOwner) {
             binding.hiddenGemsWidget.bindList(it)
         }
 
         binding.hawtWidget.setAdapter(
-            CollectionShelf.CollectionItemAdapter { item ->
+            CollectionShelf.CollectionItemAdapter(onClick = { item ->
                 rating(item.averageRating)
-            }
+            })
         )
         viewModel.hawtItems.observe(viewLifecycleOwner) {
             binding.hawtWidget.bindList(it)

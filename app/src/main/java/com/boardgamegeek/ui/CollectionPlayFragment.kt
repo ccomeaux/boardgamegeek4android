@@ -42,10 +42,11 @@ class CollectionPlayFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 { item: CollectionItem ->
                     playGame(item)
+                },
+                { item ->
+                    rating(item.averageRating)
                 }
-            ) { item ->
-                rating(item.averageRating)
-            }
+            )
         )
         viewModel.wantToPlayItems.observe(viewLifecycleOwner) {
             binding.wantToPlayWidget.bindList(it)
@@ -55,10 +56,11 @@ class CollectionPlayFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 { item: CollectionItem ->
                     playGame(item)
+                },
+                { item ->
+                    rating(item.averageRating)
                 }
-            ) { item ->
-                rating(item.averageRating)
-            }
+            )
         )
         viewModel.recentlyPlayedItems.observe(viewLifecycleOwner) {
             binding.recentlyPlayedWidget.bindList(it)
@@ -68,10 +70,11 @@ class CollectionPlayFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 { item: CollectionItem ->
                     playGame(item)
+                },
+                { item ->
+                    rating(item.averageRating)
                 }
-            ) { item ->
-                rating(item.averageRating)
-            }
+            )
         )
         viewModel.shelfOfOpportunityItems.observe(viewLifecycleOwner) {
             binding.shelfOfOpportunityWidget.bindList(it)
@@ -82,10 +85,11 @@ class CollectionPlayFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 { item: CollectionItem ->
                     playGame(item)
+                },
+                { item ->
+                    item.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
                 }
-            ) { item ->
-                item.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
-            }
+            )
         )
         viewModel.shelfOfNewOpportunityItems.observe(viewLifecycleOwner) {
             binding.shelfOfNewOpportunityWidget.bindList(it)

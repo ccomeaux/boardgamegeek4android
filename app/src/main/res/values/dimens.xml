@@ -60,5 +60,6 @@
 	<dimen name="chip_group_height">48dp</dimen>
 	<dimen name="colored_background_corner_radius">4dp</dimen>
 	<string name="hero_aspect_ratio" translatable="false">H,16:9</string>
+	<dimen name="card_width">96dp</dimen>
 
 </resources>

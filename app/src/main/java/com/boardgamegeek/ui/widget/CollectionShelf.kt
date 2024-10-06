@@ -4,12 +4,13 @@ import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.isVisible
@@ -40,7 +41,7 @@ class CollectionShelf @JvmOverloads constructor(
         findViewById<RecyclerView>(R.id.recyclerView).apply {
             addItemDecoration(MaterialDividerItemDecoration(context, RecyclerView.HORIZONTAL).apply {
                 dividerColor = Color.TRANSPARENT
-                dividerThickness = context.resources.getDimensionPixelSize(R.dimen.padding_standard)
+                dividerThickness = context.resources.getDimensionPixelSize(R.dimen.padding_small)
             })
         }
 
@@ -79,6 +80,8 @@ class CollectionShelf @JvmOverloads constructor(
     class CollectionItemAdapter(
         private val onClick: ((item: CollectionItem) -> Unit)? = null,
         private val bindBadge: ((item: CollectionItem) -> Pair<CharSequence, Int>)? = null,
+        private val menuResourceId: Int = ResourcesCompat.ID_NULL,
+        private val onMenuClick: ((item: CollectionItem, menuItem: MenuItem) -> Boolean)? = null,
     ) : Adapter<CollectionItemAdapter.CollectionItemViewHolder>(), AutoUpdatableAdapter {
         var items: List<CollectionItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
@@ -110,11 +113,28 @@ class CollectionShelf @JvmOverloads constructor(
             fun bindView(item: CollectionItem?) {
                 if (item == null) return
                 binding.nameView.text = item.gameName
+                binding.yearView.text = item.yearPublished.asYear(itemView.context)
                 binding.thumbnailView.loadThumbnail(item.thumbnailUrl)
                 bindBadge?.let {
-                    val badge = it.invoke(item)
-                    binding.badgeView.setTextOrHide(badge.first)
-                    binding.badgeView.setTextViewBackground(badge.second)
+                    it.invoke(item).also { badge ->
+                        binding.badgeView.setTextOrHide(badge.first)
+                        binding.badgeView.setTextViewBackground(badge.second)
+                    }
+                }
+                if (menuResourceId == ResourcesCompat.ID_NULL) {
+                    binding.moreButton.isVisible = false
+                } else {
+                    binding.moreButton.isVisible = true
+                    binding.moreButton.setOnClickListener {
+                        PopupMenu(itemView.context, binding.moreButton).apply {
+                            inflate(menuResourceId)
+                            setOnMenuItemClickListener { menuItem: MenuItem ->
+                                onMenuClick?.invoke(item, menuItem) ?: false
+                                true
+                            }
+                            show()
+                        }
+                    }
                 }
                 itemView.setOnClickListener {
                     if (onClick == null) {
