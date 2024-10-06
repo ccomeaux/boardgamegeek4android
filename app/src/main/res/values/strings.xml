@@ -134,7 +134,7 @@
 	<string name="title_search">Search</string>
 	<string name="title_collection">Collection</string>
 	<string name="title_my_games">My Games</string>
-	<string name="title_collection_details">Collection Details</string>
+	<string name="title_collection_legacy">Collection (Legacy)</string>
 	<string name="title_filtered_collection">Filtered Collection</string>
 	<string name="title_hotness">The Hotness</string>
 	<string name="title_settings">Settings</string>

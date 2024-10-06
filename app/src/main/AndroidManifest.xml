@@ -54,7 +54,7 @@
 		<activity
 			android:name=".ui.CollectionActivity"
 			android:exported="true"
-			android:label="@string/title_collection"
+			android:label="@string/title_collection_legacy"
 			android:uiOptions="splitActionBarWhenNarrow"
 			android:windowSoftInputMode="adjustNothing">
 			<meta-data
@@ -63,7 +63,7 @@
 		</activity>
 		<activity
 			android:name=".ui.CollectionDetailsActivity"
-			android:label="@string/title_collection_details">
+			android:label="@string/title_collection">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
