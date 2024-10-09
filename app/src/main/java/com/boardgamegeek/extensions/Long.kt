@@ -50,6 +50,10 @@ fun Long.howManyHoursOld(): Int {
     return ((System.currentTimeMillis() - this) / HOUR_IN_MILLIS).toInt()
 }
 
+fun Long.howManyDaysOld(): Int {
+    return ((System.currentTimeMillis() - this) / DAY_IN_MILLIS).toInt()
+}
+
 fun Long.formatTimestamp(context: Context, includeTime: Boolean = true, isForumTimestamp: Boolean = false): CharSequence {
     var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_MONTH
     if (includeTime) flags = flags or FORMAT_SHOW_TIME

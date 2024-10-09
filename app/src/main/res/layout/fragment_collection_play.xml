@@ -23,6 +23,13 @@
 			app:headerLabel="@string/title_recently_played" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/friendlessShouldPlayWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_friendless_play"
+			app:helpText="@string/info_friendless_play"/>
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/shelfOfOpportunityWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

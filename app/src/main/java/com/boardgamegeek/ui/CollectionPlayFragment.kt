@@ -38,6 +38,20 @@ class CollectionPlayFragment : Fragment() {
             }
         }
 
+        binding.friendlessShouldPlayWidget.setAdapter(
+            CollectionShelf.CollectionItemAdapter(
+                { item: CollectionItem ->
+                    playGame(item)
+                },
+                { item ->
+                    rating(item.rating)
+                }
+            )
+        )
+        viewModel.friendlessShouldPlayGames.observe(viewLifecycleOwner) {
+            binding.friendlessShouldPlayWidget.bindList(it)
+        }
+
         binding.wantToPlayWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 { item: CollectionItem ->

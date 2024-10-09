@@ -49,6 +49,16 @@ class CollectionBrowseFragment : Fragment() {
             binding.highlyRatedWidget.bindList(it)
         }
 
+        binding.friendlessFavoriteWidget.setAdapter(
+            CollectionShelf.CollectionItemAdapter(
+                bindBadge = { item ->
+                    rating(item.rating)
+                })
+        )
+        viewModel.friendlessFavoriteItems.observe(viewLifecycleOwner) {
+            binding.friendlessFavoriteWidget.bindList(it)
+        }
+
         binding.hiddenGemsWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 bindBadge = { item ->
