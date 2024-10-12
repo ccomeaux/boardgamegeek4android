@@ -32,9 +32,9 @@
 			android:id="@+id/headerView"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/padding_standard"
 			android:gravity="bottom"
-			android:minHeight="56dp"
+			android:paddingBottom="@dimen/padding_half"
+			android:minHeight="48dp"
 			android:paddingHorizontal="@dimen/activity_horizontal_margin"
 			android:textAppearance="@style/TextAppearance.Title"
 			tools:text="Games to Rate" />
@@ -42,8 +42,8 @@
 		<ImageView
 			android:id="@+id/infoView"
 			android:layout_width="@dimen/icon_width"
-			android:layout_height="@dimen/icon_width"
-			android:layout_gravity="center"
+			android:layout_height="40dp"
+			android:layout_gravity="center_horizontal|bottom"
 			android:background="?attr/selectableItemBackgroundBorderless"
 			android:contentDescription="@string/information"
 			android:scaleType="center"
