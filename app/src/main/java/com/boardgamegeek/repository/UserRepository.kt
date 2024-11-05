@@ -43,15 +43,12 @@ class UserRepository(
     }
 
     suspend fun loadUsers(sortBy: User.SortType = User.SortType.USERNAME): List<User> = withContext(Dispatchers.Default) {
-        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         withContext(Dispatchers.IO) { userDao.loadUsers() }
             .map { it.mapToModel() }
-            .filter { it.username != username }
             .applySort(sortBy)
     }
 
     fun loadUsersFlow(sortBy: User.SortType = User.SortType.USERNAME): Flow<List<User>> {
-        val username = prefs[AccountPreferences.KEY_USERNAME, ""]
         return userDao.loadUsersFlow()
             .map { it.map { entity -> entity.mapToModel() } }
             .flowOn(Dispatchers.Default)
