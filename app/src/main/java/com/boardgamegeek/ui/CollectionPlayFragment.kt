@@ -6,7 +6,9 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -17,6 +19,7 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.ui.viewmodel.CollectionDetailsViewModel
 import com.boardgamegeek.ui.widget.CollectionShelf
+import com.google.android.material.chip.Chip
 
 class CollectionPlayFragment : Fragment() {
     private var _binding: FragmentCollectionPlayBinding? = null
@@ -31,6 +34,33 @@ class CollectionPlayFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        binding.allButton.setOnClickListener {
+            viewModel.filterPlayerCountType(CollectionDetailsViewModel.PlayerCountType.All)
+            binding.playerCountChipGroup.isVisible = false
+        }
+        binding.supportsButton.setOnClickListener {
+            viewModel.filterPlayerCountType(CollectionDetailsViewModel.PlayerCountType.Supports)
+            binding.playerCountChipGroup.isVisible = true
+        }
+        binding.goodButton.setOnClickListener {
+            viewModel.filterPlayerCountType(CollectionDetailsViewModel.PlayerCountType.GoodWith)
+            binding.playerCountChipGroup.isVisible = true
+        }
+        binding.bestButton.setOnClickListener {
+            viewModel.filterPlayerCountType(CollectionDetailsViewModel.PlayerCountType.BestWith)
+            binding.playerCountChipGroup.isVisible = true
+        }
+
+        binding.playerCountChipGroup.children.filterIsInstance<Chip>().forEach {
+            it.setOnClickListener {
+                filterByPlayerCount(it as CompoundButton, true)
+            }
+        }
+
+        viewModel.playerCountType.observe(viewLifecycleOwner) {
+            binding.allButton.isSelected = (it == CollectionDetailsViewModel.PlayerCountType.All)
+        }
 
         viewModel.syncCollectionStatuses.observe(viewLifecycleOwner) {
             it?.let {
@@ -76,7 +106,7 @@ class CollectionPlayFragment : Fragment() {
                 }
             )
         )
-        viewModel.recentlyPlayedItems.observe(viewLifecycleOwner) {
+        viewModel.recentlyPlayedGames.observe(viewLifecycleOwner) {
             binding.recentlyPlayedWidget.bindList(it)
         }
 
@@ -108,6 +138,19 @@ class CollectionPlayFragment : Fragment() {
         viewModel.shelfOfNewOpportunityItems.observe(viewLifecycleOwner) {
             binding.shelfOfNewOpportunityWidget.bindList(it)
         }
+    }
+
+    private fun filterByPlayerCount(buttonView: CompoundButton) {
+        val playerCount = when (buttonView) {
+            binding.filter1pButton -> 1
+            binding.filter2pButton -> 2
+            binding.filter3pButton -> 3
+            binding.filter4pButton -> 4
+            binding.filter5pButton -> 5
+            binding.filter6pButton -> 6
+            else -> null
+        }
+        viewModel.filterPlayerCount(playerCount)
     }
 
     private fun playGame(item: CollectionItem) {

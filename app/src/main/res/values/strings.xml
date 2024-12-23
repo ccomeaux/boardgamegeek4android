@@ -719,6 +719,7 @@
 	<string name="recommended">Recommended</string>
 	<string name="not_recommended">Not Recommended</string>
 	<string name="good">Good</string>
+	<string name="supports">Supports</string>
 	<string name="title_login">Sign in to BoardGameGeek</string>
 	<string name="prompt_username">Username</string>
 	<string name="prompt_password">Password</string>
@@ -761,6 +762,12 @@
 	<string name="sync_user_step_unupdated_players">Syncing unupdated players</string>
 	<string name="favorite_color">Favorite Color</string>
 	<string name="message_acquiring">Own, <strike>Preordered</strike>, <strike>Wishlist</strike>, <strike>Want to Buy</strike>, <strike>Want in Trade</strike></string>
+	<string name="one_player">1P</string>
+	<string name="two_players">2P</string>
+	<string name="three_players">3P</string>
+	<string name="four_players">4P</string>
+	<string name="five_players">5P</string>
+	<string name="six_players">6P</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
