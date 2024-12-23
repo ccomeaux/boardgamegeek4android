@@ -53,8 +53,8 @@ class CollectionPlayFragment : Fragment() {
         }
 
         binding.playerCountChipGroup.children.filterIsInstance<Chip>().forEach {
-            it.setOnClickListener {
-                filterByPlayerCount(it as CompoundButton, true)
+            it.setOnClickListener { view ->
+                filterByPlayerCount(view as CompoundButton)
             }
         }
 
