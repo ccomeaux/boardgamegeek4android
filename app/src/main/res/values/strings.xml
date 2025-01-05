@@ -313,6 +313,8 @@
 	<string name="search_initial_help">Use the search field above to search against BoardGameGeek\'s entire database. Autocomplete will show only games in your collection.</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view">View</string>
+	<string name="menu_view_game">View Game</string>
+	<string name="menu_view_item">View Item</string>
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_short">Form</string>

@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.text.format.DateUtils
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
@@ -43,11 +44,38 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.preorderedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item: CollectionItem ->
-                    buyGame(item)
-                },
+                { },
                 { item: CollectionItem ->
                     item.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
+                },
+                R.menu.game_acquire,
+                { item: CollectionItem, menuItem: MenuItem -> Boolean
+                    when (menuItem.itemId) {
+                        R.id.menu_acquire -> {
+                            buyGame(item)
+                            true
+                        }
+                        R.id.menu_view_game -> {
+                            GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
+                            true
+                        }
+                        R.id.menu_view_item -> {
+                            GameCollectionItemActivity.start(
+                                requireContext(),
+                                item.internalId,
+                                item.gameId,
+                                item.gameName,
+                                item.collectionId,
+                                item.collectionName,
+                                item.thumbnailUrl,
+                                item.heroImageUrl,
+                                item.gameYearPublished,
+                                item.collectionYearPublished
+                            )
+                            true
+                        }
+                        else -> false
+                    }
                 }
             )
         )
