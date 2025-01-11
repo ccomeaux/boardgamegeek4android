@@ -137,7 +137,12 @@ class LoginActivity : AppCompatActivity() {
 
     private fun createAccount(authToken: AuthToken) {
         Timber.i("Creating account")
-        val account = Account(username, Authenticator.ACCOUNT_TYPE)
+        if (authToken.username == null) {
+            Timber.w("Username is null")
+            binding.passwordContainer.error = getString(R.string.error_null_username)
+            return
+        }
+        val account = Account(authToken.username, Authenticator.ACCOUNT_TYPE)
         try {
             accountManager.setAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, authToken.token)
         } catch (e: SecurityException) {
@@ -195,7 +200,7 @@ class LoginActivity : AppCompatActivity() {
             accountManager.setPassword(account, password)
         }
         val extras = bundleOf(
-            AccountManager.KEY_ACCOUNT_NAME to username,
+            AccountManager.KEY_ACCOUNT_NAME to authToken.username,
             AccountManager.KEY_ACCOUNT_TYPE to Authenticator.ACCOUNT_TYPE
         )
         setResult(RESULT_OK, Intent().putExtras(extras))
@@ -204,7 +209,7 @@ class LoginActivity : AppCompatActivity() {
             it.onResult(extras)
             accountAuthenticatorResponse = null
         }
-        preferences()[AccountPreferences.KEY_USERNAME] = username
+        preferences()[AccountPreferences.KEY_USERNAME] = authToken.username
 
         finish()
     }

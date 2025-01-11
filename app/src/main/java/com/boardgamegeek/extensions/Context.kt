@@ -66,10 +66,11 @@ fun PackageManager.getPackageInfoCompat(packageName: String, flags: Int = 0): Pa
  * Get the version name of the package, or "?.?" if not found.
  */
 fun Context.versionName(): String {
+    val unknownVersionName = "?.?"
     return try {
-        packageManager.getPackageInfoCompat(packageName).versionName
+        packageManager.getPackageInfoCompat(packageName).versionName ?: unknownVersionName
     } catch (e: PackageManager.NameNotFoundException) {
-        "?.?"
+        unknownVersionName
     }
 }
 

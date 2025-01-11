@@ -727,6 +727,7 @@
 	<string name="prompt_password">Password</string>
 	<string name="action_sign_in">Sign in</string>
 	<string name="login_progress_signing_in">Signing in&#8230;</string>
+	<string name="error_null_username">Missing username</string>
 	<string name="error_incorrect_password">This password is incorrect</string>
 	<string name="error_account_list_zero">Account couldn\'t be added. Please check the Accounts section of your device\'s settings to ensure there is no BoardGameGeek account listed already.</string>
 	<string name="error_account_list_multiple">Multiple accounts of type %s are not allowed.</string>

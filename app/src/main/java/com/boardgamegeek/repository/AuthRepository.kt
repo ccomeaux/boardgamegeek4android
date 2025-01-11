@@ -39,6 +39,7 @@ class AuthRepository(
         return if (response.isSuccessful && !cookieJar.authToken.isNullOrBlank()) {
             log(method)
             AuthToken(
+                username,
                 cookieJar.authToken,
                 cookieJar.authTokenExpiry,
             )
