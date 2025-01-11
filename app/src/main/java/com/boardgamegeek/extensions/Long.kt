@@ -10,7 +10,7 @@ import kotlin.time.Duration
 
 fun Long?.isOlderThan(duration: Duration): Boolean {
     return if (this == null)  true
-    else System.currentTimeMillis() - this > duration.inWholeMilliseconds
+    else (System.currentTimeMillis() - this) > duration.inWholeMilliseconds
 }
 
 fun Long.isToday(): Boolean = isToday(this)

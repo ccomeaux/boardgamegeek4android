@@ -365,7 +365,9 @@ class GameViewModel @Inject constructor(
             if (areItemsRefreshing.compareAndSet(false, true)) {
                 _itemsAreRefreshing.value = true
                 viewModelScope.launch {
-                    if (list?.isEmpty() == true ||
+                    if (list?.any { it.isDirty} == true) {
+                        gameCollectionRepository.enqueueUploadRequest(it.id)
+                    } else if (list?.isEmpty() == true ||
                         (list != null && list.minOf { item -> item.syncTimestamp }.isOlderThan(itemsRefreshMinutes.minutes)) ||
                         forceItemsRefresh.compareAndSet(true, false)
                     ) {
