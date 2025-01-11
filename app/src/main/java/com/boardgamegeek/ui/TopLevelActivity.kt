@@ -19,13 +19,8 @@ abstract class TopLevelActivity : DrawerActivity() {
         activityTitle = title
 
         drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.drawer_open, R.string.drawer_close) {
-            override fun onDrawerClosed(drawerView: View) {
-                supportActionBar?.title = activityTitle
-            }
-
-            override fun onDrawerOpened(drawerView: View) {
-                supportActionBar?.title = drawerTitle
-            }
+            override fun onDrawerClosed(drawerView: View) { }
+            override fun onDrawerOpened(drawerView: View) { }
         }
         drawerLayout.addDrawerListener(drawerToggle)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
