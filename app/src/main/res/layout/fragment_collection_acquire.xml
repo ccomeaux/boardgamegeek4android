@@ -7,8 +7,9 @@
 	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
 		android:orientation="vertical"
-		android:animateLayoutChanges="true">
+		android:paddingBottom="@dimen/padding_extra">
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/preorderedWidget"
