@@ -126,7 +126,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
                 if (shouldUpRecreateTask()) {
                     TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent).startActivities()
                 } else {
-                    NavUtils.navigateUpTo(this, upIntent)
+                    this.navigateUpTo(upIntent)
                 }
             }
             R.id.menu_share -> shareGame(gameId, gameName, "Game", firebaseAnalytics)
