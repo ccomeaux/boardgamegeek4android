@@ -70,7 +70,7 @@ class SyncUsersWorker @AssistedInject constructor(
             }
 
             val allBuddies = userRepository.loadBuddies().sortedBy { it.updatedTimestamp }
-            val (newBuddies, staleBuddies) = allBuddies.partition { it.updatedTimestamp == 0L }
+            val (newBuddies, existingBuddies) = allBuddies.partition { it.updatedTimestamp == 0L }
 
             Timber.i("Syncing new buddies")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_unupdated)))
@@ -79,12 +79,12 @@ class SyncUsersWorker @AssistedInject constructor(
 
             Timber.i("Syncing stale buddies")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
-            val limit = (staleBuddies.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
-            Timber.i("Updating $limit users; ${staleBuddies.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
-            syncUsers(staleBuddies.take(limit).map { it.username }, PROGRESS_STEP_STALE_BUDDIES)?.let { return Result.failure(it) }
+            val limit = (existingBuddies.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
+            Timber.i("Updating $limit users; ${existingBuddies.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
+            syncUsers(existingBuddies.take(limit).map { it.username }, PROGRESS_STEP_STALE_BUDDIES)?.let { return Result.failure(it) }
 
             val allPlayers = playRepository.loadPlayers(Player.SortType.PLAY_COUNT).filter { it.username.isNotEmpty() }
-            val (newPlayers, stalePlayers) = allPlayers.partition { it.userUpdatedTimestamp == null || it.userUpdatedTimestamp == 0L }
+            val (newPlayers, existingPlayers) = allPlayers.partition { it.userUpdatedTimestamp == null || it.userUpdatedTimestamp == 0L }
 
             Timber.i("Syncing new players")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_unupdated)))
@@ -93,9 +93,9 @@ class SyncUsersWorker @AssistedInject constructor(
 
             Timber.i("Syncing stale players")
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_oldest)))
-            val playerLimit = (stalePlayers.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
-            Timber.i("Updating $playerLimit users; ${stalePlayers.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
-            syncUsers(stalePlayers.sortedBy { it.userUpdatedTimestamp }.take(playerLimit).map { it.username }, PROGRESS_STEP_STALE_PLAYERS)?.let { return Result.failure(it) }
+            val playerLimit = (existingPlayers.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
+            Timber.i("Updating $playerLimit users; ${existingPlayers.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
+            syncUsers(existingPlayers.sortedBy { it.userUpdatedTimestamp }.take(playerLimit).map { it.username }, PROGRESS_STEP_STALE_PLAYERS)?.let { return Result.failure(it) }
 
             return Result.success()
         } catch (e: Exception) {
@@ -103,14 +103,13 @@ class SyncUsersWorker @AssistedInject constructor(
         }
     }
 
+    // download the details of each user in the list, indicating the step for marking progress.
     private suspend fun syncUsers(
         usernames: List<String>,
         step: Int,
     ): Data? {
         usernames.forEachIndexed { index, username ->
-            if (isStopped) {
-                return workDataOf(STOPPED_REASON to "Canceled")
-            }
+            checkIfStopped("Canceled while refreshing users")?.let { return it }
             setProgress(step, username, index, usernames.size)
 
             Timber.i("About to refresh user $username")
@@ -151,11 +150,20 @@ class SyncUsersWorker @AssistedInject constructor(
         return applicationContext.createForegroundInfo(R.string.sync_notification_title_buddies, NOTIFICATION_ID_USERS, id, contentText)
     }
 
+    private fun checkIfStopped(@Suppress("SameParameterValue") reason: String): Data? {
+        return if (isStopped) {
+            Timber.i(reason)
+            workDataOf(STOPPED_REASON to reason)
+        } else {
+            null
+        }
+    }
+
     companion object {
         const val UNIQUE_WORK_NAME = "com.boardgamegeek.SYNC_USERS"
         const val UNIQUE_WORK_NAME_AD_HOC = "$UNIQUE_WORK_NAME.adhoc"
-        const val ERROR_MESSAGE = "ERROR_MESSAGE"
-        const val STOPPED_REASON = "STOPPED_REASON"
+        private const val ERROR_MESSAGE = "ERROR_MESSAGE"
+        private const val STOPPED_REASON = "STOPPED_REASON"
 
         const val PROGRESS_STEP = "PROGRESS_STEP"
         const val PROGRESS_USERNAME = "PROGRESS_USERNAME"

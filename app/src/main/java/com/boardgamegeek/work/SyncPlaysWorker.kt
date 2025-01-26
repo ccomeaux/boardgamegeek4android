@@ -45,19 +45,19 @@ class SyncPlaysWorker @AssistedInject constructor(
         return try {
             startTime = System.currentTimeMillis()
 
-            val newestSyncDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L
-            downloadPlays(newestSyncDate, 0L, PROGRESS_STEP_NEW)?.let { failureData ->
+            val newestSyncDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: MIN_DATE
+            downloadPlays(minDate = newestSyncDate, step = PROGRESS_STEP_NEW)?.let { failureData ->
                 return Result.failure(failureData)
             }
-            if (newestSyncDate > 0L) {
+            if (newestSyncDate > MIN_DATE) {
                 setProgress(PROGRESS_STEP_NEW, PROGRESS_ACTION_DELETING, minDate = newestSyncDate)
                 val deletedCount = playRepository.deleteUnupdatedPlaysSince(startTime, newestSyncDate)
                 Timber.i("Deleted $deletedCount unupdated plays since ${newestSyncDate.toDate()}")
             }
 
-            val oldestDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE
+            val oldestDate = syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] ?: MAX_DATE
             if (oldestDate > 0) {
-                downloadPlays(0L, oldestDate, PROGRESS_STEP_OLD)?.let { failureData ->
+                downloadPlays(maxDate = oldestDate, step = PROGRESS_STEP_OLD)?.let { failureData ->
                     return Result.failure(failureData)
                 }
                 if (oldestDate != Long.MAX_VALUE) {
@@ -73,26 +73,22 @@ class SyncPlaysWorker @AssistedInject constructor(
             Timber.i("Plays synced successfully")
             Result.success()
         } catch (e: Exception) {
-            val error = handleException(e)
-            Result.failure(workDataOf(ERROR_MESSAGE to error))
+            Result.failure(handleException(e))
         }
     }
 
-    private suspend fun downloadPlays(minDate: Long, maxDate: Long, step: Int): Data? {
+    private suspend fun downloadPlays(minDate: Long = NO_DATE, maxDate: Long = NO_DATE, step: Int): Data? {
         var page = 1
         do {
             setProgress(step, PROGRESS_ACTION_WAITING, minDate, maxDate, page)
             if (page > 1) delay(playsFetchPauseMilliseconds)
 
-            if (isStopped) {
-                Timber.i("Stopping while downloading plays")
-                return workDataOf(STOPPED_REASON to "Worker stopped early while downloading plays")
-            }
+            checkIfStopped("Worker stopped early while downloading plays")?.let { return it }
 
             val message = when {
-                minDate == 0L && maxDate == 0L -> applicationContext.getString(R.string.sync_notification_plays_all)
-                minDate == 0L -> applicationContext.getString(R.string.sync_notification_plays_old, maxDate.toDate())
-                maxDate == 0L -> applicationContext.getString(R.string.sync_notification_plays_new, minDate.toDate())
+                minDate == NO_DATE && maxDate == NO_DATE -> applicationContext.getString(R.string.sync_notification_plays_all)
+                minDate == NO_DATE -> applicationContext.getString(R.string.sync_notification_plays_old, maxDate.toDate())
+                maxDate == NO_DATE -> applicationContext.getString(R.string.sync_notification_plays_new, minDate.toDate())
                 else -> applicationContext.getString(R.string.sync_notification_plays_between, minDate.toDate(), maxDate.toDate())
             }
             val contentText = when {
@@ -110,12 +106,12 @@ class SyncPlaysWorker @AssistedInject constructor(
                 setProgress(step, PROGRESS_ACTION_SAVING, minDate, maxDate, page)
                 playRepository.saveFromSync(plays, startTime)
                 plays.maxOfOrNull { it.dateInMillis }?.let {
-                    if (it > (syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: 0L)) {
+                    if (it > (syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: MIN_DATE)) {
                         syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] = it
                     }
                 }
                 plays.minOfOrNull { it.dateInMillis }?.let {
-                    if (it < (syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] ?: Long.MAX_VALUE)) {
+                    if (it < (syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] ?: MAX_DATE)) {
                         syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] = it
                     }
                 }
@@ -127,11 +123,11 @@ class SyncPlaysWorker @AssistedInject constructor(
                 return handleException(e)
             }
             page++
-        } while (shouldContinue)
+        } while (shouldContinue && page <= 10_000)
         return null
     }
 
-    private suspend fun setProgress(step: Int, action: Int, minDate: Long = 0L, maxDate: Long = 0L, page: Int = 1) {
+    private suspend fun setProgress(step: Int, action: Int, minDate: Long = NO_DATE, maxDate: Long = NO_DATE, page: Int = 1) {
         setProgress(
             workDataOf(
                 PROGRESS_STEP to step,
@@ -141,6 +137,15 @@ class SyncPlaysWorker @AssistedInject constructor(
                 PROGRESS_ACTION to action,
             )
         )
+    }
+
+    private fun checkIfStopped(@Suppress("SameParameterValue") reason: String): Data? {
+        return if (isStopped) {
+            Timber.i(reason)
+            workDataOf(STOPPED_REASON to reason)
+        } else {
+            null
+        }
     }
 
     private fun handleException(e: Exception): Data {
@@ -163,8 +168,11 @@ class SyncPlaysWorker @AssistedInject constructor(
     companion object {
         const val UNIQUE_WORK_NAME = "com.boardgamegeek.SYNC_PLAYS"
         const val UNIQUE_WORK_NAME_AD_HOC = "${UNIQUE_WORK_NAME}.adhoc"
-        const val STOPPED_REASON = "STOPPED_REASON"
-        const val ERROR_MESSAGE = "ERROR_MESSAGE"
+        private const val STOPPED_REASON = "STOPPED_REASON"
+        private const val ERROR_MESSAGE = "ERROR_MESSAGE"
+        private const val NO_DATE = 0L
+        private const val MIN_DATE = 0L
+        private const val MAX_DATE = Long.MAX_VALUE
 
         const val PROGRESS_STEP = "STEP"
         const val PROGRESS_MIN_DATE = "MIN_DATE"

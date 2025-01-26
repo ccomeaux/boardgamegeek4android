@@ -49,19 +49,19 @@ class SyncCollectionWorker @AssistedInject constructor(
 
         val isSyncEnabled = RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED)
         if (!isSyncEnabled)
-            return Result.success(workDataOf(ERROR_MESSAGE to applicationContext.getString(R.string.msg_refresh_not_enabled)))
+            return Result.success(workDataOf(SUCCESS_MESSAGE to applicationContext.getString(R.string.msg_refresh_not_enabled)))
 
         if (!Authenticator.isSignedIn(applicationContext))
-            return Result.success(workDataOf(ERROR_MESSAGE to applicationContext.getString(R.string.msg_refresh_collection_item_auth_error)))
+            return Result.success(workDataOf(SUCCESS_MESSAGE to applicationContext.getString(R.string.msg_refresh_collection_item_auth_error)))
 
         refreshCollection()
-        if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after refreshing collection"))
+        failIfStopped("Canceled after refreshing collection")?.let { return it }
         syncUnupdatedCollection()?.let { return Result.failure(it) }
-        if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after syncing unupdated collection"))
+        failIfStopped("Canceled after syncing unupdated collection")?.let { return it }
         removeGames()
-        if (isStopped) return Result.failure(workDataOf(STOPPED_REASON to "Canceled after removing old games"))
-        refreshGames()?.let { return Result.failure(it) }
-        return Result.success()
+        failIfStopped("Canceled after removing old games")?.let { return it }
+        refreshGames()?.run { return Result.failure(this) }
+        return Result.success(workDataOf(SUCCESS_MESSAGE to applicationContext.getString(R.string.msg_refresh_success)))
     }
 
     private suspend fun refreshCollection(): Data? {
@@ -124,7 +124,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             syncCompleteCollectionByStatus(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status, excludedStatuses)?.let { return it }
         }
 
-        if (isStopped) return workDataOf(STOPPED_REASON to "Complete collection sync task cancelled before item deletion, aborting")
+        checkIfStopped("Complete collection sync task canceled before item deletion, aborting")?.let { return it }
 
         deleteUnusedItems()
 
@@ -158,7 +158,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             return null
         }
 
-        if (isStopped) return workDataOf(STOPPED_REASON to "Complete collection sync stopped before status=[$statusDescription], subtype=[$subtypeDescription]")
+        checkIfStopped("Complete collection sync stopped before status=[$statusDescription], subtype=[$subtypeDescription]")?.let { return it }
 
         setProgress(
             PROGRESS_STEP_COLLECTION_COMPLETE,
@@ -181,7 +181,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         return try {
             syncCollectionModifiedSinceBySubtype(null)?.let { return it }
 
-            if (isStopped) return workDataOf(STOPPED_REASON to "Sync stopped before recently modified accessories, aborting")
+            checkIfStopped("Sync stopped before recently modified accessories, aborting")?.let { return it }
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS))
 
             syncCollectionModifiedSinceBySubtype(BggService.ThingSubtype.BOARDGAME_ACCESSORY)?.let { return it }
@@ -234,7 +234,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             chunkedGames.forEachIndexed { numberOfFetches, games ->
                 if (numberOfFetches >= maxFetches) return null
                 if (numberOfFetches > 0) delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS))
-                if (isStopped) return workDataOf(STOPPED_REASON to "Unupdated collection item sync stopped during index=$numberOfFetches")
+                checkIfStopped("Unupdated collection item sync stopped during index=$numberOfFetches")?.let { return it }
 
                 val gameDescription = games.map { it.game.gameName }.formatList()
                 listOf(null, BggService.ThingSubtype.BOARDGAME_ACCESSORY).forEach { subtype ->
@@ -333,7 +333,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         val games = gameRepository.loadUnupdatedGames(gamesFetchMaxUnupdated)
         refreshGames(games)?.let { return it }
 
-        if (isStopped) return workDataOf(STOPPED_REASON to "Cancelled while refreshing games")
+        checkIfStopped("Canceled while refreshing games")?.let { return it }
 
         val gamesFetchMax = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX).coerceIn(1, if (quickSync) 4 else Int.MAX_VALUE)
         Timber.i("Refreshing $gamesFetchMax oldest games in the collection")
@@ -350,7 +350,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         var fetchSize = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_PER_FETCH).coerceIn(1..32)
         var data = refreshGameChunks(games.chunked(fetchSize))
         while (data != null && fetchSize > 1) {
-            if (isStopped) return workDataOf(STOPPED_REASON to "Cancelled while refreshing games")
+            checkIfStopped("Canceled while refreshing games")?.let { return it }
             Timber.w("Failed fetching chunks of size $fetchSize; trying again with size ${fetchSize / 2}")
             fetchSize /= 2
             data = refreshGameChunks(games.chunked(fetchSize))
@@ -374,13 +374,26 @@ class SyncCollectionWorker @AssistedInject constructor(
                         return handleException(applicationContext.getString(R.string.sync_notification_games_oldest), it)
                     }
                 }
-                if (isStopped) return workDataOf(STOPPED_REASON to "Cancelled while refreshing games")
+                checkIfStopped("Canceled while refreshing games")?.let { return it }
             }
         } catch (e: Exception) {
             return handleException(applicationContext.getString(R.string.sync_notification_games_unupdated), e)
         }
         Timber.i("Refreshed $updatedCount games")
         return null
+    }
+
+    private fun failIfStopped(reason: String): Result? {
+        return checkIfStopped(reason)?.let { return Result.failure(it) }
+    }
+
+    private fun checkIfStopped(reason: String): Data? {
+        return if (isStopped) {
+            Timber.i(reason)
+            workDataOf(STOPPED_REASON to reason)
+        } else {
+            null
+        }
     }
 
     private fun handleException(contentText: String, throwable: Throwable?): Data {
@@ -429,8 +442,9 @@ class SyncCollectionWorker @AssistedInject constructor(
     companion object {
         const val UNIQUE_WORK_NAME = "com.boardgamegeek.COLLECTION.DOWNLOAD"
         const val UNIQUE_WORK_NAME_AD_HOC = "$UNIQUE_WORK_NAME.adhoc"
-        const val ERROR_MESSAGE = "ERROR_MESSAGE"
-        const val STOPPED_REASON = "STOPPED_REASON"
+        private const val SUCCESS_MESSAGE = "SUCCESS_MESSAGE"
+        private const val ERROR_MESSAGE = "ERROR_MESSAGE"
+        private const val STOPPED_REASON = "STOPPED_REASON"
         private const val QUICK_SYNC = "QUICK_SYNC"
         private const val REQUESTED_STATUS = "REQUESTED_STATUS"
 
