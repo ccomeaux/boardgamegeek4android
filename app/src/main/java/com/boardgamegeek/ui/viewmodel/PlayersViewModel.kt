@@ -92,7 +92,7 @@ class PlayersViewModel @Inject constructor(
             allPlayers?.filter {
                 it.name.contains(filterText, true) ||
                         it.username.contains(filterText, true) ||
-                        it.fullName.contains(filterText, true)
+                        (it.userFullName?.contains(filterText, true) == true)
             }
         } ?: emptyList()
     }

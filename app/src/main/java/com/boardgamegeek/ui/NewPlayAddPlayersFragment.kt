@@ -93,7 +93,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                     findOrCreateChip(player.id).apply {
                         text = player.description.padEnd(5) // short names cause the icon to be black instead of gray; this is a workaround
                         isCloseIconVisible = true
-                        if (player.avatarUrl.isBlank()) {
+                        if (player.avatarUrl.isNullOrBlank()) {
                             setChipIconResource(R.drawable.ic_baseline_account_circle_24)
                             if (player.favoriteColor?.isNotBlank() == true) {
                                 chipIconTint = ColorStateList.valueOf(player.favoriteColor.asColorRgb())
@@ -138,7 +138,7 @@ class NewPlayAddPlayersFragment : Fragment() {
         RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
         var players: List<Player> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
-                old.name == new.name && old.username == new.username && old.avatarUrl == new.avatarUrl
+                old.name == new.name && old.username == new.username && old.userAvatarUrl == new.userAvatarUrl
             }
         }
 
@@ -159,7 +159,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                 player?.let { p ->
                     binding.nameView.text = p.name
                     binding.usernameView.text = p.username
-                    binding.avatarView.loadThumbnail(p.avatarUrl, R.drawable.person_image_empty, object : ImageLoadCallback {
+                    binding.avatarView.loadThumbnail(p.userAvatarUrl, R.drawable.person_image_empty, object : ImageLoadCallback {
                         override fun onSuccessfulImageLoad(palette: Palette?) {
                         }
 
@@ -168,7 +168,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                                 tintPlayer(p)
                         }
                     })
-                    if (p.avatarUrl.isBlank() && p.favoriteColor != null) {
+                    if (p.userAvatarUrl.isNullOrBlank() && p.favoriteColor != null) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                             tintPlayer(p)
                     }

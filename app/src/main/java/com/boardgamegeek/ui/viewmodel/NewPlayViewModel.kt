@@ -425,7 +425,7 @@ class NewPlayViewModel @Inject constructor(
             !(addedPlayers.orEmpty()).contains(it) &&
                     (it.name.contains(filter.orEmpty(), true) ||
                             it.username.contains(filter.orEmpty(), true) ||
-                            it.fullName.contains(filter.orEmpty(), true))
+                            it.userFullName?.contains(filter.orEmpty(), true) == true)
         }
         val favColors = favoriteColors.orEmpty()
         filteredList.forEach { player ->

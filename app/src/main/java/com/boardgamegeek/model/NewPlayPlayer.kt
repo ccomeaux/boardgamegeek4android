@@ -15,9 +15,9 @@ data class NewPlayPlayer(
     var sortOrder: String = "",
     var favoriteColorsForGame: List<String> = emptyList(),
     var favoriteColor: String? = null,
-    private val rawAvatarUrl: String = "",
+    private val rawAvatarUrl: String? = null,
 ) {
-    constructor(player: Player) : this(player.name, player.username, rawAvatarUrl = player.avatarUrl)
+    constructor(player: Player) : this(player.name, player.username, rawAvatarUrl = player.userAvatarUrl)
 
     val id: String
         get() = if (isUser()) "U|${username.lowercase(Locale.getDefault())}" else "P|$name"
@@ -26,7 +26,7 @@ data class NewPlayPlayer(
 
     fun isUser() = username.isNotBlank()
 
-    val avatarUrl: String = rawAvatarUrl
+    val avatarUrl: String? = rawAvatarUrl
         get() = if (field == "N/A") "" else field
 
     val description: String = if (username.isBlank()) name else "$name ($username)"

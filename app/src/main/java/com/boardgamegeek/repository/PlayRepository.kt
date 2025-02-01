@@ -139,11 +139,12 @@ class PlayRepository(
     suspend fun loadPlayers(sortBy: Player.SortType = Player.SortType.PLAY_COUNT): List<Player> = withContext(Dispatchers.Default) {
         val players = withContext(Dispatchers.IO) { playDao.loadPlayers() }
         val grouping = players.groupBy { it.key() }
-        grouping.map { (_, value) ->
-            value.firstOrNull()?.let {
-                value.mapToModel()
+        grouping
+            .map { (_, value) ->
+                value.firstOrNull()?.let {
+                    value.mapToModel()
+                }
             }
-        }
             .filterNotNull()
             .applySort(sortBy)
     }
@@ -416,9 +417,9 @@ class PlayRepository(
 
     private suspend fun tryUpload(play: Play): Result<PlayUploadResult> {
         return try {
-           uploadPlay(play).also {
-               if (it.isFailure) Timber.w(it.exceptionOrNull()?.localizedMessage ?: "unknown failure trying to upload play $play")
-           }
+            uploadPlay(play).also {
+                if (it.isFailure) Timber.w(it.exceptionOrNull()?.localizedMessage ?: "unknown failure trying to upload play $play")
+            }
         } catch (ex: Exception) {
             enqueueUploadRequest(play.internalId)
             Result.failure(Exception(context.getString(R.string.msg_play_queued_for_upload), ex))

@@ -16,11 +16,20 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
     private var userList = listOf<User>()
     private var resultsFiltered = listOf<Result>()
 
+    /**
+     * Represents an adapter item result containing player information.
+     *
+     * @property title The primary display text.
+     * @property subtitle The secondary display text.
+     * @property avatarUrl The URL of the user's avatar image, or null if no avatar is available.
+     * @property username The unique username of the user.
+     * @property nickname The user's name to use for the player name.
+     */
     class Result(
         val title: String,
         val subtitle: String,
+        val avatarUrl: String?,
         val username: String,
-        val avatarUrl: String,
         val nickname: String,
     ) {
         override fun toString() = nickname
@@ -59,6 +68,9 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             val playerListFiltered = if (filter.isEmpty()) playerList else {
                 playerList.filter { it.name.contains(filter, ignoreCase = true) }
             }
+            val playerResults = playerListFiltered.map { player ->
+                player.mapToResult()
+            }
 
             val userListFiltered = if (filter.isEmpty()) userList else {
                 userList.filter {
@@ -69,19 +81,17 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                 }
             }
 
-            val playerResults = playerListFiltered.map { player ->
-                player.mapToResult()
-            }
             val usernames = playerResults.map { it.username }
             val userResults = userListFiltered
                 .asSequence()
                 .filterNot { usernames.contains(it.username) }
                 .map { it.mapToResult() }
-            val results = playerResults + userResults
+
+            val combinedResults = playerResults + userResults
 
             return FilterResults().apply {
-                values = results
-                count = results.size
+                values = combinedResults
+                count = combinedResults.size
             }
         }
 
@@ -93,18 +103,18 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
     }
 
     private fun User.mapToResult() = Result(
-        title = fullName,
+        title = playNickname.ifBlank { fullName },
         subtitle = if (playNickname.isBlank()) username else "$fullName ($username)",
-        username = username,
         avatarUrl = avatarUrl,
-        nickname = playNickname,
+        username = username,
+        nickname = playNickname.ifBlank { fullName },
     )
 
     private fun Player.mapToResult() = Result(
-        title = fullName,
+        title = userFullName?.ifBlank { name } ?: name,
         subtitle = username,
+        avatarUrl = userAvatarUrl,
         username = username,
-        avatarUrl = avatarUrl,
         nickname = name,
     )
 }

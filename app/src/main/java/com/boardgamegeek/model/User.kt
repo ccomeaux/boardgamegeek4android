@@ -11,7 +11,9 @@ data class User(
 ) {
     val fullName = "$firstName $lastName".trim()
 
-    val description = if (username.isBlank()) fullName else "$fullName ($username)"
+    override fun toString(): String {
+        return if (username.isBlank()) fullName else "$fullName ($username)"
+    }
 
     enum class SortType {
         FIRST_NAME, LAST_NAME, USERNAME
@@ -20,9 +22,7 @@ data class User(
     companion object {
         fun List<User>.applySort(sortBy: SortType): List<User> {
             return sortedWith(
-                compareBy(
-                    String.CASE_INSENSITIVE_ORDER
-                ) {
+                compareBy(String.CASE_INSENSITIVE_ORDER) {
                     when (sortBy) {
                         SortType.FIRST_NAME -> it.firstName
                         SortType.LAST_NAME -> it.lastName

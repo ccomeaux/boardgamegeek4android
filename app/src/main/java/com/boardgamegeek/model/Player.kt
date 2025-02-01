@@ -1,23 +1,43 @@
 package com.boardgamegeek.model
 
-import java.util.*
+import androidx.annotation.ColorInt
+import java.util.Locale
 
+/**
+ * Represents a player in the system, which can be either a registered user or a non-user.
+ *
+ * @property name The display name (nickname) of the player.
+ * @property username The unique username of the player if it's a registered user; empty for non-user players.
+ * @property playCount The total number of plays this player has participated in.
+ * @property winCount The total number of plays this player has won.
+ * @property userAvatarUrl The URL of the user's avatar image. Null for non-user players.
+ * @property userFullName The full name of the user. Null for non-user players.
+ * @property userUpdatedTimestamp The timestamp (in milliseconds since epoch) indicating when the user's information was last updated. Null for non-user players.
+ */
 data class Player(
     val name: String,
     val username: String,
     val playCount: Int = 0,
     val winCount: Int = 0,
-    val avatarUrl: String = "",
-    val fullName: String = "",
+    val userAvatarUrl: String? = null,
+    val userFullName: String? = null,
     val userUpdatedTimestamp: Long? = null,
 ) {
+    /**
+     * A unique identifier for the player that is valid for user and non-user players.
+     */
     val id: String
         get() = if (username.isBlank()) "P|$name" else "U|${username.lowercase(Locale.getDefault())}"
 
+    /**
+     * A user-friendly description of the player.
+     */
     val description: String = if (isUser()) "$name ($username)" else name
 
-    val playerName = if (isUser()) username else name
-
+    /**
+     * The player's favorite color, or null if not known.
+     */
+    @ColorInt
     var favoriteColor: Int? = null
 
     fun isUser() = username.isNotBlank()

@@ -192,16 +192,16 @@ class PlayersFragment : Fragment() {
             fun bind(player: Player?) {
                 player?.let {
                     val builder = SpannableStringBuilder()
-                    if (it.fullName.isEmpty()) {
+                    if (it.userFullName.isNullOrBlank()) {
                         builder.append(it.name)
-                    } else if (it.fullName.contains(it.name)) {
-                        val splits = it.fullName.split(it.name)
+                    } else if (it.userFullName.contains(it.name)) {
+                        val splits = it.userFullName.split(it.name)
                         splits.forEachIndexed { i, split ->
                             if (i > 0) builder.appendBold(it.name)
                             builder.append(split)
                         }
                     } else {
-                        builder.append(it.fullName + " (").appendBold(it.name).append(")")
+                        builder.append(it.userFullName + " (").appendBold(it.name).append(")")
                     }
                     binding.nameView.text = builder
                     binding.usernameView.setTextOrHide(it.username)
