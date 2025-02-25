@@ -29,13 +29,12 @@
 		android:logo="@drawable/title_logo"
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:supportsRtl="false"
-		android:theme="@style/Theme.bgglight.NavDrawer"
+		android:theme="@style/Theme.bgglight"
 		tools:ignore="GoogleAppIndexingWarning"
 		tools:targetApi="tiramisu">
 		<activity
 			android:name=".ui.NewPlayActivity"
 			android:label="@string/title_new_play"
-			android:theme="@style/Theme.bgglight"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
 			android:name=".ui.HomeActivity"
@@ -191,8 +190,7 @@
 			android:label="@string/title_plays" />
 		<activity
 			android:name=".ui.PlayerColorsActivity"
-			android:label="@string/title_favorite_colors"
-			android:theme="@style/Theme.bgglight" />
+			android:label="@string/title_favorite_colors" />
 		<activity
 			android:name=".ui.PlaysSummaryActivity"
 			android:exported="false"
@@ -282,12 +280,10 @@
 		<activity
 			android:name=".ui.LogPlayActivity"
 			android:label="@string/title_log_play"
-			android:launchMode="singleTop"
-			android:theme="@style/Theme.bgglight" />
+			android:launchMode="singleTop" />
 		<activity
 			android:name=".ui.LogPlayerActivity"
-			android:label="@string/title_log_player"
-			android:theme="@style/Theme.bgglight" />
+			android:label="@string/title_log_player" />
 		<activity
 			android:name=".ui.GameCollectionItemActivity"
 			android:label="@string/title_collection" />
@@ -353,8 +349,7 @@
 		<activity
 			android:name=".pref.SettingsActivity"
 			android:exported="false"
-			android:label="@string/title_settings"
-			android:theme="@style/Theme.bgglight">
+			android:label="@string/title_settings">
 			<intent-filter>
 				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
 				<category android:name="android.intent.category.DEFAULT" />

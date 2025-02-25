@@ -7,9 +7,17 @@
 	android:orientation="vertical"
 	tools:context=".ui.PlayerColorsActivity">
 
-	<com.google.android.material.appbar.MaterialToolbar
-		android:id="@+id/toolbar"
-		style="@style/ActionBar" />
+	<com.google.android.material.appbar.AppBarLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:fitsSystemWindows="true">
+
+		<com.google.android.material.appbar.MaterialToolbar
+			android:id="@+id/toolbar"
+			style="@style/ActionBar"
+			android:layout_width="match_parent"
+			android:layout_height="?attr/actionBarSize" />
+	</com.google.android.material.appbar.AppBarLayout>
 
 	<androidx.coordinatorlayout.widget.CoordinatorLayout
 		android:id="@+id/coordinator"
@@ -31,6 +39,7 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			android:paddingBottom="@dimen/fab_buffer"
+			tools:listitem="@layout/row_player_color"
 			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 		<LinearLayout

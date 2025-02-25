@@ -77,9 +77,9 @@
 
 						<TextView
 							android:id="@+id/subtitleView"
-							android:textAppearance="@style/TextAppearance.Subtitle.Overlay"
 							android:layout_width="match_parent"
 							android:layout_height="wrap_content"
+							android:textAppearance="@style/TextAppearance.Subtitle.Overlay"
 							tools:text="Player #1" />
 					</LinearLayout>
 				</FrameLayout>
