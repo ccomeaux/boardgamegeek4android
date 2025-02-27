@@ -163,7 +163,15 @@ class PlayRepository(
             }
     }
 
-    suspend fun loadPlayersByLocation(location: String = ""): List<Player> = withContext(Dispatchers.Default) {
+    suspend fun loadPlayers(): List<Player> = withContext(Dispatchers.Default) {
+        val players = withContext(Dispatchers.IO) { playDao.loadPlayers() }
+        val grouping = players.groupBy { it.key() }
+        grouping.map { (_, value) -> value.mapToModel() }
+            .filterNotNull()
+            .sortedByDescending { it.playCount }
+    }
+
+    suspend fun loadPlayersByLocation(location: String): List<Player> = withContext(Dispatchers.Default) {
         val players = withContext(Dispatchers.IO) { playDao.loadPlayersForLocation(location) }
         val grouping = players.groupBy { it.key() }
         grouping.map { (_, value) -> value.mapToModel() }
@@ -539,6 +547,7 @@ class PlayRepository(
             val candidate = play.playId.let { playDao.loadPlay(it) }
             when {
                 candidate == null || candidate.internalId == INVALID_ID.toLong() -> {
+                    Timber.d("Upserting new play ID = ${play.playId}.")
                     upsert(play, syncTimestamp)
                     insertCount++
                 }
@@ -552,6 +561,7 @@ class PlayRepository(
                     unchangedCount++
                 }
                 else -> {
+                    Timber.d("Upserting existing play (Internal ID=${candidate.internalId}")
                     upsert(play.copy(internalId = candidate.internalId), syncTimestamp)
                     updateCount++
                 }

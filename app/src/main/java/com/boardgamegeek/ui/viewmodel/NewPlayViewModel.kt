@@ -64,7 +64,7 @@ class NewPlayViewModel @Inject constructor(
 
     // Players
     val availablePlayers = MediatorLiveData<List<Player>>()
-    private val _allPlayers = liveData { emit(playRepository.loadPlayersByLocation()) }
+    private val _allPlayers = liveData { emit(playRepository.loadPlayers()) }
     private val playersByLocation: LiveData<List<Player>> = location.switchMap {
         liveData {
             emit(playRepository.loadPlayersByLocation(it))
