@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.longSnackbar
+import com.boardgamegeek.extensions.notifyLoggedPlay
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -41,6 +42,12 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
                 } else {
                     snackbar = rootContainer?.longSnackbar(message)
                 }
+            }
+        }
+
+        viewModel.loggedPlayResult.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                notifyLoggedPlay(it)
             }
         }
 

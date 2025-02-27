@@ -7,7 +7,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
+import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,8 +50,13 @@ class PlaysViewModel @Inject constructor(
     val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<Event<String>> = _errorMessage.map { Event(it) }
+    private val _errorMessage = EventLiveData()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
+
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
+        get() = _loggedPlayResult
 
     private val _isRefreshing = MutableLiveData<Boolean>()
     val isRefreshing: LiveData<Boolean>
@@ -177,7 +184,7 @@ class PlaysViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
+                _errorMessage.postMessage(e)
             } finally {
                 _isRefreshing.postValue(false)
             }
@@ -190,13 +197,27 @@ class PlaysViewModel @Inject constructor(
                 if (syncPlays.value == true && _isRefreshing.value != true) {
                     _isRefreshing.postValue(true)
                     playRepository.refreshPlaysForDate(timeInMillis)?.let {
-                        _errorMessage.postValue(it)
+                        _errorMessage.postMessage(it)
                     }
                 }
             } catch (e: Exception) {
-                _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
+                _errorMessage.postMessage(e)
             } finally {
                 _isRefreshing.postValue(false)
+            }
+        }
+    }
+
+    fun logQuickPlay(gameId: Int, gameName: String) {
+        viewModelScope.launch {
+            val result = playRepository.logQuickPlay(gameId, gameName)
+            if (result.isFailure)
+                result.exceptionOrNull()?.let { _errorMessage.setMessage(it) }
+            else {
+                result.getOrNull()?.let {
+                    if (it.play.playId != BggContract.INVALID_ID)
+                        _loggedPlayResult.value = Event(it)
+                }
             }
         }
     }

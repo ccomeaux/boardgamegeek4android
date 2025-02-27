@@ -8,9 +8,14 @@ class EventLiveData: LiveData<Event<String>>()  {
     }
 
     fun setMessage(exception: Throwable) {
-        super.setValue(Event(exception.localizedMessage.orEmpty()))
+        super.setValue(Event(exception.localizedMessage ?: exception.message ?: exception.toString()))
     }
+
     fun postMessage(message: String) {
         super.postValue(Event(message))
+    }
+
+    fun postMessage(exception: Throwable) {
+        super.postValue(Event(exception.localizedMessage ?: exception.message ?: exception.toString()))
     }
 }

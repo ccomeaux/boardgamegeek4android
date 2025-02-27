@@ -61,14 +61,8 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         binding.fabView.apply {
             if (gameId != INVALID_ID) {
                 colorize(iconColor)
-                setOnClickListener {
-                    LogPlayActivity.logPlay(
-                        requireContext(),
-                        gameId,
-                        gameName.orEmpty(),
-                        heroImageUrl.orEmpty(),
-                        arePlayersCustomSorted
-                    )
+                setOnClickListener { // launch the "correct" play logging activity
+                    logPlay()
                 }
                 show()
             } else {
@@ -115,6 +109,14 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 }
             }
         )
+    }
+
+    private fun logPlay() {
+        when (requireActivity().preferences().logPlayPreference()) {
+            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(requireContext(), gameId, gameName.orEmpty(), heroImageUrl.orEmpty(), arePlayersCustomSorted)
+            LOG_PLAY_TYPE_QUICK -> viewModel.logQuickPlay(gameId, gameName.orEmpty())
+            LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(requireContext(), gameId, gameName.orEmpty())
+        }
     }
 
     internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), RecyclerSectionItemDecoration.SectionCallback {
