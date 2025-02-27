@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/container"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -26,23 +27,10 @@
 		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
 		android:text="@string/yesterday"
 		app:iconGravity="textStart"
-		app:layout_constraintBottom_toTopOf="@id/earlierButton"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/todayButton" />
-
-	<Button
-		android:id="@+id/earlierButton"
-		style="?attr/materialButtonOutlinedStyle"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
-		android:text="@string/earlier"
-		app:iconGravity="textStart"
 		app:layout_constraintBottom_toTopOf="@id/lastPlayDateButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/yesterdayButton" />
+		app:layout_constraintTop_toBottomOf="@id/todayButton" />
 
 	<Button
 		android:id="@+id/lastPlayDateButton"
@@ -52,7 +40,22 @@
 		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
 		android:visibility="gone"
 		app:iconGravity="textStart"
+		app:layout_constraintBottom_toTopOf="@id/lastPlayDateButton"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/earlierButton" />
+		app:layout_constraintTop_toBottomOf="@id/yesterdayButton"
+		tools:text="Sep. 1, 2024"
+		tools:visibility="visible" />
+
+	<Button
+		android:id="@+id/earlierButton"
+		style="?attr/materialButtonOutlinedStyle"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginHorizontal="@dimen/activity_horizontal_margin"
+		android:text="@string/other_date"
+		app:iconGravity="textStart"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/lastPlayDateButton" />
 </androidx.constraintlayout.widget.ConstraintLayout>
