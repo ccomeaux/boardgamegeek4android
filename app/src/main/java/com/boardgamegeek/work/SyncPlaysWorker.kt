@@ -69,6 +69,7 @@ class SyncPlaysWorker @AssistedInject constructor(
             } else Timber.i("Already downloaded all past plays")
 
             setProgress(PROGRESS_STEP_STATS, PROGRESS_ACTION_UNKNOWN)
+            Timber.d("Calculating stats")
             playRepository.calculateStats()
             Timber.i("Plays synced successfully")
             Result.success()
@@ -81,7 +82,7 @@ class SyncPlaysWorker @AssistedInject constructor(
         var page = 1
         do {
             setProgress(step, PROGRESS_ACTION_WAITING, minDate, maxDate, page)
-            if (page > 1) delay(playsFetchPauseMilliseconds)
+            if (page > 1) delay(playsFetchPauseMilliseconds).also { Timber.d("Delaying for ${playsFetchPauseMilliseconds}ms") }
 
             checkIfStopped("Worker stopped early while downloading plays")?.let { return it }
 
@@ -105,6 +106,7 @@ class SyncPlaysWorker @AssistedInject constructor(
 
                 setProgress(step, PROGRESS_ACTION_SAVING, minDate, maxDate, page)
                 playRepository.saveFromSync(plays, startTime)
+                Timber.d("Updating sync timestamps")
                 plays.maxOfOrNull { it.dateInMillis }?.let {
                     if (it > (syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] ?: MIN_DATE)) {
                         syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE] = it
@@ -115,6 +117,7 @@ class SyncPlaysWorker @AssistedInject constructor(
                         syncPrefs[SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE] = it
                     }
                 }
+                Timber.d("Updating game play counts")
                 gameIds.filterNot { it == BggContract.INVALID_ID }.forEach { gameId ->
                     playRepository.updateGamePlayCount(gameId)
                 }
