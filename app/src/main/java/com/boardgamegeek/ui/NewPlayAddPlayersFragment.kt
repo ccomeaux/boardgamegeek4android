@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
@@ -23,8 +22,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayAddPlayersBinding
 import com.boardgamegeek.databinding.RowNewPlayAddPlayerBinding
-import com.boardgamegeek.model.Player
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.google.android.material.chip.Chip
@@ -36,7 +35,9 @@ class NewPlayAddPlayersFragment : Fragment() {
     private var _binding: FragmentNewPlayAddPlayersBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
-    private val adapter: PlayersAdapter by lazy { PlayersAdapter(viewModel, binding.filterEditText) }
+    private val adapter: PlayersAdapter by lazy {
+        PlayersAdapter { player -> addPlayer(player) }
+    }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -64,8 +65,7 @@ class NewPlayAddPlayersFragment : Fragment() {
 
         binding.nextOrAddButton.setOnClickListener {
             if (binding.filterEditText.text?.isNotBlank() == true) {
-                viewModel.addPlayer(Player(binding.filterEditText.text.toString(), ""))
-                binding.filterEditText.text?.clear()
+                addPlayer(Player(binding.filterEditText.text.toString(), ""))
             } else {
                 viewModel.finishAddingPlayers()
             }
@@ -134,8 +134,14 @@ class NewPlayAddPlayersFragment : Fragment() {
         _binding = null
     }
 
-    private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val filterView: TextView) :
-        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
+    private fun addPlayer(player: Player) {
+        viewModel.addPlayer(player)
+        binding.filterEditText.clearText()
+        binding.recyclerView.scrollToPosition(0)
+    }
+
+    private class PlayersAdapter(var onItemClick: ((Player) -> Unit)? = null) : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(),
+        AutoUpdatableAdapter {
         var players: List<Player> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.name == new.name && old.username == new.username && old.userAvatarUrl == new.userAvatarUrl
@@ -173,8 +179,7 @@ class NewPlayAddPlayersFragment : Fragment() {
                             tintPlayer(p)
                     }
                     itemView.setOnClickListener {
-                        viewModel.addPlayer(p)
-                        filterView.clearText()
+                        onItemClick?.invoke(p)
                     }
                 }
             }
