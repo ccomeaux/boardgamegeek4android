@@ -50,7 +50,7 @@ class NewPlayDateFragment : Fragment() {
 
         binding.earlierButton.setOnClickListener {
             val datePicker = MaterialDatePicker.Builder.datePicker()
-                .setSelection(selectedDate ?: Calendar.getInstance().timeInMillis) // go to currently selected date, or today if null
+                .setSelection(selectedDate?.fromLocalToUtc() ?: MaterialDatePicker.todayInUtcMilliseconds())
                 .build()
             datePicker.addOnPositiveButtonClickListener {
                 viewModel.setDate(it.fromLocalToUtc())

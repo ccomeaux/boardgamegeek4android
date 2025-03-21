@@ -76,7 +76,7 @@ class CollectionDetailPrivateInfoDialogFragment : DialogFragment() {
         binding.acquiredFromView.setAndSelectExistingText(savedInstanceState?.getString(KEY_ACQUIRED_FROM) ?: arguments?.getString(KEY_ACQUIRED_FROM))
 
         binding.acquisitionDateView.setOnClickListener {
-            val date = if (acquisitionDate == 0L) System.currentTimeMillis() else acquisitionDate
+            val date = if (acquisitionDate == 0L) MaterialDatePicker.todayInUtcMilliseconds() else acquisitionDate.fromLocalToUtc()
             val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(date).build()
             datePicker.addOnPositiveButtonClickListener {
                 setAndDisplayAcquisitionDate(it.fromLocalToUtc())

@@ -87,3 +87,13 @@ fun Long.fromLocalToUtc(): Long {
     val standardTime = this - timeZone.rawOffset
     return standardTime - if (timeZone.inDaylightTime(Date(standardTime))) timeZone.dstSavings else 0
 }
+
+fun Long.asDateOnly(): Long {
+    return Calendar.getInstance().apply {
+        timeInMillis = this@asDateOnly
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
+}

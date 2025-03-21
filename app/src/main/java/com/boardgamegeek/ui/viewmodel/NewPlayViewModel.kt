@@ -201,8 +201,10 @@ class NewPlayViewModel @Inject constructor(
         locations.value = filterLocations(result, filter)
     }.also { locationFilter = filter }
 
-    fun setDate(date: Long) {
-        if (_playDate.value != date) _playDate.value = date
+    fun setDate(dateTime: Long) {
+        if (_playDate.value != dateTime) {
+            _playDate.value = dateTime.asDateOnly()
+        }
         addStep(Step.LOCATION)
     }
 
