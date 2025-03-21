@@ -107,7 +107,7 @@ class NewPlayLocationsFragment : Fragment() {
             fun bind(location: Location?) {
                 location?.let { l ->
                     binding.nameView.text = l.name
-                    itemView.setOnClickListener {  onItemClick?.invoke(l) }
+                    itemView.setOnClickListener { onItemClick?.invoke(l) }
                 }
             }
         }
