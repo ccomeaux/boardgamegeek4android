@@ -7,15 +7,15 @@ import androidx.lifecycle.*
 import androidx.work.WorkManager
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.model.CollectionItem
-import com.boardgamegeek.model.CollectionView
-import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.livedata.ThrottledLiveData
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionView
+import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameCollectionRepository
@@ -104,7 +104,7 @@ class CollectionViewViewModel @Inject constructor(
             _sortType.postValue(CollectionSorterFactory.TYPE_UNKNOWN)
             _addedFilters.postValue(emptyList())
             _removedFilterTypes.postValue(emptyList())
-            if (it == null || it == CollectionViewPrefs.DEFAULT_DEFAULT_ID)
+            if (it == CollectionViewPrefs.DEFAULT_DEFAULT_ID)
                 emit(viewRepository.defaultView)
             else
                 emitSource(viewRepository.loadViewFlow(it).distinctUntilChanged().asLiveData())
@@ -122,6 +122,7 @@ class CollectionViewViewModel @Inject constructor(
 
     private suspend fun initMediators() = withContext(Dispatchers.Default) {
         _effectiveSort.addSource(selectedView) {
+            // TODO java.lang.IllegalStateException: Cannot invoke observeForever on a background thread
             createEffectiveSort(it, _sortType.value)
         }
         _effectiveSort.addSource(_sortType) {
@@ -275,21 +276,7 @@ class CollectionViewViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Default) {
             var list = itemList.asSequence()
             if (_selectedViewId.value == CollectionViewPrefs.DEFAULT_DEFAULT_ID && filters.none { it.type == CollectionFiltererFactory.TYPE_STATUS }) {
-                list = list.filter {
-                    (prefs.isStatusSetToSync(COLLECTION_STATUS_OWN) && it.own) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_PREVIOUSLY_OWNED) && it.previouslyOwned) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_FOR_TRADE) && it.forTrade) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_IN_TRADE) && it.wantInTrade) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_BUY) && it.wantToPlay) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WISHLIST) && it.wishList) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_PLAY) && it.wantToPlay) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_PREORDERED) && it.preOrdered) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED) && it.numberOfPlays > 0) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED) && it.rating > 0.0) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_COMMENTED) && it.comment.isNotBlank()) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
-                            (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_PARTS) && it.wantPartsList.isNotBlank())
-                }
+                list = filterDefaultView(list)
             }
             filters.forEach { f ->
                 list = list.filter { f.filter(it) }
@@ -298,6 +285,22 @@ class CollectionViewViewModel @Inject constructor(
                 _items.postValue(it.first.sort(list.toList(), it.second))
             } ?: _items.postValue(list.toList())
         }
+    }
+
+    private fun filterDefaultView(list: Sequence<CollectionItem>) = list.filter {
+        (prefs.isStatusSetToSync(COLLECTION_STATUS_OWN) && it.own) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_PREVIOUSLY_OWNED) && it.previouslyOwned) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_FOR_TRADE) && it.forTrade) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_IN_TRADE) && it.wantInTrade) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_BUY) && it.wantToPlay) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_WISHLIST) && it.wishList) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_PLAY) && it.wantToPlay) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_PREORDERED) && it.preOrdered) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED) && it.numberOfPlays > 0) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED) && it.rating > 0.0) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_COMMENTED) && it.comment.isNotBlank()) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
+                (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_PARTS) && it.wantPartsList.isNotBlank())
     }
 
     fun refresh() {
@@ -391,6 +394,6 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     companion object {
-        const val WORK_NAME = "CollectionViewViewModel"
+        private const val WORK_NAME = "CollectionViewViewModel"
     }
 }
