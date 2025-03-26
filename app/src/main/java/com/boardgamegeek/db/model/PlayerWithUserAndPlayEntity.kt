@@ -1,8 +1,9 @@
 package com.boardgamegeek.db.model
 
 import androidx.room.*
+import java.util.Date
 
-data class PlayerWithPlayEntity(
+data class PlayerWithUserAndPlayEntity(
     @Embedded
     val player: PlayPlayerEntity,
     val quantity: Int,
@@ -11,6 +12,7 @@ data class PlayerWithPlayEntity(
     val avatarUrl: String?,
     val firstName: String?,
     val lastName: String?,
+    val userUpdatedTimestamp: Date?,
 ) {
     fun fullName(): String {
         return firstName?.let { fn ->

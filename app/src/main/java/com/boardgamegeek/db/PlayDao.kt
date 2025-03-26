@@ -93,7 +93,7 @@ interface PlayDao {
     fun loadPlayersForGameFlow(gameId: Int): Flow<List<PlayerWithPlayEntity>>
 
     @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName, users.updated_detail_timestamp as userUpdatedTimestamp FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE delete_timestamp=0 OR delete_timestamp IS NULL")
-    suspend fun loadPlayers(): List<PlayerWithPlayEntity>
+    suspend fun loadPlayers(): List<PlayerWithUserAndPlayEntity>
 
     @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE delete_timestamp=0 OR delete_timestamp IS NULL")
     fun loadPlayersFlow(): Flow<List<PlayerWithPlayEntity>>

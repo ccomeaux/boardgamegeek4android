@@ -174,6 +174,20 @@ fun List<PlayerWithPlayEntity>.mapToModel() =
                 filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
                 it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
                 it.fullName(),
+            )
+        } else null
+    }
+
+fun List<PlayerWithUserAndPlayEntity>.mapToModelWithUser() =
+    firstOrNull()?.let {
+        if (!it.player.name.isNullOrBlank() || !it.player.username.isNullOrBlank()) {
+            Player(
+                it.player.name.orEmpty(),
+                it.player.username.orEmpty(),
+                sumOf { play -> play.quantity },
+                filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
+                it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
+                it.fullName(),
                 it.userUpdatedTimestamp?.time,
             )
         } else null

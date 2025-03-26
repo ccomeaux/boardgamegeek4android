@@ -18,10 +18,7 @@ import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.PhpApi
 import com.boardgamegeek.io.model.PlaysResponse
 import com.boardgamegeek.io.safeApiCall
-import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.mappers.mapToFormBodyForDelete
-import com.boardgamegeek.mappers.mapToFormBodyForUpsert
-import com.boardgamegeek.mappers.mapToModel
+import com.boardgamegeek.mappers.*
 import com.boardgamegeek.model.*
 import com.boardgamegeek.model.Location.Companion.applySort
 import com.boardgamegeek.model.Player.Companion.applySort
@@ -142,7 +139,7 @@ class PlayRepository(
         grouping
             .map { (_, value) ->
                 value.firstOrNull()?.let {
-                    value.mapToModel()
+                    value.mapToModelWithUser()
                 }
             }
             .filterNotNull()
@@ -166,7 +163,7 @@ class PlayRepository(
     suspend fun loadPlayers(): List<Player> = withContext(Dispatchers.Default) {
         val players = withContext(Dispatchers.IO) { playDao.loadPlayers() }
         val grouping = players.groupBy { it.key() }
-        grouping.map { (_, value) -> value.mapToModel() }
+        grouping.map { (_, value) -> value.mapToModelWithUser() }
             .filterNotNull()
             .sortedByDescending { it.playCount }
     }
@@ -786,7 +783,7 @@ class PlayRepository(
             .filterNot { it.player.username == username }
             .filter { includeIncompletePlays || !it.incomplete }
             .groupBy { it.key() }
-            .map { it.value.mapToModel() }
+            .map { it.value.mapToModelWithUser() }
             .filterNotNull()
             .sortedByDescending { it.playCount }
             .toList()
