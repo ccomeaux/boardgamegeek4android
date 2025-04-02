@@ -44,39 +44,12 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.preorderedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { },
+                null,
                 { item: CollectionItem ->
                     item.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
                 },
                 R.menu.game_acquire,
-                { item: CollectionItem, menuItem: MenuItem -> Boolean
-                    when (menuItem.itemId) {
-                        R.id.menu_acquire -> {
-                            buyGame(item)
-                            true
-                        }
-                        R.id.menu_view_game -> {
-                            GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
-                            true
-                        }
-                        R.id.menu_view_item -> {
-                            GameCollectionItemActivity.start(
-                                requireContext(),
-                                item.internalId,
-                                item.gameId,
-                                item.gameName,
-                                item.collectionId,
-                                item.collectionName,
-                                item.thumbnailUrl,
-                                item.heroImageUrl,
-                                item.gameYearPublished,
-                                item.collectionYearPublished
-                            )
-                            true
-                        }
-                        else -> false
-                    }
-                }
+                onAcquireMenuClick()
             )
         )
         viewModel.preordered.observe(viewLifecycleOwner) {
@@ -85,13 +58,13 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.wishlistWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item: CollectionItem ->
-                    buyGame(item)
-                },
+                null,
                 { item: CollectionItem ->
                     item.wishListPriority.asWishListPriority(context) to
                             item.wishListPriority.toDouble().toColor(BggColors.fiveStageColors)
-                }
+                },
+                R.menu.game_acquire,
+                onAcquireMenuClick(),
             )
         )
         viewModel.wishlist.observe(viewLifecycleOwner) {
@@ -100,10 +73,10 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.wantToBuyWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item: CollectionItem ->
-                    buyGame(item)
-                },
-                { rating(it.averageRating) }
+                null,
+                { rating(it.averageRating) },
+                R.menu.game_acquire,
+                onAcquireMenuClick(),
             )
         )
         viewModel.wantToBuy.observe(viewLifecycleOwner) {
@@ -112,10 +85,10 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.wantInTradeWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item: CollectionItem ->
-                    buyGame(item)
-                },
-                { rating(it.averageRating) }
+                null,
+                { rating(it.averageRating) },
+                R.menu.game_acquire,
+                onAcquireMenuClick(),
             )
         )
         viewModel.wantInTrade.observe(viewLifecycleOwner) {
@@ -124,12 +97,12 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.favoriteUnownedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item: CollectionItem ->
-                    buyGame(item)
-                },
+                null,
                 { item ->
                     rating(item.rating)
-                }
+                },
+                R.menu.game_acquire,
+                onAcquireMenuClick(),
             ))
         viewModel.favoriteUnownedItems.observe(viewLifecycleOwner) {
             binding.favoriteUnownedWidget.bindList(it)
@@ -137,12 +110,12 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.playedUnownedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item: CollectionItem ->
-                    buyGame(item)
-                },
+                null,
                 { item ->
                     requireContext().getQuantityText(R.plurals.plays_suffix, item.numberOfPlays, item.numberOfPlays) to Color.WHITE
-                }
+                },
+                R.menu.game_acquire,
+                onAcquireMenuClick(),
             ))
         viewModel.playedButUnownedItems.observe(viewLifecycleOwner) {
             binding.playedUnownedWidget.bindList(it)
@@ -150,15 +123,45 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.hawtUnownedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item: CollectionItem ->
-                    buyGame(item)
-                },
+                null,
                 { item ->
                     rating(item.averageRating)
-                }
+                },
+                R.menu.game_acquire,
+                onAcquireMenuClick(),
             ))
         viewModel.hawtUnownedItems.observe(viewLifecycleOwner) {
             binding.hawtUnownedWidget.bindList(it)
+        }
+    }
+
+    private fun onAcquireMenuClick() = { item: CollectionItem, menuItem: MenuItem ->
+        Boolean
+        when (menuItem.itemId) {
+            R.id.menu_acquire -> {
+                buyGame(item)
+                true
+            }
+            R.id.menu_view_game -> {
+                GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
+                true
+            }
+            R.id.menu_view_item -> {
+                GameCollectionItemActivity.start(
+                    requireContext(),
+                    item.internalId,
+                    item.gameId,
+                    item.gameName,
+                    item.collectionId,
+                    item.collectionName,
+                    item.thumbnailUrl,
+                    item.heroImageUrl,
+                    item.gameYearPublished,
+                    item.collectionYearPublished
+                )
+                true
+            }
+            else -> false
         }
     }
 
