@@ -7,7 +7,6 @@ import android.transition.AutoTransition
 import android.transition.Transition
 import android.transition.TransitionManager
 import android.util.SparseBooleanArray
-import android.util.SparseIntArray
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,11 +22,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding
-import com.boardgamegeek.model.Play
-import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.model.CollectionItem
-import com.boardgamegeek.model.Game
+import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
@@ -40,10 +36,9 @@ import com.github.mikephil.charting.interfaces.datasets.IBarDataSet
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
 import kotlin.math.ln
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -61,6 +56,7 @@ class GamePlayStatsFragment : Fragment() {
 
     private var publishedPlayingTime = 0
     private var personalRating = Game.UNRATED
+    private var modifiedWhitmoreScore = Game.UNRATED
     private var isGameOwned = false
     private var playerTransition: Transition? = null
     private val selectedItems = SparseBooleanArray()
@@ -143,6 +139,7 @@ class GamePlayStatsFragment : Fragment() {
             publishedPlayingTime = it?.first()?.playingTime ?: 0
             personalRating = it?.filter { item -> item.rating > 0.0 }?.map { item -> item.rating }?.average() ?: Game.UNRATED
             isGameOwned = it?.any { item -> item.own } ?: false
+            modifiedWhitmoreScore = it?.filter { item -> item.rating > 0.0 }?.map { item -> item.modifiedWhitmoreScore }?.average() ?: 0.0
 
             viewModel.plays.observe(viewLifecycleOwner) { plays ->
                 if (plays.isNullOrEmpty()) {
@@ -154,7 +151,16 @@ class GamePlayStatsFragment : Fragment() {
                     viewModel.players.observe(viewLifecycleOwner) { players ->
                         this.players = players
 
-                        val stats = Stats()
+                        val stats = Stats(
+                            plays.filter { play ->
+                                prefs[PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE, false] ?: false || !play.incomplete
+                            },
+                            players,
+                            publishedPlayingTime,
+                            personalRating,
+                            prefs[PlayStatPrefs.KEY_GAME_H_INDEX, 0] ?: 0,
+                            modifiedWhitmoreScore,
+                        )
                         stats.calculate()
                         bindUi(stats)
 
@@ -173,7 +179,8 @@ class GamePlayStatsFragment : Fragment() {
         _binding = null
     }
 
-    private fun Int.colorOrElse(@ColorRes colorResId: Int) = if (this == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), colorResId) else this
+    private fun Int.colorOrElse(@ColorRes colorResId: Int) =
+        if (this == Color.TRANSPARENT) ContextCompat.getColor(requireContext(), colorResId) else this
 
     private fun bindUi(stats: Stats) {
         // region PLAY COUNT
@@ -182,52 +189,59 @@ class GamePlayStatsFragment : Fragment() {
 
         val playStatRow = PlayStatRow(requireContext())
         when {
-            stats.dollarDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_dollar))
-            stats.halfDollarDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_half_dollar))
-            stats.quarterDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_quarter))
-            stats.dimeDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_dime))
-            stats.nickelDate.isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_nickel))
+            stats.getDateForPlayNumber(100).isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_dollar))
+            stats.getDateForPlayNumber(50).isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_half_dollar))
+            stats.getDateForPlayNumber(25).isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_quarter))
+            stats.getDateForPlayNumber(10).isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_dime))
+            stats.getDateForPlayNumber(5).isNotEmpty() -> playStatRow.setValue(getString(R.string.play_stat_nickel))
         }
         binding.counts.playCountTable.addView(playStatRow)
 
-        addPlayStat(binding.counts.playCountTable, stats.playCount.toString(), R.string.play_stat_play_count)
-        if (stats.playCountIncomplete > 0 && stats.playCountIncomplete != stats.playCount) {
-            addPlayStat(binding.counts.playCountTable, stats.playCountIncomplete.toString(), R.string.play_stat_play_count_incomplete)
+        val playCount = stats.playCountSince()
+        val playCountIncomplete = stats.playCountSince(includeIncomplete = true) - playCount
+        addPlayStat(binding.counts.playCountTable, playCount.toString(), R.string.play_stat_play_count)
+        if (playCountIncomplete > 0) {
+            addPlayStat(binding.counts.playCountTable, playCountIncomplete.toString(), R.string.play_stat_play_count_incomplete)
         }
         addPlayStat(binding.counts.playCountTable, stats.getMonthsPlayed().toString(), R.string.play_stat_months_played)
-        if (stats.playRate > 0.0) {
-            addPlayStat(binding.counts.playCountTable, DOUBLE_FORMAT.format(stats.playRate), R.string.play_stat_play_rate)
+        if (stats.playsPerMonth > 0.0) {
+            addPlayStat(binding.counts.playCountTable, DOUBLE_FORMAT.format(stats.playsPerMonth), R.string.play_stat_play_rate)
         }
 
-        val playCountValues = ArrayList<BarEntry>()
-        for (i in stats.minPlayerCount..stats.maxPlayerCount) {
-            val winnablePlayCount = stats.getPersonalWinnablePlayCount(i)
-            val wins = stats.getPersonalWinCount(i)
-            val playCount = stats.getPlayCount(i)
-            playCountValues.add(
-                BarEntry(
-                    i.toFloat(), floatArrayOf(
-                        wins.toFloat(),
-                        winnablePlayCount - wins.toFloat(),
-                        playCount - winnablePlayCount.toFloat()
+        val username = prefs[AccountPreferences.KEY_USERNAME, ""] ?: ""
+        if (username.isBlank()) {
+            binding.counts.playCountChart.visibility = View.GONE
+        } else {
+            val playCountValues = ArrayList<BarEntry>()
+            for (i in stats.minPlayerCount..stats.maxPlayerCount) {
+                val winnablePlayCount = stats.getPlayerStats(username)?.getWinnablePlayCountByPlayerCount(i) ?: 0
+                val wins = stats.getPlayerStats(username)?.getWinCountByPlayerCount(i) ?: 0
+                val playCountPerPlayer = stats.getPlayCountByPlayerCount(i)
+                playCountValues.add(
+                    BarEntry(
+                        i.toFloat(), floatArrayOf(
+                            wins.toFloat(),
+                            winnablePlayCount - wins.toFloat(),
+                            playCountPerPlayer - winnablePlayCount.toFloat()
+                        )
                     )
                 )
-            )
-        }
-        if (playCountValues.size > 0) {
-            val playCountDataSet = BarDataSet(playCountValues, getString(R.string.title_plays)).apply {
-                setDrawValues(false)
-                isHighlightEnabled = false
-                setColors(*playCountColors)
-                stackLabels = arrayOf(getString(R.string.title_wins), getString(R.string.winnable), getString(R.string.all))
             }
-            val dataSets = mutableListOf<IBarDataSet>()
-            dataSets.add(playCountDataSet)
-            binding.counts.playCountChart.data = BarData(dataSets)
-            binding.counts.playCountChart.animateY(1000, Easing.EaseInOutBack)
-            binding.counts.playCountChart.visibility = View.VISIBLE
-        } else {
-            binding.counts.playCountChart.visibility = View.GONE
+            if (playCountValues.size > 0) {
+                val playCountDataSet = BarDataSet(playCountValues, getString(R.string.title_plays)).apply {
+                    setDrawValues(false)
+                    isHighlightEnabled = false
+                    setColors(*playCountColors)
+                    stackLabels = arrayOf(getString(R.string.title_wins), getString(R.string.winnable), getString(R.string.all))
+                }
+                val dataSets = mutableListOf<IBarDataSet>()
+                dataSets.add(playCountDataSet)
+                binding.counts.playCountChart.data = BarData(dataSets)
+                binding.counts.playCountChart.animateY(1000, Easing.EaseInOutBack)
+                binding.counts.playCountChart.visibility = View.VISIBLE
+            } else {
+                binding.counts.playCountChart.visibility = View.GONE
+            }
         }
 
         // endregion PLAY COUNT
@@ -239,7 +253,8 @@ class GamePlayStatsFragment : Fragment() {
             binding.scores.averageScoreView.text = SCORE_FORMAT.format(stats.averageScore)
             binding.scores.averageWinScoreView.text = SCORE_FORMAT.format(stats.averageWinningScore)
             binding.scores.highScoreView.text = SCORE_FORMAT.format(stats.highScore)
-            if (stats.highScore > stats.lowScore) {
+
+            if (stats.highScore != INVALID_SCORE && stats.lowScore != INVALID_SCORE && stats.highScore > stats.lowScore) {
                 binding.scores.scoreGraphView.lowScore = stats.lowScore
                 binding.scores.scoreGraphView.averageScore = stats.averageScore
                 binding.scores.scoreGraphView.averageWinScore = stats.averageWinningScore
@@ -270,8 +285,7 @@ class GamePlayStatsFragment : Fragment() {
 
         // region PLAYERS
         binding.players.playersList.removeAllViews()
-        for ((position, playerStats) in stats.getPlayerStats().withIndex()) {
-            val stat = playerStats.value
+        for ((position, stat) in stats.getPlayerStats().withIndex()) {
             val view = PlayerStatView(requireActivity()).apply {
                 setName(stat.description)
                 setWinInfo(stat.numberOfPlaysWon, stat.numberOfWinnablePlays)
@@ -307,13 +321,13 @@ class GamePlayStatsFragment : Fragment() {
         // region DATES
 
         binding.dates.datesTable.removeAllViews()
-        addStatRowMaybe(binding.dates.datesTable, stats.firstPlayDate).setLabel(R.string.play_stat_first_play)
-        addStatRowMaybe(binding.dates.datesTable, stats.nickelDate).setLabel(R.string.play_stat_nickel)
-        addStatRowMaybe(binding.dates.datesTable, stats.dimeDate).setLabel(R.string.play_stat_dime)
-        addStatRowMaybe(binding.dates.datesTable, stats.quarterDate).setLabel(R.string.play_stat_quarter)
-        addStatRowMaybe(binding.dates.datesTable, stats.halfDollarDate).setLabel(R.string.play_stat_half_dollar)
-        addStatRowMaybe(binding.dates.datesTable, stats.dollarDate).setLabel(R.string.play_stat_dollar)
-        addStatRowMaybe(binding.dates.datesTable, stats.lastPlayDate).setLabel(R.string.play_stat_last_play)
+        addStatRowMaybe(binding.dates.datesTable, stats.getDateForPlayNumber(1)).setLabel(R.string.play_stat_first_play)
+        addStatRowMaybe(binding.dates.datesTable, stats.getDateForPlayNumber(5)).setLabel(R.string.play_stat_nickel)
+        addStatRowMaybe(binding.dates.datesTable, stats.getDateForPlayNumber(10)).setLabel(R.string.play_stat_dime)
+        addStatRowMaybe(binding.dates.datesTable, stats.getDateForPlayNumber(25)).setLabel(R.string.play_stat_quarter)
+        addStatRowMaybe(binding.dates.datesTable, stats.getDateForPlayNumber(50)).setLabel(R.string.play_stat_half_dollar)
+        addStatRowMaybe(binding.dates.datesTable, stats.getDateForPlayNumber(100)).setLabel(R.string.play_stat_dollar)
+        addStatRowMaybe(binding.dates.datesTable, stats.getDateForPlayNumber(stats.playCountSince())).setLabel(R.string.play_stat_last_play)
 
         // endregion DATES
 
@@ -321,7 +335,7 @@ class GamePlayStatsFragment : Fragment() {
 
         binding.time.playTimeTable.removeAllViews()
 
-        addPlayStat(binding.time.playTimeTable, stats.hoursPlayed.toInt().toString(), R.string.play_stat_hours_played)
+        addPlayStat(binding.time.playTimeTable, stats.hoursPlayedSince().toInt().toString(), R.string.play_stat_hours_played)
         val average = stats.averagePlayTime
         if (average > 0) {
             addPlayStat(binding.time.playTimeTable, average.asTime(), R.string.play_stat_average_play_time)
@@ -355,12 +369,12 @@ class GamePlayStatsFragment : Fragment() {
         if (personalRating != Game.UNRATED) {
             addPlayStat(
                 binding.advanced.advancedTable,
-                stats.calculateFhm().toString(),
+                stats.calculateFriendlessHappinessMetric().toString(),
                 R.string.play_stat_fhm
             ).setInfoText(R.string.play_stat_fhm_info)
             addPlayStat(
                 binding.advanced.advancedTable,
-                stats.calculateHhm().toString(),
+                stats.calculateHuberHappinessMetricSince().toString(),
                 R.string.play_stat_hhm
             ).setInfoText(R.string.play_stat_hhm_info)
             addPlayStat(
@@ -370,7 +384,12 @@ class GamePlayStatsFragment : Fragment() {
             ).setInfoText(R.string.play_stat_huber_heat_info)
             addPlayStat(
                 binding.advanced.advancedTable,
-                DOUBLE_FORMAT.format(stats.calculateRuhm()),
+                DOUBLE_FORMAT.format(stats.calculateZefquaaviusHeat()),
+                R.string.play_stat_zefquaavius_heat
+            ).setInfoText(R.string.play_stat_zefquaavius_heat_info)
+            addPlayStat(
+                binding.advanced.advancedTable,
+                DOUBLE_FORMAT.format(stats.calculateRandyCoxNotUnhappinessMetric()),
                 R.string.play_stat_ruhm
             ).setInfoText(R.string.play_stat_ruhm_info)
         }
@@ -415,150 +434,117 @@ class GamePlayStatsFragment : Fragment() {
         return view
     }
 
-    private inner class Stats {
-        private val lambda = ln(0.1) / -10
-        private val playerStats: MutableMap<String, PlayerStats> = HashMap()
-
-        var firstPlayDate: String = ""
-        var firstPlayDateInMillis = 0L
-        var lastPlayDate: String = ""
-        var lastPlayDateInMillis = 0L
-        var nickelDate: String = ""
-        var dimeDate: String = ""
-        var quarterDate: String = ""
-        var halfDollarDate: String = ""
-        var dollarDate: String = ""
-
-        var playCountIncomplete = 0
-            private set
-        private var playCountWithLength = 0
-        private var playerCountSumWithLength = 0
+    // TODO move to ViewModel
+    private class Stats(
+        val plays: List<Play>,
+        val players: List<PlayPlayer>,
+        val publishedPlayingTime: Int,
+        val personalRating: Double,
+        val hIndex: Int,
+        val modifiedWhitmoreScore: Double,
+    ) {
         private var playCountByPlayerCount = mapOf<Int, Int>()
-        private var realMinutesPlayed = 0
-        private var estimatedMinutesPlayed = 0
-        private var numberOfWinnablePlays = 0
-        private var scoreSum = 0.0
-        private var scoreCount = 0
-        var highScore = 0.0
-            private set
-        var lowScore = 0.0
-            private set
-        private var winningScoreCount = 0
-        private var winningScoreSum = 0.0
         private var playCountByLocation = mapOf<String, Int>()
-        private var monthsPlayed = setOf<String>()
+        private val playerStats = mutableMapOf<String, PlayerStats>()
+        private val sortedPlaysWithPlayers = mutableListOf<Play>()
+        private val playDates = mutableListOf<String>()
+        private val filteredPlayers = mutableListOf<Pair<Play, PlayPlayer>>()
+        private val sortedPlays = plays.sortedBy { it.dateInMillis }
+
+        val Play.date: String
+            get() = simpleDateFormat.format(this.dateInMillis)
+
+        val Play.yearAndMonth: String
+            get() = this.date.substring(0, 7)
 
         fun calculate() {
-            nickelDate = ""
-            dimeDate = ""
-            quarterDate = ""
-            halfDollarDate = ""
-            dollarDate = ""
-            var count = 0
-            estimatedMinutesPlayed = 0
-            realMinutesPlayed = 0
-            playCountWithLength = 0
-            playerCountSumWithLength = 0
+            // reset values
             playerStats.clear()
-            scoreCount = 0
-            scoreSum = 0.0
-            winningScoreCount = 0
-            winningScoreSum = 0.0
-            highScore = Int.MIN_VALUE.toDouble()
-            lowScore = Int.MAX_VALUE.toDouble()
 
-            playCountIncomplete = this@GamePlayStatsFragment.plays.sumOf { it.quantity }
-
-            firstPlayDate = plays.first().date
-            firstPlayDateInMillis = plays.first().dateInMillis
-            lastPlayDate = plays.last().date
-            lastPlayDateInMillis = plays.last().dateInMillis
-            numberOfWinnablePlays = plays.filter { it.isWinnable }.sumOf { it.quantity }
-
+            // set values
             playCountByPlayerCount = plays.filter { it.playerCount > 0 }.groupingBy { it.playerCount }.fold(0) { playCount, play ->
                 playCount + play.quantity
             }
             playCountByLocation = plays.filter { it.location.isNotBlank() }.groupingBy { it.location }.fold(0) { playCount, play ->
                 playCount + play.quantity
             }
-            monthsPlayed = plays.groupBy { it.yearAndMonth }.keys
 
-            for (play in plays) {
-                // nickel and dime dates
-                if (count < 5 && (count + play.quantity) >= 5) {
-                    nickelDate = play.date
+            for (play in sortedPlays) {
+                sortedPlaysWithPlayers += play.copy(_players = players.filter { it.playInternalId == play.internalId })
+                repeat(play.quantity) {
+                    playDates += play.date
+                    filteredPlayers += players.filter { it.playInternalId == play.internalId }.map { play to it }
                 }
-                if (count < 10 && (count + play.quantity) >= 10) {
-                    dimeDate = play.date
-                }
-                if (count < 25 && (count + play.quantity) >= 25) {
-                    quarterDate = play.date
-                }
-                if (count < 50 && (count + play.quantity) >= 50) {
-                    halfDollarDate = play.date
-                }
-                if (count < 100 && (count + play.quantity) >= 100) {
-                    dollarDate = play.date
-                }
-                count += play.quantity
+            }
 
-                if (play.length == 0) {
-                    estimatedMinutesPlayed += publishedPlayingTime * play.quantity
-                } else {
-                    realMinutesPlayed += play.length
-                    playCountWithLength += play.quantity
-                    playerCountSumWithLength += play.playerCount * play.quantity
-                }
-
-                for (player in players.filter { it.playInternalId == play.internalId }) {
-                    if (player.description.isNotEmpty()) {
-                        val playerStats = playerStats[player.id] ?: PlayerStats()
-                        playerStats.add(play, player)
-                        this.playerStats[player.id] = playerStats
-                    }
-
-                    player.numericScore?.let { score ->
-                        scoreCount += play.quantity
-                        scoreSum += score * play.quantity
-                        if (player.isWin) {
-                            winningScoreCount += play.quantity
-                            winningScoreSum += score * play.quantity
-                        }
-                        highScore = max(highScore, score)
-                        lowScore = min(lowScore, score)
-                    }
-                }
+            filteredPlayers.groupBy(
+                keySelector = { it.second.id },
+            ).forEach { (key, value) ->
+                playerStats[key] = PlayerStats(value)
             }
         }
 
-        val plays: List<Play> = this@GamePlayStatsFragment.plays.filter { prefs[PlayStatPrefs.LOG_PLAY_STATS_INCOMPLETE, false] ?: false || !it.incomplete }.reversed()
+        private fun getPlaysSince(dateInMillis: Long?) = dateInMillis?.let { plays.filter { it.dateInMillis > dateInMillis } } ?: plays
 
-        val playCount: Int by lazy { plays.sumOf { it.quantity } }
+        // region DATE
 
-        fun playCountSince(dateInMillis: Long): Int = plays.filter { it.dateInMillis > dateInMillis }.sumOf { it.quantity }
+        fun getDateForPlayNumber(number: Int) = playDates.getOrNull(number - 1) ?: ""
 
-        fun hoursPlayedSince(dateInMillis: Long): Double {
-            val estimated = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length == 0 }.sumOf { publishedPlayingTime * it.quantity }
-            val actual = plays.filter { it.dateInMillis > dateInMillis }.filter { it.length > 0 }.sumOf { it.length }
-            return (estimated + actual) / 60.0
+        fun getMonthsPlayed() = plays.map { it.yearAndMonth }.toSet().size
+
+        /**
+         * Calculate the number of days from the first play to the last play.
+         */
+        private fun calculateFlash(): Long {
+            return daysBetweenDates(sortedPlays.first().dateInMillis, sortedPlays.last().dateInMillis)
         }
 
-        val hoursPlayed: Double
-            get() = ((realMinutesPlayed + estimatedMinutesPlayed) / 60).toDouble()
+        /**
+         * Calculate the number of days since the last play.
+         */
+        private fun calculateLag(): Long {
+            return daysBetweenDates(sortedPlays.last().dateInMillis)
+        }
 
-        /* plays per month, only counting the active period) */
-        val playRate: Double
-            get() = (((playCount * 365.25) / calculateFlash()) / 12).coerceAtMost(playCount.toDouble())
+        //private fun calculateSpan(): Long {
+        //  return daysBetweenDates(sortedPlays.first().dateInMillis)
+        //}
+
+        private fun daysBetweenDates(from: Long, to: Long = System.currentTimeMillis()): Long {
+            return (to - from).milliseconds.inWholeDays.coerceAtLeast(1)
+        }
+
+        // endregion DATE
+
+        // region QUANTITY
+
+        fun playCountSince(dateInMillis: Long? = null, includeIncomplete: Boolean = false): Int =
+            getPlaysSince(dateInMillis).filter { includeIncomplete || !it.incomplete }.sumOf { it.quantity }
+
+        // endregion QUANTITY
+
+        // region PLAYING TIME
+
+        fun hoursPlayedSince(dateInMillis: Long? = null): Double {
+            val (estimatePlays, actualPlays) = getPlaysSince(dateInMillis).partition { it.length == 0 }
+            return (estimatePlays.sumOf { publishedPlayingTime * it.quantity } + actualPlays.sumOf { it.length }) / 60.0
+        }
 
         val averagePlayTime: Int
-            get() = if (playCountWithLength > 0) realMinutesPlayed / playCountWithLength else 0
+            get() = if (plays.any { it.length > 0 }) {
+                val playsWithLength = plays.filter { it.length > 0 }
+                playsWithLength.sumOf { it.length } / playsWithLength.sumOf { it.quantity }
+            } else 0
 
         val averagePlayTimePerPlayer: Int
-            get() = if (playerCountSumWithLength > 0) realMinutesPlayed / playerCountSumWithLength else 0
+            get() = if (plays.any { it.length > 0 && it.playerCount > 0 }) {
+                val filteredPlays = plays.filter { it.length > 0 && it.playerCount > 0 }
+                filteredPlays.sumOf { it.length / it.playerCount } / filteredPlays.sumOf { it.quantity }
+            } else 0
 
-        fun getMonthsPlayed(): Int {
-            return monthsPlayed.size
-        }
+        // endregion PLAYING TIME
+
+        // region PLAYER COUNT
 
         val minPlayerCount: Int
             get() = playCountByPlayerCount.keys.minOrNull() ?: 0
@@ -566,72 +552,84 @@ class GamePlayStatsFragment : Fragment() {
         val maxPlayerCount: Int
             get() = playCountByPlayerCount.keys.maxOrNull() ?: 0
 
-        fun getPersonalWinCount(playerCount: Int): Int {
-            return personalStats?.getWinCountByPlayerCount(playerCount) ?: 0
+        fun getPlayCountByPlayerCount(playerCount: Int) = playCountByPlayerCount[playerCount] ?: 0
+
+        // endregion PLAYER COUNT
+
+        // region PLAYERS
+
+        fun getPlayerStats(): List<PlayerStats> {
+            return playerStats.values.toList().sortedByDescending { it.numberOfPlays }
         }
 
-        fun getPersonalWinnablePlayCount(playerCount: Int): Int {
-            return personalStats?.getWinnablePlayCountByPlayerCount(playerCount) ?: 0
+        fun getPlayerStats(username: String): PlayerStats? {
+            return playerStats.values.find { it.username == username }
         }
 
-        fun getPlayCount(playerCount: Int): Int {
-            return playCountByPlayerCount[playerCount] ?: 0
-        }
+        // endregion PLAYERS
 
-        private val personalStats: PlayerStats?
-            get() = prefs[AccountPreferences.KEY_USERNAME, ""]?.let { username ->
-                playerStats.values.find { it.username == username }
-            }
+        // region SCORE
 
-        fun hasScores() = scoreCount > 0
+        fun hasScores() = filteredPlayers.any { it.second.numericScore != null }
 
-        val averageScore: Double
-            get() = scoreSum / scoreCount
+        val lowScore: Double get() = filteredPlayers.mapNotNull { it.second.numericScore }.minOrNull() ?: INVALID_SCORE
 
-        val highScorers: String
-            get() = if (highScore == Int.MIN_VALUE.toDouble()) "" else
-                playerStats.entries.filter { it.value.highScore == highScore }.map { it.value.description }.formatList()
+        val highScore: Double get() = filteredPlayers.mapNotNull { it.second.numericScore }.maxOrNull() ?: INVALID_SCORE
+
+        val averageScore: Double get() = filteredPlayers.mapNotNull { it.second.numericScore }.average()
+
+        val averageWinningScore: Double get() = filteredPlayers.filter { it.second.isWin }.mapNotNull { it.second.numericScore }.average()
 
         val lowScorers: String
-            get() = if (lowScore == Int.MAX_VALUE.toDouble()) "" else
-                playerStats.entries.filter { it.value.lowScore == lowScore }.map { it.value.description }.formatList()
+            get() = if (lowScore == INVALID_SCORE) "" else
+                filteredPlayers.filter { it.second.numericScore == lowScore }.map { it.second.description }.formatList()
 
-        val averageWinningScore: Double
-            get() = winningScoreSum / winningScoreCount
+        val highScorers: String
+            get() = if (highScore == INVALID_SCORE) "" else
+                filteredPlayers.filter { it.second.numericScore == highScore }.map { it.second.description }.formatList()
 
-        fun getPlayerStats(): List<Map.Entry<String, PlayerStats>> {
-            return playerStats.entries.toList().sortedByDescending { it.value.numberOfPlays }
-        }
+        // endregion SCORE
+
+        // region LOCATION
 
         val playsPerLocation: List<Map.Entry<String, Int>>
             get() = playCountByLocation.entries.toList().sortedBy { it.key }.sortedByDescending { it.value }
 
+        // endregion LOCATION
+
+        // region METRICS
+
+        /**
+         * The number of plays per month, from the first and last plays.
+         */
+        val playsPerMonth: Double
+            get() = (((playCountSince() * 365.25) / calculateFlash()) / 12).coerceAtMost(playCountSince().toDouble())
+
         fun calculateUtilization(): Double {
-            return playCount.toDouble().cdf(lambda)
+            return playCountSince().toDouble().cdf(lambda)
         }
 
-        fun calculateFhm(): Int {
-            return ((personalRating * 5) + playCount + (4 * getMonthsPlayed()) + hoursPlayed).toInt()
+        fun calculateFriendlessHappinessMetric(): Int {
+            if (personalRating == Game.UNRATED) return 0
+            return ((personalRating * 5) + playCountSince() + (4 * getMonthsPlayed()) + hoursPlayedSince()).toInt()
         }
 
-        fun calculateHhm(): Int {
-            return ((personalRating - 4.5) * hoursPlayed).toInt()
-        }
-
-        fun calculateHhmSince(dateInMillis: Long): Int {
+        fun calculateHuberHappinessMetricSince(dateInMillis: Long? = null): Int {
+            if (personalRating == Game.UNRATED) return 0
             return ((personalRating - 4.5) * hoursPlayedSince(dateInMillis)).toInt()
         }
 
-        fun calculateRuhm(): Double {
+        fun calculateRandyCoxNotUnhappinessMetric(): Double {
+            if (personalRating == Game.UNRATED) return 0.0
             val raw = ((calculateFlash().toDouble()) / calculateLag()) * getMonthsPlayed() * personalRating
             return if (raw < 1.0) 0.0 else ln(raw)
         }
 
         val playCountShortOfHIndex: Int by lazy {
-            val hIndex = prefs[PlayStatPrefs.KEY_GAME_H_INDEX, 0] ?: 0
-            (hIndex - playCount).coerceAtLeast(0)
+            (hIndex - playCountSince()).coerceAtLeast(0)
         }
 
+        // TODO - why would we ever need this?
 //        fun getMonthsPerPlay(): Int {
 //            val days = calculateSpan()
 //            val months = (days / 365.25 * 12).toInt()
@@ -645,131 +643,92 @@ class GamePlayStatsFragment : Fragment() {
             return calculateGrayHotness(lastYear)
         }
 
+        fun calculateZefquaaviusHeat(): Double {
+            val lastYear = Calendar.getInstance().apply {
+                add(Calendar.YEAR, -1)
+            }.timeInMillis
+            return calculateZefquaaviusHotness(lastYear)
+        }
+
+        fun calculateZefquaaviusHotness(sinceDateInMillis: Long): Double {
+            return calculateGrayHotness(sinceDateInMillis) * modifiedWhitmoreScore
+        }
+
         fun calculateGrayHotness(sinceDateInMillis: Long): Double {
             // http://matthew.gray.org/2005/10/games_16.html
             val intervalPlayCount = playCountSince(sinceDateInMillis)
-            val s = 1 + (intervalPlayCount.toDouble() / playCount)
-            return s * s * sqrt(intervalPlayCount.toDouble()) * calculateHhmSince(sinceDateInMillis)
+            val s = 1 + (intervalPlayCount.toDouble() / playCountSince())
+            return s * s * sqrt(intervalPlayCount.toDouble()) * calculateHuberHappinessMetricSince(sinceDateInMillis)
         }
 
-//        fun calculateZefquaaviusHotness(sinceDateInMillis: Long): Double {
-//            return calculateGrayHotness(sinceDateInMillis) * calculateZefquaaviusScore()
-//        }
+        // endregion METRICS
 
-        private fun calculateFlash(): Long {
-            return daysBetweenDates(firstPlayDateInMillis, lastPlayDateInMillis)
-        }
-
-        private fun calculateLag(): Long {
-            return daysBetweenDates(lastPlayDateInMillis)
-        }
-
-//        private fun calculateSpan(): Long {
-//            return daysBetweenDates(firstPlayDateInMillis)
-//        }
-
-        private fun daysBetweenDates(from: Long, to: Long = System.currentTimeMillis()): Long {
-            return (to - from).milliseconds.inWholeDays.coerceAtLeast(1)
+        companion object {
+            private val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            private val lambda = ln(0.1) / -10
         }
     }
 
-    private inner class PlayerStats {
-        var username = ""
-            private set
-        var description: String = ""
-        var numberOfPlays = 0
-        var numberOfWinnablePlays = 0
-        var numberOfPlaysWon = 0
-        private var numberOfPlaysWithScore = 0
-        private var numberOfPlaysWonWithScore = 0
-        private var winsTimesPlayers = 0
-        private var totalScore: Double = 0.0
-        private var winningScore: Double = 0.0
-        var highScore: Double = Double.MIN_VALUE
-            private set
-        var lowScore: Double = Double.MAX_VALUE
-            private set
-
-        private val playsByPlayerCount = SparseIntArray()
-        private val winnablePlaysByPlayerCount = SparseIntArray()
-        private val winsByPlayerCount = SparseIntArray()
-
-        val invalidScore = Int.MIN_VALUE.toDouble()
-
-        fun add(play: Play, player: PlayPlayer) {
-            username = player.username
-            description = player.description
-            numberOfPlays += play.quantity
-            addByPlayerCount(playsByPlayerCount, play.playerCount, play.quantity)
-            if (play.isWinnable) {
-                numberOfWinnablePlays += play.quantity
-                addByPlayerCount(winnablePlaysByPlayerCount, play.playerCount, play.quantity)
-                if (player.isWin) {
-                    numberOfPlaysWon += play.quantity
-                    winsTimesPlayers += play.quantity * play.playerCount
-                    // addByPlayerCount(winsByPlayerCount, play.playerCount, play.quantity)
-                    winsByPlayerCount.put(play.playerCount, winsByPlayerCount[play.playerCount] + play.quantity)
+    private class PlayerStats(val plays: List<Pair<Play, PlayPlayer>>) {
+        val Play.isWinnable: Boolean
+            get() {
+                return when {
+                    noWinStats -> false
+                    playerCount == 0 -> false
+                    deleteTimestamp > 0L -> false
+                    updateTimestamp > 0L -> true
+                    else -> playId > 0
                 }
             }
-            player.numericScore?.let { score ->
-                numberOfPlaysWithScore += play.quantity
-                totalScore += score * play.quantity
-                lowScore = min(lowScore, score)
-                highScore = max(highScore, score)
-                if (play.isWinnable) {
-                    if (player.isWin) {
-                        numberOfPlaysWonWithScore += play.quantity
-                        winningScore += score * play.quantity
-                    }
-                }
-            }
-        }
 
-        private fun addByPlayerCount(playerCountMap: SparseIntArray, playerCount: Int, quantity: Int) {
-            playerCountMap.put(playerCount, playerCountMap[playerCount] + quantity)
-        }
+        val username: String
+            get() = plays.first().second.username
+
+        val description: String
+            get() = plays.first().second.description
+
+        val numberOfPlays: Int
+            get() = plays.sumOf { it.first.quantity }
+
+        val numberOfWinnablePlays: Int
+            get() = plays.filter { it.first.isWinnable }.sumOf { it.first.quantity }
+
+        val numberOfPlaysWon: Int
+            get() = plays.filter { it.second.isWin }.sumOf { it.first.quantity }
+
+        val lowScore: Double
+            get() = plays.mapNotNull { it.second.numericScore }.minOrNull() ?: INVALID_SCORE
+
+        val highScore: Double
+            get() = plays.mapNotNull { it.second.numericScore }.maxOrNull() ?: INVALID_SCORE
 
         fun getWinCountByPlayerCount(playerCount: Int): Int {
-            return winsByPlayerCount[playerCount]
+            return plays.filter { it.second.isWin && it.first.playerCount == playerCount }.sumOf { it.first.quantity }
         }
 
         fun getWinnablePlayCountByPlayerCount(playerCount: Int): Int {
-            return winnablePlaysByPlayerCount[playerCount]
+            return plays.filter { it.first.isWinnable && it.first.playerCount == playerCount }.sumOf { it.first.quantity }
         }
 
-//        fun getPlayCountByPlayerCount(playerCount: Int): Int {
-//            return playsByPlayerCount[playerCount]
-//        }
+        //fun getPlayCountByPlayerCount(playerCount: Int): Int {
+        //    return plays.filter { it.first.playerCount == playerCount }.sumOf { it.first.quantity }
+        //}
 
         val winSkill: Int
-            get() = ((winsTimesPlayers.toDouble() / numberOfWinnablePlays.toDouble()) * 100).toInt()
+            get() = ((plays.filter { it.second.isWin }.sumOf { it.first.quantity * it.first.playerCount }
+                .toDouble() / plays.filter { it.first.isWinnable }
+                .sumOf { it.first.quantity }) * 100).toInt()
 
         val averageScore: Double
-            get() = if (numberOfPlaysWithScore == 0) invalidScore else totalScore / numberOfPlaysWithScore
+            get() = plays.mapNotNull { it.second.numericScore }.let {
+                if (it.isEmpty()) INVALID_SCORE else it.average()
+            }
 
         val averageWinScore: Double
-            get() = if (numberOfPlaysWonWithScore == 0) invalidScore else winningScore / numberOfPlaysWonWithScore
-    }
-
-    val Play.date: String
-        get() = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(this.dateInMillis)
-
-//    val Play.year: String
-//        get() = this.date.substring(0, 4)
-
-    val Play.yearAndMonth: String
-        get() = this.date.substring(0, 7)
-
-    val Play.isWinnable: Boolean
-        get() {
-            return when {
-                noWinStats -> false
-                playerCount == 0 -> false
-                deleteTimestamp > 0L -> false
-                updateTimestamp > 0L -> true
-                else -> playId > 0
+            get() = plays.filter { it.second.isWin }.mapNotNull { it.second.numericScore }.let {
+                if (it.isEmpty()) INVALID_SCORE else it.average()
             }
-        }
+    }
 
     companion object {
         private val SCORE_FORMAT = DecimalFormat("0.##")
@@ -777,6 +736,7 @@ class GamePlayStatsFragment : Fragment() {
 
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_HEADER_COLOR = "HEADER_COLOR"
+        private const val INVALID_SCORE = Int.MIN_VALUE.toDouble()
 
         fun newInstance(gameId: Int, @ColorInt headerColor: Int): GamePlayStatsFragment {
             return GamePlayStatsFragment().apply {

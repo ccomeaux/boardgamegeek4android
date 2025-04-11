@@ -618,6 +618,8 @@
 	<string name="play_stat_hhm_info">The Huber Happiness Metric (HHM) is a measure of the happiness this game has provided, as defined by Joe Huber (huber).\n\n(rating - 5) * hours played</string>
 	<string name="play_stat_huber_heat">Huber Heat</string>
 	<string name="play_stat_huber_heat_info">The Huber Heat Metric attempts to assess how much you love this game right now. Well, at least for the last year.</string>
+	<string name="play_stat_zefquaavius_heat">Zefquaavius Heat</string>
+	<string name="play_stat_zefquaavius_heat_info">Similar to Huber Heat, but with more emphasis on your rating. In fact this can be negative for lower ratings.</string>
 	<string name="play_stat_ruhm">Randy Cox not-Unhappiness</string>
 	<string name="play_stat_ruhm_info">The Randy Cox not-Unhappiness Metric (R!UHM) is a measure of the happiness this game has provided, as defined by Randy Cox.\n\nln(flash / lag * months played * rating)\nflash = time between first and last plays\nlag = time between last play and today</string>
 	<string name="play_stat_utilization">Utilization</string>
