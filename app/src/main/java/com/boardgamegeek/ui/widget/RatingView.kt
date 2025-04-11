@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.widget
 
 import android.content.Context
+import android.content.ContextWrapper
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -44,8 +45,15 @@ class RatingView @JvmOverloads constructor(
             var output = RATING_EDIT_FORMAT.format(findViewById<TextView>(R.id.ratingView).tag as Double)
             if ("0" == output) output = ""
             val fragment = CollectionRatingNumberPadDialogFragment.newInstance(output)
-            (context as? FragmentActivity)?.showAndSurvive(fragment)
+            unwrapContext(context)?.showAndSurvive(fragment)
         }
+    }
+
+    private fun unwrapContext(context: Context): FragmentActivity? {
+        while (context !is FragmentActivity && context is ContextWrapper) {
+            return context.baseContext as? FragmentActivity
+        }
+        return context as? FragmentActivity
     }
 
     private var rating: Double
