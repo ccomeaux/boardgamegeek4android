@@ -8,6 +8,7 @@ import android.graphics.Rect
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.core.graphics.withSave
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.inflate
@@ -54,14 +55,17 @@ class RecyclerSectionItemDecoration(private val headerOffset: Int, private val s
 
     private fun drawHeader(c: Canvas, child: View, headerView: View?, nextChild: View?) {
         if (headerView == null) return
-        c.save()
-        if (sticky) {
-            c.translate(0f, max(if (nextChild == null) 0 else min(0, nextChild.top - headerView.height * 2), child.top - headerView.height).toFloat())
-        } else {
-            c.translate(0f, (child.top - headerView.height).toFloat())
+        c.withSave {
+            if (sticky) {
+                translate(
+                    0f,
+                    max(if (nextChild == null) 0 else min(0, nextChild.top - headerView.height * 2), child.top - headerView.height).toFloat()
+                )
+            } else {
+                translate(0f, (child.top - headerView.height).toFloat())
+            }
+            headerView.draw(this)
         }
-        headerView.draw(c)
-        c.restore()
     }
 
     private fun inflateHeaderView(parent: RecyclerView): View {

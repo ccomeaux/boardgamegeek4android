@@ -3,6 +3,7 @@
 package com.boardgamegeek.provider
 
 import android.net.Uri
+import androidx.core.net.toUri
 
 class BggContract {
     object Games {
@@ -345,7 +346,7 @@ class BggContract {
         const val INVALID_URL = "N/A"
 
         const val CONTENT_AUTHORITY = "com.boardgamegeek"
-        private val BASE_CONTENT_URI = Uri.parse("content://$CONTENT_AUTHORITY")
+        private val BASE_CONTENT_URI = "content://$CONTENT_AUTHORITY".toUri()
 
         const val COLLATE_NOCASE = " COLLATE NOCASE"
 

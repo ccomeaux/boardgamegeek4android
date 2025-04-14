@@ -1,8 +1,8 @@
 package com.boardgamegeek.firebase
 
 import android.content.Intent
-import android.net.Uri
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.HomeActivity
@@ -21,7 +21,7 @@ class BggFirebaseMessagingService : FirebaseMessagingService() {
         remoteMessage.notification?.let {
             val urlString = remoteMessage.data["URL"]
             val intent = if (urlString != null) {
-                Intent(Intent.ACTION_VIEW, Uri.parse(urlString))
+                Intent(Intent.ACTION_VIEW, urlString.toUri())
             } else {
                 intentFor<HomeActivity>()
             }

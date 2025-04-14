@@ -33,8 +33,8 @@ class SyncViewModel @Inject constructor(
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
     val syncCollectionStatuses: LiveData<Set<CollectionStatus>?> = LiveSharedPreference<Set<String>>(getApplication(), PREFERENCES_KEY_SYNC_STATUSES).map { set ->
-        set?.map { it.mapStatusToEnum() }?.toSet()
-    }
+            set?.map { it.mapStatusToEnum() }?.toSet()
+        }
     val collectionCompleteTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE, SyncPrefs.NAME)
     val collectionPartialTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_PARTIAL, SyncPrefs.NAME)
     val collectionCompleteCurrentTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE_CURRENT, SyncPrefs.NAME)
@@ -152,7 +152,7 @@ class SyncViewModel @Inject constructor(
     }
 
     val collectionSyncProgress: LiveData<CollectionSyncProgress> = collectionWorkInfos.map {
-        val workInfo = it?.firstOrNull()
+        val workInfo = it.firstOrNull()
         if (workInfo?.state == WorkInfo.State.RUNNING) {
             val step = when (workInfo.progress.getInt(SyncCollectionWorker.PROGRESS_KEY_STEP, SyncCollectionWorker.PROGRESS_STEP_UNKNOWN)) {
                 SyncCollectionWorker.PROGRESS_STEP_COLLECTION_COMPLETE -> CollectionSyncProgressStep.CompleteCollection
@@ -177,7 +177,7 @@ class SyncViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     val playSyncProgress: LiveData<PlaySyncProgress> = playWorkInfos.map {
-        val workInfo = it?.firstOrNull()
+        val workInfo = it.firstOrNull()
         if (workInfo?.state == WorkInfo.State.RUNNING) {
             val step = when (workInfo.progress.getInt(SyncPlaysWorker.PROGRESS_STEP, SyncPlaysWorker.PROGRESS_STEP_UNKNOWN)) {
                 SyncPlaysWorker.PROGRESS_STEP_NEW -> PlaySyncProgressStep.New
@@ -245,7 +245,7 @@ class SyncViewModel @Inject constructor(
     }.distinctUntilChanged()
 
     val userProgress: LiveData<UserSyncProgress> = userWorkInfos.map {
-        val workInfo = it?.firstOrNull()
+        val workInfo = it.firstOrNull()
         if (workInfo?.state == WorkInfo.State.RUNNING) {
             val progress = workInfo.progress
             val stepEnum = when (progress.getInt(SyncUsersWorker.PROGRESS_STEP, SyncUsersWorker.PROGRESS_STEP_UNKNOWN)) {

@@ -18,7 +18,6 @@ import java.io.IOException
 
 class ImageRepository(
     val context: Context,
-    @Suppress("SpellCheckingInspection")
     private val geekdoApi: GeekdoApi,
 ) {
     private val imageDao = ImageDao(context)

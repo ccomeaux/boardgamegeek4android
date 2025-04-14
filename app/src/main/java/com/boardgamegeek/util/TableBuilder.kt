@@ -2,6 +2,7 @@ package com.boardgamegeek.util
 
 import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
+import androidx.core.database.sqlite.transaction
 import com.boardgamegeek.extensions.joinTo
 import timber.log.Timber
 
@@ -52,15 +53,11 @@ class TableBuilder {
 
     fun replace(db: SQLiteDatabase, columnMap: Map<String, String>? = null, joinTable: String? = null, joinColumn: String? = null) {
         check(tableName?.isNotEmpty() == true) { "Table not specified" }
-        db.beginTransaction()
-        try {
-            db.execSQL("ALTER TABLE $tableName RENAME TO ${tempTable()}")
-            create(db)
-            copy(db, columnMap, joinTable, joinColumn)
-            db.execSQL("DROP TABLE ${tempTable()}")
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
+        db.transaction {
+            execSQL("ALTER TABLE $tableName RENAME TO ${tempTable()}")
+            create(this)
+            copy(this, columnMap, joinTable, joinColumn)
+            execSQL("DROP TABLE ${tempTable()}")
         }
     }
 

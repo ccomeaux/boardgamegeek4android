@@ -977,7 +977,7 @@ class LogPlayActivity : AppCompatActivity() {
                 binding.nameContainer.setOnClickListener { editPlayer(position) }
 
                 // score
-                val scoreDescription = player.numericScore?.let { it.asScore(itemView.context) } ?: player.score
+                val scoreDescription = player.numericScore?.asScore(itemView.context) ?: player.score
                 binding.scoreView.setTextWithStyle(scoreDescription, false, player.isWin, nameColor)
                 binding.scoreButton.setColorFilter(ContextCompat.getColor(itemView.context, R.color.button_under_text), PorterDuff.Mode.SRC_IN)
                 binding.scoreButton.setOnClickListener {

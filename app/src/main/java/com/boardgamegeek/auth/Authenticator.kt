@@ -1,11 +1,11 @@
 package com.boardgamegeek.auth
 
 import android.accounts.*
-import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.preferences
@@ -67,7 +67,7 @@ class Authenticator(
         // Ensure the password is valid and not expired, then return the stored AuthToken
         val password = am.getPassword(account)
         if (!password.isNullOrBlank()) {
-            authRepository.authenticate(account.name, password, "Renewal")?.let {authEntity ->
+            authRepository.authenticate(account.name, password, "Renewal")?.let { authEntity ->
                 am.setAuthToken(account, authTokenType, authEntity.token)
                 am.setUserData(account, KEY_AUTH_TOKEN_EXPIRY, authEntity.expiry.toString())
                 Timber.v(toDebugString())
@@ -126,6 +126,7 @@ class Authenticator(
     companion object {
         const val ACCOUNT_TYPE = "com.boardgamegeek"
         const val AUTH_TOKEN_TYPE = "com.boardgamegeek"
+
         @Suppress("SpellCheckingInspection")
         const val KEY_AUTH_TOKEN_EXPIRY = "AUTHTOKEN_EXPIRY"
 
@@ -205,8 +206,7 @@ class Authenticator(
         }
 
         private fun removeAccount(context: Context, account: Account, postEvent: Boolean) {
-            @Suppress("DEPRECATION")
-            AccountManager.get(context).removeAccount(account, { future ->
+            val accountManagerCallback = AccountManagerCallback { future ->
                 if (future.isDone) {
                     try {
                         if (postEvent && future.result)
@@ -219,12 +219,14 @@ class Authenticator(
                         Timber.e(e, "removeAccount")
                     }
                 }
-            }, null)
+            }
+            @Suppress("DEPRECATION")
+            AccountManager.get(context).removeAccount(account, accountManagerCallback, null)
         }
 
-        @TargetApi(VERSION_CODES.LOLLIPOP_MR1)
+        @RequiresApi(VERSION_CODES.LOLLIPOP_MR1)
         private fun removeAccountWithActivity(context: Context, account: Account, postEvent: Boolean) {
-            AccountManager.get(context).removeAccount(account, null, { future ->
+            val accountManagerCallback = AccountManagerCallback<Bundle> { future ->
                 if (future.isDone) {
                     try {
                         if (postEvent && future.result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
@@ -238,7 +240,8 @@ class Authenticator(
                         Timber.e(e, "removeAccount")
                     }
                 }
-            }, null)
+            }
+            AccountManager.get(context).removeAccount(account, null, accountManagerCallback, null)
         }
     }
 }

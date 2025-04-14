@@ -10,6 +10,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.text.parseAsHtml
 import androidx.core.view.isVisible
 
 @SuppressLint("SetTextI18n")
@@ -62,7 +63,7 @@ fun TextView.setTextMaybeHtml(
             html = html.replace("(<br\\s?/>){3,}".toRegex(), "<br/><br/>")
             html = fixInternalLinks(html)
 
-            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags, null, tagHandler)
+            val spanned = html.parseAsHtml(fromHtmlFlags, null, tagHandler)
             this.text = spanned.trim()
             if (useLinkMovementMethod)
                 this.movementMethod = LinkMovementMethod.getInstance()

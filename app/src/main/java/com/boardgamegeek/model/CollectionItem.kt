@@ -7,7 +7,6 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
-import kotlin.math.ln
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -173,7 +172,7 @@ data class CollectionItem(
 
     fun friendlessWhyOwn() = if (rating == UNRATED) 0.0 else (sincePlayed() / rating / rating)
 
-    val friendlessUtilization = numberOfPlays.toDouble().cdf(ln(0.1) / -10)
+    // val friendlessUtilization = numberOfPlays.toDouble().cdf(ln(0.1) / -10)
 
     fun getPrivateInfo(context: Context): CharSequence {
         val initialText = context.getString(R.string.acquired)

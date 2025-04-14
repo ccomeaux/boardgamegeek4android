@@ -3,7 +3,6 @@
 package com.boardgamegeek.extensions
 
 import android.Manifest
-import android.annotation.TargetApi
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -13,6 +12,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -249,7 +249,7 @@ object NotificationChannels {
     const val STATS = "stats"
     const val FIREBASE_MESSAGES = "firebase_messages"
 
-    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.O)
     fun create(context: Context?) {
         val notificationManager = context?.getSystemService<NotificationManager>() ?: return
 

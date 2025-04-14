@@ -1,9 +1,9 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
-import android.graphics.Color
 import android.text.format.DateUtils
 import androidx.annotation.StringRes
+import androidx.core.graphics.toColorInt
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Game
 import java.math.BigDecimal
@@ -81,7 +81,7 @@ fun Int.asPlayCount(context: Context): Triple<Int, String, Int> {
     val pc = playCounts.find {
         this >= it.first
     } ?: Triple(0, 0, "#00000000")
-    return Triple(pc.first, if (pc.second == 0) "" else context.getString(pc.second), Color.parseColor(pc.third))
+    return Triple(pc.first, if (pc.second == 0) "" else context.getString(pc.second), pc.third.toColorInt())
 }
 
 /**

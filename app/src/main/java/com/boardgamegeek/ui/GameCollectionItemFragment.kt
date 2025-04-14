@@ -13,8 +13,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameCollectionItemBinding
-import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
@@ -405,7 +405,7 @@ class GameCollectionItemFragment : Fragment() {
         private fun setVisibilityByChildView(view: View, child: View): Boolean {
             val tag = child.tag as? String?
             if (tag != null && tag == "header") return false
-            if (child.visibility == View.VISIBLE) {
+            if (child.isVisible) {
                 view.visibility = View.VISIBLE
                 return true
             }

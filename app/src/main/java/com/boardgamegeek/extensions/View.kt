@@ -28,10 +28,10 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.core.view.children
+import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import com.boardgamegeek.R
 import com.google.android.material.snackbar.Snackbar
-import java.util.*
 import kotlin.math.pow
 
 fun View.fade(fadeIn: Boolean, animate: Boolean = true) {
@@ -97,11 +97,11 @@ fun View.slideDownOut() {
 }
 
 @Suppress("SpellCheckingInspection")
-/**
- * Set the background of an {@link android.widget.ImageView} to an oval of the specified color, with a darker
- * version of the color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't
- * do anything for other views. Modified from Roman Nurik's DashClock (https://code.google.com/p/dashclock/).
- */
+        /**
+         * Set the background of an {@link android.widget.ImageView} to an oval of the specified color, with a darker
+         * version of the color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't
+         * do anything for other views. Modified from Roman Nurik's DashClock (https://code.google.com/p/dashclock/).
+         */
 fun View.setColorViewValue(color: Int) {
     if (this is ImageView) {
         val currentDrawable = drawable
@@ -259,7 +259,7 @@ private class ViewChildrenRecursiveSequence(private val view: View) : Sequence<V
         override fun next(): View {
             if (!hasNext()) throw NoSuchElementException()
             val view = current.next()
-            if (view is ViewGroup && view.childCount > 0) {
+            if (view is ViewGroup && view.isNotEmpty()) {
                 sequences.add(view.children)
             }
             return view

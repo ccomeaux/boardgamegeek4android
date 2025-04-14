@@ -3,6 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import android.util.SparseArray
 import androidx.annotation.StringRes
+import androidx.core.util.size
 import com.boardgamegeek.R
 import com.boardgamegeek.model.CollectionItem
 import java.text.NumberFormat
@@ -29,11 +30,11 @@ class RankSorter(context: Context) : CollectionSorter(context) {
     override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.rank }
 
     override fun getHeaderText(item: CollectionItem): String {
-        return (0 until ranks.size())
-                .map { ranks.keyAt(it) }
-                .firstOrNull { item.rank <= it }
-                ?.let { ranks.get(it) }
-                ?: defaultHeaderText
+        return (0 until ranks.size)
+            .map { ranks.keyAt(it) }
+            .firstOrNull { item.rank <= it }
+            ?.let { ranks.get(it) }
+            ?: defaultHeaderText
     }
 
     override fun getDisplayInfo(item: CollectionItem): String {

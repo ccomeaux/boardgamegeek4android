@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.children
+import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
@@ -25,10 +26,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionBinding
 import com.boardgamegeek.databinding.RowCollectionBinding
-import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
@@ -40,9 +41,9 @@ import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.google.android.material.chip.Chip
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
-import com.google.firebase.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.text.NumberFormat
@@ -332,7 +333,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
             }
         }
 
-        val show = binding.chipGroup.childCount > 0
+        val show = binding.chipGroup.isNotEmpty()
         if (show) {
             binding.chipGroupScrollView.slideUpIn()
         } else {

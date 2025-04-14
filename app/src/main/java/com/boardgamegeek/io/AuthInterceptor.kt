@@ -19,7 +19,7 @@ class AuthInterceptor(private val context: Context?) : Interceptor {
             Authenticator.getAccount(accountManager)?.let { account ->
                 try {
                     val password = accountManager.blockingGetAuthToken(account, Authenticator.AUTH_TOKEN_TYPE, true)
-                    if (!account.name.isNullOrBlank() && !password.isNullOrBlank()) {
+                    if (account.name.isNotBlank() && !password.isNullOrBlank()) {
                         return chain.proceed(
                             originalRequest.newBuilder()
                                 .addHeader("Cookie", "bggusername=${account.name.encodeForUrl()}; bggpassword=$password")

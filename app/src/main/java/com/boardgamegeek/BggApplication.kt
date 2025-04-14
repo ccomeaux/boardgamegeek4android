@@ -92,9 +92,9 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
 
     private fun initializeFirebase() {
         if (BuildConfig.DEBUG) {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(false)
+            FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = false
         } else {
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(true)
+            FirebaseCrashlytics.getInstance().isCrashlyticsCollectionEnabled = true
             val firebase = FirebaseCrashlytics.getInstance()
             PreferenceManager.getDefaultSharedPreferences(this).getString(AccountPreferences.KEY_USERNAME, "")?.let {
                 if (it.isNotBlank()) firebase.setUserId(it.hashCode().toString())
