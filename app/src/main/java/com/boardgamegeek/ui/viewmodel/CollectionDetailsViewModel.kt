@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.lifecycle.*
 import androidx.work.WorkManager
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
-import com.boardgamegeek.extensions.howManyDaysOld
 import com.boardgamegeek.extensions.mapStatusToEnum
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
@@ -19,7 +18,6 @@ import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.pow
 
 @HiltViewModel
 class CollectionDetailsViewModel @Inject constructor(
@@ -186,7 +184,7 @@ class CollectionDetailsViewModel @Inject constructor(
     val friendlessFavoriteItems: LiveData<List<CollectionItem>> = allItems.switchMap { list ->
         liveData {
             emit(
-                list.sortedByDescending { it.rating * 5 + it.numberOfPlays } // number of months played * 4 + hours played
+                list.sortedByDescending { it.friendlessFave }
                     .take(ITEM_LIMIT)
             )
         }
@@ -196,7 +194,7 @@ class CollectionDetailsViewModel @Inject constructor(
         liveData {
             emit(
                 it.filter { it.rating > 0.0 }
-                    .sortedByDescending { it.ratingDelta }
+                    .sortedByDescending { it.zScore }
                     .take(ITEM_LIMIT)
             )
         }
@@ -207,11 +205,22 @@ class CollectionDetailsViewModel @Inject constructor(
         liveData {
             emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
                 .filter { it.own }
-                .sortedByDescending { 1 + (it.numberOfUsersWanting + it.numberOfUsersWishing) / (2 + it.numberOfUsersOwned / 500) }
+                .sortedByDescending { it.hawt }
                 .take(ITEM_LIMIT)
             )
         }
     }
+
+    val whyOwnItems: LiveData<List<CollectionItem>> = allItems.switchMap { list ->
+        liveData {
+            emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
+                .filter { it.own && it. lastPlayDate != null && it.lastPlayDate > 0 }
+                .sortedByDescending { it.friendlessWhyOwn() }
+                .take(ITEM_LIMIT)
+            )
+        }
+    }
+
 
     // ACQUIRE
 
@@ -283,7 +292,7 @@ class CollectionDetailsViewModel @Inject constructor(
         liveData {
             emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
                 .filter { !it.own && !it.preOrdered }
-                .sortedByDescending { 1 + (it.numberOfUsersWanting + it.numberOfUsersWishing) / (2 + it.numberOfUsersOwned / 500) }
+                .sortedByDescending { it.hawt }
                 .take(ITEM_LIMIT)
             )
         }
@@ -343,7 +352,7 @@ class CollectionDetailsViewModel @Inject constructor(
             _friendlessShouldPlayGames.postValue(games
                 .filter { it.own && it.lastPlayDate != null && it.lastPlayDate > 0L }
                 .filterByPlayerCount(playerCount, playerCountType)
-                .sortedByDescending { it.rating.pow(4) + it.lastPlayDate!!.howManyDaysOld() }
+                .sortedByDescending { it.friendlessShouldPlay }
                 .take(ITEM_LIMIT))
         }
     }

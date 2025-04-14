@@ -682,6 +682,7 @@
 	<string name="title_friendless_favorites">Friendless Favorites</string>
 	<string name="title_hidden_gems">Hidden Gems</string>
 	<string name="title_hawt">Hawt</string>
+	<string name="title_why_own">Why Do You Own These?</string>
 	<string name="title_favorite_unowned">Favorite Unowned</string>
 	<string name="title_played_unowned">Played but Unowned</string>
 	<string name="title_hawt_unowned">Hawt but Unowned</string>
@@ -694,6 +695,7 @@
 	<string name="info_friendless_play">Games you own and like, but haven\'t played in a while.</string>
 	<string name="info_hidden_gems">Games you rate higher than the average.</string>
 	<string name="info_hawt">I got a copy of this - jealous much?!</string>
+	<string name="info_why_own">You haven\'t played this in a long time and you don\'t rate it highly.</string>
 	<string name="info_shelf_of_opportunity">Games you own but haven\'t played yet</string>
 	<string name="info_shelf_of_new_opportunity">Games you\'ve just acquired but haven\'t played yet</string>
 	<string name="plays_sync_status_none">Plays have never been synced.</string>

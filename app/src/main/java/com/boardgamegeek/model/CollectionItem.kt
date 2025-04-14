@@ -7,7 +7,9 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
+import kotlin.math.ln
 import kotlin.math.pow
+import kotlin.time.Duration.Companion.milliseconds
 
 data class CollectionItem(
     val internalId: Long = BggContract.INVALID_ID.toLong(),
@@ -126,12 +128,12 @@ data class CollectionItem(
         return heroImageUrl.getImageId() != thumbnailUrl.getImageId()
     }
 
-    val ratingDelta = (rating - averageRating) / standardDeviation
+    val zScore = (rating - averageRating) / standardDeviation
 
     val whitmoreScore: Double by lazy {
         // personal rating on a linear scale of 0 - MAX_WHITMORE_RATING
         // 0 = game rated NEUTRAL_WHITMORE_RATING or less
-        // MAX_WHITMORE_RATING = 10
+        // >0 = linear scale from NEUTRAL_WHITMORE_RATING to MAX_WHITMORE_RATING
         if (rating < NEUTRAL_WHITMORE_RATING) 0.0
         else (rating - NEUTRAL_WHITMORE_RATING) * (MAX_WHITMORE_RATING / (10 - NEUTRAL_WHITMORE_RATING))
     }
@@ -143,7 +145,7 @@ data class CollectionItem(
         // https://boardgamegeek.com/geeklist/39165/extended-statistics-for-zefquaavius-2009-01-28?commentid=224943
         // w = (myRating - neutralRating)² × SIGN(myRating - neutralRating) / 2.025, where neutralRating is 5.5
         if (rating == UNRATED) {
-            UNRATED
+            0.0
         } else {
             val divisor = (10 - NEUTRAL_MODIFIED_WHITMORE_RATING).pow(2) / 10
             val negativeDivisor = (1 - NEUTRAL_MODIFIED_WHITMORE_RATING).pow(2) / -10
@@ -151,6 +153,27 @@ data class CollectionItem(
             d * d / (if (rating < NEUTRAL_MODIFIED_WHITMORE_RATING) negativeDivisor else divisor)
         }
     }
+
+    //https://boardgamegeek.com/geeklist/59785/boardgamegeek-metrics-contains-formulas-and-algori
+    val hawt = 1 + (numberOfUsersWanting + numberOfUsersWishing) / (2 + numberOfUsersOwned / 500)
+    //val buzz = numberOfUsersWanting + numberOfUsersWishing - numberOfUsersOwned
+
+    //https://github.com/DrFriendless/ExtendedStats/blob/edb664d29777377dbfbee5ad0b15614f6e887df1/extended/stats/generate.py#L1156
+
+    val friendlessFave = rating * 5 + numberOfPlays + (numberOfPlays * playingTime / 60)
+    // + number of months played * 4
+    // change hours plays to actual
+
+    val friendlessShouldPlay = if (rating < 7) 0.0 else lastPlayDate?.let { rating.pow(4) + it.howManyDaysOld() } ?: 0.0
+    //Ideas to include unplayed or unrated games
+    //- use average rating if unrated
+    //- use an arbitrary date if unplayed, like the Jan 1, 1970, first day played of all time, or that minus a day
+
+    private fun sincePlayed() = lastPlayDate?.let { System.currentTimeMillis() - it }?.milliseconds?.inWholeDays?.coerceAtLeast(1) ?: 0
+
+    fun friendlessWhyOwn() = if (rating == UNRATED) 0.0 else (sincePlayed() / rating / rating)
+
+    val friendlessUtilization = numberOfPlays.toDouble().cdf(ln(0.1) / -10)
 
     fun getPrivateInfo(context: Context): CharSequence {
         val initialText = context.getString(R.string.acquired)

@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.graphics.Color
 import android.os.Bundle
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -62,7 +63,7 @@ class CollectionBrowseFragment : Fragment() {
         binding.hiddenGemsWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 bindBadge = { item ->
-                    item.ratingDelta.asPersonalRating(context, ResourcesCompat.ID_NULL) to Color.WHITE
+                    item.zScore.asPersonalRating(context, ResourcesCompat.ID_NULL) to Color.WHITE
                 })
         )
         viewModel.underratedItems.observe(viewLifecycleOwner) {
@@ -70,12 +71,26 @@ class CollectionBrowseFragment : Fragment() {
         }
 
         binding.hawtWidget.setAdapter(
-            CollectionShelf.CollectionItemAdapter(onClick = { item ->
-                rating(item.averageRating)
-            })
+            CollectionShelf.CollectionItemAdapter(
+                bindBadge = { item ->
+                    rating(item.averageRating)
+                }
+            )
         )
         viewModel.hawtItems.observe(viewLifecycleOwner) {
             binding.hawtWidget.bindList(it)
+        }
+
+        val dateFormat = DateFormat.getDateFormat(context)
+        binding.whyOwnWidget.setAdapter(
+            CollectionShelf.CollectionItemAdapter(
+                bindBadge = { item ->
+                    (item.lastPlayDate?.let { dateFormat.format(it) } ?: "") to Color.WHITE
+                }
+            )
+        )
+        viewModel.whyOwnItems.observe(viewLifecycleOwner) {
+            binding.whyOwnWidget.bindList(it)
         }
     }
 
