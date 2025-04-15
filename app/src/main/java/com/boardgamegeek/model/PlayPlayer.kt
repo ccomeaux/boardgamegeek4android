@@ -1,12 +1,15 @@
 package com.boardgamegeek.model
 
+import android.content.Context
 import android.os.Parcelable
+import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.text.NumberFormat
 import java.text.ParseException
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 
 @Parcelize
 data class PlayPlayer(
@@ -43,28 +46,20 @@ data class PlayPlayer(
     @IgnoredOnParcel
     val description: String = if (username.isBlank()) name else "$name ($username)"
 
-    val fullDescription: String
-        get() {
-            var description = ""
-            if (name.isEmpty()) {
-                if (username.isEmpty()) {
-                    if (color.isNotBlank()) {
-                        description = color
-                    }
-                } else {
-                    description = username
-                }
-            } else {
-                description = name
-                if (username.isNotEmpty()) {
-                    description += " ($username)"
-                }
+    fun fullDescription(context: Context): String = if (name.isEmpty()) {
+        username.ifEmpty {
+            when {
+                color.isNotBlank() -> color
+                seat != SEAT_UNKNOWN -> context.getString(R.string.generic_player, seat)
+                else -> context.getString(R.string.title_player)
             }
-            return description
         }
+    } else {
+        if (username.isEmpty()) name else "$name ($username)"
+    }
 
     companion object {
         const val SEAT_UNKNOWN = -1
-        const val DEFAULT_RATING = 0.0
+        const val DEFAULT_RATING = Game.UNRATED
     }
 }

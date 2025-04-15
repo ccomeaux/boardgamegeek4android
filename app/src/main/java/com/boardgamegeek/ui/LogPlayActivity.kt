@@ -444,7 +444,7 @@ class LogPlayActivity : AppCompatActivity() {
                     lastRemovedPlayer = playerAdapter.getPlayer(viewHolder.bindingAdapterPosition)
                     lastRemovedPlayer?.let { player ->
                         binding.coordinatorLayout.indefiniteSnackbar(
-                            getString(R.string.msg_player_deleted, player.fullDescription.ifEmpty { getString(R.string.title_player) }),
+                            getString(R.string.msg_player_deleted, player.fullDescription(this@LogPlayActivity)),
                             getString(R.string.undo)
                         ) {
                             lastRemovedPlayer?.let { viewModel.addPlayer(player) }
@@ -986,7 +986,7 @@ class LogPlayActivity : AppCompatActivity() {
                             position,
                             player.score,
                             player.color,
-                            player.fullDescription
+                            player.fullDescription(this@LogPlayActivity),
                         )
                         fragment.show(this@LogPlayActivity.supportFragmentManager, "score_dialog")
                     }
@@ -1005,7 +1005,7 @@ class LogPlayActivity : AppCompatActivity() {
                             position,
                             player.rating.asPersonalRating(this@LogPlayActivity, 0),
                             player.color,
-                            player.fullDescription
+                            player.fullDescription(this@LogPlayActivity)
                         )
                         fragment.show(this@LogPlayActivity.supportFragmentManager, "rating_dialog")
                     }
@@ -1021,7 +1021,7 @@ class LogPlayActivity : AppCompatActivity() {
                         val usedColors = players.filter { it != player }.map { it.color } as ArrayList<String>
                         LogPlayPlayerColorPickerDialogFragment.launch(
                             this@LogPlayActivity,
-                            player.fullDescription,
+                            player.fullDescription(this@LogPlayActivity),
                             gameColors,
                             player.color,
                             usedColors,
