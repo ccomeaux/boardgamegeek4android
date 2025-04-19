@@ -70,6 +70,10 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_17.toString()
+        freeCompilerArgs += [
+            '-Xjspecify-annotations=strict',
+            '-Xtype-enhancement-improvements-strict-mode'
+        ]
     }
     lint {
         abortOnError true
@@ -90,7 +94,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
-    implementation 'androidx.core:core-ktx:1.15.0'
+    implementation 'androidx.core:core-ktx:1.16.0'
 
     implementation 'androidx.activity:activity-ktx:1.10.1'
     implementation 'androidx.fragment:fragment-ktx:1.8.6'
