@@ -26,7 +26,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Date
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.milliseconds
 
 class DesignerRepository(
     val context: Context,
@@ -61,8 +63,12 @@ class DesignerRepository(
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { designerDao.deleteAll() }
 
-    suspend fun refreshDesigner(designerId: Int) = withContext(Dispatchers.IO) {
+    suspend fun refreshDesigner(designerId: Int, age: Duration? = null) = withContext(Dispatchers.IO) {
         if (designerId == BggContract.INVALID_ID) return@withContext
+        if (age != null) {
+            val designer = designerDao.loadDesigner(designerId)
+            if (!designer?.updatedTimestamp?.time.isOlderThan(age)) return@withContext
+        }
         val timestamp = Date()
         val response = safeApiCall(context) { api.person(BggService.PersonType.DESIGNER, designerId) }
         if (response.isSuccess) {

@@ -63,7 +63,6 @@ class PersonViewModel @Inject constructor(
         _personInfo.value?.let { info ->
             viewModelScope.launch {
                 when (info.type) {
-                    // TODO - look at dates and optionally allow an override
                     PersonType.ARTIST -> artistRepository.refreshArtist(info.id)
                     PersonType.DESIGNER -> designerRepository.refreshDesigner(info.id)
                     PersonType.PUBLISHER -> publisherRepository.refreshPublisher(info.id)

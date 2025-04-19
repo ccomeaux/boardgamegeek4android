@@ -26,7 +26,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Date
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.milliseconds
 
 class ArtistRepository(
     val context: Context,
@@ -93,8 +95,12 @@ class ArtistRepository(
             }
     }
 
-    suspend fun refreshArtist(artistId: Int) = withContext(Dispatchers.IO) {
+    suspend fun refreshArtist(artistId: Int, age: Duration? = null) = withContext(Dispatchers.IO) {
         if (artistId == BggContract.INVALID_ID) return@withContext
+        if (age != null) {
+            val artist = artistDao.loadArtist(artistId)
+            if (!artist?.updatedTimestamp?.time.isOlderThan(age)) return@withContext
+        }
         val timestamp = Date()
         val response = safeApiCall(context) { api.person(BggService.PersonType.ARTIST, artistId) }
         if (response.isSuccess) {

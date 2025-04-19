@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.Date
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 
 class PublisherRepository(
@@ -61,8 +62,12 @@ class PublisherRepository(
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { publisherDao.deleteAll() }
 
-    suspend fun refreshPublisher(publisherId: Int) = withContext(Dispatchers.IO) {
+    suspend fun refreshPublisher(publisherId: Int, age: Duration? = null) = withContext(Dispatchers.IO) {
         if (publisherId == BggContract.INVALID_ID) return@withContext
+        if (age != null) {
+            val publisher = publisherDao.loadPublisher(publisherId)
+            if (!publisher?.updatedTimestamp?.time.isOlderThan(age)) return@withContext
+        }
         val timestamp = Date()
         val response = safeApiCall(context) { api.company(publisherId) }
         if (response.isSuccess) {
