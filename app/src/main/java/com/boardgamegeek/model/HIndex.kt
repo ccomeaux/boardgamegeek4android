@@ -4,10 +4,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
+class HIndex private constructor(val h: Int, val n: Int, val g: Int) : Comparable<HIndex> {
     init {
         require(h >= 0)
         require(n >= 0)
+        require(g >= 0)
     }
 
     private val rational: Double
@@ -16,7 +17,7 @@ data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
     val description: String
         get() = (if (isValid()) String.format(Locale.getDefault(), "%.2f", rational) else "?")
 
-    fun isValid() = (h > 0 || n > 0)
+    fun isValid() = (h > 0 || n > 0) && g >= 0
 
     override fun compareTo(other: HIndex): Int {
         if (h == other.h && n == other.n) return 0
@@ -27,35 +28,28 @@ data class HIndex(val h: Int, val n: Int) : Comparable<HIndex> {
 
     companion object {
         fun invalid(): HIndex {
-            return HIndex(0, 0)
+            return HIndex(0, 0, 0)
         }
 
         suspend fun fromList(list: List<Int>): HIndex = withContext(Dispatchers.Default) {
             val counts = list.filter { it > 0 }.sortedDescending()
 
-            var hIndexCounter = 0
             var h = 0
-            for (value in counts) {
-                hIndexCounter++
-                if (hIndexCounter > value) {
-                    h = hIndexCounter - 1
-                    break
-                }
-            }
-            if (h == 0) h = hIndexCounter
+            while (counts.size > h && counts[h] > h) h++
+            if (h == 0) h = counts.size
 
-            val nextH = h + 1
-            var n = 0
-            for ((index, value) in counts.withIndex()) {
-                if (nextH > value) {
-                    n += nextH - value
-                }
-                if (value < h) break
-                if (index == h) break
-            }
-            if (counts.size == h) n += nextH
+            val n = 2 * h + 1 - (counts.filter { it > h }.size) - (counts.getOrNull(h) ?: 0)
 
-            HIndex(h, n)
+            var g = 0
+            var gTotal = 0
+            while (counts.size > g && (gTotal + counts[g] >= (g + 1) * (g + 1))) {
+                gTotal += counts[g]
+                g++
+            }
+
+            // TODO calculate rational g-index (but I don't know how to do it)
+
+            HIndex(h, n, g)
         }
     }
 }
