@@ -4,7 +4,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class HIndex private constructor(val h: Int, val n: Int, val g: Int) : Comparable<HIndex> {
+class HIndex(val h: Int, val n: Int, val g: Int = 0) : Comparable<HIndex> {
     init {
         require(h >= 0)
         require(n >= 0)
