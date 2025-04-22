@@ -161,7 +161,7 @@ data class CollectionItem(
 
     val friendlessFave = rating * 5 + numberOfPlays + (numberOfPlays * playingTime / 60)
     // + number of months played * 4
-    // change hours plays to actual
+    // change hours played to actual
 
     val friendlessShouldPlay = if (rating < 7) 0.0 else lastPlayDate?.let { rating.pow(4) + it.howManyDaysOld() } ?: 0.0
     //Ideas to include unplayed or unrated games
