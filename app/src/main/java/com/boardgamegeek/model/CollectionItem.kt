@@ -153,6 +153,8 @@ data class CollectionItem(
         }
     }
 
+    val isIncoming = preOrdered || (wishList && wishListPriority in 1..4) || wantToBuy || wantInTrade
+
     //https://boardgamegeek.com/geeklist/59785/boardgamegeek-metrics-contains-formulas-and-algori
     val hawt = 1 + (numberOfUsersWanting + numberOfUsersWishing) / (2 + numberOfUsersOwned / 500)
     //val buzz = numberOfUsersWanting + numberOfUsersWishing - numberOfUsersOwned

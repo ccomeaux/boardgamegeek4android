@@ -2,7 +2,8 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -10,6 +11,15 @@
 		android:animateLayoutChanges="true"
 		android:orientation="vertical"
 		android:paddingBottom="@dimen/padding_extra">
+
+		<TextView
+			android:id="@+id/acquireSummaryView"
+			android:layout_width="match_parent"
+			android:layout_marginTop="@dimen/padding_extra"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+			android:textAppearance="@style/TextAppearance.Primary"
+			tools:text="You want 42 games." />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/preorderedWidget"

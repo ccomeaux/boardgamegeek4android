@@ -32,6 +32,7 @@ class CollectionShelf @JvmOverloads constructor(
     defStyleRes: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr, defStyleRes) {
     private var adapter: CollectionItemAdapter? = null
+    private var headerText: String? = ""
 
     init {
         LayoutInflater.from(context).inflate(R.layout.widget_collection_shelf, this)
@@ -46,7 +47,8 @@ class CollectionShelf @JvmOverloads constructor(
         }
 
         context.withStyledAttributes(attrs, R.styleable.CollectionShelf, defStyleAttr) {
-            findViewById<TextView>(R.id.headerView).text = getString(R.styleable.CollectionShelf_headerLabel)
+            headerText = getString(R.styleable.CollectionShelf_headerLabel)
+            findViewById<TextView>(R.id.headerView).text = headerText
 
             val infoText = getString(R.styleable.CollectionShelf_helpText)
             if (infoText.isNullOrBlank()) {
@@ -75,6 +77,12 @@ class CollectionShelf @JvmOverloads constructor(
             adapter?.items = it
             findViewById<ContentLoadingProgressBar>(R.id.progressBar).hide()
         }
+    }
+
+    fun setCount(count: Int?) {
+        findViewById<TextView>(R.id.headerView).text = count?.let {
+            "$headerText   $count"
+        } ?: headerText
     }
 
     class CollectionItemAdapter(

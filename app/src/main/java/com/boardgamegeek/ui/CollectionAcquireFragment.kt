@@ -34,6 +34,19 @@ class CollectionAcquireFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel.collectionAcquireStats.observe(viewLifecycleOwner) {
+            if (it.incomingCount > 0) {
+                binding.acquireSummaryView.text = getString(R.string.msg_collection_details_acquire, it.incomingCount, it.incomingRate.asPercentage())
+                binding.acquireSummaryView.isVisible = true
+            } else {
+                binding.acquireSummaryView.isVisible = false
+            }
+            binding.preorderedWidget.setCount(it.preorderedCount)
+            binding.wishlistWidget.setCount(it.wishlistCount)
+            binding.wantToBuyWidget.setCount(it.wantToBuyCount)
+            binding.wantInTradeWidget.setCount(it.wantInTradeCount)
+        }
+
         viewModel.syncCollectionStatuses.observe(viewLifecycleOwner) {
             it?.let {
                 binding.preorderedWidget.isVisible = it.contains(CollectionStatus.Preordered)

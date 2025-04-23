@@ -224,6 +224,27 @@ class CollectionDetailsViewModel @Inject constructor(
 
     // ACQUIRE
 
+    data class CollectionAcquireStats(
+        val incomingCount: Int,
+        val incomingRate: Double,
+        val preorderedCount: Int,
+        val wishlistCount: Int,
+        val wantToBuyCount: Int,
+        val wantInTradeCount: Int,
+    )
+
+    val collectionAcquireStats: LiveData<CollectionAcquireStats> = allItems.map { items ->
+        val incomingCount = items.filter { it.isIncoming }.sumOf { it.quantity }
+        CollectionAcquireStats(
+            incomingCount,
+            incomingCount.toDouble() / items.filter { it.own }.sumOf { it.quantity },
+            items.filter { it.preOrdered }.sumOf { it.quantity },
+            items.filter { (it.wishList && it.wishListPriority in 1..4 ) }.sumOf { it.quantity },
+            items.filter { it.wantToBuy }.sumOf { it.quantity },
+            items.filter { it.wantInTrade }.sumOf { it.quantity },
+        )
+    }
+
     val preordered: LiveData<List<CollectionItem>> = allItems.switchMap {
         liveData {
             val (withDate, withoutDate) = it.filter { it.preOrdered }.partition { it.acquisitionDate > 0L }
@@ -268,8 +289,7 @@ class CollectionDetailsViewModel @Inject constructor(
         liveData {
             emit(
                 // TODO figure out how to hide un-buy-able games like Celebrities
-                it.filter { !it.own && it.rating > 0.0 }
-                    .filter { (it.wishList && it.wishListPriority < 5) || !it.wishList }
+                it.filter { !it.own && it.rating > 0.0 && !it.isIncoming }
                     .sortedByDescending { it.rating }
                     .take(ITEM_LIMIT)
             )
@@ -279,8 +299,7 @@ class CollectionDetailsViewModel @Inject constructor(
     val playedButUnownedItems: LiveData<List<CollectionItem>> = allGames.switchMap { list ->
         liveData {
             emit(
-                list.filter { !it.own && it.numberOfPlays > 0 }
-                    .filter { (it.wishList && it.wishListPriority < 4) || !it.wishList }
+                list.filter { !it.own && it.numberOfPlays > 0 && !it.isIncoming }
                     .sortedByDescending { it.numberOfPlays }
                     .take(ITEM_LIMIT)
             )
@@ -290,8 +309,7 @@ class CollectionDetailsViewModel @Inject constructor(
     @Suppress("SpellCheckingInspection")
     val hawtUnownedItems: LiveData<List<CollectionItem>> = allGames.switchMap { list ->
         liveData {
-            emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
-                .filter { !it.own && !it.preOrdered }
+            emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID && !it.own && !it.isIncoming }
                 .sortedByDescending { it.hawt }
                 .take(ITEM_LIMIT)
             )

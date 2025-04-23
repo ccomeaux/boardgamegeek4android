@@ -698,6 +698,7 @@
 	<string name="info_why_own">You haven\'t played this in a long time and you don\'t rate it highly.</string>
 	<string name="info_shelf_of_opportunity">Games you own but haven\'t played yet</string>
 	<string name="info_shelf_of_new_opportunity">Games you\'ve just acquired but haven\'t played yet</string>
+	<string name="msg_collection_details_acquire">"You want to add %,d games to your collection, an increase of %s."</string>
 	<string name="plays_sync_status_none">Plays have never been synced.</string>
 	<string name="plays_sync_status_new">Plays have been synced through %s.</string>
 	<string name="plays_sync_status_old">Plays have been synced since %s.</string>
