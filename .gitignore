@@ -43,6 +43,9 @@ captures/
 .idea/misc.xml
 .idea/caches/
 .idea/jarRepositories.xml
+.idea/AndroidProjectSystem.xml
+.idea/appInsightsSettings.xml
+.idea/runConfigurations.xml
 
 # Keystore files
 *.jks
