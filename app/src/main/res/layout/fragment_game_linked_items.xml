@@ -20,7 +20,7 @@
 			android:paddingVertical="@dimen/material_margin_vertical">
 
 			<com.boardgamegeek.ui.widget.ContentLoadingProgressBar
-				android:id="@+id/progress"
+				android:id="@+id/contentLoadingProgressBar"
 				style="?android:attr/progressBarStyleLarge"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
 			<View
 				android:id="@+id/expansionsDividerView"
 				android:layout_width="match_parent"
-				android:layout_height="1dp"
+				android:layout_height="@dimen/divider_height"
 				android:background="@color/list_divider"
 				android:visibility="gone"
 				tools:visibility="visible" />
@@ -80,7 +80,7 @@
 			<View
 				android:id="@+id/baseGamesDividerView"
 				android:layout_width="match_parent"
-				android:layout_height="1dp"
+				android:layout_height="@dimen/divider_height"
 				android:background="@color/list_divider"
 				android:visibility="gone"
 				tools:visibility="visible" />

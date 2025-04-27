@@ -9,7 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentBuddyCollectionBinding
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.ui.adapter.BuddyCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -100,7 +100,7 @@ class BuddyCollectionFragment : Fragment() {
                     }
                     Status.SUCCESS -> {
                         activity?.invalidateOptionsMenu()
-                        if (data == null || data.isEmpty()) {
+                        if (data.isNullOrEmpty()) {
                             showError(getString(R.string.empty_buddy_collection))
                         } else {
                             adapter.items = data
@@ -116,6 +116,7 @@ class BuddyCollectionFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
     }
 

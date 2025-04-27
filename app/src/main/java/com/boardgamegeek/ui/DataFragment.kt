@@ -17,9 +17,9 @@ import com.boardgamegeek.extensions.toast
 import com.boardgamegeek.ui.viewmodel.DataPortViewModel
 import com.boardgamegeek.ui.widget.DataStepRow
 import com.boardgamegeek.util.FileUtils
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
+import com.google.firebase.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -152,8 +152,8 @@ class DataFragment : Fragment() {
         }
     }
 
-    class ImportFileContract : ActivityResultContract<Unit, Uri?>() {
-        override fun createIntent(context: Context, input: Unit): Intent {
+    class ImportFileContract : ActivityResultContract<Unit?, Uri?>() {
+        override fun createIntent(context: Context, input: Unit?): Intent {
             return Intent(Intent.ACTION_OPEN_DOCUMENT)
                 .addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("application/*")

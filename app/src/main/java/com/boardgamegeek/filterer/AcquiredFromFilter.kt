@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 
 class AcquiredFromFilter(context: Context) : CollectionTextFilter(context) {
     override val typeResourceId = R.string.collection_filter_type_acquired_from
@@ -14,5 +14,5 @@ class AcquiredFromFilter(context: Context) : CollectionTextFilter(context) {
 
     override fun description() = description(context.getString(R.string.acquired_from))
 
-    override fun filter(item: CollectionItemEntity) = filterByText(item.acquiredFrom)
+    override fun filter(item: CollectionItem) = filterByText(item.acquiredFrom)
 }

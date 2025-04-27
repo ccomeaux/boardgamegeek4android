@@ -1,19 +1,17 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.startUp
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -38,15 +36,13 @@ class GamePlayStatsActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         headerColor = intent.getIntExtra(KEY_HEADER_COLOR, ContextCompat.getColor(this, R.color.accent))
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return GamePlayStatsFragment.newInstance(gameId, headerColor)
-    }
+    override fun createPane() = GamePlayStatsFragment.newInstance(gameId, headerColor)
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

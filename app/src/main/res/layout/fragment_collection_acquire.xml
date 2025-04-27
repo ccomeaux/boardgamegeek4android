@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	xmlns:tools="http://schemas.android.com/tools">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
+		android:orientation="vertical"
+		android:paddingBottom="@dimen/padding_extra">
+
+		<TextView
+			android:id="@+id/acquireSummaryView"
+			android:layout_width="match_parent"
+			android:layout_marginTop="@dimen/padding_extra"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+			android:textAppearance="@style/TextAppearance.Primary"
+			tools:text="You want 42 games." />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/preorderedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_preordered" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/wishlistWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_wishlist" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/wantToBuyWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_want_to_buy" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/wantInTradeWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_want_in_trade" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/favoriteUnownedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_favorite_unowned" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/playedUnownedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_played_unowned" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/hawtUnownedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_hawt_unowned" />
+	</LinearLayout>
+</ScrollView>

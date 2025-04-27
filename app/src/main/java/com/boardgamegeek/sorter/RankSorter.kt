@@ -3,9 +3,11 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import android.util.SparseArray
 import androidx.annotation.StringRes
+import androidx.core.util.size
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import java.text.NumberFormat
+import java.util.Locale
 
 class RankSorter(context: Context) : CollectionSorter(context) {
     private val defaultHeaderText = context.resources.getString(R.string.unranked)
@@ -23,20 +25,20 @@ class RankSorter(context: Context) : CollectionSorter(context) {
         @StringRes
         get() = R.string.collection_sort_rank
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.rank }
+    override fun sortAscending(items: Iterable<CollectionItem>) = items.sortedBy { it.rank }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.rank }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.rank }
 
-    override fun getHeaderText(item: CollectionItemEntity): String {
-        return (0 until ranks.size())
-                .map { ranks.keyAt(it) }
-                .firstOrNull { item.rank <= it }
-                ?.let { ranks.get(it) }
-                ?: defaultHeaderText
+    override fun getHeaderText(item: CollectionItem): String {
+        return (0 until ranks.size)
+            .map { ranks.keyAt(it) }
+            .firstOrNull { item.rank <= it }
+            ?.let { ranks.get(it) }
+            ?: defaultHeaderText
     }
 
-    override fun getDisplayInfo(item: CollectionItemEntity): String {
-        return if (item.rank == CollectionItemEntity.RANK_UNKNOWN) {
+    override fun getDisplayInfo(item: CollectionItem): String {
+        return if (item.rank == CollectionItem.RANK_UNKNOWN) {
             defaultText
         } else NumberFormat.getIntegerInstance().format(item.rank)
     }
@@ -48,9 +50,9 @@ class RankSorter(context: Context) : CollectionSorter(context) {
             val rankSteps = listOf(100, 250, 500, 1000, 2500, 5000, 10000)
             val ranks = SparseArray<String>()
             for (i in rankSteps.indices) {
-                ranks.put(rankSteps[i], String.format("%,d - %,d", (rankSteps.getOrElse(i - 1) { 0 }) + 1, rankSteps[i]))
+                ranks.put(rankSteps[i], String.format(Locale.getDefault(), "%,d - %,d", (rankSteps.getOrElse(i - 1) { 0 }) + 1, rankSteps[i]))
             }
-            ranks.put(CollectionItemEntity.RANK_UNKNOWN - 1, String.format("%,d+", rankSteps.last() + 1))
+            ranks.put(CollectionItem.RANK_UNKNOWN - 1, String.format(Locale.getDefault(), "%,d+", rankSteps.last() + 1))
             return ranks
         }
     }

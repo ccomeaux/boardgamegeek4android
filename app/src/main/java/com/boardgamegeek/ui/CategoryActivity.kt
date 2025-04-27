@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -18,7 +17,7 @@ class CategoryActivity : SimpleSinglePaneActivity() {
 
     private val viewModel by viewModels<CategoryViewModel>()
 
-    override fun onCreatePane(intent: Intent) = CategoryCollectionFragment()
+    override fun createPane() = CategoryCollectionFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

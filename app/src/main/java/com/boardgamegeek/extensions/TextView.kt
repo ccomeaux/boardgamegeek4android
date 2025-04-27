@@ -1,5 +1,6 @@
 package com.boardgamegeek.extensions
 
+import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.text.Html
 import android.text.method.LinkMovementMethod
@@ -7,16 +8,27 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.text.HtmlCompat
+import androidx.core.text.parseAsHtml
 import androidx.core.view.isVisible
 
+@SuppressLint("SetTextI18n")
+fun TextView.clearText() {
+    this.text = ""
+}
+
 fun TextView.setTextOrHide(text: CharSequence?) {
-    this.text = text
-    isVisible = !text.isNullOrBlank()
+    this.setTextOrHide(text, !text.isNullOrBlank())
+}
+
+fun TextView.setTextOrHide(text: CharSequence?, shouldShow: Boolean) {
+    isVisible = shouldShow
+    if (shouldShow) this.text = text
 }
 
 fun TextView.setTextOrHide(@StringRes textResId: Int) {
-    isVisible = if (textResId == 0) {
+    isVisible = if (textResId == ResourcesCompat.ID_NULL) {
         false
     } else {
         this.setText(textResId)
@@ -31,8 +43,8 @@ fun TextView.setTextMaybeHtml(
     tagHandler: Html.TagHandler? = null
 ) {
     when {
-        text == null -> this.text = ""
-        text.isBlank() -> this.text = ""
+        text == null -> this.clearText()
+        text.isBlank() -> this.clearText()
         text.contains("<") && text.contains(">") || text.contains("&") && text.contains(";") -> {
             var html = text.trim()
             // Fix up problematic HTML
@@ -51,7 +63,7 @@ fun TextView.setTextMaybeHtml(
             html = html.replace("(<br\\s?/>){3,}".toRegex(), "<br/><br/>")
             html = fixInternalLinks(html)
 
-            val spanned = HtmlCompat.fromHtml(html, fromHtmlFlags, null, tagHandler)
+            val spanned = html.parseAsHtml(fromHtmlFlags, null, tagHandler)
             this.text = spanned.trim()
             if (useLinkMovementMethod)
                 this.movementMethod = LinkMovementMethod.getInstance()

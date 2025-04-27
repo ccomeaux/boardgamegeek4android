@@ -11,9 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGeeklistItemsBinding
 import com.boardgamegeek.databinding.RowGeeklistItemBinding
-import com.boardgamegeek.entities.GeekListEntity
-import com.boardgamegeek.entities.GeekListItemEntity
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.GeekList
+import com.boardgamegeek.model.GeekListItem
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.provider.BggContract
@@ -66,6 +66,7 @@ class GeekListItemsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
     }
 
@@ -76,13 +77,13 @@ class GeekListItemsFragment : Fragment() {
 
     class GeekListRecyclerViewAdapter :
         RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
-        var geekListItems: List<GeekListItemEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var geekListItems: List<GeekListItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.objectId == new.objectId
             }
         }
 
-        var geekList: GeekListEntity? = null
+        var geekList: GeekList? = null
 
         init {
             setHasStableIds(true)
@@ -103,8 +104,8 @@ class GeekListItemsFragment : Fragment() {
         inner class GeekListItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowGeeklistItemBinding.bind(itemView)
 
-            fun bind(entity: GeekListItemEntity?, order: Int) {
-                entity?.let { item ->
+            fun bind(geekListItem: GeekListItem?, order: Int) {
+                geekListItem?.let { item ->
                     binding.orderView.text = order.toString()
                     binding.thumbnailView.loadThumbnail(*item.thumbnailUrls.orEmpty().toTypedArray())
                     binding.itemNameView.text = item.objectName

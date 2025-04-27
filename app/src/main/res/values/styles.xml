@@ -45,6 +45,11 @@
 
 	<style name="TextAppearance.Subtitle" parent="@style/TextAppearance.MaterialComponents.Subtitle1" />
 
+	<style name="TextAppearance.Subtitle.Condensed" parent="@style/TextAppearance.MaterialComponents.Subtitle2" >
+		<item name="fontFamily">sans-serif-condensed</item>
+		<item name="android:fontFamily">sans-serif-condensed</item>
+	</style>
+
 	<style name="TextAppearance.Headline" parent="@style/TextAppearance.MaterialComponents.Headline5" />
 
 	<style name="TextAppearance.Caption.Primary" parent="@style/TextAppearance.MaterialComponents.Caption">
@@ -151,11 +156,7 @@
 
 	<!-- Buttons -->
 
-	<style name="ColoredButton" parent="Widget.MaterialComponents.Button" />
-
-	<style name="ColoredIconButton" parent="Widget.MaterialComponents.Button.Icon" />
-
-	<style name="ColoredButton.Small">
+	<style name="ColoredButton.Small" parent="Widget.MaterialComponents.Button">
 		<item name="android:minHeight">32dp</item>
 		<item name="android:textSize">12sp</item>
 	</style>
@@ -187,6 +188,7 @@
 	<style name="DrawerHeaderImage">
 		<item name="android:height">@dimen/drawer_header_image_size</item>
 		<item name="android:width">@dimen/drawer_header_image_size</item>
+		<item name="android:elevation">2dp</item>
 	</style>
 
 	<!-- Row -->
@@ -247,6 +249,7 @@
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:background">?attr/colorPrimary</item>
+		<item name="android:elevation">@dimen/material_elevation</item>
 		<item name="android:minHeight">?attr/actionBarSize</item>
 		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
@@ -254,6 +257,7 @@
 	</style>
 
 	<style name="BottomActionBar" parent="Widget.MaterialComponents.BottomAppBar">
+		<item name="android:backgroundTint">?attr/colorPrimary</item>
 		<item name="android:theme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 		<item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
@@ -318,6 +322,10 @@
 		<item name="android:paddingTop">@dimen/padding_small</item>
 		<item name="android:minWidth">64dp</item>
 		<item name="android:lines">1</item>
+	</style>
+
+	<style name="RatingNarrow" parent="RatingSmall">
+		<item name="android:maxWidth">48dp</item>
 	</style>
 
 	<!-- Forms -->
@@ -430,6 +438,11 @@
 		<item name="android:textSize">14sp</item>
 	</style>
 
+	<style name="ShapeAppearance.App.MediumComponent" parent="ShapeAppearance.Material3.MediumComponent">
+		<item name="cornerFamily">rounded</item>
+		<item name="cornerSize">8dp</item>
+	</style>
+
 	<!-- Images -->
 
 	<style name="Icon">
@@ -438,7 +451,7 @@
 		<item name="android:padding">4dp</item>
 		<item name="android:layout_marginBottom">8dp</item>
 		<item name="android:layout_marginLeft">0dp</item>
-		<item name="android:layout_marginRight">@dimen/game_row_icon_margin</item>
+		<item name="android:layout_marginRight">24dp</item>
 		<item name="android:layout_marginTop">8dp</item>
 		<item name="android:scaleType">centerInside</item>
 	</style>
@@ -446,6 +459,11 @@
 	<style name="Icon.Right">
 		<item name="android:layout_marginLeft">0dp</item>
 		<item name="android:layout_marginRight">0dp</item>
+	</style>
+
+	<style name="circleImageView" parent="">
+		<item name="cornerFamily">rounded</item>
+		<item name="cornerSize">50%</item>
 	</style>
 
 	<!-- Misc -->
@@ -488,6 +506,7 @@
 
 	<style name="GeekListInfoBar">
 		<item name="android:background">@color/info_background</item>
+		<item name="android:elevation">@dimen/material_elevation_subtle</item>
 		<item name="android:minHeight">48dp</item>
 		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
 		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>

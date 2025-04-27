@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentBuddyBinding
-import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.RenamePlayerDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
@@ -41,21 +40,22 @@ class BuddyFragment : Fragment() {
         defaultTextColor = binding.nicknameView.textColors.defaultColor
         lightTextColor = ContextCompat.getColor(requireContext(), R.color.secondary_text)
 
-        viewModel.buddy.observe(viewLifecycleOwner) {
-            binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING
-
-            if (it?.data == null) {
+        viewModel.refreshing.observe(viewLifecycleOwner) {
+            it?.let { binding.swipeRefresh.isRefreshing = it }
+        }
+        viewModel.buddy.observe(viewLifecycleOwner) { user ->
+            if (user == null) {
                 binding.buddyInfoView.isVisible = false
                 binding.collectionCard.isVisible = false
                 binding.updatedView.isVisible = false
 
                 binding.swipeRefresh.isEnabled = false
             } else {
-                buddyName = it.data.userName
-                binding.avatarView.loadImage(it.data.avatarUrl, R.drawable.person_image_empty)
-                binding.fullNameView.text = it.data.fullName
+                buddyName = user.username
+                binding.avatarView.loadImage(user.avatarUrl, R.drawable.person_image_empty)
+                binding.fullNameView.text = user.fullName
                 binding.usernameView.text = buddyName
-                playerName = it.data.playNickname.ifBlank { it.data.firstName }
+                playerName = user.playNickname.ifBlank { user.firstName }
                 binding.nicknameView.text = playerName
                 binding.nicknameView.setOnClickListener {
                     requireActivity().showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(playerName))
@@ -67,7 +67,7 @@ class BuddyFragment : Fragment() {
                 }
                 binding.collectionCard.isVisible = true
 
-                binding.updatedView.timestamp = it.data.updatedTimestamp
+                binding.updatedView.timestamp = user.updatedTimestamp
                 binding.updatedView.isVisible = true
 
                 binding.swipeRefresh.isEnabled = true

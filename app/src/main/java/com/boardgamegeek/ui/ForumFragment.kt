@@ -13,7 +13,7 @@ import androidx.paging.LoadState
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentForumBinding
-import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.getSerializableCompat
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumPagedListAdapter
@@ -29,7 +29,7 @@ class ForumFragment : Fragment() {
     private var forumTitle = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
-    private var objectType = ForumEntity.ForumType.REGION
+    private var objectType = Forum.Type.REGION
 
     private val viewModel by activityViewModels<ForumViewModel>()
 
@@ -49,7 +49,7 @@ class ForumFragment : Fragment() {
             forumTitle = it.getString(KEY_FORUM_TITLE).orEmpty()
             objectId = it.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID)
             objectName = it.getString(KEY_OBJECT_NAME).orEmpty()
-            objectType = it.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
+            objectType = it.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
         }
 
         binding.recyclerView.setHasFixedSize(true)
@@ -85,6 +85,7 @@ class ForumFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
     }
 
@@ -95,7 +96,7 @@ class ForumFragment : Fragment() {
         private const val KEY_OBJECT_NAME = "OBJECT_NAME"
         private const val KEY_OBJECT_TYPE = "OBJECT_TYPE"
 
-        fun newInstance(forumId: Int, forumTitle: String?, objectId: Int, objectName: String?, objectType: ForumEntity.ForumType?): ForumFragment {
+        fun newInstance(forumId: Int, forumTitle: String?, objectId: Int, objectName: String?, objectType: Forum.Type?): ForumFragment {
             return ForumFragment().apply {
                 arguments = bundleOf(
                     KEY_FORUM_ID to forumId,

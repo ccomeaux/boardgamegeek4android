@@ -44,7 +44,6 @@
 
 		<Button
 			android:id="@+id/exportButton"
-			style="@style/ColoredButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/title_export" />
@@ -55,7 +54,6 @@
 
 		<Button
 			android:id="@+id/importButton"
-			style="@style/ColoredButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/title_import" />

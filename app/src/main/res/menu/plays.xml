@@ -8,7 +8,6 @@
 		app:actionLayout="@layout/actionbar_text_2line"
 		app:showAsAction="always" />
 	<item
-		android:id="@+id/menu_filter"
 		android:icon="@drawable/ic_baseline_filter_list_24"
 		android:title="@string/menu_plays_filter"
 		app:showAsAction="ifRoom">

@@ -10,18 +10,17 @@ import androidx.fragment.app.activityViewModels
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayBinding
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayPlayerEntity
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.adapter.PlayPlayerAdapter
 import com.boardgamegeek.ui.viewmodel.PlayViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.analytics.ktx.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
+import com.google.firebase.Firebase
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.LinkedList
 
@@ -33,7 +32,7 @@ class PlayFragment : Fragment() {
     private val viewModel by activityViewModels<PlayViewModel>()
     private val adapter: PlayPlayerAdapter by lazy { PlayPlayerAdapter() }
     private val markupConverter by lazy { XmlApiMarkupConverter(requireContext()) }
-    private var play: PlayEntity? = null
+    private var play: Play? = null
     private var hasBeenNotified = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,32 +65,29 @@ class PlayFragment : Fragment() {
                     play.internalId,
                     play.gameId,
                     play.gameName,
-                    play.heroImageUrl,
+                    play.robustHeroImageUrl,
                 )
             }
         }
         binding.playersView.adapter = adapter
         viewModel.isRefreshing.observe(viewLifecycleOwner) {
             it?.let {
-                if (it) binding.progressBar.show()
-                else binding.progressBar.hide()
+                binding.swipeRefreshLayout.post { binding.swipeRefreshLayout.isRefreshing = it }
+            }
+        }
+        viewModel.errorMessage.observe(viewLifecycleOwner) {
+            it.getContentIfNotHandled()?.let { error ->
+                showError(error)
             }
         }
         viewModel.play.observe(viewLifecycleOwner) {
-            binding.swipeRefreshLayout.post { binding.swipeRefreshLayout.isRefreshing = it?.status == Status.REFRESHING }
-            play = it.data
-            val message = resources.getString(R.string.empty_play)
-            when {
-                it?.data == null -> showError(message)
-                it.status == Status.ERROR -> {
-                    showData(it.data)
-                    longToast(it.message.ifBlank { message })
-                }
-                else -> {
-                    showData(it.data)
-                    maybeShowNotification()
-                    requireActivity().invalidateOptionsMenu()
-                }
+            play = it
+            requireActivity().invalidateOptionsMenu()
+            if (it == null) {
+                showError(resources.getString(R.string.empty_play))
+            } else {
+                showData(it)
+                maybeShowNotification()
             }
         }
     }
@@ -102,12 +98,13 @@ class PlayFragment : Fragment() {
     }
 
     private fun showError(message: String) {
+        binding.progressBar.hide()
         binding.emptyView.text = message
         binding.emptyView.isVisible = true
-        binding.listContainer.isVisible = false
+        binding.constraintLayout.isVisible = false
     }
 
-    private fun showData(play: PlayEntity) {
+    private fun showData(play: Play) {
         binding.thumbnailView.loadImage(
             LinkedList(play.heroImageUrls),
             callback = object : ImageLoadCallback {
@@ -139,7 +136,7 @@ class PlayFragment : Fragment() {
             }
             play.hasStarted() -> {
                 binding.lengthLabel.isVisible = true
-                binding.lengthView.text = ""
+                binding.lengthView.clearText()
                 binding.lengthView.isVisible = true
                 binding.timerView.isVisible = true
                 binding.timerView.startTimerWithSystemTime(play.startTime)
@@ -188,10 +185,11 @@ class PlayFragment : Fragment() {
 
         // players
         binding.playersLabel.isVisible = play.players.isNotEmpty()
-        adapter.players = play.players
+        adapter.players = play.sortedPlayers
 
+        binding.progressBar.hide()
         binding.emptyView.isVisible = false
-        binding.listContainer.isVisible = true
+        binding.constraintLayout.isVisible = true
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -232,7 +230,7 @@ class PlayFragment : Fragment() {
                                 it.internalId,
                                 it.gameId,
                                 it.gameName,
-                                it.heroImageUrl
+                                it.robustHeroImageUrl,
                             )
                             return true
                         }
@@ -266,7 +264,7 @@ class PlayFragment : Fragment() {
                                 it.internalId,
                                 it.gameId,
                                 it.gameName,
-                                it.heroImageUrl,
+                                it.robustHeroImageUrl,
                                 it.arePlayersCustomSorted()
                             )
                             requireActivity().finish() // don't want to show the "old" play upon return
@@ -289,7 +287,7 @@ class PlayFragment : Fragment() {
                             )
                             val sb = StringBuilder()
                             sb.append(getString(R.string.play_description_game_segment, it.gameName))
-                            if (it.dateInMillis != PlayEntity.UNKNOWN_DATE) sb.append(
+                            if (it.dateInMillis != Play.UNKNOWN_DATE) sb.append(
                                 getString(
                                     R.string.play_description_date_segment,
                                     it.dateInMillis.formatDateTime(
@@ -314,7 +312,7 @@ class PlayFragment : Fragment() {
                                         sb.append("\n").append(describePlayer(player))
                                     }
                                 } else {
-                                    for (i in it.players.indices) {
+                                    for (i in it.sortedPlayers.indices) {
                                         it.getPlayerAtSeat(i + 1)?.let { player ->
                                             sb.append("\n").append(describePlayer(player))
                                         }
@@ -345,9 +343,9 @@ class PlayFragment : Fragment() {
         })
     }
 
-    private fun describePlayer(player: PlayPlayerEntity): String {
+    private fun describePlayer(player: PlayPlayer): String {
         val sb = StringBuilder()
-        if (player.seat != PlayPlayerEntity.SEAT_UNKNOWN) sb.append(getString(R.string.player_description_starting_position_segment, player.seat))
+        if (player.seat != PlayPlayer.SEAT_UNKNOWN) sb.append(getString(R.string.player_description_starting_position_segment, player.seat))
         sb.append(player.name)
         if (player.username.isNotEmpty()) sb.append(getString(R.string.player_description_username_segment, player.username))
         if (player.isNew) sb.append(getString(R.string.player_description_new_segment))

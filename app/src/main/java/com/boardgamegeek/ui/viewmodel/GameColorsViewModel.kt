@@ -25,7 +25,7 @@ class GameColorsViewModel @Inject constructor(
 
     val colors = _gameId.switchMap { gameId ->
         liveData {
-            emit(if (gameId == BggContract.INVALID_ID) null else gameRepository.getPlayColors(gameId))
+            emit(gameRepository.getPlayColors(gameId))
         }
     }
 

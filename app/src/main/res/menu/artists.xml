@@ -7,7 +7,6 @@
 		app:actionLayout="@layout/actionbar_text_2line"
 		app:showAsAction="ifRoom" />
 	<item
-		android:id="@+id/menu_sort"
 		android:icon="@drawable/ic_baseline_sort_24"
 		android:title="@string/menu_sort"
 		app:showAsAction="ifRoom">

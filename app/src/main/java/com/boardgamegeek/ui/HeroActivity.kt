@@ -21,6 +21,7 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
         private set
     protected var fabOnClickListener: OnClickListener? = null
 
+    @Suppress("SameReturnValue")
     private val isRefreshable: Boolean
         get() = true
 

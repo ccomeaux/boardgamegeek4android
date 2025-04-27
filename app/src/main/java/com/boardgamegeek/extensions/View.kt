@@ -11,7 +11,6 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.PaintDrawable
 import android.graphics.drawable.ShapeDrawable
 import android.graphics.drawable.shapes.RectShape
-import android.os.Build
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
@@ -28,12 +27,11 @@ import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import androidx.core.view.ViewCompat
 import androidx.core.view.children
+import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import com.boardgamegeek.R
 import com.google.android.material.snackbar.Snackbar
-import java.util.*
 import kotlin.math.pow
 
 fun View.fade(fadeIn: Boolean, animate: Boolean = true) {
@@ -99,11 +97,11 @@ fun View.slideDownOut() {
 }
 
 @Suppress("SpellCheckingInspection")
-/**
- * Set the background of an {@link android.widget.ImageView} to an oval of the specified color, with a darker
- * version of the color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't
- * do anything for other views. Modified from Roman Nurik's DashClock (https://code.google.com/p/dashclock/).
- */
+        /**
+         * Set the background of an {@link android.widget.ImageView} to an oval of the specified color, with a darker
+         * version of the color as a border. For a {@link android.widget.TextView}, changes the text color instead. Doesn't
+         * do anything for other views. Modified from Roman Nurik's DashClock (https://code.google.com/p/dashclock/).
+         */
 fun View.setColorViewValue(color: Int) {
     if (this is ImageView) {
         val currentDrawable = drawable
@@ -133,8 +131,7 @@ fun View.setColorViewValue(color: Int) {
 
 fun View.applyDarkScrim() {
     val color = ContextCompat.getColor(context, R.color.black_overlay)
-    val drawable = makeCubicGradientScrimDrawable(color)
-    ViewCompat.setBackground(this, drawable)
+    background = makeCubicGradientScrimDrawable(color)
 }
 
 @SuppressLint("RtlHardcoded")
@@ -177,7 +174,7 @@ private fun makeCubicGradientScrimDrawable(
 }
 
 /**
- * Set the background of a [View] o the specified color, with a darker version of the color as a 1dp border.
+ * Set the background of a [View] to the specified color, with a darker version of the color as a 1dp border.
  */
 fun View.setViewBackground(@ColorInt color: Int) {
     val r = this.resources
@@ -197,15 +194,7 @@ fun View.setViewBackground(@ColorInt color: Int) {
         color.darkenColor()
     )
 
-    ViewCompat.setBackground(this, backgroundDrawable)
-}
-
-fun View.setSelectableBackgroundBorderless() {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        setSelectableBackground(android.R.attr.selectableItemBackgroundBorderless)
-    } else {
-        setSelectableBackground()
-    }
+    background = backgroundDrawable
 }
 
 fun View.setSelectableBackground(backgroundResId: Int = android.R.attr.selectableItemBackground) {
@@ -265,12 +254,12 @@ private class ViewChildrenRecursiveSequence(private val view: View) : Sequence<V
 
     private class RecursiveViewIterator(view: ViewGroup) : Iterator<View> {
         private val sequences = arrayListOf(view.children)
-        private var current = sequences.removeLast().iterator()
+        private var current = sequences.removeAt(sequences.lastIndex).iterator()
 
         override fun next(): View {
             if (!hasNext()) throw NoSuchElementException()
             val view = current.next()
-            if (view is ViewGroup && view.childCount > 0) {
+            if (view is ViewGroup && view.isNotEmpty()) {
                 sequences.add(view.children)
             }
             return view
@@ -278,7 +267,7 @@ private class ViewChildrenRecursiveSequence(private val view: View) : Sequence<V
 
         override fun hasNext(): Boolean {
             if (!current.hasNext() && sequences.isNotEmpty()) {
-                current = sequences.removeLast().iterator()
+                current = sequences.removeAt(sequences.lastIndex).iterator()
             }
             return current.hasNext()
         }

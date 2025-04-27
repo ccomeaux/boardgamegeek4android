@@ -16,14 +16,11 @@
 package com.boardgamegeek.ui.widget
 
 import android.annotation.SuppressLint
-import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.NinePatchDrawable
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatImageView
@@ -133,20 +130,15 @@ class ForegroundImageView @JvmOverloads constructor(
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    @TargetApi(VERSION_CODES.LOLLIPOP)
     override fun onTouchEvent(e: MotionEvent): Boolean {
-        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-            if (e.actionMasked == MotionEvent.ACTION_DOWN) {
-                foreground?.setHotspot(e.x, e.y)
-            }
+        if (e.actionMasked == MotionEvent.ACTION_DOWN) {
+            foreground?.setHotspot(e.x, e.y)
         }
         return super.onTouchEvent(e)
     }
 
     override fun drawableHotspotChanged(x: Float, y: Float) {
         super.drawableHotspotChanged(x, y)
-        if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP) {
-            foreground?.setHotspot(x, y)
-        }
+        foreground?.setHotspot(x, y)
     }
 }

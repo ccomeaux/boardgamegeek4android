@@ -5,6 +5,7 @@ import android.graphics.Color
 import androidx.annotation.ArrayRes
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.core.content.res.ResourcesCompat
 import com.boardgamegeek.R
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -17,18 +18,18 @@ fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.
     return asBoundedRating(context, DecimalFormat("#0.#"), defaultResId)
 }
 
-fun Double.asBoundedRating(context: Context?, format: DecimalFormat, @StringRes defaultResId: Int = 0): String {
+fun Double.asBoundedRating(context: Context?, format: DecimalFormat, @StringRes defaultResId: Int = ResourcesCompat.ID_NULL): String {
     return when {
         this in 1.0..10.0 -> return asScore(context, defaultResId, format)
-        defaultResId != 0 && context != null -> context.getString(defaultResId)
+        defaultResId != ResourcesCompat.ID_NULL && context != null -> context.getString(defaultResId)
         else -> ""
     }
 }
 
-fun Double?.asScore(context: Context? = null, @StringRes defaultResId: Int = 0, format: DecimalFormat = DecimalFormat("#,##0.#")): String {
+fun Double?.asScore(context: Context? = null, @StringRes defaultResId: Int = ResourcesCompat.ID_NULL, format: DecimalFormat = DecimalFormat("#,##0.#")): String {
     return when {
         this != null -> format.format(this)
-        defaultResId != 0 && context != null -> context.getString(defaultResId)
+        defaultResId != ResourcesCompat.ID_NULL && context != null -> context.getString(defaultResId)
         else -> ""
     }
 }
@@ -55,11 +56,13 @@ fun Double.toColor(colors: List<Int>, defaultColor: Int = Color.TRANSPARENT): In
     }
 }
 
+// exponential distribution cumulative distribution function
 fun Double.cdf(lambda: Double): Double {
     return 1.0 - exp(-1.0 * lambda * this)
 }
 
-fun Double.invcdf(lambda: Double): Double {
+// inverse exponential distribution cumulative distribution function
+fun Double.inverseCdf(lambda: Double): Double {
     return -ln(1.0 - this) / lambda
 }
 
@@ -79,10 +82,12 @@ private fun setUpMoneyFormatter(): DecimalFormat {
 }
 
 class DoubleIntervalDelegate(var value: Double, private val minValue: Double, private val maxValue: Double) {
+    @SuppressWarnings("unused")
     operator fun getValue(thisRef: Any, property: KProperty<*>): Double {
         return value
     }
 
+    @SuppressWarnings("unused")
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Double) {
         this.value = value.coerceIn(minValue, maxValue)
     }

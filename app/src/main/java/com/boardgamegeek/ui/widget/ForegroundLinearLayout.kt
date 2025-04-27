@@ -20,12 +20,10 @@
 
 package com.boardgamegeek.ui.widget
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.LinearLayout
@@ -185,11 +183,8 @@ open class ForegroundLinearLayout @JvmOverloads constructor(
     }
 
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     override fun drawableHotspotChanged(x: Float, y: Float) {
         super.drawableHotspotChanged(x, y)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            foregroundDrawable?.setHotspot(x, y)
-        }
+        foregroundDrawable?.setHotspot(x, y)
     }
 }

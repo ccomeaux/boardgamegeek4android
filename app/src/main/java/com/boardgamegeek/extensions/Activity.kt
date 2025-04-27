@@ -12,7 +12,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ShareCompat
 import com.boardgamegeek.R
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 
 fun Activity.shareGame(gameId: Int, gameName: String, method: String, firebaseAnalytics: FirebaseAnalytics? = null) {
     val subject = resources.getString(R.string.share_game_subject, gameName)

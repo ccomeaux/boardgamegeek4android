@@ -1,4 +1,4 @@
-@file:Suppress("SpellCheckingInspection", "unused")
+@file:Suppress("SpellCheckingInspection")
 
 package com.boardgamegeek.io
 

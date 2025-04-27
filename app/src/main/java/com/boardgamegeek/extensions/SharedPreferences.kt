@@ -4,8 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayPlayerEntity
-import com.boardgamegeek.entities.PlayerEntity
+import com.boardgamegeek.extensions.PlayStatPrefs.KEY_GAME_H_INDEX
+import com.boardgamegeek.extensions.PlayStatPrefs.KEY_PLAYER_H_INDEX
+import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.model.HIndex
+import com.boardgamegeek.model.PlayPlayer
+import com.boardgamegeek.model.Player
 import java.util.*
 
 /**
@@ -42,9 +46,9 @@ fun SharedPreferences.remove(key: String) {
     edit { remove(key) }
 }
 
-object CollectionView {
+object CollectionViewPrefs {
     const val PREFERENCES_KEY_DEFAULT_ID = "viewDefaultId"
-    const val DEFAULT_DEFAULT_ID: Long = -1L
+    const val DEFAULT_DEFAULT_ID: Int = -1
 }
 
 object AccountPreferences {
@@ -58,7 +62,7 @@ object AccountPreferences {
 
 const val PREFERENCES_KEY_SYNC_STATUSES = "sync_statuses"
 const val PREFERENCES_KEY_SYNC_PLAYS = "syncPlays"
-const val PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP = "syncPlaysTimestamp"
+const val PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP = "syncPlaysTimestamp"
 const val PREFERENCES_KEY_SYNC_BUDDIES = "syncBuddies"
 
 const val COLLECTION_STATUS_OWN = "own"
@@ -74,17 +78,47 @@ const val COLLECTION_STATUS_RATED = "rated"
 const val COLLECTION_STATUS_COMMENTED = "comment"
 const val COLLECTION_STATUS_HAS_PARTS = "hasparts"
 const val COLLECTION_STATUS_WANT_PARTS = "wantparts"
+private val COLLECTION_STATUSES = listOf(COLLECTION_STATUS_OWN, COLLECTION_STATUS_PREVIOUSLY_OWNED, COLLECTION_STATUS_PREORDERED, COLLECTION_STATUS_FOR_TRADE, COLLECTION_STATUS_WANT_IN_TRADE, COLLECTION_STATUS_WANT_TO_BUY, COLLECTION_STATUS_WANT_TO_PLAY, COLLECTION_STATUS_WISHLIST, COLLECTION_STATUS_PLAYED, COLLECTION_STATUS_RATED, COLLECTION_STATUS_COMMENTED, COLLECTION_STATUS_HAS_PARTS, COLLECTION_STATUS_WANT_PARTS)
+
+fun String?.mapStatusToEnum() = when (this) {
+    COLLECTION_STATUS_OWN -> CollectionStatus.Own
+    COLLECTION_STATUS_PREVIOUSLY_OWNED -> CollectionStatus.PreviouslyOwned
+    COLLECTION_STATUS_PREORDERED -> CollectionStatus.Preordered
+    COLLECTION_STATUS_PLAYED -> CollectionStatus.Played
+    COLLECTION_STATUS_FOR_TRADE -> CollectionStatus.ForTrade
+    COLLECTION_STATUS_WANT_IN_TRADE -> CollectionStatus.WantInTrade
+    COLLECTION_STATUS_WANT_TO_BUY -> CollectionStatus.WantToBuy
+    COLLECTION_STATUS_WANT_TO_PLAY -> CollectionStatus.WantToPlay
+    COLLECTION_STATUS_WISHLIST -> CollectionStatus.Wishlist
+    COLLECTION_STATUS_RATED -> CollectionStatus.Rated
+    COLLECTION_STATUS_COMMENTED -> CollectionStatus.Commented
+    COLLECTION_STATUS_HAS_PARTS -> CollectionStatus.HasParts
+    COLLECTION_STATUS_WANT_PARTS -> CollectionStatus.WantParts
+    else -> CollectionStatus.Unknown
+}
 
 fun SharedPreferences.isCollectionSetToSync(): Boolean {
     return this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty().isNotEmpty()
 }
 
-fun SharedPreferences.addSyncStatus(status: String) {
-    if (status.isBlank()) return
-    if (this.isStatusSetToSync(status)) return
+fun SharedPreferences.addSyncStatus(status: String): Boolean {
+    if (status.isBlank()) return false
+    if (!COLLECTION_STATUSES.contains(status)) return false
+    if (this.isStatusSetToSync(status)) return false
     val statuses: MutableSet<String> = this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty().toMutableSet()
     statuses.add(status)
     this.putStringSet(PREFERENCES_KEY_SYNC_STATUSES, statuses)
+    return true
+}
+
+fun SharedPreferences.removeSyncStatus(status: String): Boolean {
+    if (status.isBlank()) return false
+    if (!this.isStatusSetToSync(status)) return false
+    val statuses: MutableSet<String> = this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty().toMutableSet()
+    val success = statuses.remove(status)
+    if (success)
+        this.putStringSet(PREFERENCES_KEY_SYNC_STATUSES, statuses)
+    return success
 }
 
 fun SharedPreferences.setSyncStatuses(statuses: Array<String>) {
@@ -195,7 +229,7 @@ private fun SharedPreferences.showLogPlayField(key: String, oldKey: String, defa
 
 // region PLAY STATS
 
-object PlayStats {
+object PlayStatPrefs {
     private const val LOG_PLAY_STATS_PREFIX = "logPlayStats"
     const val LOG_PLAY_STATS_INCOMPLETE = LOG_PLAY_STATS_PREFIX + "Incomplete"
     const val LOG_PLAY_STATS_EXPANSIONS = LOG_PLAY_STATS_PREFIX + "Expansions"
@@ -204,6 +238,18 @@ object PlayStats {
     const val KEY_GAME_H_INDEX = "hIndex"
     const val KEY_PLAYER_H_INDEX = "play_stats_player_h_index"
     const val KEY_H_INDEX_N_SUFFIX = "_n"
+}
+
+enum class HIndexType(val key: String) {
+    Game(KEY_GAME_H_INDEX),
+    Player(KEY_PLAYER_H_INDEX),
+}
+
+fun SharedPreferences.getHIndex(type: HIndexType) = HIndex(this[type.key, 0] ?: 0, this[type.key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX, 0] ?: 0)
+
+fun SharedPreferences.setHIndex(type: HIndexType, hIndex: HIndex) {
+    this[type.key] = hIndex.h
+    this[type.key + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX] = hIndex.n
 }
 
 // endregion PLAY STATS
@@ -227,14 +273,14 @@ private const val SEPARATOR_RECORD = "OV=I=XrecordX=I=VO"
 @Suppress("SpellCheckingInspection")
 private const val SEPARATOR_FIELD = "OV=I=XfieldX=I=VO"
 
-fun SharedPreferences.getLastPlayPlayerEntities(): List<PlayerEntity> {
+fun SharedPreferences.getLastPlayPlayers(): List<Player> {
     return this[KEY_LAST_PLAY_PLAYERS, ""]?.split(SEPARATOR_RECORD)?.filter { it.isNotBlank() }?.map {
         val x = it.split(SEPARATOR_FIELD)
-        PlayerEntity(x[0], x.getOrNull(1).orEmpty())
+        Player(x[0], x.getOrNull(1).orEmpty())
     }.orEmpty()
 }
 
-fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>?) {
+fun SharedPreferences.putLastPlayPlayers(players: List<PlayPlayer>?) {
     players?.let { list ->
         this[KEY_LAST_PLAY_PLAYERS] = list.joinToString(SEPARATOR_RECORD) {
             it.name + SEPARATOR_FIELD + it.username
@@ -244,16 +290,7 @@ fun SharedPreferences.putLastPlayPlayerEntities(players: List<PlayPlayerEntity>?
 
 //endregion LAST PLAY
 
-private const val KEY_PRIVACY_CHECK_TIMESTAMP = "privacy_check_timestamp"
-
-fun SharedPreferences.getLastPrivacyCheckTimestamp(): Long {
-    return this[KEY_PRIVACY_CHECK_TIMESTAMP, 0L] ?: 0L
-}
-
-fun SharedPreferences.setLastPrivacyCheckTimestamp() {
-    this[KEY_PRIVACY_CHECK_TIMESTAMP] = System.currentTimeMillis()
-}
-
+@Suppress("SameParameterValue")
 private fun SharedPreferences.putStringSet(key: String, value: Set<String>) {
     this.edit {
         putStringSet(key, value)

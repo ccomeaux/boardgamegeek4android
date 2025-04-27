@@ -2,23 +2,26 @@
 
 package com.boardgamegeek.extensions
 
-import android.annotation.TargetApi
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.PlayUploadResult
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.*
 import com.boardgamegeek.util.LargeIconLoader
@@ -108,8 +111,8 @@ private fun Context.buildAndNotifyPlaying(
         PendingIntent.FLAG_CANCEL_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
     )
 
-    var info = ""
-    if (location.isNotBlank()) info += "${getString(R.string.at)} $location "
+    var info = getString(R.string.playing)
+    if (location.isNotBlank()) info += " ${getString(R.string.at)} $location "
     if (playerCount > 0) info += resources.getQuantityString(R.plurals.player_description, playerCount, playerCount)
 
     builder
@@ -135,7 +138,10 @@ fun Context.cancelNotification(tag: String?, id: Long = 0L) {
  * Display the notification with a unique ID.
  */
 fun Context.notify(builder: NotificationCompat.Builder, tag: String?, id: Int = 0) {
-    NotificationManagerCompat.from(this).notify(tag, id, builder.build())
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+        NotificationManagerCompat.from(this).notify(tag, id, builder.build())
+        return
+    }
 }
 
 fun Context.notifySyncError(contentText: String, bigText: String) {
@@ -183,6 +189,7 @@ fun Context.notifyLoggedPlay(result: PlayUploadResult) {
                     result.play.gameId,
                     result.play.gameName,
                     result.play.heroImageUrl,
+                    result.play.thumbnailUrl,
                 )
             else
                 PlayActivity.createIntent(context, result.play.internalId)
@@ -203,14 +210,14 @@ fun Context.notifyLoggedPlay(result: PlayUploadResult) {
     loader.executeInBackground()
 }
 
-private fun createRematchAction(context: Context, play: PlayEntity): NotificationCompat.Action? {
+private fun createRematchAction(context: Context, play: Play): NotificationCompat.Action? {
     return if (play.internalId != INVALID_ID.toLong()) {
         val intent = LogPlayActivity.createRematchIntent(
             context,
             play.internalId,
             play.gameId,
             play.gameName,
-            play.heroImageUrl,
+            play.robustHeroImageUrl,
             play.gameIsCustomSorted,
         )
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -242,7 +249,7 @@ object NotificationChannels {
     const val STATS = "stats"
     const val FIREBASE_MESSAGES = "firebase_messages"
 
-    @TargetApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.O)
     fun create(context: Context?) {
         val notificationManager = context?.getSystemService<NotificationManager>() ?: return
 
@@ -312,7 +319,6 @@ object NotificationChannels {
 object NotificationTags {
     private const val TAG_PREFIX = "com.boardgamegeek."
     const val PLAY_STATS = TAG_PREFIX + "PLAY_STATS"
-    const val PROVIDER_ERROR = TAG_PREFIX + "PROVIDER_ERROR"
     const val SYNC_PROGRESS = TAG_PREFIX + "SYNC_PROGRESS"
     const val SYNC_ERROR = TAG_PREFIX + "SYNC_ERROR"
     const val UPLOAD_PLAY = TAG_PREFIX + "UPLOAD_PLAY"

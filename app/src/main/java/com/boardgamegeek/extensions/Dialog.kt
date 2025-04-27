@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -81,21 +82,26 @@ fun Context.createThemedBuilder(): AlertDialog.Builder {
     return MaterialAlertDialogBuilder(this, R.style.Theme_bgglight_Dialog_Alert)
 }
 
+fun Context.showClickableAlertDialog(@StringRes titleResId: Int, message: String) {
+    val spannableMessage = SpannableString(message)
+    showClickableAlertDialog(titleResId, spannableMessage)
+}
+
 fun Context.showClickableAlertDialog(@StringRes titleResId: Int, @StringRes messageResId: Int, vararg formatArgs: Any) {
     val spannableMessage = SpannableString(getString(messageResId, *formatArgs))
-    showClickableAlertDialog(spannableMessage, titleResId)
+    showClickableAlertDialog(titleResId, spannableMessage)
 }
 
 fun Context.showClickableAlertDialogPlural(@StringRes titleResId: Int, @PluralsRes messageResId: Int, quantity: Int, vararg formatArgs: Any) {
     val spannableMessage = SpannableString(resources.getQuantityString(messageResId, quantity, *formatArgs))
-    showClickableAlertDialog(spannableMessage, titleResId)
+    showClickableAlertDialog(titleResId, spannableMessage)
 }
 
-private fun Context.showClickableAlertDialog(spannableMessage: SpannableString, titleResId: Int) {
+private fun Context.showClickableAlertDialog(@StringRes titleResId: Int, spannableMessage: SpannableString) {
     Linkify.addLinks(spannableMessage, Linkify.WEB_URLS)
     val dialog = AlertDialog.Builder(this)
-        .setTitle(titleResId)
         .setMessage(spannableMessage)
         .show()
+    if (titleResId != ResourcesCompat.ID_NULL) dialog.setTitle(titleResId)
     dialog.findViewById<TextView>(android.R.id.message)?.movementMethod = LinkMovementMethod.getInstance()
 }

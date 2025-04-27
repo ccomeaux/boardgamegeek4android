@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:animateLayoutChanges="true"
+	android:orientation="vertical">
+
+	<com.google.android.material.switchmaterial.SwitchMaterial
+		android:id="@+id/statusSwitch"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:textAppearance="@style/TextAppearance.Subtitle"
+		tools:text="Own" />
+
+	<LinearLayout
+		android:id="@+id/defaultContainer"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:visibility="gone"
+		tools:visibility="visible">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/games_expansions" />
+
+		<TextView
+			android:id="@+id/defaultTimestampView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="end"
+			tools:text="Today" />
+	</LinearLayout>
+
+	<LinearLayout
+		android:id="@+id/accessoryContainer"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:orientation="horizontal"
+		android:visibility="gone"
+		tools:visibility="visible">
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/accessories" />
+
+		<TextView
+			android:id="@+id/accessoryTimestampView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:gravity="end"
+			tools:text="Yesterday" />
+	</LinearLayout>
+
+	<Button
+		android:id="@+id/syncStatusButton"
+		style="?attr/materialButtonOutlinedStyle"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="end"
+		android:layout_marginTop="@dimen/padding_standard"
+		android:text="@string/sync"
+		android:visibility="gone"
+		tools:visibility="visible" />
+
+	<com.google.android.material.progressindicator.LinearProgressIndicator
+		android:id="@+id/progressIndicator"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:indeterminate="true"
+		android:paddingTop="@dimen/padding_standard"
+		android:visibility="gone"
+		tools:visibility="visible" />
+</LinearLayout>

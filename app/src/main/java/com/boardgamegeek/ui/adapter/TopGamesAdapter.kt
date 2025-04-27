@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowTopGameBinding
-import com.boardgamegeek.entities.TopGameEntity
+import com.boardgamegeek.model.TopGame
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
@@ -18,7 +18,7 @@ class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), Auto
         setHasStableIds(true)
     }
 
-    var results: List<TopGameEntity> by Delegates.observable(emptyList()) { _, old, new ->
+    var results: List<TopGame> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n ->
             o.id == n.id
         }
@@ -39,7 +39,7 @@ class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), Auto
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val binding = RowTopGameBinding.bind(itemView)
 
-        fun bind(game: TopGameEntity?) {
+        fun bind(game: TopGame?) {
             if (game == null) return
             binding.nameView.text = game.name
             binding.yearView.text = game.yearPublished.asYear(itemView.context)

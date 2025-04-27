@@ -1,15 +1,15 @@
 package com.boardgamegeek.extensions
 
 import android.graphics.*
-import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toDrawable
 import com.google.android.material.chip.Chip
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import com.squareup.picasso.Transformation
 import kotlin.math.min
-
 
 fun Chip.loadIcon(imageUrl: String?, @DrawableRes errorResId: Int = 0) {
     val creator = Picasso.with(context)
@@ -29,7 +29,7 @@ fun Chip.loadIcon(imageUrl: String?, @DrawableRes errorResId: Int = 0) {
         }
 
         override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-            this@loadIcon.chipIcon = BitmapDrawable(resources, bitmap)
+            this@loadIcon.chipIcon = bitmap?.toDrawable(resources)
         }
 
         override fun onBitmapFailed(errorDrawable: Drawable?) {
@@ -51,7 +51,7 @@ class CircleTransform : Transformation {
             source.recycle()
         }
 
-        val bitmap = Bitmap.createBitmap(size, size, source.config)
+        val bitmap = createBitmap(size, size, source.config ?: Bitmap.Config.ARGB_8888)
 
         val canvas = Canvas(bitmap)
         val paint = Paint().apply {

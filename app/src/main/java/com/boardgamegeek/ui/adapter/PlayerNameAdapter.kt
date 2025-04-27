@@ -5,24 +5,34 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayerEntity
-import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
 import com.boardgamegeek.extensions.setTextOrHide
+import com.boardgamegeek.model.Player
+import com.boardgamegeek.model.User
 
 class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Result>(context, R.layout.autocomplete_player), Filterable {
-    private var playerList = listOf<PlayerEntity>()
-    private var userList = listOf<UserEntity>()
+    private var playerList = listOf<Player>()
+    private var userList = listOf<User>()
     private var resultsFiltered = listOf<Result>()
 
+    /**
+     * Represents an adapter item result containing player information.
+     *
+     * @property title The primary display text.
+     * @property subtitle The secondary display text.
+     * @property avatarUrl The URL of the user's avatar image, or null if no avatar is available.
+     * @property username The unique username of the user.
+     * @property nickname The user's name to use for the player name.
+     */
     class Result(
         val title: String,
         val subtitle: String,
+        val avatarUrl: String?,
         val username: String,
-        val avatarUrl: String = "",
+        val nickname: String,
     ) {
-        override fun toString() = title
+        override fun toString() = nickname
     }
 
     override fun getCount() = resultsFiltered.size
@@ -40,13 +50,13 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
         return view
     }
 
-    fun addPlayers(list: List<PlayerEntity>) {
+    fun addPlayers(list: List<Player>) {
         playerList = list.sortedByDescending { it.playCount }
         notifyDataSetChanged()
     }
 
-    fun addUsers(list: List<UserEntity>) {
-        userList = list.sortedBy { it.userName }
+    fun addUsers(list: List<User>) {
+        userList = list.sortedBy { it.username }
         notifyDataSetChanged()
     }
 
@@ -58,39 +68,30 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             val playerListFiltered = if (filter.isEmpty()) playerList else {
                 playerList.filter { it.name.contains(filter, ignoreCase = true) }
             }
+            val playerResults = playerListFiltered.map { player ->
+                player.mapToResult()
+            }
 
             val userListFiltered = if (filter.isEmpty()) userList else {
                 userList.filter {
-                    it.userName.contains(filter, ignoreCase = true) ||
+                    it.username.contains(filter, ignoreCase = true) ||
                             it.firstName.contains(filter, ignoreCase = true) ||
                             it.lastName.contains(filter, ignoreCase = true) ||
                             it.playNickname.contains(filter, ignoreCase = true)
                 }
             }
 
-            val playerResults = playerListFiltered.map { player ->
-                Result(
-                    player.name,
-                    player.username,
-                    player.username,
-                    player.avatarUrl,
-                )
-            }
             val usernames = playerResults.map { it.username }
-            val userResults = userListFiltered.filterNot {
-                usernames.contains(it.userName)
-            }.map {
-                Result(
-                    it.playNickname.ifBlank { it.fullName },
-                    if (it.playNickname.isBlank()) it.userName else "${it.fullName} (${it.userName})",
-                    it.userName,
-                    it.avatarUrl,
-                )
-            }
+            val userResults = userListFiltered
+                .asSequence()
+                .filterNot { usernames.contains(it.username) }
+                .map { it.mapToResult() }
+
+            val combinedResults = playerResults + userResults
 
             return FilterResults().apply {
-                values = playerResults + userResults
-                count = (playerResults + userResults).size
+                values = combinedResults
+                count = combinedResults.size
             }
         }
 
@@ -100,4 +101,20 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
             notifyDataSetChanged()
         }
     }
+
+    private fun User.mapToResult() = Result(
+        title = playNickname.ifBlank { fullName },
+        subtitle = if (playNickname.isBlank()) username else "$fullName ($username)",
+        avatarUrl = avatarUrl,
+        username = username,
+        nickname = playNickname.ifBlank { fullName },
+    )
+
+    private fun Player.mapToResult() = Result(
+        title = userFullName?.ifBlank { name } ?: name,
+        subtitle = username,
+        avatarUrl = userAvatarUrl,
+        username = username,
+        nickname = name,
+    )
 }

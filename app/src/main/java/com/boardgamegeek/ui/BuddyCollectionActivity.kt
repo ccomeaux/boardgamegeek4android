@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -9,7 +8,7 @@ import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.BuddyActivity.Companion.startUp
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -42,7 +41,7 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
         viewModel.setUsername(buddyName)
         viewModel.status.observe(this) {
             val status = statuses[it.orEmpty()]
-            supportActionBar?.subtitle = buddyName + if (status != null && status.isNotEmpty()) {
+            supportActionBar?.subtitle = buddyName + if (!status.isNullOrEmpty()) {
                 " - $status"
             } else {
                 ""
@@ -51,11 +50,11 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         buddyName = intent.getStringExtra(KEY_BUDDY_NAME).orEmpty()
     }
 
-    override fun onCreatePane(intent: Intent) = BuddyCollectionFragment()
+    override fun createPane() = BuddyCollectionFragment()
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {

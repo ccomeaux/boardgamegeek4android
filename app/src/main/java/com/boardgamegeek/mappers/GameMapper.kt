@@ -1,133 +1,295 @@
 package com.boardgamegeek.mappers
 
-import com.boardgamegeek.entities.*
-import com.boardgamegeek.extensions.replaceHtmlLineFeeds
-import com.boardgamegeek.extensions.sortName
-import com.boardgamegeek.extensions.toThingSubtype
+import android.graphics.Color
+import com.boardgamegeek.db.model.*
+import com.boardgamegeek.model.*
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.io.model.Game
+import com.boardgamegeek.io.model.GameRemote
+import java.text.SimpleDateFormat
+import java.util.Locale
 
-fun Game.mapToEntity(): GameEntity {
-    val (primaryName, sortIndex) = findPrimaryName(this)
-    val game = GameEntity(
-        id = this.id,
-        name = primaryName,
-        sortName = primaryName.sortName(sortIndex),
-        imageUrl = this.image.orEmpty(),
-        thumbnailUrl = this.thumbnail.orEmpty(),
-        description = this.description.replaceHtmlLineFeeds().trim(),
-        subtype = this.type.toThingSubtype().mapToEntitySubtype(),
-        yearPublished = this.yearpublished?.toIntOrNull() ?: GameEntity.YEAR_UNKNOWN,
-        minPlayers = this.minplayers?.toIntOrNull() ?: 0,
-        maxPlayers = this.maxplayers?.toIntOrNull() ?: 0,
-        playingTime = this.playingtime?.toIntOrNull() ?: 0,
-        maxPlayingTime = this.maxplaytime?.toIntOrNull() ?: 0,
-        minPlayingTime = this.minplaytime?.toIntOrNull() ?: 0,
-        minimumAge = this.minage?.toIntOrNull() ?: 0,
-        designers = this.links.filter { it.type == "boardgamedesigner" }.map { it.id to it.value },
-        artists = this.links.filter { it.type == "boardgameartist" }.map { it.id to it.value },
-        publishers = this.links.filter { it.type == "boardgamepublisher" }.map { it.id to it.value },
-        categories = this.links.filter { it.type == "boardgamecategory" }.map { it.id to it.value },
-        mechanics = this.links.filter { it.type == "boardgamemechanic" }.map { it.id to it.value },
-        expansions = this.links.filter { it.type == "boardgameexpansion" }.map { Triple(it.id, it.value, it.inbound == "true") },
-        families = this.links.filter { it.type == "boardgamefamily" }.map { it.id to it.value },
-        // "boardgameimplementation"
-    )
-    return if (this.statistics != null) {
-        game.copy(
-            hasStatistics = true,
-            numberOfRatings = this.statistics.usersrated?.toIntOrNull() ?: 0,
-            rating = this.statistics.average?.toDoubleOrNull() ?: 0.0,
-            bayesAverage = this.statistics.bayesaverage?.toDoubleOrNull() ?: 0.0,
-            standardDeviation = this.statistics.stddev?.toDoubleOrNull() ?: 0.0,
-            median = this.statistics.median?.toDoubleOrNull() ?: 0.0,
-            numberOfUsersOwned = this.statistics.owned?.toIntOrNull() ?: 0,
-            numberOfUsersTrading = this.statistics.trading?.toIntOrNull() ?: 0,
-            numberOfUsersWanting = this.statistics.wanting?.toIntOrNull() ?: 0,
-            numberOfUsersWishListing = this.statistics.wishing?.toIntOrNull() ?: 0,
-            numberOfComments = this.statistics.numcomments?.toIntOrNull() ?: 0,
-            numberOfUsersWeighting = this.statistics.numweights?.toIntOrNull() ?: 0,
-            averageWeight = this.statistics.averageweight?.toDoubleOrNull() ?: 0.0,
-            overallRank = this.statistics.ranks.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
-            ranks = createRanks(this),
-            polls = createPolls(this),
-            playerPoll = createPlayerPoll(this),
-        )
-    } else game
-}
-
-private fun findPrimaryName(from: Game): Pair<String, Int> {
+private fun findPrimaryName(from: GameRemote): Pair<String, Int> {
     return (from.names?.find { "primary" == it.type } ?: from.names?.firstOrNull())?.let { it.value to it.sortindex } ?: ("" to 0)
 }
 
-private fun createRanks(from: Game): List<GameRankEntity> {
-    val ranks = mutableListOf<GameRankEntity>()
-    from.statistics?.ranks?.mapTo(ranks) {
-        GameRankEntity(
-            it.id,
-            it.type,
-            it.name,
-            it.friendlyname,
-            it.value.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
-            it.bayesaverage.toDoubleOrNull() ?: 0.0
+@Suppress("SpellCheckingInspection")
+private const val PLAYER_POLL_NAME = "suggested_numplayers"
+private const val AGE_POLL_NAME = "suggested_playerage"
+private const val LANGUAGE_POLL_NAME = "language_dependence"
+
+fun GameRankEntity.mapToSubtype(): GameSubtype? {
+    return if (gameRankType == BggService.RANK_TYPE_SUBTYPE) {
+        GameSubtype(
+            subtype = gameRankName.toSubtype(),
+            rank = gameRankValue,
+            bayesAverage = gameRankBayesAverage,
         )
-    }
-    return ranks
+    } else null
 }
 
-private fun BggService.ThingSubtype?.mapToEntitySubtype(): GameEntity.Subtype? = when (this){
-    BggService.ThingSubtype.BOARDGAME -> GameEntity.Subtype.BOARDGAME
-    BggService.ThingSubtype.BOARDGAME_EXPANSION -> GameEntity.Subtype.BOARDGAME_EXPANSION
-    BggService.ThingSubtype.BOARDGAME_ACCESSORY -> GameEntity.Subtype.BOARDGAME_ACCESSORY
-    null -> null
+fun GameRankEntity.mapToFamily(): GameFamily? {
+    return if (gameRankType == BggService.RANK_TYPE_FAMILY)
+        GameFamily(
+            family = when (gameRankName) {
+                GameRankEntity.FAMILY_NAME_ABSTRACT_GAMES -> GameFamily.Family.Abstract
+                GameRankEntity.FAMILY_NAME_CUSTOMIZABLE_GAMES -> GameFamily.Family.Customizable
+                GameRankEntity.FAMILY_NAME_CHILDRENS_GAMES -> GameFamily.Family.Childrens
+                GameRankEntity.FAMILY_NAME_FAMILY_GAMES -> GameFamily.Family.Family
+                GameRankEntity.FAMILY_NAME_PARTY_GAMES -> GameFamily.Family.Party
+                GameRankEntity.FAMILY_NAME_STRATEGY_GAMES -> GameFamily.Family.Strategy
+                GameRankEntity.FAMILY_NAME_THEMATIC_GAMES -> GameFamily.Family.Thematic
+                GameRankEntity.FAMILY_NAME_WAR_GAMES -> GameFamily.Family.War
+                else -> GameFamily.Family.Unknown
+            },
+            rank = gameRankValue,
+            bayesAverage = gameRankBayesAverage,
+        )
+    else null
 }
 
-private const val playerPollName = "suggested_numplayers"
-
-private fun createPolls(from: Game): List<GameEntity.Poll> {
-    val polls = mutableListOf<GameEntity.Poll>()
-    from.polls?.filter { it.name != playerPollName }?.mapTo(polls) { poll ->
-        GameEntity.Poll().apply {
-            name = poll.name ?: ""
-            title = poll.title ?: ""
-            totalVotes = poll.totalvotes
-            poll.results.forEach {
-                results += GameEntity.Results().apply {
-                    numberOfPlayers = if (it.numplayers.isNullOrEmpty()) "X" else it.numplayers
-                    it.result.forEach { gr ->
-                        result.add(GamePollResultEntity(gr.level, gr.value, gr.numvotes))
-                    }
-                }
-            }
-        }
-    }
-    return polls
-}
-
-private fun createPlayerPoll(from: Game): GamePlayerPollEntity? {
-    from.polls?.find { it.name == playerPollName }?.let { poll ->
-        val results = mutableListOf<GamePlayerPollResultsEntity>()
-        poll.results.forEach { playerCount ->
-            results += GamePlayerPollResultsEntity(
-                totalVotes = poll.totalvotes,
-                playerCount = playerCount.numplayers,
-                bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0,
-                recommendedVoteCount = playerCount.result.find { it.value == "Recommended" }?.numvotes ?: 0,
-                notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0,
-            )
-        }
-        return GamePlayerPollEntity(results)
-    }
-    return null
-}
-
-fun Game.mapToRatingEntities(): GameCommentsEntity {
+fun GameRemote.mapToRatingModel(): GameComments {
     val list = comments.comments.map {
-        GameCommentEntity(
+        GameComment(
             username = it.username,
-            rating = it.rating.toDoubleOrNull() ?: 0.0,
+            rating = it.rating.toDoubleOrNull() ?: Game.UNRATED,
             comment = it.value,
         )
     }
-    return GameCommentsEntity(this.comments.totalitems, list)
+    return GameComments(this.comments.totalitems, list)
 }
+
+fun GameEntity.mapToModel(lastPlayDate: String?): Game {
+    val playDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    return Game(
+        id = gameId,
+        name = gameName,
+        sortName = gameSortName,
+        updated = updated ?: 0L,
+        subtype = subtype.toSubtype(),
+        thumbnailUrl = thumbnailUrl.orEmpty(),
+        imageUrl = imageUrl.orEmpty(),
+        heroImageUrl = heroImageUrl.orEmpty(),
+        description = description.orEmpty(),
+        yearPublished = yearPublished ?: Game.YEAR_UNKNOWN,
+        minPlayers = minPlayers ?: 0,
+        maxPlayers = maxPlayers ?: 0,
+        playingTime = playingTime ?: 0,
+        minPlayingTime = minPlayingTime ?: 0,
+        maxPlayingTime = maxPlayingTime ?: 0,
+        minimumAge = minimumAge ?: 0,
+        numberOfRatings = numberOfRatings ?: 0,
+        rating = average ?: Game.UNRATED,
+        bayesAverage = bayesAverage ?: Game.UNRATED,
+        standardDeviation = standardDeviation ?: 0.0,
+        median = median ?: Game.UNRATED,
+        numberOfUsersOwned = numberOfUsersOwned ?: 0,
+        numberOfUsersTrading = numberOfUsersTrading ?: 0,
+        numberOfUsersWanting = numberOfUsersWanting ?: 0,
+        numberOfUsersWishListing = numberOfUsersWishListing ?: 0,
+        numberOfComments = numberOfComments ?: 0,
+        numberOfUsersWeighting = numberOfUsersWeighting ?: 0,
+        averageWeight = averageWeight ?: Game.UNWEIGHTED,
+        overallRank = gameRank ?: GameSubtype.RANK_UNKNOWN,
+        updatedPlays = updatedPlays ?: 0L,
+        customPlayerSort = customPlayerSort ?: false,
+        isFavorite = isStarred ?: false,
+        suggestedPlayerCountPollVoteTotal = suggestedPlayerCountPollVoteTotal ?: 0,
+        iconColor = iconColor ?: Color.TRANSPARENT,
+        darkColor = darkColor ?: Color.TRANSPARENT,
+        winsColor = winsColor ?: Color.TRANSPARENT,
+        winnablePlaysColor = winnablePlaysColor ?: Color.TRANSPARENT,
+        allPlaysColor = allPlaysColor ?: Color.TRANSPARENT,
+        playerCountsBest = playerCountsBest.splitFromDatabase(),
+        playerCountsRecommended = playerCountsRecommended.splitFromDatabase(),
+        playerCountsNotRecommended = playerCountsNotRecommended.splitFromDatabase(),
+        lastViewedTimestamp = lastViewedTimestamp ?: 0L,
+        lastPlayTimestamp = lastPlayDate.toMillis(playDateFormat),
+    )
+}
+
+fun List<GameAgePollResultEntity>.mapToModel() = GameAgePoll(
+    this.mapIndexed { i, it ->
+        GameAgePoll.Result(
+            value = if (i == size - 1) "${it.value}+" else it.value.toString(),
+            numberOfVotes = it.votes,
+        )
+    }
+)
+
+fun List<GameLanguagePollResultEntity>.mapToModel() = GameLanguagePoll(
+    this.map { entity ->
+        GameLanguagePoll.Result(
+            level = GameLanguagePoll.Level.entries.find { it.value == (entity.level - 1) % 5 + 1 },
+            numberOfVotes = entity.votes,
+        )
+    }
+)
+
+fun GameSuggestedPlayerCountPollResultsEntity.mapToModel() = GamePlayerPollResults(
+    totalVotes = 0,
+    playerCount = playerCount,
+    bestVoteCount = bestVoteCount ?: 0,
+    recommendedVoteCount = recommendedVoteCount ?: 0,
+    notRecommendedVoteCount = notRecommendedVoteCount ?: 0,
+    recommendation = recommendation ?: GamePlayerPollResults.NOT_RECOMMENDED,
+)
+
+fun GameExpansionWithGame.mapToModel(items: List<CollectionItem>) = GameExpansion(
+    id = gameExpansionEntity.expansionId,
+    name = gameExpansionEntity.expansionName,
+    thumbnailUrl = items.firstOrNull()?.gameThumbnailUrl.orEmpty().ifBlank { thumbnailUrl.orEmpty() },
+    own = items.any { it.own },
+    previouslyOwned = items.any { it.previouslyOwned },
+    preOrdered = items.any { it.preOrdered },
+    forTrade = items.any { it.forTrade },
+    wantInTrade = items.any { it.wantInTrade },
+    wantToPlay = items.any { it.wantToPlay },
+    wantToBuy = items.any { it.wantToBuy },
+    wishList = items.any { it.wishList },
+    wishListPriority = if (items.isEmpty()) GameExpansion.WISHLIST_PRIORITY_UNKNOWN else items.minOf { it.wishListPriority },
+    numberOfPlays = items.firstOrNull()?.numberOfPlays ?: 0,
+    rating = if (items.isEmpty()) GameExpansion.UNRATED else items.maxOf { it.rating },
+    comment = items.firstOrNull()?.comment.orEmpty(),
+)
+
+@Suppress("SpellCheckingInspection")
+fun GameRemote.mapForUpsert(internalId: Long, updated: Long): GameForUpsert {
+    val (primaryName, sortIndex) = findPrimaryName(this)
+    val ranks = statistics?.ranks?.map {
+        GameRankEntity(
+            internalId = 0L,
+            gameId = this.id,
+            gameRankId = it.id,
+            gameRankType = it.type,
+            gameRankName = it.name,
+            gameRankFriendlyName = it.friendlyname,
+            gameRankValue = it.value.toIntOrNull() ?: GameRankEntity.RANK_UNKNOWN,
+            gameRankBayesAverage = it.bayesaverage.toDoubleOrNull() ?: 0.0,
+        )
+    }.orEmpty()
+    val playerPoll = polls?.find { it.name == PLAYER_POLL_NAME }?.results?.mapIndexed { index, playerCount ->
+        val bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0
+        val recommendedVoteCount = playerCount.result.find { it.value == "Recommended" }?.numvotes ?: 0
+        val notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0
+        val halfTotalVoteCount = ((bestVoteCount + recommendedVoteCount + notRecommendedVoteCount) / 2) + 1
+        val recommendation = when {
+            halfTotalVoteCount == 0 -> GameSuggestedPlayerCountPollResultsEntity.UNKNOWN
+            bestVoteCount >= halfTotalVoteCount -> GameSuggestedPlayerCountPollResultsEntity.BEST
+            bestVoteCount + recommendedVoteCount >= halfTotalVoteCount -> GameSuggestedPlayerCountPollResultsEntity.RECOMMENDED
+            notRecommendedVoteCount >= halfTotalVoteCount -> GameSuggestedPlayerCountPollResultsEntity.NOT_RECOMMENDED
+            else -> GameSuggestedPlayerCountPollResultsEntity.UNKNOWN
+        }
+        GameSuggestedPlayerCountPollResultsEntity(
+            internalId = 0L,
+            gameId = this.id,
+            playerCount = playerCount.numplayers,
+            sortIndex = index + 1,
+            bestVoteCount = playerCount.result.find { it.value == "Best" }?.numvotes ?: 0,
+            recommendedVoteCount = playerCount.result.find { it.value == "Recommended" }?.numvotes ?: 0,
+            notRecommendedVoteCount = playerCount.result.find { it.value == "Not Recommended" }?.numvotes ?: 0,
+            recommendation = recommendation,
+        )
+    }.orEmpty()
+    val agePoll = polls?.find { it.name == AGE_POLL_NAME }?.results?.firstOrNull()?.result?.map {
+        GameAgePollResultEntity(
+            gameId = this.id,
+            value = it.value.split(" ").firstOrNull()?.toInt() ?: 21,
+            votes = it.numvotes,
+        )
+    }
+    val languagePoll = polls?.find { it.name == LANGUAGE_POLL_NAME }?.results?.firstOrNull()?.result?.map {
+        GameLanguagePollResultEntity(
+            gameId = this.id,
+            level = it.level,
+            votes = it.numvotes,
+        )
+    }
+    val header = GameForUpsertHeader(
+        internalId = internalId,
+        updated = updated,
+        updatedList = updated,
+        gameId = id,
+        gameName = primaryName,
+        gameSortName = primaryName.sortName(sortIndex),
+        imageUrl = image,
+        thumbnailUrl = thumbnail,
+        description = description.replaceHtmlLineFeeds().trim(),
+        subtype = type.toThingSubtype()?.code,
+        yearPublished = yearpublished?.toIntOrNull() ?: Game.YEAR_UNKNOWN,
+        minPlayers = minplayers?.toIntOrNull(),
+        maxPlayers = maxplayers?.toIntOrNull(),
+        playingTime = playingtime?.toIntOrNull(),
+        maxPlayingTime = maxplaytime?.toIntOrNull(),
+        minPlayingTime = minplaytime?.toIntOrNull(),
+        minimumAge = minage?.toIntOrNull(),
+        gameRank = statistics?.ranks?.find { it.type == "subtype" }?.value?.toIntOrNull() ?: GameSubtype.RANK_UNKNOWN,
+        numberOfRatings = statistics?.usersrated?.toIntOrNull(),
+        average = statistics?.average?.toDoubleOrNull(),
+        bayesAverage = statistics?.bayesaverage?.toDoubleOrNull(),
+        standardDeviation = statistics?.stddev?.toDoubleOrNull(),
+        median = statistics?.median?.toDoubleOrNull(),
+        numberOfUsersOwned = statistics?.owned?.toIntOrNull(),
+        numberOfUsersTrading = statistics?.trading?.toIntOrNull(),
+        numberOfUsersWanting = statistics?.wanting?.toIntOrNull(),
+        numberOfUsersWishListing = statistics?.wishing?.toIntOrNull(),
+        numberOfComments = statistics?.numcomments?.toIntOrNull(),
+        numberOfUsersWeighting = statistics?.numweights?.toIntOrNull(),
+        averageWeight = statistics?.averageweight?.toDoubleOrNull(),
+        suggestedPlayerCountPollVoteTotal = this.polls?.find { it.name == PLAYER_POLL_NAME }?.totalvotes,
+        playerCountsBest = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.BEST }.map { it.playerCount }.toSet().joinForDatabase(),
+        playerCountsRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.RECOMMENDED }.map { it.playerCount }.toSet().joinForDatabase(),
+        playerCountsNotRecommended = playerPoll.filter { it.recommendation == GameSuggestedPlayerCountPollResultsEntity.NOT_RECOMMENDED }.map { it.playerCount }.toSet().joinForDatabase(),
+    )
+    return GameForUpsert(
+        header = header,
+        ranks = ranks,
+        agePollResults = agePoll.orEmpty(),
+        languagePollResults = languagePoll.orEmpty(),
+        playerPoll = playerPoll,
+        designers = links?.filter { it.type == "boardgamedesigner" }?.map { GameDesignerEntity(0L, this.id, it.id) }.orEmpty(),
+        artists = links?.filter { it.type == "boardgameartist" }?.map { GameArtistEntity(0L, this.id, it.id) }.orEmpty(),
+        publishers = links?.filter { it.type == "boardgamepublisher" }?.map { GamePublisherEntity(0L, this.id, it.id) }.orEmpty(),
+        categories = links?.filter { it.type == "boardgamecategory" }?.map { GameCategoryEntity(0L, this.id, it.id) }.orEmpty(),
+        mechanics = links?.filter { it.type == "boardgamemechanic" }?.map { GameMechanicEntity(0L, this.id, it.id) }.orEmpty(),
+        expansions = links?.filter { it.type == "boardgameexpansion" }?.map { GameExpansionEntity(0L, this.id, it.id, it.value, it.inbound == "true") }.orEmpty(),
+    )
+}
+
+fun GameRemote.mapToDesigners() = links.filter {
+    it.type == "boardgamedesigner"
+}.map {
+    DesignerBriefForUpsert(0L, it.id, it.value)
+}
+
+fun GameRemote.mapToArtists() = links.filter {
+    it.type == "boardgameartist"
+}.map {
+    ArtistBriefForUpsert(0L, it.id, it.value)
+}
+
+fun GameRemote.mapToPublishers() = links.filter {
+    it.type == "boardgamepublisher"
+}.map {
+    PublisherBriefForUpsert(0L, it.id, it.value)
+}
+
+fun GameRemote.mapToCategories() = links.filter {
+    it.type == "boardgamecategory"
+}.map {
+    CategoryEntity(0L, it.id, it.value)
+}
+
+fun GameRemote.mapToMechanics() = links.filter {
+    it.type == "boardgamemechanic"
+}.map {
+    MechanicEntity(0L, it.id, it.value)
+}
+
+fun String?.toThingSubtype() = BggService.ThingSubtype.entries.find { this == it.code }
+
+const val separator = "|"
+
+fun <T> Iterable<T>.joinForDatabase(delimiter: String = separator) = this.joinToString(delimiter, prefix = delimiter, postfix = delimiter)
+
+fun String?.splitFromDatabase(): Set<Int> = this?.split(separator)?.mapNotNull { it.toIntOrNull() }?.toSet().orEmpty()

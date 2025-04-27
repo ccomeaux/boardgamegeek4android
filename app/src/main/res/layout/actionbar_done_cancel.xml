@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.appbar.AppBarLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:id="@+id/toolbar_done_cancel"
-	style="@style/ActionBar"
-	android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar">
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:fitsSystemWindows="true">
 
-	<LinearLayout
-		style="@style/ActionBarButtonContainer"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent">
-
-		<LinearLayout
-			android:id="@+id/menu_cancel"
-			style="@style/ActionBarButton"
-			tools:ignore="UseCompoundDrawables">
-
-			<ImageView
-				style="@style/ActionBarButtonImage"
-				android:contentDescription="@string/cancel"
-				android:src="@drawable/ic_baseline_clear_24"
-				app:tint="#fff" />
-
-			<TextView
-				style="@style/ActionBarButtonText"
-				android:text="@string/cancel" />
-		</LinearLayout>
+	<com.google.android.material.appbar.MaterialToolbar
+		android:id="@+id/toolbar_done_cancel"
+		style="@style/ActionBar">
 
 		<LinearLayout
-			android:id="@+id/menu_done"
-			style="@style/ActionBarButton"
-			tools:ignore="UseCompoundDrawables">
+			style="@style/ActionBarButtonContainer"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent">
 
-			<ImageView
-				style="@style/ActionBarButtonImage"
-				android:contentDescription="@string/done"
-				android:src="@drawable/ic_baseline_check_24"
-				app:tint="#fff" />
+			<LinearLayout
+				android:id="@+id/menu_cancel"
+				style="@style/ActionBarButton"
+				tools:ignore="UseCompoundDrawables">
 
-			<TextView
-				style="@style/ActionBarButtonText"
-				android:text="@string/done" />
+				<ImageView
+					style="@style/ActionBarButtonImage"
+					android:contentDescription="@string/cancel"
+					android:src="@drawable/ic_baseline_clear_24"
+					app:tint="#fff" />
+
+				<TextView
+					style="@style/ActionBarButtonText"
+					android:text="@string/cancel" />
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/menu_done"
+				style="@style/ActionBarButton"
+				tools:ignore="UseCompoundDrawables">
+
+				<ImageView
+					style="@style/ActionBarButtonImage"
+					android:contentDescription="@string/done"
+					android:src="@drawable/ic_baseline_check_24"
+					app:tint="#fff" />
+
+				<TextView
+					style="@style/ActionBarButtonText"
+					android:text="@string/done" />
+			</LinearLayout>
 		</LinearLayout>
-	</LinearLayout>
-
-</androidx.appcompat.widget.Toolbar>
+	</com.google.android.material.appbar.MaterialToolbar>
+</com.google.android.material.appbar.AppBarLayout>

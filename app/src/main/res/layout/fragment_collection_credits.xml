@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+	android:id="@+id/coordinatorLayout2"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<Button
+		android:id="@+id/designersButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="@dimen/padding_standard"
+		android:text="@string/title_designers"
+		app:icon="@drawable/ic_baseline_edit_24"
+		app:layout_constraintEnd_toStartOf="@id/artistsButton"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
+
+	<Button
+		android:id="@+id/artistsButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="@dimen/padding_standard"
+		android:text="@string/title_artists"
+		app:icon="@drawable/ic_baseline_brush_24"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toEndOf="@id/designersButton"
+		app:layout_constraintTop_toTopOf="parent"/>
+
+	<Button
+		android:id="@+id/publishersButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="@dimen/padding_standard"
+		android:text="@string/title_publishers"
+		app:icon="@drawable/ic_baseline_import_contacts_24"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/designersButton"/>
+
+	<Button
+		android:id="@+id/mechanicsButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="@dimen/padding_standard"
+		android:text="@string/title_mechanics"
+		app:icon="@drawable/ic_baseline_settings_24"
+		app:layout_constraintEnd_toStartOf="@id/categoriesButton"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@id/publishersButton"/>
+
+	<Button
+		android:id="@+id/categoriesButton"
+		style="@style/Widget.MaterialComponents.Button.Icon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_margin="@dimen/padding_standard"
+		android:text="@string/title_categories"
+		app:icon="@drawable/ic_baseline_category_24"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toEndOf="@id/mechanicsButton"
+		app:layout_constraintTop_toBottomOf="@id/publishersButton"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,15 +6,17 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.PersonPagerAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 @AndroidEntryPoint
 class PersonActivity : HeroTabActivity() {
@@ -28,6 +30,7 @@ class PersonActivity : HeroTabActivity() {
     private var name = ""
     private var personType = PersonType.DESIGNER
     private var emptyMessageDescription = ""
+    private var automaticRefreshTimestamp = 0L
 
     private val viewModel by viewModels<PersonViewModel>()
 
@@ -66,6 +69,14 @@ class PersonActivity : HeroTabActivity() {
                 toast(it.message.ifBlank { getString(R.string.empty_person, emptyMessageDescription) })
             }
             it?.data?.let { person ->
+                if (it.status == Status.SUCCESS && automaticRefreshTimestamp.isOlderThan(3.hours)) {
+                    automaticRefreshTimestamp = System.currentTimeMillis()
+                    if (person.updatedTimestamp?.time.isOlderThan(1.days) ||
+                        person.imagesUpdatedTimestamp?.time.isOlderThan(1.days)
+                    ) {
+                        viewModel.refresh()
+                    }
+                }
                 safelySetTitle(person.name)
                 loadToolbarImage(person.heroImageUrls)
             }
@@ -85,6 +96,7 @@ class PersonActivity : HeroTabActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_view -> {
+                @Suppress("SpellCheckingInspection")
                 val path = when (personType) {
                     PersonType.DESIGNER -> "boardgamedesigner"
                     PersonType.ARTIST -> "boardgameartist"

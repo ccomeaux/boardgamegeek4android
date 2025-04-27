@@ -46,6 +46,13 @@ captures/
 .idea/AndroidProjectSystem.xml
 .idea/appInsightsSettings.xml
 .idea/runConfigurations.xml
+.idea/deploymentTargetDropDown.xml
+.idea/deploymentTargetSelector.xml
+.idea/androidTestResultsUserPreferences.xml
+
+# Ignore kotlin 2.0 compiler files (.salive: session-is-alive)
+# https://github.com/JetBrains/kotlin/blob/ca34e5d2fd255ed0501bae4fae3d3691dc40d375/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/compilerRunner/GradleKotlinCompilerRunner.kt#L458
+/.kotlin
 
 # Keystore files
 *.jks
@@ -64,3 +71,4 @@ freeline_project_description.json
 ajcore.*.txt
 assetWizardSettings.xml
 deploymentTargetDropDown.xml
+deploymentTargetSelector.xml

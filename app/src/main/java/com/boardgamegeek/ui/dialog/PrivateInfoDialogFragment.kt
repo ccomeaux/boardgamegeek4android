@@ -88,7 +88,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
         )
 
         binding.acquisitionDateView.setOnClickListener {
-            val date = if (acquisitionDate == 0L) System.currentTimeMillis() else acquisitionDate
+            val date = if (acquisitionDate == 0L) MaterialDatePicker.todayInUtcMilliseconds() else acquisitionDate.fromLocalToUtc()
             val datePicker = MaterialDatePicker.Builder.datePicker().setSelection(date).build()
             datePicker.addOnPositiveButtonClickListener {
                 setAndDisplayAcquisitionDate(it.fromLocalToUtc())
@@ -161,7 +161,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
             quantity: Int?,
             acquisitionDate: Long?,
             acquiredFrom: String?,
-            inventoryLocation: String?
+            inventoryLocation: String?,
         ) = PrivateInfoDialogFragment().apply {
             arguments = bundleOf(
                 KEY_PRICE_CURRENCY to priceCurrency,

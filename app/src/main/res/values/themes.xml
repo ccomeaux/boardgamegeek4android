@@ -14,11 +14,10 @@
 		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
 		<item name="bottomSheetDialogTheme">@style/ModalBottomSheetDialog</item>
+		<item name="android:windowTranslucentStatus">true</item>
 	</style>
 
 	<style name="Theme.bgglight.Base" parent="@style/Theme.MaterialComponents.Light.NoActionBar"/>
-
-	<style name="Theme.bgglight.NavDrawer"/>
 
 	<style name="Theme.bgglight.About">
 		<item name="drawerArrowStyle">@style/MyDrawerArrowStyle</item>

@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
@@ -18,7 +17,7 @@ class MechanicActivity : SimpleSinglePaneActivity() {
 
     private val viewModel by viewModels<MechanicViewModel>()
 
-    override fun onCreatePane(intent: Intent) = MechanicCollectionFragment()
+    override fun createPane() = MechanicCollectionFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,6 +29,7 @@ class MechanicActivity : SimpleSinglePaneActivity() {
 
     override val optionsMenuId = R.menu.mechanic
 
+    @Suppress("SpellCheckingInspection")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_view -> linkToBgg("boardgamemechanic", id)

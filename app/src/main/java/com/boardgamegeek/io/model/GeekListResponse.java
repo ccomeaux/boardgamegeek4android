@@ -21,6 +21,6 @@ public class GeekListResponse {
 	@Element public String title;
 	@Element public String description;
 	@ElementList(name = "comment", inline = true, required = false)
-	public List<GeekListComment> comments;
-	@ElementList(name = "item", inline = true, required = false) public List<GeekListItem> items;
+	public List<GeekListCommentRemote> comments;
+	@ElementList(name = "item", inline = true, required = false) public List<GeekListItemRemote> items;
 }

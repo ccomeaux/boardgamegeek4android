@@ -4,36 +4,32 @@ import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.Play
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
+import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class PlaysViewModel @Inject constructor(
     application: Application,
-    private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    private val playsRateLimiter = RateLimiter<Int>(10.minutes)
+    private val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
 
     private data class PlayInfo(
         val mode: Mode,
         val name: String = "",
         val id: Int = BggContract.INVALID_ID,
-        val filter: FilterType = FilterType.ALL,
-        val sort: SortType = SortType.DATE
     )
 
     enum class Mode {
@@ -54,67 +50,85 @@ class PlaysViewModel @Inject constructor(
     val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<Event<String>> = _errorMessage.map { Event(it) }
+    private val _errorMessage = EventLiveData()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
 
-    private val _syncingStatus = MutableLiveData<Boolean>()
-    val syncingStatus: LiveData<Boolean>
-        get() = _syncingStatus
+    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
+    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
+        get() = _loggedPlayResult
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = playInfo.switchMap {
+    private val _isRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
+
+    private val _plays = MediatorLiveData<List<Play>>()
+    val plays: LiveData<List<Play>>
+        get() = _plays
+
+    private val _filterType = MutableLiveData<FilterType>()
+    val filterType: LiveData<FilterType>
+        get() = _filterType
+
+    private val _sortType = MutableLiveData<SortType>()
+    val sortType: LiveData<SortType>
+        get() = _sortType
+
+    private val allPlays: LiveData<List<Play>> = playInfo.switchMap {
         liveData {
-            try {
-                val list = loadPlays(it)
-                val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(it.id)) {
-                    emit(RefreshableResource.refreshing(list))
-                    when (it.mode) {
-                        Mode.GAME -> playRepository.refreshPlaysForGame(it.id)
-                        else -> playRepository.refreshPlays()
-                    }
-                    loadPlays(it)
-                } else list
-                emit(RefreshableResource.success(refreshedList))
-            } catch (e: Exception) {
-                playsRateLimiter.reset(0)
-                emit(RefreshableResource.error(e, getApplication()))
+            val list: Flow<List<Play>> = when (it.mode) {
+                Mode.ALL -> playRepository.loadPlaysFlow()
+                Mode.GAME -> playRepository.loadPlaysByGameFlow(it.id)
+                Mode.LOCATION -> playRepository.loadPlaysByLocationFlow(it.name)
+                Mode.BUDDY -> playRepository.loadPlaysByUsernameFlow(it.name)
+                Mode.PLAYER -> playRepository.loadPlaysByPlayerNameFlow(it.name)
             }
+            emitSource(list.distinctUntilChanged().asLiveData())
         }
     }
 
-    fun refresh() {
-        playInfo.value.let { playInfo.value = it }
-    }
-
-    private suspend fun loadPlays(it: PlayInfo) = when (it.mode) {
-        Mode.ALL -> {
-            val sortType = when (it.sort) {
-                SortType.DATE -> PlayRepository.SortBy.DATE
-                SortType.LOCATION -> PlayRepository.SortBy.LOCATION
-                SortType.GAME -> PlayRepository.SortBy.GAME
-                SortType.LENGTH -> PlayRepository.SortBy.LENGTH
-            }
-            when (it.filter) {
-                FilterType.ALL -> playRepository.getPlays(sortType)
-                FilterType.DIRTY -> playRepository.getDraftPlays()
-                FilterType.PENDING -> playRepository.getPendingPlays()
-            }
+    init {
+        _plays.addSource(allPlays) { list ->
+            filterAndSortPlays(list, sortType.value, filterType.value)
         }
-        Mode.GAME -> gameRepository.getPlays(it.id)
-        Mode.LOCATION -> playRepository.loadPlaysByLocation(it.name)
-        Mode.BUDDY -> playRepository.loadPlaysByUsername(it.name)
-        Mode.PLAYER -> playRepository.loadPlaysByPlayerName(it.name)
+        _plays.addSource(sortType) {
+            filterAndSortPlays(allPlays.value, it, filterType.value)
+        }
+        _plays.addSource(filterType) {
+            filterAndSortPlays(allPlays.value, sortType.value, it)
+        }
     }
 
-    val filterType: LiveData<FilterType> = playInfo.map {
-        it.filter
-    }
-
-    val sortType: LiveData<SortType> = playInfo.map {
-        it.sort
+    private fun filterAndSortPlays(
+        list: List<Play>?,
+        sortType: SortType?,
+        filterType: FilterType?,
+    ) {
+        if (list == null) return
+        val filteredList = when (filterType) {
+            FilterType.ALL -> list.filter { it.deleteTimestamp == 0L }
+            FilterType.DIRTY -> list.filter { it.dirtyTimestamp > 0L }
+            FilterType.PENDING -> list.filter { it.updateTimestamp > 0L || it.deleteTimestamp > 0L }
+            null -> list
+        }
+        val sortedList = when (sortType) {
+            SortType.DATE -> filteredList.sortedByDescending { it.dateInMillis }
+            SortType.LOCATION -> filteredList.sortedBy { it.location }
+            SortType.GAME -> filteredList.sortedBy { it.gameName }
+            SortType.LENGTH -> filteredList.sortedByDescending { it.length }
+            null -> filteredList.sortedByDescending { it.dateInMillis }
+        }
+        _plays.postValue(sortedList)
     }
 
     val location: LiveData<String> = playInfo.map {
         if (it.mode == Mode.LOCATION) it.name else ""
+    }
+
+    fun setAll() {
+        setFilter(FilterType.ALL)
+        setSort(SortType.DATE)
+        playInfo.value = PlayInfo(Mode.ALL)
     }
 
     fun setGame(gameId: Int) {
@@ -134,15 +148,11 @@ class PlaysViewModel @Inject constructor(
     }
 
     fun setFilter(type: FilterType) {
-        if (playInfo.value?.filter != type) {
-            playInfo.value = PlayInfo(Mode.ALL, filter = type, sort = playInfo.value?.sort ?: SortType.DATE)
-        }
+        if (_filterType.value != type) _filterType.value = type
     }
 
     fun setSort(type: SortType) {
-        if (playInfo.value?.sort != type) {
-            playInfo.value = PlayInfo(Mode.ALL, filter = playInfo.value?.filter ?: FilterType.ALL, sort = type)
-        }
+        if (sortType.value != type) _sortType.value = type
     }
 
     fun renameLocation(oldLocationName: String, newLocationName: String) {
@@ -162,21 +172,57 @@ class PlaysViewModel @Inject constructor(
         }
     }
 
-    fun syncPlaysByDate(timeInMillis: Long) {
+    fun refresh() {
         viewModelScope.launch {
             try {
-                _syncingStatus.postValue(true)
-                playRepository.refreshPlaysForDate(timeInMillis)
-                refresh()
+                if (syncPlays.value == true && _isRefreshing.value != true) {
+                    _isRefreshing.postValue(true)
+                    val id = playInfo.value?.id ?: 0
+                    when (playInfo.value?.mode) {
+                        Mode.GAME -> playRepository.refreshPlaysForGame(id)
+                        else -> playRepository.refreshRecentPlays()
+                    }
+                }
             } catch (e: Exception) {
-                _errorMessage.postValue(e.localizedMessage ?: e.message ?: e.toString())
+                _errorMessage.postMessage(e)
             } finally {
-                _syncingStatus.postValue(false)
+                _isRefreshing.postValue(false)
             }
         }
     }
 
-    fun send(plays: List<PlayEntity>) {
+    fun refreshPlaysByDate(timeInMillis: Long) {
+        viewModelScope.launch {
+            try {
+                if (syncPlays.value == true && _isRefreshing.value != true) {
+                    _isRefreshing.postValue(true)
+                    playRepository.refreshPlaysForDate(timeInMillis)?.let {
+                        _errorMessage.postMessage(it)
+                    }
+                }
+            } catch (e: Exception) {
+                _errorMessage.postMessage(e)
+            } finally {
+                _isRefreshing.postValue(false)
+            }
+        }
+    }
+
+    fun logQuickPlay(gameId: Int, gameName: String) {
+        viewModelScope.launch {
+            val result = playRepository.logQuickPlay(gameId, gameName)
+            if (result.isFailure)
+                result.exceptionOrNull()?.let { _errorMessage.setMessage(it) }
+            else {
+                result.getOrNull()?.let {
+                    if (it.play.playId != BggContract.INVALID_ID)
+                        _loggedPlayResult.value = Event(it)
+                }
+            }
+        }
+    }
+
+    fun send(plays: List<Play>) {
         viewModelScope.launch {
             val idsToSend = mutableListOf<Long>()
             plays.forEach {
@@ -187,7 +233,7 @@ class PlaysViewModel @Inject constructor(
         }
     }
 
-    fun delete(plays: List<PlayEntity>) {
+    fun delete(plays: List<Play>) {
         viewModelScope.launch {
             val idsDeleted = mutableListOf<Long>()
             plays.forEach {

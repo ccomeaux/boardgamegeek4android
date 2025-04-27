@@ -1,13 +1,15 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.db.PublisherDao
-import com.boardgamegeek.entities.CompanyEntity
+import com.boardgamegeek.BggApplication
+import com.boardgamegeek.model.Company
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
@@ -17,14 +19,8 @@ class PublishersViewModel @Inject constructor(
     application: Application,
     private val publisherRepository: PublisherRepository,
 ) : AndroidViewModel(application) {
-    enum class SortType {
-        NAME, ITEM_COUNT, WHITMORE_SCORE
-    }
-
-    private val prefs: SharedPreferences by lazy { application.preferences() }
-
-    private val _sort = MutableLiveData<PublishersSort>()
-    val sort: LiveData<PublishersSort>
+    private val _sort = MutableLiveData<Company.SortType>()
+    val sort: LiveData<Company.SortType>
         get() = _sort
 
     private val _progress = MutableLiveData<Pair<Int, Int>>()
@@ -34,77 +30,59 @@ class PublishersViewModel @Inject constructor(
     private var isCalculating = AtomicBoolean()
 
     init {
-        val initialSort = if (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED))
-            SortType.WHITMORE_SCORE
+        val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
+            Company.SortType.WHITMORE_SCORE
         else
-            SortType.ITEM_COUNT
+            Company.SortType.ITEM_COUNT
         sort(initialSort)
+        refreshMissingThumbnails()
+        calculateStats()
     }
 
     val publishers = _sort.switchMap {
-        liveData {
-            val publishers = publisherRepository.loadPublishers(it.sortBy)
-            emit(publishers)
-            val lastCalculation = prefs[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
+        liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
+            sort.value?.let {
+                emitSource(publisherRepository.loadPublishersFlow(it).distinctUntilChanged().asLiveData())
+            }
+        }
+    }
+
+    private fun refreshMissingThumbnails() {
+        viewModelScope.launch {
+            publisherRepository.refreshMissingThumbnails()
+        }
+    }
+
+    private fun calculateStats() {
+        viewModelScope.launch {
+            val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
             if (lastCalculation.isOlderThan(1.hours) &&
                 isCalculating.compareAndSet(false, true)
             ) {
-                publisherRepository.calculateWhitmoreScores(publishers, _progress)
-                emit(publisherRepository.loadPublishers(it.sortBy))
+                publisherRepository.calculateStats(_progress)
                 isCalculating.set(false)
             }
         }
     }
 
-    fun sort(sortType: SortType) {
-        if (_sort.value?.sortType != sortType) {
-            _sort.value = when (sortType) {
-                SortType.NAME -> PublishersSort.ByName()
-                SortType.ITEM_COUNT -> PublishersSort.ByItemCount()
-                SortType.WHITMORE_SCORE -> PublishersSort.ByWhitmoreScore()
-            }
-        }
+    fun sort(sortType: Company.SortType) {
+        if (_sort.value != sortType) _sort.value = sortType
     }
 
-    fun refresh() {
+    fun reload() {
         _sort.value?.let { _sort.value = it }
     }
 
-    fun getSectionHeader(publisher: CompanyEntity?): String {
-        return _sort.value?.getSectionHeader(publisher).orEmpty()
+    fun getSectionHeader(publisher: Company?): String {
+        return when(sort.value) {
+            Company.SortType.NAME -> if (publisher?.name == "(Uncredited)") DEFAULT_HEADER else publisher?.name.firstChar()
+            Company.SortType.ITEM_COUNT -> (publisher?.itemCount ?: 0).orderOfMagnitude()
+            Company.SortType.WHITMORE_SCORE -> (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
+            else -> DEFAULT_HEADER
+        }
     }
 
-    sealed class PublishersSort {
-        abstract val sortType: SortType
-        abstract val sortBy: PublisherDao.SortType
-        abstract fun getSectionHeader(publisher: CompanyEntity?): String
-
-        class ByName : PublishersSort() {
-            override val sortType = SortType.NAME
-            override val sortBy = PublisherDao.SortType.NAME
-            override fun getSectionHeader(publisher: CompanyEntity?): String {
-                return when {
-                    publisher == null -> ""
-                    publisher.name.startsWith("(") -> "-"
-                    else -> publisher.name.firstChar()
-                }
-            }
-        }
-
-        class ByItemCount : PublishersSort() {
-            override val sortType = SortType.ITEM_COUNT
-            override val sortBy = PublisherDao.SortType.ITEM_COUNT
-            override fun getSectionHeader(publisher: CompanyEntity?): String {
-                return (publisher?.itemCount ?: 0).orderOfMagnitude()
-            }
-        }
-
-        class ByWhitmoreScore : PublishersSort() {
-            override val sortType = SortType.WHITMORE_SCORE
-            override val sortBy = PublisherDao.SortType.WHITMORE_SCORE
-            override fun getSectionHeader(publisher: CompanyEntity?): String {
-                return (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
-            }
-        }
+    companion object {
+        private const val DEFAULT_HEADER = "-"
     }
 }

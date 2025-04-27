@@ -1,112 +1,42 @@
 package com.boardgamegeek.db
 
-import android.content.ContentValues
-import android.content.Context
-import androidx.core.database.getIntOrNull
-import androidx.core.database.getLongOrNull
-import androidx.core.database.getStringOrNull
-import com.boardgamegeek.entities.CompanyEntity
-import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract.Publishers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import timber.log.Timber
+import androidx.room.*
+import com.boardgamegeek.db.model.*
+import kotlinx.coroutines.flow.Flow
+import java.util.Date
 
-class PublisherDao(private val context: Context) {
-    private val collectionDao = CollectionDao(context)
+@Dao
+interface PublisherDao {
+    @Query("SELECT * FROM publishers")
+    suspend fun loadPublishers(): List<PublisherEntity>
 
-    enum class SortType {
-        NAME, ITEM_COUNT, WHITMORE_SCORE
-    }
+    @Query("SELECT publishers.*, COUNT(game_id) AS itemCount FROM publishers LEFT OUTER JOIN games_publishers ON publishers.publisher_id = games_publishers.publisher_id GROUP BY games_publishers.publisher_id")
+    fun loadPublishersFlow(): Flow<List<PublisherWithItemCount>>
 
-    suspend fun loadPublishers(sortBy: SortType): List<CompanyEntity> = withContext(Dispatchers.IO) {
-        val sortByName = Publishers.Columns.PUBLISHER_NAME.collateNoCase().ascending()
-        val sortOrder = when (sortBy) {
-            SortType.NAME -> sortByName
-            SortType.ITEM_COUNT -> Publishers.Columns.ITEM_COUNT.descending().plus(", $sortByName")
-            SortType.WHITMORE_SCORE -> Publishers.Columns.WHITMORE_SCORE.descending().plus(", $sortByName")
-        }
-        context.contentResolver.loadList(
-            Publishers.CONTENT_URI,
-            arrayOf(
-                Publishers.Columns.PUBLISHER_ID,
-                Publishers.Columns.PUBLISHER_NAME,
-                Publishers.Columns.PUBLISHER_DESCRIPTION,
-                Publishers.Columns.PUBLISHER_IMAGE_URL,
-                Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
-                Publishers.Columns.PUBLISHER_HERO_IMAGE_URL,
-                Publishers.Columns.UPDATED,
-                Publishers.Columns.ITEM_COUNT,
-                Publishers.Columns.WHITMORE_SCORE,
-                Publishers.Columns.PUBLISHER_STATS_UPDATED_TIMESTAMP,
-                Publishers.Columns.PUBLISHER_SORT_NAME,
-            ),
-            sortOrder = sortOrder
-        ) {
-            CompanyEntity(
-                id = it.getInt(0),
-                name = it.getStringOrNull(1).orEmpty(),
-                sortName = it.getStringOrNull(10).orEmpty(),
-                description = it.getStringOrNull(2).orEmpty(),
-                imageUrl = it.getStringOrNull(3).orEmpty(),
-                thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                heroImageUrl = it.getStringOrNull(5).orEmpty(),
-                updatedTimestamp = it.getLongOrNull(6) ?: 0L,
-                itemCount = it.getIntOrNull(7) ?: 0,
-                whitmoreScore = it.getIntOrNull(8) ?: 0,
-                statsUpdatedTimestamp = it.getLongOrNull(9) ?: 0L,
-            )
-        }
-    }
+    @Query("SELECT * FROM publishers WHERE publisher_id=:publisherId")
+    suspend fun loadPublisher(publisherId: Int): PublisherEntity?
 
-    suspend fun loadPublisher(id: Int): CompanyEntity? = withContext(Dispatchers.IO) {
-        context.contentResolver.loadEntity(
-            Publishers.buildPublisherUri(id),
-            arrayOf(
-                Publishers.Columns.PUBLISHER_ID,
-                Publishers.Columns.PUBLISHER_NAME,
-                Publishers.Columns.PUBLISHER_DESCRIPTION,
-                Publishers.Columns.PUBLISHER_IMAGE_URL,
-                Publishers.Columns.PUBLISHER_THUMBNAIL_URL,
-                Publishers.Columns.PUBLISHER_HERO_IMAGE_URL,
-                Publishers.Columns.UPDATED,
-                Publishers.Columns.WHITMORE_SCORE,
-                Publishers.Columns.PUBLISHER_SORT_NAME,
-            )
-        ) {
-            CompanyEntity(
-                id = it.getInt(0),
-                name = it.getStringOrNull(1).orEmpty(),
-                sortName = it.getStringOrNull(8).orEmpty(),
-                description = it.getStringOrNull(2).orEmpty(),
-                imageUrl = it.getStringOrNull(3).orEmpty(),
-                thumbnailUrl = it.getStringOrNull(4).orEmpty(),
-                heroImageUrl = it.getStringOrNull(5).orEmpty(),
-                updatedTimestamp = it.getLongOrNull(6) ?: 0L,
-                whitmoreScore = it.getIntOrNull(7) ?: 0,
-            )
-        }
-    }
+    @Query("SELECT * FROM publishers WHERE publisher_id=:publisherId")
+    fun loadPublisherFlow(publisherId: Int): Flow<PublisherEntity?>
 
-    suspend fun loadCollection(publisherId: Int, sortBy: CollectionDao.SortType = CollectionDao.SortType.RATING) =
-        collectionDao.loadLinkedCollection(Publishers.buildCollectionUri(publisherId), sortBy)
+    @Query("SELECT publishers.* FROM publishers LEFT OUTER JOIN games_publishers ON publishers.publisher_id = games_publishers.publisher_id  WHERE game_id = :gameId")
+    suspend fun loadPublishersForGame(gameId: Int): List<PublisherEntity>
 
-    suspend fun upsert(publisherId: Int, values: ContentValues): Int = withContext(Dispatchers.IO) {
-        val resolver = context.contentResolver
-        val uri = Publishers.buildPublisherUri(publisherId)
-        if (resolver.rowExists(uri)) {
-            val count = resolver.update(uri, values, null, null)
-            Timber.d("Updated %,d publisher rows at %s", count, uri)
-            count
-        } else {
-            values.put(Publishers.Columns.PUBLISHER_ID, publisherId)
-            val insertedUri = resolver.insert(Publishers.CONTENT_URI, values)
-            Timber.d("Inserted publisher at %s", insertedUri)
-            1
-        }
-    }
+    @Query("UPDATE publishers SET publisher_hero_image_url=:url WHERE publisher_id=:publisherId")
+    suspend fun updateHeroImageUrl(publisherId: Int, url: String)
 
-    suspend fun delete(): Int = withContext(Dispatchers.IO) {
-        context.contentResolver.delete(Publishers.CONTENT_URI, null, null)
-    }
+    @Query("UPDATE publishers SET whitmore_score=:score, publisher_stats_updated_timestamp=:timestamp WHERE publisher_id=:publisherId")
+    suspend fun updateWhitmoreScore(publisherId: Int, score: Int, timestamp: Date)
+
+    @Insert(PublisherEntity::class)
+    suspend fun insert(publisher: PublisherForUpsert)
+
+    @Update(PublisherEntity::class)
+    suspend fun update(publisher: PublisherForUpsert)
+
+    @Insert(PublisherEntity::class, onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(publisher: PublisherBriefForUpsert)
+
+    @Query("DELETE FROM publishers")
+    suspend fun deleteAll(): Int
 }

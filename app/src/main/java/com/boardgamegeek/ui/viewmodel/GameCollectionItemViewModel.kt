@@ -3,16 +3,18 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
-import com.boardgamegeek.entities.CollectionItemEntity
-import com.boardgamegeek.entities.RefreshableResource
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.getIconColor
-import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.extensions.isOlderThan
+import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -23,14 +25,12 @@ class GameCollectionItemViewModel @Inject constructor(
     application: Application,
     private val gameCollectionRepository: GameCollectionRepository,
 ) : AndroidViewModel(application) {
-    private val isItemRefreshing = AtomicBoolean()
-    private val isImageRefreshing = AtomicBoolean()
-    private val forceRefresh = AtomicBoolean()
+    private val isItemRefreshing = AtomicBoolean(false)
+    private val isImageRefreshing = AtomicBoolean(false)
+    private val forceRefresh = AtomicBoolean(false)
     private val refreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
 
     private val _internalId = MutableLiveData<Long>()
-    val internalId: LiveData<Long>
-        get() = _internalId
 
     private val _isEditMode = MutableLiveData<Boolean>()
     val isEditMode: LiveData<Boolean>
@@ -40,9 +40,19 @@ class GameCollectionItemViewModel @Inject constructor(
     val isEdited: LiveData<Boolean>
         get() = _isEdited.distinctUntilChanged()
 
+    private val _isItemRefreshing = MutableLiveData<Boolean>()
+    private val _isImageRefreshing = MutableLiveData<Boolean>()
+    val isRefreshing = MediatorLiveData<Boolean>()
+
+    private val _error = EventLiveData()
+    val error: LiveData<Event<String>>
+        get() = _error
+
     init {
         _isEditMode.value = false
         _isEdited.value = false
+        isRefreshing.addSource(_isItemRefreshing) { isRefreshing.value = (it || _isImageRefreshing.value ?: false) }
+        isRefreshing.addSource(_isImageRefreshing) { isRefreshing.value = (it || _isItemRefreshing.value ?: false) }
     }
 
     fun setInternalId(id: Long) {
@@ -57,43 +67,62 @@ class GameCollectionItemViewModel @Inject constructor(
         _isEditMode.value = false
     }
 
-    val item: LiveData<RefreshableResource<CollectionItemEntity>> = _internalId.switchMap { internalId ->
+    val item: LiveData<CollectionItem?> = _internalId.switchMap { internalId ->
         liveData {
-            try {
-                latestValue?.data?.let { emit(RefreshableResource.refreshing(it)) }
-                val item = gameCollectionRepository.loadCollectionItem(internalId)
-                emit(RefreshableResource.success(item))
-                item?.let {
-                    if (it.isDirty)
-                        gameCollectionRepository.enqueueUploadRequest(it.gameId)
-                    if (isItemRefreshing.compareAndSet(false, true)) {
-                        val refreshedItem = if (
-                            forceRefresh.get() ||
-                            it.syncTimestamp.isOlderThan(refreshMinutes.minutes)
-                        ) {
-                            emit(RefreshableResource.refreshing(it))
-                            gameCollectionRepository.refreshCollectionItem(it.gameId, it.collectionId, it.subtype)
-                            val loadedItem = gameCollectionRepository.loadCollectionItem(internalId)
-                            emit(RefreshableResource.success(loadedItem))
-                            loadedItem ?: it
-                        } else it
+            val flow = gameCollectionRepository.loadCollectionItemFlow(internalId)
+            emitSource(flow.distinctUntilChanged()
+                .onEach {
+                    if (latestValue == null) attemptUpload()
+                    attemptRefresh(it)
+                    refreshImage()
+                }
+                .asLiveData()
+            )
+        }
+    }
 
-                        if ((refreshedItem.heroImageUrl.isBlank() || refreshedItem.heroImageUrl.getImageId() != refreshedItem.thumbnailUrl.getImageId())
-                            && isImageRefreshing.compareAndSet(false, true)
-                        ) {
-                            emit(RefreshableResource.refreshing(refreshedItem))
-                            val itemWithImage = gameCollectionRepository.refreshHeroImage(refreshedItem)
-                            emit(RefreshableResource.success(itemWithImage))
-                            isImageRefreshing.set(false)
+    fun refresh() {
+        forceRefresh.set(true)
+        attemptRefresh(item.value)
+    }
+
+    private fun attemptRefresh(collectionItem: CollectionItem?) {
+        viewModelScope.launch {
+            collectionItem?.let {
+                if (forceRefresh.get() || it.syncTimestamp.isOlderThan(refreshMinutes.minutes)) {
+                    if (isItemRefreshing.compareAndSet(false, true)) {
+                        try {
+                            _isItemRefreshing.value = true
+                            gameCollectionRepository.refreshCollectionItem(it.gameId, it.collectionId, it.subtype)?.let { errorMessage ->
+                                _error.setMessage(errorMessage)
+                            }
+                        } catch (e: Exception) {
+                            _error.setMessage(e)
+                        } finally {
+                            isItemRefreshing.set(false)
+                            _isItemRefreshing.value = false
                         }
-                        isItemRefreshing.set(false)
                         forceRefresh.set(false)
                     }
                 }
-            } catch (e: Exception) {
-                emit(RefreshableResource.error(e, application))
-                isItemRefreshing.set(false)
-                isImageRefreshing.set(false)
+            }
+        }
+    }
+
+    private fun refreshImage() {
+        viewModelScope.launch {
+            item.value?.let {
+                if (it.doesHeroImageNeedUpdating()) {
+                    if (isImageRefreshing.compareAndSet(false, true)) {
+                        try {
+                            _isImageRefreshing.value = true
+                            gameCollectionRepository.refreshHeroImage(it)
+                        } finally {
+                            isImageRefreshing.set(false)
+                            _isImageRefreshing.value = false
+                        }
+                    }
+                }
             }
         }
     }
@@ -110,10 +139,6 @@ class GameCollectionItemViewModel @Inject constructor(
     val iconColor: LiveData<Int>
         get() = _iconColor
 
-    fun refresh() {
-        _internalId.value?.let { _internalId.value = it }
-    }
-
     fun updateGameColors(palette: Palette?) {
         palette?.let { _iconColor.value = it.getIconColor() }
     }
@@ -128,7 +153,7 @@ class GameCollectionItemViewModel @Inject constructor(
         acquiredFrom: String?,
         inventoryLocation: String?
     ) {
-        val itemModified = item.value?.data?.let {
+        val itemModified = item.value?.let {
             priceCurrency != it.pricePaidCurrency ||
                     pricePaid != it.pricePaid ||
                     currentValueCurrency != it.currentValueCurrency ||
@@ -142,7 +167,7 @@ class GameCollectionItemViewModel @Inject constructor(
             _isEdited.value = true
             viewModelScope.launch {
                 gameCollectionRepository.updatePrivateInfo(
-                    internalId.value ?: BggContract.INVALID_ID.toLong(),
+                    getInternalId(),
                     priceCurrency,
                     pricePaid,
                     currentValueCurrency,
@@ -152,13 +177,12 @@ class GameCollectionItemViewModel @Inject constructor(
                     acquiredFrom,
                     inventoryLocation
                 )
-                refresh()
             }
         }
     }
 
     fun updateStatuses(statuses: List<String>, wishlistPriority: Int) {
-        val itemModified = item.value?.data?.let {
+        val itemModified = item.value?.let {
             statuses.contains(Collection.Columns.STATUS_OWN) != it.own ||
                     statuses.contains(Collection.Columns.STATUS_OWN) != it.own ||
                     statuses.contains(Collection.Columns.STATUS_PREVIOUSLY_OWNED) != it.previouslyOwned ||
@@ -172,45 +196,54 @@ class GameCollectionItemViewModel @Inject constructor(
         if (itemModified) {
             _isEdited.value = true
             viewModelScope.launch {
-                gameCollectionRepository.updateStatuses(internalId.value ?: BggContract.INVALID_ID.toLong(), statuses, wishlistPriority)
-                refresh()
+                gameCollectionRepository.updateStatus(
+                    getInternalId(),
+                    statusOwn = statuses.contains(Collection.Columns.STATUS_OWN),
+                    statusPreordered = statuses.contains(Collection.Columns.STATUS_PREORDERED),
+                    statusPreviouslyOwned = statuses.contains(Collection.Columns.STATUS_PREVIOUSLY_OWNED),
+                    statusForTrade = statuses.contains(Collection.Columns.STATUS_FOR_TRADE),
+                    statusWant = statuses.contains(Collection.Columns.STATUS_WANT),
+                    statusWantToPlay = statuses.contains(Collection.Columns.STATUS_WANT_TO_PLAY),
+                    statusWantToBuy = statuses.contains(Collection.Columns.STATUS_WANT_TO_BUY),
+                    statusWishlist = statuses.contains(Collection.Columns.STATUS_WISHLIST),
+                    statusWishlistPriority = wishlistPriority,
+                )
             }
         }
     }
 
     fun updateRating(rating: Double) {
-        val currentRating = item.value?.data?.rating ?: 0.0
+        val currentRating = item.value?.rating ?: 0.0
         if (rating != currentRating) {
             _isEdited.value = true
             viewModelScope.launch {
-                gameCollectionRepository.updateRating(internalId.value ?: BggContract.INVALID_ID.toLong(), rating)
-                refresh()
+                gameCollectionRepository.updateRating(getInternalId(), rating)
             }
         }
     }
 
     fun updateComment(text: String, originalText: String?) {
-        updateText(text, originalText) { gameCollectionRepository.updateComment(internalId.value ?: BggContract.INVALID_ID.toLong(), it) }
+        updateText(text, originalText) { gameCollectionRepository.updateComment(getInternalId(), it) }
     }
 
     fun updatePrivateComment(text: String, originalText: String?) {
-        updateText(text, originalText) { gameCollectionRepository.updatePrivateComment(internalId.value ?: BggContract.INVALID_ID.toLong(), it) }
+        updateText(text, originalText) { gameCollectionRepository.updatePrivateComment(getInternalId(), it) }
     }
 
     fun updateWishlistComment(text: String, originalText: String?) {
-        updateText(text, originalText) { gameCollectionRepository.updateWishlistComment(internalId.value ?: BggContract.INVALID_ID.toLong(), it) }
+        updateText(text, originalText) { gameCollectionRepository.updateWishlistComment(getInternalId(), it) }
     }
 
     fun updateCondition(text: String, originalText: String?) {
-        updateText(text, originalText) { gameCollectionRepository.updateCondition(internalId.value ?: BggContract.INVALID_ID.toLong(), it) }
+        updateText(text, originalText) { gameCollectionRepository.updateCondition(getInternalId(), it) }
     }
 
     fun updateHasParts(text: String, originalText: String?) {
-        updateText(text, originalText) { gameCollectionRepository.updateHasParts(internalId.value ?: BggContract.INVALID_ID.toLong(), it) }
+        updateText(text, originalText) { gameCollectionRepository.updateHasParts(getInternalId(), it) }
     }
 
     fun updateWantParts(text: String, originalText: String?) {
-        updateText(text, originalText) { gameCollectionRepository.updateWantParts(internalId.value ?: BggContract.INVALID_ID.toLong(), it) }
+        updateText(text, originalText) { gameCollectionRepository.updateWantParts(getInternalId(), it) }
     }
 
     private fun updateText(text: String, originalText: String?, update: suspend (String) -> Unit) {
@@ -218,33 +251,40 @@ class GameCollectionItemViewModel @Inject constructor(
             _isEdited.value = true
             viewModelScope.launch {
                 update(text)
-            }.invokeOnCompletion { refresh() }
+            }
         }
     }
 
     fun delete() {
         _isEdited.value = false
         viewModelScope.launch {
-            if (gameCollectionRepository.markAsDeleted(internalId.value ?: BggContract.INVALID_ID.toLong()) > 0) {
-                item.value?.data?.gameId?.let { gameCollectionRepository.enqueueUploadRequest(it) }
+            if (gameCollectionRepository.markAsDeleted(getInternalId()) > 0) {
+                item.value?.gameId?.let { gameCollectionRepository.enqueueUploadRequest(it) }
             }
         }
     }
 
     fun update() {
-        _isEdited.value = false
-        viewModelScope.launch {
-            item.value?.data?.gameId?.let { gameCollectionRepository.enqueueUploadRequest(it) }
-        }
+        _isEditMode.value = false
+        attemptUpload()
     }
 
+    private fun attemptUpload() {
+        item.value?.let {
+            if (it.isDirty && _isEditMode.value == false && _isEdited.value == true) {
+                gameCollectionRepository.enqueueUploadRequest(it.gameId)
+                _isEdited.value = false
+            }
+        }
+    }
 
     fun reset() {
         _isEdited.value = false
         viewModelScope.launch {
-            gameCollectionRepository.resetTimestamps(internalId.value ?: BggContract.INVALID_ID.toLong())
-            forceRefresh.set(true)
+            gameCollectionRepository.resetTimestamps(getInternalId())
             refresh()
         }
     }
+
+    private fun getInternalId() = _internalId.value ?: BggContract.INVALID_ID.toLong()
 }

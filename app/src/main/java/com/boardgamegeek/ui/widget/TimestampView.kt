@@ -8,7 +8,6 @@ import android.text.SpannedString
 import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.withStyledAttributes
-import androidx.core.view.ViewCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.extensions.trimTrailingWhitespace
@@ -79,7 +78,7 @@ class TimestampView @JvmOverloads constructor(
 
     @Synchronized
     override fun updateText() {
-        if (!ViewCompat.isAttachedToWindow(this@TimestampView)) return
+        if (!this@TimestampView.isAttachedToWindow) return
         if (timestamp <= 0) {
             if (hideWhenEmpty) visibility = View.GONE
             text = defaultMessage

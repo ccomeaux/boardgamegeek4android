@@ -14,19 +14,19 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionViewEntity
+import com.boardgamegeek.model.CollectionView
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class CollectionActivity : TopLevelSinglePaneActivity() {
-    private var viewId: Long = 0
+    private var viewId: Int = CollectionViewPrefs.DEFAULT_DEFAULT_ID
     private var isCreatingShortcut = false
     private var changingGamePlayId: Long = BggContract.INVALID_ID.toLong()
     private var hideNavigation = false
@@ -59,26 +59,31 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 }
             }
         }
+        viewModel.toastMessage.observe(this) {
+            it.getContentIfNotHandled()?.let { message ->
+                toast(message)
+            }
+        }
         viewModel.loggedPlayResult.observe(this) { event ->
             event.getContentIfNotHandled()?.let {
                 notifyLoggedPlay(it)
             }
         }
-        viewModel.selectedViewId.observe(this) { id: Long -> viewId = id }
+        viewModel.selectedViewId.observe(this) { id -> id?.let { viewId = it } }
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
             }
             selectView(
-                if (hideNavigation) CollectionView.DEFAULT_DEFAULT_ID else intent.getLongExtra(KEY_VIEW_ID, viewModel.defaultViewId),
-                !hideNavigation
+                if (hideNavigation) CollectionViewPrefs.DEFAULT_DEFAULT_ID else intent.getIntExtra(KEY_VIEW_ID, viewModel.defaultViewId.value ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID),
+                false
             )
         }
     }
 
-    override fun readIntent(intent: Intent) {
-        isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT == getIntent().action
-        changingGamePlayId = getIntent().getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong())
+    override fun readIntent() {
+        isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT == intent.action
+        changingGamePlayId = intent.getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong())
         hideNavigation = isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()
     }
 
@@ -87,14 +92,14 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
         findViewById<AppCompatSpinner>(R.id.menu_spinner)?.let {
             it.onItemSelectedListener = object : OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    selectView(id)
+                    selectView(id.toInt())
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) { // Do nothing
                 }
             }
             it.adapter = adapter
-            viewModel.views.observe(this) { collectionViews: List<CollectionViewEntity?> ->
+            viewModel.views.observe(this) { collectionViews: List<CollectionView?> ->
                 if (collectionViews.isNotEmpty()) {
                     adapter.clear()
                     adapter.addAll(collectionViews)
@@ -105,7 +110,7 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
         return true
     }
 
-    private fun selectView(id: Long, logEvent: Boolean = true) {
+    private fun selectView(id: Int, logEvent: Boolean = true) {
         viewModel.selectView(id)
         if (logEvent) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_ITEM) {
@@ -151,7 +156,7 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
             context.startActivity<CollectionActivity>(KEY_CHANGING_GAME_PLAY_ID to playId)
         }
 
-        fun createShortcutInfo(context: Context, viewId: Long, viewName: String): ShortcutInfoCompat {
+        fun createShortcutInfo(context: Context, viewId: Int, viewName: String): ShortcutInfoCompat {
             val intent = context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
                 .clearTask()
                 .newTask()
@@ -164,6 +169,6 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 .build()
         }
 
-        fun createShortcutName(viewId: Long) = "collection_view-$viewId"
+        fun createShortcutName(viewId: Int) = "collection_view-$viewId"
     }
 }

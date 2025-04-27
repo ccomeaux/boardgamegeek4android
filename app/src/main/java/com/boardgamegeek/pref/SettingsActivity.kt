@@ -13,8 +13,10 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
+import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE_CURRENT
 import com.boardgamegeek.ui.DrawerActivity
-import com.boardgamegeek.ui.viewmodel.SyncViewModel
+import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import com.boardgamegeek.work.SyncCollectionWorker
 import com.boardgamegeek.work.SyncPlaysWorker
 import com.boardgamegeek.work.SyncUsersWorker
@@ -36,13 +38,14 @@ class SettingsActivity : DrawerActivity() {
 
         if (savedInstanceState == null) {
             val prefFragment = PrefFragment()
-            val args = Bundle()
             when (intent.action) {
-                getString(R.string.intent_action_account) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_ACCOUNT)
-                getString(R.string.intent_action_sync) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_SYNC)
-                getString(R.string.intent_action_data) -> args.putString(KEY_SETTINGS_FRAGMENT, ACTION_DATA)
+                getString(R.string.intent_action_account) -> ACTION_ACCOUNT
+                getString(R.string.intent_action_sync) -> ACTION_SYNC
+                getString(R.string.intent_action_data) -> ACTION_DATA
+                else -> null
+            }?.let {
+                prefFragment.arguments = bundleOf(KEY_SETTINGS_FRAGMENT to it)
             }
-            prefFragment.arguments = args
             supportFragmentManager.beginTransaction().add(R.id.root_container, prefFragment, TAG_SINGLE_PANE).commit()
         }
     }
@@ -71,14 +74,14 @@ class SettingsActivity : DrawerActivity() {
         private var entryValues = emptyArray<String>()
         private var entries = emptyArray<String>()
         private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
-        private val syncViewModel by activityViewModels<SyncViewModel>()
+        private val selfUserViewModel by activityViewModels<SelfUserViewModel>()
         private var needsCollectionSync = false
         private var needsPlaysSync = false
         private var needsUsersSync = false
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            syncViewModel.username.observe(this) {
+            selfUserViewModel.username.observe(this) {
                 if (it.isNullOrBlank()) {
                     toast(R.string.msg_sign_out_success)
                     updateAccountPrefs("")
@@ -127,12 +130,12 @@ class SettingsActivity : DrawerActivity() {
 
         override fun onResume() {
             super.onResume()
-            preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+            preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
         }
 
         override fun onPause() {
             super.onPause()
-            preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+            preferenceScreen.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         }
 
         override fun onStop() {
@@ -146,7 +149,7 @@ class SettingsActivity : DrawerActivity() {
             when (key) {
                 PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
-                    syncPrefs.requestPartialSync()
+                    syncPrefs[TIMESTAMP_COLLECTION_COMPLETE_CURRENT] = (syncPrefs[TIMESTAMP_COLLECTION_COMPLETE, 0L] ?: 0L)
                     needsCollectionSync = true
                 }
                 PREFERENCES_KEY_SYNC_PLAYS -> {
@@ -161,19 +164,20 @@ class SettingsActivity : DrawerActivity() {
         }
 
         private fun updateSyncStatusSummary(key: String) {
-            val pref = findPreference<Preference>(key) ?: return
-            val statuses = requireContext().preferences().getSyncStatusesOrDefault()
-            pref.summary = if (statuses.isEmpty()) {
-                getString(R.string.pref_list_empty)
-            } else {
-                entryValues.indices
-                    .filter { statuses.contains(entryValues[it]) }
-                    .joinToString { entries[it] }
+            findPreference<Preference>(key)?.let { pref ->
+                val statuses = requireContext().preferences().getSyncStatusesOrDefault()
+                pref.summary = if (statuses.isEmpty()) {
+                    getString(R.string.pref_list_empty)
+                } else {
+                    entryValues.indices
+                        .filter { statuses.contains(entryValues[it]) }
+                        .joinToString { entries[it] }
+                }
             }
         }
 
-        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
-            return preference?.key?.let {
+        override fun onPreferenceTreeClick(preference: Preference): Boolean {
+            return preference.key?.let {
                 when {
                     it.startsWith(ACTION_PREFIX) -> {
                         (activity as SettingsActivity).replaceFragment(it)
@@ -186,7 +190,7 @@ class SettingsActivity : DrawerActivity() {
 
         private val dialogFragmentTag = "PreferenceFragment.DIALOG"
 
-        override fun onDisplayPreferenceDialog(preference: Preference?) {
+        override fun onDisplayPreferenceDialog(preference: Preference) {
             if (parentFragmentManager.findFragmentByTag(dialogFragmentTag) != null) {
                 return
             }
@@ -194,11 +198,11 @@ class SettingsActivity : DrawerActivity() {
             val dialogFragment: DialogFragment? = when (preference) {
                 is SignOutPreference -> SignOutDialogFragment.newInstance(preference.key)
                 is ConfirmDialogPreference -> ConfirmDialogFragment.newInstance(preference.key)
-                is SyncTimestampsDialogPreference -> SyncTimestampsDialogFragment.newInstance(preference.key)
                 else -> null
             }
 
             if (dialogFragment != null) {
+                @Suppress("DEPRECATION")
                 dialogFragment.setTargetFragment(this, 0)
                 dialogFragment.show(parentFragmentManager, dialogFragmentTag)
             } else super.onDisplayPreferenceDialog(preference)

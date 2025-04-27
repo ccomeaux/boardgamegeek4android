@@ -2,13 +2,15 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
+import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.util.RemoteConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
@@ -16,10 +18,12 @@ import kotlin.time.Duration.Companion.minutes
 @HiltViewModel
 class GamePlayStatsViewModel @Inject constructor(
     application: Application,
-    private val gameRepository: GameCollectionRepository,
+    private val gameRepository: GameRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val areItemsRefreshing = AtomicBoolean()
+    private val arePlaysRefreshing = AtomicBoolean(false)
+    private val areItemsRefreshing = AtomicBoolean(false)
     private val refreshItemsMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
 
     private val _gameId = MutableLiveData<Int>()
@@ -27,43 +31,50 @@ class GamePlayStatsViewModel @Inject constructor(
         if (_gameId.value != gameId) _gameId.value = gameId
     }
 
-    val game = _gameId.switchMap { gameId ->
+    val collectionItems: LiveData<List<CollectionItem>> = _gameId.switchMap { gameId ->
         liveData {
-            val items =
-                if (gameId == BggContract.INVALID_ID) emptyList()
-                else gameRepository.loadCollectionItems(gameId)
-            val refreshedItems =
-                if (areItemsRefreshing.compareAndSet(false, true)) {
-                    val lastUpdated = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
-                    when {
-                        lastUpdated.isOlderThan(refreshItemsMinutes.minutes) -> {
-                            emit(RefreshableResource.refreshing(items))
-                            gameRepository.refreshCollectionItems(gameId)
+            emitSource(
+                gameCollectionRepository.loadCollectionItemsForGameFlow(gameId)
+                    .distinctUntilChanged()
+                    .onEach { list ->
+                        if (areItemsRefreshing.compareAndSet(false, true)) {
+                            val lastUpdated = list.minOfOrNull { it.syncTimestamp } ?: 0L
+                            if (lastUpdated.isOlderThan(refreshItemsMinutes.minutes)) {
+                                gameCollectionRepository.refreshCollectionItems(gameId)
+                            }
+                            areItemsRefreshing.set(false)
                         }
-                        else -> items
-                    }.also { areItemsRefreshing.set(false) }
-                } else items
-            emit(RefreshableResource.success(refreshedItems))
+                    }
+                    .asLiveData()
+            )
         }
     }
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = _gameId.switchMap { gameId ->
+    val plays: LiveData<List<Play>> = _gameId.switchMap { gameId ->
         liveData {
-            val list = when (gameId) {
-                BggContract.INVALID_ID -> null
-                else -> playRepository.loadPlaysByGame(gameId)
-            }
-            emit(RefreshableResource.success(list))
+            emitSource(
+                playRepository
+                    .loadPlaysByGameFlow(gameId)
+                    .distinctUntilChanged { old, new ->
+                        old.size == new.size && old.map { it.copy(updateTimestamp = 0) }.toSet() == new.map { it.copy(updateTimestamp = 0) }.toSet()
+                    }
+                    .onEach {
+                        if (arePlaysRefreshing.compareAndSet(false, true)) {
+                            val game = gameRepository.loadGame(gameId)
+                            if (game == null || game.updatedPlays.isOlderThan(10.minutes)) {
+                                playRepository.refreshPlaysForGame(gameId)
+                            }
+                            arePlaysRefreshing.set(false)
+                        }
+                    }
+                    .asLiveData()
+            )
         }
     }
 
-    val players: LiveData<List<PlayPlayerEntity>> = _gameId.switchMap { gameId ->
+    val players: LiveData<List<PlayPlayer>> = _gameId.switchMap { gameId ->
         liveData {
-            val list = when (gameId) {
-                BggContract.INVALID_ID -> emptyList()
-                else -> playRepository.loadPlayersByGame(gameId)
-            }
-            emit(list)
+            emitSource(playRepository.loadPlayersByGameFlow(gameId).asLiveData())
         }
     }
 }

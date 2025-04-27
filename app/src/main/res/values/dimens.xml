@@ -21,10 +21,12 @@
 	<dimen name="edit_label_width">56dp</dimen>
 	<dimen name="player_row_height">56dp</dimen>
 	<dimen name="thumbnail_list_size">56dp</dimen>
-	<dimen name="thumbnail_size">72dp</dimen>
+	<dimen name="thumbnail_list_size_small">42dp</dimen>
 	<dimen name="thumbnail_grid_size">48dp</dimen>
 	<dimen name="icon_width">32dp</dimen>
 	<dimen name="dropdown_item_min_height">48dp</dimen>
+	<dimen name="dropdown_item_image_min_height">48dp</dimen>
+	<dimen name="dropdown_image">48dp</dimen>
 	<dimen name="color_circle_diameter">32dp</dimen>
 	<dimen name="color_circle_diameter_small">24dp</dimen>
 	<dimen name="color_circle_diameter_small_margin">4dp</dimen>
@@ -44,7 +46,6 @@
 	<dimen name="material_avatar_size">40dp</dimen>
 	<dimen name="material_elevation">8dp</dimen>
 	<dimen name="material_elevation_subtle">4dp</dimen>
-	<dimen name="card_row_height">48dp</dimen>
 	<dimen name="card_header_height">64dp</dimen>
 	<dimen name="shortcut_icon_size">48dp</dimen>
 	<dimen name="divider_height">1dp</dimen>
@@ -58,7 +59,7 @@
 	<dimen name="recycler_section_header_height">32dp</dimen>
 	<dimen name="chip_group_height">48dp</dimen>
 	<dimen name="colored_background_corner_radius">4dp</dimen>
-	<dimen name="game_row_icon_margin">16dp</dimen>
 	<string name="hero_aspect_ratio" translatable="false">H,16:9</string>
+	<dimen name="card_width">96dp</dimen>
 
 </resources>

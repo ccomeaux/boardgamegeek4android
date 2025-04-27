@@ -11,8 +11,8 @@ class PlayerNumberFilterDialog : SliderFilterDialog() {
     override val titleResId = R.string.menu_number_of_players
     override val descriptionResId = R.string.filter_description_player_number
     override val checkboxTextResId = R.string.exact
-    override val valueFrom = PlayerNumberFilterer.lowerBound.toFloat()
-    override val valueTo = PlayerNumberFilterer.upperBound.toFloat()
+    override val valueFrom = PlayerNumberFilterer.LOWER_BOUND.toFloat()
+    override val valueTo = PlayerNumberFilterer.UPPER_BOUND.toFloat()
     override val supportsNone = false
 
     override fun initValues(filter: CollectionFilterer?): InitialValues {

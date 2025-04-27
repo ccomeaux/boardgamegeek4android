@@ -50,11 +50,11 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:drawableLeft="@drawable/ic_baseline_thumb_down_18"
 				android:drawablePadding="@dimen/padding_standard"
-				android:drawableTint="@color/score_low"
 				android:gravity="center_vertical"
 				android:textAppearance="@style/TextAppearance.Basic"
+				app:drawableLeftCompat="@drawable/ic_baseline_thumb_down_18"
+				app:drawableTint="@color/score_low"
 				tools:text="3" />
 
 			<android.widget.Space
@@ -66,11 +66,11 @@
 				android:id="@+id/averageScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_baseline_thumbs_up_down_18"
 				android:drawablePadding="@dimen/padding_standard"
-				android:drawableTint="@color/score_average"
 				android:gravity="center_vertical"
 				android:textAppearance="@style/TextAppearance.Basic"
+				app:drawableLeftCompat="@drawable/ic_baseline_thumbs_up_down_18"
+				app:drawableTint="@color/score_average"
 				tools:text="42" />
 
 			<android.widget.Space
@@ -82,11 +82,11 @@
 				android:id="@+id/averageWinScoreView"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:drawableLeft="@drawable/ic_baseline_star_18"
 				android:drawablePadding="@dimen/padding_standard"
-				android:drawableTint="@color/score_average_win"
 				android:gravity="center_vertical"
 				android:textAppearance="@style/TextAppearance.Basic"
+				app:drawableLeftCompat="@drawable/ic_baseline_star_18"
+				app:drawableTint="@color/score_average_win"
 				tools:text="63" />
 
 			<android.widget.Space
@@ -99,11 +99,11 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:background="?attr/selectableItemBackgroundBorderless"
-				android:drawableLeft="@drawable/ic_baseline_thumb_up_18"
 				android:drawablePadding="@dimen/padding_standard"
-				android:drawableTint="@color/score_high"
 				android:gravity="center_vertical"
 				android:textAppearance="@style/TextAppearance.Basic"
+				app:drawableLeftCompat="@drawable/ic_baseline_thumb_up_18"
+				app:drawableTint="@color/score_high"
 				tools:text="101" />
 		</LinearLayout>
 

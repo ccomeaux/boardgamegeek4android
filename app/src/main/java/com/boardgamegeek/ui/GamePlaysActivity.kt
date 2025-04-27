@@ -8,7 +8,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.setActionBarCount
@@ -23,6 +22,7 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
     private var heroImageUrl = ""
+    private var thumbnailUrl = ""
     private var arePlayersCustomSorted = false
 
     @ColorInt
@@ -41,22 +41,21 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
 
         viewModel.setGame(gameId)
         viewModel.plays.observe(this) {
-            playCount = it.data?.sumOf { play -> play.quantity } ?: 0
+            playCount = it?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         gameId = intent.getIntExtra(KEY_GAME_ID, BggContract.INVALID_ID)
         gameName = intent.getStringExtra(KEY_GAME_NAME).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
+        thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         arePlayersCustomSorted = intent.getBooleanExtra(KEY_CUSTOM_PLAYER_SORT, false)
         iconColor = intent.getIntExtra(KEY_ICON_COLOR, Color.TRANSPARENT)
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstanceForGame(gameId, gameName, heroImageUrl, arePlayersCustomSorted, iconColor)
-    }
+    override fun createPane() = PlaysFragment.newInstanceForGame(gameId, gameName, heroImageUrl, arePlayersCustomSorted, iconColor)
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
@@ -67,7 +66,7 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                GameActivity.startUp(this, gameId, gameName, heroImageUrl, heroImageUrl)
+                GameActivity.startUp(this, gameId, gameName, thumbnailUrl, heroImageUrl)
                 finish()
                 return true
             }
@@ -79,6 +78,7 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
         private const val KEY_GAME_ID = "GAME_ID"
         private const val KEY_GAME_NAME = "GAME_NAME"
         private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
+        private const val KEY_THUMBNAIL_URL = "THUMBNAIL_URL"
         private const val KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT"
         private const val KEY_ICON_COLOR = "ICON_COLOR"
 
@@ -87,10 +87,11 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
             gameId: Int,
             gameName: String,
             heroImageUrl: String,
+            thumbnailUrl: String,
             arePlayersCustomSorted: Boolean,
             @ColorInt iconColor: Int
         ) {
-            context.startActivity(createIntent(context, gameId, gameName, heroImageUrl, arePlayersCustomSorted, iconColor))
+            context.startActivity(createIntent(context, gameId, gameName, heroImageUrl, thumbnailUrl, arePlayersCustomSorted, iconColor))
         }
 
         fun createIntent(
@@ -98,6 +99,7 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
             gameId: Int,
             gameName: String,
             heroImageUrl: String,
+            thumbnailUrl: String = heroImageUrl,
             arePlayersCustomSorted: Boolean = false,
             @ColorInt iconColor: Int = Color.TRANSPARENT,
         ): Intent {
@@ -105,8 +107,9 @@ class GamePlaysActivity : SimpleSinglePaneActivity() {
                 KEY_GAME_ID to gameId,
                 KEY_GAME_NAME to gameName,
                 KEY_HERO_IMAGE_URL to heroImageUrl,
+                KEY_THUMBNAIL_URL to thumbnailUrl,
                 KEY_CUSTOM_PLAYER_SORT to arePlayersCustomSorted,
-                KEY_ICON_COLOR to iconColor
+                KEY_ICON_COLOR to iconColor,
             )
         }
     }

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:fillViewport="true">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
+		android:orientation="vertical"
+		android:paddingBottom="@dimen/padding_extra">
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/recentlyViewedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_recently_viewd" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/highlyRatedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_your_top_rated" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/friendlessFavoriteWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_friendless_favorites" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/hiddenGemsWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_hidden_gems"
+			app:helpText="@string/info_hidden_gems" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/hawtWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_hawt"
+			app:helpText="@string/info_hawt" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/whyOwnWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_why_own" />
+	</LinearLayout>
+</ScrollView>

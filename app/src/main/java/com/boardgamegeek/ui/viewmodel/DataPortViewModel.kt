@@ -1,7 +1,6 @@
-@file:Suppress("BlockingMethodInNonBlockingContext")
-
 package com.boardgamegeek.ui.viewmodel
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.net.Uri
 import android.os.ParcelFileDescriptor
@@ -17,8 +16,8 @@ import com.boardgamegeek.export.model.*
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.ProgressData
 import com.boardgamegeek.livedata.ProgressLiveData
-import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.mappers.mapToExportable
+import com.boardgamegeek.mappers.mapToModel
+import com.boardgamegeek.mappers.mapForExport
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -67,30 +66,32 @@ class DataPortViewModel @Inject constructor(
 
     fun exportCollectionViews(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val views = collectionViewRepository.load(includeDefault = false, includeFilters = true).map { it.mapToExportable() }
+            val views = collectionViewRepository.loadViews().map { it.mapForExport() }
             export(
                 uri,
                 Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION,
                 1,
                 _collectionViewProgress,
                 views,
-            ) { record: CollectionView, writer: JsonWriter ->
-                gson.toJson(record, CollectionView::class.java, writer)
+            ) { record: CollectionViewForExport, writer: JsonWriter ->
+                gson.toJson(record, CollectionViewForExport::class.java, writer)
             }
         }
     }
 
     fun exportGames(uri: Uri) {
         viewModelScope.launch(Dispatchers.IO) {
-            val colors = gameRepository.getPlayColors().map { Game(it.key, it.value.map { color -> Color(color) }) }.filter { it.colors.isNotEmpty() }
+            val colors = gameRepository.getPlayColors()
+                .map { GameForExport(it.key, it.value.map { entity -> ColorForExport(entity.color) }) }
+                .filter { it.colors.isNotEmpty() }
             export(
                 uri,
                 Constants.TYPE_GAMES_DESCRIPTION,
                 1,
                 _gameProgress,
                 colors,
-            ) { record: Game, writer: JsonWriter ->
-                gson.toJson(record, Game::class.java, writer)
+            ) { record: GameForExport, writer: JsonWriter ->
+                gson.toJson(record, GameForExport::class.java, writer)
             }
         }
     }
@@ -99,8 +100,8 @@ class DataPortViewModel @Inject constructor(
         // TODO export non-users
         viewModelScope.launch(Dispatchers.IO) {
             val buddies = userRepository.loadAllUsers().map {
-                val colors = playRepository.loadUserColors(it.userName).filter { color -> color.description.isNotBlank() }
-                User(it.userName, colors.map { color -> PlayerColor(color.sortOrder, color.description) })
+                val colors = playRepository.loadUserColors(it.username).filter { color -> color.description.isNotBlank() }
+                UserForExport(it.username, colors.map { color -> PlayerColorForExport(color.sortOrder, color.description) })
             }.filter { it.colors.isNotEmpty() }
             export(
                 uri,
@@ -108,12 +109,13 @@ class DataPortViewModel @Inject constructor(
                 1,
                 _userProgress,
                 buddies,
-            ) { record: User, writer: JsonWriter ->
-                gson.toJson(record, User::class.java, writer)
+            ) { record: UserForExport, writer: JsonWriter ->
+                gson.toJson(record, UserForExport::class.java, writer)
             }
         }
     }
 
+    @SuppressLint("Recycle")
     private suspend fun openFile(uri: Uri): ParcelFileDescriptor? = withContext(Dispatchers.IO) {
         val pfd = try {
             getApplication<BggApplication>().contentResolver.openFileDescriptor(uri, "w")
@@ -132,7 +134,8 @@ class DataPortViewModel @Inject constructor(
         pfd
     }
 
-    private suspend fun <T : Model> export(
+    @Suppress("SameParameterValue")
+    private suspend fun <T : ExportModel> export(
         uri: Uri,
         typeDescription: String,
         version: Int,
@@ -185,9 +188,9 @@ class DataPortViewModel @Inject constructor(
                 uri,
                 Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION,
                 _collectionViewProgress,
-                { reader -> gson.fromJson(reader, CollectionView::class.java) },
-                { item: CollectionView, _ -> collectionViewRepository.insertView(item.mapToEntity()) },
-                { collectionViewRepository.delete() },
+                { reader -> gson.fromJson(reader, CollectionViewForExport::class.java) },
+                { item: CollectionViewForExport, _ -> collectionViewRepository.insertView(item.mapToModel()) },
+                { collectionViewRepository.deleteAll() },
             )
         }
     }
@@ -198,8 +201,8 @@ class DataPortViewModel @Inject constructor(
                 uri,
                 Constants.TYPE_GAMES_DESCRIPTION,
                 _gameProgress,
-                { reader -> gson.fromJson(reader, Game::class.java) },
-                { item: Game, _ -> gameRepository.updateColors(item.id, item.colors.map { it.color }) },
+                { reader -> gson.fromJson(reader, GameForExport::class.java) },
+                { item: GameForExport, _ -> gameRepository.replaceColors(item.id, item.colors.map { it.color }) },
             )
         }
     }
@@ -210,8 +213,8 @@ class DataPortViewModel @Inject constructor(
                 uri,
                 Constants.TYPE_USERS_DESCRIPTION,
                 _userProgress,
-                { reader: JsonReader -> gson.fromJson(reader, User::class.java) },
-                { item: User, _ -> userRepository.updateColors(item.name, item.colors.map { it.sort to it.color }) },
+                { reader: JsonReader -> gson.fromJson(reader, UserForExport::class.java) },
+                { item: UserForExport, _ -> playRepository.savePlayerColors( item.name, PlayRepository.PlayerType.USER, item.colors.sortedBy { it.sort }.map { it.color }) },
             )
         }
     }

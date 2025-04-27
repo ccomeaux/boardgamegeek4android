@@ -2,6 +2,7 @@ package com.boardgamegeek.util
 
 import android.database.sqlite.SQLiteDatabase
 import android.provider.BaseColumns
+import androidx.core.database.sqlite.transaction
 import com.boardgamegeek.extensions.joinTo
 import timber.log.Timber
 
@@ -11,6 +12,7 @@ import timber.log.Timber
 class TableBuilder {
     private var tableName: String? = null
     private var primaryKey: Column? = null
+    private var primaryKeyAutoincrement = false
     private var columns = mutableListOf<Column>()
     private var uniqueColumnNames = mutableListOf<String>()
     private var resolution = ConflictResolution.IGNORE
@@ -27,14 +29,17 @@ class TableBuilder {
 
     fun create(db: SQLiteDatabase) {
         check(tableName?.isNotEmpty() == true) { "Table not specified" }
-        checkNotNull(primaryKey) { "Primary key not specified" }
         val sb = StringBuilder()
         if (isFtsTable) {
             sb.append("CREATE VIRTUAL TABLE $tableName USING fts3")
         } else {
             sb.append("CREATE TABLE $tableName")
         }
-        sb.append(" (").append(primaryKey!!.build()).append(" PRIMARY KEY AUTOINCREMENT,")
+        checkNotNull(primaryKey) { "Primary key not specified" }.let {
+            sb.append(" (${it.build()} PRIMARY KEY")
+            if (primaryKeyAutoincrement) sb.append(" AUTOINCREMENT")
+            sb.append(",")
+        }
         sb.append(columns.joinToString(", ") { it.build() })
         if (uniqueColumnNames.isNotEmpty()) {
             sb.append(", UNIQUE (")
@@ -48,15 +53,11 @@ class TableBuilder {
 
     fun replace(db: SQLiteDatabase, columnMap: Map<String, String>? = null, joinTable: String? = null, joinColumn: String? = null) {
         check(tableName?.isNotEmpty() == true) { "Table not specified" }
-        db.beginTransaction()
-        try {
-            db.execSQL("ALTER TABLE $tableName RENAME TO ${tempTable()}")
-            create(db)
-            copy(db, columnMap, joinTable, joinColumn)
-            db.execSQL("DROP TABLE ${tempTable()}")
-            db.setTransactionSuccessful()
-        } finally {
-            db.endTransaction()
+        db.transaction {
+            execSQL("ALTER TABLE $tableName RENAME TO ${tempTable()}")
+            create(this)
+            copy(this, columnMap, joinTable, joinColumn)
+            execSQL("DROP TABLE ${tempTable()}")
         }
     }
 
@@ -91,24 +92,31 @@ class TableBuilder {
         this.resolution = resolution
     }
 
-    @Suppress("unused")
-    fun setPrimaryKey(columnName: String, type: ColumnType) = apply {
-        primaryKey = Column(columnName, type)
+    fun setPrimaryKey(columnName: String, type: ColumnType, autoincrement: Boolean = false) = apply {
+        primaryKey = Column(columnName, type, notNull = true)
+        primaryKeyAutoincrement = autoincrement
     }
 
     /**
      * Add an _ID column and sets it as the primary key.
      */
     fun useDefaultPrimaryKey() = apply {
-        primaryKey = Column(BaseColumns._ID, ColumnType.INTEGER)
+        setPrimaryKey(BaseColumns._ID, ColumnType.INTEGER)
+        primaryKeyAutoincrement = false
     }
 
     fun addColumn(name: String, type: ColumnType?, notNull: Boolean, defaultValue: Int) =
         addColumn(name, type, notNull, defaultValue = defaultValue.toString())
 
     fun addColumn(
-        name: String, type: ColumnType?, notNull: Boolean = false, unique: Boolean = false,
-        referenceTable: String? = null, referenceColumn: String? = null, onCascadeDelete: Boolean = false, defaultValue: String? = null
+        name: String,
+        type: ColumnType?,
+        notNull: Boolean = false,
+        unique: Boolean = false,
+        referenceTable: String? = null,
+        referenceColumn: String? = null,
+        onCascadeDelete: Boolean = false,
+        defaultValue: String? = null,
     ) = apply {
         val column = Column(name, type, notNull, onCascadeDelete, defaultValue)
         column.setReference(referenceTable, referenceColumn)

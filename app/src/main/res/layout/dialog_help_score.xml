@@ -21,7 +21,6 @@
 		app:drawableTint="@color/score_low" />
 
 	<TextView
-		android:id="@+id/average_score"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/view_row_height"
 		android:drawablePadding="@dimen/padding_standard"
@@ -32,7 +31,6 @@
 		app:drawableTint="@color/score_average" />
 
 	<TextView
-		android:id="@+id/average_win_score"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/view_row_height"
 		android:drawablePadding="@dimen/padding_standard"
@@ -43,7 +41,6 @@
 		app:drawableTint="@color/score_average_win" />
 
 	<TextView
-		android:id="@+id/high_score"
 		android:layout_width="wrap_content"
 		android:layout_height="@dimen/view_row_height"
 		android:background="?attr/selectableItemBackgroundBorderless"

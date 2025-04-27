@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:baselineAligned="false"
+	android:gravity="center_vertical"
+	android:minHeight="32dp"
+	android:orientation="horizontal">
+
+	<TextView
+		android:id="@+id/rankView"
+		style="@style/RowRank"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:gravity="start"
+		android:minWidth="64dp"
+		android:textAppearance="@style/TextAppearance.Basic"
+		tools:text="742" />
+
+	<TextView
+		android:id="@+id/nameView"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_weight="1"
+		android:textAppearance="@style/TextAppearance.Basic"
+		tools:text="Board Game" />
+
+	<TextView
+		android:id="@+id/ratingView"
+		style="@style/RatingSmall"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="end|center_vertical"
+		android:gravity="center"
+		android:minWidth="56dp"
+		android:textAppearance="@style/TextAppearance.RowDetail"
+		tools:background="#0f0"
+		tools:text="8.5" />
+</LinearLayout>

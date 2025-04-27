@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import java.text.DecimalFormat
 
 class GeekRatingSorter(context: Context) : RatingSorter(context) {
@@ -19,11 +19,11 @@ class GeekRatingSorter(context: Context) : RatingSorter(context) {
         @StringRes
         get() = R.string.collection_sort_geek_rating
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.geekRating }
+    override fun sortAscending(items: Iterable<CollectionItem>) = items.sortedBy { it.geekRating }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.geekRating }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.geekRating }
 
     override val displayFormat = DecimalFormat("0.000")
 
-    override fun getRating(item: CollectionItemEntity) = item.geekRating
+    override fun getRating(item: CollectionItem) = item.geekRating
 }

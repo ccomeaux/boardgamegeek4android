@@ -15,21 +15,26 @@
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
 	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
 
 	<application
 		android:name=".BggApplication"
+		android:enableOnBackInvokedCallback="true"
 		android:allowBackup="true"
 		android:icon="@mipmap/ic_launcher"
 		android:label="@string/app_name"
 		android:logo="@drawable/title_logo"
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:supportsRtl="false"
-		android:theme="@style/Theme.bgglight.NavDrawer"
-		tools:ignore="GoogleAppIndexingWarning">
+		android:theme="@style/Theme.bgglight"
+		tools:ignore="GoogleAppIndexingWarning"
+		tools:targetApi="tiramisu">
 		<activity
 			android:name=".ui.NewPlayActivity"
 			android:label="@string/title_new_play"
-			android:theme="@style/Theme.bgglight"
 			android:windowSoftInputMode="adjustResize" />
 		<activity
 			android:name=".ui.HomeActivity"
@@ -48,7 +53,7 @@
 		<activity
 			android:name=".ui.CollectionActivity"
 			android:exported="true"
-			android:label="@string/title_collection"
+			android:label="@string/title_collection_legacy"
 			android:uiOptions="splitActionBarWhenNarrow"
 			android:windowSoftInputMode="adjustNothing">
 			<meta-data
@@ -57,7 +62,7 @@
 		</activity>
 		<activity
 			android:name=".ui.CollectionDetailsActivity"
-			android:label="@string/title_collection_details">
+			android:label="@string/title_collection">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity" />
@@ -185,8 +190,7 @@
 			android:label="@string/title_plays" />
 		<activity
 			android:name=".ui.PlayerColorsActivity"
-			android:label="@string/title_favorite_colors"
-			android:theme="@style/Theme.bgglight" />
+			android:label="@string/title_favorite_colors" />
 		<activity
 			android:name=".ui.PlaysSummaryActivity"
 			android:exported="false"
@@ -276,12 +280,10 @@
 		<activity
 			android:name=".ui.LogPlayActivity"
 			android:label="@string/title_log_play"
-			android:launchMode="singleTop"
-			android:theme="@style/Theme.bgglight" />
+			android:launchMode="singleTop" />
 		<activity
 			android:name=".ui.LogPlayerActivity"
-			android:label="@string/title_log_player"
-			android:theme="@style/Theme.bgglight" />
+			android:label="@string/title_log_player" />
 		<activity
 			android:name=".ui.GameCollectionItemActivity"
 			android:label="@string/title_collection" />
@@ -331,6 +333,13 @@
 			android:name=".ui.ArticleActivity"
 			android:label="Article" />
 		<activity
+			android:name=".ui.SyncActivity"
+			android:label="@string/title_sync">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value=".ui.HomeActivity" />
+		</activity>
+		<activity
 			android:name=".ui.DataActivity"
 			android:label="@string/title_backup">
 			<meta-data
@@ -340,8 +349,7 @@
 		<activity
 			android:name=".pref.SettingsActivity"
 			android:exported="false"
-			android:label="@string/title_settings"
-			android:theme="@style/Theme.bgglight">
+			android:label="@string/title_settings">
 			<intent-filter>
 				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
 				<category android:name="android.intent.category.DEFAULT" />
@@ -372,9 +380,13 @@
 			android:windowSoftInputMode="adjustResize|stateVisible" />
 
 		<service
-			android:name=".auth.AuthenticationService"
+			android:name="androidx.work.impl.foreground.SystemForegroundService"
 			android:foregroundServiceType="dataSync"
-			android:exported="true">
+			tools:node="merge" />
+
+		<service android:name=".auth.AuthenticationService"
+			android:foregroundServiceType="specialUse"
+			android:exported="false">
 			<intent-filter>
 				<action android:name="android.accounts.AccountAuthenticator" />
 			</intent-filter>

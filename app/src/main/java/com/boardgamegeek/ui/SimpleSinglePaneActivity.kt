@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
@@ -17,31 +16,27 @@ abstract class SimpleSinglePaneActivity : DrawerActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        readIntent(intent)
+        readIntent()
 
         fragment = if (savedInstanceState == null) {
-            createFragment()
+            createPane().apply {
+                supportFragmentManager
+                    .beginTransaction()
+                    .add(R.id.root_container, this, TAG_SINGLE_PANE)
+                    .commit()
+            }
         } else {
             supportFragmentManager.findFragmentByTag(TAG_SINGLE_PANE)
         }
     }
 
-    protected open fun readIntent(intent: Intent) {}
-
-    private fun createFragment(): Fragment {
-        val fragment = onCreatePane(intent)
-        supportFragmentManager
-                .beginTransaction()
-                .add(R.id.root_container, fragment, TAG_SINGLE_PANE)
-                .commit()
-        return fragment
-    }
+    protected open fun readIntent() {}
 
     /**
      * Called in `onCreate` when the fragment constituting this activity is needed. The returned fragment's
      * arguments will be set to the intent used to invoke this activity.
      */
-    protected abstract fun onCreatePane(intent: Intent): Fragment
+    protected abstract fun createPane(): Fragment
 
     companion object {
         private const val TAG_SINGLE_PANE = "single_pane"

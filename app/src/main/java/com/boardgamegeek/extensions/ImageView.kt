@@ -1,8 +1,10 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.util.TypedValue
 import android.widget.ImageView
@@ -12,9 +14,14 @@ import androidx.annotation.DrawableRes
 import androidx.core.view.setMargins
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
+import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.util.FileUtils
 import com.boardgamegeek.util.PaletteTransformation
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
+import com.squareup.picasso.Target
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import java.util.*
 
 fun ImageView.setOrClearColorFilter(@ColorInt color: Int) {
@@ -107,11 +114,11 @@ fun ImageView.loadThumbnail(imageUrl: String?, @DrawableRes errorResId: Int = R.
     })
 }
 
-fun ImageView.loadThumbnail(vararg urls: String) {
-    safelyLoadThumbnail(LinkedList(urls.toList()))
+fun ImageView.loadThumbnail(vararg urls: String, lifecycleScope: CoroutineScope? = null) {
+    safelyLoadThumbnail(LinkedList(urls.toList()), lifecycleScope)
 }
 
-private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>) {
+private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>, lifecycleScope: CoroutineScope?) {
     var url: String? = null
     while (url.isNullOrEmpty() && imageUrls.isNotEmpty()) {
         url = imageUrls.poll()
@@ -125,10 +132,31 @@ private fun ImageView.safelyLoadThumbnail(imageUrls: Queue<String>) {
         .centerCrop()
         .into(this, object : Callback {
             override fun onSuccess() {
+                if (lifecycleScope != null) {
+                    imageUrl?.let { url ->
+                        Picasso.with(context).load(imageUrl.ensureHttpsScheme()).into(object : Target {
+                            override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
+                                bitmap?.let {
+                                    lifecycleScope.launch {
+                                        FileUtils.getFile(context, BggContract.PATH_THUMBNAILS, url)?.let { file ->
+                                            FileUtils.saveBitmap(file, bitmap)
+                                        }
+                                    }
+                                }
+                            }
+
+                            override fun onBitmapFailed(errorDrawable: Drawable?) {
+                            }
+
+                            override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
+                            }
+                        })
+                    }
+                }
             }
 
             override fun onError() {
-                safelyLoadThumbnail(imageUrls)
+                safelyLoadThumbnail(imageUrls, lifecycleScope)
             }
         })
 }

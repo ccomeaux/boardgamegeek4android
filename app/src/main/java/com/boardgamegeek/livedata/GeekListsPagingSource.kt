@@ -2,7 +2,7 @@ package com.boardgamegeek.livedata
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.boardgamegeek.entities.GeekListEntity
+import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.io.BggAjaxApi
 import com.boardgamegeek.io.model.GeekListsResponse
 import com.boardgamegeek.repository.GeekListRepository
@@ -10,12 +10,12 @@ import retrofit2.HttpException
 import timber.log.Timber
 
 class GeekListsPagingSource(private val sort: BggAjaxApi.GeekListSort, private val repository: GeekListRepository) :
-    PagingSource<Int, GeekListEntity>() {
-    override fun getRefreshKey(state: PagingState<Int, GeekListEntity>): Int? {
+    PagingSource<Int, GeekList>() {
+    override fun getRefreshKey(state: PagingState<Int, GeekList>): Int? {
         return null
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, GeekListEntity> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, GeekList> {
         return try {
             val page = params.key ?: 1
             val response = repository.getGeekLists(sort, page)

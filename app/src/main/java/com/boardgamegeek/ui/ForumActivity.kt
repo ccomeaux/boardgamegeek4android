@@ -4,9 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.clearTop
 import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.getSerializableCompat
@@ -18,7 +17,7 @@ import com.boardgamegeek.ui.PersonActivity.Companion.startUpForArtist
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForDesigner
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForPublisher
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,7 +26,7 @@ class ForumActivity : SimpleSinglePaneActivity() {
     private var forumTitle = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
-    private var objectType = ForumEntity.ForumType.REGION
+    private var objectType = Forum.Type.REGION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,17 +45,15 @@ class ForumActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
-        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return ForumFragment.newInstance(forumId, forumTitle, objectId, objectName, objectType)
-    }
+    override fun createPane() = ForumFragment.newInstance(forumId, forumTitle, objectId, objectName, objectType)
 
     override val optionsMenuId = R.menu.view
 
@@ -64,11 +61,11 @@ class ForumActivity : SimpleSinglePaneActivity() {
         when (item.itemId) {
             android.R.id.home -> {
                 when (objectType) {
-                    ForumEntity.ForumType.REGION -> startUp(this)
-                    ForumEntity.ForumType.GAME -> startUp(this, objectId, objectName)
-                    ForumEntity.ForumType.ARTIST -> startUpForArtist(this, objectId, objectName)
-                    ForumEntity.ForumType.DESIGNER -> startUpForDesigner(this, objectId, objectName)
-                    ForumEntity.ForumType.PUBLISHER -> startUpForPublisher(this, objectId, objectName)
+                    Forum.Type.REGION -> startUp(this)
+                    Forum.Type.GAME -> startUp(this, objectId, objectName)
+                    Forum.Type.ARTIST -> startUpForArtist(this, objectId, objectName)
+                    Forum.Type.DESIGNER -> startUpForDesigner(this, objectId, objectName)
+                    Forum.Type.PUBLISHER -> startUpForPublisher(this, objectId, objectName)
                 }
                 finish()
             }
@@ -85,11 +82,11 @@ class ForumActivity : SimpleSinglePaneActivity() {
         private const val KEY_OBJECT_NAME = "OBJECT_NAME"
         private const val KEY_OBJECT_TYPE = "OBJECT_TYPE"
 
-        fun start(context: Context, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
+        fun start(context: Context, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: Forum.Type) {
             context.startActivity(createIntent(context, forumId, forumTitle, objectId, objectName, objectType))
         }
 
-        fun startUp(context: Context, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: ForumEntity.ForumType) {
+        fun startUp(context: Context, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: Forum.Type) {
             context.startActivity(createIntent(context, forumId, forumTitle, objectId, objectName, objectType).clearTop())
         }
 
@@ -99,7 +96,7 @@ class ForumActivity : SimpleSinglePaneActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: ForumEntity.ForumType
+            objectType: Forum.Type
         ): Intent {
             return context.intentFor<ForumActivity>(
                 KEY_FORUM_ID to forumId,

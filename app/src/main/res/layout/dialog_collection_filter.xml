@@ -35,12 +35,10 @@
 				android:text="@string/collection_filter_personal" />
 
 			<com.google.android.material.chip.ChipGroup
-				android:id="@+id/collectionChipGroup"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/collectionStatus"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -51,7 +49,6 @@
 					tools:closeIconVisible="true" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/myRating"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -82,12 +79,10 @@
 				android:text="@string/collection_filter_private_info" />
 
 			<com.google.android.material.chip.ChipGroup
-				android:id="@+id/privateInfoChipGroup"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/acquiredFrom"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -95,7 +90,6 @@
 					android:text="@string/menu_acquired_from" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/inventoryLocation"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -118,12 +112,10 @@
 				android:text="@string/collection_filter_stats" />
 
 			<com.google.android.material.chip.ChipGroup
-				android:id="@+id/infoChipGroup"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/collectionName"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -131,7 +123,6 @@
 					android:text="@string/menu_collection_name" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/subtype"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -139,7 +130,6 @@
 					android:text="@string/menu_expansion_status" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/numberOfPlayers"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -147,7 +137,6 @@
 					android:text="@string/menu_number_of_players" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/yearPublished"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -155,7 +144,6 @@
 					android:text="@string/menu_year_published" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/playTime"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -163,7 +151,6 @@
 					android:text="@string/menu_play_time" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/suggestedAge"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -179,12 +166,10 @@
 				android:text="@string/collection_filter_community" />
 
 			<com.google.android.material.chip.ChipGroup
-				android:id="@+id/communityChipGroup"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/geekRanking"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -192,7 +177,6 @@
 					android:text="@string/menu_geek_ranking" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/geekRating"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -208,7 +192,6 @@
 					android:text="@string/menu_average_rating" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/recommendedPlayerCount"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -216,7 +199,6 @@
 					android:text="@string/menu_recommended_player_count" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/averageWeight"
 					style="@style/FilterChip"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -231,7 +213,6 @@
 				android:text="@string/collection_sort_local" />
 
 			<com.google.android.material.chip.ChipGroup
-				android:id="@+id/localChipGroup"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
 

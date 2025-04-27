@@ -1,11 +1,11 @@
 package com.boardgamegeek.auth
 
 import android.accounts.*
-import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.preferences
@@ -67,7 +67,7 @@ class Authenticator(
         // Ensure the password is valid and not expired, then return the stored AuthToken
         val password = am.getPassword(account)
         if (!password.isNullOrBlank()) {
-            authRepository.authenticate(account.name, password, "Renewal")?.let {authEntity ->
+            authRepository.authenticate(account.name, password, "Renewal")?.let { authEntity ->
                 am.setAuthToken(account, authTokenType, authEntity.token)
                 am.setUserData(account, KEY_AUTH_TOKEN_EXPIRY, authEntity.expiry.toString())
                 Timber.v(toDebugString())
@@ -106,6 +106,7 @@ class Authenticator(
         )
     }
 
+    @Suppress("SameParameterValue")
     private fun isKeyExpired(am: AccountManager, account: Account, key: String): Boolean {
         val expiration = am.getUserData(account, key).toLongOrNull()
         return expiration == null || expiration < System.currentTimeMillis()
@@ -125,10 +126,9 @@ class Authenticator(
     companion object {
         const val ACCOUNT_TYPE = "com.boardgamegeek"
         const val AUTH_TOKEN_TYPE = "com.boardgamegeek"
+
         @Suppress("SpellCheckingInspection")
         const val KEY_AUTH_TOKEN_EXPIRY = "AUTHTOKEN_EXPIRY"
-        private const val INVALID_USER_ID = "0"
-        private const val KEY_USER_ID = "com.boardgamegeek.USER_ID"
 
         /**
          * Gets the account associated with BoardGameGeek. Returns null if there is a problem getting the account.
@@ -151,22 +151,6 @@ class Authenticator(
                 null
             } else {
                 accounts.first()
-            }
-        }
-
-        /**
-         * Get the BGG user ID of the authenticated user.
-         */
-        fun getUserId(context: Context): String {
-            val accountManager = AccountManager.get(context)
-            val account = getAccount(accountManager) ?: return INVALID_USER_ID
-            return accountManager.getUserData(account, KEY_USER_ID) ?: return INVALID_USER_ID
-        }
-
-        fun putUserId(context: Context, value: Int) {
-            val accountManager = AccountManager.get(context)
-            getAccount(accountManager)?.let {
-                accountManager.setUserData(it, KEY_USER_ID, value.toString())
             }
         }
 
@@ -198,7 +182,6 @@ class Authenticator(
             val accountManager = AccountManager.get(context)
             getAccount(accountManager)?.let { account ->
                 removeAccountCompat(context, account, true)
-                accountManager.setUserData(account, KEY_USER_ID, INVALID_USER_ID)
             }
             FirebaseCrashlytics.getInstance().setUserId("")
             context.preferences()[AccountPreferences.KEY_USERNAME] = null
@@ -211,7 +194,6 @@ class Authenticator(
             val accounts = accountManager.getAccountsByType(ACCOUNT_TYPE)
             for (account in accounts) {
                 removeAccountCompat(context, account, false)
-                accountManager.setUserData(account, KEY_USER_ID, INVALID_USER_ID)
             }
         }
 
@@ -224,8 +206,7 @@ class Authenticator(
         }
 
         private fun removeAccount(context: Context, account: Account, postEvent: Boolean) {
-            @Suppress("DEPRECATION")
-            AccountManager.get(context).removeAccount(account, { future ->
+            val accountManagerCallback = AccountManagerCallback { future ->
                 if (future.isDone) {
                     try {
                         if (postEvent && future.result)
@@ -238,12 +219,14 @@ class Authenticator(
                         Timber.e(e, "removeAccount")
                     }
                 }
-            }, null)
+            }
+            @Suppress("DEPRECATION")
+            AccountManager.get(context).removeAccount(account, accountManagerCallback, null)
         }
 
-        @TargetApi(VERSION_CODES.LOLLIPOP_MR1)
+        @RequiresApi(VERSION_CODES.LOLLIPOP_MR1)
         private fun removeAccountWithActivity(context: Context, account: Account, postEvent: Boolean) {
-            AccountManager.get(context).removeAccount(account, null, { future ->
+            val accountManagerCallback = AccountManagerCallback<Bundle> { future ->
                 if (future.isDone) {
                     try {
                         if (postEvent && future.result.getBoolean(AccountManager.KEY_BOOLEAN_RESULT)) {
@@ -257,7 +240,8 @@ class Authenticator(
                         Timber.e(e, "removeAccount")
                     }
                 }
-            }, null)
+            }
+            AccountManager.get(context).removeAccount(account, null, accountManagerCallback, null)
         }
     }
 }

@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.asMinutes
 
 class PlayTimeSorter(context: Context) : CollectionSorter(context) {
@@ -21,11 +21,11 @@ class PlayTimeSorter(context: Context) : CollectionSorter(context) {
         @StringRes
         get() = R.string.collection_sort_play_time
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.playingTime }
+    override fun sortAscending(items: Iterable<CollectionItem>) = items.sortedBy { it.playingTime }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.playingTime }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.playingTime }
 
-    override fun getHeaderText(item: CollectionItemEntity): String {
+    override fun getHeaderText(item: CollectionItem): String {
         val minutes = item.playingTime
         return when {
             minutes == 0 -> defaultValue
@@ -34,5 +34,5 @@ class PlayTimeSorter(context: Context) : CollectionSorter(context) {
         }
     }
 
-    override fun getDisplayInfo(item: CollectionItemEntity) = item.playingTime.asMinutes(context)
+    override fun getDisplayInfo(item: CollectionItem) = item.playingTime.asMinutes(context)
 }

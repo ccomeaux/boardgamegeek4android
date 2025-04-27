@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.*
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import androidx.activity.viewModels
@@ -22,7 +21,7 @@ import com.boardgamegeek.ui.dialog.PlayerColorPickerDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import kotlin.math.abs
@@ -174,7 +173,7 @@ class PlayerColorsActivity : BaseActivity() {
             viewModel.generate()
         }
 
-        binding.fab.colorize(R.color.primary)
+        binding.fab.colorize(ContextCompat.getColor(this, R.color.primary))
         binding.fab.setOnClickListener {
             PlayerColorPickerDialogFragment.launch(this, usedColors)
         }
@@ -259,9 +258,7 @@ class PlayerColorsActivity : BaseActivity() {
             fun bind(color: String) {
                 binding.titleView.text = color
                 binding.colorView.setColorViewValue(color.asColorRgb())
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    binding.dragHandle.imageTintList = ColorStateList.valueOf(color.asColorRgb().getTextColor())
-                }
+                binding.dragHandle.imageTintList = ColorStateList.valueOf(color.asColorRgb().getTextColor())
                 binding.dragHandle.setOnTouchListener { v, event ->
                     if (event.action == MotionEvent.ACTION_DOWN) {
                         itemTouchHelper?.startDrag(this@ColorViewHolder)

@@ -50,7 +50,6 @@
 					tools:text="@string/collection_sort_my_rating" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/wishlistPriority"
 					style="@style/Widget.MaterialComponents.Chip.Choice"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
@@ -96,7 +95,6 @@
 				app:singleSelection="true">
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/acquisitionDate"
 					style="@style/Widget.MaterialComponents.Chip.Choice"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
@@ -120,7 +118,6 @@
 					tools:text="@string/collection_sort_inventory_location" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/pricePaid"
 					style="@style/Widget.MaterialComponents.Chip.Choice"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
@@ -128,7 +125,6 @@
 					tools:text="@string/collection_sort_price_paid" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/currentValue"
 					style="@style/Widget.MaterialComponents.Chip.Choice"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
@@ -194,7 +190,6 @@
 				app:singleSelection="true">
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/rank"
 					style="@style/Widget.MaterialComponents.Chip.Choice"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
@@ -202,7 +197,6 @@
 					tools:text="@string/collection_sort_rank" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/geek_rating"
 					style="@style/Widget.MaterialComponents.Chip.Choice"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
@@ -218,7 +212,6 @@
 					tools:text="@string/collection_sort_average_rating" />
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/average_weight_asc"
 					style="@style/Widget.MaterialComponents.Chip.Choice"
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
@@ -239,7 +232,6 @@
 				app:singleSelection="true">
 
 				<com.google.android.material.chip.Chip
-					android:id="@+id/lastViewed"
 					style="@style/Widget.MaterialComponents.Chip.Choice"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"

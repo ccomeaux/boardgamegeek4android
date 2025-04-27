@@ -7,18 +7,18 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentDesignersBinding
 import com.boardgamegeek.databinding.RowDesignerBinding
-import com.boardgamegeek.entities.PersonEntity
+import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnail
-import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.DesignersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class DesignersFragment : Fragment() {
@@ -42,10 +42,10 @@ class DesignersFragment : Fragment() {
             RecyclerSectionItemDecoration(resources.getDimensionPixelSize(R.dimen.recycler_section_header_height), adapter)
         )
 
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.reload() }
 
         viewModel.designers.observe(viewLifecycleOwner) {
-            adapter.designers = it
+            adapter.submitList(it)
             binding.recyclerView.isVisible = adapter.itemCount > 0
             binding.emptyTextView.isVisible = adapter.itemCount == 0
             binding.progressBar.hide()
@@ -65,62 +65,60 @@ class DesignersFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding.recyclerView.adapter = null
         _binding = null
     }
 
-    class DesignersAdapter(private val viewModel: DesignersViewModel) : RecyclerView.Adapter<DesignersAdapter.DesignerViewHolder>(),
-        AutoUpdatableAdapter, RecyclerSectionItemDecoration.SectionCallback {
-        var designers: List<PersonEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            autoNotify(oldValue, newValue) { old, new ->
-                old.id == new.id
-            }
-        }
-
+    class DesignersAdapter(private val viewModel: DesignersViewModel) :
+        ListAdapter<Person, DesignersAdapter.DesignerViewHolder>(ItemCallback()),
+        RecyclerSectionItemDecoration.SectionCallback {
         init {
             setHasStableIds(true)
         }
 
-        override fun getItemCount() = designers.size
-
-        override fun getItemId(position: Int) = designers.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
+        override fun getItemId(position: Int) = currentList.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DesignerViewHolder {
             return DesignerViewHolder(parent.inflate(R.layout.row_designer))
         }
 
         override fun onBindViewHolder(holder: DesignerViewHolder, position: Int) {
-            holder.bind(designers.getOrNull(position))
+            holder.bind(getItem(position))
         }
 
         override fun isSection(position: Int): Boolean {
             if (position == RecyclerView.NO_POSITION) return false
-            if (designers.isEmpty()) return false
+            if (currentList.isEmpty()) return false
             if (position == 0) return true
-            val thisLetter = viewModel.getSectionHeader(designers.getOrNull(position))
-            val lastLetter = viewModel.getSectionHeader(designers.getOrNull(position - 1))
+            val thisLetter = viewModel.getSectionHeader(currentList.getOrNull(position))
+            val lastLetter = viewModel.getSectionHeader(currentList.getOrNull(position - 1))
             return thisLetter != lastLetter
         }
 
         override fun getSectionHeader(position: Int): CharSequence {
             return when {
                 position == RecyclerView.NO_POSITION -> "-"
-                designers.isEmpty() -> "-"
-                else -> viewModel.getSectionHeader(designers.getOrNull(position))
+                currentList.isEmpty() -> "-"
+                else -> viewModel.getSectionHeader(currentList.getOrNull(position))
             }
+        }
+
+        class ItemCallback : DiffUtil.ItemCallback<Person>() {
+            override fun areItemsTheSame(oldItem: Person, newItem: Person) = oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: Person, newItem: Person) = oldItem == newItem
         }
 
         inner class DesignerViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowDesignerBinding.bind(itemView)
 
-            fun bind(designer: PersonEntity?) {
-                designer?.let { d ->
-                    binding.avatarView.loadThumbnail(d.thumbnailUrl, R.drawable.person_image_empty)
-                    binding.nameView.text = d.name
-                    binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
-                    binding.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")
-                    itemView.setOnClickListener {
-                        PersonActivity.startForDesigner(itemView.context, d.id, d.name)
-                    }
+            fun bind(designer: Person) {
+                binding.avatarView.loadThumbnail(designer.thumbnailUrl, R.drawable.person_image_empty)
+                binding.nameView.text = designer.name
+                binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, designer.itemCount, designer.itemCount)
+                binding.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${designer.whitmoreScore}")
+                itemView.setOnClickListener {
+                    PersonActivity.startForDesigner(itemView.context, designer.id, designer.name)
                 }
             }
         }

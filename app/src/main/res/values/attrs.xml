@@ -9,11 +9,6 @@
 		<attr name="icon_res" format="reference"/>
 		<attr name="query_token" format="integer"/>
 	</declare-styleable>
-	<declare-styleable name="BezelImageView">
-		<attr name="maskDrawable" format="reference"/>
-		<attr name="borderDrawable" format="reference"/>
-		<attr name="desaturateOnPress" format="boolean"/>
-	</declare-styleable>
 	<declare-styleable name="BggForegroundLinearLayout">
 		<attr name="android:foreground"/>
 		<attr name="foregroundInsidePadding"/>
@@ -40,5 +35,12 @@
 	<declare-styleable name="DataStepRow">
 		<attr name="titleLabel" format="string"/>
 		<attr name="descriptionLabel" format="string"/>
+	</declare-styleable>
+	<declare-styleable name="CollectionStatusSync">
+		<attr name="switchLabel" format="string"/>
+	</declare-styleable>
+	<declare-styleable name="CollectionShelf">
+		<attr name="headerLabel" format="string"/>
+		<attr name="helpText" format="string"/>
 	</declare-styleable>
 </resources>

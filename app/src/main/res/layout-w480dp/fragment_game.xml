@@ -162,7 +162,6 @@
 				tools:visibility="visible" />
 
 			<androidx.constraintlayout.widget.Barrier
-				android:id="@+id/weightLanguageBarrier"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				app:barrierAllowsGoneWidgets="false"

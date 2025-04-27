@@ -13,13 +13,44 @@
 		android:layout_gravity="center"
 		android:gravity="center" />
 
-	<androidx.recyclerview.widget.RecyclerView
-		android:id="@+id/recyclerView"
-		style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
+	<LinearLayout
+		android:id="@+id/contentContainer"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-		tools:listitem="@layout/row_players_player" />
+		android:animateLayoutChanges="true"
+		android:orientation="vertical">
+
+		<com.google.android.material.textfield.TextInputLayout
+			android:id="@+id/filterView"
+			style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+			android:hint="@string/title_filter"
+			android:labelFor="@id/filterEditText"
+			android:paddingVertical="@dimen/padding_extra"
+			android:visibility="gone"
+			app:endIconMode="clear_text"
+			app:startIconDrawable="@drawable/ic_baseline_filter_list_24"
+			tools:visibility="visible">
+
+			<com.google.android.material.textfield.TextInputEditText
+				android:id="@+id/filterEditText"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:imeOptions="actionNone" />
+
+		</com.google.android.material.textfield.TextInputLayout>
+
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/recyclerView"
+			style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"
+			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+			tools:listitem="@layout/row_players_player" />
+	</LinearLayout>
 
 	<LinearLayout
 		android:id="@+id/emptyContainer"

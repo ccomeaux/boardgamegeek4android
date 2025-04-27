@@ -9,7 +9,7 @@
 
 	<Button
 		android:id="@+id/randomizeAllButton"
-		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+		style="?attr/materialButtonOutlinedStyle"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_standard"
@@ -23,7 +23,7 @@
 
 	<Button
 		android:id="@+id/randomizeStartButton"
-		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+		style="?attr/materialButtonOutlinedStyle"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_standard"
@@ -37,7 +37,7 @@
 
 	<Button
 		android:id="@+id/clearButton"
-		style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+		style="?attr/materialButtonOutlinedStyle"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_standard"
@@ -63,7 +63,6 @@
 
 	<Button
 		android:id="@+id/nextButton"
-		style="@style/ColoredButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/padding_extra"

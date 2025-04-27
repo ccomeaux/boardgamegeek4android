@@ -1,4 +1,4 @@
-@file:Suppress("NOTHING_TO_INLINE", "unused")
+@file:Suppress("NOTHING_TO_INLINE")
 
 package com.boardgamegeek.extensions
 
@@ -11,7 +11,6 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.text.Html
 import android.text.SpannedString
-import android.text.TextUtils
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
@@ -20,6 +19,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.bundleOf
+import androidx.core.text.htmlEncode
 import androidx.preference.PreferenceManager
 import androidx.work.Constraints
 import androidx.work.NetworkType
@@ -51,7 +51,7 @@ private fun encodeArgs(args: Array<out Any?>): List<Any?> {
     val encodedArgs = mutableListOf<Any?>()
     for (i in args.indices) {
         val arg = args[i]
-        encodedArgs.add(if (arg is String) TextUtils.htmlEncode(arg) else arg)
+        encodedArgs.add(if (arg is String) arg.htmlEncode() else arg)
     }
     return encodedArgs
 }
@@ -60,16 +60,18 @@ fun PackageManager.getPackageInfoCompat(packageName: String, flags: Int = 0): Pa
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         getPackageInfo(packageName, PackageInfoFlags.of(flags.toLong()))
     } else {
-        @Suppress("DEPRECATION") getPackageInfo(packageName, flags)
+        getPackageInfo(packageName, flags)
     }
+
 /**
  * Get the version name of the package, or "?.?" if not found.
  */
 fun Context.versionName(): String {
+    val unknownVersionName = "?.?"
     return try {
-        packageManager.getPackageInfoCompat(packageName).versionName
+        packageManager.getPackageInfoCompat(packageName).versionName ?: unknownVersionName
     } catch (e: PackageManager.NameNotFoundException) {
-        "?.?"
+        unknownVersionName
     }
 }
 
@@ -83,8 +85,8 @@ fun Context.cancelSync() {
 fun Context.createWorkConstraints(preserveBattery: Boolean = false): Constraints {
     val syncPrefs: SharedPreferences = SyncPrefs.getPrefs(this)
     return Constraints.Builder()
-        .setRequiredNetworkType(if (syncPrefs[KEY_SYNC_ONLY_CHARGING, false] == true) NetworkType.METERED else NetworkType.CONNECTED)
-        .setRequiresCharging(syncPrefs[KEY_SYNC_ONLY_WIFI, false] ?: false)
+        .setRequiredNetworkType(if (syncPrefs[KEY_SYNC_ONLY_WIFI, false] == true) NetworkType.METERED else NetworkType.CONNECTED)
+        .setRequiresCharging(syncPrefs[KEY_SYNC_ONLY_CHARGING, false] ?: false)
         .setRequiresBatteryNotLow(preserveBattery)
         .build()
 }
@@ -133,8 +135,6 @@ fun Context.showDialog(message: String, okButtonResId: Int = R.string.ok, okList
 
 fun Context.getBitmap(@DrawableRes resId: Int, tintColor: Int? = null): Bitmap {
     return AppCompatResources.getDrawable(this, resId)!!.apply {
-        if (tintColor != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setTint(tintColor)
-        }
+        tintColor?.let { setTint(it) }
     }.toBitmap()
 }

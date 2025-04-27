@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.longSnackbar
 import com.boardgamegeek.extensions.setActionBarCount
@@ -16,7 +14,7 @@ import com.boardgamegeek.ui.dialog.EditLocationNameDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,7 +46,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
             setSubtitle()
         }
         viewModel.plays.observe(this) {
-            playCount = it.data?.sumOf { play -> play.quantity } ?: 0
+            playCount = it?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         }
         viewModel.updateMessage.observe(this) {
@@ -63,7 +61,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
         viewModel.setLocation(locationName)
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         locationName = intent.getStringExtra(KEY_LOCATION_NAME).orEmpty()
     }
 
@@ -71,9 +69,7 @@ class LocationActivity : SimpleSinglePaneActivity() {
         supportActionBar?.subtitle = locationName.ifBlank { getString(R.string.no_location) }
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstanceForLocation()
-    }
+    override fun createPane() = PlaysFragment.newInstanceForLocation()
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)

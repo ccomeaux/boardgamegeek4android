@@ -6,7 +6,7 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowGeeklistCommentBinding
-import com.boardgamegeek.entities.GeekListCommentEntity
+import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -14,7 +14,7 @@ import kotlin.properties.Delegates
 
 class GeekListCommentsRecyclerViewAdapter
     : RecyclerView.Adapter<GeekListCommentsRecyclerViewAdapter.CommentViewHolder>(), AutoUpdatableAdapter {
-    var comments: List<GeekListCommentEntity> by Delegates.observable(emptyList()) { _, old, new ->
+    var comments: List<GeekListComment> by Delegates.observable(emptyList()) { _, old, new ->
         autoNotify(old, new) { o, n ->
             o == n
         }
@@ -34,7 +34,7 @@ class GeekListCommentsRecyclerViewAdapter
         private val binding = RowGeeklistCommentBinding.bind(itemView)
         private val markupConverter = XmlApiMarkupConverter(itemView.context)
 
-        fun bind(comment: GeekListCommentEntity?) {
+        fun bind(comment: GeekListComment?) {
             comment?.let {
                 binding.usernameView.text = it.username
                 binding.numberOfThumbsView.text = it.numberOfThumbs.toString()

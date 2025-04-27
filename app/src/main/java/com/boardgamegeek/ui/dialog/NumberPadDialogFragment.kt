@@ -69,6 +69,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         minValue = arguments?.getDouble(KEY_MIN_VALUE) ?: DEFAULT_MIN_VALUE
         maxValue = arguments?.getDouble(KEY_MAX_VALUE) ?: DEFAULT_MAX_VALUE
         maxMantissa = arguments?.getInt(KEY_MAX_MANTISSA) ?: DEFAULT_MAX_MANTISSA
+        fetchArguments()
 
         binding.plusMinusView.visibility = if (minValue >= 0.0) View.GONE else View.VISIBLE
 
@@ -101,7 +102,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
             }
         }
         binding.deleteView.setOnLongClickListener {
-            binding.outputView.text = ""
+            binding.outputView.clearText()
             enableDelete()
             true
         }
@@ -130,6 +131,8 @@ abstract class NumberPadDialogFragment : DialogFragment() {
             }
         }
     }
+
+    open fun fetchArguments() {}
 
     override fun onDestroyView() {
         super.onDestroyView()

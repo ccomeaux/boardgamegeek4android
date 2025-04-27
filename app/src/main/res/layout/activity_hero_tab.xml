@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/drawer_layout"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:fitsSystemWindows="true">
+	android:layout_height="match_parent">
 
 	<androidx.coordinatorlayout.widget.CoordinatorLayout
 		android:id="@+id/coordinatorLayout"
@@ -23,17 +21,20 @@
 			<com.google.android.material.appbar.CollapsingToolbarLayout
 				android:id="@+id/collapsingToolbar"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
+				android:layout_height="208dp"
 				android:fitsSystemWindows="true"
 				android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
 				app:contentScrim="?attr/colorPrimary"
 				app:expandedTitleMarginEnd="@dimen/material_margin_horizontal"
 				app:expandedTitleMarginStart="@dimen/material_margin_horizontal"
-				app:layout_scrollFlags="scroll|exitUntilCollapsed">
+				app:layout_scrollFlags="scroll|exitUntilCollapsed"
+				app:statusBarScrim="?attr/colorPrimary"
+				tools:title="Age of Innovation">
 
 				<androidx.constraintlayout.widget.ConstraintLayout
 					android:layout_width="match_parent"
 					android:layout_height="wrap_content"
+					android:fitsSystemWindows="true"
 					app:layout_constraintBottom_toTopOf="@+id/toolbarImage"
 					app:layout_constraintTop_toTopOf="@+id/toolbarImage">
 
@@ -61,7 +62,7 @@
 					android:layout_height="match_parent"
 					android:layout_gravity="bottom" />
 
-				<androidx.appcompat.widget.Toolbar
+				<com.google.android.material.appbar.MaterialToolbar
 					android:id="@+id/toolbar"
 					style="@style/Toolbar"
 					android:layout_width="match_parent"
@@ -98,6 +99,7 @@
 			app:elevation="@dimen/fab_elevation"
 			app:pressedTranslationZ="@dimen/fab_translation"
 			app:rippleColor="@color/medium_blue"
+			tools:ignore="ContentDescription"
 			tools:visibility="visible" />
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 

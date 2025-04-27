@@ -17,9 +17,9 @@
 		android:stretchMode="columnWidth"
 		tools:numColumns="4" />
 
-	<com.google.android.material.button.MaterialButton
+	<Button
 		android:id="@+id/moreView"
-		style="@style/Widget.MaterialComponents.Button.TextButton.Dialog"
+		style="@style/Widget.MaterialComponents.Button.TextButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="center"
@@ -42,9 +42,8 @@
 		android:visibility="gone"
 		tools:numColumns="4" />
 
-	<com.google.android.material.button.MaterialButton
+	<Button
 		android:id="@+id/addButton"
-		style="@style/ColoredButton"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:layout_marginTop="@dimen/padding_extra"

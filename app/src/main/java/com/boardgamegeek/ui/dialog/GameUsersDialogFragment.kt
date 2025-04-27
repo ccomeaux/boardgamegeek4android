@@ -30,7 +30,7 @@ class GameUsersDialogFragment : DialogFragment() {
 
         val viewModel by activityViewModels<GameViewModel>()
         viewModel.game.observe(this) {
-            it?.data?.let { game ->
+            it?.let { game ->
                 listOf(
                     binding.numberOwningBar,
                     binding.numberTradingBar,

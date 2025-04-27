@@ -1,109 +1,129 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.*
+import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.livedata.Event
+import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.repository.PlayRepository
-import com.boardgamegeek.util.RateLimiter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class PlaysSummaryViewModel @Inject constructor(
     application: Application,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val playsRateLimiter = RateLimiter<Int>(10.minutes)
-    private val syncTimestamp = MutableLiveData<Long>()
-    private val h = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX)
-    private val n = LiveSharedPreference<Int>(getApplication(), PlayStats.KEY_GAME_H_INDEX + PlayStats.KEY_H_INDEX_N_SUFFIX)
-    private val username = LiveSharedPreference<String>(getApplication(), AccountPreferences.KEY_USERNAME)
+    private val prefs: SharedPreferences by lazy { application.preferences() }
+    private val h: LiveData<Int?> = LiveSharedPreference(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX)
+    private val n: LiveData<Int?> = LiveSharedPreference(getApplication(), PlayStatPrefs.KEY_GAME_H_INDEX + PlayStatPrefs.KEY_H_INDEX_N_SUFFIX)
+    private val username: LiveData<String?> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME)
 
-    init {
-        refresh()
-    }
+    val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
+    val syncPlaysTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP)
+    val oldestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
+    val newestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
 
-    val syncPlays = LiveSharedPreference<Boolean>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    val syncPlaysTimestamp = LiveSharedPreference<Long>(getApplication(), PREFERENCES_KEY_SYNC_PLAYS_TIMESTAMP)
-    val oldestSyncDate = LiveSharedPreference<Long>(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
-    val newestSyncDate = LiveSharedPreference<Long>(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
+    private val _errorMessage = EventLiveData()
+    val errorMessage: LiveData<Event<String>>
+        get() = _errorMessage
 
-    val plays = syncTimestamp.switchMap {
+    private val _isSyncing = MutableLiveData<Boolean>()
+    val isSyncing: LiveData<Boolean>
+        get() = _isSyncing
+
+    private val plays = syncPlays.switchMap {
         liveData {
-            try {
-                val list = playRepository.getPlays()
-                val refreshedList = if (syncPlays.value == true && playsRateLimiter.shouldProcess(0)) {
-                    emit(RefreshableResource.refreshing(list))
-                    // TODO - while refreshing, the plays aren't updated in the UI. Figure out how to do that. Maybe listen to the play sync dates
-                    playRepository.refreshPlays()
-                    playRepository.getPlays()
-
-                } else list
-                emit(RefreshableResource.success(refreshedList))
-            } catch (e: Exception) {
-                playsRateLimiter.reset(0)
-                emit(RefreshableResource.error(e, getApplication()))
+            if (it == true) {
+                emitSource(playRepository.loadPlaysFlow().asLiveData())
+                refresh()
             }
         }
     }
 
-    val playCount: LiveData<Int> = plays.map { list ->
-        list.data?.sumOf { it.quantity } ?: 0
-    }
-
-    val playsInProgress: LiveData<List<PlayEntity>> = plays.map { list ->
-        list.data?.filter { it.dirtyTimestamp > 0L }.orEmpty()
-    }
-
-    val playsNotInProgress: LiveData<List<PlayEntity>> = plays.map { list ->
-        list.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY).orEmpty()
-    }
-
-    val players: LiveData<List<PlayerEntity>> = plays.switchMap {
-        liveData {
-            emit(playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT))
-        }
-    }.map { p ->
-        p.filter { it.username != username.value }.take(ITEMS_TO_DISPLAY)
-    }
-
-    val locations: LiveData<List<LocationEntity>> = plays.switchMap {
-        liveData {
-            emit(playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT))
-        }
-    }.map { p ->
-        p.filter { it.name.isNotBlank() }.take(ITEMS_TO_DISPLAY)
-    }
-
-    val colors: LiveData<List<PlayerColorEntity>> = liveData {
-        emit(
-            if (username.value.isNullOrBlank()) emptyList()
-            else playRepository.loadUserColors(username.value.orEmpty())
-        )
-    }
-
-    val hIndex = MediatorLiveData<HIndexEntity>().apply {
-        addSource(h) {
-            value = HIndexEntity(it ?: HIndexEntity.INVALID_H_INDEX, n.value ?: 0)
-        }
-        addSource(n) {
-            value = HIndexEntity(h.value ?: HIndexEntity.INVALID_H_INDEX, it ?: 0)
-        }
+    fun enableSyncing(enable: Boolean) {
+        if (enable)
+            prefs[PREFERENCES_KEY_SYNC_PLAYS] = true
+        else
+            prefs[PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP] = System.currentTimeMillis()
     }
 
     fun refresh(): Boolean {
-        val value = syncTimestamp.value
-        return if (value == null || value.isOlderThan(1.seconds)) {
-            syncTimestamp.postValue(System.currentTimeMillis())
+        return if (syncPlays.value == true && _isSyncing.value != true) {
+            viewModelScope.launch {
+                try {
+                    _isSyncing.value = true
+                    playRepository.refreshRecentPlays()?.let {
+                        _errorMessage.setMessage(it)
+                    }
+                } finally {
+                    _isSyncing.value = false
+                }
+            }
             true
         } else false
+    }
+
+    val playCount: LiveData<Int> = plays.map { list ->
+        list.sumOf { it.quantity }
+    }.distinctUntilChanged()
+
+    val playsInProgress: LiveData<List<Play>> = plays.map { list ->
+        list.filter { it.dirtyTimestamp > 0L }
+    }.distinctUntilChanged()
+
+    val playsNotInProgress: LiveData<List<Play>> = plays.map { list ->
+        list.filter { it.dirtyTimestamp == 0L }.take(ITEMS_TO_DISPLAY)
+    }.distinctUntilChanged()
+
+    val players: LiveData<List<Player>> = plays.switchMap {
+        liveData {
+            emitSource(
+                playRepository.loadPlayersFlow()
+                    .map { list ->
+                        list.filter { player -> player.username != username.value }
+                            .take(ITEMS_TO_DISPLAY)
+                    }
+                    .distinctUntilChanged()
+                    .asLiveData()
+            )
+        }
+    }
+
+    val locations: LiveData<List<Location>> = plays.switchMap {
+        liveData {
+            emitSource(
+                playRepository.loadLocationsFlow()
+                    .map { list ->
+                        list.filter { location -> location.name.isNotBlank() }
+                            .take(ITEMS_TO_DISPLAY)
+                    }
+                    .distinctUntilChanged()
+                    .asLiveData()
+            )
+        }
+    }
+
+    val colors: LiveData<List<PlayerColor>> = username.switchMap {
+        liveData {
+            emitSource(playRepository.loadUserColorsFlow(it.orEmpty()).asLiveData())
+        }
+    }
+
+    val hIndex = MediatorLiveData<HIndex>().apply {
+        addSource(h) {
+            value = HIndex(it ?: 0, n.value ?: 0)
+        }
+        addSource(n) {
+            value = HIndex(h.value ?: 0, it ?: 0)
+        }
     }
 
     fun reset() {

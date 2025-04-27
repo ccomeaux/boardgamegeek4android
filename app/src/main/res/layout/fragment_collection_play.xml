@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content">
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:animateLayoutChanges="true"
+		android:orientation="vertical"
+		android:paddingVertical="@dimen/padding_extra">
+
+		<com.google.android.material.chip.ChipGroup
+			android:id="@+id/toggleButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/padding_extra"
+			app:singleSelection="true">
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/allButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/all" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/supportsButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/supports" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/goodButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/good" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/bestButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/best" />
+		</com.google.android.material.chip.ChipGroup>
+
+		<com.google.android.material.chip.ChipGroup
+			android:id="@+id/playerCountChipGroup"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/padding_extra"
+			android:visibility="gone"
+			app:singleLine="false"
+			app:singleSelection="true">
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/filter1pButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:text="@string/one_player" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/filter2pButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:text="@string/two_players" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/filter3pButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:text="@string/three_players" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/filter4pButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:text="@string/four_players" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/filter5pButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:text="@string/five_players" />
+
+			<com.google.android.material.chip.Chip
+				android:id="@+id/filter6pButton"
+				style="@style/Widget.MaterialComponents.Chip.Choice"
+				android:layout_width="wrap_content"
+				android:layout_height="match_parent"
+				android:text="@string/six_players" />
+		</com.google.android.material.chip.ChipGroup>
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/wantToPlayWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/collection_status_want_to_play" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/recentlyPlayedWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_recently_played" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/friendlessShouldPlayWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_friendless_play"
+			app:helpText="@string/info_friendless_play" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/shelfOfOpportunityWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_shelf_of_opportunity"
+			app:helpText="@string/info_shelf_of_opportunity" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/shelfOfNewOpportunityWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_shelf_of_new_opportunity"
+			app:helpText="@string/info_shelf_of_new_opportunity" />
+	</LinearLayout>
+</ScrollView>

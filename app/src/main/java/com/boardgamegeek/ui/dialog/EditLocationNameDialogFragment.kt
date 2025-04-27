@@ -5,7 +5,7 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,7 +21,7 @@ class EditLocationNameDialogFragment : AbstractEditTextDialogFragment() {
 
     override fun onPositiveButton() {
         val text = binding.editText.text?.toString()
-        if (text != null && text.isNotBlank()) {
+        if (!text.isNullOrBlank()) {
             FirebaseAnalytics.getInstance(requireContext()).logEvent("DataManipulation") {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Location")
                 param("Action", "Edit")

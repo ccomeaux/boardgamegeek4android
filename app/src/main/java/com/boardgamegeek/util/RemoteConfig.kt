@@ -2,9 +2,9 @@ package com.boardgamegeek.util
 
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.R
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import timber.log.Timber
 
 class RemoteConfig {
@@ -22,7 +22,7 @@ class RemoteConfig {
         const val KEY_SYNC_GAMES_FETCH_MAX = "sync_games_fetch_max"
         const val KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED = "sync_games_fetch_max_unupdated"
         const val KEY_SYNC_GAMES_FETCH_PAUSE_MILLIS = "sync_games_fetch_pause_millis"
-        const val KEY_SYNC_GAMES_DELETE_VIEW_HOURS = "sync_games_delete_view_hours"
+        const val KEY_SYNC_GAMES_REMOVE_VIEW_HOURS = "sync_games_delete_view_hours"
         const val KEY_SYNC_PLAYS_FETCH_PAUSE_MILLIS = "sync_plays_fetch_pause_millis"
 
         const val KEY_REFRESH_GAME_MINUTES = "refresh_game_minutes"
@@ -39,6 +39,7 @@ class RemoteConfig {
 
         const val KEY_FETCH_IMAGE_WITH_API = "fetch_image_with_api"
 
+        @Suppress("unused")
         const val KEY_PRIVACY_CHECK_WEEKS = "privacy_check_weeks"
 
         fun init() {
@@ -50,6 +51,7 @@ class RemoteConfig {
             firebaseRemoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
         }
 
+        @Suppress("unused")
         fun fetch() {
             val firebaseRemoteConfig = Firebase.remoteConfig
             firebaseRemoteConfig.fetch().addOnCompleteListener { task ->

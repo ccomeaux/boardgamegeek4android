@@ -117,6 +117,7 @@
 			android:layout_width="@dimen/image_button_size"
 			android:layout_height="@dimen/image_button_size"
 			android:layout_gravity="center"
+			android:contentDescription="@string/score"
 			android:scaleType="center"
 			android:src="@drawable/ic_baseline_emoji_events_24"
 			tools:tint="#2000"

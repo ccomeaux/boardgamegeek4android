@@ -2,7 +2,7 @@ package com.boardgamegeek.filterer
 
 import android.content.Context
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 
 class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
     var isFavorite = false
@@ -20,7 +20,7 @@ class FavoriteFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun chipText() = context.getString(if (isFavorite) R.string.favorites else R.string.not_favorites)
 
-    override fun filter(item: CollectionItemEntity): Boolean {
+    override fun filter(item: CollectionItem): Boolean {
         return item.isFavorite == isFavorite
     }
 

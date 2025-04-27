@@ -2,21 +2,20 @@ package com.boardgamegeek.ui
 
 import android.app.DatePickerDialog
 import android.app.Dialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.DatePicker
 import androidx.activity.viewModels
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.longSnackbar
+import com.boardgamegeek.extensions.notifyLoggedPlay
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
@@ -46,6 +45,12 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
             }
         }
 
+        viewModel.loggedPlayResult.observe(this) { event ->
+            event.getContentIfNotHandled()?.let {
+                notifyLoggedPlay(it)
+            }
+        }
+
         viewModel.plays.observe(this) {
             invalidateOptionsMenu()
         }
@@ -63,17 +68,15 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
             invalidateOptionsMenu()
         }
 
-        viewModel.setFilter(PlaysViewModel.FilterType.ALL)
+        viewModel.setAll()
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstance()
-    }
+    override fun createPane() = PlaysFragment.newInstance()
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
 
-        val playCount = viewModel.plays.value?.data?.sumOf { play -> play.quantity } ?: 0
+        val playCount = viewModel.plays.value?.sumOf { play -> play.quantity } ?: 0
         val sortName = when (viewModel.sortType.value) {
             PlaysViewModel.SortType.DATE -> getString(R.string.menu_plays_sort_date)
             PlaysViewModel.SortType.LOCATION -> getString(R.string.menu_plays_sort_location)
@@ -179,6 +182,6 @@ class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetList
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        viewModel.syncPlaysByDate(GregorianCalendar(year, month, day).timeInMillis)
+        viewModel.refreshPlaysByDate(GregorianCalendar(year, month, day).timeInMillis)
     }
 }

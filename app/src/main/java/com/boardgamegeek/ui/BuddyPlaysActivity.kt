@@ -1,18 +1,16 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -39,18 +37,16 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
 
         viewModel.setUsername(buddyName)
         viewModel.plays.observe(this) {
-            numberOfPlays = it.data?.sumOf { play -> play.quantity } ?: 0
+            numberOfPlays = it?.sumOf { play -> play.quantity } ?: 0
             invalidateOptionsMenu()
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         buddyName = intent.getStringExtra(KEY_BUDDY_NAME).orEmpty()
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return PlaysFragment.newInstanceForBuddy()
-    }
+    override fun createPane() = PlaysFragment.newInstanceForBuddy()
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)

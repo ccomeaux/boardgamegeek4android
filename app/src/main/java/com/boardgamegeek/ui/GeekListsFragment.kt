@@ -101,8 +101,8 @@ class GeekListsFragment : Fragment() {
             }
         }
 
-        viewModel.geekLists.observe(viewLifecycleOwner) { geekListEntities ->
-            lifecycleScope.launch { adapter.submitData(geekListEntities) }
+        viewModel.geekLists.observe(viewLifecycleOwner) {
+            lifecycleScope.launch { adapter.submitData(it) }
             binding.progressView.hide()
         }
         viewModel.setSort(sortType)

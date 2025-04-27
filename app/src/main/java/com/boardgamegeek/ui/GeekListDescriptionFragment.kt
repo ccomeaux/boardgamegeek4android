@@ -8,7 +8,7 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.databinding.FragmentGeeklistDescriptionBinding
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Status
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter

@@ -1,16 +1,15 @@
 package com.boardgamegeek.extensions
 
 import android.content.Context
-import android.graphics.Color
 import android.text.format.DateUtils
 import androidx.annotation.StringRes
+import androidx.core.graphics.toColorInt
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.GameEntity
-import com.boardgamegeek.entities.GameRankEntity
-import com.boardgamegeek.io.BggService
+import com.boardgamegeek.model.Game
 import java.math.BigDecimal
 import java.math.MathContext
 import java.text.NumberFormat
+import java.util.Locale
 import kotlin.reflect.KProperty
 
 /**
@@ -47,7 +46,7 @@ fun Int.asRangeDescription(quantity: Int): String {
 fun Int.asYear(context: Context?): String {
     return when {
         context == null -> this.toString()
-        this == GameEntity.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
+        this == Game.YEAR_UNKNOWN -> context.getString(R.string.year_zero)
         this > 0 -> context.getString(R.string.year_positive, this.toString())
         else -> context.getString(R.string.year_negative, (-this).toString())
     }
@@ -66,18 +65,6 @@ fun Int.asWishListPriority(context: Context?): String {
     return context.resources.getStringArray(R.array.wishlist_priority).getOrElse(this) { context.getString(R.string.wishlist) }
 }
 
-fun Int.isRankValid(): Boolean {
-    return this != GameRankEntity.RANK_UNKNOWN
-}
-
-fun Int.asRank(context: Context, name: String, type: String = BggService.RANK_TYPE_SUBTYPE): CharSequence {
-    val subtype = name.asRankDescription(context, type)
-    return when {
-        isRankValid() -> context.getText(R.string.rank_description, this, subtype)
-        else -> subtype
-    }
-}
-
 /**
  * Returns
  * 1. the count rounded down
@@ -94,7 +81,7 @@ fun Int.asPlayCount(context: Context): Triple<Int, String, Int> {
     val pc = playCounts.find {
         this >= it.first
     } ?: Triple(0, 0, "#00000000")
-    return Triple(pc.first, if (pc.second == 0) "" else context.getString(pc.second), Color.parseColor(pc.third))
+    return Triple(pc.first, if (pc.second == 0) "" else context.getString(pc.second), pc.third.toColorInt())
 }
 
 /**
@@ -117,7 +104,7 @@ fun Int.asTime(): String {
     if (this > 0) {
         val hours = this / 60
         val minutes = this % 60
-        return String.format("%d:%02d", hours, minutes)
+        return String.format(Locale.getDefault(), "%d:%02d", hours, minutes)
     }
     return "0:00"
 }
@@ -181,10 +168,12 @@ fun Int.toFormattedString(): String {
 }
 
 class IntervalDelegate(var value: Int, private val minValue: Int, private val maxValue: Int) {
+    @SuppressWarnings("unused")
     operator fun getValue(thisRef: Any, property: KProperty<*>): Int {
         return value
     }
 
+    @SuppressWarnings("unused")
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Int) {
         this.value = value.coerceIn(minValue, maxValue)
     }

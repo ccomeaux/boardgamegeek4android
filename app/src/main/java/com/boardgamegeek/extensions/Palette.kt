@@ -19,7 +19,7 @@ fun Palette?.getIconColor(): Int {
     return (this?.darkVibrantSwatch
         ?: this?.vibrantSwatch
         ?: this?.getSwatchForTarget(DARK_TARGET)
-        ?: this?.swatches?.minBy { it.hsl.last() })?.rgb
+        ?: this?.swatches?.minByOrNull { it.hsl.last() })?.rgb
         ?: Color.BLACK
 }
 
@@ -31,7 +31,7 @@ fun Palette?.getDarkColor(): Int {
     return (this?.darkMutedSwatch
         ?: this?.darkVibrantSwatch
         ?: this?.getSwatchForTarget(DARK_TARGET)
-        ?: this?.swatches?.minBy { it.hsl.last() })?.rgb
+        ?: this?.swatches?.minByOrNull { it.hsl.last() })?.rgb
         ?: Color.BLACK
 }
 

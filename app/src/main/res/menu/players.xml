@@ -26,4 +26,9 @@
 			</group>
 		</menu>
 	</item>
+	<item
+		android:id="@+id/menu_filter"
+		android:icon="@drawable/ic_baseline_filter_list_24"
+		android:title="@string/menu_filter"
+		app:showAsAction="ifRoom"/>
 </menu>

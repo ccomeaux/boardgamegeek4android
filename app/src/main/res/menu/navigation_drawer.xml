@@ -6,13 +6,13 @@
 		android:id="@+id/personal"
 		android:checkableBehavior="single">
 		<item
-			android:id="@+id/collection"
+			android:id="@+id/collection_details"
 			android:icon="@drawable/ic_baseline_library_books_24"
 			android:title="@string/title_collection" />
 		<item
-			android:id="@+id/collection_details"
+			android:id="@+id/collection"
 			android:icon="@drawable/ic_baseline_library_books_24"
-			android:title="@string/title_collection_details" />
+			android:title="@string/title_collection_legacy" />
 		<item
 			android:id="@+id/plays"
 			android:icon="@drawable/ic_baseline_event_24"
@@ -47,7 +47,13 @@
 			android:icon="@drawable/ic_baseline_forum_24"
 			android:title="@string/title_forums" />
 	</group>
-	<group android:checkableBehavior="single">
+	<group
+		android:id="@+id/device"
+		android:checkableBehavior="single">
+		<item
+			android:id="@+id/sync"
+			android:icon="@drawable/ic_baseline_sync_24"
+			android:title="@string/title_sync" />
 		<item
 			android:id="@+id/data"
 			android:icon="@drawable/ic_baseline_file_copy_24"

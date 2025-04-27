@@ -15,7 +15,6 @@ import com.boardgamegeek.extensions.fromLocalToUtc
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import java.util.*
 
 @AndroidEntryPoint
@@ -24,6 +23,7 @@ class NewPlayDateFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
     private var lastPlayDate: Long? = null
+    private var selectedDate: Long? = null
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -35,21 +35,11 @@ class NewPlayDateFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.todayButton.setOnClickListener {
-            viewModel.setDate(System.currentTimeMillis())
+            viewModel.setDate(Calendar.getInstance().timeInMillis)
         }
 
         binding.yesterdayButton.setOnClickListener {
             viewModel.setDate(Calendar.getInstance().apply { add(Calendar.DATE, -1) }.timeInMillis)
-        }
-
-        binding.earlierButton.setOnClickListener {
-            val datePicker = MaterialDatePicker.Builder.datePicker()
-                .setSelection(earlierDate())
-                .build()
-            datePicker.addOnPositiveButtonClickListener {
-                viewModel.setDate(it.fromLocalToUtc())
-            }
-            datePicker.show(parentFragmentManager, "DATE_PICKER_DIALOG")
         }
 
         binding.lastPlayDateButton.setOnClickListener {
@@ -58,10 +48,21 @@ class NewPlayDateFragment : Fragment() {
             }
         }
 
+        binding.earlierButton.setOnClickListener {
+            val datePicker = MaterialDatePicker.Builder.datePicker()
+                .setSelection(selectedDate?.fromLocalToUtc() ?: MaterialDatePicker.todayInUtcMilliseconds())
+                .build()
+            datePicker.addOnPositiveButtonClickListener {
+                viewModel.setDate(it.fromLocalToUtc())
+            }
+            datePicker.show(parentFragmentManager, "DATE_PICKER_DIALOG")
+        }
+
+        viewModel.playDate.observe(viewLifecycleOwner) { selectedDate = it }
+
         viewModel.lastPlayDate.observe(viewLifecycleOwner) {
             it?.let {
                 lastPlayDate = it
-                Timber.i(it.formatDateTime(requireContext()).toString() + " / " + earlierDate().formatDateTime(requireContext()))
                 if (it < earlierDate()) {
                     binding.lastPlayDateButton.text = it.formatDateTime(requireContext())
                     binding.lastPlayDateButton.isVisible = true

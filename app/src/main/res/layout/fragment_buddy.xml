@@ -30,15 +30,18 @@
 				android:visibility="gone"
 				tools:visibility="visible">
 
-				<ImageView
+				<com.google.android.material.imageview.ShapeableImageView
 					android:id="@+id/avatarView"
 					android:layout_width="@dimen/avatar_size"
 					android:layout_height="@dimen/avatar_size"
 					android:layout_marginEnd="@dimen/padding_standard"
 					android:layout_marginRight="@dimen/padding_standard"
+					android:clickable="false"
 					android:contentDescription="@string/avatar"
-					android:scaleType="fitCenter"
-					android:src="@drawable/person_image_empty" />
+					android:scaleType="centerCrop"
+					android:src="@drawable/person_image_empty"
+					app:shapeAppearanceOverlay="@style/circleImageView"
+					app:strokeWidth="1dp" />
 
 				<LinearLayout
 					android:layout_width="match_parent"
@@ -50,14 +53,14 @@
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:textAppearance="@style/TextAppearance.Title"
-						tools:text="Chris Comeaux" />
+						tools:text="Joe Gamer" />
 
 					<TextView
 						android:id="@+id/usernameView"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
 						android:textAppearance="@style/TextAppearance.Subtitle"
-						tools:text="ccomeaux" />
+						tools:text="username" />
 				</LinearLayout>
 			</LinearLayout>
 
@@ -84,10 +87,10 @@
 						android:layout_width="match_parent"
 						android:layout_height="@dimen/edit_row_height"
 						android:background="?attr/selectableItemBackground"
-						android:drawableEnd="@drawable/ic_baseline_edit_24"
-						android:drawableRight="@drawable/ic_baseline_edit_24"
 						android:gravity="center_vertical"
 						android:textAppearance="@style/TextAppearance.Title"
+						app:drawableEndCompat="@drawable/ic_baseline_edit_24"
+						app:drawableRightCompat="@drawable/ic_baseline_edit_24"
 						tools:text="Chris" />
 
 					<TextView

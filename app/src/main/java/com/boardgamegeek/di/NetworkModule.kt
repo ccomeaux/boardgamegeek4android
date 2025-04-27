@@ -5,7 +5,6 @@ package com.boardgamegeek.di
 import android.content.Context
 import com.boardgamegeek.BuildConfig
 import com.boardgamegeek.io.*
-import com.boardgamegeek.repository.*
 import com.facebook.stetho.okhttp3.StethoInterceptor
 import dagger.Module
 import dagger.Provides

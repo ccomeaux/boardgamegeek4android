@@ -1,128 +1,237 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
-import androidx.core.content.contentValuesOf
-import com.boardgamegeek.db.GameDao
-import com.boardgamegeek.db.PlayDao
-import com.boardgamegeek.entities.GameCommentsEntity
-import com.boardgamegeek.entities.GameEntity
+import com.boardgamegeek.db.*
+import com.boardgamegeek.db.model.*
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
-import com.boardgamegeek.mappers.mapToEntity
-import com.boardgamegeek.mappers.mapToRatingEntities
+import com.boardgamegeek.io.safeApiCall
+import com.boardgamegeek.mappers.*
+import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
-import com.boardgamegeek.provider.BggContract.Games
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.lang.Exception
 import javax.inject.Inject
 
 class GameRepository @Inject constructor(
     val context: Context,
     private val api: BggService,
     private val imageRepository: ImageRepository,
+    private val playDao: PlayDao,
+    private val gameColorDao: GameColorDao,
+    private val gameDao: GameDao,
+    private val artistDao: ArtistDao,
+    private val designerDao: DesignerDao,
+    private val publisherDao: PublisherDao,
+    private val categoryDao: CategoryDao,
+    private val mechanicDao: MechanicDao,
+    private val collectionDao: CollectionDao,
 ) {
-    private val dao = GameDao(context)
-    private val playDao = PlayDao(context)
-
-    suspend fun loadGame(gameId: Int) = dao.load(gameId)
-
-    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int = 0) = dao.loadOldestUpdatedGames(gamesPerFetch)
-
-    suspend fun loadUnupdatedGames(gamesPerFetch: Int = 0) = dao.loadUnupdatedGames(gamesPerFetch)
-
-    suspend fun loadDeletableGames(hoursAgo: Long, includeUnplayedGames: Boolean) = dao.loadDeletableGames(hoursAgo, includeUnplayedGames)
-
-    suspend fun refreshGame(vararg gameId: Int): Int = withContext(Dispatchers.IO) {
-        val timestamp = System.currentTimeMillis()
-        val gameEntities = fetchGame(*gameId)
-        gameEntities.forEach { gameEntity ->
-            dao.save(gameEntity, timestamp)
-            Timber.d("Synced game ${gameEntity.name} [${gameEntity.id}]")
+    fun loadAllAsFlow(): Flow<List<Game?>> {
+        return gameDao.loadAllAsFlow().map { list ->
+            list.map { it.game?.mapToModel(it.lastPlayedDate) }
         }
-        gameEntities.size
     }
 
-    suspend fun fetchGame(vararg gameId: Int): List<GameEntity> = withContext(Dispatchers.IO) {
+    suspend fun loadGame(gameId: Int): Game? {
+        return if (gameId == INVALID_ID) null else {
+            val game = gameDao.loadGame(gameId)
+            game?.game?.mapToModel(game.lastPlayedDate)
+        }
+    }
+
+    fun loadGameFlow(gameId: Int): Flow<Game?> {
+        return gameDao.loadGameFlow(gameId)
+            .map { it?.game?.mapToModel(it.lastPlayedDate) }
+    }
+
+    suspend fun loadOldestUpdatedGames(gamesPerFetch: Int, beforeTimestamp: Long): List<Pair<Int, String>> {
+        return gameDao.loadOldestUpdatedGames(gamesPerFetch, beforeTimestamp).map { it.gameId to it.gameName }
+    }
+
+    suspend fun loadUnupdatedGames(gamesPerFetch: Int): List<Pair<Int, String>> {
+        return gameDao.loadUnupdatedGames(gamesPerFetch).map { it.gameId to it.gameName }
+    }
+
+    suspend fun loadGamesByLastViewed(sinceTimestamp: Long, includeUnplayedGames: Boolean): List<Pair<Int, String>> {
+        return if (includeUnplayedGames) {
+            gameDao.loadNonCollectionAndUnplayedGamesByLastViewed(sinceTimestamp).map { it.gameId to it.gameName }
+        } else {
+            gameDao.loadNonCollectionGamesByLastViewed(sinceTimestamp).map { it.gameId to it.gameName }
+        }
+    }
+
+    suspend fun refreshGame(vararg gameId: Int): Result<Int> = withContext(Dispatchers.IO) {
+        val timestamp = System.currentTimeMillis()
+        val result = safeApiCall(context) {
+            if (gameId.size == 1) {
+                api.thing(gameId.first(), 1)
+            } else {
+                api.things(gameId.joinToString(), 1)
+            }
+        }
+        if (result.isSuccess) {
+            result.getOrNull()?.games?.forEach { game ->
+                val internalId = gameDao.loadGame(game.id)?.game?.internalId ?: 0L
+                val gameForUpsert = game.mapForUpsert(internalId, timestamp)
+                Timber.i("Saving game ${gameForUpsert.header.gameName} (${game.id})")
+                game.mapToDesigners().forEach { designerDao.insert(it) }
+                game.mapToArtists().forEach { artistDao.insert(it) }
+                game.mapToPublishers().forEach { publisherDao.insert(it) }
+                game.mapToCategories().forEach { categoryDao.insert(it) }
+                game.mapToMechanics().forEach { mechanicDao.insert(it) }
+                if (gameForUpsert.header.gameName.isBlank()) {
+                    Timber.w("Missing name from game ID=${gameForUpsert.header.gameId}")
+                } else {
+                    gameDao.upsert(gameForUpsert).also {
+                        Timber.i("Saved game ${gameForUpsert.header.gameName} (${game.id}) [$it]")
+                    }
+                }
+            }
+            Result.success(result.getOrNull()?.games?.size ?: 0)
+        }  else {
+            Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
+        }
+    }
+
+    suspend fun fetchGameThumbnail(vararg gameId: Int): String? = withContext(Dispatchers.IO) {
         val response = if (gameId.size == 1) {
             api.thing(gameId.first(), 1)
         } else {
             api.things(gameId.joinToString(), 1)
         }
-        response.games.map { it.mapToEntity() }
+        response.games?.firstOrNull()?.thumbnail
     }
 
-    suspend fun refreshHeroImage(game: GameEntity): GameEntity = withContext(Dispatchers.IO) {
+    suspend fun refreshHeroImage(game: Game): Game = withContext(Dispatchers.IO) {
         val urlMap = imageRepository.getImageUrls(game.thumbnailUrl.getImageId())
         val urls = urlMap[ImageRepository.ImageType.HERO]
-        if (urls?.isNotEmpty() == true) {
-            dao.update(game.id, contentValuesOf(Games.Columns.HERO_IMAGE_URL to urls.first()))
-            game.copy(heroImageUrl = urls.first())
-        } else game
+        urls?.firstOrNull()?.let { url ->
+            gameDao.updateHeroUrl(game.id, url)
+            game.copy(heroImageUrl = url)
+        } ?: game
     }
 
-    suspend fun loadComments(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
+    suspend fun loadComments(gameId: Int, page: Int): GameComments? = withContext(Dispatchers.IO) {
         val response = api.thingWithComments(gameId, page)
-        response.games.firstOrNull()?.mapToRatingEntities()
+        response.games?.firstOrNull()?.mapToRatingModel()
     }
 
-    suspend fun loadRatings(gameId: Int, page: Int): GameCommentsEntity? = withContext(Dispatchers.IO) {
+    suspend fun loadRatings(gameId: Int, page: Int): GameComments? = withContext(Dispatchers.IO) {
         val response = api.thingWithRatings(gameId, page)
-        response.games.firstOrNull()?.mapToRatingEntities()
+        response.games?.firstOrNull()?.mapToRatingModel()
     }
 
-    suspend fun getRanks(gameId: Int) = dao.loadRanks(gameId)
+    fun getSubtypesFlow(gameId: Int): Flow<List<GameSubtype>> {
+        return gameDao.loadRanksForGameFlow(gameId)
+            .map { list -> list.mapNotNull { it.mapToSubtype() } }
+            .flowOn(Dispatchers.Default)
+    }
 
-    suspend fun getLanguagePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.LANGUAGE_DEPENDENCE)
+    fun getFamiliesFlow(gameId: Int): Flow<List<GameFamily>> {
+        return gameDao.loadRanksForGameFlow(gameId)
+            .map { list -> list.mapNotNull { it.mapToFamily() } }
+            .flowOn(Dispatchers.Default)
+    }
 
-    suspend fun getAgePoll(gameId: Int) = dao.loadPoll(gameId, GameDao.PollType.SUGGESTED_PLAYER_AGE)
+    fun getLanguagePollFlow(gameId: Int): Flow<GameLanguagePoll?> {
+        return gameDao.loadLanguagePollForGameFlow(gameId).map { it.mapToModel() }
+    }
 
-    suspend fun getPlayerPoll(gameId: Int) = dao.loadPlayerPoll(gameId)
+    fun getAgePollFlow(gameId: Int): Flow<GameAgePoll?> {
+        return gameDao.loadAgePollForGameFlow(gameId).map { it.mapToModel() }
+    }
 
-    suspend fun getDesigners(gameId: Int) = dao.loadDesigners(gameId)
+    fun getPlayerPollFlow(gameId: Int): Flow<List<GamePlayerPollResults>> {
+        return gameDao.loadPlayerPollForGameFlow(gameId).map { list -> list.map { it.mapToModel() } }
+    }
 
-    suspend fun getArtists(gameId: Int) = dao.loadArtists(gameId)
+    fun getDesignersFlow(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadDesignersForGameFlow(gameId)
+            .map { it.map { designer -> designer.mapToGameDetail() } }
+            .flowOn(Dispatchers.Default)
+    }
 
-    suspend fun getPublishers(gameId: Int) = dao.loadPublishers(gameId)
+    fun getArtistsFlow(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadArtistsForGameFlow(gameId)
+            .map { it.map { artist -> artist.mapToGameDetail() } }
+            .flowOn(Dispatchers.Default)
+    }
 
-    suspend fun getCategories(gameId: Int) = dao.loadCategories(gameId)
+    fun getPublishers(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadPublishersForGameFlow(gameId)
+            .map { it.map { publisher -> publisher.mapToGameDetail() } }
+            .flowOn(Dispatchers.Default)
+    }
 
-    suspend fun getMechanics(gameId: Int) = dao.loadMechanics(gameId)
+    fun getCategoriesFlow(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadCategoriesForGameFlow(gameId)
+            .map { it.map { category -> category.mapToGameDetail() } }
+            .flowOn(Dispatchers.Default)
+    }
 
-    suspend fun getExpansions(gameId: Int) = dao.loadExpansions(gameId)
+    fun getMechanicsFlow(gameId: Int): Flow<List<GameDetail>> {
+        return gameDao.loadMechanicsForGameFlow(gameId)
+            .map { it.map { mechanic -> mechanic.mapToGameDetail() } }
+            .flowOn(Dispatchers.Default)
+    }
 
-    suspend fun getBaseGames(gameId: Int) = dao.loadExpansions(gameId, true)
+    fun getExpansionsFlow(gameId: Int): Flow<List<GameExpansion>> = gameDao.loadExpansionsForGameFlow(gameId).map { list ->
+        list.map { entity ->
+            val items = collectionDao.loadForGame(entity.gameExpansionEntity.expansionId).map { it.mapToModel() }
+            entity.mapToModel(items)
+        }
+    }
 
-    suspend fun getPlays(gameId: Int) = playDao.loadPlaysByGame(gameId)
+    fun getBaseGamesFlow(gameId: Int): Flow<List<GameExpansion>> = gameDao.loadBaseGamesForGameFlow(gameId).map { list ->
+        list.map { entity ->
+            val items = collectionDao.loadForGame(entity.gameExpansionEntity.expansionId).map { it.mapToModel() }
+            entity.mapToModel(items)
+        }
+    }
 
     /**
      * Returns a map of all game IDs with player colors.
      */
-    suspend fun getPlayColors() = dao.loadPlayColors().groupBy({ it.first }, { it.second })
+    suspend fun getPlayColors(): Map<Int, List<GameColorsEntity>> = withContext(Dispatchers.IO) {
+        gameColorDao.loadColors().groupBy { it.gameId }
+    }
 
-    suspend fun getPlayColors(gameId: Int) = dao.loadPlayColors(gameId)
+    suspend fun getPlayColors(gameId: Int): List<String> = withContext(Dispatchers.IO) {
+        gameColorDao.loadColorsForGame(gameId).map { it.color }
+    }
+
+    fun getPlayColorsFlow(gameId: Int): Flow<List<String>> {
+        return gameColorDao.loadColorsForGameFlow(gameId).map { list -> list.map { entity -> entity.color } }
+    }
 
     suspend fun addPlayColor(gameId: Int, color: String?) {
         if (gameId != INVALID_ID && !color.isNullOrBlank()) {
-            dao.insertColor(gameId, color)
+            if (!gameColorDao.loadColorsForGame(gameId).map { it.color }.contains(color))
+                gameColorDao.insert(listOf(GameColorsEntity(internalId = 0L, gameId = gameId, color = color)))
         }
     }
 
-    suspend fun deletePlayColor(gameId: Int, color: String): Int {
-        return if (gameId != INVALID_ID && color.isNotBlank()) {
-            dao.deleteColor(gameId, color)
-        } else 0
+    suspend fun deletePlayColor(gameId: Int, color: String) {
+        if (gameId != INVALID_ID)
+            gameColorDao.deleteColorForGame(gameId, color)
     }
 
     suspend fun computePlayColors(gameId: Int) {
-        val colors = playDao.loadPlayerColors(gameId)
-        dao.insertColors(gameId, colors)
+        val usedColors = playDao.loadPlayersForGame(gameId).mapNotNull { it.player.color }.toSet()
+        val currentColors = gameColorDao.loadColorsForGame(gameId).map { it.color }.toSet()
+        val colors = (usedColors - currentColors).filterNot { it.isBlank() }
+        val entities = colors.map { GameColorsEntity(internalId = 0L, gameId = gameId, color = it) }
+        gameColorDao.insert(entities)
     }
 
     suspend fun updateLastViewed(gameId: Int, lastViewed: Long = System.currentTimeMillis()) {
-        if (gameId != INVALID_ID) {
-            dao.update(gameId, contentValuesOf(Games.Columns.LAST_VIEWED to lastViewed))
-        }
+        if (gameId != INVALID_ID) gameDao.updateLastViewed(gameId, lastViewed)
     }
 
     suspend fun updateGameColors(
@@ -132,29 +241,26 @@ class GameRepository @Inject constructor(
         winsColor: Int,
         winnablePlaysColor: Int,
         allPlaysColor: Int
-    ) {
+    ) = withContext(Dispatchers.IO) {
         if (gameId != INVALID_ID) {
-            val values = contentValuesOf(
-                Games.Columns.ICON_COLOR to iconColor,
-                Games.Columns.DARK_COLOR to darkColor,
-                Games.Columns.WINS_COLOR to winsColor,
-                Games.Columns.WINNABLE_PLAYS_COLOR to winnablePlaysColor,
-                Games.Columns.ALL_PLAYS_COLOR to allPlaysColor,
-            )
-            val numberOfRowsModified = dao.update(gameId, values)
-            Timber.d(numberOfRowsModified.toString())
+            gameDao.updateImageColors(gameId, iconColor, darkColor, winsColor, winnablePlaysColor, allPlaysColor)
         }
     }
 
-    suspend fun updateColors(gameId: Int, colors: List<String>) = dao.updateColors(gameId, colors)
-
-    suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) {
-        if (gameId != INVALID_ID) {
-            dao.update(gameId, contentValuesOf(Games.Columns.STARRED to if (isFavorite) 1 else 0))
+    suspend fun replaceColors(gameId: Int, colors: List<String>) {
+        gameDao.loadGame(gameId)?.let {
+            gameColorDao.deleteColorsForGame(gameId)
+            gameColorDao.insert(colors.map { GameColorsEntity(internalId = 0L, gameId = gameId, color = it) })
         }
     }
 
-    suspend fun delete(gameId: Int) = dao.delete(gameId)
+    suspend fun updateFavorite(gameId: Int, isFavorite: Boolean) = withContext(Dispatchers.IO) {
+        if (gameId != INVALID_ID) gameDao.updateStarred(gameId, isFavorite)
+    }
 
-    suspend fun delete() = dao.delete()
+    suspend fun delete(gameId: Int): Int {
+        return if (gameId != INVALID_ID) gameDao.delete(gameId) else 0
+    }
+
+    suspend fun deleteAll() = gameDao.deleteAll()
 }

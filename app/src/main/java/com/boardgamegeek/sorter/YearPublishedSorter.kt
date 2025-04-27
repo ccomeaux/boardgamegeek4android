@@ -3,7 +3,7 @@ package com.boardgamegeek.sorter
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.CollectionItemEntity
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.asYear
 
 class YearPublishedSorter(context: Context) : CollectionSorter(context) {
@@ -19,9 +19,9 @@ class YearPublishedSorter(context: Context) : CollectionSorter(context) {
         @StringRes
         get() = R.string.collection_sort_year_published
 
-    override fun sortAscending(items: Iterable<CollectionItemEntity>) = items.sortedBy { it.gameYearPublished }
+    override fun sortAscending(items: Iterable<CollectionItem>) = items.sortedBy { it.gameYearPublished }
 
-    override fun sortDescending(items: Iterable<CollectionItemEntity>) = items.sortedByDescending { it.gameYearPublished }
+    override fun sortDescending(items: Iterable<CollectionItem>) = items.sortedByDescending { it.gameYearPublished }
 
-    override fun getHeaderText(item: CollectionItemEntity) = item.gameYearPublished.asYear(context)
+    override fun getHeaderText(item: CollectionItem) = item.gameYearPublished.asYear(context)
 }

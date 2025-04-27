@@ -4,13 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.entities.ForumEntity
+import com.boardgamegeek.model.Forum
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -21,7 +20,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
     private var forumTitle: String = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
-    private var objectType = ForumEntity.ForumType.REGION
+    private var objectType = Forum.Type.REGION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,19 +42,17 @@ class ThreadActivity : SimpleSinglePaneActivity() {
         }
     }
 
-    override fun readIntent(intent: Intent) {
+    override fun readIntent() {
         threadId = intent.getIntExtra(KEY_THREAD_ID, BggContract.INVALID_ID)
         threadSubject = intent.getStringExtra(KEY_THREAD_SUBJECT).orEmpty()
         forumId = intent.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
         forumTitle = intent.getStringExtra(KEY_FORUM_TITLE).orEmpty()
         objectId = intent.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
         objectName = intent.getStringExtra(KEY_OBJECT_NAME).orEmpty()
-        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: ForumEntity.ForumType.REGION
+        objectType = intent.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
     }
 
-    override fun onCreatePane(intent: Intent): Fragment {
-        return ThreadFragment.newInstance(threadId, forumId, forumTitle, objectId, objectName, objectType)
-    }
+    override fun createPane() = ThreadFragment.newInstance(threadId, forumId, forumTitle, objectId, objectName, objectType)
 
     override val optionsMenuId = R.menu.view_share
 
@@ -112,7 +109,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: ForumEntity.ForumType
+            objectType: Forum.Type
         ) {
             context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType))
         }
@@ -125,7 +122,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: ForumEntity.ForumType
+            objectType: Forum.Type
         ) {
             context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType).clearTop())
         }
@@ -138,7 +135,7 @@ class ThreadActivity : SimpleSinglePaneActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: ForumEntity.ForumType,
+            objectType: Forum.Type,
         ): Intent {
             return context.intentFor<ThreadActivity>(
                 KEY_THREAD_ID to threadId,

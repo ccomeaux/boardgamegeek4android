@@ -4,9 +4,10 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
 import com.boardgamegeek.provider.BggContract
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.logEvent
+import com.google.firebase.analytics.logEvent
 import timber.log.Timber
 
 const val BOARDGAME_PATH = "boardgame"
@@ -14,7 +15,7 @@ const val LINK_AMAZON_COM = "www.amazon.com"
 const val LINK_AMAZON_UK = "www.amazon.co.uk"
 const val LINK_AMAZON_DE = "www.amazon.de"
 
-private val BGG_URI = Uri.parse("https://www.boardgamegeek.com/")
+private val BGG_URI = "https://www.boardgamegeek.com/".toUri()
 
 fun Context?.linkBgg(gameId: Int) {
     if (gameId == BggContract.INVALID_ID) return
@@ -50,7 +51,7 @@ fun Context?.linkToBgg(path: String, id: Int) {
 }
 
 fun Context?.link(url: String) {
-    link(Uri.parse(url))
+    link(url.toUri())
 }
 
 private fun Context?.link(link: Uri) {

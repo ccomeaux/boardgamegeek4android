@@ -75,16 +75,16 @@ class NewPlayActivity : AppCompatActivity() {
         }
 
         viewModel.game.observe(this) {
-            it?.let { entity ->
-                gameName = entity.name
-                thumbnailUrl = entity.thumbnailUrl
-                imageUrl = entity.imageUrl
-                heroImageUrl = entity.heroImageUrl
+            it?.let { game ->
+                gameName = game.name
+                thumbnailUrl = game.thumbnailUrl
+                imageUrl = game.imageUrl
+                heroImageUrl = game.heroImageUrl
 
                 updateSummary()
 
                 val summaryView = findViewById<PlaySummary>(R.id.summaryView)
-                binding.thumbnailView.loadImage(entity.heroImageUrl, callback = object : ImageLoadCallback {
+                binding.thumbnailView.loadImage(game.heroImageUrl, callback = object : ImageLoadCallback {
                     override fun onSuccessfulImageLoad(palette: Palette?) {
                         summaryView.setBackgroundResource(R.color.black_overlay_light)
                     }
@@ -119,6 +119,7 @@ class NewPlayActivity : AppCompatActivity() {
                     NewPlayViewModel.Step.PLAYERS_NEW -> 5
                     NewPlayViewModel.Step.PLAYERS_WIN -> 6
                     NewPlayViewModel.Step.COMMENTS -> 7
+                    NewPlayViewModel.Step.SAVING -> 8
                 }
             } ?: 0
             updateSummary()
@@ -179,7 +180,7 @@ class NewPlayActivity : AppCompatActivity() {
     }
 
     private inner class WizardAdapter(fragmentActivity: FragmentActivity) : FragmentStateAdapter(fragmentActivity) {
-        override fun getItemCount(): Int = 8
+        override fun getItemCount(): Int = 9
 
         override fun createFragment(position: Int): Fragment {
             return when (position) {
@@ -191,6 +192,7 @@ class NewPlayActivity : AppCompatActivity() {
                 5 -> NewPlayPlayerIsNewFragment()
                 6 -> NewPlayPlayerWinFragment()
                 7 -> NewPlayCommentsFragment()
+                8 -> NewPlaySavingFragment()
                 else -> ErrorFragment()
             }
         }

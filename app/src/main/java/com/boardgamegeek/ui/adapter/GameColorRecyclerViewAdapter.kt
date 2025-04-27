@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.SparseBooleanArray
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.util.size
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.RowColorBinding
@@ -65,7 +66,7 @@ class GameColorRecyclerViewAdapter(private val callback: Callback?) :
     }
 
     val selectedItemCount
-        get() = selectedItems.size()
+        get() = selectedItems.size
 
     fun getSelectedColors(): List<String> {
         return selectedItems.filterTrue().mapNotNull { getColorName(it) }

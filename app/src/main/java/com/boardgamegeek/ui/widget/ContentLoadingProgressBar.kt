@@ -5,6 +5,7 @@ import android.os.SystemClock
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ProgressBar
+import androidx.core.view.isVisible
 
 @Suppress("SpellCheckingInspection")
 /**
@@ -19,10 +20,10 @@ import android.widget.ProgressBar
  * @author Christophe Beyls
  */
 class ContentLoadingProgressBar @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = android.R.attr.progressBarStyle)
-    : ProgressBar(context, attrs, defStyleAttr) {
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = android.R.attr.progressBarStyle,
+) : ProgressBar(context, attrs, defStyleAttr) {
 
     private var attachedToWindow = false
     private var shown: Boolean = false
@@ -39,7 +40,7 @@ class ContentLoadingProgressBar @JvmOverloads constructor(
     }
 
     init {
-        shown = visibility == View.VISIBLE
+        shown = isVisible
     }
 
     override fun onAttachedToWindow() {

@@ -12,9 +12,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayStatsBinding
-import com.boardgamegeek.entities.HIndexEntity
-import com.boardgamegeek.entities.PlayStatsEntity
-import com.boardgamegeek.entities.PlayerStatsEntity
+import com.boardgamegeek.model.HIndex
+import com.boardgamegeek.model.PlayStats
+import com.boardgamegeek.model.PlayerStats
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
@@ -76,32 +76,32 @@ class PlayStatsFragment : Fragment() {
             bindAccuracyMessage()
         }
 
-        viewModel.plays.observe(viewLifecycleOwner) { entity ->
-            if (entity == null) {
+        viewModel.plays.observe(viewLifecycleOwner) { playStats ->
+            if (playStats == null) {
                 binding.progressView.hide()
                 binding.emptyView.isVisible = true
                 binding.scrollContainer.isVisible = false
             } else {
-                bindUi(entity)
+                bindUi(playStats)
                 binding.gameHIndexInfoView.setOnClickListener {
                     context?.showClickableAlertDialog(
                         R.string.play_stat_game_h_index,
                         R.string.play_stat_game_h_index_info,
-                        entity.hIndex.h,
-                        entity.hIndex.n
+                        playStats.hIndex.h,
+                        playStats.hIndex.n
                     )
                 }
             }
         }
-        viewModel.players.observe(viewLifecycleOwner, Observer { entity ->
-            if (entity == null) return@Observer
-            bindPlayerUi(entity)
+        viewModel.players.observe(viewLifecycleOwner, Observer { playerStats ->
+            if (playerStats == null) return@Observer
+            bindPlayerUi(playerStats)
             binding.playerHIndexInfoView.setOnClickListener {
                 context?.showClickableAlertDialog(
                     R.string.play_stat_player_h_index,
                     R.string.play_stat_player_h_index_info,
-                    entity.hIndex.h,
-                    entity.hIndex.n
+                    playerStats.hIndex.h,
+                    playerStats.hIndex.n
                 )
             }
         })
@@ -146,7 +146,7 @@ class PlayStatsFragment : Fragment() {
         }
     }
 
-    private fun bindUi(stats: PlayStatsEntity) {
+    private fun bindUi(stats: PlayStats) {
         binding.playCountTable.removeAllViews()
         maybeAddPlayCountStat(R.string.play_stat_play_count, stats.numberOfPlays)
         maybeAddPlayCountStat(R.string.play_stat_distinct_games, stats.numberOfPlayedGames)
@@ -168,7 +168,7 @@ class PlayStatsFragment : Fragment() {
         bindHIndexTable(binding.gameHIndexTable, stats.hIndex, stats.getHIndexGames())
 
         binding.advancedTable.removeAllViews()
-        if (stats.friendless != PlayStatsEntity.INVALID_FRIENDLESS) {
+        if (stats.friendless != PlayStats.INVALID_FRIENDLESS) {
             binding.advancedHeader.visibility = View.VISIBLE
             binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
@@ -178,7 +178,7 @@ class PlayStatsFragment : Fragment() {
                 binding.advancedTable.addView(this)
             }
         }
-        if (stats.utilization != PlayStatsEntity.INVALID_UTILIZATION) {
+        if (stats.utilization != PlayStats.INVALID_UTILIZATION) {
             binding.advancedHeader.visibility = View.VISIBLE
             binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
@@ -188,7 +188,7 @@ class PlayStatsFragment : Fragment() {
                 binding.advancedTable.addView(this)
             }
         }
-        if (stats.cfm != PlayStatsEntity.INVALID_CFM) {
+        if (stats.cfm != PlayStats.INVALID_CFM) {
             binding.advancedHeader.visibility = View.VISIBLE
             binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
@@ -213,17 +213,17 @@ class PlayStatsFragment : Fragment() {
         }
     }
 
-    private fun bindPlayerUi(stats: PlayerStatsEntity) {
+    private fun bindPlayerUi(stats: PlayerStats) {
         binding.playerHIndexView.text = stats.hIndex.description
-        bindHIndexTable(binding.playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
+        bindHIndexTable(binding.playerHIndexTable, stats.hIndex, stats.hIndexPlayers)
         binding.playerHIndexTable.setOnClickListener {
             PlayersActivity.startByPlayCount(requireContext())
         }
     }
 
-    private fun bindHIndexTable(table: TableLayout, hIndex: HIndexEntity, entries: List<Pair<String, Int>>?) {
+    private fun bindHIndexTable(table: TableLayout, hIndex: HIndex, entries: List<Pair<String, Int>>?) {
         table.removeAllViews()
-        if (entries == null || entries.isEmpty()) {
+        if (entries.isNullOrEmpty()) {
             table.visibility = View.GONE
         } else {
             val rankedEntries = entries.filter { pair -> pair.first.isNotBlank() && pair.second > 0 }

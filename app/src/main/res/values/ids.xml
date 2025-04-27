@@ -1,24 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-	<!-- title bar -->
-	<item name="title_container" type="id"/>
-	<item name="title_logo" type="id"/>
-	<item name="title_text" type="id"/>
-	<!-- home screen -->
-	<item name="version" type="id"/>
-	<!-- game header -->
-	<item name="game_name" type="id"/>
-	<!-- image -->
-	<item name="url" type="id"/>
-
+	<!-- for use in tags -->
 	<item name="visibility" type="id"/>
-
-	<!-- plays summary -->
-	<item name="game_id" type="id"/>
 	<item name="image" type="id"/>
-	<item name="hero_image" type="id"/>
-
-	<!-- FAB -->
 	<item name="res_id" type="id"/>
 </resources>

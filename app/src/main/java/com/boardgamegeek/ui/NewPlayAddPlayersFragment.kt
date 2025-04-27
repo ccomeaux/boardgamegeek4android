@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
@@ -23,8 +22,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayAddPlayersBinding
 import com.boardgamegeek.databinding.RowNewPlayAddPlayerBinding
-import com.boardgamegeek.entities.PlayerEntity
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.Player
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
 import com.google.android.material.chip.Chip
@@ -36,7 +35,9 @@ class NewPlayAddPlayersFragment : Fragment() {
     private var _binding: FragmentNewPlayAddPlayersBinding? = null
     private val binding get() = _binding!!
     private val viewModel by activityViewModels<NewPlayViewModel>()
-    private val adapter: PlayersAdapter by lazy { PlayersAdapter(viewModel, binding.filterEditText) }
+    private val adapter: PlayersAdapter by lazy {
+        PlayersAdapter { player -> addPlayer(player) }
+    }
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -53,19 +54,18 @@ class NewPlayAddPlayersFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(true)
         binding.recyclerView.adapter = adapter
 
-        binding.filterEditText.doAfterTextChanged { s ->
-            if (s.isNullOrBlank()) {
+        binding.filterEditText.doAfterTextChanged { text ->
+            if (text.isNullOrBlank()) {
                 binding.nextOrAddButton.setImageResource(R.drawable.ic_baseline_check_circle_24)
             } else {
                 binding.nextOrAddButton.setImageResource(R.drawable.ic_baseline_add_circle_outline_24)
             }
-            viewModel.filterPlayers(s.toString())
+            viewModel.filterPlayers(text.toString())
         }
 
         binding.nextOrAddButton.setOnClickListener {
             if (binding.filterEditText.text?.isNotBlank() == true) {
-                viewModel.addPlayer(PlayerEntity(binding.filterEditText.text.toString(), ""))
-                binding.filterEditText.setText("")
+                addPlayer(Player(binding.filterEditText.text.toString(), ""))
             } else {
                 viewModel.finishAddingPlayers()
             }
@@ -91,9 +91,9 @@ class NewPlayAddPlayersFragment : Fragment() {
             it?.let { playerList ->
                 for (player in playerList) {
                     findOrCreateChip(player.id).apply {
-                        text = player.description
+                        text = player.description.padEnd(5) // short names cause the icon to be black instead of gray; this is a workaround
                         isCloseIconVisible = true
-                        if (player.avatarUrl.isBlank()) {
+                        if (player.avatarUrl.isNullOrBlank()) {
                             setChipIconResource(R.drawable.ic_baseline_account_circle_24)
                             if (player.favoriteColor?.isNotBlank() == true) {
                                 chipIconTint = ColorStateList.valueOf(player.favoriteColor.asColorRgb())
@@ -134,11 +134,17 @@ class NewPlayAddPlayersFragment : Fragment() {
         _binding = null
     }
 
-    private class PlayersAdapter(private val viewModel: NewPlayViewModel, private val filterView: TextView) :
-        RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(), AutoUpdatableAdapter {
-        var players: List<PlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+    private fun addPlayer(player: Player) {
+        viewModel.addPlayer(player)
+        binding.filterEditText.clearText()
+        binding.recyclerView.scrollToPosition(0)
+    }
+
+    private class PlayersAdapter(var onItemClick: ((Player) -> Unit)? = null) : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(),
+        AutoUpdatableAdapter {
+        var players: List<Player> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
-                old.name == new.name && old.username == new.username && old.avatarUrl == new.avatarUrl
+                old.name == new.name && old.username == new.username && old.userAvatarUrl == new.userAvatarUrl
             }
         }
 
@@ -155,11 +161,11 @@ class NewPlayAddPlayersFragment : Fragment() {
         inner class PlayersViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val binding = RowNewPlayAddPlayerBinding.bind(itemView)
 
-            fun bind(player: PlayerEntity?) {
+            fun bind(player: Player?) {
                 player?.let { p ->
                     binding.nameView.text = p.name
                     binding.usernameView.text = p.username
-                    binding.avatarView.loadThumbnail(p.avatarUrl, R.drawable.person_image_empty, object : ImageLoadCallback {
+                    binding.avatarView.loadThumbnail(p.userAvatarUrl, R.drawable.person_image_empty, object : ImageLoadCallback {
                         override fun onSuccessfulImageLoad(palette: Palette?) {
                         }
 
@@ -168,19 +174,18 @@ class NewPlayAddPlayersFragment : Fragment() {
                                 tintPlayer(p)
                         }
                     })
-                    if (p.avatarUrl.isBlank() && p.favoriteColor != null) {
+                    if (p.userAvatarUrl.isNullOrBlank() && p.favoriteColor != null) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
                             tintPlayer(p)
                     }
                     itemView.setOnClickListener {
-                        viewModel.addPlayer(p)
-                        filterView.text = ""
+                        onItemClick?.invoke(p)
                     }
                 }
             }
 
             @RequiresApi(Build.VERSION_CODES.Q)
-            private fun tintPlayer(p: PlayerEntity) {
+            private fun tintPlayer(p: Player) {
                 binding.avatarView.imageTintBlendMode = BlendMode.COLOR_BURN
                 binding.avatarView.imageTintList = ColorStateList.valueOf(p.favoriteColor ?: Color.TRANSPARENT)
             }

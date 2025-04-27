@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNewPlayPlayerIsNewBinding
 import com.boardgamegeek.databinding.RowNewPlayPlayerIsNewBinding
-import com.boardgamegeek.entities.NewPlayPlayerEntity
+import com.boardgamegeek.model.NewPlayPlayer
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.NewPlayViewModel
@@ -39,8 +39,8 @@ class NewPlayPlayerIsNewFragment : Fragment() {
 
         binding.recyclerView.adapter = adapter
 
-        viewModel.mightBeNewPlayers.observe(viewLifecycleOwner) { entity ->
-            adapter.players = entity.sortedBy { it.seat }
+        viewModel.mightBeNewPlayers.observe(viewLifecycleOwner) { players ->
+            adapter.players = players.sortedBy { it.seat }
         }
 
         binding.nextButton.setOnClickListener {
@@ -60,7 +60,7 @@ class NewPlayPlayerIsNewFragment : Fragment() {
 
     private class PlayersAdapter(private val viewModel: NewPlayViewModel) : RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder>(),
         AutoUpdatableAdapter {
-        var players: List<NewPlayPlayerEntity> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+        var players: List<NewPlayPlayer> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
                 old.id == new.id
             }

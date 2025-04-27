@@ -10,15 +10,15 @@ import kotlin.math.roundToInt
 class GeekRankingFilterDialog : SliderFilterDialog() {
     override fun getType(context: Context) = GeekRankingFilterer(context).type
     override val titleResId = R.string.menu_geek_ranking
-    override val valueFrom = GeekRankingFilterer.lowerBound.toFloat()
-    override val valueTo = GeekRankingFilterer.upperBound.toFloat()
+    override val valueFrom = GeekRankingFilterer.LOWER_BOUND.toFloat()
+    override val valueTo = GeekRankingFilterer.UPPER_BOUND.toFloat()
     override val supportsSlider = false
 
     override fun initValues(filter: CollectionFilterer?): InitialValues {
         val f = filter as? GeekRankingFilterer
         return InitialValues(
-            (f?.min ?: GeekRankingFilterer.lowerBound).toFloat(),
-            (f?.max ?: GeekRankingFilterer.upperBound).toFloat(),
+            (f?.min ?: GeekRankingFilterer.LOWER_BOUND).toFloat(),
+            (f?.max ?: GeekRankingFilterer.UPPER_BOUND).toFloat(),
             f?.includeUnranked ?: false,
         )
     }

@@ -15,8 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlaysBinding
-import com.boardgamegeek.entities.PlayEntity
-import com.boardgamegeek.entities.Status
+import com.boardgamegeek.model.Play
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -30,6 +29,7 @@ class GamePlaysFragment : Fragment() {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
     private var heroImageUrl = ""
+    private var thumbnailUrl = ""
     private var arePlayersCustomSorted = false
 
     @ColorInt
@@ -47,16 +47,17 @@ class GamePlaysFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.constraintLayout.layoutTransition.setAnimateParentHierarchy(false)
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshPlays() }
         binding.swipeRefresh.setBggColors()
 
         binding.syncTimestampView.timestamp = 0L
 
         viewModel.game.observe(viewLifecycleOwner) {
-            it?.data?.let { game ->
+            it?.let { game ->
                 gameId = game.id
                 gameName = game.name
                 heroImageUrl = game.heroImageUrl
+                thumbnailUrl = game.thumbnailUrl
                 arePlayersCustomSorted = game.customPlayerSort
                 binding.syncTimestampView.timestamp = game.updatedPlays
                 iconColor = game.iconColor
@@ -66,16 +67,15 @@ class GamePlaysFragment : Fragment() {
             }
         }
 
+        viewModel.playsAreRefreshing.observe(viewLifecycleOwner) {
+            it?.let { binding.swipeRefresh.isRefreshing = it }
+        }
         viewModel.plays.observe(viewLifecycleOwner) {
-            it?.let { (status, data, message) ->
-                binding.swipeRefresh.isRefreshing = status == Status.REFRESHING
-                data.orEmpty().run {
-                    bindTotalPlays(this)
-                    bindPlaysInProgress(this)
-                    bindLastPlay(this)
-                    bindStats(this)
-                }
-                if (status == Status.ERROR) toast(message)
+            it?.let {
+                bindTotalPlays(it)
+                bindPlaysInProgress(it)
+                bindLastPlay(it)
+                bindStats(it)
             }
         }
 
@@ -89,7 +89,7 @@ class GamePlaysFragment : Fragment() {
         _binding = null
     }
 
-    private fun bindTotalPlays(plays: List<PlayEntity>) {
+    private fun bindTotalPlays(plays: List<Play>) {
         val playCount = plays.sumOf { it.quantity }
         val (count, description, color) = playCount.asPlayCount(requireContext())
         binding.playCountIcon.text = count.toString()
@@ -103,13 +103,14 @@ class GamePlaysFragment : Fragment() {
                     gameId,
                     gameName,
                     heroImageUrl,
+                    thumbnailUrl,
                     arePlayersCustomSorted,
                     iconColor,
                 )
         }
     }
 
-    private fun bindPlaysInProgress(plays: List<PlayEntity>) {
+    private fun bindPlaysInProgress(plays: List<Play>) {
         val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
         if (inProgressPlays.isNotEmpty()) {
             binding.inProgressPlaysList.removeAllViews()
@@ -132,7 +133,7 @@ class GamePlaysFragment : Fragment() {
         }
     }
 
-    private fun bindLastPlay(plays: List<PlayEntity>) {
+    private fun bindLastPlay(plays: List<Play>) {
         val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
         if (lastPlay != null) {
             binding.lastPlayViews.isVisible = true
@@ -146,7 +147,7 @@ class GamePlaysFragment : Fragment() {
         }
     }
 
-    private fun bindStats(plays: List<PlayEntity>) {
+    private fun bindStats(plays: List<Play>) {
         binding.playStatsViews.isVisible = plays.isNotEmpty()
         binding.playStatsContainer.setOnClickListener {
             if (gameId != BggContract.INVALID_ID)
@@ -179,7 +180,7 @@ class GamePlaysFragment : Fragment() {
         attrs: AttributeSet? = null,
         defStyleAttr: Int = android.R.attr.textViewStyle,
     ) : SelfUpdatingView(context, attrs, defStyleAttr) {
-        var play: PlayEntity? = null
+        var play: Play? = null
 
         override fun updateText() {
             play?.let {

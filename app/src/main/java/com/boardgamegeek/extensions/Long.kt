@@ -8,17 +8,20 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.time.Duration
 
-fun Long.isOlderThan(duration: Duration) = System.currentTimeMillis() - this > duration.inWholeMilliseconds
+fun Long?.isOlderThan(duration: Duration): Boolean {
+    return if (this == null)  true
+    else (System.currentTimeMillis() - this) > duration.inWholeMilliseconds
+}
 
 fun Long.isToday(): Boolean = isToday(this)
 
 fun Long.isSameDay(date: Long): Boolean {
-    val otherCalendar = Calendar.getInstance()
-    val cal2 = Calendar.getInstance()
-    otherCalendar.timeInMillis = this
-    cal2.timeInMillis = date
-    return otherCalendar[Calendar.DAY_OF_YEAR] == cal2[Calendar.DAY_OF_YEAR] &&
-            otherCalendar[Calendar.YEAR] == cal2[Calendar.YEAR]
+    val thisCalendar = Calendar.getInstance()
+    val thatCalendar = Calendar.getInstance()
+    thisCalendar.timeInMillis = this
+    thatCalendar.timeInMillis = date
+    return thisCalendar[Calendar.DAY_OF_YEAR] == thatCalendar[Calendar.DAY_OF_YEAR] &&
+            thisCalendar[Calendar.YEAR] == thatCalendar[Calendar.YEAR]
 }
 
 fun Long.asPastDaySpan(context: Context, @StringRes zeroResId: Int = R.string.never, includeWeekDay: Boolean = false): CharSequence {
@@ -47,17 +50,11 @@ fun Long.howManyHoursOld(): Int {
     return ((System.currentTimeMillis() - this) / HOUR_IN_MILLIS).toInt()
 }
 
-fun Long.howManyWeeksOld(): Int {
-    return ((System.currentTimeMillis() - this) / WEEK_IN_MILLIS).toInt()
+fun Long.howManyDaysOld(): Int {
+    return ((System.currentTimeMillis() - this) / DAY_IN_MILLIS).toInt()
 }
 
-fun Long.forDatabase(): String {
-    val c = Calendar.getInstance()
-    c.timeInMillis = this
-    return SimpleDateFormat("yyyy-MM-dd", Locale.US).format(c.time)
-}
-
-fun Long.formatTimestamp(context: Context, includeTime: Boolean, isForumTimestamp: Boolean = false): CharSequence {
+fun Long.formatTimestamp(context: Context, includeTime: Boolean = true, isForumTimestamp: Boolean = false): CharSequence {
     var flags = FORMAT_SHOW_DATE or FORMAT_SHOW_YEAR or FORMAT_ABBREV_MONTH
     if (includeTime) flags = flags or FORMAT_SHOW_TIME
     val prefs = context.preferences()
@@ -68,6 +65,13 @@ fun Long.formatTimestamp(context: Context, includeTime: Boolean, isForumTimestam
             context.getString(R.string.text_unknown)
         } else getRelativeTimeSpanString(this, System.currentTimeMillis(), MINUTE_IN_MILLIS, flags)
     }
+}
+
+fun Long.addDay(amount: Int):Long  {
+    return Calendar.getInstance().apply {
+        timeInMillis = this@addDay
+        add(Calendar.DAY_OF_YEAR, amount)
+    }.timeInMillis
 }
 
 fun Long?.asDateForApi(): String {
@@ -82,4 +86,14 @@ fun Long.fromLocalToUtc(): Long {
     val timeZone = TimeZone.getDefault()
     val standardTime = this - timeZone.rawOffset
     return standardTime - if (timeZone.inDaylightTime(Date(standardTime))) timeZone.dstSavings else 0
+}
+
+fun Long.asDateOnly(): Long {
+    return Calendar.getInstance().apply {
+        timeInMillis = this@asDateOnly
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 }

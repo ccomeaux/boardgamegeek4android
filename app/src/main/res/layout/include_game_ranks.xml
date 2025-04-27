@@ -15,17 +15,17 @@
 		android:layout_height="wrap_content"
 		android:contentDescription="@string/rank"
 		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toStartOf="@id/rankView"
+		app:layout_constraintEnd_toStartOf="@id/subtypeView"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:srcCompat="@drawable/ic_baseline_emoji_events_24" />
 
 	<TextView
-		android:id="@+id/rankView"
+		android:id="@+id/subtypeView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.Primary"
-		app:layout_constraintBottom_toTopOf="@+id/subtypeView"
+		app:layout_constraintBottom_toTopOf="@+id/familyView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@+id/ranksIcon"
 		app:layout_constraintTop_toTopOf="parent"
@@ -33,15 +33,15 @@
 		tools:text="#42 Board Game" />
 
 	<TextView
-		android:id="@+id/subtypeView"
+		android:id="@+id/familyView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.Secondary"
 		android:visibility="gone"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="@+id/rankView"
-		app:layout_constraintTop_toBottomOf="@+id/rankView"
+		app:layout_constraintStart_toStartOf="@+id/subtypeView"
+		app:layout_constraintTop_toBottomOf="@+id/subtypeView"
 		app:layout_constraintVertical_chainStyle="packed"
 		tools:text="#34 Strategy"
 		tools:visibility="visible" />
