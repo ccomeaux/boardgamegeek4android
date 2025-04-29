@@ -9,8 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPersonStatsBinding
-import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.boardgamegeek.work.SyncCollectionWorker
 import dagger.hilt.android.AndroidEntryPoint
@@ -116,7 +116,18 @@ class PersonStatsFragment : Fragment() {
                 R.plurals.person_game_h_index_info,
                 stats.hIndex.h,
                 stats.hIndex.h,
-                stats.hIndex.n
+                stats.hIndex.n,
+            )
+        }
+
+        binding.gIndex.text = stats.gIndex.description
+        binding.gIndexLabel.setOnClickListener {
+            context?.showClickableAlertDialogPlural(
+                R.string.g_index,
+                R.plurals.person_game_g_index_info,
+                stats.gIndex.g,
+                stats.gIndex.g,
+                stats.gIndex.g * stats.gIndex.g,
             )
         }
 

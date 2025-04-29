@@ -14,6 +14,7 @@ class PersonStats(
     val whitmoreScoreWithExpansions: Int,
     val playCount: Int,
     val hIndex: HIndex,
+    val gIndex: GIndex,
 ) {
     companion object {
         suspend fun fromLinkedCollection(collection: List<CollectionItem>, context: Context): PersonStats = withContext(Dispatchers.Default) {
@@ -38,7 +39,8 @@ class PersonStats(
                 whitmoreScore = whitmoreScore,
                 whitmoreScoreWithExpansions = whitmoreScoreWithExpansions,
                 playCount = playCountsByGame.sum(),
-                hIndex = HIndex.fromList(playCountsByGame)
+                hIndex = HIndex.fromList(playCountsByGame),
+                gIndex = GIndex.fromList(playCountsByGame),
             )
         }
     }

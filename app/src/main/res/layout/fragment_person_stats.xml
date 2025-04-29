@@ -133,7 +133,26 @@
 				android:layout_height="wrap_content"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintTop_toBottomOf="@id/playCount"
-				tools:text="4" />
+				tools:text="14" />
+
+			<TextView
+				android:id="@+id/gIndexLabel"
+				style="@style/InfoText"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/g_index"
+				android:textAppearance="@style/TextAppearance.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/gIndex"
+				app:layout_constraintStart_toStartOf="parent" />
+
+			<TextView
+				android:id="@+id/gIndex"
+				style="@style/RatingLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/hIndex"
+				tools:text="22" />
 
 			<TextView
 				android:id="@+id/collectionStatusLabel"
@@ -154,7 +173,7 @@
 				android:layout_marginTop="24dp"
 				android:text="@string/modify"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/hIndex" />
+				app:layout_constraintTop_toBottomOf="@id/gIndex" />
 
 			<androidx.constraintlayout.widget.Group
 				android:id="@+id/averageRatingGroup"
