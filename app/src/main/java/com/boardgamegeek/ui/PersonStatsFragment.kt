@@ -131,6 +131,15 @@ class PersonStatsFragment : Fragment() {
             )
         }
 
+        val format = DecimalFormat("0.00")
+        binding.pearson.text = format.format(stats.pearson)
+        binding.pearsonLabel.setOnClickListener {
+            context?.showClickableAlertDialog(
+                R.string.pearson,
+                R.string.pearson_info,
+            )
+        }
+
         binding.statsView.isVisible = true
         binding.emptyMessageView.isVisible = false
     }

@@ -155,6 +155,25 @@
 				tools:text="22" />
 
 			<TextView
+				android:id="@+id/pearsonLabel"
+				style="@style/InfoText"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/pearson"
+				android:textAppearance="@style/TextAppearance.Subtitle"
+				app:layout_constraintBaseline_toBaselineOf="@id/pearson"
+				app:layout_constraintStart_toStartOf="parent" />
+
+			<TextView
+				android:id="@+id/pearson"
+				style="@style/RatingLarge"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintTop_toBottomOf="@id/gIndex"
+				tools:text="0.73" />
+
+			<TextView
 				android:id="@+id/collectionStatusLabel"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
@@ -173,7 +192,7 @@
 				android:layout_marginTop="24dp"
 				android:text="@string/modify"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toBottomOf="@id/gIndex" />
+				app:layout_constraintTop_toBottomOf="@id/pearson" />
 
 			<androidx.constraintlayout.widget.Group
 				android:id="@+id/averageRatingGroup"
