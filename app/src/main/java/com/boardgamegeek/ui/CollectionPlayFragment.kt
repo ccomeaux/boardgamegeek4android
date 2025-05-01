@@ -79,7 +79,8 @@ class CollectionPlayFragment : Fragment() {
             )
         )
         viewModel.friendlessShouldPlayGames.observe(viewLifecycleOwner) {
-            binding.friendlessShouldPlayWidget.bindList(it)
+            binding.friendlessShouldPlayWidget.bindList(it.first)
+            binding.friendlessShouldPlayWidget.setCount(it.second)
         }
 
         binding.wantToPlayWidget.setAdapter(
@@ -93,7 +94,8 @@ class CollectionPlayFragment : Fragment() {
             )
         )
         viewModel.wantToPlayItems.observe(viewLifecycleOwner) {
-            binding.wantToPlayWidget.bindList(it)
+            binding.wantToPlayWidget.bindList(it.first)
+            binding.wantToPlayWidget.setCount(it.second)
         }
 
         binding.recentlyPlayedWidget.setAdapter(
@@ -107,7 +109,8 @@ class CollectionPlayFragment : Fragment() {
             )
         )
         viewModel.recentlyPlayedGames.observe(viewLifecycleOwner) {
-            binding.recentlyPlayedWidget.bindList(it)
+            binding.recentlyPlayedWidget.bindList(it.first)
+            binding.recentlyPlayedWidget.setCount(it.second)
         }
 
         binding.shelfOfOpportunityWidget.setAdapter(
@@ -121,7 +124,8 @@ class CollectionPlayFragment : Fragment() {
             )
         )
         viewModel.shelfOfOpportunityItems.observe(viewLifecycleOwner) {
-            binding.shelfOfOpportunityWidget.bindList(it)
+            binding.shelfOfOpportunityWidget.bindList(it.first)
+            binding.shelfOfOpportunityWidget.setCount(it.second)
         }
 
 
@@ -136,7 +140,8 @@ class CollectionPlayFragment : Fragment() {
             )
         )
         viewModel.shelfOfNewOpportunityItems.observe(viewLifecycleOwner) {
-            binding.shelfOfNewOpportunityWidget.bindList(it)
+            binding.shelfOfNewOpportunityWidget.bindList(it.first)
+            binding.shelfOfNewOpportunityWidget.setCount(it.second)
         }
     }
 

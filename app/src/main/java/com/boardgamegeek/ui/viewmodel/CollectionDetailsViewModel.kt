@@ -9,12 +9,21 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionItem.Companion.filterBaseGames
+import com.boardgamegeek.model.CollectionItem.Companion.filterOwned
+import com.boardgamegeek.model.CollectionItem.Companion.filterPlayed
+import com.boardgamegeek.model.CollectionItem.Companion.filterPublishedGames
+import com.boardgamegeek.model.CollectionItem.Companion.filterRated
+import com.boardgamegeek.model.CollectionItem.Companion.filterUncommented
+import com.boardgamegeek.model.CollectionItem.Companion.filterUnplayed
+import com.boardgamegeek.model.CollectionItem.Companion.filterUnrated
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
+import com.boardgamegeek.repository.StatsHelper.Companion.calculateCorrelationCoefficient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -65,12 +74,6 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    private val ownedAndUnplayedItems = baseItems.map { list ->
-        list.filter { item ->
-            item.own && item.numberOfPlays == 0
-        }
-    }
-
     private val _errorMessage = EventLiveData()
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
@@ -88,75 +91,17 @@ class CollectionDetailsViewModel @Inject constructor(
     val playerCountType: LiveData<PlayerCountType>
         get() = _playerCountType
 
-    private val _wantToPlayItems = MediatorLiveData<List<CollectionItem>>()
-    val wantToPlayItems: LiveData<List<CollectionItem>>
-        get() = _wantToPlayItems
-
-    private val _recentlyPlayedGames = MediatorLiveData<List<CollectionItem>>()
-    val recentlyPlayedGames: LiveData<List<CollectionItem>>
-        get() = _recentlyPlayedGames
-
-    private val _friendlessShouldPlayGames = MediatorLiveData<List<CollectionItem>>()
-    val friendlessShouldPlayGames: LiveData<List<CollectionItem>>
-        get() = _friendlessShouldPlayGames
-
-    private val _shelfOfOpportunityItems = MediatorLiveData<List<CollectionItem>>()
-    val shelfOfOpportunityItems: LiveData<List<CollectionItem>>
-        get() = _shelfOfOpportunityItems
-
-    private val _shelfOfNewOpportunityItems = MediatorLiveData<List<CollectionItem>>()
-    val shelfOfNewOpportunityItems: LiveData<List<CollectionItem>>
-        get() = _shelfOfNewOpportunityItems
+    private val _itemsFilteredByPlayerCount = MediatorLiveData<List<CollectionItem>>()
 
     init {
-        _wantToPlayItems.addSource(allItems) {
-            createWantToPlay(items = it)
+        _itemsFilteredByPlayerCount.addSource(allItems) {
+            createFilteredByPlayerCountList(items = it)
         }
-        _wantToPlayItems.addSource(_playerCount) {
-            createWantToPlay(playerCount = it)
+        _itemsFilteredByPlayerCount.addSource(_playerCount) {
+            createFilteredByPlayerCountList(playerCount = it)
         }
-        _wantToPlayItems.addSource(_playerCountType) {
-            createWantToPlay(playerCountType = it ?: PlayerCountType.All)
-        }
-
-        _recentlyPlayedGames.addSource(allGames) {
-            createRecentlyPlayed(games = it)
-        }
-        _recentlyPlayedGames.addSource(_playerCount) {
-            createRecentlyPlayed(playerCount = it)
-        }
-        _recentlyPlayedGames.addSource(_playerCountType) {
-            createRecentlyPlayed(playerCountType = it ?: PlayerCountType.All)
-        }
-
-        _friendlessShouldPlayGames.addSource(allGames) {
-            createFriendlessShouldPlay(games = it)
-        }
-        _friendlessShouldPlayGames.addSource(_playerCount) {
-            createFriendlessShouldPlay(playerCount = it)
-        }
-        _friendlessShouldPlayGames.addSource(_playerCountType) {
-            createFriendlessShouldPlay(playerCountType = it ?: PlayerCountType.All)
-        }
-
-        _shelfOfOpportunityItems.addSource(ownedAndUnplayedItems) {
-            createShelfOfOpportunity(items = it)
-        }
-        _shelfOfOpportunityItems.addSource(_playerCount) {
-            createShelfOfOpportunity(playerCount = it)
-        }
-        _shelfOfOpportunityItems.addSource(_playerCountType) {
-            createShelfOfOpportunity(playerCountType = it ?: PlayerCountType.All)
-        }
-
-        _shelfOfNewOpportunityItems.addSource(ownedAndUnplayedItems) {
-            createShelfOfNewOpportunity(items = it)
-        }
-        _shelfOfNewOpportunityItems.addSource(_playerCount) {
-            createShelfOfNewOpportunity(playerCount = it)
-        }
-        _shelfOfNewOpportunityItems.addSource(_playerCountType) {
-            createShelfOfNewOpportunity(playerCountType = it ?: PlayerCountType.All)
+        _itemsFilteredByPlayerCount.addSource(_playerCountType) {
+            createFilteredByPlayerCountList(playerCountType = it ?: PlayerCountType.All)
         }
 
         _playerCountType.value = PlayerCountType.All
@@ -214,7 +159,7 @@ class CollectionDetailsViewModel @Inject constructor(
     val whyOwnItems: LiveData<List<CollectionItem>> = allItems.switchMap { list ->
         liveData {
             emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
-                .filter { it.own && it. lastPlayDate != null && it.lastPlayDate > 0 }
+                .filter { it.own && it.lastPlayDate != null && it.lastPlayDate > 0 }
                 .sortedByDescending { it.friendlessWhyOwn() }
                 .take(ITEM_LIMIT)
             )
@@ -239,7 +184,7 @@ class CollectionDetailsViewModel @Inject constructor(
             incomingCount,
             incomingCount.toDouble() / items.filter { it.own }.sumOf { it.quantity },
             items.filter { it.preOrdered }.sumOf { it.quantity },
-            items.filter { (it.wishList && it.wishListPriority in 1..4 ) }.sumOf { it.quantity },
+            items.filter { (it.wishList && it.wishListPriority in 1..4) }.sumOf { it.quantity },
             items.filter { it.wantToBuy }.sumOf { it.quantity },
             items.filter { it.wantInTrade }.sumOf { it.quantity },
         )
@@ -333,72 +278,77 @@ class CollectionDetailsViewModel @Inject constructor(
         BestWith,
     }
 
-    private fun createWantToPlay(
+    val wantToPlayItems = _itemsFilteredByPlayerCount.switchMap {
+        liveData {
+            val list = it.filter { it.wantToPlay }
+            emit(
+                list.sortedByDescending { it.geekRating }.take(ITEM_LIMIT) to list.size
+            )
+        }
+    }
+
+    val recentlyPlayedGames = _itemsFilteredByPlayerCount.switchMap {
+        liveData {
+            val list = it.asSequence()
+                .filterBaseGames()
+                .filter { it.lastPlayDate != null && it.lastPlayDate > 0L }
+                .sortedByDescending { it.lastPlayDate }
+                .toList()
+            emit(
+                list.take(ITEM_LIMIT) to list.size
+            )
+        }
+    }
+
+    val friendlessShouldPlayGames = _itemsFilteredByPlayerCount.switchMap {
+        liveData {
+            val list = it.asSequence()
+                .filterOwned()
+                .filterBaseGames()
+                .filter { it.friendlessShouldPlay > 10_000.0 }
+                .toList()
+            emit(
+                list.sortedByDescending { it.friendlessShouldPlay }.take(ITEM_LIMIT) to list.size
+            )
+        }
+    }
+
+    val shelfOfOpportunityItems = _itemsFilteredByPlayerCount.switchMap {
+        liveData {
+            val list = it.asSequence()
+                .filterOwned()
+                .filterBaseGames()
+                .filterUnplayed()
+                .toList()
+            emit(
+                list.sortedByDescending { it.geekRating }.take(ITEM_LIMIT) to list.size
+            )
+        }
+    }
+
+    val shelfOfNewOpportunityItems = _itemsFilteredByPlayerCount.switchMap {
+        liveData {
+            val list = it.asSequence()
+                .filterOwned()
+                .filterBaseGames()
+                .filterUnplayed()
+                .filter { it.acquisitionDate > 0L }
+                .toList()
+            emit(
+                list.sortedByDescending { it.acquisitionDate }.take(ITEM_LIMIT) to list.size
+            )
+        }
+    }
+
+    private fun createFilteredByPlayerCountList(
         items: List<CollectionItem>? = allItems.value,
         playerCount: Int? = _playerCount.value,
         playerCountType: PlayerCountType = _playerCountType.value ?: PlayerCountType.All,
     ) {
         items?.let {
-            _wantToPlayItems.postValue(items
-                .filter { it.wantToPlay }
-                .filterByPlayerCount(playerCount, playerCountType)
-                .sortedByDescending { it.geekRating }
-                .take(ITEM_LIMIT))
-        }
-    }
-
-    private fun createRecentlyPlayed(
-        games: List<CollectionItem>? = allGames.value,
-        playerCount: Int? = _playerCount.value,
-        playerCountType: PlayerCountType = _playerCountType.value ?: PlayerCountType.All,
-    ) {
-        games?.let {
-            _recentlyPlayedGames.postValue(games
-                .filter { it.lastPlayDate != null && it.lastPlayDate > 0L }
-                .filterByPlayerCount(playerCount, playerCountType)
-                .sortedByDescending { it.lastPlayDate }
-                .take(ITEM_LIMIT))
-        }
-    }
-
-    private fun createFriendlessShouldPlay(
-        games: List<CollectionItem>? = allGames.value,
-        playerCount: Int? = _playerCount.value,
-        playerCountType: PlayerCountType = _playerCountType.value ?: PlayerCountType.All,
-    ) {
-        games?.let {
-            _friendlessShouldPlayGames.postValue(games
-                .filter { it.own && it.lastPlayDate != null && it.lastPlayDate > 0L }
-                .filterByPlayerCount(playerCount, playerCountType)
-                .sortedByDescending { it.friendlessShouldPlay }
-                .take(ITEM_LIMIT))
-        }
-    }
-
-    private fun createShelfOfOpportunity(
-        items: List<CollectionItem>? = ownedAndUnplayedItems.value,
-        playerCount: Int? = _playerCount.value,
-        playerCountType: PlayerCountType = _playerCountType.value ?: PlayerCountType.All,
-    ) {
-        items?.let {
-            _shelfOfOpportunityItems.postValue(items
-                .filterByPlayerCount(playerCount, playerCountType)
-                .sortedByDescending { it.geekRating }
-                .take(ITEM_LIMIT))
-        }
-    }
-
-    private fun createShelfOfNewOpportunity(
-        items: List<CollectionItem>? = ownedAndUnplayedItems.value,
-        playerCount: Int? = _playerCount.value,
-        playerCountType: PlayerCountType = _playerCountType.value ?: PlayerCountType.All,
-    ) {
-        items?.let {
-            _shelfOfNewOpportunityItems.postValue(items
-                .filter { it.acquisitionDate > 0L } // TODO filter out shelf of opportunity games
-                .filterByPlayerCount(playerCount, playerCountType)
-                .sortedByDescending { it.acquisitionDate }
-                .take(ITEM_LIMIT))
+            _itemsFilteredByPlayerCount.postValue(
+                items.filterByPlayerCount(playerCount, playerCountType)
+            )
         }
     }
 
@@ -406,7 +356,7 @@ class CollectionDetailsViewModel @Inject constructor(
         return playerCount?.let {
             return when (playerCountType) {
                 PlayerCountType.All -> this
-                PlayerCountType.Supports -> filter { item -> item.minPlayerCount <= it && item.maxPlayerCount >= it }
+                PlayerCountType.Supports -> filter { item -> it in item.minPlayerCount..item.maxPlayerCount }
                 PlayerCountType.GoodWith -> filter { item -> item.recommendedPlayerCounts?.contains(it) == true }
                 PlayerCountType.BestWith -> filter { item -> item.bestPlayerCounts?.contains(it) == true }
             }
@@ -415,31 +365,43 @@ class CollectionDetailsViewModel @Inject constructor(
 
     // ANALYZE
 
-    val ratableItems: LiveData<List<CollectionItem>> = baseItems.switchMap { list ->
+    data class CollectionAnalyzeStats(
+        val averagePersonalRating: Double,
+        val averageAverageRating: Double,
+        val correlationCoefficient: Double,
+    )
+
+    val collectionAnalyzeStats: LiveData<CollectionAnalyzeStats> = allItems.map { items ->
+        CollectionAnalyzeStats(
+            items.filter { it.rating > 0.0 }.map { it.rating }.average(),
+            items.filter { it.averageRating > 0.0 }.map { it.averageRating }.average(),
+            calculateCorrelationCoefficient(items.filter { it.rating > 0 && it.averageRating > 0 }.map { it.rating to it.averageRating }),
+        )
+    }
+
+    val ratableItems = baseItems.switchMap { list ->
         liveData {
-            emit(list
-                .filter {
-                    it.rating == 0.0 &&
-                            it.numberOfPlays > 0 &&
-                            it.gameId != UNPUBLISHED_PROTOTYPE_ID
-                }
-                .sortedWith(compareBy({ -it.numberOfPlays }, { it.numberOfUsersRating }))
-                .take(ITEM_LIMIT)
+            val filter = list
+                .filterUnrated()
+                .filterPlayed()
+                .filterPublishedGames()
+            emit(
+                filter
+                    .sortedWith(compareBy({ -it.numberOfPlays }, { it.numberOfUsersRating }))
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
 
-    val commentableItems: LiveData<List<CollectionItem>> = baseItems.switchMap { list ->
+    val commentableItems = baseItems.switchMap { list ->
         liveData {
-            emit(list
-                .filter {
-                    it.rating > 0.0 &&
-                            it.numberOfPlays > 0 &&
-                            it.gameId != UNPUBLISHED_PROTOTYPE_ID &&
-                            it.comment.isBlank()
-                }
-                .sortedBy { it.numberOfUsersRating }
-                .take(ITEM_LIMIT)
+            val filter = list
+                .filterUncommented()
+                .filterRated()
+                .filterPlayed()
+                .filterPublishedGames()
+            emit(
+                filter.sortedBy { it.numberOfUsersRating }.take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
@@ -463,6 +425,16 @@ class CollectionDetailsViewModel @Inject constructor(
             val gameId = itemRepository.loadCollectionItem(internalId)?.gameId
             if (gameId != null && gameId != INVALID_ID) {
                 itemRepository.updateRating(internalId, rating)
+                itemRepository.enqueueUploadRequest(gameId)
+            }
+        }
+    }
+
+    fun updateComment(internalId: Long, comment: String) {
+        viewModelScope.launch {
+            val gameId = itemRepository.loadCollectionItem(internalId)?.gameId
+            if (gameId != null && gameId != INVALID_ID) {
+                itemRepository.updateComment(internalId, comment)
                 itemRepository.enqueueUploadRequest(gameId)
             }
         }

@@ -81,7 +81,7 @@ class CollectionShelf @JvmOverloads constructor(
 
     fun setCount(count: Int?) {
         findViewById<TextView>(R.id.headerView).text = count?.let {
-            "$headerText   $count"
+            "$headerText - $count"
         } ?: headerText
     }
 

@@ -781,6 +781,7 @@
 	<string name="four_players">4P</string>
 	<string name="five_players">5P</string>
 	<string name="six_players">6P</string>
+	<string name="collection_analyze_summary">Your average rating is %1$s, which correlates with the average rating of %2$s by %3$s</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
