@@ -8,7 +8,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.databinding.FragmentGameCollectionBinding
-import com.boardgamegeek.model.Game
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.ui.adapter.GameCollectionItemAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
@@ -37,10 +36,6 @@ class GameCollectionFragment : Fragment() {
 
         binding.recyclerView.setHasFixedSize(false)
         binding.recyclerView.adapter = adapter
-
-        viewModel.game.observe(viewLifecycleOwner) {
-            adapter.gameYearPublished = it?.yearPublished ?: Game.YEAR_UNKNOWN
-        }
 
         viewModel.itemsAreRefreshing.observe(viewLifecycleOwner) {
             binding.swipeRefresh.isRefreshing = it ?: false

@@ -11,8 +11,8 @@ import androidx.activity.viewModels
 import androidx.fragment.app.Fragment
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
-import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameCollectionItemViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -28,7 +28,7 @@ class GameCollectionItemActivity : HeroActivity() {
     private var collectionName = ""
     private var thumbnailUrl = ""
     private var heroImageUrl = ""
-    private var yearPublished = CollectionItem.YEAR_UNKNOWN
+    private var gameYearPublished = CollectionItem.YEAR_UNKNOWN
     private var collectionYearPublished = CollectionItem.YEAR_UNKNOWN
     private var isInEditMode = false
     private var isItemUpdated = false
@@ -113,7 +113,7 @@ class GameCollectionItemActivity : HeroActivity() {
         collectionName = intent.getStringExtra(KEY_COLLECTION_NAME).orEmpty()
         thumbnailUrl = intent.getStringExtra(KEY_THUMBNAIL_URL).orEmpty()
         heroImageUrl = intent.getStringExtra(KEY_HERO_IMAGE_URL).orEmpty()
-        yearPublished = intent.getIntExtra(KEY_YEAR_PUBLISHED, CollectionItem.YEAR_UNKNOWN)
+        gameYearPublished = intent.getIntExtra(KEY_GAME_YEAR_PUBLISHED, CollectionItem.YEAR_UNKNOWN)
         collectionYearPublished = intent.getIntExtra(KEY_COLLECTION_YEAR_PUBLISHED, CollectionItem.YEAR_UNKNOWN)
     }
 
@@ -158,7 +158,7 @@ class GameCollectionItemActivity : HeroActivity() {
     }
 
     private fun safelySetTitle() {
-        if (collectionYearPublished == CollectionItem.YEAR_UNKNOWN || collectionYearPublished == yearPublished)
+        if (collectionYearPublished == CollectionItem.YEAR_UNKNOWN || collectionYearPublished == gameYearPublished)
             safelySetTitle(collectionName)
         else
             safelySetTitle("$collectionName ($collectionYearPublished)")
@@ -188,50 +188,24 @@ class GameCollectionItemActivity : HeroActivity() {
         private const val KEY_COLLECTION_NAME = "COLLECTION_NAME"
         private const val KEY_THUMBNAIL_URL = "THUMBNAIL_URL"
         private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
-        private const val KEY_YEAR_PUBLISHED = "YEAR_PUBLISHED"
+        private const val KEY_GAME_YEAR_PUBLISHED = "YEAR_PUBLISHED"
         private const val KEY_COLLECTION_YEAR_PUBLISHED = "COLLECTION_YEAR_PUBLISHED"
 
         fun start(
             context: Context,
             item: CollectionItem
         ) {
-            return start(
-                context,
-                item.internalId,
-                item.gameId,
-                item.gameName,
-                item.collectionId,
-                item.collectionName,
-                item.thumbnailUrl,
-                item.heroImageUrl,
-                item.gameYearPublished,
-                item.collectionYearPublished
-            )
-        }
-
-        fun start(
-            context: Context,
-            internalId: Long,
-            gameId: Int,
-            gameName: String,
-            collectionId: Int,
-            collectionName: String,
-            thumbnailUrl: String,
-            heroImageUrl: String,
-            yearPublished: Int,
-            collectionYearPublished: Int
-        ) {
-            if (internalId == BggContract.INVALID_ID.toLong()) return
+            if (item.internalId == BggContract.INVALID_ID.toLong()) return
             return context.startActivity<GameCollectionItemActivity>(
-                KEY_INTERNAL_ID to internalId,
-                KEY_GAME_ID to gameId,
-                KEY_GAME_NAME to gameName,
-                KEY_COLLECTION_ID to collectionId,
-                KEY_COLLECTION_NAME to collectionName,
-                KEY_THUMBNAIL_URL to thumbnailUrl,
-                KEY_HERO_IMAGE_URL to heroImageUrl,
-                KEY_YEAR_PUBLISHED to yearPublished,
-                KEY_COLLECTION_YEAR_PUBLISHED to collectionYearPublished,
+                KEY_INTERNAL_ID to item.internalId,
+                KEY_GAME_ID to item.gameId,
+                KEY_GAME_NAME to item.gameName,
+                KEY_COLLECTION_ID to item.collectionId,
+                KEY_COLLECTION_NAME to item.collectionName,
+                KEY_THUMBNAIL_URL to item.thumbnailUrl,
+                KEY_HERO_IMAGE_URL to item.heroImageUrl,
+                KEY_GAME_YEAR_PUBLISHED to item.yearPublished,
+                KEY_COLLECTION_YEAR_PUBLISHED to item.collectionYearPublished,
             )
         }
     }
