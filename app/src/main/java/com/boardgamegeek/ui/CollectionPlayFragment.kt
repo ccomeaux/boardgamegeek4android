@@ -35,6 +35,8 @@ class CollectionPlayFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.container.layoutTransition.setAnimateParentHierarchy(false)
+
         binding.allButton.setOnClickListener {
             viewModel.filterPlayerCountType(CollectionDetailsViewModel.PlayerCountType.All)
             binding.playerCountChipGroup.isVisible = false

@@ -31,6 +31,8 @@ class CollectionBrowseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.container.layoutTransition.setAnimateParentHierarchy(false)
+
         binding.recentlyViewedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(bindBadge = { item: CollectionItem ->
                 rating(item.averageRating)
