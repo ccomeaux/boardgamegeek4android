@@ -5,6 +5,7 @@ import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES
 import com.boardgamegeek.extensions.PlayStatPrefs.LOG_PLAY_STATS_EXPANSIONS
 import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
+import com.boardgamegeek.repository.StatsHelper.Companion.calculateCorrelationCoefficient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -14,6 +15,8 @@ class PersonStats(
     val whitmoreScoreWithExpansions: Int,
     val playCount: Int,
     val hIndex: HIndex,
+    val gIndex: GIndex,
+    val pearson: Double,
 ) {
     companion object {
         suspend fun fromLinkedCollection(collection: List<CollectionItem>, context: Context): PersonStats = withContext(Dispatchers.Default) {
@@ -33,12 +36,16 @@ class PersonStats(
                 .distinctBy { it.gameId }
                 .map { it.numberOfPlays }
 
+            val pearson = calculateCorrelationCoefficient(collection.filter { it.rating > 0 && it.averageRating > 0 }.map { it.rating to it.averageRating })
+
             PersonStats(
                 averageRating = baseGameCollection.filter { it.rating > 0.0 }.map { it.rating }.average(),
                 whitmoreScore = whitmoreScore,
                 whitmoreScoreWithExpansions = whitmoreScoreWithExpansions,
                 playCount = playCountsByGame.sum(),
-                hIndex = HIndex.fromList(playCountsByGame)
+                hIndex = HIndex.fromList(playCountsByGame),
+                gIndex = GIndex.fromList(playCountsByGame),
+                pearson = pearson,
             )
         }
     }

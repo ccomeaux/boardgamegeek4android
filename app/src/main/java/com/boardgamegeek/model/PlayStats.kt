@@ -9,6 +9,10 @@ class PlayStats private constructor(private val games: List<GameForPlayStats>, p
     val hIndex: HIndex
         get() = _hIndex
 
+    private var _gIndex: GIndex = GIndex.invalid()
+    val gIndex: GIndex
+        get() = _gIndex
+
     val numberOfPlays: Int by lazy {
         games.sumOf { it.playCount }
     }
@@ -100,7 +104,9 @@ class PlayStats private constructor(private val games: List<GameForPlayStats>, p
 
         suspend fun fromList(games: List<GameForPlayStats>, isOwnedSynced: Boolean): PlayStats {
             return PlayStats(games, isOwnedSynced).also {
-                it._hIndex = HIndex.fromList(games.map { game -> game.playCount })
+                val playCounts = games.map { game -> game.playCount }
+                it._hIndex = HIndex.fromList(playCounts)
+                it._gIndex = GIndex.fromList(playCounts)
             }
         }
     }

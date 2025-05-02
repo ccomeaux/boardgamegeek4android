@@ -605,6 +605,7 @@
 	<string name="play_stat_game_h_index_offset_out">plays outside of your H-index.</string>
 	<string name="play_stat_player_h_index">Player H-index</string>
 	<string name="play_stat_player_h_index_info" tools:ignore="PluralsCandidate">You\'ve played against at least %1$,d players %1$,d times or more. You need at least %2$,d more play(s) to increase this number.\n\nhttps://boardgamegeek.com/thread/1448479</string>
+	<string name="play_stat_game_g_index_info" tools:ignore="PluralsCandidate">You\'ve played at least this many games an average of this many times or more.</string>
 	<string name="play_stat_friendless">Friendless metric</string>
 	<string name="play_stat_friendless_info">A measure of how well played your owned collection is. A negative number indicates the difference of unplayed games vs. dimes you own.\n\nhttps://extstats.drfriendless.com/</string>
 	<string name="play_stat_cfm">Continuous Friendless Metric (CFM)</string>
@@ -746,6 +747,9 @@
 	<string name="person_stat_collection_status">These stats work much better if you sync your rated and played games.</string>
 	<string name="play_count">Play Count</string>
 	<string name="h_index">H-Index</string>
+	<string name="g_index">G-Index</string>
+	<string name="pearson">Pearson</string>
+	<string name="pearson_info">How your ratings compare to the average rating:\n\t&#8226; 1 is identical\n\t&#8226; 0 is unrelated\n\t&#8226; -1 is the inverse.</string>
 	<string name="whitmore_score_info">A calculation designed to determine your favorite %s.\n\nhttps://boardgamegeek.com/wiki/page/BGG_for_Android_Users_Manual#toc23</string>
 	<string name="ampersand">%1$s &amp; %2$s</string>
 	<string name="validate">Validate</string>
@@ -777,6 +781,7 @@
 	<string name="four_players">4P</string>
 	<string name="five_players">5P</string>
 	<string name="six_players">6P</string>
+	<string name="collection_analyze_summary">Your average rating is %1$s, which correlates with the average rating of %2$s by %3$s</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -901,6 +906,10 @@
 	<plurals name="person_game_h_index_info">
 		<item quantity="one">You\'ve played at least %1$,d game %1$s time or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
 		<item quantity="other">You\'ve played at least %1$,d games %1$s times or more. You need at least %2$,d more play(s) to increase this number.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.\n\nhttps://boardgamegeek.com/thread/953084</item>
+	</plurals>
+	<plurals name="person_game_g_index_info">
+		<item quantity="one">You\'ve played at least %1$,d game %2$,d time or more.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.</item>
+		<item quantity="other">You\'ve played at least %1$,d games a total of %2$,d times or more.\n\nThis calculation includes incomplete games, regardless of whether you have selected to include them or not.</item>
 	</plurals>
 	<plurals name="items_pending_upload">
 		<item quantity="one"><b>%,d</b> collection item pending upload</item>

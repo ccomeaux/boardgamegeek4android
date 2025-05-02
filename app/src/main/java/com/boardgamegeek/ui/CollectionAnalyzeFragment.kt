@@ -13,9 +13,11 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionAnalyzeBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.ui.dialog.CollectionDetailsCommentDialogFragment
 import com.boardgamegeek.ui.dialog.CollectionDetailsRatingNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionDetailsViewModel
 import com.boardgamegeek.ui.widget.CollectionShelf
+import java.text.DecimalFormat
 
 class CollectionAnalyzeFragment : Fragment() {
     private var _binding: FragmentCollectionAnalyzeBinding? = null
@@ -31,6 +33,18 @@ class CollectionAnalyzeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.container.layoutTransition.setAnimateParentHierarchy(false)
+
+        val displayFormat = DecimalFormat("0.00")
+        viewModel.collectionAnalyzeStats.observe(viewLifecycleOwner) {
+            binding.analyzeSummaryView.text = getString(
+                R.string.collection_analyze_summary,
+                it.averagePersonalRating.asPersonalRating(requireContext()),
+                it.averageAverageRating.asBoundedRating(requireContext(), displayFormat),
+                it.correlationCoefficient.asScore(requireContext(), format = displayFormat)
+            )
+        }
+
         binding.gamesToRateWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 { item ->
@@ -41,26 +55,32 @@ class CollectionAnalyzeFragment : Fragment() {
                 }
             ))
         viewModel.ratableItems.observe(viewLifecycleOwner) {
-            binding.gamesToRateWidget.bindList(it)
+            binding.gamesToRateWidget.bindList(it.first)
+            binding.gamesToRateWidget.setCount(it.second)
         }
 
         binding.gamesToCommentWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 { item ->
-                    rate(item)
+                    comment(item)
                 },
                 { item ->
-                   rating(item.rating)
+                    rating(item.rating)
                 }
             ))
         viewModel.commentableItems.observe(viewLifecycleOwner) {
-            binding.gamesToCommentWidget.bindList(it)
+            binding.gamesToCommentWidget.bindList(it.first)
+            binding.gamesToCommentWidget.setCount(it.second)
         }
     }
 
     private fun rate(item: CollectionItem) {
         val fragment = CollectionDetailsRatingNumberPadDialogFragment.newInstance(item.internalId, item.gameName)
         (this.requireActivity() as? FragmentActivity)?.showAndSurvive(fragment)
+    }
+
+    private fun comment(item: CollectionItem) {
+        CollectionDetailsCommentDialogFragment.show(parentFragmentManager, R.string.comment, item.gameName, item.internalId, item.comment)
     }
 
     private fun rating(rating: Double): Pair<String, Int> {

@@ -256,5 +256,23 @@ data class CollectionItem(
                     (syncedStatuses.contains(COLLECTION_STATUS_HAS_PARTS) && hasPartsList.isNotBlank()) ||
                     (syncedStatuses.contains(COLLECTION_STATUS_WANT_PARTS) && wantPartsList.isNotBlank())
         }
+
+        private const val UNPUBLISHED_PROTOTYPE_ID = 18291
+
+        fun Iterable<CollectionItem>.filterPublishedGames() = filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
+
+        fun Iterable<CollectionItem>.filterPlayed() = filter { it.numberOfPlays > 0 }
+
+        fun Iterable<CollectionItem>.filterRated() = filter { it.rating != UNRATED }
+
+        fun Iterable<CollectionItem>.filterUnrated() = filter { it.rating == UNRATED  }
+
+        fun Iterable<CollectionItem>.filterUncommented() = filter { it.comment.isBlank() }
+
+        fun Sequence<CollectionItem>.filterOwned() = filter { it.own }
+
+        fun Sequence<CollectionItem>.filterBaseGames() = filter { it.subtype in listOf(Game.Subtype.BOARDGAME, null) }
+
+        fun Sequence<CollectionItem>.filterUnplayed() = filter { it.numberOfPlays == 0 }
     }
 }

@@ -168,6 +168,16 @@ class PlayStatsFragment : Fragment() {
         bindHIndexTable(binding.gameHIndexTable, stats.hIndex, stats.getHIndexGames())
 
         binding.advancedTable.removeAllViews()
+        if (stats.gIndex.isValid()) {
+            binding.advancedHeader.isVisible = true
+            binding.advancedCard.isVisible = true
+            PlayStatRow(requireContext()).apply {
+                setLabel(R.string.g_index)
+                setValue(stats.gIndex.description)
+                setInfoText(R.string.play_stat_game_g_index_info)
+                binding.advancedTable.addView(this)
+            }
+        }
         if (stats.friendless != PlayStats.INVALID_FRIENDLESS) {
             binding.advancedHeader.visibility = View.VISIBLE
             binding.advancedCard.visibility = View.VISIBLE
