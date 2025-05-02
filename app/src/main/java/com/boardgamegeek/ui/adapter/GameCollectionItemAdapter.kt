@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.adapter
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -9,8 +8,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.WidgetCollectionRowBinding
-import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameCollectionItemActivity
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -18,11 +17,6 @@ import kotlin.properties.Delegates
 
 class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Adapter<GameCollectionItemAdapter.ViewHolder>(), AutoUpdatableAdapter {
     private val xmlConverter by lazy { XmlApiMarkupConverter(context) }
-
-    var gameYearPublished: Int by Delegates.observable(CollectionItem.YEAR_UNKNOWN) { _, oldValue, newValue ->
-        @SuppressLint("NotifyDataSetChanged")
-        if (oldValue != newValue) notifyDataSetChanged()
-    }
 
     var items: List<CollectionItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
         autoNotify(oldValue, newValue) { old, new ->
@@ -37,13 +31,13 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(items.getOrNull(position), gameYearPublished)
+        holder.bind(items.getOrNull(position))
     }
 
     class ViewHolder(itemView: View, private val markupConverter: XmlApiMarkupConverter) : RecyclerView.ViewHolder(itemView) {
         private val binding = WidgetCollectionRowBinding.bind(itemView)
 
-        fun bind(item: CollectionItem?, gameYearPublished: Int) {
+        fun bind(item: CollectionItem?) {
             if (item == null) return
             binding.thumbnail.loadThumbnail(item.thumbnailUrl)
             binding.status.setTextOrHide(describeStatuses(item, itemView.context).formatList())
@@ -52,7 +46,7 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
             binding.comment.isVisible = item.comment.isNotBlank()
 
             val description = if (item.collectionName.isNotBlank() && item.collectionName != item.gameName ||
-                item.collectionYearPublished != CollectionItem.YEAR_UNKNOWN && item.collectionYearPublished != gameYearPublished
+                item.collectionYearPublished != CollectionItem.YEAR_UNKNOWN && item.collectionYearPublished != item.gameYearPublished
             ) {
                 if (item.collectionYearPublished == CollectionItem.YEAR_UNKNOWN) {
                     item.collectionName
@@ -82,18 +76,7 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
 
             if (item.internalId != BggContract.INVALID_ID.toLong()) {
                 itemView.setOnClickListener {
-                    GameCollectionItemActivity.start(
-                        itemView.context,
-                        item.internalId,
-                        item.gameId,
-                        item.gameName,
-                        item.collectionId,
-                        item.collectionName,
-                        item.thumbnailUrl,
-                        item.heroImageUrl,
-                        gameYearPublished,
-                        item.collectionYearPublished
-                    )
+                    GameCollectionItemActivity.start(itemView.context, item)
                 }
             }
         }

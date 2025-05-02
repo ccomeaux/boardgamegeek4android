@@ -31,10 +31,14 @@ class CollectionBrowseFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.container.layoutTransition.setAnimateParentHierarchy(false)
+
         binding.recentlyViewedWidget.setAdapter(
-            CollectionShelf.CollectionItemAdapter(bindBadge = { item: CollectionItem ->
+            CollectionShelf.CollectionItemAdapter(
+                bindBadge = { item: CollectionItem ->
                 rating(item.averageRating)
-            }),
+                }
+            ),
         )
         viewModel.recentlyViewedItems.observe(viewLifecycleOwner) {
             binding.recentlyViewedWidget.bindList(it)
@@ -44,7 +48,8 @@ class CollectionBrowseFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 bindBadge = { item ->
                     rating(item.rating)
-                })
+                }
+            )
         )
         viewModel.highlyRatedItems.observe(viewLifecycleOwner) {
             binding.highlyRatedWidget.bindList(it)
@@ -54,7 +59,8 @@ class CollectionBrowseFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 bindBadge = { item ->
                     rating(item.rating)
-                })
+                }
+            )
         )
         viewModel.friendlessFavoriteItems.observe(viewLifecycleOwner) {
             binding.friendlessFavoriteWidget.bindList(it)
@@ -64,7 +70,8 @@ class CollectionBrowseFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 bindBadge = { item ->
                     item.zScore.asPersonalRating(context, ResourcesCompat.ID_NULL) to Color.WHITE
-                })
+                }
+            )
         )
         viewModel.underratedItems.observe(viewLifecycleOwner) {
             binding.hiddenGemsWidget.bindList(it)

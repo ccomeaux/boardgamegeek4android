@@ -34,6 +34,8 @@ class CollectionAcquireFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.container.layoutTransition.setAnimateParentHierarchy(false)
+
         viewModel.collectionAcquireStats.observe(viewLifecycleOwner) {
             if (it.incomingCount > 0) {
                 binding.acquireSummaryView.text = getString(R.string.msg_collection_details_acquire, it.incomingCount, it.incomingRate.asPercentage())
@@ -160,18 +162,7 @@ class CollectionAcquireFragment : Fragment() {
                 true
             }
             R.id.menu_view_item -> {
-                GameCollectionItemActivity.start(
-                    requireContext(),
-                    item.internalId,
-                    item.gameId,
-                    item.gameName,
-                    item.collectionId,
-                    item.collectionName,
-                    item.thumbnailUrl,
-                    item.heroImageUrl,
-                    item.gameYearPublished,
-                    item.collectionYearPublished
-                )
+                GameCollectionItemActivity.start(requireContext(), item)
                 true
             }
             else -> false

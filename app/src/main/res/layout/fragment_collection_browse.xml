@@ -6,6 +6,7 @@
 	android:fillViewport="true">
 
 	<LinearLayout
+		android:id="@id/container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:animateLayoutChanges="true"
@@ -16,7 +17,7 @@
 			android:id="@+id/recentlyViewedWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_recently_viewd" />
+			app:headerLabel="@string/title_recently_viewed" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/highlyRatedWidget"
@@ -48,6 +49,7 @@
 			android:id="@+id/whyOwnWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_why_own" />
+			app:headerLabel="@string/title_why_own"
+			app:helpText="@string/info_why_own" />
 	</LinearLayout>
 </ScrollView>
