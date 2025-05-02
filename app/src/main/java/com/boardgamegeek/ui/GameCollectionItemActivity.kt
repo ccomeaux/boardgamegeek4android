@@ -193,6 +193,24 @@ class GameCollectionItemActivity : HeroActivity() {
 
         fun start(
             context: Context,
+            item: CollectionItem
+        ) {
+            return start(
+                context,
+                item.internalId,
+                item.gameId,
+                item.gameName,
+                item.collectionId,
+                item.collectionName,
+                item.thumbnailUrl,
+                item.heroImageUrl,
+                item.gameYearPublished,
+                item.collectionYearPublished
+            )
+        }
+
+        fun start(
+            context: Context,
             internalId: Long,
             gameId: Int,
             gameName: String,

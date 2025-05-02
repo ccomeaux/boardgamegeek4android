@@ -3,6 +3,7 @@ package com.boardgamegeek.ui
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
@@ -52,8 +53,11 @@ class CollectionAnalyzeFragment : Fragment() {
                 },
                 { item ->
                     requireContext().getQuantityText(R.plurals.plays_suffix, item.numberOfPlays, item.numberOfPlays) to Color.WHITE
-                }
-            ))
+                },
+                R.menu.game_analyze,
+                onAnalyzeMenuClick(),
+            )
+        )
         viewModel.ratableItems.observe(viewLifecycleOwner) {
             binding.gamesToRateWidget.bindList(it.first)
             binding.gamesToRateWidget.setCount(it.second)
@@ -66,8 +70,11 @@ class CollectionAnalyzeFragment : Fragment() {
                 },
                 { item ->
                     rating(item.rating)
-                }
-            ))
+                },
+                R.menu.game_analyze,
+                onAnalyzeMenuClick(),
+            )
+        )
         viewModel.commentableItems.observe(viewLifecycleOwner) {
             binding.gamesToCommentWidget.bindList(it.first)
             binding.gamesToCommentWidget.setCount(it.second)
@@ -81,6 +88,21 @@ class CollectionAnalyzeFragment : Fragment() {
 
     private fun comment(item: CollectionItem) {
         CollectionDetailsCommentDialogFragment.show(parentFragmentManager, R.string.comment, item.gameName, item.internalId, item.comment)
+    }
+
+    private fun onAnalyzeMenuClick() = { item: CollectionItem, menuItem: MenuItem ->
+        Boolean
+        when (menuItem.itemId) {
+            R.id.menu_view_game -> {
+                GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
+                true
+            }
+            R.id.menu_view_item -> {
+                GameCollectionItemActivity.start(requireContext(), item)
+                true
+            }
+            else -> false
+        }
     }
 
     private fun rating(rating: Double): Pair<String, Int> {
