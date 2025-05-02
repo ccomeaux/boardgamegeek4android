@@ -4,8 +4,8 @@ buildscript {
     ext.kotlin_version = '2.0.21'
 
     repositories {
-        google()
         mavenCentral()
+        google()
         gradlePluginPortal()
     }
 
@@ -28,8 +28,8 @@ apply plugin: 'com.github.ben-manes.versions'
 
 allprojects {
     repositories {
-        google()
         mavenCentral()
+        google()
     }
 }
 
