@@ -41,7 +41,7 @@ class CollectionDetailPrivateInfoDialogFragment : DialogFragment() {
             .setView(binding.root)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.ok) { _, _ ->
-                viewModel.updatePrivateInfo(
+                viewModel.markedAsAcquired(
                     internalId,
                     binding.priceCurrencyView.selectedItem.toString(),
                     binding.priceView.getDoubleOrNull(),

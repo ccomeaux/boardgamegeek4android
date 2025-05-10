@@ -21,6 +21,7 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionItem.Companion.UNRATED
 import com.boardgamegeek.model.CollectionItem.Companion.WISHLIST_PRIORITY_UNKNOWN
 import com.boardgamegeek.model.CollectionItemUploadResult
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearCollection
@@ -35,6 +36,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import okhttp3.FormBody
 import timber.log.Timber
+import java.util.EnumSet
 
 class GameCollectionRepository(
     val context: Context,
@@ -268,7 +270,11 @@ class GameCollectionRepository(
                     if ((candidate.item.ratingDirtyTimestamp ?: 0L) == 0L) collectionDao.updateRating(internalId, itemForInsert.rating ?: UNRATED, 0L)
                     else Timber.i("Skipping dirty collection rating")
 
-                    if ((candidate.item.commentDirtyTimestamp ?: 0L) == 0L) collectionDao.updateComment(internalId, itemForInsert.comment.orEmpty(), 0L)
+                    if ((candidate.item.commentDirtyTimestamp ?: 0L) == 0L) collectionDao.updateComment(
+                        internalId,
+                        itemForInsert.comment.orEmpty(),
+                        0L
+                    )
                     else Timber.i("Skipping dirty collection comment")
 
                     if ((candidate.item.privateInfoDirtyTimestamp ?: 0L) == 0L) {
@@ -287,16 +293,32 @@ class GameCollectionRepository(
                         collectionDao.updatePrivateInfo(entity)
                     } else Timber.i("Skipping dirty collection private info")
 
-                    if ((candidate.item.wishlistCommentDirtyTimestamp ?: 0L) == 0L) collectionDao.updateWishlistComment(internalId, itemForInsert.wishlistComment.orEmpty(), 0L)
+                    if ((candidate.item.wishlistCommentDirtyTimestamp ?: 0L) == 0L) collectionDao.updateWishlistComment(
+                        internalId,
+                        itemForInsert.wishlistComment.orEmpty(),
+                        0L
+                    )
                     else Timber.i("Skipping dirty collection wishlist comment")
 
-                    if ((candidate.item.tradeConditionDirtyTimestamp ?: 0L) == 0L) collectionDao.updateTradeCondition(internalId, itemForInsert.condition.orEmpty(), 0L)
+                    if ((candidate.item.tradeConditionDirtyTimestamp ?: 0L) == 0L) collectionDao.updateTradeCondition(
+                        internalId,
+                        itemForInsert.condition.orEmpty(),
+                        0L
+                    )
                     else Timber.i("Skipping dirty collection trade condition")
 
-                    if ((candidate.item.wantPartsDirtyTimestamp ?: 0L) == 0L) collectionDao.updateWantParts(internalId, itemForInsert.wantpartsList.orEmpty(), 0L)
+                    if ((candidate.item.wantPartsDirtyTimestamp ?: 0L) == 0L) collectionDao.updateWantParts(
+                        internalId,
+                        itemForInsert.wantpartsList.orEmpty(),
+                        0L
+                    )
                     else Timber.i("Skipping dirty collection want parts list")
 
-                    if ((candidate.item.hasPartsDirtyTimestamp ?: 0L) == 0L) collectionDao.updateHasParts(internalId, itemForInsert.haspartsList.orEmpty(), 0L)
+                    if ((candidate.item.hasPartsDirtyTimestamp ?: 0L) == 0L) collectionDao.updateHasParts(
+                        internalId,
+                        itemForInsert.haspartsList.orEmpty(),
+                        0L
+                    )
                     else Timber.i("Skipping dirty collection has parts list")
 
                     if (candidate.item.collectionThumbnailUrl != itemForInsert.collectionThumbnailUrl) {
@@ -340,7 +362,8 @@ class GameCollectionRepository(
 
     suspend fun loadAcquiredFrom() = withContext(Dispatchers.IO) { collectionDao.loadAcquiredFrom().filterNotNull().filterNot { it.isBlank() } }
 
-    suspend fun loadInventoryLocation() = withContext(Dispatchers.IO) { collectionDao.loadInventoryLocation().filterNotNull().filterNot { it.isBlank() } }
+    suspend fun loadInventoryLocation() =
+        withContext(Dispatchers.IO) { collectionDao.loadInventoryLocation().filterNotNull().filterNot { it.isBlank() } }
 
     suspend fun loadItemsPendingDeletion() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingDeletion().map { it.mapToModel() } }
 
@@ -348,7 +371,8 @@ class GameCollectionRepository(
 
     suspend fun loadItemsPendingUpdate() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingUpdate().map { it.mapToModel() } }
 
-    fun loadItemsPendingUploadAsFlow() = collectionDao.loadItemsPendingUploadAsFlow().map { list -> list.map { it.mapToModel() } }.flowOn(Dispatchers.Default)
+    fun loadItemsPendingUploadAsFlow() =
+        collectionDao.loadItemsPendingUploadAsFlow().map { list -> list.map { it.mapToModel() } }.flowOn(Dispatchers.Default)
 
     suspend fun uploadDeletedItem(item: CollectionItem): Result<CollectionItemUploadResult> {
         val result = safeApiCall(context) { phpApi.collection(item.mapToFormBodyForDeletion()) }
@@ -533,6 +557,30 @@ class GameCollectionRepository(
 
     suspend fun updateStatus(
         internalId: Long,
+        status: EnumSet<CollectionStatus>,
+        statusWishlistPriority: Int = WISHLIST_PRIORITY_UNKNOWN,
+    ): Int = withContext(Dispatchers.IO) {
+        val priority = if (status.contains(CollectionStatus.Wishlist))
+            statusWishlistPriority.coerceIn(1..5)
+        else null
+        val entity = CollectionStatusEntity(
+            internalId = internalId,
+            statusOwn = status.contains(CollectionStatus.Own),
+            statusPreviouslyOwned = status.contains(CollectionStatus.Own),
+            statusForTrade = status.contains(CollectionStatus.ForTrade),
+            statusWant = status.contains(CollectionStatus.WantInTrade),
+            statusWantToPlay = status.contains(CollectionStatus.WantToPlay),
+            statusWantToBuy = status.contains(CollectionStatus.WantToBuy),
+            statusWishlist = status.contains(CollectionStatus.Wishlist),
+            statusWishlistPriority = priority,
+            statusPreordered = status.contains(CollectionStatus.Preordered),
+            statusDirtyTimestamp = System.currentTimeMillis(),
+        )
+        collectionDao.updateStatuses(entity)
+    }
+
+    suspend fun updateStatus(
+        internalId: Long,
         statusOwn: Boolean = false,
         statusPreordered: Boolean = false,
         statusPreviouslyOwned: Boolean = false,
@@ -571,19 +619,26 @@ class GameCollectionRepository(
         collectionDao.updateRating(internalId, clampedRating, System.currentTimeMillis())
     }
 
-    suspend fun updateComment(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateComment(internalId, text, System.currentTimeMillis()) }
+    suspend fun updateComment(internalId: Long, text: String): Int =
+        withContext(Dispatchers.IO) { collectionDao.updateComment(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updatePrivateComment(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updatePrivateComment(internalId, text, System.currentTimeMillis()) }
+    suspend fun updatePrivateComment(internalId: Long, text: String): Int =
+        withContext(Dispatchers.IO) { collectionDao.updatePrivateComment(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updateWishlistComment(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateWishlistComment(internalId, text, System.currentTimeMillis()) }
+    suspend fun updateWishlistComment(internalId: Long, text: String): Int =
+        withContext(Dispatchers.IO) { collectionDao.updateWishlistComment(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updateCondition(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateTradeCondition(internalId, text, System.currentTimeMillis()) }
+    suspend fun updateCondition(internalId: Long, text: String): Int =
+        withContext(Dispatchers.IO) { collectionDao.updateTradeCondition(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updateHasParts(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateHasParts(internalId, text, System.currentTimeMillis()) }
+    suspend fun updateHasParts(internalId: Long, text: String): Int =
+        withContext(Dispatchers.IO) { collectionDao.updateHasParts(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun updateWantParts(internalId: Long, text: String): Int = withContext(Dispatchers.IO) { collectionDao.updateWantParts(internalId, text, System.currentTimeMillis()) }
+    suspend fun updateWantParts(internalId: Long, text: String): Int =
+        withContext(Dispatchers.IO) { collectionDao.updateWantParts(internalId, text, System.currentTimeMillis()) }
 
-    suspend fun markAsDeleted(internalId: Long): Int = withContext(Dispatchers.IO) { collectionDao.updateDeletedTimestamp(internalId, System.currentTimeMillis()) }
+    suspend fun markAsDeleted(internalId: Long): Int =
+        withContext(Dispatchers.IO) { collectionDao.updateDeletedTimestamp(internalId, System.currentTimeMillis()) }
 
     suspend fun resetTimestamps(internalId: Long): Int = withContext(Dispatchers.IO) { collectionDao.clearDirtyTimestamps(internalId) }
 

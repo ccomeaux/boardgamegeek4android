@@ -7,6 +7,7 @@ import android.text.format.DateUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
+import java.util.EnumSet
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -86,6 +87,19 @@ data class CollectionItem(
     val numberOfUsersWishing: Int = 0,
     val standardDeviation: Double = 0.0,
 ) {
+    val statuses: Pair<EnumSet<CollectionStatus>, Int> by lazy {
+        val set = EnumSet.noneOf(CollectionStatus::class.java)
+        if (own) set.add(CollectionStatus.Own)
+        if (preOrdered) set.add(CollectionStatus.Preordered)
+        if (previouslyOwned) set.add(CollectionStatus.PreviouslyOwned)
+        if (forTrade) set.add(CollectionStatus.ForTrade)
+        if (wantInTrade) set.add(CollectionStatus.WantInTrade)
+        if (wantToBuy) set.add(CollectionStatus.WantToBuy)
+        if (wantToPlay) set.add(CollectionStatus.WantToPlay)
+        if (wishList) set.add(CollectionStatus.Wishlist)
+        set to wishListPriority
+    }
+
     val isDirty: Boolean by lazy {
         when {
             deleteTimestamp > 0L -> true

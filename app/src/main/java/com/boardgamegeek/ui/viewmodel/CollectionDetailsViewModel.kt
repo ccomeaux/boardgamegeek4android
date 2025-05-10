@@ -480,17 +480,14 @@ class CollectionDetailsViewModel @Inject constructor(
     fun markAsTraded(internalId: Long) {
         viewModelScope.launch {
             allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
+                val statuses = originalItem.statuses.copy().apply {
+                    first.remove(CollectionStatus.ForTrade)
+                    first.add(CollectionStatus.PreviouslyOwned)
+                }
                 gameCollectionRepository.updateStatus(
                     internalId,
-                    statusOwn = false,
-                    statusPreordered = originalItem.preOrdered,
-                    statusPreviouslyOwned = true,
-                    statusForTrade = false,
-                    statusWant = originalItem.wantInTrade,
-                    statusWantToPlay = originalItem.wantToPlay,
-                    statusWantToBuy = originalItem.wantToBuy,
-                    statusWishlist = originalItem.wishList,
-                    statusWishlistPriority = originalItem.wishListPriority,
+                    statuses.first,
+                    statuses.second,
                 )
                 gameCollectionRepository.updateCondition(internalId, "")
             }
@@ -531,7 +528,7 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    fun updatePrivateInfo(
+    fun markedAsAcquired(
         internalId: Long,
         priceCurrency: String?,
         pricePaid: Double?,
@@ -541,12 +538,17 @@ class CollectionDetailsViewModel @Inject constructor(
     ) {
         allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
             viewModelScope.launch {
+                val statuses = originalItem.statuses.copy().apply {
+                    first.remove(CollectionStatus.WantInTrade)
+                    first.remove(CollectionStatus.WantToBuy)
+                    first.remove(CollectionStatus.Wishlist)
+                    first.remove(CollectionStatus.Preordered)
+                    first.add(CollectionStatus.Own)
+                }
                 gameCollectionRepository.updateStatus(
                     internalId,
-                    statusOwn = true,
-                    statusPreviouslyOwned = originalItem.previouslyOwned,
-                    statusForTrade = originalItem.forTrade,
-                    statusWantToPlay = originalItem.wantToPlay,
+                    statuses.first,
+                    statuses.second,
                 )
 
                 val itemModified = priceCurrency != originalItem.pricePaidCurrency ||
