@@ -14,10 +14,11 @@ class CollectionPagerAdapter(
     override fun createFragment(position: Int): Fragment {
         return when (position) {
             0 -> CollectionBrowseFragment()
-            1 -> CollectionAcquireFragment()
-            2 -> CollectionPlayFragment()
-            3 -> CollectionAnalyzeFragment()
-            4 -> CollectionCreditsFragment()
+            1 -> CollectionPlayFragment()
+            2 -> CollectionAcquireFragment()
+            3 -> CollectionDivestFragment()
+            4 -> CollectionAnalyzeFragment()
+            5 -> CollectionCreditsFragment()
             else -> ErrorFragment()
         }
     }
@@ -25,14 +26,15 @@ class CollectionPagerAdapter(
     fun getPageTitle(position: Int): CharSequence {
         @StringRes val resId = when (position) {
             0 -> R.string.title_browse
-            1 -> R.string.title_acquire
-            2 -> R.string.title_play
-            3 -> R.string.title_analyze
-            4 -> R.string.title_credits
+            1 -> R.string.title_play
+            2 -> R.string.title_acquire
+            3 -> R.string.title_divest
+            4 -> R.string.title_analyze
+            5 -> R.string.title_credits
             else -> ResourcesCompat.ID_NULL
         }
         return activity.getString(if (resId == ResourcesCompat.ID_NULL) R.string.title_error else resId)
     }
 
-    override fun getItemCount() = 5
+    override fun getItemCount() = 6
 }

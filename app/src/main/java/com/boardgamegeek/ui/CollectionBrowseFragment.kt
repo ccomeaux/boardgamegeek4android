@@ -2,7 +2,6 @@ package com.boardgamegeek.ui
 
 import android.graphics.Color
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -86,18 +85,6 @@ class CollectionBrowseFragment : Fragment() {
         )
         viewModel.hawtItems.observe(viewLifecycleOwner) {
             binding.hawtWidget.bindList(it)
-        }
-
-        val dateFormat = DateFormat.getDateFormat(context)
-        binding.whyOwnWidget.setAdapter(
-            CollectionShelf.CollectionItemAdapter(
-                bindBadge = { item ->
-                    (item.lastPlayDate?.let { dateFormat.format(it) } ?: "") to Color.WHITE
-                }
-            )
-        )
-        viewModel.whyOwnItems.observe(viewLifecycleOwner) {
-            binding.whyOwnWidget.bindList(it)
         }
     }
 

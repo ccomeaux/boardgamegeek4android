@@ -31,7 +31,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CollectionDetailsViewModel @Inject constructor(
     application: Application,
-    private val itemRepository: GameCollectionRepository,
     private val gameCollectionRepository: GameCollectionRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
@@ -43,7 +42,7 @@ class CollectionDetailsViewModel @Inject constructor(
     private val allItems: LiveData<List<CollectionItem>> =
         liveData {
             try {
-                emitSource(itemRepository.loadAllAsFlow().asLiveData())
+                emitSource(gameCollectionRepository.loadAllAsFlow().asLiveData())
             } catch (e: Exception) {
                 _errorMessage.setMessage(e.localizedMessage.ifEmpty { "Error loading collection" })
             }
@@ -156,16 +155,19 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val whyOwnItems: LiveData<List<CollectionItem>> = allItems.switchMap { list ->
+    // OWN
+
+    val own = allItems.switchMap {
         liveData {
-            emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
-                .filter { it.own && it.lastPlayDate != null && it.lastPlayDate > 0 }
-                .sortedByDescending { it.friendlessWhyOwn() }
-                .take(ITEM_LIMIT)
+            val filter = it.filter { it.own }
+            emit(
+                filter
+                    .sortedWith(compareBy<CollectionItem> { it.rating }.thenByDescending { it.geekRating })
+                    .take(ITEM_LIMIT)
+                        to filter.size
             )
         }
     }
-
 
     // ACQUIRE
 
@@ -257,6 +259,61 @@ class CollectionDetailsViewModel @Inject constructor(
             emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID && !it.own && !it.isIncoming }
                 .sortedByDescending { it.hawt }
                 .take(ITEM_LIMIT)
+            )
+        }
+    }
+
+    // DIVEST
+
+    private val forTradeItems = allItems.map { list -> list.filter { item -> item.forTrade } }
+
+    val forTrade = forTradeItems.switchMap {
+        liveData {
+            emit(
+                it
+                    .sortedByDescending { it.numberOfUsersWanting }
+                    .take(ITEM_LIMIT)
+                        to it.size
+            )
+        }
+    }
+
+    val forTradeWithoutCondition = forTradeItems.switchMap {
+        liveData {
+            val filter = it.sortedByDescending { it.numberOfUsersWanting }.drop(ITEM_LIMIT).filter { it.conditionText.isBlank() }
+            val size = it.filter { it.conditionText.isBlank() }.size
+            emit(
+                filter
+                    .sortedByDescending { it.numberOfUsersWanting }
+                    .take(ITEM_LIMIT)
+                        to size
+            )
+        }
+    }
+
+    val previouslyOwned = allItems.switchMap {
+        liveData {
+            val filter = it.filter { it.previouslyOwned }
+            emit(
+                filter
+                    .sortedByDescending { it.geekRating }
+                    .take(ITEM_LIMIT)
+                        to filter.size
+            )
+        }
+    }
+
+    val whyOwnItems = allItems.switchMap { list ->
+        liveData {
+            val filter = list
+                .filter { it.own && !it.forTrade }
+                .filter { it.own && !it.forTrade && it.friendlessWhyOwn() > 100.0 }
+                .filterPublishedGames()
+            emit(
+                filter
+                    .sortedByDescending { it.friendlessWhyOwn() }
+                    .take(ITEM_LIMIT)
+                        to filter.size
             )
         }
     }
@@ -420,22 +477,42 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
+    fun markAsTraded(internalId: Long) {
+        viewModelScope.launch {
+            allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
+                gameCollectionRepository.updateStatus(
+                    internalId,
+                    statusOwn = false,
+                    statusPreordered = originalItem.preOrdered,
+                    statusPreviouslyOwned = true,
+                    statusForTrade = false,
+                    statusWant = originalItem.wantInTrade,
+                    statusWantToPlay = originalItem.wantToPlay,
+                    statusWantToBuy = originalItem.wantToBuy,
+                    statusWishlist = originalItem.wishList,
+                    statusWishlistPriority = originalItem.wishListPriority,
+                )
+                gameCollectionRepository.updateCondition(internalId, "")
+            }
+        }
+    }
+
     fun updateRating(internalId: Long, rating: Double) {
         viewModelScope.launch {
-            val gameId = itemRepository.loadCollectionItem(internalId)?.gameId
+            val gameId = gameCollectionRepository.loadCollectionItem(internalId)?.gameId
             if (gameId != null && gameId != INVALID_ID) {
-                itemRepository.updateRating(internalId, rating)
-                itemRepository.enqueueUploadRequest(gameId)
+                gameCollectionRepository.updateRating(internalId, rating)
+                gameCollectionRepository.enqueueUploadRequest(gameId)
             }
         }
     }
 
     fun updateComment(internalId: Long, comment: String) {
         viewModelScope.launch {
-            val gameId = itemRepository.loadCollectionItem(internalId)?.gameId
+            val gameId = gameCollectionRepository.loadCollectionItem(internalId)?.gameId
             if (gameId != null && gameId != INVALID_ID) {
-                itemRepository.updateComment(internalId, comment)
-                itemRepository.enqueueUploadRequest(gameId)
+                gameCollectionRepository.updateComment(internalId, comment)
+                gameCollectionRepository.enqueueUploadRequest(gameId)
             }
         }
     }

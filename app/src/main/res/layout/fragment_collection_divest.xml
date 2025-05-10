@@ -3,46 +3,48 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:fillViewport="true">
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<LinearLayout
-		android:id="@id/container"
+		android:id="@+id/container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:animateLayoutChanges="true"
 		android:orientation="vertical"
 		android:paddingBottom="@dimen/padding_extra">
 
-		<com.boardgamegeek.ui.widget.CollectionShelf
-			android:id="@+id/recentlyViewedWidget"
+		<TextView
+			android:id="@+id/divestSummaryView"
 			android:layout_width="match_parent"
+			android:layout_marginTop="@dimen/padding_extra"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_recently_viewed" />
+			android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+			android:textAppearance="@style/TextAppearance.Primary"
+			tools:text="You want 42 games." />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
-			android:id="@+id/highlyRatedWidget"
+			android:id="@+id/forTradeWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_your_top_rated" />
+			app:headerLabel="@string/collection_status_for_trade" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
-			android:id="@+id/friendlessFavoriteWidget"
+			android:id="@+id/forTradeWithoutConditionWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_friendless_favorites" />
+			app:headerLabel="@string/title_for_trade_without_condition" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
-			android:id="@+id/hiddenGemsWidget"
+			android:id="@+id/previouslyOwnedWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_hidden_gems"
-			app:helpText="@string/info_hidden_gems" />
+			app:headerLabel="@string/collection_status_prev_owned" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
-			android:id="@+id/hawtWidget"
+			android:id="@+id/whyOwnWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_hawt"
-			app:helpText="@string/info_hawt" />
- 	</LinearLayout>
+			app:headerLabel="@string/title_why_own"
+			app:helpText="@string/info_why_own" />
+	</LinearLayout>
 </ScrollView>
