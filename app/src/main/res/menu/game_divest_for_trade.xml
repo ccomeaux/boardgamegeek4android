@@ -14,5 +14,9 @@
 		android:id="@+id/menu_view_item"
 		android:title="@string/menu_view_item"
 		app:showAsAction="never" />
+	<item
+		android:id="@+id/menu_remove_for_trade"
+		android:title="@string/menu_remove_for_trade"
+		app:showAsAction="never" />
 
 </menu>

@@ -17,8 +17,10 @@ import com.boardgamegeek.databinding.FragmentCollectionDivestBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.ui.dialog.CollectionDetailsConditionDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionDetailsViewModel
 import com.boardgamegeek.ui.widget.CollectionShelf
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class CollectionDivestFragment : Fragment() {
     private var _binding: FragmentCollectionDivestBinding? = null
@@ -43,11 +45,10 @@ class CollectionDivestFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 null,
                 { item: CollectionItem ->
-                    item.numberOfUsersWanting.toString() to Color.WHITE
-                    //rating(item.geekRating)
+                    rating(item.geekRating)
                 },
                 R.menu.game_divest_for_trade,
-                onMenuClick()
+                onMenuClick(),
             )
         )
 
@@ -57,8 +58,8 @@ class CollectionDivestFragment : Fragment() {
                 { item: CollectionItem ->
                     rating(item.geekRating)
                 },
-                R.menu.game_divest_for_trade, // TODO option to add condition text
-                onMenuClick()
+                R.menu.game_divest_for_trade_without_condition,
+                onMenuClick(),
             )
         )
 
@@ -141,10 +142,39 @@ class CollectionDivestFragment : Fragment() {
         }
     }
 
-    private fun onMenuClick() = { item: CollectionItem, menuItem: MenuItem -> Boolean
+    private fun onMenuClick() = { item: CollectionItem, menuItem: MenuItem ->
+        Boolean
         when (menuItem.itemId) {
-            // TODO
-            //  remove from For Trade
+            R.id.menu_remove_for_trade -> {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(item.collectionName)
+                    .setMessage(getString(R.string.msg_remove_status, getString(R.string.collection_status_for_trade)))
+                    .setCancelable(true)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.remove) { _: DialogInterface?, _: Int ->
+                        viewModel.removeStatus(item.internalId, CollectionStatus.ForTrade)
+                    }
+                    .create()
+                    .show()
+                true
+            }
+            R.id.menu_add_condition_text -> {
+                CollectionDetailsConditionDialogFragment.show(parentFragmentManager, R.string.trade_condition, item.gameName, item.internalId, item.conditionText)
+                true
+            }
+            R.id.menu_trade -> {
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(item.collectionName)
+                    .setMessage(R.string.msg_confirm_trade)
+                    .setCancelable(true)
+                    .setNegativeButton(R.string.cancel, null)
+                    .setPositiveButton(R.string.title_trade) { _: DialogInterface?, _: Int ->
+                        viewModel.markAsTraded(item.internalId)
+                    }
+                    .create()
+                    .show()
+                true
+            }
             R.id.menu_view_game -> {
                 GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
                 true
@@ -152,16 +182,6 @@ class CollectionDivestFragment : Fragment() {
             R.id.menu_view_item -> {
                 GameCollectionItemActivity.start(requireContext(), item)
                 true
-            }
-            R.id.menu_trade ->{
-                // TODO change status and clear condition, after confirmation
-                requireContext().createConfirmationDialog(
-                    R.string.msg_clear_colors,
-                    R.string.title_trade,
-                ) { _: DialogInterface?, _: Int ->
-                    viewModel.markAsTraded(item.internalId)
-                }.show()
-                 true
             }
             else -> false
         }

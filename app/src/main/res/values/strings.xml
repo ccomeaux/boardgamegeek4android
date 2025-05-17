@@ -245,6 +245,8 @@
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
+	<string name="msg_confirm_trade">Are you sure you want to trade this item?</string>
+	<string name="msg_remove_status">Do you want to remove %s status?</string>
 	<string name="empty_game">No information</string>
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
 	<string name="empty_players">It appears as if you have played against no one.</string>
@@ -316,6 +318,8 @@
 	<string name="menu_view_game">View Game</string>
 	<string name="menu_view_item">View Item</string>
 	<string name="menu_view_in_browser">View in browser</string>
+	<string name="menu_remove_for_trade">Remove For Trade status</string>
+	<string name="menu_add_condition_text">Add Condition text</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_short">Form</string>
 	<string name="menu_log_play_wizard_short">Wizard</string>

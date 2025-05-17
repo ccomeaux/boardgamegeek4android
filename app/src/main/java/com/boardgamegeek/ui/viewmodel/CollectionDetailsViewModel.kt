@@ -477,6 +477,22 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
+    fun removeStatus(internalId: Long, status: CollectionStatus) {
+        viewModelScope.launch {
+            allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
+                val statuses = originalItem.statuses.copy().apply {
+                    first.remove(status)
+                }
+                gameCollectionRepository.updateStatus(
+                    internalId,
+                    statuses.first,
+                    statuses.second,
+                )
+                gameCollectionRepository.enqueueUploadRequest(originalItem.gameId)
+            }
+        }
+    }
+
     fun markAsTraded(internalId: Long) {
         viewModelScope.launch {
             allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
@@ -490,6 +506,7 @@ class CollectionDetailsViewModel @Inject constructor(
                     statuses.second,
                 )
                 gameCollectionRepository.updateCondition(internalId, "")
+                gameCollectionRepository.enqueueUploadRequest(originalItem.gameId)
             }
         }
     }
@@ -510,6 +527,15 @@ class CollectionDetailsViewModel @Inject constructor(
             if (gameId != null && gameId != INVALID_ID) {
                 gameCollectionRepository.updateComment(internalId, comment)
                 gameCollectionRepository.enqueueUploadRequest(gameId)
+            }
+        }
+    }
+
+    fun updateCondition(internalId: Long, text: String) {
+        viewModelScope.launch {
+            allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
+                gameCollectionRepository.updateCondition(internalId, text)
+                gameCollectionRepository.enqueueUploadRequest(originalItem.gameId)
             }
         }
     }
