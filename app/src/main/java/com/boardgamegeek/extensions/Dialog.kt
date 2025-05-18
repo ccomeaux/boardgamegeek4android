@@ -3,7 +3,6 @@ package com.boardgamegeek.extensions
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
-import android.content.DialogInterface
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
 import android.text.util.Linkify
@@ -36,19 +35,6 @@ private fun showAndSurvive(dialog: DialogFragment, fragmentManager: FragmentMana
         addToBackStack(null)
         dialog.show(this, tag)
     }
-}
-
-fun Context.createConfirmationDialog(
-    messageId: Int,
-    @StringRes positiveButtonTextId: Int,
-    okListener: DialogInterface.OnClickListener?,
-): Dialog {
-    val builder = createThemedBuilder()
-        .setCancelable(true)
-        .setNegativeButton(R.string.cancel, null)
-        .setPositiveButton(positiveButtonTextId, okListener)
-    if (messageId > 0) builder.setMessage(messageId)
-    return builder.create()
 }
 
 fun Activity.createDiscardDialog(

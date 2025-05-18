@@ -16,7 +16,6 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.annotation.ColorInt
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.isInvisible
@@ -41,6 +40,7 @@ import com.boardgamegeek.ui.dialog.LogPlayPlayerRatingNumberPadDialogFragment
 import com.boardgamegeek.ui.dialog.LogPlayPlayerScoreNumberPadDialogFragment
 import com.boardgamegeek.ui.viewmodel.LogPlayViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
@@ -162,13 +162,13 @@ class LogPlayActivity : AppCompatActivity() {
 
         binding.assignColorsButton.setOnClickListener {
             if (usedColors.isNotEmpty()) {
-                val builder = AlertDialog.Builder(this@LogPlayActivity)
+                MaterialAlertDialogBuilder(this@LogPlayActivity)
                     .setTitle(R.string.title_clear_colors)
                     .setMessage(R.string.msg_clear_colors)
                     .setCancelable(true)
                     .setNegativeButton(R.string.keep) { _: DialogInterface?, _: Int -> viewModel.assignColors() }
                     .setPositiveButton(R.string.clear) { _: DialogInterface?, _: Int -> viewModel.assignColors(true) }
-                builder.show()
+                    .show()
             } else {
                 viewModel.assignColors()
             }
@@ -182,19 +182,22 @@ class LogPlayActivity : AppCompatActivity() {
                         if (playerAdapter.shouldCustomSortPlayers) {
                             logPlayerOrder("NotCustom")
                             if (playersHaveStartingPositions) {
-                                this@LogPlayActivity.createConfirmationDialog(
-                                    R.string.are_you_sure_player_sort_custom_off,
-                                    R.string.sort
-                                ) { _: DialogInterface?, _: Int ->
-                                    viewModel.shouldCustomSort(false)
-                                }.show()
+                                MaterialAlertDialogBuilder(this@LogPlayActivity)
+                                    .setMessage(R.string.are_you_sure_player_sort_custom_off)
+                                    .setCancelable(true)
+                                    .setNegativeButton(R.string.cancel, null)
+                                    .setPositiveButton(R.string.sort) { _: DialogInterface?, _: Int ->
+                                        viewModel.shouldCustomSort(false)
+                                    }
+                                    .create()
+                                    .show()
                             } else {
                                 viewModel.shouldCustomSort(false)
                             }
                         } else {
                             logPlayerOrder("Custom")
                             if (playersHaveStartingPositions) {
-                                val builder = AlertDialog.Builder(this@LogPlayActivity)
+                                MaterialAlertDialogBuilder(this@LogPlayActivity)
                                     .setMessage(R.string.message_custom_player_order)
                                     .setPositiveButton(R.string.keep) { _: DialogInterface?, _: Int ->
                                         viewModel.shouldCustomSort(true)
@@ -204,14 +207,14 @@ class LogPlayActivity : AppCompatActivity() {
                                         viewModel.clearPositions()
                                     }
                                     .setCancelable(true)
-                                builder.show()
+                                    .show()
                             }
                         }
                         return@setOnMenuItemClickListener true
                     }
                     R.id.menu_pick_start_player -> {
                         logPlayerOrder("Prompt")
-                        AlertDialog.Builder(this)
+                        MaterialAlertDialogBuilder(this)
                             .setTitle(R.string.title_pick_start_player)
                             .setItems(playerDescriptions.toTypedArray()) { _, which: Int ->
                                 viewModel.pickStartPlayer(which)
@@ -247,7 +250,7 @@ class LogPlayActivity : AppCompatActivity() {
     }
 
     private fun promptToEditPlayers() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.pref_edit_player_prompt_title)
             .setMessage(R.string.pref_edit_player_prompt_message)
             .setCancelable(true)
@@ -710,7 +713,7 @@ class LogPlayActivity : AppCompatActivity() {
     private fun addField() {
         val array = createAddFieldArray()
         if (array.isEmpty()) return
-        AlertDialog.Builder(this).setTitle(R.string.add_field)
+        MaterialAlertDialogBuilder(this).setTitle(R.string.add_field)
             .setItems(array) { _, which: Int ->
                 val selection = array[which].toString()
                 when (selection) {
@@ -780,7 +783,7 @@ class LogPlayActivity : AppCompatActivity() {
     private fun showPlayersToAddDialog(): Boolean {
         if (availablePlayers.isEmpty()) return false
         val playersToAdd = mutableListOf<Player>()
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(R.string.title_add_players)
             .setPositiveButton(android.R.string.ok) { _, _ ->
                 viewModel.addPlayers(playersToAdd)
