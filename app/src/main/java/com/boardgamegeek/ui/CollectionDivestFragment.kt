@@ -159,7 +159,7 @@ class CollectionDivestFragment : Fragment() {
                 true
             }
             R.id.menu_add_condition_text -> {
-                CollectionDetailsConditionDialogFragment.show(parentFragmentManager, R.string.trade_condition, item.gameName, item.internalId, item.conditionText)
+                CollectionDetailsConditionDialogFragment.show(parentFragmentManager, item.gameName, item.internalId, item.conditionText)
                 true
             }
             R.id.menu_trade -> {
