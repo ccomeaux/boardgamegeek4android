@@ -32,9 +32,8 @@ class SyncViewModel @Inject constructor(
 ) : AndroidViewModel(application) {
     private val prefs: SharedPreferences by lazy { application.preferences() }
 
-    val syncCollectionStatuses: LiveData<Set<CollectionStatus>?> = LiveSharedPreference<Set<String>>(getApplication(), PREFERENCES_KEY_SYNC_STATUSES).map { set ->
-            set?.map { it.mapStatusToEnum() }?.toSet()
-        }
+    val syncCollectionStatuses: LiveData<Set<CollectionStatus>?> = collectionStatusLiveData(getApplication())
+
     val collectionCompleteTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE, SyncPrefs.NAME)
     val collectionPartialTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_PARTIAL, SyncPrefs.NAME)
     val collectionCompleteCurrentTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE_CURRENT, SyncPrefs.NAME)
@@ -109,15 +108,15 @@ class SyncViewModel @Inject constructor(
 
     fun collectionStatusCompleteTimestamp(status: CollectionStatus): LiveData<Long?> {
         return if (status == CollectionStatus.Unknown) MutableLiveData(null)
-        else LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(null, status.mapStatusToConstant()), SyncPrefs.NAME)
+        else LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(null, status), SyncPrefs.NAME)
     }
 
     fun collectionStatusAccessoryCompleteTimestamp(status: CollectionStatus): LiveData<Long?> {
-        return LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status.mapStatusToConstant()), SyncPrefs.NAME)
+        return LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status), SyncPrefs.NAME)
     }
 
     fun syncCollection(status: CollectionStatus = CollectionStatus.Unknown) {
-        SyncCollectionWorker.requestSync(getApplication(), status.mapStatusToConstant())
+        SyncCollectionWorker.requestSync(getApplication(), status)
     }
 
     fun cancelCollection() {
@@ -129,26 +128,8 @@ class SyncViewModel @Inject constructor(
     }
 
     fun modifyCollectionStatus(status: CollectionStatus, add: Boolean) {
-        val statusConstant = status.mapStatusToConstant()
-        if (add) prefs.addSyncStatus(statusConstant)
-        else prefs.removeSyncStatus(status.mapStatusToConstant())
-    }
-
-    private fun CollectionStatus.mapStatusToConstant() = when (this) {
-        CollectionStatus.Own -> COLLECTION_STATUS_OWN
-        CollectionStatus.PreviouslyOwned -> COLLECTION_STATUS_PREVIOUSLY_OWNED
-        CollectionStatus.Preordered -> COLLECTION_STATUS_PREORDERED
-        CollectionStatus.Played -> COLLECTION_STATUS_PLAYED
-        CollectionStatus.ForTrade -> COLLECTION_STATUS_FOR_TRADE
-        CollectionStatus.WantInTrade -> COLLECTION_STATUS_WANT_IN_TRADE
-        CollectionStatus.WantToBuy -> COLLECTION_STATUS_WANT_TO_BUY
-        CollectionStatus.WantToPlay -> COLLECTION_STATUS_WANT_TO_PLAY
-        CollectionStatus.Wishlist -> COLLECTION_STATUS_WISHLIST
-        CollectionStatus.Rated -> COLLECTION_STATUS_RATED
-        CollectionStatus.Commented -> COLLECTION_STATUS_COMMENTED
-        CollectionStatus.HasParts -> COLLECTION_STATUS_HAS_PARTS
-        CollectionStatus.WantParts -> COLLECTION_STATUS_WANT_PARTS
-        CollectionStatus.Unknown -> ""
+        if (add) prefs.addSyncStatus(status)
+        else prefs.removeSyncStatus(status)
     }
 
     val collectionSyncProgress: LiveData<CollectionSyncProgress> = collectionWorkInfos.map {
@@ -169,8 +150,8 @@ class SyncViewModel @Inject constructor(
                 SyncCollectionWorker.PROGRESS_SUBTYPE_ACCESSORY -> CollectionSyncProgressSubtype.Accessory
                 else -> CollectionSyncProgressSubtype.None
             }
-            val status = workInfo.progress.getString(SyncCollectionWorker.PROGRESS_KEY_STATUS)
-            CollectionSyncProgress(step, subtype, status.mapStatusToEnum())
+            val status = workInfo.progress.keyValueMap[SyncCollectionWorker.PROGRESS_KEY_STATUS] as? CollectionStatus ?: CollectionStatus.Unknown
+            CollectionSyncProgress(step, subtype, status)
         } else {
             CollectionSyncProgress()
         }

@@ -10,6 +10,7 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPersonStatsBinding
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.PersonStats
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
 import com.boardgamegeek.work.SyncCollectionWorker
@@ -39,8 +40,8 @@ class PersonStatsFragment : Fragment() {
                 .setTitle(R.string.title_modify_collection_status)
                 .setMessage(R.string.msg_modify_collection_status)
                 .setPositiveButton(R.string.modify) { _, _ ->
-                    prefs.addSyncStatus(COLLECTION_STATUS_PLAYED)
-                    prefs.addSyncStatus(COLLECTION_STATUS_RATED)
+                    prefs.addSyncStatus(CollectionStatus.Played)
+                    prefs.addSyncStatus(CollectionStatus.Rated)
                     SyncCollectionWorker.requestSync(requireContext())
                     bindCollectionStatusMessage()
                 }
@@ -81,7 +82,7 @@ class PersonStatsFragment : Fragment() {
     }
 
     private fun bindCollectionStatusMessage() {
-        binding.collectionStatusGroup.isVisible = !requireContext().preferences().isStatusSetToSync(COLLECTION_STATUS_RATED)
+        binding.collectionStatusGroup.isVisible = !requireContext().preferences().isStatusSetToSync(CollectionStatus.Rated)
     }
 
     private fun showData(stats: PersonStats) {

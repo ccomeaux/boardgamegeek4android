@@ -103,19 +103,19 @@ class GameCollectionRepository(
 
     private fun isItemStatusSetToSync(item: CollectionItem): Boolean {
         val statusesToSync = prefs.getSyncStatusesOrDefault()
-        if (item.own && COLLECTION_STATUS_OWN in statusesToSync) return true
-        if (item.previouslyOwned && COLLECTION_STATUS_PREVIOUSLY_OWNED in statusesToSync) return true
-        if (item.forTrade && COLLECTION_STATUS_FOR_TRADE in statusesToSync) return true
-        if (item.wantInTrade && COLLECTION_STATUS_WANT_IN_TRADE in statusesToSync) return true
-        if (item.wantToPlay && COLLECTION_STATUS_WANT_TO_PLAY in statusesToSync) return true
-        if (item.wantToBuy && COLLECTION_STATUS_WANT_TO_BUY in statusesToSync) return true
-        if (item.wishList && COLLECTION_STATUS_WISHLIST in statusesToSync) return true
-        if (item.preOrdered && COLLECTION_STATUS_PREORDERED in statusesToSync) return true
-        if (item.rating > 0.0 && COLLECTION_STATUS_RATED in statusesToSync) return true
-        if (item.comment.isNotEmpty() && COLLECTION_STATUS_COMMENTED in statusesToSync) return true
-        if (item.hasPartsList.isNotEmpty() && COLLECTION_STATUS_HAS_PARTS in statusesToSync) return true
-        if (item.wantPartsList.isNotEmpty() && COLLECTION_STATUS_WANT_PARTS in statusesToSync) return true
-        return item.numberOfPlays > 0 && COLLECTION_STATUS_PLAYED in statusesToSync
+        if (item.own && CollectionStatus.Own in statusesToSync) return true
+        if (item.previouslyOwned && CollectionStatus.PreviouslyOwned in statusesToSync) return true
+        if (item.forTrade && CollectionStatus.ForTrade in statusesToSync) return true
+        if (item.wantInTrade && CollectionStatus.WantInTrade in statusesToSync) return true
+        if (item.wantToPlay && CollectionStatus.WantToPlay in statusesToSync) return true
+        if (item.wantToBuy && CollectionStatus.WantToBuy in statusesToSync) return true
+        if (item.wishList && CollectionStatus.Wishlist in statusesToSync) return true
+        if (item.preOrdered && CollectionStatus.Preordered in statusesToSync) return true
+        if (item.rating > 0.0 && CollectionStatus.Rated in statusesToSync) return true
+        if (item.comment.isNotEmpty() && CollectionStatus.Commented in statusesToSync) return true
+        if (item.hasPartsList.isNotEmpty() && CollectionStatus.HasParts in statusesToSync) return true
+        if (item.wantPartsList.isNotEmpty() && CollectionStatus.WantParts in statusesToSync) return true
+        return item.numberOfPlays > 0 && CollectionStatus.Played in statusesToSync
     }
 
     suspend fun refreshCollectionItem(gameId: Int, collectionId: Int, subtype: Game.Subtype?): String? =
@@ -184,7 +184,7 @@ class GameCollectionRepository(
                 collectionIds += collectionId
             }
             val statuses = prefs.getSyncStatusesOrDefault()
-            if (result.getOrNull()?.items.isNullOrEmpty() && statuses.contains(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
+            if (result.getOrNull()?.items.isNullOrEmpty() && statuses.contains(CollectionStatus.Played)) {
                 val playedOptions = mutableMapOf(
                     BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
                     BggService.COLLECTION_QUERY_KEY_STATS to "1",

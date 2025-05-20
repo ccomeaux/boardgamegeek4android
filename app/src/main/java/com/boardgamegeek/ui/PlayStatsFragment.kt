@@ -16,6 +16,7 @@ import com.boardgamegeek.model.HIndex
 import com.boardgamegeek.model.PlayStats
 import com.boardgamegeek.model.PlayerStats
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
@@ -49,8 +50,8 @@ class PlayStatsFragment : Fragment() {
                 .setTitle(R.string.title_modify_collection_status)
                 .setMessage(R.string.msg_modify_collection_status)
                 .setPositiveButton(R.string.modify) { _, _ ->
-                    prefs.addSyncStatus(COLLECTION_STATUS_OWN)
-                    prefs.addSyncStatus(COLLECTION_STATUS_PLAYED)
+                    prefs.addSyncStatus(CollectionStatus.Own)
+                    prefs.addSyncStatus(CollectionStatus.Played)
                     SyncCollectionWorker.requestSync(requireContext())
                     bindCollectionStatusMessage()
                 }
@@ -116,8 +117,8 @@ class PlayStatsFragment : Fragment() {
 
     private fun bindCollectionStatusMessage() {
         val prefs = requireContext().preferences()
-        isOwnedSynced = prefs.isStatusSetToSync(COLLECTION_STATUS_OWN)
-        isPlayedSynced = prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
+        isOwnedSynced = prefs.isStatusSetToSync(CollectionStatus.Own)
+        isPlayedSynced = prefs.isStatusSetToSync(CollectionStatus.Played)
         binding.collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
     }
 

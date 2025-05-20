@@ -13,6 +13,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.mappers.mapToPreference
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE_CURRENT
 import com.boardgamegeek.ui.DrawerActivity
@@ -165,7 +166,7 @@ class SettingsActivity : DrawerActivity() {
 
         private fun updateSyncStatusSummary(key: String) {
             findPreference<Preference>(key)?.let { pref ->
-                val statuses = requireContext().preferences().getSyncStatusesOrDefault()
+                val statuses = requireContext().preferences().getSyncStatusesOrDefault().map { it.mapToPreference() }
                 pref.summary = if (statuses.isEmpty()) {
                     getString(R.string.pref_list_empty)
                 } else {

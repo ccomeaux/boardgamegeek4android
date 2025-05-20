@@ -9,6 +9,8 @@ import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.remove
 import com.boardgamegeek.extensions.set
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.mapToPreference
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_BUDDIES
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE_CURRENT
@@ -52,8 +54,8 @@ class SyncPrefs {
 
 // COLLECTION
 
-fun getCompleteCollectionTimestampKey(subtype: BggService.ThingSubtype?, status: String): String {
-    return "$TIMESTAMP_COLLECTION_COMPLETE.${subtype?.code.orEmpty()}.$status"
+fun getCompleteCollectionTimestampKey(subtype: BggService.ThingSubtype?, status: CollectionStatus): String {
+    return "$TIMESTAMP_COLLECTION_COMPLETE.${subtype?.code.orEmpty()}.${status.mapToPreference()}"
 }
 
 fun getPartialCollectionTimestampKey(subtype: BggService.ThingSubtype?) = "${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.code.orEmpty()}"

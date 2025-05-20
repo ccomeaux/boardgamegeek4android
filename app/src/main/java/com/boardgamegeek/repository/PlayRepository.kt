@@ -730,7 +730,7 @@ class PlayRepository(
         val includeAccessories = prefs[PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES, false] ?: false
 
         val games = loadForStats(includeIncompletePlays, includeExpansions, includeAccessories)
-        return PlayStats.fromList(games, prefs.isStatusSetToSync(COLLECTION_STATUS_OWN)).also {
+        return PlayStats.fromList(games, prefs.isStatusSetToSync(CollectionStatus.Own)).also {
             updateHIndex(it.hIndex, HIndexType.Game, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX)
         }
     }

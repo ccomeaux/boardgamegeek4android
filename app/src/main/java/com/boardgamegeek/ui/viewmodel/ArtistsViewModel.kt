@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.repository.ArtistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -33,7 +34,7 @@ class ArtistsViewModel @Inject constructor(
     private var isCalculating = AtomicBoolean()
 
     init {
-        val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
+        val initialSort = if (application.preferences().isStatusSetToSync(CollectionStatus.Rated))
             Person.SortType.WHITMORE_SCORE
         else
             Person.SortType.ITEM_COUNT

@@ -256,19 +256,19 @@ data class CollectionItem(
 
         fun CollectionItem.filterBySyncedStatues(context: Context): Boolean {
             val syncedStatuses = context.preferences().getSyncStatusesOrDefault()
-            return (syncedStatuses.contains(COLLECTION_STATUS_OWN) && own) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_PREVIOUSLY_OWNED) && previouslyOwned) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_PREORDERED) && preOrdered) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_FOR_TRADE) && forTrade) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_WANT_IN_TRADE) && wantInTrade) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_WANT_TO_BUY) && wantToBuy) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_WANT_TO_PLAY) && wantToPlay) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_WISHLIST) && wishList) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_RATED) && rating != UNRATED) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_PLAYED) && numberOfPlays > 0) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_COMMENTED) && comment.isNotBlank()) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_HAS_PARTS) && hasPartsList.isNotBlank()) ||
-                    (syncedStatuses.contains(COLLECTION_STATUS_WANT_PARTS) && wantPartsList.isNotBlank())
+            return (syncedStatuses.contains(CollectionStatus.Own) && own) ||
+                    (syncedStatuses.contains(CollectionStatus.PreviouslyOwned) && previouslyOwned) ||
+                    (syncedStatuses.contains(CollectionStatus.Preordered) && preOrdered) ||
+                    (syncedStatuses.contains(CollectionStatus.ForTrade) && forTrade) ||
+                    (syncedStatuses.contains(CollectionStatus.WantInTrade) && wantInTrade) ||
+                    (syncedStatuses.contains(CollectionStatus.WantToBuy) && wantToBuy) ||
+                    (syncedStatuses.contains(CollectionStatus.WantToPlay) && wantToPlay) ||
+                    (syncedStatuses.contains(CollectionStatus.Wishlist) && wishList) ||
+                    (syncedStatuses.contains(CollectionStatus.Rated) && rating != UNRATED) ||
+                    (syncedStatuses.contains(CollectionStatus.Played) && numberOfPlays > 0) ||
+                    (syncedStatuses.contains(CollectionStatus.Commented) && comment.isNotBlank()) ||
+                    (syncedStatuses.contains(CollectionStatus.HasParts) && hasPartsList.isNotBlank()) ||
+                    (syncedStatuses.contains(CollectionStatus.WantParts) && wantPartsList.isNotBlank())
         }
 
         private const val UNPUBLISHED_PROTOTYPE_ID = 18291

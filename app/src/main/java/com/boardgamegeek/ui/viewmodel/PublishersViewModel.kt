@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.model.Company
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +31,7 @@ class PublishersViewModel @Inject constructor(
     private var isCalculating = AtomicBoolean()
 
     init {
-        val initialSort = if (application.preferences().isStatusSetToSync(COLLECTION_STATUS_RATED))
+        val initialSort = if (application.preferences().isStatusSetToSync(CollectionStatus.Rated))
             Company.SortType.WHITMORE_SCORE
         else
             Company.SortType.ITEM_COUNT

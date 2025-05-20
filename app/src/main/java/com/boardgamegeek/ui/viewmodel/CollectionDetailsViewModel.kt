@@ -3,11 +3,9 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import androidx.work.WorkManager
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_STATUSES
-import com.boardgamegeek.extensions.mapStatusToEnum
+import com.boardgamegeek.extensions.collectionStatusLiveData
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
-import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionItem.Companion.filterBaseGames
 import com.boardgamegeek.model.CollectionItem.Companion.filterOwned
@@ -34,10 +32,7 @@ class CollectionDetailsViewModel @Inject constructor(
     private val gameCollectionRepository: GameCollectionRepository,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    val syncCollectionStatuses: LiveData<Set<CollectionStatus>?> =
-        LiveSharedPreference<Set<String>>(getApplication(), PREFERENCES_KEY_SYNC_STATUSES).map { set ->
-            set?.map { it.mapStatusToEnum() }?.toSet()
-        }
+    val syncCollectionStatuses = collectionStatusLiveData(getApplication())
 
     private val allItems: LiveData<List<CollectionItem>> =
         liveData {

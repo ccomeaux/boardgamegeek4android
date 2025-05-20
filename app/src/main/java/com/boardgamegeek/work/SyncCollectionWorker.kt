@@ -9,6 +9,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.mappers.mapToPreference
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.pref.*
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE_CURRENT
@@ -37,7 +39,7 @@ class SyncCollectionWorker @AssistedInject constructor(
     private val prefs: SharedPreferences by lazy { appContext.preferences() }
     private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(appContext) }
     private var quickSync = false
-    private var requestedStatus: String? = null
+    private var requestedStatus: CollectionStatus = CollectionStatus.Unknown
 
     private val statusDescriptions = applicationContext.resources.getStringArray(R.array.pref_sync_status_values)
         .zip(applicationContext.resources.getStringArray(R.array.pref_sync_status_entries))
@@ -45,7 +47,7 @@ class SyncCollectionWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         quickSync = inputData.getBoolean(QUICK_SYNC, false)
-        requestedStatus = inputData.getString(REQUESTED_STATUS)
+        requestedStatus = inputData.keyValueMap[REQUESTED_STATUS] as? CollectionStatus ?: CollectionStatus.Unknown
 
         val isSyncEnabled = RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED)
         if (!isSyncEnabled)
@@ -82,9 +84,9 @@ class SyncCollectionWorker @AssistedInject constructor(
                 Timber.i("Quick sync requested; skipping collection sync entirely")
                 null
             }
-        } else if (!requestedStatus.isNullOrBlank()) {
+        } else if (requestedStatus != CollectionStatus.Unknown) {
             Timber.i("Syncing requested status of $requestedStatus")
-            syncCompleteCollectionByStatus(requestedStatus!!)
+            syncCompleteCollectionByStatus(requestedStatus)
         } else if (syncPrefs.getCurrentCollectionSyncTimestamp() == 0L) {
             val fetchIntervalInDays = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_INTERVAL_DAYS)
             val lastCompleteSync = syncPrefs[TIMESTAMP_COLLECTION_COMPLETE, 0L] ?: 0L
@@ -110,10 +112,10 @@ class SyncCollectionWorker @AssistedInject constructor(
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_collection_full)))
         setProgress(PROGRESS_STEP_COLLECTION_COMPLETE)
 
-        val statuses: List<String> = prefs.getSyncStatusesOrDefault().toMutableList().apply {
+        val statuses = prefs.getSyncStatusesOrDefault().toMutableList().apply {
             // Played games should be synced first - they don't respect the "exclude" flag
-            if (remove(BggService.COLLECTION_QUERY_STATUS_PLAYED)) {
-                add(0, BggService.COLLECTION_QUERY_STATUS_PLAYED)
+            if (remove(CollectionStatus.Played)) {
+                add(0, CollectionStatus.Played)
             }
         }
 
@@ -136,7 +138,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         return null
     }
 
-    private suspend fun syncCompleteCollectionByStatus(status: String): Data? {
+    private suspend fun syncCompleteCollectionByStatus(status: CollectionStatus): Data? {
         syncCompleteCollectionByStatus(null, status)?.let { return it }
         syncCompleteCollectionByStatus(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status)?.let { return it }
         Timber.i("Complete collection sync for $status successfully")
@@ -145,10 +147,10 @@ class SyncCollectionWorker @AssistedInject constructor(
 
     private suspend fun syncCompleteCollectionByStatus(
         subtype: BggService.ThingSubtype? = null,
-        status: String,
-        excludedStatuses: List<String> = emptyList(),
+        status: CollectionStatus,
+        excludedStatuses: List<CollectionStatus> = emptyList(),
     ): Data? {
-        val statusDescription = statusDescriptions[status]
+        val statusDescription = statusDescriptions[status.mapToPreference()]
         val subtypeDescription = subtype.getDescription(applicationContext)
 
         val currentSyncTimestamp = syncPrefs.getCurrentCollectionSyncTimestamp()
@@ -259,8 +261,8 @@ class SyncCollectionWorker @AssistedInject constructor(
         updatedTimestamp: Long = System.currentTimeMillis(),
         subtype: BggService.ThingSubtype? = null,
         sinceTimestamp: Long? = null,
-        status: String? = null,
-        excludedStatuses: List<String>? = null,
+        status: CollectionStatus = CollectionStatus.Unknown,
+        excludedStatuses: List<CollectionStatus> = emptyList(),
         gameIds: List<Int>? = null,
         errorMessage: String = "",
     ): Data? {
@@ -271,16 +273,17 @@ class SyncCollectionWorker @AssistedInject constructor(
         sinceTimestamp?.let {
             options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(it))
         }
-        status?.let { options[it] = "1" }
+        if (status != CollectionStatus.Unknown)
+            options[status.mapToPreference()] = "1"
         subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
-        excludedStatuses?.let { for (excludedStatus in it) options[excludedStatus] = "0" }
+        excludedStatuses.forEach { options[it.mapToPreference()] = "0" }
         gameIds?.let { options[BggService.COLLECTION_QUERY_KEY_ID] = it.joinToString(",") }
 
         return try {
             val result = gameCollectionRepository.refresh(options, updatedTimestamp)
             if (result.isSuccess) {
                 val subtypeDescription = subtype.getDescription(applicationContext).lowercase()
-                val stat = if (status != null) " of status $status" else ""
+                val stat = if (status != CollectionStatus.Unknown) " of status $status" else ""
                 val modified = if (sinceTimestamp != null) " modified since ${sinceTimestamp.toDateTime()}" else ""
                 val games = if (gameIds != null) " of game IDs of ${gameIds.formatList()}" else ""
                 Timber.i("Saved ${result.getOrNull() ?: 0} collection $subtypeDescription" + stat + modified + games)
@@ -308,7 +311,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         val sinceTimestamp = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_REMOVE_VIEW_HOURS).hoursAgo()
         Timber.i("Finding games to remove that aren't in the collection and have not been viewed since ${sinceTimestamp.toDateTime()}")
 
-        val gamesToRemove = gameRepository.loadGamesByLastViewed(sinceTimestamp, prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED))
+        val gamesToRemove = gameRepository.loadGamesByLastViewed(sinceTimestamp, prefs.isStatusSetToSync(CollectionStatus.Played))
         if (gamesToRemove.isNotEmpty()) {
             Timber.i("Found ${gamesToRemove.size} games to remove: ${gamesToRemove.map { "[${it.first}] ${it.second}" }}")
             setForeground(createForegroundInfo(applicationContext.resources.getQuantityString(R.plurals.sync_notification_games_remove, gamesToRemove.size, gamesToRemove.size)))
@@ -426,7 +429,7 @@ class SyncCollectionWorker @AssistedInject constructor(
     private suspend fun setProgress(
         step: Int,
         subtype: Int = PROGRESS_SUBTYPE_NONE,
-        status: String = "",
+        status: CollectionStatus = CollectionStatus.Unknown,
         modifiedSince: Long? = null,
     ) {
         setProgress(
@@ -466,11 +469,12 @@ class SyncCollectionWorker @AssistedInject constructor(
         const val PROGRESS_SUBTYPE_ALL = 1
         const val PROGRESS_SUBTYPE_ACCESSORY = 2
 
-        fun requestSync(context: Context, status: String? = null) {
+        fun requestSync(context: Context, status: CollectionStatus = CollectionStatus.Unknown) {
             val builder = OneTimeWorkRequestBuilder<SyncCollectionWorker>()
                 .setConstraints(context.createWorkConstraints(true))
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
-            status?.let { builder.setInputData(workDataOf(REQUESTED_STATUS to it)) }
+            if (status != CollectionStatus.Unknown)
+                builder.setInputData(workDataOf(REQUESTED_STATUS to status))
             WorkManager.getInstance(context).enqueueUniqueWork(UNIQUE_WORK_NAME_AD_HOC, ExistingWorkPolicy.KEEP, builder.build())
         }
 

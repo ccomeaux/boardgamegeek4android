@@ -14,6 +14,7 @@ import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.livedata.ThrottledLiveData
 import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.CollectionView
 import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract
@@ -288,19 +289,19 @@ class CollectionViewViewModel @Inject constructor(
     }
 
     private fun filterDefaultView(list: Sequence<CollectionItem>) = list.filter {
-        (prefs.isStatusSetToSync(COLLECTION_STATUS_OWN) && it.own) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_PREVIOUSLY_OWNED) && it.previouslyOwned) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_FOR_TRADE) && it.forTrade) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_IN_TRADE) && it.wantInTrade) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_BUY) && it.wantToPlay) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_WISHLIST) && it.wishList) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_TO_PLAY) && it.wantToPlay) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_PREORDERED) && it.preOrdered) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_PLAYED) && it.numberOfPlays > 0) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_RATED) && it.rating > 0.0) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_COMMENTED) && it.comment.isNotBlank()) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_HAS_PARTS) && it.hasPartsList.isNotBlank()) ||
-                (prefs.isStatusSetToSync(COLLECTION_STATUS_WANT_PARTS) && it.wantPartsList.isNotBlank())
+        (prefs.isStatusSetToSync(CollectionStatus.Own) && it.own) ||
+                (prefs.isStatusSetToSync(CollectionStatus.PreviouslyOwned) && it.previouslyOwned) ||
+                (prefs.isStatusSetToSync(CollectionStatus.ForTrade) && it.forTrade) ||
+                (prefs.isStatusSetToSync(CollectionStatus.WantInTrade) && it.wantInTrade) ||
+                (prefs.isStatusSetToSync(CollectionStatus.WantToPlay) && it.wantToPlay) ||
+                (prefs.isStatusSetToSync(CollectionStatus.Wishlist) && it.wishList) ||
+                (prefs.isStatusSetToSync(CollectionStatus.WantToPlay) && it.wantToPlay) ||
+                (prefs.isStatusSetToSync(CollectionStatus.Preordered) && it.preOrdered) ||
+                (prefs.isStatusSetToSync(CollectionStatus.Played) && it.numberOfPlays > 0) ||
+                (prefs.isStatusSetToSync(CollectionStatus.Rated) && it.rating > 0.0) ||
+                (prefs.isStatusSetToSync(CollectionStatus.Commented) && it.comment.isNotBlank()) ||
+                (prefs.isStatusSetToSync(CollectionStatus.HasParts) && it.hasPartsList.isNotBlank()) ||
+                (prefs.isStatusSetToSync(CollectionStatus.WantParts) && it.wantPartsList.isNotBlank())
     }
 
     fun refresh() {
