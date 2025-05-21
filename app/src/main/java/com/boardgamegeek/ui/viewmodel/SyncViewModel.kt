@@ -8,6 +8,7 @@ import androidx.work.WorkManager
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.livedata.LiveSharedPreference
+import com.boardgamegeek.mappers.mapToEnum
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.User
@@ -150,8 +151,8 @@ class SyncViewModel @Inject constructor(
                 SyncCollectionWorker.PROGRESS_SUBTYPE_ACCESSORY -> CollectionSyncProgressSubtype.Accessory
                 else -> CollectionSyncProgressSubtype.None
             }
-            val status = workInfo.progress.keyValueMap[SyncCollectionWorker.PROGRESS_KEY_STATUS] as? CollectionStatus ?: CollectionStatus.Unknown
-            CollectionSyncProgress(step, subtype, status)
+            val status = workInfo.progress.getString(SyncCollectionWorker.PROGRESS_KEY_STATUS)
+            CollectionSyncProgress(step, subtype, status.mapToEnum())
         } else {
             CollectionSyncProgress()
         }

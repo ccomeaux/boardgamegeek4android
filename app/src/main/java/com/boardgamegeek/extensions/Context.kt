@@ -138,3 +138,7 @@ fun Context.getBitmap(@DrawableRes resId: Int, tintColor: Int? = null): Bitmap {
         tintColor?.let { setTint(it) }
     }.toBitmap()
 }
+
+fun Context.createStatusMap() = resources.getStringArray(R.array.pref_sync_status_values)
+    .zip(resources.getStringArray(R.array.pref_sync_status_entries))
+    .toMap()

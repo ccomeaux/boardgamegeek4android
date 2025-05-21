@@ -114,6 +114,10 @@ fun SharedPreferences.isStatusSetToSync(status: CollectionStatus): Boolean {
     return this.getSyncStatusesOrDefault().contains(status)
 }
 
+fun SharedPreferences.getSyncStatuses(): Set<CollectionStatus> {
+    return this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null)?.map { it.mapToEnum() }?.toSet().orEmpty()
+}
+
 fun SharedPreferences.getSyncStatusesOrDefault(): Set<CollectionStatus> {
     return this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, setOf(CollectionStatus.Own.mapToPreference()))?.map { it.mapToEnum() }?.toSet().orEmpty()
 }

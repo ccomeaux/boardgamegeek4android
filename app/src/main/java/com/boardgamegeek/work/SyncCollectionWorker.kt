@@ -41,9 +41,7 @@ class SyncCollectionWorker @AssistedInject constructor(
     private var quickSync = false
     private var requestedStatus: CollectionStatus = CollectionStatus.Unknown
 
-    private val statusDescriptions = applicationContext.resources.getStringArray(R.array.pref_sync_status_values)
-        .zip(applicationContext.resources.getStringArray(R.array.pref_sync_status_entries))
-        .toMap()
+    private val statusDescriptions = applicationContext.createStatusMap()
 
     override suspend fun doWork(): Result {
         quickSync = inputData.getBoolean(QUICK_SYNC, false)
@@ -112,7 +110,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_collection_full)))
         setProgress(PROGRESS_STEP_COLLECTION_COMPLETE)
 
-        val statuses = prefs.getSyncStatusesOrDefault().toMutableList().apply {
+        val statuses = prefs.getSyncStatuses().toMutableList().apply {
             // Played games should be synced first - they don't respect the "exclude" flag
             if (remove(CollectionStatus.Played)) {
                 add(0, CollectionStatus.Played)
@@ -436,7 +434,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             workDataOf(
                 PROGRESS_KEY_STEP to step,
                 PROGRESS_KEY_SUBTYPE to subtype,
-                PROGRESS_KEY_STATUS to status,
+                PROGRESS_KEY_STATUS to status.mapToPreference(),
                 PROGRESS_KEY_MODIFIED_SINCE to modifiedSince,
             )
         )

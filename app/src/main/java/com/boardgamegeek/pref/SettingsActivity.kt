@@ -72,8 +72,6 @@ class SettingsActivity : DrawerActivity() {
 
     @AndroidEntryPoint
     class PrefFragment : PreferenceFragmentCompat(), OnSharedPreferenceChangeListener {
-        private var entryValues = emptyArray<String>()
-        private var entries = emptyArray<String>()
         private val syncPrefs: SharedPreferences by lazy { SyncPrefs.getPrefs(requireContext()) }
         private val selfUserViewModel by activityViewModels<SelfUserViewModel>()
         private var needsCollectionSync = false
@@ -105,9 +103,6 @@ class SettingsActivity : DrawerActivity() {
 
             when (fragmentKey) {
                 ACTION_SYNC -> {
-                    entryValues = resources.getStringArray(R.array.pref_sync_status_values)
-                    entries = resources.getStringArray(R.array.pref_sync_status_entries)
-
                     updateSyncStatusSummary(PREFERENCES_KEY_SYNC_STATUSES)
                 }
                 ACTION_ABOUT -> {
@@ -165,14 +160,13 @@ class SettingsActivity : DrawerActivity() {
         }
 
         private fun updateSyncStatusSummary(key: String) {
+            val statusMap = requireContext().createStatusMap()
             findPreference<Preference>(key)?.let { pref ->
-                val statuses = requireContext().preferences().getSyncStatusesOrDefault().map { it.mapToPreference() }
+                val statuses = requireContext().preferences().getSyncStatuses().map { it.mapToPreference() }
                 pref.summary = if (statuses.isEmpty()) {
                     getString(R.string.pref_list_empty)
                 } else {
-                    entryValues.indices
-                        .filter { statuses.contains(entryValues[it]) }
-                        .joinToString { entries[it] }
+                    statusMap.filter { it.key in statuses }.map { it.value }.joinToString()
                 }
             }
         }

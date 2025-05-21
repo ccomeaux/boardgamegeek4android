@@ -255,7 +255,7 @@ data class CollectionItem(
         }
 
         fun CollectionItem.filterBySyncedStatues(context: Context): Boolean {
-            val syncedStatuses = context.preferences().getSyncStatusesOrDefault()
+            val syncedStatuses = context.preferences().getSyncStatuses()
             return (syncedStatuses.contains(CollectionStatus.Own) && own) ||
                     (syncedStatuses.contains(CollectionStatus.PreviouslyOwned) && previouslyOwned) ||
                     (syncedStatuses.contains(CollectionStatus.Preordered) && preOrdered) ||

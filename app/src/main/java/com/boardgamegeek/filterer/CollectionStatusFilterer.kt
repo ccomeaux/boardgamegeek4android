@@ -4,6 +4,8 @@ import android.content.Context
 import com.boardgamegeek.R
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.joinTo
+import com.boardgamegeek.mappers.mapToEnum
+import com.boardgamegeek.model.CollectionStatus
 
 class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
     var shouldJoinWithOr = false
@@ -75,13 +77,12 @@ class CollectionStatusFilterer(context: Context) : CollectionFilterer(context) {
     /**
      * @return a set of status values representing the statuses currently selected within this filter.
      */
-    fun getSelectedStatusesSet(): Set<String> {
-        val selectedStatusesSet = hashSetOf<String>()
+    fun getSelectedStatusesSet(): Set<CollectionStatus> {
         val values = context.resources.getStringArray(R.array.pref_sync_status_values)
-        selectedStatuses.indices
+        return selectedStatuses.indices
             .filter { selectedStatuses[it] }
-            .mapTo(selectedStatusesSet) { values[it] }
-        return selectedStatusesSet
+            .map { values[it].mapToEnum() }
+            .toSet()
     }
 
     companion object {

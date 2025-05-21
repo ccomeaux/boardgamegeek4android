@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentBuddyCollectionBinding
+import com.boardgamegeek.extensions.createStatusMap
 import com.boardgamegeek.model.Status
 import com.boardgamegeek.ui.adapter.BuddyCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
@@ -28,6 +29,8 @@ class BuddyCollectionFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        statuses = requireContext().createStatusMap()
 
         requireActivity().addMenuProvider(object : MenuProvider {
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -66,10 +69,6 @@ class BuddyCollectionFragment : Fragment() {
                 return false
             }
         })
-
-        val statusEntries = resources.getStringArray(R.array.pref_sync_status_entries)
-        val statusValues = resources.getStringArray(R.array.pref_sync_status_values)
-        statuses = statusValues.zip(statusEntries).toMap()
     }
 
     @Suppress("RedundantNullableReturnType")

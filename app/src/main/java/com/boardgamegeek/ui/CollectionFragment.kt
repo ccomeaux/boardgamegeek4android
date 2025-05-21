@@ -237,7 +237,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     }
 
     private fun setEmptyText() {
-        val syncedStatuses = prefs.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, null).orEmpty()
+        val syncedStatuses = prefs.getSyncStatusesOrDefault()
         if (syncedStatuses.isEmpty()) {
             setEmptyStateForSettingsAction(R.string.empty_collection_sync_off)
         } else {

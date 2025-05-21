@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
+import com.boardgamegeek.extensions.createStatusMap
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.ui.BuddyActivity.Companion.startUp
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
@@ -34,18 +35,12 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
             }
         }
 
-        val statusEntries = resources.getStringArray(com.boardgamegeek.R.array.pref_sync_status_entries)
-        val statusValues = resources.getStringArray(com.boardgamegeek.R.array.pref_sync_status_values)
-        val statuses = statusValues.zip(statusEntries).toMap()
+        val statuses = this.createStatusMap()
 
         viewModel.setUsername(buddyName)
         viewModel.status.observe(this) {
             val status = statuses[it.orEmpty()]
-            supportActionBar?.subtitle = buddyName + if (!status.isNullOrEmpty()) {
-                " - $status"
-            } else {
-                ""
-            }
+            supportActionBar?.subtitle = buddyName + (if (!status.isNullOrEmpty()) " - $status" else "")
             invalidateOptionsMenu()
         }
     }

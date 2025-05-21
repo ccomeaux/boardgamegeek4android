@@ -102,7 +102,7 @@ class GameCollectionRepository(
     }
 
     private fun isItemStatusSetToSync(item: CollectionItem): Boolean {
-        val statusesToSync = prefs.getSyncStatusesOrDefault()
+        val statusesToSync = prefs.getSyncStatuses()
         if (item.own && CollectionStatus.Own in statusesToSync) return true
         if (item.previouslyOwned && CollectionStatus.PreviouslyOwned in statusesToSync) return true
         if (item.forTrade && CollectionStatus.ForTrade in statusesToSync) return true
