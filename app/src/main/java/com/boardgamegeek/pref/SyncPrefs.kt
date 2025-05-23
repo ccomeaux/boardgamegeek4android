@@ -55,7 +55,7 @@ class SyncPrefs {
 // COLLECTION
 
 fun getCompleteCollectionTimestampKey(subtype: Game.Subtype?, status: CollectionStatus): String {
-    return "$TIMESTAMP_COLLECTION_COMPLETE.${subtype?.mapToPreference().orEmpty()}.${status.mapToPreference()}" // TODO
+    return "$TIMESTAMP_COLLECTION_COMPLETE.${subtype?.mapToPreference().orEmpty()}.${status.mapToPreference()}"
 }
 
 fun getPartialCollectionTimestampKey(subtype: Game.Subtype?) = "${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.mapToPreference().orEmpty()}"
