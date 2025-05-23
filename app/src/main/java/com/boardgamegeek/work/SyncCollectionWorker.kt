@@ -11,10 +11,13 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToPreference
 import com.boardgamegeek.model.CollectionStatus
-import com.boardgamegeek.pref.*
+import com.boardgamegeek.model.Game
+import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE_CURRENT
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_PARTIAL
+import com.boardgamegeek.pref.getCompleteCollectionTimestampKey
+import com.boardgamegeek.pref.getPartialCollectionTimestampKey
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.util.RemoteConfig
@@ -24,7 +27,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import retrofit2.HttpException
 import timber.log.Timber
-import java.util.Date
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -121,7 +123,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             val status = statuses[i]
             val excludedStatuses = (0 until i).map { statuses[it] }
             syncCompleteCollectionByStatus(null, status, excludedStatuses)?.let { return it }
-            syncCompleteCollectionByStatus(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status, excludedStatuses)?.let { return it }
+            syncCompleteCollectionByStatus(Game.Subtype.BoardGameAccessory, status, excludedStatuses)?.let { return it }
         }
 
         checkIfStopped("Complete collection sync task canceled before item deletion, aborting")?.let { return it }
@@ -138,13 +140,13 @@ class SyncCollectionWorker @AssistedInject constructor(
 
     private suspend fun syncCompleteCollectionByStatus(status: CollectionStatus): Data? {
         syncCompleteCollectionByStatus(null, status)?.let { return it }
-        syncCompleteCollectionByStatus(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status)?.let { return it }
+        syncCompleteCollectionByStatus(Game.Subtype.BoardGameAccessory, status)?.let { return it }
         Timber.i("Complete collection sync for $status successfully")
         return null
     }
 
     private suspend fun syncCompleteCollectionByStatus(
-        subtype: BggService.ThingSubtype? = null,
+        subtype: Game.Subtype? = null,
         status: CollectionStatus,
         excludedStatuses: List<CollectionStatus> = emptyList(),
     ): Data? {
@@ -184,7 +186,7 @@ class SyncCollectionWorker @AssistedInject constructor(
             checkIfStopped("Sync stopped before recently modified accessories, aborting")?.let { return it }
             delay(RemoteConfig.getLong(RemoteConfig.KEY_SYNC_COLLECTION_FETCH_PAUSE_MILLIS))
 
-            syncCollectionModifiedSinceBySubtype(BggService.ThingSubtype.BOARDGAME_ACCESSORY)?.let { return it }
+            syncCollectionModifiedSinceBySubtype(Game.Subtype.BoardGameAccessory)?.let { return it }
 
             syncPrefs[TIMESTAMP_COLLECTION_PARTIAL] = System.currentTimeMillis()
             Timber.i("Syncing recently modified collection completed successfully")
@@ -194,14 +196,14 @@ class SyncCollectionWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun syncCollectionModifiedSinceBySubtype(subtype: BggService.ThingSubtype?): Data? {
-        Timber.i("Starting to sync recently modified subtype [${subtype?.code ?: "<none>"}]")
+    private suspend fun syncCollectionModifiedSinceBySubtype(subtype: Game.Subtype?): Data? {
+        Timber.i("Starting to sync recently modified subtype [${subtype ?: "<none>"}]")
         val timestampKey = getPartialCollectionTimestampKey(subtype)
         val previousSyncTimestamp = syncPrefs[timestampKey, 0L] ?: 0L
         val lastPartialSync = syncPrefs[TIMESTAMP_COLLECTION_PARTIAL, 0L] ?: 0L
         val compareSync = if (lastPartialSync > 0L) lastPartialSync else syncPrefs[TIMESTAMP_COLLECTION_COMPLETE, 0L] ?: 0L
         if (previousSyncTimestamp > compareSync) {
-            Timber.i("Subtype [${subtype?.code ?: "<none>"}] has been synced in the current sync request; aborting")
+            Timber.i("Subtype [${subtype ?: "<none>"}] has been synced in the current sync request; aborting")
             return null
         }
 
@@ -237,7 +239,7 @@ class SyncCollectionWorker @AssistedInject constructor(
                 checkIfStopped("Unupdated collection item sync stopped during index=$numberOfFetches")?.let { return it }
 
                 val gameDescription = games.map { it.game.gameName }.formatList()
-                listOf(null, BggService.ThingSubtype.BOARDGAME_ACCESSORY).forEach { subtype ->
+                listOf(null, Game.Subtype.BoardGameAccessory).forEach { subtype ->
                     val contentText = applicationContext.getString(
                         R.string.sync_notification_collection_update_games,
                         games.size,
@@ -257,25 +259,22 @@ class SyncCollectionWorker @AssistedInject constructor(
 
     private suspend fun performSync(
         updatedTimestamp: Long = System.currentTimeMillis(),
-        subtype: BggService.ThingSubtype? = null,
+        subtype: Game.Subtype? = null,
         sinceTimestamp: Long? = null,
         status: CollectionStatus = CollectionStatus.Unknown,
         excludedStatuses: List<CollectionStatus> = emptyList(),
         gameIds: List<Int>? = null,
         errorMessage: String = "",
     ): Data? {
-        val options = mutableMapOf(
-            BggService.COLLECTION_QUERY_KEY_STATS to "1",
-            BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
+        val options = BggService.createCollectionOptionsMap(
+            subtype = subtype,
+            sinceTimestamp = sinceTimestamp,
+            status = status,
+            excludedStatuses = excludedStatuses,
+            gameIds = gameIds,
+            includeStats = true,
+            includePrivateInfo = true,
         )
-        sinceTimestamp?.let {
-            options[BggService.COLLECTION_QUERY_KEY_MODIFIED_SINCE] = BggService.COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(it))
-        }
-        if (status != CollectionStatus.Unknown)
-            options[status.mapToPreference()] = "1"
-        subtype?.let { options[BggService.COLLECTION_QUERY_KEY_SUBTYPE] = it.code }
-        excludedStatuses.forEach { options[it.mapToPreference()] = "0" }
-        gameIds?.let { options[BggService.COLLECTION_QUERY_KEY_ID] = it.joinToString(",") }
 
         return try {
             val result = gameCollectionRepository.refresh(options, updatedTimestamp)
@@ -437,6 +436,17 @@ class SyncCollectionWorker @AssistedInject constructor(
                 PROGRESS_KEY_STATUS to status.mapToPreference(),
                 PROGRESS_KEY_MODIFIED_SINCE to modifiedSince,
             )
+        )
+    }
+
+    private fun Game.Subtype?.getDescription(context: Context): String {
+        return context.getString(
+            when (this) {
+                Game.Subtype.BoardGame -> R.string.games
+                Game.Subtype.BoardGameExpansion -> R.string.expansions
+                Game.Subtype.BoardGameAccessory -> R.string.accessories
+                else -> R.string.items
+            }
         )
     }
 

@@ -69,11 +69,11 @@ data class Game(
         return heroImageUrl.getImageId() != thumbnailUrl.getImageId()
     }
 
-    enum class Subtype(val code: String) {
-        BOARDGAME("boardgame"),
-        BOARDGAME_EXPANSION("boardgameexpansion"),
-        BOARDGAME_ACCESSORY("boardgameaccessory"),
-        UNKNOWN(""),
+    enum class Subtype(val databaseValue: String) {
+        BoardGame("boardgame"),
+        BoardGameExpansion("boardgameexpansion"),
+        BoardGameAccessory("boardgameaccessory"),
+        Unknown(""),
     }
 
     companion object {

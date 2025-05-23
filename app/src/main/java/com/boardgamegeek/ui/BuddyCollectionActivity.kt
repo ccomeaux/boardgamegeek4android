@@ -6,6 +6,7 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import com.boardgamegeek.extensions.createStatusMap
 import com.boardgamegeek.extensions.startActivity
+import com.boardgamegeek.mappers.mapToResource
 import com.boardgamegeek.ui.BuddyActivity.Companion.startUp
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -39,7 +40,7 @@ class BuddyCollectionActivity : SimpleSinglePaneActivity() {
 
         viewModel.setUsername(buddyName)
         viewModel.status.observe(this) {
-            val status = statuses[it.orEmpty()]
+            val status = statuses[it.mapToResource()]
             supportActionBar?.subtitle = buddyName + (if (!status.isNullOrEmpty()) " - $status" else "")
             invalidateOptionsMenu()
         }

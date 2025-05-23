@@ -94,7 +94,7 @@
 		<item>want_to_play</item>
 		<item>preordered</item>
 	</string-array>
-	<string-array name="expansion_status_filter_values">
+	<string-array name="expansion_status_filter_values"> <!-- These should match Game.Subtype.databaseValue -->
 		<item />
 		<item>boardgame</item>
 		<item>boardgameexpansion</item>

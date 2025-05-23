@@ -2,10 +2,12 @@ package com.boardgamegeek.mappers
 
 import android.graphics.Color
 import com.boardgamegeek.db.model.*
-import com.boardgamegeek.model.*
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.replaceHtmlLineFeeds
+import com.boardgamegeek.extensions.sortName
+import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.GameRemote
+import com.boardgamegeek.model.*
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -21,7 +23,7 @@ private const val LANGUAGE_POLL_NAME = "language_dependence"
 fun GameRankEntity.mapToSubtype(): GameSubtype? {
     return if (gameRankType == BggService.RANK_TYPE_SUBTYPE) {
         GameSubtype(
-            subtype = gameRankName.toSubtype(),
+            subtype = gameRankName.fromDatabaseToSubtype(),
             rank = gameRankValue,
             bayesAverage = gameRankBayesAverage,
         )
@@ -66,7 +68,7 @@ fun GameEntity.mapToModel(lastPlayDate: String?): Game {
         name = gameName,
         sortName = gameSortName,
         updated = updated ?: 0L,
-        subtype = subtype.toSubtype(),
+        subtype = subtype.fromDatabaseToSubtype(),
         thumbnailUrl = thumbnailUrl.orEmpty(),
         imageUrl = imageUrl.orEmpty(),
         heroImageUrl = heroImageUrl.orEmpty(),
@@ -215,7 +217,7 @@ fun GameRemote.mapForUpsert(internalId: Long, updated: Long): GameForUpsert {
         imageUrl = image,
         thumbnailUrl = thumbnail,
         description = description.replaceHtmlLineFeeds().trim(),
-        subtype = type.toThingSubtype()?.code,
+        subtype = type.fromRemoteToSubtype(),
         yearPublished = yearpublished?.toIntOrNull() ?: Game.YEAR_UNKNOWN,
         minPlayers = minplayers?.toIntOrNull(),
         maxPlayers = maxplayers?.toIntOrNull(),
@@ -286,7 +288,14 @@ fun GameRemote.mapToMechanics() = links.filter {
     MechanicEntity(0L, it.id, it.value)
 }
 
-fun String?.toThingSubtype() = BggService.ThingSubtype.entries.find { this == it.code }
+fun String?.fromRemoteToSubtype() = when (this) {
+    BggService.TYPE_BOARD_GAME -> Game.Subtype.BoardGame.databaseValue
+    BggService.TYPE_BOARD_GAME_EXPANSION -> Game.Subtype.BoardGameExpansion.databaseValue
+    BggService.TYPE_BOARD_GAME_ACCESSORY -> Game.Subtype.BoardGameAccessory.databaseValue
+    else -> null
+}
+
+fun String?.fromDatabaseToSubtype() = Game.Subtype.entries.find { this == it.databaseValue } ?: Game.Subtype.Unknown
 
 const val separator = "|"
 

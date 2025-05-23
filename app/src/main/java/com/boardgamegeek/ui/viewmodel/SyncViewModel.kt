@@ -6,10 +6,10 @@ import androidx.lifecycle.*
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.mappers.mapToEnum
 import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.User
 import com.boardgamegeek.pref.SyncPrefs
@@ -113,7 +113,7 @@ class SyncViewModel @Inject constructor(
     }
 
     fun collectionStatusAccessoryCompleteTimestamp(status: CollectionStatus): LiveData<Long?> {
-        return LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(BggService.ThingSubtype.BOARDGAME_ACCESSORY, status), SyncPrefs.NAME)
+        return LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(Game.Subtype.BoardGameAccessory, status), SyncPrefs.NAME)
     }
 
     fun syncCollection(status: CollectionStatus = CollectionStatus.Unknown) {

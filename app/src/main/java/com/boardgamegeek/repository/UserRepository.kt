@@ -12,6 +12,7 @@ import com.boardgamegeek.db.model.UserForUpsert
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.*
 import com.boardgamegeek.mappers.*
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.User.Companion.applySort
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.clearBuddyListTimestamps
@@ -89,13 +90,11 @@ class UserRepository(
         result.exceptionOrNull()?.localizedMessage
     }
 
-    suspend fun refreshCollection(username: String, status: String): List<CollectionItem> = // TODO use an enum for status
+    suspend fun refreshCollection(username: String, status: CollectionStatus): List<CollectionItem> =
         withContext(Dispatchers.IO) {
             val response = api.collection(
-                username, mapOf(
-                    status to "1",
-                    BggService.COLLECTION_QUERY_KEY_BRIEF to "1"
-                )
+                username,
+                BggService.createCollectionOptionsMap(brief = true, status = status)
             )
             response.items?.map { it.mapToCollectionItem() }.orEmpty()
         }

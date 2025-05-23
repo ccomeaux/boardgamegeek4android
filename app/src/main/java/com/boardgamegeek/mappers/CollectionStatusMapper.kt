@@ -20,6 +20,40 @@ fun CollectionStatus.mapToPreference() = when (this) {
     CollectionStatus.Unknown -> ""
 }
 
+// These strings must match the strings found in R.array.collection_status_filter_values
+private const val OWN = "own"
+private const val PREVIOUSLY_OWNED = "previously_owned"
+private const val FOR_TRADE = "for_trade"
+private const val WANT_IN_TRADE = "want"
+private const val WANT_TO_BUY = "want_to_buy"
+private const val WISHLIST = "wishlist"
+private const val WANT_TO_PLAY = "want_to_play"
+private const val PREORDERED = "preordered"
+
+fun CollectionStatus.mapToResource() = when (this) {
+    CollectionStatus.Own -> OWN
+    CollectionStatus.PreviouslyOwned -> PREVIOUSLY_OWNED
+    CollectionStatus.ForTrade -> FOR_TRADE
+    CollectionStatus.WantInTrade -> WANT_IN_TRADE
+    CollectionStatus.WantToBuy -> WANT_TO_BUY
+    CollectionStatus.Wishlist -> WISHLIST
+    CollectionStatus.WantToPlay -> WANT_TO_PLAY
+    CollectionStatus.Preordered -> PREORDERED
+    else -> ""
+}
+
+fun String?.mapFromResourceToEnum() = when (this) {
+    OWN -> CollectionStatus.Own
+    PREVIOUSLY_OWNED -> CollectionStatus.PreviouslyOwned
+    FOR_TRADE -> CollectionStatus.ForTrade
+    WANT_IN_TRADE -> CollectionStatus.WantInTrade
+    WANT_TO_BUY -> CollectionStatus.WantToBuy
+    WISHLIST -> CollectionStatus.Wishlist
+    WANT_TO_PLAY -> CollectionStatus.WantToPlay
+    PREORDERED -> CollectionStatus.Preordered
+    else -> CollectionStatus.Unknown
+}
+
 fun String?.mapToEnum() = when (this) {
     COLLECTION_STATUS_OWN -> CollectionStatus.Own
     COLLECTION_STATUS_PREVIOUSLY_OWNED -> CollectionStatus.PreviouslyOwned

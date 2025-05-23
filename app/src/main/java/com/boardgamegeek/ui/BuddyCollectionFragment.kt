@@ -10,6 +10,8 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentBuddyCollectionBinding
 import com.boardgamegeek.extensions.createStatusMap
+import com.boardgamegeek.mappers.mapFromResourceToEnum
+import com.boardgamegeek.mappers.mapToResource
 import com.boardgamegeek.model.Status
 import com.boardgamegeek.ui.adapter.BuddyCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.BuddyCollectionViewModel
@@ -47,7 +49,7 @@ class BuddyCollectionFragment : Fragment() {
             override fun onPrepareMenu(menu: Menu) {
                 menu.findItem(R.id.menu_collection_random_game)?.isVisible = adapter.itemCount > 0
                 subMenu?.let { submenu ->
-                    submenu.children.find { it.title == statuses[currentStatus] }?.setChecked(true)
+                    submenu.children.find { it.title == statuses[currentStatus.mapToResource()] }?.setChecked(true)
                 }
             }
 
@@ -55,8 +57,8 @@ class BuddyCollectionFragment : Fragment() {
                 when {
                     (Menu.FIRST..(Menu.FIRST + statuses.size)).contains(menuItem.itemId) -> {
                         val newStatus = statuses.keys.elementAt(menuItem.itemId - Menu.FIRST)
-                        if (newStatus.isNotEmpty() && newStatus != currentStatus) {
-                            viewModel.setStatus(newStatus)
+                        if (newStatus.isNotEmpty() && newStatus != currentStatus.mapToResource()) {
+                            viewModel.setStatus(newStatus.mapFromResourceToEnum())
                             return true
                         }
                     }

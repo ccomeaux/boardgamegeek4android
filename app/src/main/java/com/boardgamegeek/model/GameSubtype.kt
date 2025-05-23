@@ -25,9 +25,9 @@ data class GameSubtype(
      */
     fun describeType(context: Context): CharSequence {
         @StringRes val resId = when (subtype) {
-            Game.Subtype.BOARDGAME -> R.string.title_board_game
-            Game.Subtype.BOARDGAME_EXPANSION -> R.string.title_expansion
-            Game.Subtype.BOARDGAME_ACCESSORY -> R.string.title_accessory
+            Game.Subtype.BoardGame -> R.string.title_board_game
+            Game.Subtype.BoardGameExpansion -> R.string.title_expansion
+            Game.Subtype.BoardGameAccessory -> R.string.title_accessory
             else -> 0
         }
         return if (resId == 0) "" else context.getText(resId)

@@ -765,14 +765,14 @@ class PlayRepository(
                 playCount = game.value,
                 isOwned = itemPairs.any { it.own },
                 bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN,
-                subtype = gameSubtype?.subtype.toSubtype()
+                subtype = gameSubtype?.subtype.fromDatabaseToSubtype()
             )
         }
         allGamesForStats.filter {
-            it.subtype == Game.Subtype.UNKNOWN ||
-                    it.subtype == Game.Subtype.BOARDGAME ||
-                    (it.subtype == Game.Subtype.BOARDGAME_ACCESSORY && includeAccessories) ||
-                    (it.subtype == Game.Subtype.BOARDGAME_EXPANSION && includeExpansions)
+            it.subtype == Game.Subtype.Unknown ||
+                    it.subtype == Game.Subtype.BoardGame ||
+                    (it.subtype == Game.Subtype.BoardGameAccessory && includeAccessories) ||
+                    (it.subtype == Game.Subtype.BoardGameExpansion && includeExpansions)
         }
     }
 

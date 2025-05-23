@@ -64,7 +64,7 @@ class CollectionDetailsViewModel @Inject constructor(
 
     private val baseItems = allItems.map {
         it.filter { item ->
-            item.subtype in listOf(Game.Subtype.BOARDGAME, null)
+            item.subtype in listOf(Game.Subtype.BoardGame, null)
         }
     }
 

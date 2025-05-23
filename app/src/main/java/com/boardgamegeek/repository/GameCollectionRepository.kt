@@ -127,15 +127,13 @@ class GameCollectionRepository(
                 context.getString(R.string.msg_refresh_collection_item_auth_error)
             else {
                 val timestamp = System.currentTimeMillis()
-                val options = mutableMapOf(
-                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
+                val options = BggService.createCollectionOptionsMap(
+                    gameId = gameId,
+                    collectionId = collectionId,
+                    subtype = subtype,
+                    includePrivateInfo = true,
+                    includeStats = true,
                 )
-                options += if (collectionId != INVALID_ID)
-                    BggService.COLLECTION_QUERY_KEY_COLLECTION_ID to collectionId.toString()
-                else
-                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString()
-                options.addSubtype(subtype)
 
                 val result = safeApiCall(context) { api.collection(username, options) }
                 if (result.isSuccess) {
@@ -169,12 +167,12 @@ class GameCollectionRepository(
             val timestamp = System.currentTimeMillis()
             val collectionIds = arrayListOf<Int>()
 
-            val options = mutableMapOf(
-                BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
+            val options = BggService.createCollectionOptionsMap(
+                gameId = gameId,
+                subtype = subtype,
+                includePrivateInfo = true,
+                includeStats = true,
             )
-            options.addSubtype(subtype)
             val result = safeApiCall(context) { api.collection(username, options) }
             if (result.isFailure)
                 return@withContext result.exceptionMessage()
@@ -185,13 +183,13 @@ class GameCollectionRepository(
             }
             val statuses = prefs.getSyncStatusesOrDefault()
             if (result.getOrNull()?.items.isNullOrEmpty() && statuses.contains(CollectionStatus.Played)) {
-                val playedOptions = mutableMapOf(
-                    BggService.COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1",
-                    BggService.COLLECTION_QUERY_KEY_STATS to "1",
-                    BggService.COLLECTION_QUERY_KEY_ID to gameId.toString(),
-                    BggService.COLLECTION_QUERY_STATUS_PLAYED to "1",
+                val playedOptions = BggService.createCollectionOptionsMap(
+                    gameId = gameId,
+                    subtype = subtype,
+                    includePrivateInfo = true,
+                    includeStats = true,
+                    status = CollectionStatus.Played,
                 )
-                playedOptions.addSubtype(subtype)
                 val playedResponse = safeApiCall(context) { api.collection(username, playedOptions) }
                 if (playedResponse.isFailure)
                     return@withContext result.exceptionMessage()
@@ -347,17 +345,6 @@ class GameCollectionRepository(
             }
         }
         Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
-    }
-
-    private fun MutableMap<String, String>.addSubtype(subtype: Game.Subtype?) {
-        subtype?.let {
-            this += BggService.COLLECTION_QUERY_KEY_SUBTYPE to when (it) {
-                Game.Subtype.BOARDGAME -> BggService.ThingSubtype.BOARDGAME
-                Game.Subtype.BOARDGAME_EXPANSION -> BggService.ThingSubtype.BOARDGAME_EXPANSION
-                Game.Subtype.BOARDGAME_ACCESSORY -> BggService.ThingSubtype.BOARDGAME_ACCESSORY
-                Game.Subtype.UNKNOWN -> BggService.ThingSubtype.BOARDGAME
-            }.code
-        }
     }
 
     suspend fun loadAcquiredFrom() = withContext(Dispatchers.IO) { collectionDao.loadAcquiredFrom().filterNotNull().filterNot { it.isBlank() } }

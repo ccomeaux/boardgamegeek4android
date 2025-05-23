@@ -24,7 +24,7 @@ class ExpansionStatusFilterer(context: Context) : CollectionFilterer(context) {
         val value = getFromArray(R.array.expansion_status_filter_values)
         return if (value.isNotEmpty()) {
             (item.subtype == null) ||
-            (item.subtype.code == value)
+            (item.subtype.databaseValue == value)
         } else true
     }
 

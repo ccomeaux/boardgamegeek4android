@@ -3,13 +3,17 @@
 package com.boardgamegeek.io
 
 import com.boardgamegeek.io.model.*
+import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.model.Game
+import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.google.gson.annotations.SerializedName
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.QueryMap
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 interface BggService {
     @GET("/xmlapi2/collection")
@@ -71,12 +75,6 @@ interface BggService {
     @GET("/xmlapi/geeklist/{id}")
     suspend fun geekList(@Path("id") id: Int, @Query("comments") comments: Int): GeekListResponse
 
-    enum class ThingSubtype(val code: String) {
-        BOARDGAME("boardgame"),
-        BOARDGAME_EXPANSION("boardgameexpansion"),
-        BOARDGAME_ACCESSORY("boardgameaccessory"),
-    }
-
     companion object {
         const val RANK_TYPE_SUBTYPE = "subtype"
         const val RANK_TYPE_FAMILY = "family"
@@ -90,17 +88,80 @@ interface BggService {
         const val RANK_FAMILY_NAME_THEMATIC_GAMES = "thematic"
         const val RANK_FAMILY_NAME_WAR_GAMES = "wargames"
 
-        const val COLLECTION_QUERY_KEY_ID = "id"
-        const val COLLECTION_QUERY_KEY_SHOW_PRIVATE = "showprivate"
-        const val COLLECTION_QUERY_KEY_STATS = "stats"
-        const val COLLECTION_QUERY_KEY_MODIFIED_SINCE = "modifiedsince"
-        const val COLLECTION_QUERY_KEY_BRIEF = "brief"
-        const val COLLECTION_QUERY_KEY_SUBTYPE = "subtype"
-        const val COLLECTION_QUERY_STATUS_PLAYED = "played"
-        const val COLLECTION_QUERY_KEY_COLLECTION_ID = "collid"
-
+        private const val COLLECTION_QUERY_KEY_ID = "id"
+        private const val COLLECTION_QUERY_KEY_SHOW_PRIVATE = "showprivate"
+        private const val COLLECTION_QUERY_KEY_STATS = "stats"
+        private const val COLLECTION_QUERY_KEY_MODIFIED_SINCE = "modifiedsince"
+        private const val COLLECTION_QUERY_KEY_BRIEF = "brief"
+        private const val COLLECTION_QUERY_KEY_SUBTYPE = "subtype"
+        private const val COLLECTION_QUERY_STATUS_PLAYED = "played"
+        private const val COLLECTION_QUERY_KEY_COLLECTION_ID = "collid"
+        private val COLLECTION_QUERY_DATE_TIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
         // val COLLECTION_QUERY_DATE_FORMAT = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-        val COLLECTION_QUERY_DATE_TIME_FORMAT = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+
+        const val TYPE_BOARD_GAME = "boardgame"
+        const val TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion"
+        const val TYPE_BOARD_GAME_ACCESSORY = "boardgameaccessory"
+
+        fun createCollectionOptionsMap(
+            gameId: Int = INVALID_ID,
+            gameIds: List<Int>? = null,
+            collectionId: Int = INVALID_ID,
+            subtype: Game.Subtype? = null,
+            includePrivateInfo: Boolean = false,
+            includeStats: Boolean = false,
+            brief: Boolean = false,
+            status: CollectionStatus? = null,
+            excludedStatuses: List<CollectionStatus> = emptyList(),
+            sinceTimestamp: Long? = null,
+        ): Map<String, String> {
+            val options = mutableMapOf<String, String>()
+
+            if (collectionId != INVALID_ID)
+                COLLECTION_QUERY_KEY_COLLECTION_ID to collectionId.toString()
+            else if (gameId != INVALID_ID)
+                COLLECTION_QUERY_KEY_ID to gameId.toString()
+            else if (gameIds?.isNotEmpty() == true)
+                options[COLLECTION_QUERY_KEY_ID] = gameIds.joinToString(",")
+
+            sinceTimestamp?.let {
+                options[COLLECTION_QUERY_KEY_MODIFIED_SINCE] = COLLECTION_QUERY_DATE_TIME_FORMAT.format(Date(it))
+            }
+
+            if (includePrivateInfo) options += COLLECTION_QUERY_KEY_SHOW_PRIVATE to "1"
+            if (includeStats) options += COLLECTION_QUERY_KEY_STATS to "1"
+            if (brief) options += COLLECTION_QUERY_KEY_BRIEF to "1"
+
+            status?.let { options += it.toQueryKey() to "1" }
+            excludedStatuses.forEach { options[it.toQueryKey()] = "0" }
+
+            subtype?.let {
+                options += COLLECTION_QUERY_KEY_SUBTYPE to when (it) {
+                    Game.Subtype.BoardGame -> TYPE_BOARD_GAME
+                    Game.Subtype.BoardGameExpansion -> TYPE_BOARD_GAME_EXPANSION
+                    Game.Subtype.BoardGameAccessory -> TYPE_BOARD_GAME_ACCESSORY
+                    Game.Subtype.Unknown -> TYPE_BOARD_GAME
+                }
+            }
+            return options
+        }
+
+        private fun CollectionStatus.toQueryKey() = when (this) {
+            CollectionStatus.Own -> "own"
+            CollectionStatus.PreviouslyOwned -> "prevowned"
+            CollectionStatus.Preordered -> "preordered"
+            CollectionStatus.ForTrade -> "fortrade"
+            CollectionStatus.WantInTrade -> "want"
+            CollectionStatus.WantToBuy -> "wanttobuy"
+            CollectionStatus.WantToPlay -> "wantoplay"
+            CollectionStatus.Wishlist -> "wishlist"
+            CollectionStatus.Played -> "played"
+            CollectionStatus.Rated -> "rated"
+            CollectionStatus.Commented -> "commented"
+            CollectionStatus.HasParts -> "hasparts"
+            CollectionStatus.WantParts -> "wantparts"
+            CollectionStatus.Unknown -> ""
+        }
     }
 
     enum class PersonType {

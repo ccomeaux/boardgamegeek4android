@@ -8,9 +8,9 @@ import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.extensions.remove
 import com.boardgamegeek.extensions.set
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.mappers.mapToPreference
 import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_BUDDIES
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE_CURRENT
@@ -54,11 +54,22 @@ class SyncPrefs {
 
 // COLLECTION
 
-fun getCompleteCollectionTimestampKey(subtype: BggService.ThingSubtype?, status: CollectionStatus): String {
-    return "$TIMESTAMP_COLLECTION_COMPLETE.${subtype?.code.orEmpty()}.${status.mapToPreference()}"
+fun getCompleteCollectionTimestampKey(subtype: Game.Subtype?, status: CollectionStatus): String {
+    return "$TIMESTAMP_COLLECTION_COMPLETE.${subtype?.mapToPreference().orEmpty()}.${status.mapToPreference()}" // TODO
 }
 
-fun getPartialCollectionTimestampKey(subtype: BggService.ThingSubtype?) = "${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.code.orEmpty()}"
+fun getPartialCollectionTimestampKey(subtype: Game.Subtype?) = "${TIMESTAMP_COLLECTION_PARTIAL}.${subtype?.mapToPreference().orEmpty()}"
+
+const val TYPE_BOARD_GAME = "boardgame"
+const val TYPE_BOARD_GAME_EXPANSION = "boardgameexpansion"
+const val TYPE_BOARD_GAME_ACCESSORY = "boardgameaccessory"
+
+private fun Game.Subtype.mapToPreference() = when (this) {
+    Game.Subtype.BoardGame -> TYPE_BOARD_GAME
+    Game.Subtype.BoardGameExpansion -> TYPE_BOARD_GAME_EXPANSION
+    Game.Subtype.BoardGameAccessory -> TYPE_BOARD_GAME_ACCESSORY
+    Game.Subtype.Unknown -> ""
+}
 
 fun SharedPreferences.clearCollection() {
     this[TIMESTAMP_COLLECTION_COMPLETE] = 0L

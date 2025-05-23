@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.repository.UserRepository
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -16,23 +17,23 @@ class BuddyCollectionViewModel @Inject constructor(
     private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
 
-    private val usernameAndStatus = MutableLiveData<Pair<String, String>>()
+    private val usernameAndStatus = MutableLiveData<Pair<String, CollectionStatus>>()
 
     fun setUsername(username: String) {
         if (usernameAndStatus.value?.first != username)
             usernameAndStatus.value = username to (usernameAndStatus.value?.second ?: DEFAULT_STATUS)
     }
 
-    fun setStatus(status: String) {
+    fun setStatus(status: CollectionStatus) {
         FirebaseAnalytics.getInstance(getApplication()).logEvent("Filter") {
             param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyCollection")
-            param("filterType", status)
+            param("filterType", status.toString())
         }
-        if (usernameAndStatus.value?.second != status) usernameAndStatus.value =
-            (usernameAndStatus.value?.first.orEmpty()) to status
+        if (usernameAndStatus.value?.second != status)
+            usernameAndStatus.value = (usernameAndStatus.value?.first.orEmpty()) to status
     }
 
-    val status: LiveData<String> = usernameAndStatus.map {
+    val status: LiveData<CollectionStatus> = usernameAndStatus.map {
         it.second
     }
 
@@ -49,6 +50,6 @@ class BuddyCollectionViewModel @Inject constructor(
         }
 
     companion object {
-        const val DEFAULT_STATUS = "own"
+        val DEFAULT_STATUS = CollectionStatus.Own
     }
 }

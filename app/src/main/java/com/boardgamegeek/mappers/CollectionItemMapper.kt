@@ -6,7 +6,6 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
-import com.boardgamegeek.extensions.toSubtype
 import com.boardgamegeek.io.model.CollectionItemRemote
 import com.boardgamegeek.model.GameSubtype
 import com.boardgamegeek.provider.BggContract
@@ -368,7 +367,7 @@ private fun CollectionItem.addGame(game: GameEntity): CollectionItem {
         arePlayersCustomSorted = game.customPlayerSort ?: false,
         minPlayerCount = game.minPlayers ?: 0,
         maxPlayerCount = game.maxPlayers ?: 0,
-        subtype = game.subtype.toSubtype(),
+        subtype = game.subtype.fromDatabaseToSubtype(),
         bestPlayerCounts = game.playerCountsBest.splitFromDatabase(),
         recommendedPlayerCounts = game.playerCountsRecommended.splitFromDatabase(),
         numberOfUsersOwned = game.numberOfUsersOwned ?: 0,
