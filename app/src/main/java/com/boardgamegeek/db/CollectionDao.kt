@@ -11,7 +11,7 @@ interface CollectionDao {
     suspend fun loadAll(): List<CollectionItemWithGameAndLastPlayedEntity>
 
     @Transaction
-    @Query("SELECT collection.*, MAX(plays.date) AS lastPlayedDate FROM collection LEFT OUTER JOIN plays ON collection.game_id = plays.object_id GROUP BY game_id ORDER BY collection_sort_name COLLATE NOCASE")
+    @Query("SELECT collection.*, MAX(plays.date) AS lastPlayedDate FROM collection LEFT OUTER JOIN plays ON collection.game_id = plays.object_id GROUP BY collection_id ORDER BY collection_sort_name COLLATE NOCASE")
     fun loadAllAsFlow(): Flow<List<CollectionItemWithGameAndLastPlayedEntity>>
 
     @Transaction
