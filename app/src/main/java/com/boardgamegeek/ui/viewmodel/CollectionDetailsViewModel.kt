@@ -44,22 +44,25 @@ class CollectionDetailsViewModel @Inject constructor(
         }
 
     private val allGames: LiveData<List<CollectionItem>> = allItems.map { list ->
-        list.groupBy { item -> item.gameId }.mapValues { entry ->
-            entry.value.fold(entry.value[0]) { acc, i ->
-                acc.copy(
-                    own = acc.own || i.own,
-                    previouslyOwned = acc.previouslyOwned || i.previouslyOwned,
-                    preOrdered = acc.preOrdered || i.preOrdered,
-                    forTrade = acc.forTrade || i.forTrade,
-                    wantToPlay = acc.wantToPlay || i.wantToPlay,
-                    wantToBuy = acc.wantToBuy || i.wantToBuy,
-                    wantInTrade = acc.wantInTrade || i.wantInTrade,
-                    wishList = acc.wishList || i.wishList,
-                    wishListPriority = minOf(acc.wishListPriority, i.wishListPriority),
-                    rating = maxOf(acc.rating, i.rating),
-                )
+        list
+            .groupingBy { it.gameId }
+            .fold<CollectionItem, Int, CollectionItem?>(null) { acc, item ->
+                acc?.copy(
+                    own = acc.own || item.own,
+                    previouslyOwned = acc.previouslyOwned || item.previouslyOwned,
+                    preOrdered = acc.preOrdered || item.preOrdered,
+                    forTrade = acc.forTrade || item.forTrade,
+                    wantToPlay = acc.wantToPlay || item.wantToPlay,
+                    wantToBuy = acc.wantToBuy || item.wantToBuy,
+                    wantInTrade = acc.wantInTrade || item.wantInTrade,
+                    wishList = acc.wishList || item.wishList,
+                    wishListPriority = minOf(acc.wishListPriority, item.wishListPriority),
+                    rating = maxOf(acc.rating, item.rating),
+                ) ?: item
             }
-        }.values.toList()
+            .values
+            .filterNotNull()
+            .toList()
     }
 
     private val baseItems = allItems.map {
