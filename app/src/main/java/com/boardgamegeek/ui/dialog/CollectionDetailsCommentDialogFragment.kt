@@ -1,12 +1,12 @@
 package com.boardgamegeek.ui.dialog
 
 import android.app.Dialog
-import android.content.res.Resources
 import android.os.Bundle
 import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
@@ -52,8 +52,8 @@ class CollectionDetailsCommentDialogFragment : DialogFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val titleResId = arguments?.getInt(KEY_TITLE) ?: Resources.ID_NULL
-        if (titleResId != Resources.ID_NULL) binding.titleView.setText(titleResId)
+        val titleResId = arguments?.getInt(KEY_TITLE) ?: ResourcesCompat.ID_NULL
+        if (titleResId != ResourcesCompat.ID_NULL) binding.titleView.setText(titleResId)
         binding.subtitleView.setTextOrHide(arguments?.getString(KEY_SUBTITLE))
 
         binding.editText.inputType = binding.editText.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
