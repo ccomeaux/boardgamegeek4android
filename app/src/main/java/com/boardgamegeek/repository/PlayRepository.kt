@@ -12,6 +12,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.db.*
 import com.boardgamegeek.db.model.GameColorsEntity
+import com.boardgamegeek.db.model.PlayWithSubtypeRankOwn
 import com.boardgamegeek.db.model.PlayerColorsEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.io.BggService
@@ -48,7 +49,6 @@ class PlayRepository(
     private val userDao: UserDao,
     private val gameColorDao: GameColorDao,
     private val gameDao: GameDao,
-    private val collectionDao: CollectionDao,
 ) {
     enum class PlayerType {
         USER,
@@ -746,34 +746,33 @@ class PlayRepository(
     private suspend fun loadForStats(
         includeIncompletePlays: Boolean,
         includeExpansions: Boolean,
-        includeAccessories: Boolean
+        includeAccessories: Boolean,
     ): List<GameForPlayStats> = withContext(Dispatchers.Default) {
-        // TODO make this more efficient (I think we can get it all in 1 query)
-        val allPlays = playDao.loadPlays().filter { it.deleteTimestamp == 0L }
-        val plays = if (includeIncompletePlays) allPlays else allPlays.filterNot { it.incomplete }
-        val playedGamesMap = plays.groupingBy { it.objectId to it.itemName }.fold(0) { accumulator, element ->
-            accumulator + element.quantity
-        }
-        val items = collectionDao.loadAll().map { it.mapToModel() }
-        val games = gameDao.loadGameSubtypes()
-        val allGamesForStats = playedGamesMap.map { game ->
-            val itemPairs = items.filter { it.gameId == game.key.first }
-            val gameSubtype = games.find { it.gameId == game.key.first }
-            GameForPlayStats(
-                id = game.key.first,
-                name = game.key.second,
-                playCount = game.value,
-                isOwned = itemPairs.any { it.own },
-                bggRank = itemPairs.minOfOrNull { it.rank } ?: CollectionItem.RANK_UNKNOWN,
-                subtype = gameSubtype?.subtype.fromDatabaseToSubtype()
-            )
-        }
-        allGamesForStats.filter {
-            it.subtype == Game.Subtype.Unknown ||
-                    it.subtype == Game.Subtype.BoardGame ||
-                    (it.subtype == Game.Subtype.BoardGameAccessory && includeAccessories) ||
-                    (it.subtype == Game.Subtype.BoardGameExpansion && includeExpansions)
-        }
+        val allPlays = withContext(Dispatchers.IO) { playDao.loadPlaysForStats() }
+        val plays = allPlays.asSequence()
+            .filter { it.play.deleteTimestamp == 0L }
+            .filter { includeIncompletePlays || !it.play.incomplete }
+            .filter {
+                val s = it.subtype.fromRemoteToSubtype().fromDatabaseToSubtype()
+                s == Game.Subtype.Unknown ||
+                        s == Game.Subtype.BoardGame ||
+                        (s == Game.Subtype.BoardGameAccessory && includeAccessories) ||
+                        (s == Game.Subtype.BoardGameExpansion && includeExpansions)
+            }
+        plays
+            .groupingBy { it.play.objectId }
+            .fold<PlayWithSubtypeRankOwn, Int, GameForPlayStats?>(null) { accumulator, element ->
+                accumulator?.copy(playCount = accumulator.playCount + element.play.quantity)
+                    ?: GameForPlayStats(
+                        id = element.play.objectId,
+                        name = element.play.itemName,
+                        playCount = element.play.quantity,
+                        isOwned = element.own?.let { it > 0 } ?: false,
+                        bggRank = element.rank ?: CollectionItem.RANK_UNKNOWN,
+                    )
+            }
+            .values
+            .filterNotNull()
     }
 
     private suspend fun loadPlayersForStats(includeIncompletePlays: Boolean): List<Player> = withContext(Dispatchers.Default) {

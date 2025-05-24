@@ -112,9 +112,6 @@ interface GameDao {
     @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id GROUP BY game_id")
     fun loadAllAsFlow(): Flow<List<GameWithLastPlayed>>
 
-    @Query("SELECT game_id, game_name, subtype FROM games")
-    suspend fun loadGameSubtypes() : List<GameIdNameSubtype>
-
     @Query("SELECT games.*, MAX(plays.date) AS lastPlayedDate FROM games LEFT OUTER JOIN plays ON games.game_id = plays.object_id WHERE game_id = :gameId")
     suspend fun loadGame(gameId: Int): GameWithLastPlayed?
 
