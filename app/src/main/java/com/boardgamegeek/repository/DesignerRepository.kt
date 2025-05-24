@@ -28,7 +28,6 @@ import timber.log.Timber
 import java.util.Date
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.milliseconds
 
 class DesignerRepository(
     val context: Context,
