@@ -47,7 +47,7 @@ class SyncCollectionWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         quickSync = inputData.getBoolean(QUICK_SYNC, false)
-        requestedStatus = inputData.keyValueMap[REQUESTED_STATUS] as? CollectionStatus ?: CollectionStatus.Unknown
+        requestedStatus = inputData.getString(REQUESTED_STATUS).mapToEnum()
 
         val isSyncEnabled = RemoteConfig.getBoolean(RemoteConfig.KEY_SYNC_ENABLED)
         if (!isSyncEnabled)
@@ -482,7 +482,7 @@ class SyncCollectionWorker @AssistedInject constructor(
                 .setConstraints(context.createWorkConstraints(true))
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
             if (status != CollectionStatus.Unknown)
-                builder.setInputData(workDataOf(REQUESTED_STATUS to status))
+                builder.setInputData(workDataOf(REQUESTED_STATUS to status.mapToString()))
             WorkManager.getInstance(context).enqueueUniqueWork(UNIQUE_WORK_NAME_AD_HOC, ExistingWorkPolicy.KEEP, builder.build())
         }
 
@@ -491,5 +491,39 @@ class SyncCollectionWorker @AssistedInject constructor(
             .setConstraints(context.createWorkConstraints(true))
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
             .build()
+
+        private fun CollectionStatus.mapToString() = when (this) {
+            CollectionStatus.Own -> "own"
+            CollectionStatus.PreviouslyOwned -> "previously_owned"
+            CollectionStatus.Preordered -> "preorderd"
+            CollectionStatus.Played -> "played"
+            CollectionStatus.ForTrade -> "for_trade"
+            CollectionStatus.WantInTrade -> "want_in_trade"
+            CollectionStatus.WantToBuy -> "want_to_buy"
+            CollectionStatus.WantToPlay -> "want_to_play"
+            CollectionStatus.Wishlist -> "wishlist"
+            CollectionStatus.Rated -> "rated"
+            CollectionStatus.Commented -> "commented"
+            CollectionStatus.HasParts -> "has_parts"
+            CollectionStatus.WantParts -> "want_parts"
+            CollectionStatus.Unknown -> ""
+        }
+
+        private fun String?.mapToEnum() = when (this) {
+            "own" -> CollectionStatus.Own
+            "previously_owned" -> CollectionStatus.PreviouslyOwned
+            "preorderd" -> CollectionStatus.Preordered
+            "played" -> CollectionStatus.Played
+            "for_trade" -> CollectionStatus.ForTrade
+            "want_in_trade" -> CollectionStatus.WantInTrade
+            "want_to_buy" -> CollectionStatus.WantToBuy
+            "want_to_play" -> CollectionStatus.WantToPlay
+            "wishlist" -> CollectionStatus.Wishlist
+            "rated" -> CollectionStatus.Rated
+            "commented" -> CollectionStatus.Commented
+            "has_parts" -> CollectionStatus.HasParts
+            "want_parts" -> CollectionStatus.WantParts
+            else -> CollectionStatus.Unknown
+        }
     }
 }
