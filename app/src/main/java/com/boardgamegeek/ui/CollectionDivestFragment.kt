@@ -47,7 +47,7 @@ class CollectionDivestFragment : Fragment() {
                 { item: CollectionItem ->
                     rating(item.geekRating)
                 },
-                R.menu.game_divest_for_trade,
+                R.menu.collection_shelf_for_trade,
                 onMenuClick(),
             )
         )
@@ -58,7 +58,7 @@ class CollectionDivestFragment : Fragment() {
                 { item: CollectionItem ->
                     rating(item.geekRating)
                 },
-                R.menu.game_divest_for_trade_without_condition,
+                R.menu.collection_shelf_divest_for_trade_without_condition,
                 onMenuClick(),
             )
         )
@@ -69,16 +69,19 @@ class CollectionDivestFragment : Fragment() {
                 { item: CollectionItem ->
                     rating(item.geekRating)
                 },
-                R.menu.game_analyze,
+                R.menu.collection_shelf,
                 onMenuClick(),
             )
         )
         val dateFormat = DateFormat.getDateFormat(context)
         binding.whyOwnWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
+                null,
                 bindBadge = { item ->
                     (item.lastPlayDate?.let { dateFormat.format(it) } ?: "") to Color.WHITE
-                }
+                },
+                R.menu.collection_shelf_offer_trade,
+                onMenuClick(),
             )
         )
 
@@ -160,6 +163,10 @@ class CollectionDivestFragment : Fragment() {
             }
             R.id.menu_add_condition_text -> {
                 CollectionDetailsConditionDialogFragment.show(parentFragmentManager, item.gameName, item.internalId, item.conditionText)
+                true
+            }
+            R.id.menu_offer_trade -> {
+                viewModel.addStatus(item.internalId, CollectionStatus.ForTrade)
                 true
             }
             R.id.menu_trade -> {

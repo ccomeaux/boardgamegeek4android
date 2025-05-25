@@ -304,7 +304,6 @@ class CollectionDetailsViewModel @Inject constructor(
     val whyOwnItems = allItems.switchMap { list ->
         liveData {
             val filter = list
-                .filter { it.own && !it.forTrade }
                 .filter { it.own && !it.forTrade && it.friendlessWhyOwn() > 100.0 }
                 .filterPublishedGames()
             emit(
@@ -472,6 +471,22 @@ class CollectionDetailsViewModel @Inject constructor(
     fun refresh() {
         if (isRefreshing.value == false) {
             gameCollectionRepository.enqueueRefreshRequest(WORK_NAME)
+        }
+    }
+
+    fun addStatus(internalId: Long, status: CollectionStatus) {
+        viewModelScope.launch {
+            allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
+                val statuses = originalItem.statuses.copy().apply {
+                    first.add(status)
+                }
+                gameCollectionRepository.updateStatus(
+                    internalId,
+                    statuses.first,
+                    statuses.second,
+                )
+                gameCollectionRepository.enqueueUploadRequest(originalItem.gameId)
+            }
         }
     }
 

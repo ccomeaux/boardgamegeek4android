@@ -186,7 +186,7 @@ data class CollectionItem(
 
     private fun sincePlayed() = lastPlayDate?.let { System.currentTimeMillis() - it }?.milliseconds?.inWholeDays?.coerceAtLeast(1) ?: 0
 
-    fun friendlessWhyOwn() = if (rating == UNRATED) 0.0 else (sincePlayed() / rating / rating)
+    fun friendlessWhyOwn() = if (rating == UNRATED || lastPlayDate == null || lastPlayDate == 0L) 0.0 else (sincePlayed() / rating / rating)
 
     // val friendlessUtilization = numberOfPlays.toDouble().cdf(ln(0.1) / -10)
 
