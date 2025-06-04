@@ -48,13 +48,11 @@ class CollectionAnalyzeFragment : Fragment() {
 
         binding.gamesToRateWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item ->
-                    rate(item)
-                },
+                null,
                 { item ->
                     requireContext().getQuantityText(R.plurals.plays_suffix, item.numberOfPlays, item.numberOfPlays) to Color.WHITE
                 },
-                R.menu.game_analyze,
+                R.menu.collection_shelf_rate,
                 onAnalyzeMenuClick(),
             )
         )
@@ -65,13 +63,11 @@ class CollectionAnalyzeFragment : Fragment() {
 
         binding.gamesToCommentWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                { item ->
-                    comment(item)
-                },
+                null,
                 { item ->
                     rating(item.rating)
                 },
-                R.menu.game_analyze,
+                R.menu.collection_shelf_comment,
                 onAnalyzeMenuClick(),
             )
         )
@@ -99,6 +95,14 @@ class CollectionAnalyzeFragment : Fragment() {
             }
             R.id.menu_view_item -> {
                 GameCollectionItemActivity.start(requireContext(), item)
+                true
+            }
+            R.id.menu_rate_item -> {
+                rate(item)
+                true
+            }
+            R.id.menu_comment_item -> {
+                comment(item)
                 true
             }
             else -> false

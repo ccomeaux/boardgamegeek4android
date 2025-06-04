@@ -10,5 +10,8 @@
 		android:id="@+id/menu_view_item"
 		android:title="@string/menu_view_item"
 		app:showAsAction="never" />
-
+	<item
+		android:id="@+id/menu_rate_item"
+		android:title="@string/menu_rate_item"
+		app:showAsAction="never" />
 </menu>

@@ -315,8 +315,10 @@
 	<string name="search_initial_help">Use the search field above to search against BoardGameGeek\'s entire database. Autocomplete will show only games in your collection.</string>
 	<string name="menu_search">Search</string>
 	<string name="menu_view">View</string>
-	<string name="menu_view_game">View Game</string>
-	<string name="menu_view_item">View Item</string>
+	<string name="menu_view_game">View game</string>
+	<string name="menu_view_item">View item</string>
+	<string name="menu_rate_item">Rate item</string>
+	<string name="menu_comment_item">Add comment</string>
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_remove_for_trade">Remove For Trade status</string>
 	<string name="menu_add_condition_text">Add Condition text</string>
