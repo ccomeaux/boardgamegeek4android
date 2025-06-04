@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item
+		android:id="@+id/menu_view_game"
+		android:title="@string/menu_view_game"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/menu_view_item"
+		android:title="@string/menu_view_item"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/menu_play_game"
+		android:title="@string/menu_log_play"
+		app:showAsAction="never" />
+	<item
+		android:id="@+id/menu_remove_want_to_play"
+		android:title="@string/menu_remove_want_to_play"
+		app:showAsAction="never" />
+
+</menu>

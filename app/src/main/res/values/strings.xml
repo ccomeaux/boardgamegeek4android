@@ -325,6 +325,7 @@
 	<string name="menu_remove_wishlist">Remove Wishlist status</string>
 	<string name="menu_remove_want_to_buy">Remove Want to Buy status</string>
 	<string name="menu_remove_want_in_trade">Remove Want in Trade status</string>
+	<string name="menu_remove_want_to_play">Remove Want to Play status</string>
 	<string name="menu_add_condition_text">Add condition text</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_short">Form</string>

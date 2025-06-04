@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
+import androidx.annotation.MenuRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.isVisible
@@ -88,7 +89,7 @@ class CollectionShelf @JvmOverloads constructor(
     class CollectionItemAdapter(
         private val onClick: ((item: CollectionItem) -> Unit)? = null,
         private val bindBadge: ((item: CollectionItem) -> Pair<CharSequence, Int>)? = null,
-        private val menuResourceId: Int = ResourcesCompat.ID_NULL,
+        @MenuRes private val menuResourceId: Int = ResourcesCompat.ID_NULL,
         private val onMenuClick: ((item: CollectionItem, menuItem: MenuItem) -> Boolean)? = null,
     ) : Adapter<CollectionItemAdapter.CollectionItemViewHolder>(), AutoUpdatableAdapter {
         var items: List<CollectionItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
