@@ -321,7 +321,11 @@
 	<string name="menu_comment_item">Add comment</string>
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_remove_for_trade">Remove For Trade status</string>
-	<string name="menu_add_condition_text">Add Condition text</string>
+	<string name="menu_remove_preordered">Remove Preordered status</string>
+	<string name="menu_remove_wishlist">Remove Wishlist status</string>
+	<string name="menu_remove_want_to_buy">Remove Want to Buy status</string>
+	<string name="menu_remove_want_in_trade">Remove Want in Trade status</string>
+	<string name="menu_add_condition_text">Add condition text</string>
 	<string name="menu_log_play">Log play</string>
 	<string name="menu_log_play_short">Form</string>
 	<string name="menu_log_play_wizard_short">Wizard</string>

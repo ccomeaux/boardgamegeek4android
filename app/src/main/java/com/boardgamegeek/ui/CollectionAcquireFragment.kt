@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Bundle
 import android.text.format.DateUtils
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -19,6 +21,7 @@ import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.ui.dialog.CollectionDetailPrivateInfoDialogFragment
 import com.boardgamegeek.ui.viewmodel.CollectionDetailsViewModel
 import com.boardgamegeek.ui.widget.CollectionShelf
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class CollectionAcquireFragment : Fragment() {
     private var _binding: FragmentCollectionAcquireBinding? = null
@@ -63,7 +66,7 @@ class CollectionAcquireFragment : Fragment() {
                 { item: CollectionItem ->
                     item.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
                 },
-                R.menu.game_acquire,
+                R.menu.collection_shelf_preordered,
                 onAcquireMenuClick()
             )
         )
@@ -78,7 +81,7 @@ class CollectionAcquireFragment : Fragment() {
                     item.wishListPriority.asWishListPriority(context) to
                             item.wishListPriority.toDouble().toColor(BggColors.fiveStageColors)
                 },
-                R.menu.game_acquire,
+                R.menu.collection_shelf_wishlist,
                 onAcquireMenuClick(),
             )
         )
@@ -90,7 +93,7 @@ class CollectionAcquireFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 null,
                 { rating(it.averageRating) },
-                R.menu.game_acquire,
+                R.menu.collection_shelf_want_to_buy,
                 onAcquireMenuClick(),
             )
         )
@@ -102,7 +105,7 @@ class CollectionAcquireFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 null,
                 { rating(it.averageRating) },
-                R.menu.game_acquire,
+                R.menu.collection_shelf_want_in_trade,
                 onAcquireMenuClick(),
             )
         )
@@ -116,7 +119,7 @@ class CollectionAcquireFragment : Fragment() {
                 { item ->
                     rating(item.rating)
                 },
-                R.menu.game_acquire,
+                R.menu.collection_shelf_acquire,
                 onAcquireMenuClick(),
             ))
         viewModel.favoriteUnownedItems.observe(viewLifecycleOwner) {
@@ -129,7 +132,7 @@ class CollectionAcquireFragment : Fragment() {
                 { item ->
                     requireContext().getQuantityText(R.plurals.plays_suffix, item.numberOfPlays, item.numberOfPlays) to Color.WHITE
                 },
-                R.menu.game_acquire,
+                R.menu.collection_shelf_acquire,
                 onAcquireMenuClick(),
             ))
         viewModel.playedButUnownedItems.observe(viewLifecycleOwner) {
@@ -142,7 +145,7 @@ class CollectionAcquireFragment : Fragment() {
                 { item ->
                     rating(item.averageRating)
                 },
-                R.menu.game_acquire,
+                R.menu.collection_shelf_acquire,
                 onAcquireMenuClick(),
             ))
         viewModel.hawtUnownedItems.observe(viewLifecycleOwner) {
@@ -165,8 +168,37 @@ class CollectionAcquireFragment : Fragment() {
                 GameCollectionItemActivity.start(requireContext(), item)
                 true
             }
+            R.id.menu_remove_preordered -> {
+                confirmRemoveStatus(item, R.string.collection_status_preordered, CollectionStatus.Preordered)
+                true
+            }
+            R.id.menu_remove_wishlist -> {
+                confirmRemoveStatus(item, R.string.collection_status_wishlist, CollectionStatus.Wishlist)
+                true
+            }
+            R.id.menu_remove_want_to_buy -> {
+                confirmRemoveStatus(item, R.string.collection_status_want_to_buy, CollectionStatus.WantToBuy)
+                true
+            }
+            R.id.menu_remove_want_in_trade -> {
+                confirmRemoveStatus(item, R.string.collection_status_want_in_trade, CollectionStatus.WantInTrade)
+                true
+            }
             else -> false
         }
+    }
+
+    private fun confirmRemoveStatus(item: CollectionItem, @StringRes statusResId: Int, status: CollectionStatus) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(item.collectionName)
+            .setMessage(getString(R.string.msg_remove_status, getString(statusResId)))
+            .setCancelable(true)
+            .setNegativeButton(R.string.cancel, null)
+            .setPositiveButton(R.string.remove) { _: DialogInterface?, _: Int ->
+                viewModel.removeStatus(item.internalId, status)
+            }
+            .create()
+            .show()
     }
 
     private fun buyGame(item: CollectionItem) {
