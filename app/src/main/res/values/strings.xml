@@ -716,7 +716,7 @@
 	<string name="info_why_own">You haven\'t played this in a long time and you don\'t rate it highly.</string>
 	<string name="info_shelf_of_opportunity">Games you own but haven\'t played yet</string>
 	<string name="info_shelf_of_new_opportunity">Games you\'ve just acquired but haven\'t played yet</string>
-	<string name="msg_collection_details_acquire">"You want to add %1$,d games to your collection, an increase of %2$s."</string>
+	<string name="msg_collection_details_acquire">"You want to add %1$,d games to your collection, a desire rate of %2$s."</string>
 	<string name="msg_collection_details_divest">You have divested %1$s of your items and are looking to trade %2$s more.</string>
 	<string name="msg_collection_details_divest_previously_owned">You have divested %1$s of your items.</string>
 	<string name="msg_collection_details_divest_for_trade">You are looking to trade %1$s of your items.</string>

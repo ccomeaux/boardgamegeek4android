@@ -143,7 +143,7 @@ class CollectionDetailsViewModel @Inject constructor(
             emit(
                 filter
                     .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenBy { it.geekRating })
-                    .take(ITEM_LIMIT) to filter.size
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
@@ -154,7 +154,7 @@ class CollectionDetailsViewModel @Inject constructor(
             emit(
                 filter
                     .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.geekRating })
-                    .take(ITEM_LIMIT) to filter.size
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
@@ -165,7 +165,7 @@ class CollectionDetailsViewModel @Inject constructor(
             emit(
                 filter
                     .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.geekRating })
-                    .take(ITEM_LIMIT) to filter.size
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
@@ -176,13 +176,13 @@ class CollectionDetailsViewModel @Inject constructor(
             emit(
                 filter
                     .sortedByDescending { it.acquisitionDate }
-                    .take(ITEM_LIMIT) to filter.size
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
 
     @Suppress("SpellCheckingInspection")
-    val hawtItems: LiveData<List<CollectionItem>> = allItems.switchMap { list ->
+    val hawtItems = allItems.switchMap { list ->
         liveData {
             emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
                 .filter { it.own }
@@ -196,11 +196,7 @@ class CollectionDetailsViewModel @Inject constructor(
 
     data class CollectionAcquireStats(
         val incomingCount: Int,
-        val incomingRate: Double,
-        val preorderedCount: Int,
-        val wishlistCount: Int,
-        val wantToBuyCount: Int,
-        val wantInTradeCount: Int,
+        val desireRate: Double,
     )
 
     val collectionAcquireStats: LiveData<CollectionAcquireStats> = allItems.map { items ->
@@ -208,49 +204,48 @@ class CollectionDetailsViewModel @Inject constructor(
         CollectionAcquireStats(
             incomingCount,
             incomingCount.toDouble() / items.filter { it.own }.sumOf { it.quantity },
-            items.filter { it.preOrdered }.sumOf { it.quantity },
-            items.filter { (it.wishList && it.wishListPriority in 1..4) }.sumOf { it.quantity },
-            items.filter { it.wantToBuy }.sumOf { it.quantity },
-            items.filter { it.wantInTrade }.sumOf { it.quantity },
         )
     }
 
-    val preordered: LiveData<List<CollectionItem>> = allItems.switchMap {
+    val preordered = allItems.switchMap {
         liveData {
             val (withDate, withoutDate) = it.filter { it.preOrdered }.partition { it.acquisitionDate > 0L }
             emit(
                 (withoutDate.sortedByDescending { it.geekRating } + withDate.sortedBy { it.acquisitionDate })
-                    .take(ITEM_LIMIT)
+                    .take(ITEM_LIMIT) to (withoutDate.sumOf { it.quantity } + withDate.sumOf { it.quantity })
             )
         }
     }
 
-    val wishlist: LiveData<List<CollectionItem>> = allItems.switchMap {
+    val wishlist = allItems.switchMap { list ->
+        val filter = list.filter { (it.wishList && it.wishListPriority in 1..4) }
         liveData {
             emit(
-                it.filter { it.wishList }
+                filter
                     .sortedWith(compareBy<CollectionItem> { it.wishListPriority }.thenByDescending { it.geekRating })
-                    .take(ITEM_LIMIT)
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
 
-    val wantToBuy: LiveData<List<CollectionItem>> = allItems.switchMap {
+    val wantToBuy = allItems.switchMap {
         liveData {
+            val filter = it.filter { it.wantToBuy }
             emit(
-                it.filter { it.wantToBuy }
+                filter
                     .sortedByDescending { it.geekRating }
-                    .take(ITEM_LIMIT)
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
 
-    val wantInTrade: LiveData<List<CollectionItem>> = allItems.switchMap {
+    val wantInTrade = allItems.switchMap {
         liveData {
+            val filter = it.filter { it.wantInTrade }
             emit(
-                it.filter { it.wantInTrade }
+                filter
                     .sortedByDescending { it.geekRating }
-                    .take(ITEM_LIMIT)
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
@@ -295,8 +290,7 @@ class CollectionDetailsViewModel @Inject constructor(
             emit(
                 it
                     .sortedByDescending { it.numberOfUsersWanting }
-                    .take(ITEM_LIMIT)
-                        to it.size
+                    .take(ITEM_LIMIT) to it.sumOf { it.quantity }
             )
         }
     }
@@ -304,12 +298,11 @@ class CollectionDetailsViewModel @Inject constructor(
     val forTradeWithoutCondition = forTradeItems.switchMap {
         liveData {
             val filter = it.sortedByDescending { it.numberOfUsersWanting }.drop(ITEM_LIMIT).filter { it.conditionText.isBlank() }
-            val size = it.filter { it.conditionText.isBlank() }.size
+            val quantity = it.filter { it.conditionText.isBlank() }.sumOf { it.quantity }
             emit(
                 filter
                     .sortedByDescending { it.numberOfUsersWanting }
-                    .take(ITEM_LIMIT)
-                        to size
+                    .take(ITEM_LIMIT) to quantity
             )
         }
     }
@@ -320,8 +313,7 @@ class CollectionDetailsViewModel @Inject constructor(
             emit(
                 filter
                     .sortedByDescending { it.geekRating }
-                    .take(ITEM_LIMIT)
-                        to filter.size
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
@@ -334,8 +326,7 @@ class CollectionDetailsViewModel @Inject constructor(
             emit(
                 filter
                     .sortedByDescending { it.friendlessWhyOwn() }
-                    .take(ITEM_LIMIT)
-                        to filter.size
+                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
             )
         }
     }
@@ -361,7 +352,7 @@ class CollectionDetailsViewModel @Inject constructor(
         liveData {
             val list = it.filter { it.wantToPlay }
             emit(
-                list.sortedByDescending { it.geekRating }.take(ITEM_LIMIT) to list.size
+                list.sortedByDescending { it.geekRating }.take(ITEM_LIMIT) to list.sumOf { it.quantity }
             )
         }
     }
@@ -374,7 +365,7 @@ class CollectionDetailsViewModel @Inject constructor(
                 .sortedByDescending { it.lastPlayDate }
                 .toList()
             emit(
-                list.take(ITEM_LIMIT) to list.size
+                list.take(ITEM_LIMIT) to list.sumOf { it.quantity }
             )
         }
     }
@@ -387,7 +378,7 @@ class CollectionDetailsViewModel @Inject constructor(
                 .filter { it.friendlessShouldPlay > 10_000.0 }
                 .toList()
             emit(
-                list.sortedByDescending { it.friendlessShouldPlay }.take(ITEM_LIMIT) to list.size
+                list.sortedByDescending { it.friendlessShouldPlay }.take(ITEM_LIMIT) to list.sumOf { it.quantity }
             )
         }
     }
@@ -400,7 +391,7 @@ class CollectionDetailsViewModel @Inject constructor(
                 .filterUnplayed()
                 .toList()
             emit(
-                list.sortedByDescending { it.geekRating }.take(ITEM_LIMIT) to list.size
+                list.sortedByDescending { it.geekRating }.take(ITEM_LIMIT) to list.sumOf { it.quantity }
             )
         }
     }
@@ -414,7 +405,7 @@ class CollectionDetailsViewModel @Inject constructor(
                 .filter { it.acquisitionDate > 0L }
                 .toList()
             emit(
-                list.sortedByDescending { it.acquisitionDate }.take(ITEM_LIMIT) to list.size
+                list.sortedByDescending { it.acquisitionDate }.take(ITEM_LIMIT) to list.sumOf { it.quantity }
             )
         }
     }

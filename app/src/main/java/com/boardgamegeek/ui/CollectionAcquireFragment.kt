@@ -41,15 +41,11 @@ class CollectionAcquireFragment : Fragment() {
 
         viewModel.collectionAcquireStats.observe(viewLifecycleOwner) {
             if (it.incomingCount > 0) {
-                binding.acquireSummaryView.text = getString(R.string.msg_collection_details_acquire, it.incomingCount, it.incomingRate.asPercentage())
+                binding.acquireSummaryView.text = getString(R.string.msg_collection_details_acquire, it.incomingCount, it.desireRate.asPercentage())
                 binding.acquireSummaryView.isVisible = true
             } else {
                 binding.acquireSummaryView.isVisible = false
             }
-            binding.preorderedWidget.setCount(it.preorderedCount)
-            binding.wishlistWidget.setCount(it.wishlistCount)
-            binding.wantToBuyWidget.setCount(it.wantToBuyCount)
-            binding.wantInTradeWidget.setCount(it.wantInTradeCount)
         }
 
         viewModel.syncCollectionStatuses.observe(viewLifecycleOwner) {
@@ -69,7 +65,8 @@ class CollectionAcquireFragment : Fragment() {
             }
         )
         viewModel.preordered.observe(viewLifecycleOwner) {
-            binding.preorderedWidget.bindList(it)
+            binding.preorderedWidget.bindList(it.first)
+            binding.preorderedWidget.setCount(it.second)
         }
 
         binding.wishlistWidget.setAdapter(
@@ -82,7 +79,8 @@ class CollectionAcquireFragment : Fragment() {
             }
         )
         viewModel.wishlist.observe(viewLifecycleOwner) {
-            binding.wishlistWidget.bindList(it)
+            binding.wishlistWidget.bindList(it.first)
+            binding.wishlistWidget.setCount(it.second)
         }
 
         binding.wantToBuyWidget.setAdapter(
@@ -92,7 +90,8 @@ class CollectionAcquireFragment : Fragment() {
             ) { rating(it.averageRating) }
         )
         viewModel.wantToBuy.observe(viewLifecycleOwner) {
-            binding.wantToBuyWidget.bindList(it)
+            binding.wantToBuyWidget.bindList(it.first)
+            binding.wantToBuyWidget.setCount(it.second)
         }
 
         binding.wantInTradeWidget.setAdapter(
@@ -102,7 +101,8 @@ class CollectionAcquireFragment : Fragment() {
             ) { rating(it.averageRating) }
         )
         viewModel.wantInTrade.observe(viewLifecycleOwner) {
-            binding.wantInTradeWidget.bindList(it)
+            binding.wantInTradeWidget.bindList(it.first)
+            binding.wantInTradeWidget.setCount(it.second)
         }
 
         binding.favoriteUnownedWidget.setAdapter(
