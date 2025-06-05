@@ -43,17 +43,6 @@ class CollectionBrowseFragment : Fragment() {
             binding.recentlyViewedWidget.bindList(it)
         }
 
-        binding.highlyRatedWidget.setAdapter(
-            CollectionShelf.CollectionItemAdapter(
-                bindBadge = { item ->
-                    rating(item.rating)
-                }
-            )
-        )
-        viewModel.highlyRatedItems.observe(viewLifecycleOwner) {
-            binding.highlyRatedWidget.bindList(it)
-        }
-
         binding.friendlessFavoriteWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 bindBadge = { item ->
@@ -74,17 +63,6 @@ class CollectionBrowseFragment : Fragment() {
         )
         viewModel.underratedItems.observe(viewLifecycleOwner) {
             binding.hiddenGemsWidget.bindList(it)
-        }
-
-        binding.hawtWidget.setAdapter(
-            CollectionShelf.CollectionItemAdapter(
-                bindBadge = { item ->
-                    rating(item.averageRating)
-                }
-            )
-        )
-        viewModel.hawtItems.observe(viewLifecycleOwner) {
-            binding.hawtWidget.bindList(it)
         }
     }
 

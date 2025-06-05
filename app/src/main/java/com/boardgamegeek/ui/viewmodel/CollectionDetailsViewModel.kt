@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.*
 import androidx.work.WorkManager
 import com.boardgamegeek.extensions.collectionStatusLiveData
+import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.model.CollectionItem
@@ -25,6 +26,7 @@ import com.boardgamegeek.repository.StatsHelper.Companion.calculateCorrelationCo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.days
 
 @HiltViewModel
 class CollectionDetailsViewModel @Inject constructor(
@@ -114,15 +116,6 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val highlyRatedItems: LiveData<List<CollectionItem>> = baseItems.switchMap { list ->
-        liveData {
-            emit(
-                list.sortedWith(compareByDescending<CollectionItem> { it.rating }.thenBy { it.geekRating })
-                    .take(ITEM_LIMIT)
-            )
-        }
-    }
-
     val friendlessFavoriteItems: LiveData<List<CollectionItem>> = allItems.switchMap { list ->
         liveData {
             emit(
@@ -142,6 +135,52 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
+    // OWN
+
+    val own = allItems.switchMap {
+        liveData {
+            val filter = it.filter { it.own && (it.subtype in listOf(Game.Subtype.BoardGame, Game.Subtype.Unknown, null)) }
+            emit(
+                filter
+                    .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenBy { it.geekRating })
+                    .take(ITEM_LIMIT) to filter.size
+            )
+        }
+    }
+
+    val expansions = allItems.switchMap {
+        liveData {
+            val filter = it.filter { it.own && it.subtype == Game.Subtype.BoardGameExpansion }
+            emit(
+                filter
+                    .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.geekRating })
+                    .take(ITEM_LIMIT) to filter.size
+            )
+        }
+    }
+
+    val accessories = allItems.switchMap {
+        liveData {
+            val filter = it.filter { it.own && it.subtype == Game.Subtype.BoardGameAccessory }
+            emit(
+                filter
+                    .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.geekRating })
+                    .take(ITEM_LIMIT) to filter.size
+            )
+        }
+    }
+
+    val recentlyAcquired = allItems.switchMap { list ->
+        liveData {
+            val filter = list.filter { it.own && !it.acquisitionDate.isOlderThan(365.days) }
+            emit(
+                filter
+                    .sortedByDescending { it.acquisitionDate }
+                    .take(ITEM_LIMIT) to filter.size
+            )
+        }
+    }
+
     @Suppress("SpellCheckingInspection")
     val hawtItems: LiveData<List<CollectionItem>> = allItems.switchMap { list ->
         liveData {
@@ -149,20 +188,6 @@ class CollectionDetailsViewModel @Inject constructor(
                 .filter { it.own }
                 .sortedByDescending { it.hawt }
                 .take(ITEM_LIMIT)
-            )
-        }
-    }
-
-    // OWN
-
-    val own = allItems.switchMap {
-        liveData {
-            val filter = it.filter { it.own }
-            emit(
-                filter
-                    .sortedWith(compareBy<CollectionItem> { it.rating }.thenByDescending { it.geekRating })
-                    .take(ITEM_LIMIT)
-                        to filter.size
             )
         }
     }

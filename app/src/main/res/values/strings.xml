@@ -187,6 +187,7 @@
 	<string name="title_stats">Stats</string>
 	<string name="title_in_progress">In Progress</string>
 	<string name="title_recent">Recent</string>
+	<string name="title_own">Own</string>
 	<string name="title_play">Play</string>
 	<string name="title_designer">Designer</string>
 	<string name="title_designers">Designers</string>
@@ -692,7 +693,10 @@
 	<string name="title_divest">Divest</string>
 	<string name="title_for_trade_without_condition">For Trade (missing Condition text)</string>
 	<string name="title_recently_viewed">Recently Viewed</string>
-	<string name="title_your_top_rated">Your Top Rated</string>
+	<string name="title_recently_acquired">Recently Acquired</string>
+	<string name="title_owned_games">Owned Games</string>
+	<string name="title_owned_expansions">Owned Expansions</string>
+	<string name="title_owned_accessories">Owned Accessories</string>
 	<string name="title_friendless_favorites">Friendless Favorites</string>
 	<string name="title_hidden_gems">Hidden Gems</string>
 	<string name="title_hawt">Hawt</string>

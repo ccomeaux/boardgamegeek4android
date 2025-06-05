@@ -14,22 +14,34 @@
 		android:paddingBottom="@dimen/padding_extra">
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
-			android:id="@+id/recentlyViewedWidget"
+			android:id="@+id/gamesWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_recently_viewed" />
+			app:headerLabel="@string/title_owned_games" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
-			android:id="@+id/friendlessFavoriteWidget"
+			android:id="@+id/expansionsWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_friendless_favorites" />
+			app:headerLabel="@string/title_owned_expansions" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
-			android:id="@+id/hiddenGemsWidget"
+			android:id="@+id/accessoriesWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_hidden_gems"
-			app:helpText="@string/info_hidden_gems" />
+			app:headerLabel="@string/title_owned_accessories" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/recentlyAcquiredWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_recently_acquired" />
+
+		<com.boardgamegeek.ui.widget.CollectionShelf
+			android:id="@+id/hawtWidget"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			app:headerLabel="@string/title_hawt"
+			app:helpText="@string/info_hawt" />
  	</LinearLayout>
 </ScrollView>
