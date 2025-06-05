@@ -1,13 +1,14 @@
 package com.boardgamegeek.ui
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionBrowseBinding
 import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.extensions.asPersonalRating
@@ -34,10 +35,9 @@ class CollectionBrowseFragment : Fragment() {
 
         binding.recentlyViewedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                bindBadge = { item: CollectionItem ->
-                rating(item.averageRating)
-                }
-            ),
+                R.menu.collection_shelf,
+                onClick()
+            ) { rating(it.averageRating) }
         )
         viewModel.recentlyViewedItems.observe(viewLifecycleOwner) {
             binding.recentlyViewedWidget.bindList(it)
@@ -45,10 +45,9 @@ class CollectionBrowseFragment : Fragment() {
 
         binding.friendlessFavoriteWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                bindBadge = { item ->
-                    rating(item.rating)
-                }
-            )
+                R.menu.collection_shelf,
+                onClick()
+            ) { rating(it.rating) }
         )
         viewModel.friendlessFavoriteItems.observe(viewLifecycleOwner) {
             binding.friendlessFavoriteWidget.bindList(it)
@@ -56,13 +55,27 @@ class CollectionBrowseFragment : Fragment() {
 
         binding.hiddenGemsWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                bindBadge = { item ->
-                    item.zScore.asPersonalRating(context, ResourcesCompat.ID_NULL) to Color.WHITE
-                }
-            )
+                R.menu.collection_shelf,
+                onClick()
+            ) { rating(it.rating) }
         )
         viewModel.underratedItems.observe(viewLifecycleOwner) {
             binding.hiddenGemsWidget.bindList(it)
+        }
+    }
+
+    private fun onClick() = { item: CollectionItem, menuItem: MenuItem ->
+        Boolean
+        when (menuItem.itemId) {
+            R.id.menu_view_game -> {
+                GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
+                true
+            }
+            R.id.menu_view_item -> {
+                GameCollectionItemActivity.start(requireContext(), item)
+                true
+            }
+            else -> false
         }
     }
 
