@@ -14,7 +14,10 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionDivestBinding
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.BggColors
+import com.boardgamegeek.extensions.asPercentage
+import com.boardgamegeek.extensions.asPersonalRating
+import com.boardgamegeek.extensions.toColor
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.ui.dialog.CollectionDetailsConditionDialogFragment
@@ -43,46 +46,30 @@ class CollectionDivestFragment : Fragment() {
 
         binding.forTradeWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item: CollectionItem ->
-                    rating(item.geekRating)
-                },
                 R.menu.collection_shelf_for_trade,
                 onMenuClick(),
-            )
+            ) { rating(it.geekRating) }
         )
 
         binding.forTradeWithoutConditionWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item: CollectionItem ->
-                    rating(item.geekRating)
-                },
                 R.menu.collection_shelf_divest_for_trade_without_condition,
                 onMenuClick(),
-            )
+            ) { rating(it.geekRating) }
         )
 
         binding.previouslyOwnedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item: CollectionItem ->
-                    rating(item.geekRating)
-                },
                 R.menu.collection_shelf,
                 onMenuClick(),
-            )
+            ) { rating(it.geekRating) }
         )
         val dateFormat = DateFormat.getDateFormat(context)
         binding.whyOwnWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                bindBadge = { item ->
-                    (item.lastPlayDate?.let { dateFormat.format(it) } ?: "") to Color.WHITE
-                },
                 R.menu.collection_shelf_offer_trade,
                 onMenuClick(),
-            )
+            ) { item -> (item.lastPlayDate?.let { dateFormat.format(it) } ?: "") to Color.WHITE }
         )
 
         viewModel.own.observe(viewLifecycleOwner) {

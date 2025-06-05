@@ -87,10 +87,9 @@ class CollectionShelf @JvmOverloads constructor(
     }
 
     class CollectionItemAdapter(
-        private val onClick: ((item: CollectionItem) -> Unit)? = null,
-        private val bindBadge: ((item: CollectionItem) -> Pair<CharSequence, Int>)? = null,
         @MenuRes private val menuResourceId: Int = ResourcesCompat.ID_NULL,
         private val onMenuClick: ((item: CollectionItem, menuItem: MenuItem) -> Boolean)? = null,
+        private val bindBadge: ((item: CollectionItem) -> Pair<CharSequence, Int>)? = null,
     ) : Adapter<CollectionItemAdapter.CollectionItemViewHolder>(), AutoUpdatableAdapter {
         var items: List<CollectionItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
             autoNotify(oldValue, newValue) { old, new ->
@@ -146,11 +145,7 @@ class CollectionShelf @JvmOverloads constructor(
                     }
                 }
                 itemView.setOnClickListener {
-                    if (onClick == null) {
-                        GameActivity.start(itemView.context, item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
-                    } else {
-                        onClick.invoke(item)
-                    }
+                    GameActivity.start(itemView.context, item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
                 }
                 itemView.setOnLongClickListener {
                     GameActivity.start(itemView.context, item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)

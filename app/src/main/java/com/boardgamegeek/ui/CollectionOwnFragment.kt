@@ -36,13 +36,9 @@ class CollectionOwnFragment : Fragment() {
 
         binding.gamesWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item: CollectionItem ->
-                    rating(item.averageRating)
-                },
                 R.menu.collection_shelf,
                 onMenuClick = onMenuClick(),
-            ),
+            ) { rating(it.averageRating) }
         )
         viewModel.own.observe(viewLifecycleOwner) {
             binding.gamesWidget.bindList(it.first)
@@ -51,13 +47,9 @@ class CollectionOwnFragment : Fragment() {
 
         binding.expansionsWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item: CollectionItem ->
-                    rating(item.averageRating)
-                },
                 R.menu.collection_shelf,
                 onMenuClick = onMenuClick(),
-            ),
+            ) { rating(it.averageRating) }
         )
         viewModel.expansions.observe(viewLifecycleOwner) {
             binding.expansionsWidget.bindList(it.first)
@@ -66,13 +58,9 @@ class CollectionOwnFragment : Fragment() {
 
         binding.accessoriesWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item: CollectionItem ->
-                    rating(item.averageRating)
-                },
                 R.menu.collection_shelf,
                 onMenuClick = onMenuClick(),
-            ),
+            ) { rating(it.averageRating) }
         )
         viewModel.accessories.observe(viewLifecycleOwner) {
             binding.accessoriesWidget.bindList(it.first)
@@ -81,13 +69,10 @@ class CollectionOwnFragment : Fragment() {
 
         binding.recentlyAcquiredWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    item.acquiredFrom to Color.WHITE
-                },
                 R.menu.collection_shelf,
                 onMenuClick = onMenuClick(),
-            )
+            ) { it.acquiredFrom to Color.WHITE
+            }
         )
         viewModel.recentlyAcquired.observe(viewLifecycleOwner) {
             binding.recentlyAcquiredWidget.bindList(it.first)
@@ -96,13 +81,9 @@ class CollectionOwnFragment : Fragment() {
 
         binding.hawtWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    rating(item.averageRating)
-                },
                 R.menu.collection_shelf,
                 onMenuClick = onMenuClick(),
-            )
+            ) { rating(it.averageRating) }
         )
         viewModel.hawtItems.observe(viewLifecycleOwner) {
             binding.hawtWidget.bindList(it)

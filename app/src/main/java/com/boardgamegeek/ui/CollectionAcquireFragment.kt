@@ -62,13 +62,11 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.preorderedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item: CollectionItem ->
-                    item.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
-                },
                 R.menu.collection_shelf_preordered,
                 onAcquireMenuClick()
-            )
+            ) { item: CollectionItem ->
+                item.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
+            }
         )
         viewModel.preordered.observe(viewLifecycleOwner) {
             binding.preorderedWidget.bindList(it)
@@ -76,14 +74,12 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.wishlistWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item: CollectionItem ->
-                    item.wishListPriority.asWishListPriority(context) to
-                            item.wishListPriority.toDouble().toColor(BggColors.fiveStageColors)
-                },
                 R.menu.collection_shelf_wishlist,
                 onAcquireMenuClick(),
-            )
+            ) { item: CollectionItem ->
+                item.wishListPriority.asWishListPriority(context) to
+                        item.wishListPriority.toDouble().toColor(BggColors.fiveStageColors)
+            }
         )
         viewModel.wishlist.observe(viewLifecycleOwner) {
             binding.wishlistWidget.bindList(it)
@@ -91,11 +87,9 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.wantToBuyWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { rating(it.averageRating) },
                 R.menu.collection_shelf_want_to_buy,
                 onAcquireMenuClick(),
-            )
+            ) { rating(it.averageRating) }
         )
         viewModel.wantToBuy.observe(viewLifecycleOwner) {
             binding.wantToBuyWidget.bindList(it)
@@ -103,11 +97,9 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.wantInTradeWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { rating(it.averageRating) },
                 R.menu.collection_shelf_want_in_trade,
                 onAcquireMenuClick(),
-            )
+            ) { rating(it.averageRating) }
         )
         viewModel.wantInTrade.observe(viewLifecycleOwner) {
             binding.wantInTradeWidget.bindList(it)
@@ -115,39 +107,30 @@ class CollectionAcquireFragment : Fragment() {
 
         binding.favoriteUnownedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    rating(item.rating)
-                },
                 R.menu.collection_shelf_acquire,
                 onAcquireMenuClick(),
-            ))
+            ) { rating(it.rating) }
+        )
         viewModel.favoriteUnownedItems.observe(viewLifecycleOwner) {
             binding.favoriteUnownedWidget.bindList(it)
         }
 
         binding.playedUnownedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    requireContext().getQuantityText(R.plurals.plays_suffix, item.numberOfPlays, item.numberOfPlays) to Color.WHITE
-                },
                 R.menu.collection_shelf_acquire,
                 onAcquireMenuClick(),
-            ))
+            ) { requireContext().getQuantityText(R.plurals.plays_suffix, it.numberOfPlays, it.numberOfPlays) to Color.WHITE }
+        )
         viewModel.playedButUnownedItems.observe(viewLifecycleOwner) {
             binding.playedUnownedWidget.bindList(it)
         }
 
         binding.hawtUnownedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    rating(item.averageRating)
-                },
                 R.menu.collection_shelf_acquire,
                 onAcquireMenuClick(),
-            ))
+            ) { rating(it.averageRating) }
+        )
         viewModel.hawtUnownedItems.observe(viewLifecycleOwner) {
             binding.hawtUnownedWidget.bindList(it)
         }

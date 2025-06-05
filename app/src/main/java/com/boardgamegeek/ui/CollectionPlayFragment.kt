@@ -75,13 +75,9 @@ class CollectionPlayFragment : Fragment() {
 
         binding.friendlessShouldPlayWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    rating(item.rating)
-                },
                 R.menu.collection_shelf_play,
                 onMenuClick(),
-            )
+            ) { rating(it.rating) }
         )
         viewModel.friendlessShouldPlayGames.observe(viewLifecycleOwner) {
             binding.friendlessShouldPlayWidget.bindList(it.first)
@@ -90,13 +86,9 @@ class CollectionPlayFragment : Fragment() {
 
         binding.wantToPlayWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    rating(item.averageRating)
-                },
                 R.menu.collection_shelf_want_to_play,
                 onMenuClick(),
-            )
+            ) { rating(it.averageRating) }
         )
         viewModel.wantToPlayItems.observe(viewLifecycleOwner) {
             binding.wantToPlayWidget.bindList(it.first)
@@ -105,13 +97,9 @@ class CollectionPlayFragment : Fragment() {
 
         binding.recentlyPlayedWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    rating(item.averageRating)
-                },
                 R.menu.collection_shelf_play,
                 onMenuClick(),
-            )
+            ) { rating(it.averageRating) }
         )
         viewModel.recentlyPlayedGames.observe(viewLifecycleOwner) {
             binding.recentlyPlayedWidget.bindList(it.first)
@@ -120,13 +108,9 @@ class CollectionPlayFragment : Fragment() {
 
         binding.shelfOfOpportunityWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    rating(item.averageRating)
-                },
                 R.menu.collection_shelf_play,
                 onMenuClick(),
-            )
+            ) { rating(it.averageRating) }
         )
         viewModel.shelfOfOpportunityItems.observe(viewLifecycleOwner) {
             binding.shelfOfOpportunityWidget.bindList(it.first)
@@ -136,13 +120,11 @@ class CollectionPlayFragment : Fragment() {
 
         binding.shelfOfNewOpportunityWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
-                null,
-                { item ->
-                    item.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
-                },
                 R.menu.collection_shelf_play,
                 onMenuClick(),
-            )
+            ) {
+                it.acquisitionDate.formatDateTime(context, flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_ABBREV_ALL) to Color.WHITE
+            }
         )
         viewModel.shelfOfNewOpportunityItems.observe(viewLifecycleOwner) {
             binding.shelfOfNewOpportunityWidget.bindList(it.first)
