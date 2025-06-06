@@ -33,11 +33,14 @@
 			tools:visibility="visible" />
 
 		<LinearLayout
+			android:id="@+id/buttonBar"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:gravity="center_horizontal"
 			android:orientation="horizontal"
-			android:paddingVertical="@dimen/padding_standard">
+			android:paddingVertical="@dimen/padding_standard"
+			android:visibility="gone"
+			tools:visibility="visible">
 
 			<Button
 				android:id="@+id/cancelPlaysButton"
@@ -124,8 +127,8 @@
 			style="@style/Widget.MaterialComponents.Button.Icon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:enabled="false"
 			android:layout_gravity="center_horizontal"
+			android:enabled="false"
 			android:text="@string/upload_plays"
 			app:icon="@drawable/ic_upload_24" />
 	</LinearLayout>

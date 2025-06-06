@@ -40,8 +40,7 @@ class SyncPlaysFragment : Fragment() {
 
         binding.syncPlaysSwitch.setOnCheckedChangeListener { _, isChecked ->
             prefs[PREFERENCES_KEY_SYNC_PLAYS] = isChecked
-            binding.syncPlaysButton.isVisible = isChecked
-            binding.cancelPlaysButton.isVisible = isChecked
+            binding.buttonBar.isVisible = isChecked
         }
         binding.syncPlaysButton.setOnClickListener {
             viewModel.syncPlays()
@@ -78,7 +77,7 @@ class SyncPlaysFragment : Fragment() {
         }
 
         viewModel.playSyncProgress.observe(viewLifecycleOwner) {
-            it?.let {
+            it?.let { // test if sync is enabled first!
                 binding.syncPlaysButton.isEnabled = (it.step == SyncViewModel.PlaySyncProgressStep.NotSyncing)
                 binding.cancelPlaysButton.isEnabled = (it.step != SyncViewModel.PlaySyncProgressStep.NotSyncing)
                 binding.progressBar.isVisible = (it.step != SyncViewModel.PlaySyncProgressStep.NotSyncing)
