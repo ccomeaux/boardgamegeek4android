@@ -53,6 +53,10 @@ class CollectionBrowseFragment : Fragment() {
             binding.friendlessFavoriteWidget.bindList(it)
         }
 
+        viewModel.friendless.observe(viewLifecycleOwner) {
+            binding.friendlessFavoriteWidget.setCount(it)
+        }
+
         binding.hiddenGemsWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 R.menu.collection_shelf,

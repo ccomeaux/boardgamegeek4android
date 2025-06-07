@@ -719,6 +719,7 @@
 	<string name="info_shelf_of_new_opportunity">Games you\'ve just acquired but haven\'t played yet</string>
 	<string name="msg_collection_details_acquire">You want to add %1$,d games to your collection, a future growth rate of %2$s.</string>
 	<string name="msg_growth_rate">You acquire an average of %,d items a year.</string>
+	<string name="msg_utilization">You\'ve utilized %s of your collection.</string>
 	<string name="msg_collection_details_divest">You have divested %1$s of your items and are looking to trade %2$s more.</string>
 	<string name="msg_collection_details_divest_previously_owned">You have divested %1$s of your items.</string>
 	<string name="msg_collection_details_divest_for_trade">You are looking to trade %1$s of your items.</string>

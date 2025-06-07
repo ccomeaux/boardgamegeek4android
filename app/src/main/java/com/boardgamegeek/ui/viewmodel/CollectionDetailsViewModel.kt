@@ -7,7 +7,7 @@ import com.boardgamegeek.extensions.collectionStatusLiveData
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
-import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.*
 import com.boardgamegeek.model.CollectionItem.Companion.filterBaseGames
 import com.boardgamegeek.model.CollectionItem.Companion.filterOwned
 import com.boardgamegeek.model.CollectionItem.Companion.filterPlayed
@@ -16,9 +16,6 @@ import com.boardgamegeek.model.CollectionItem.Companion.filterRated
 import com.boardgamegeek.model.CollectionItem.Companion.filterUncommented
 import com.boardgamegeek.model.CollectionItem.Companion.filterUnplayed
 import com.boardgamegeek.model.CollectionItem.Companion.filterUnrated
-import com.boardgamegeek.model.CollectionStatus
-import com.boardgamegeek.model.Game
-import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -45,6 +42,8 @@ class CollectionDetailsViewModel @Inject constructor(
                 _errorMessage.setMessage(e.localizedMessage.ifEmpty { "Error loading collection" })
             }
         }
+
+    private val playStats: LiveData<PlayStats> = liveData { emit(playRepository.calculatePlayStats()) }
 
     private val allGames: LiveData<List<CollectionItem>> = allItems.map { list ->
         list
@@ -109,7 +108,9 @@ class CollectionDetailsViewModel @Inject constructor(
 
     // BROWSE
 
-    val recentlyViewedItems: LiveData<List<CollectionItem>> = allItems.switchMap {
+    val friendless = playStats.map { it.friendless }
+
+    val recentlyViewedItems = allItems.switchMap {
         liveData {
             emit(it.filter { it.lastViewedDate > 0L }
                 .sortedByDescending { it.lastViewedDate }
@@ -117,7 +118,7 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val friendlessFavoriteItems: LiveData<List<CollectionItem>> = allItems.switchMap { list ->
+    val friendlessFavoriteItems = allItems.switchMap { list ->
         liveData {
             emit(
                 list.sortedByDescending { it.friendlessFave }
@@ -126,7 +127,7 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val underratedItems: LiveData<List<CollectionItem>> = allItems.switchMap {
+    val underratedItems = allItems.switchMap {
         liveData {
             emit(
                 it.filter { it.rating > 0.0 }
@@ -137,6 +138,8 @@ class CollectionDetailsViewModel @Inject constructor(
     }
 
     // OWN
+
+    val utilization = playStats.map { it.utilization }
 
     val own = allItems.switchMap {
         liveData {

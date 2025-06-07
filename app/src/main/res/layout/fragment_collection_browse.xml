@@ -23,6 +23,7 @@
 			android:id="@+id/friendlessFavoriteWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			app:helpText="@string/play_stat_friendless_info"
 			app:headerLabel="@string/title_friendless_favorites" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf

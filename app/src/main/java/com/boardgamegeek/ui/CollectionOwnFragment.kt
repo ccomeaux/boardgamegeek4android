@@ -12,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionOwnBinding
 import com.boardgamegeek.extensions.BggColors
+import com.boardgamegeek.extensions.asPercentage
 import com.boardgamegeek.extensions.asPersonalRating
 import com.boardgamegeek.extensions.toColor
 import com.boardgamegeek.model.CollectionItem
@@ -46,7 +47,10 @@ class CollectionOwnFragment : Fragment() {
         }
 
         viewModel.growthRate.observe(viewLifecycleOwner) {
-            binding.ownSummaryView.text = getString(R.string.msg_growth_rate, it)
+            binding.growthRateView.text = getString(R.string.msg_growth_rate, it)
+        }
+        viewModel.utilization.observe(viewLifecycleOwner) {
+            binding.utilizationView.text = getString(R.string.msg_utilization, it.asPercentage())
         }
 
         binding.expansionsWidget.setAdapter(

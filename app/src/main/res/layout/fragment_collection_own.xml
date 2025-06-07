@@ -15,13 +15,22 @@
 		android:paddingBottom="@dimen/padding_extra">
 
 		<TextView
-			android:id="@+id/ownSummaryView"
+			android:id="@+id/growthRateView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginHorizontal="@dimen/material_margin_horizontal"
 			android:layout_marginTop="@dimen/padding_extra"
 			android:textAppearance="@style/TextAppearance.Primary"
 			tools:text="You have 42 games." />
+
+		<TextView
+			android:id="@+id/utilizationView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+			android:layout_marginTop="@dimen/padding_half"
+			android:textAppearance="@style/TextAppearance.Primary"
+			tools:text="You've utilized 33% of your collection." />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/gamesWidget"
