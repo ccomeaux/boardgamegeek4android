@@ -197,10 +197,11 @@ class CollectionDetailsViewModel @Inject constructor(
     @Suppress("SpellCheckingInspection")
     val hawtItems = allItems.switchMap { list ->
         liveData {
-            emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID }
-                .filter { it.own }
-                .sortedByDescending { it.hawt }
-                .take(ITEM_LIMIT)
+            emit(
+                list
+                    .filter { it.own }
+                    .sortedByDescending { it.hawt }
+                    .take(ITEM_LIMIT)
             )
         }
     }
@@ -279,6 +280,7 @@ class CollectionDetailsViewModel @Inject constructor(
         liveData {
             emit(
                 list.filter { !it.own && it.numberOfPlays > 0 && !it.isIncoming }
+                    .filterPublishedGames()
                     .sortedByDescending { it.numberOfPlays }
                     .take(ITEM_LIMIT)
             )
@@ -288,7 +290,7 @@ class CollectionDetailsViewModel @Inject constructor(
     @Suppress("SpellCheckingInspection")
     val hawtUnownedItems: LiveData<List<CollectionItem>> = allGames.switchMap { list ->
         liveData {
-            emit(list.filter { it.gameId != UNPUBLISHED_PROTOTYPE_ID && !it.own && !it.isIncoming }
+            emit(list.filter { !it.own && !it.isIncoming }
                 .sortedByDescending { it.hawt }
                 .take(ITEM_LIMIT)
             )
@@ -652,7 +654,6 @@ class CollectionDetailsViewModel @Inject constructor(
 
     companion object {
         const val ITEM_LIMIT = 5
-        const val UNPUBLISHED_PROTOTYPE_ID = 18291
         const val WORK_NAME = "CollectionViewModel"
     }
 }

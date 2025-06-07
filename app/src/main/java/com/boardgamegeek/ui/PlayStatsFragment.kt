@@ -12,17 +12,17 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayStatsBinding
+import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.HIndex
 import com.boardgamegeek.model.PlayStats
 import com.boardgamegeek.model.PlayerStats
-import com.boardgamegeek.extensions.*
-import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
 import com.boardgamegeek.work.SyncCollectionWorker
 import dagger.hilt.android.AndroidEntryPoint
-import java.util.*
+import java.util.Locale
 
 @AndroidEntryPoint
 class PlayStatsFragment : Fragment() {
@@ -134,9 +134,9 @@ class PlayStatsFragment : Fragment() {
             messages.add(getString(R.string.accessories).lowercase(Locale.getDefault()))
         }
         if (messages.isEmpty()) {
-            binding.accuracyContainer.visibility = View.GONE
+            binding.accuracyContainer.isVisible = false
         } else {
-            binding.accuracyContainer.visibility = View.VISIBLE
+            binding.accuracyContainer.isVisible = true
             binding.accuracyMessage.text = getString(
                 R.string.play_stat_accuracy, messages.formatList(
                     getString(R.string.or).lowercase(
@@ -180,8 +180,8 @@ class PlayStatsFragment : Fragment() {
             }
         }
         if (stats.friendless != PlayStats.INVALID_FRIENDLESS) {
-            binding.advancedHeader.visibility = View.VISIBLE
-            binding.advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.isVisible = true
+            binding.advancedCard.isVisible = true
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_friendless)
                 setValue(stats.friendless)
@@ -190,8 +190,8 @@ class PlayStatsFragment : Fragment() {
             }
         }
         if (stats.utilization != PlayStats.INVALID_UTILIZATION) {
-            binding.advancedHeader.visibility = View.VISIBLE
-            binding.advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.isVisible = true
+            binding.advancedCard.isVisible = true
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_utilization)
                 setInfoText(R.string.play_stat_utilization_info)
@@ -200,8 +200,8 @@ class PlayStatsFragment : Fragment() {
             }
         }
         if (stats.cfm != PlayStats.INVALID_CFM) {
-            binding.advancedHeader.visibility = View.VISIBLE
-            binding.advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.isVisible = true
+            binding.advancedCard.isVisible = true
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_cfm)
                 setInfoText(R.string.play_stat_cfm_info)
@@ -235,7 +235,7 @@ class PlayStatsFragment : Fragment() {
     private fun bindHIndexTable(table: TableLayout, hIndex: HIndex, entries: List<Pair<String, Int>>?) {
         table.removeAllViews()
         if (entries.isNullOrEmpty()) {
-            table.visibility = View.GONE
+            table.isVisible = false
         } else {
             val rankedEntries = entries.filter { pair -> pair.first.isNotBlank() && pair.second > 0 }
                 .mapIndexed { index, pair -> "${pair.first} (#${index + 1})" to pair.second }
@@ -274,7 +274,7 @@ class PlayStatsFragment : Fragment() {
                     table.addView(this)
                 }
             }
-            table.visibility = View.VISIBLE
+            table.isVisible = true
         }
     }
 
