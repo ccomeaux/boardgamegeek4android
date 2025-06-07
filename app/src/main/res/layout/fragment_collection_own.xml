@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:fillViewport="true">
@@ -12,6 +13,15 @@
 		android:animateLayoutChanges="true"
 		android:orientation="vertical"
 		android:paddingBottom="@dimen/padding_extra">
+
+		<TextView
+			android:id="@+id/ownSummaryView"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+			android:layout_marginTop="@dimen/padding_extra"
+			android:textAppearance="@style/TextAppearance.Primary"
+			tools:text="You have 42 games." />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/gamesWidget"
@@ -35,7 +45,8 @@
 			android:id="@+id/recentlyAcquiredWidget"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			app:headerLabel="@string/title_recently_acquired" />
+			app:headerLabel="@string/title_recently_acquired"
+			app:helpText="@string/info_recently_acquired" />
 
 		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/hawtWidget"
@@ -43,5 +54,5 @@
 			android:layout_height="wrap_content"
 			app:headerLabel="@string/title_hawt"
 			app:helpText="@string/info_hawt" />
- 	</LinearLayout>
+	</LinearLayout>
 </ScrollView>

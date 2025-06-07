@@ -25,6 +25,7 @@ import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.StatsHelper.Companion.calculateCorrelationCoefficient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
 
@@ -148,6 +149,18 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
+    val growthRate = allItems.switchMap {
+        liveData {
+            val itemsWithAcquisitionDate = it.filter { it.acquisitionDate > 0L }
+
+            val calendar = Calendar.getInstance()
+            calendar.timeInMillis = itemsWithAcquisitionDate.minOf { it.acquisitionDate }
+            val yearsAcquiring = 2025 - calendar.get(Calendar.YEAR) + 1
+
+            emit(itemsWithAcquisitionDate.sumOf { it.quantity } / yearsAcquiring)
+        }
+    }
+
     val expansions = allItems.switchMap {
         liveData {
             val filter = it.filter { it.own && it.subtype == Game.Subtype.BoardGameExpansion }
@@ -196,14 +209,15 @@ class CollectionDetailsViewModel @Inject constructor(
 
     data class CollectionAcquireStats(
         val incomingCount: Int,
-        val desireRate: Double,
+        val futureGrowthRate: Double,
     )
 
     val collectionAcquireStats: LiveData<CollectionAcquireStats> = allItems.map { items ->
         val incomingCount = items.filter { it.isIncoming }.sumOf { it.quantity }
+        val ownCount = items.filter { it.own }.sumOf { it.quantity }
+        val forTradeCount = items.filter { it.forTrade }.sumOf { it.quantity }
         CollectionAcquireStats(
-            incomingCount,
-            incomingCount.toDouble() / items.filter { it.own }.sumOf { it.quantity },
+            incomingCount, (incomingCount - forTradeCount).toDouble() / ownCount,
         )
     }
 
@@ -304,6 +318,12 @@ class CollectionDetailsViewModel @Inject constructor(
                     .sortedByDescending { it.numberOfUsersWanting }
                     .take(ITEM_LIMIT) to quantity
             )
+        }
+    }
+
+    val regretFactor = allItems.switchMap {
+        liveData {
+            emit(it.filter { it.previouslyOwned && it.isIncoming }.sumOf { it.quantity })
         }
     }
 

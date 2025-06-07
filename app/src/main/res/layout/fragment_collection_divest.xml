@@ -22,6 +22,15 @@
 			android:textAppearance="@style/TextAppearance.Primary"
 			tools:text="You want 42 games." />
 
+		<TextView
+			android:id="@+id/regretFactorView"
+			android:layout_width="match_parent"
+			android:layout_marginTop="@dimen/padding_extra"
+			android:layout_height="wrap_content"
+			android:layout_marginHorizontal="@dimen/material_margin_horizontal"
+			android:textAppearance="@style/TextAppearance.Primary"
+			tools:text="You regret getting rid of 3 games." />
+
 		<com.boardgamegeek.ui.widget.CollectionShelf
 			android:id="@+id/forTradeWidget"
 			android:layout_width="match_parent"

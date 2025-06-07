@@ -77,6 +77,12 @@ class CollectionDivestFragment : Fragment() {
             showMessage()
         }
 
+        viewModel.regretFactor.observe(viewLifecycleOwner) {
+            if (it > 0) {
+                binding.regretFactorView.text = getString(R.string.msg_regret_factor, it)
+            }
+        }
+
         viewModel.syncCollectionStatuses.observe(viewLifecycleOwner) { set ->
             set?.let { statuses ->
                 if (statuses.contains(CollectionStatus.ForTrade)) {

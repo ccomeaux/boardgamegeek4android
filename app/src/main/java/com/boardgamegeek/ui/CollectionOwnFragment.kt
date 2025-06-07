@@ -45,6 +45,10 @@ class CollectionOwnFragment : Fragment() {
             binding.gamesWidget.setCount(it.second)
         }
 
+        viewModel.growthRate.observe(viewLifecycleOwner) {
+            binding.ownSummaryView.text = getString(R.string.msg_growth_rate, it)
+        }
+
         binding.expansionsWidget.setAdapter(
             CollectionShelf.CollectionItemAdapter(
                 R.menu.collection_shelf,
@@ -71,8 +75,7 @@ class CollectionOwnFragment : Fragment() {
             CollectionShelf.CollectionItemAdapter(
                 R.menu.collection_shelf,
                 onMenuClick = onMenuClick(),
-            ) { it.acquiredFrom to Color.WHITE
-            }
+            ) { it.acquiredFrom to Color.WHITE }
         )
         viewModel.recentlyAcquired.observe(viewLifecycleOwner) {
             binding.recentlyAcquiredWidget.bindList(it.first)

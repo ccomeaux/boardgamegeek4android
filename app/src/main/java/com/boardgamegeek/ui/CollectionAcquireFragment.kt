@@ -41,7 +41,7 @@ class CollectionAcquireFragment : Fragment() {
 
         viewModel.collectionAcquireStats.observe(viewLifecycleOwner) {
             if (it.incomingCount > 0) {
-                binding.acquireSummaryView.text = getString(R.string.msg_collection_details_acquire, it.incomingCount, it.desireRate.asPercentage())
+                binding.acquireSummaryView.text = getString(R.string.msg_collection_details_acquire, it.incomingCount, it.futureGrowthRate.asPercentage())
                 binding.acquireSummaryView.isVisible = true
             } else {
                 binding.acquireSummaryView.isVisible = false
