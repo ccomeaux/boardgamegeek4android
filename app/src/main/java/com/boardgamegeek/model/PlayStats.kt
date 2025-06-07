@@ -4,7 +4,7 @@ import com.boardgamegeek.extensions.cdf
 import com.boardgamegeek.extensions.inverseCdf
 import kotlin.math.ln
 
-class PlayStats private constructor(private val games: List<GameForPlayStats>, private val isOwnedSynced: Boolean) {
+class PlayStats private constructor(private val games: List<GameForPlayStats>, private val ownedQuantity: Int = OWNED_QUANTITY_UNKNOWN) {
     private var _hIndex: HIndex = HIndex.invalid()
     val hIndex: HIndex
         get() = _hIndex
@@ -50,15 +50,17 @@ class PlayStats private constructor(private val games: List<GameForPlayStats>, p
         return games.map { it.name to it.playCount }.sortedByDescending { it.second }
     }
 
+
     val friendless: Int by lazy {
-        val numberOfOwnedGamesThatHaveEarnedTheirKeep = ownedGames.filter { it.playCount >= PLAY_COUNT_TO_EARN_KEEP }.size
-        val numberOfOwnedUnplayedGames = ownedGames.filter { it.playCount == 0 }.size
+        val numberOfOwnedGamesThatHaveEarnedTheirKeep = ownedAndPlayedGames.filter { it.playCount >= PLAY_COUNT_TO_EARN_KEEP }.size
+        val numberOfOwnedUnplayedGames = ownedQuantity - numberOfOwnedAndPlayedGames
         when {
-            !isOwnedSynced -> INVALID_FRIENDLESS
-            numberOfOwnedGames == 0 -> 0
-            numberOfOwnedGamesThatHaveEarnedTheirKeep >= ownedGames.size -> ownedGames.minOfOrNull { it.playCount } ?: 0
+            ownedQuantity == OWNED_QUANTITY_UNKNOWN -> INVALID_FRIENDLESS
+            numberOfOwnedAndPlayedGames == 0 -> 0
+            numberOfOwnedGamesThatHaveEarnedTheirKeep >= ownedAndPlayedGames.size -> ownedAndPlayedGames.minOfOrNull { it.playCount } ?: INVALID_FRIENDLESS
             else -> {
-                val friendless = ownedGames.sortedByDescending { it.playCount }[ownedGames.lastIndex - numberOfOwnedGamesThatHaveEarnedTheirKeep].playCount
+                val index = ownedAndPlayedGames.lastIndex - numberOfOwnedGamesThatHaveEarnedTheirKeep
+                val friendless = ownedAndPlayedGames.sortedByDescending { it.playCount }.getOrNull(index)?.playCount ?: INVALID_FRIENDLESS
                 if (friendless == 0) numberOfOwnedGamesThatHaveEarnedTheirKeep - numberOfOwnedUnplayedGames else friendless
             }
         }
@@ -67,9 +69,9 @@ class PlayStats private constructor(private val games: List<GameForPlayStats>, p
     val cfm: Double by lazy {
         // continuous Friendless metric
         when {
-            !isOwnedSynced -> INVALID_CFM
-            numberOfOwnedGames == 0 -> 0.0
-            else -> (totalCdf / numberOfOwnedGames).inverseCdf(lambda)
+            ownedQuantity == OWNED_QUANTITY_UNKNOWN -> INVALID_CFM
+            numberOfOwnedAndPlayedGames == 0 -> 0.0
+            else -> (totalCdf / numberOfOwnedAndPlayedGames).inverseCdf(lambda)
         }
     }
 
@@ -77,33 +79,34 @@ class PlayStats private constructor(private val games: List<GameForPlayStats>, p
         // “the amount of novelty you've gained from that game compared to all the novelty that can ever be had”
         // every 10 plays utilizes another 90%
         when {
-            !isOwnedSynced -> INVALID_UTILIZATION
-            numberOfOwnedGames == 0 -> 0.0
-            else -> totalCdf / numberOfOwnedGames
+            ownedQuantity == OWNED_QUANTITY_UNKNOWN -> INVALID_UTILIZATION
+            numberOfOwnedAndPlayedGames == 0 -> 0.0
+            else -> totalCdf / ownedQuantity
         }
     }
 
-    private val ownedGames: List<GameForPlayStats> by lazy {
+    private val ownedAndPlayedGames: List<GameForPlayStats> by lazy {
         games.filter { it.isOwned }
     }
 
-    private val numberOfOwnedGames: Int by lazy {
-        ownedGames.size
+    private val numberOfOwnedAndPlayedGames: Int by lazy {
+        ownedAndPlayedGames.size
     }
 
     private val totalCdf: Double by lazy {
-        ownedGames.sumOf { it.playCount.toDouble().cdf(lambda) }
+        ownedAndPlayedGames.sumOf { it.playCount.toDouble().cdf(lambda) }
     }
 
     companion object {
+        const val OWNED_QUANTITY_UNKNOWN = -1
         const val INVALID_FRIENDLESS = Integer.MIN_VALUE
         const val INVALID_UTILIZATION = -1.0
         const val INVALID_CFM = -1.0
         private const val PLAY_COUNT_TO_EARN_KEEP = 10
         private val lambda = ln(0.1) / -10
 
-        suspend fun fromList(games: List<GameForPlayStats>, isOwnedSynced: Boolean): PlayStats {
-            return PlayStats(games, isOwnedSynced).also {
+        suspend fun fromList(games: List<GameForPlayStats>, ownedQuantity: Int): PlayStats {
+            return PlayStats(games, ownedQuantity).also {
                 val playCounts = games.map { game -> game.playCount }
                 it._hIndex = HIndex.fromList(playCounts)
                 it._gIndex = GIndex.fromList(playCounts)

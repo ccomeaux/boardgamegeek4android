@@ -22,6 +22,7 @@ import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.model.*
 import com.boardgamegeek.model.Location.Companion.applySort
+import com.boardgamegeek.model.PlayStats.Companion.OWNED_QUANTITY_UNKNOWN
 import com.boardgamegeek.model.Player.Companion.applySort
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_PLAYS_OLDEST_DATE
@@ -49,6 +50,7 @@ class PlayRepository(
     private val userDao: UserDao,
     private val gameColorDao: GameColorDao,
     private val gameDao: GameDao,
+    private val collectionDao: CollectionDao,
 ) {
     enum class PlayerType {
         USER,
@@ -729,8 +731,26 @@ class PlayRepository(
         val includeExpansions = prefs[PlayStatPrefs.LOG_PLAY_STATS_EXPANSIONS, false] ?: false
         val includeAccessories = prefs[PlayStatPrefs.LOG_PLAY_STATS_ACCESSORIES, false] ?: false
 
+        val items = withContext(Dispatchers.IO) { collectionDao.loadAll() }
+
+        val ownedCount = if (prefs.isStatusSetToSync(CollectionStatus.Own)) {
+            withContext(Dispatchers.Default) {
+                items
+                    .map { it.mapToModel() }
+                    .filter {
+                        it.own && (
+                                it.subtype == Game.Subtype.Unknown ||
+                                        it.subtype == Game.Subtype.BoardGame ||
+                                        (it.subtype == Game.Subtype.BoardGameAccessory && includeAccessories) ||
+                                        (it.subtype == Game.Subtype.BoardGameExpansion && includeExpansions)
+                                )
+                    }
+                    .sumOf { it.quantity }
+            }
+        } else OWNED_QUANTITY_UNKNOWN
+
         val games = loadForStats(includeIncompletePlays, includeExpansions, includeAccessories)
-        return PlayStats.fromList(games, prefs.isStatusSetToSync(CollectionStatus.Own)).also {
+        return PlayStats.fromList(games, ownedCount).also {
             updateHIndex(it.hIndex, HIndexType.Game, R.string.game, NOTIFICATION_ID_PLAY_STATS_GAME_H_INDEX)
         }
     }
