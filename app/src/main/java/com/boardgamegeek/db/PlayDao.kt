@@ -31,7 +31,7 @@ interface PlayDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPlayers(players: List<PlayPlayerEntity>)
 
-    @Query("SELECT MAX(own) AS owned, plays.*, games.subtype, games.game_rank, collection.own FROM plays LEFT JOIN games ON plays.object_id = games.game_id LEFT JOIN collection ON plays.object_id = collection.game_id GROUP BY plays.play_id ORDER BY date DESC, play_id DESC")
+    @Query("SELECT MAX(own) AS owned, plays.*, games.subtype, games.game_rank FROM plays LEFT JOIN games ON plays.object_id = games.game_id LEFT JOIN collection ON plays.object_id = collection.game_id GROUP BY plays.play_id ORDER BY date DESC, play_id DESC")
     suspend fun loadPlaysForStats(): List<PlayWithSubtypeRankOwn>
 
     @Query("SELECT * FROM plays ORDER BY date DESC, play_id DESC")
