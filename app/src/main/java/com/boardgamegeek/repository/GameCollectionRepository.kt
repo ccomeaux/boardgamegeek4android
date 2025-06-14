@@ -347,10 +347,10 @@ class GameCollectionRepository(
         Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
     }
 
-    suspend fun loadAcquiredFrom() = withContext(Dispatchers.IO) { collectionDao.loadAcquiredFrom().filterNotNull().filterNot { it.isBlank() } }
+    suspend fun loadAcquiredFrom() = withContext(Dispatchers.IO) { collectionDao.loadAcquiredFrom().filterNot { it.isBlank() } }
 
     suspend fun loadInventoryLocation() =
-        withContext(Dispatchers.IO) { collectionDao.loadInventoryLocation().filterNotNull().filterNot { it.isBlank() } }
+        withContext(Dispatchers.IO) { collectionDao.loadInventoryLocation().filterNot { it.isBlank() } }
 
     suspend fun loadItemsPendingDeletion() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingDeletion().map { it.mapToModel() } }
 
