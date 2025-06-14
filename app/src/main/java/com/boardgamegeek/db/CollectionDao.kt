@@ -87,10 +87,10 @@ interface CollectionDao {
     suspend fun loadItemsNotUpdated(): List<CollectionItemWithGameEntity>
 
     @Query("SELECT acquired_from FROM collection GROUP BY acquired_from")
-    suspend fun loadAcquiredFrom(): List<String?>
+    suspend fun loadAcquiredFrom(): List<String>
 
     @Query("SELECT inventory_location FROM collection GROUP BY inventory_location")
-    suspend fun loadInventoryLocation(): List<String?>
+    suspend fun loadInventoryLocation(): List<String>
 
     @Insert(CollectionItemEntity::class)
     suspend fun insert(entity: CollectionItemForInsert): Long
