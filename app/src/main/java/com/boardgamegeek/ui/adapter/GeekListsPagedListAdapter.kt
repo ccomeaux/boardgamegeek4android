@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.adapter
 
-import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -14,7 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -43,9 +44,13 @@ class GeekListsPagedListAdapter : PagingDataAdapter<GeekList, GeekListsPagedList
     inner class GeekListsViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
         fun bind(geekList: GeekList) {
             composeView.setContent {
+                val context = LocalContext.current
                 BggAppTheme {
                     GeekListRow(
                         geekList,
+                        {
+                            GeekListActivity.start(context, geekList.id, geekList.title)
+                        },
                         Modifier
                             .padding(
                                 horizontal = dimensionResource(R.dimen.material_margin_horizontal),
@@ -59,8 +64,7 @@ class GeekListsPagedListAdapter : PagingDataAdapter<GeekList, GeekListsPagedList
 }
 
 @Composable
-private fun GeekListRow(geekList: GeekList, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
+private fun GeekListRow(geekList: GeekList, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val dividerModifier = Modifier
         .size(18.dp)
         .padding(horizontal = 8.dp)
@@ -68,10 +72,8 @@ private fun GeekListRow(geekList: GeekList, modifier: Modifier = Modifier) {
         .size(18.dp)
         .padding(end = 8.dp)
     Surface(
+        onClick = onClick,
         color = MaterialTheme.colorScheme.surface,
-        onClick = {
-            GeekListActivity.start(context, geekList.id, geekList.title)
-        },
         modifier = Modifier
             .fillMaxWidth()
             .heightIn(min = 72.dp)
@@ -127,53 +129,42 @@ private fun GeekListRow(geekList: GeekList, modifier: Modifier = Modifier) {
     }
 }
 
-@Preview(backgroundColor = 0xFF00FF00, showBackground = true)
+@PreviewLightDark
 @Composable
-private fun GeekListRowPreview() {
+private fun GeekListRowPreview(
+    @PreviewParameter(GeekListPreviewParameterProvider::class) geekList: GeekList
+) {
     BggAppTheme {
         GeekListRow(
-            GeekList(
-                id = 123,
-                title = "Top 10 Games",
-                username = "ccomeaux",
-                numberOfItems = 42,
-                numberOfThumbs = 11,
-            ),
+            geekList,
+            {},
             Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
     }
 }
 
-@Preview(backgroundColor = 0xFF00FF00, showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Composable
-private fun GeekListRowPreviewDarkMode() {
-    BggAppTheme {
-        GeekListRow(
-            GeekList(
-                id = 123,
-                title = "Top 10 Games",
-                username = "ccomeaux",
-                numberOfItems = 42,
-                numberOfThumbs = 11,
-            ),
-            Modifier.padding(0.dp)
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun GeekListRowPreviewLongTitle() {
-    BggAppTheme {
-        GeekListRow(
-            GeekList(
-                id = 123,
-                title = "These are my Top 10 Games for the year of something, I don't know...",
-                username = "ccomeaux",
-                numberOfItems = 42,
-                numberOfThumbs = 11,
-            ),
-            Modifier.padding(0.dp)
-        )
-    }
+class GeekListPreviewParameterProvider : PreviewParameterProvider<GeekList> {
+    override val values = sequenceOf(
+        GeekList(
+            id = 1,
+            title = "Top 10 Games",
+            username = "ccomeaux",
+            numberOfItems = 42,
+            numberOfThumbs = 11,
+        ),
+        GeekList(
+            id = 2,
+            title = "Short",
+            username = "me2",
+            numberOfItems = 0,
+            numberOfThumbs = 0,
+        ),
+        GeekList(
+            id = 3,
+            title = "These are my Top 10 Games for the year of something, I don't know...",
+            username = "ccomeaux",
+            numberOfItems = 42,
+            numberOfThumbs = 11,
+        ),
+    )
 }
