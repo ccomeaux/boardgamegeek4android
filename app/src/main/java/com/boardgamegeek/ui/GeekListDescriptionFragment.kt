@@ -18,7 +18,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.model.Status
@@ -31,14 +31,25 @@ import com.boardgamegeek.ui.compose.LoadingIndicator
 
 @AndroidEntryPoint
 class GeekListDescriptionFragment : Fragment(R.layout.fragment_geeklist_description) {
+    private val viewModel by activityViewModels<GeekListViewModel>()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val markupConverter = XmlApiMarkupConverter(requireContext())
         view.findViewById<ComposeView>(R.id.composeView).setContent {
-            val vm: GeekListViewModel = viewModel()
-            val gl = vm.geekList.observeAsState()
+            val geekList = viewModel.geekList.observeAsState()
             BggAppTheme {
-                if (gl.value?.status == Status.REFRESHING) {
+                geekList.value?.data?.let {
+                    GeekListDescriptionContent(
+                        it,
+                        modifier = Modifier.padding(
+                            horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                            vertical = dimensionResource(R.dimen.material_margin_vertical)
+                        ),
+                        markupConverter,
+                    )
+                }
+                if (geekList.value?.status == Status.REFRESHING) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         LoadingIndicator(
                             Modifier
@@ -46,15 +57,6 @@ class GeekListDescriptionFragment : Fragment(R.layout.fragment_geeklist_descript
                                 .padding(dimensionResource(R.dimen.padding_extra))
                         )
                     }
-                } else if (gl.value?.data != null) {
-                    GeekListDescriptionContent(
-                        gl.value?.data!!,
-                        modifier = Modifier.padding(
-                            horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                            vertical = dimensionResource(R.dimen.material_margin_vertical)
-                        ),
-                        markupConverter,
-                    )
                 }
             }
         }

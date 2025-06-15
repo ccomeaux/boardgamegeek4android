@@ -1,10 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.Icon
@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -19,133 +20,143 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.RecyclerView
 import coil3.compose.AsyncImage
 import com.boardgamegeek.R
-import com.boardgamegeek.databinding.FragmentGeeklistItemsBinding
 import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.model.GeekListItem
+import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.Status
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
+import com.boardgamegeek.ui.compose.LoadingIndicator
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
-class GeekListItemsFragment : Fragment() {
-    private var _binding: FragmentGeeklistItemsBinding? = null
-    private val binding get() = _binding!!
+class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_description) {
     private val viewModel by activityViewModels<GeekListViewModel>()
-    private val adapter: GeekListRecyclerViewAdapter by lazy { GeekListRecyclerViewAdapter() }
-
-    @Suppress("RedundantNullableReturnType")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentGeeklistItemsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.recyclerView.setHasFixedSize(true)
-        binding.recyclerView.adapter = adapter
-
-        viewModel.geekList.observe(viewLifecycleOwner) {
-            it?.let { (status, data, message) ->
-                if (status == Status.REFRESHING)
-                    binding.progressView.show()
-                else binding.progressView.hide()
-                if (status == Status.ERROR)
-                    setError(message)
-                else {
-                    val geekListItems = data?.items
-                    if (geekListItems.isNullOrEmpty()) {
-                        setError(getString(R.string.empty_geeklist))
-                        binding.recyclerView.isVisible = false
+        view.findViewById<ComposeView>(R.id.composeView)?.apply {
+            setContent {
+                val context = LocalContext.current
+                val geekListState = viewModel.geekList.observeAsState(RefreshableResource.refreshing(null))
+                BggAppTheme {
+                    if (geekListState.value.status == Status.ERROR) {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text(
+                                text = geekListState.value.message,
+                                modifier = Modifier.align(Alignment.Center),
+                            )
+                        }
                     } else {
-                        setError(null)
-                        adapter.geekList = data
-                        adapter.geekListItems = geekListItems
-                        binding.recyclerView.isVisible = true
-                    }
-                }
-            }
-        }
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding.recyclerView.adapter = null
-        _binding = null
-    }
-
-    private fun setError(message: String?) {
-        binding.emptyView.text = message
-        binding.emptyView.isVisible = !message.isNullOrBlank()
-    }
-
-    class GeekListRecyclerViewAdapter :
-        RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
-        var geekListItems: List<GeekListItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-            autoNotify(oldValue, newValue) { old, new ->
-                old.objectId == new.objectId
-            }
-        }
-
-        var geekList: GeekList? = null
-
-        init {
-            setHasStableIds(true)
-        }
-
-        override fun getItemCount(): Int = geekListItems.size
-
-        override fun getItemId(position: Int) = geekListItems.getOrNull(position)?.id ?: RecyclerView.NO_ID
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GeekListItemViewHolder {
-            return GeekListItemViewHolder(ComposeView(parent.context))
-        }
-
-        override fun onBindViewHolder(holder: GeekListItemViewHolder, position: Int) {
-            geekListItems.getOrNull(position)?.let {
-                holder.bind(it, position + 1)
-            }
-        }
-
-        inner class GeekListItemViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
-            fun bind(geekListItem: GeekListItem, order: Int) {
-                composeView.setContent {
-                    val context = LocalContext.current
-                    BggAppTheme {
-                        GeekListItemListItem(
-                            order,
-                            geekListItem,
-                            geekList,
-                            onClick = {
-                                if (geekListItem.objectId != BggContract.INVALID_ID) {
-                                    GeekListItemActivity.start(context, geekList!!, geekListItem, order)
-                                }
-                            },
-                            modifier = Modifier
-                                .padding(
-                                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                                    vertical = dimensionResource(R.dimen.material_margin_vertical),
+                        val geekList = geekListState.value.data
+                        val geekListItems = geekList?.items
+                        if (geekListItems.isNullOrEmpty()) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                Text(
+                                    text = stringResource(R.string.empty_geeklist),
+                                    modifier = Modifier.align(Alignment.Center),
                                 )
-                        )
+                            }
+                        } else {
+                            LazyColumn {
+                                itemsIndexed(geekListItems) { index, geekListItem ->
+                                    GeekListItemListItem(
+                                        index + 1,
+                                        geekListItem,
+                                        geekList,
+                                        onClick = {
+                                            if (geekListItem.objectId != BggContract.INVALID_ID) {
+                                                GeekListItemActivity.start(context, geekList, geekListItem, index)
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .padding(
+                                                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                                                vertical = dimensionResource(R.dimen.material_margin_vertical),
+                                            )
+                                    )
+                                }
+                            }
+                        }
+                        if (geekListState.value.status == Status.REFRESHING) {
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                LoadingIndicator(
+                                    Modifier
+                                        .align(Alignment.Center)
+                                        .padding(dimensionResource(R.dimen.padding_extra))
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
     }
+
+//    class GeekListRecyclerViewAdapter :
+//        RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
+//        var geekListItems: List<GeekListItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
+//            autoNotify(oldValue, newValue) { old, new ->
+//                old.objectId == new.objectId
+//            }
+//        }
+//
+//        var geekList: GeekList? = null
+//
+//        init {
+//            setHasStableIds(true)
+//        }
+//
+//        override fun getItemCount(): Int = geekListItems.size
+//
+//        override fun getItemId(position: Int) = geekListItems.getOrNull(position)?.id ?: RecyclerView.NO_ID
+//
+//        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GeekListItemViewHolder {
+//            return GeekListItemViewHolder(ComposeView(parent.context))
+//        }
+//
+//        override fun onBindViewHolder(holder: GeekListItemViewHolder, position: Int) {
+//            geekListItems.getOrNull(position)?.let {
+//                holder.bind(it, position + 1)
+//            }
+//        }
+//
+//        inner class GeekListItemViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+//            fun bind(geekListItem: GeekListItem, order: Int) {
+//                composeView.setContent {
+//                    val context = LocalContext.current
+//                    BggAppTheme {
+//                        GeekListItemListItem(
+//                            order,
+//                            geekListItem,
+//                            geekList,
+//                            onClick = {
+//                                if (geekListItem.objectId != BggContract.INVALID_ID) {
+//                                    GeekListItemActivity.start(context, geekList!!, geekListItem, order)
+//                                }
+//                            },
+//                            modifier = Modifier
+//                                .padding(
+//                                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+//                                    vertical = dimensionResource(R.dimen.material_margin_vertical),
+//                                )
+//                        )
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 @Composable
