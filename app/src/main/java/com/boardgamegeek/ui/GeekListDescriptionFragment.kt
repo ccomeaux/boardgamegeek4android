@@ -35,8 +35,8 @@ class GeekListDescriptionFragment : Fragment(R.layout.fragment_geeklist_descript
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val markupConverter = XmlApiMarkupConverter(requireContext())
         view.findViewById<ComposeView>(R.id.composeView).setContent {
+            val markupConverter = XmlApiMarkupConverter(requireContext())
             val geekList = viewModel.geekList.observeAsState()
             BggAppTheme {
                 geekList.value?.data?.let {

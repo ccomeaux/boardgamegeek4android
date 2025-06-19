@@ -77,7 +77,7 @@ class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_description) {
                                         geekList,
                                         onClick = {
                                             if (geekListItem.objectId != BggContract.INVALID_ID) {
-                                                GeekListItemActivity.start(context, geekList, geekListItem, index)
+                                                GeekListItemActivity.start(context, geekList, geekListItem, index + 1)
                                             }
                                         },
                                         modifier = Modifier
@@ -103,60 +103,6 @@ class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_description) {
             }
         }
     }
-
-//    class GeekListRecyclerViewAdapter :
-//        RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListItemViewHolder>(), AutoUpdatableAdapter {
-//        var geekListItems: List<GeekListItem> by Delegates.observable(emptyList()) { _, oldValue, newValue ->
-//            autoNotify(oldValue, newValue) { old, new ->
-//                old.objectId == new.objectId
-//            }
-//        }
-//
-//        var geekList: GeekList? = null
-//
-//        init {
-//            setHasStableIds(true)
-//        }
-//
-//        override fun getItemCount(): Int = geekListItems.size
-//
-//        override fun getItemId(position: Int) = geekListItems.getOrNull(position)?.id ?: RecyclerView.NO_ID
-//
-//        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GeekListItemViewHolder {
-//            return GeekListItemViewHolder(ComposeView(parent.context))
-//        }
-//
-//        override fun onBindViewHolder(holder: GeekListItemViewHolder, position: Int) {
-//            geekListItems.getOrNull(position)?.let {
-//                holder.bind(it, position + 1)
-//            }
-//        }
-//
-//        inner class GeekListItemViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
-//            fun bind(geekListItem: GeekListItem, order: Int) {
-//                composeView.setContent {
-//                    val context = LocalContext.current
-//                    BggAppTheme {
-//                        GeekListItemListItem(
-//                            order,
-//                            geekListItem,
-//                            geekList,
-//                            onClick = {
-//                                if (geekListItem.objectId != BggContract.INVALID_ID) {
-//                                    GeekListItemActivity.start(context, geekList!!, geekListItem, order)
-//                                }
-//                            },
-//                            modifier = Modifier
-//                                .padding(
-//                                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-//                                    vertical = dimensionResource(R.dimen.material_margin_vertical),
-//                                )
-//                        )
-//                    }
-//                }
-//            }
-//        }
-//    }
 }
 
 @Composable
@@ -219,12 +165,12 @@ fun GeekListItemListItem(order: Int, geekListItem: GeekListItem, geekList: GeekL
 @PreviewLightDark
 @Composable
 private fun GeekListItemListItemPreview(
-    @PreviewParameter(GeekListPreviewParameterProvider::class) geekListItem: GeekListItem
+    @PreviewParameter(GeekListPreviewParameterProvider::class) geekListItem: Pair<GeekListItem, Int>,
 ) {
     BggAppTheme {
         GeekListItemListItem(
-            100,
-            geekListItem,
+            geekListItem.second,
+            geekListItem.first,
             GeekList(
                 id = 123,
                 title = "My GeekList",
@@ -240,7 +186,7 @@ private fun GeekListItemListItemPreview(
     }
 }
 
-class GeekListPreviewParameterProvider : PreviewParameterProvider<GeekListItem> {
+class GeekListPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListItem, Int>> {
     override val values = sequenceOf(
         GeekListItem(
             id = 1,
@@ -248,19 +194,19 @@ class GeekListPreviewParameterProvider : PreviewParameterProvider<GeekListItem> 
             objectName = "Gaia Project",
             username = "ccomeaux",
             thumbnailUrls = listOf("https://cf.geekdo-images.com/PyUol9QxBnZQCJqZI6bmSA__square/img/610c2mQNSggoh45dO3leJaLBruk=/75x75/filters:strip_icc()/pic8632666.png")
-        ),
+        ) to 1,
         GeekListItem(
             id = 12,
             objectId = 31,
             objectName = "Gaia Project",
             username = "author",
             thumbnailUrls = listOf("https://cf.geekdo-images.com/PyUol9QxBnZQCJqZI6bmSA__square/img/610c2mQNSggoh45dO3leJaLBruk=/75x75/filters:strip_icc()/pic8632666.png")
-        ),
+        ) to 99,
         GeekListItem(
             id = 13,
             objectId = 31,
             objectName = "No Image",
             username = "ccomeaux",
-        ),
+        ) to 100,
     )
 }
