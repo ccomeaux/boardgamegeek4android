@@ -290,6 +290,7 @@
 	<string name="empty_thread">No posts in this thread.</string>
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_geeklist">No list here.</string>
+	<string name="error_loading_geeklist">Error loading GeekList.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_generic">Nothing to see here. Move along.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>

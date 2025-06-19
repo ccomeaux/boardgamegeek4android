@@ -47,10 +47,7 @@ import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.Status
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.compose.EmptyContent
-import com.boardgamegeek.ui.compose.GeekListCommentList
-import com.boardgamegeek.ui.compose.GeekListHeader
-import com.boardgamegeek.ui.compose.LoadingIndicator
+import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -96,16 +93,19 @@ class GeekListActivity : DrawerActivity() {
         binding.composeView.setContent {
             val markupConverter = XmlApiMarkupConverter(this)
             val geekList = viewModel.geekList.observeAsState(RefreshableResource.refreshing(null))
+            val glError = RefreshableResource.error<GeekList>("Something went horribly wrong.")
             BggAppTheme {
-                when (geekList.value.status) {
+                val paddingValues = PaddingValues(
+                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                    vertical = dimensionResource(R.dimen.material_margin_vertical)
+                )
+                when (glError.status) {
                     Status.ERROR -> {
-                        // TODO show error
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            Text(
-                                text = geekList.value.message,
-                                modifier = Modifier.align(Alignment.Center),
-                            )
-                        }
+                        ErrorContent(
+                            text = geekList.value.message.ifEmpty { stringResource(R.string.error_loading_geeklist) },
+                            imageVector = Icons.AutoMirrored.Filled.ListAlt,
+                            modifier = Modifier.padding(paddingValues)
+                        )
                     }
                     Status.REFRESHING -> {
                         Box(modifier = Modifier.fillMaxSize()) {
@@ -117,10 +117,6 @@ class GeekListActivity : DrawerActivity() {
                         }
                     }
                     Status.SUCCESS -> {
-                        val paddingValues = PaddingValues(
-                            horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                            vertical = dimensionResource(R.dimen.material_margin_vertical)
-                        )
                         geekList.value.data?.let {
                             Column(modifier = Modifier.fillMaxSize()) {
                                 var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
@@ -259,7 +255,7 @@ fun GeekListTabRow(selectedDestination: Int, modifier: Modifier = Modifier, onCl
 @Preview
 @Composable
 private fun GeekListTabRowPreview() {
-    val geekList =            GeekList(
+    val geekList = GeekList(
         id = 123,
         title = "My GeekList",
         username = "ccomeaux",
