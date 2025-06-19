@@ -31,10 +31,4 @@ abstract class TabActivity : DrawerActivity() {
     abstract fun getPageTitle(position: Int): CharSequence
 
     protected abstract fun createAdapter(): FragmentStateAdapter
-
-    protected fun safelySetTitle(title: String?) {
-        if (!title.isNullOrBlank()) {
-            supportActionBar?.title = title
-        }
-    }
 }

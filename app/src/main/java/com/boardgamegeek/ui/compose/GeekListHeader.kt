@@ -29,7 +29,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
         .padding(end = 8.dp)
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
         ),
         modifier = Modifier.fillMaxWidth()
     ) {
