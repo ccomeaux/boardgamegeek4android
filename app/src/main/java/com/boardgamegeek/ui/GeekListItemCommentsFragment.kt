@@ -1,47 +1,44 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.core.os.bundleOf
-import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.DividerItemDecoration
-import com.boardgamegeek.databinding.FragmentGeeklistCommentsBinding
-import com.boardgamegeek.model.GeekListComment
+import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getParcelableArrayListCompat
-import com.boardgamegeek.ui.adapter.GeekListCommentsRecyclerViewAdapter
+import com.boardgamegeek.model.GeekListComment
+import com.boardgamegeek.ui.compose.EmptyContent
+import com.boardgamegeek.ui.compose.GeekListCommentList
 
-class GeekListItemCommentsFragment : Fragment() {
-    private var _binding: FragmentGeeklistCommentsBinding? = null
-    private val binding get() = _binding!!
-    private val adapter: GeekListCommentsRecyclerViewAdapter by lazy { GeekListCommentsRecyclerViewAdapter() }
-
-    @Suppress("RedundantNullableReturnType")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentGeeklistCommentsBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
+class GeekListItemCommentsFragment : Fragment(R.layout.fragment_compose_view) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.recyclerView.addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.VERTICAL))
-        binding.recyclerView.adapter = adapter
-
         val comments = arguments?.getParcelableArrayListCompat<GeekListComment>(KEY_COMMENTS).orEmpty()
 
-        adapter.comments = comments
-        binding.emptyView.isVisible = comments.isEmpty()
-        binding.recyclerView.isVisible = comments.isNotEmpty()
-        binding.progressView.hide()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        binding.recyclerView.adapter = null
-        _binding = null
+        view.findViewById<ComposeView>(R.id.composeView).setContent {
+            val contentPadding = PaddingValues(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = dimensionResource(R.dimen.material_margin_vertical),
+            )
+            if (comments.isEmpty()) {
+                EmptyContent(
+                    R.string.empty_comments,
+                    painterResource(R.drawable.ic_twotone_comment_48),
+                    Modifier.padding(contentPadding),
+                )
+            } else {
+                GeekListCommentList(
+                    comments,
+                    contentPadding = contentPadding,
+                )
+            }
+        }
     }
 
     companion object {

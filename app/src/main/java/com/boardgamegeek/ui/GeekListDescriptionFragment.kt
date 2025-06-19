@@ -30,7 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.boardgamegeek.ui.compose.LoadingIndicator
 
 @AndroidEntryPoint
-class GeekListDescriptionFragment : Fragment(R.layout.fragment_geeklist_description) {
+class GeekListDescriptionFragment : Fragment(R.layout.fragment_compose_view) {
     private val viewModel by activityViewModels<GeekListViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

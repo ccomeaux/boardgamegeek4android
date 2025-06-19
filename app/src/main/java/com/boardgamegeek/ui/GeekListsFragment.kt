@@ -113,7 +113,6 @@ class GeekListsFragment : Fragment() {
         outState.putSerializable(KEY_SORT_TYPE, sortType)
     }
 
-
     companion object {
         private const val KEY_SORT_TYPE = "KEY_SORT_TYPE"
     }

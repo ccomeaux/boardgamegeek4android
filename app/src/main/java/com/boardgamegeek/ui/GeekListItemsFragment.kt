@@ -40,7 +40,7 @@ import com.boardgamegeek.ui.viewmodel.GeekListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class GeekListItemsFragment : Fragment(R.layout.fragment_geeklist_description) {
+class GeekListItemsFragment : Fragment(R.layout.fragment_compose_view) {
     private val viewModel by activityViewModels<GeekListViewModel>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
