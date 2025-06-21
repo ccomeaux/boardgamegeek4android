@@ -3,8 +3,6 @@ package com.boardgamegeek.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -13,8 +11,11 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -38,9 +40,9 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.boardgamegeek.R
-import com.boardgamegeek.databinding.ActivityDrawerComposeBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.model.GeekListItem
@@ -56,21 +58,17 @@ import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
-class GeekListActivity : DrawerActivity() {
-    private lateinit var binding: ActivityDrawerComposeBinding
+class GeekListActivity : DrawerComposeActivity() {
     private var geekListId = BggContract.INVALID_ID
     private var geekListTitle: String = ""
-    private val viewModel by viewModels<GeekListViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         geekListId = intent.getIntExtra(KEY_ID, BggContract.INVALID_ID)
         geekListTitle = intent.getStringExtra(KEY_TITLE).orEmpty()
-
-        safelySetTitle(geekListTitle)
 
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
@@ -80,126 +78,118 @@ class GeekListActivity : DrawerActivity() {
             }
         }
 
-        viewModel.geekList.observe(this) {
-            it?.let { (_, data, _) ->
-                data?.let { entity ->
-                    geekListTitle = entity.title
-                    safelySetTitle(geekListTitle)
-                }
-            }
-        }
-        viewModel.setId(geekListId)
-
-        binding.composeView.setContent {
+        composeView?.setContent {
             val markupConverter = XmlApiMarkupConverter(this)
+
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+            val viewModel: GeekListViewModel = viewModel()
             val geekList = viewModel.geekList.observeAsState(RefreshableResource.refreshing(null))
-            val glError = RefreshableResource.error<GeekList>("Something went horribly wrong.")
+            viewModel.setId(geekListId)
+
             BggAppTheme {
-                val paddingValues = PaddingValues(
-                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                    vertical = dimensionResource(R.dimen.material_margin_vertical)
-                )
-                when (glError.status) {
-                    Status.ERROR -> {
-                        ErrorContent(
-                            text = geekList.value.message.ifEmpty { stringResource(R.string.error_loading_geeklist) },
-                            imageVector = Icons.AutoMirrored.Filled.ListAlt,
-                            modifier = Modifier.padding(paddingValues)
+                Scaffold(
+                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                    topBar = {
+                        GeekListTopAppBar(
+                            geekList.value.data?.title.orEmpty().ifEmpty { geekListTitle },
+                            { onBackPressedDispatcher.onBackPressed() },
+                            { linkToBgg("geeklist", geekListId) },
+                            { shareGeekList() },
+                            scrollBehavior = scrollBehavior,
                         )
                     }
-                    Status.REFRESHING -> {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            LoadingIndicator(
+                ) { contentPadding ->
+                    when (geekList.value.status) {
+                        Status.ERROR -> {
+                            ErrorContent(
+                                text = geekList.value.message.ifEmpty { stringResource(R.string.error_loading_geeklist) },
+                                imageVector = Icons.AutoMirrored.Filled.ListAlt,
+                                modifier = Modifier.padding(contentPadding)
+                            )
+                        }
+                        Status.REFRESHING -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(contentPadding)
+                            ) {
+                                LoadingIndicator(
+                                    Modifier
+                                        .align(Alignment.Center)
+                                        .padding(dimensionResource(R.dimen.padding_extra))
+                                )
+                            }
+                        }
+                        Status.SUCCESS -> {
+                            val paddingValues = PaddingValues(
+                                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                                vertical = dimensionResource(R.dimen.material_margin_vertical)
+                            )
+                            geekList.value.data?.let {
+                                Column(modifier = Modifier.padding(contentPadding)) {
+                                    var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
+                                    val descriptionScrollState: ScrollState = rememberScrollState()
+                                    val itemListState: LazyListState = rememberLazyListState()
+                                    val commentListState: LazyListState = rememberLazyListState()
+
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(MaterialTheme.colorScheme.surface)
+                                            .padding(paddingValues)
+                                    ) {
+                                        GeekListHeader(it, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                                    }
+                                    GeekListTabRow(
+                                        selectedDestination = selectedDestination,
+                                        onClick = { newDestination -> selectedDestination = newDestination },
+                                    )
+                                    when (selectedDestination) {
+                                        GeekListTab.Description.ordinal -> {
+                                            GeekListDescriptionContent(
+                                                it,
+                                                modifier = Modifier.padding(paddingValues),
+                                                scrollState = descriptionScrollState,
+                                                markupConverter,
+                                            )
+                                        }
+                                        GeekListTab.Items.ordinal -> GeekListItemListContent(
+                                            it,
+                                            contentPadding = paddingValues,
+                                            state = itemListState
+                                        )
+                                        GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
+                                            it,
+                                            contentPadding = paddingValues,
+                                            state = commentListState
+                                        )
+                                    }
+                                }
+                            } ?: EmptyContent(
+                                R.string.empty_geeklist,
+                                Icons.AutoMirrored.Filled.ListAlt,
                                 Modifier
-                                    .align(Alignment.Center)
-                                    .padding(dimensionResource(R.dimen.padding_extra))
+                                    .padding(contentPadding)
+                                    .fillMaxSize()
                             )
                         }
                     }
-                    Status.SUCCESS -> {
-                        geekList.value.data?.let {
-                            Column(modifier = Modifier.fillMaxSize()) {
-                                var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
-                                val descriptionScrollState: ScrollState = rememberScrollState()
-                                val itemListState: LazyListState = rememberLazyListState()
-                                val commentListState: LazyListState = rememberLazyListState()
-
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(MaterialTheme.colorScheme.surface)
-                                        .padding(paddingValues)
-                                ) {
-                                    GeekListHeader(it, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-                                }
-                                GeekListTabRow(
-                                    selectedDestination = selectedDestination,
-                                    onClick = { newDestination -> selectedDestination = newDestination },
-                                )
-                                when (selectedDestination) {
-                                    GeekListTab.Description.ordinal -> {
-                                        GeekListDescriptionContent(
-                                            it,
-                                            modifier = Modifier.padding(paddingValues),
-                                            scrollState = descriptionScrollState,
-                                            markupConverter,
-                                        )
-                                    }
-                                    GeekListTab.Items.ordinal -> GeekListItemListContent(
-                                        it,
-                                        contentPadding = paddingValues,
-                                        state = itemListState
-                                    )
-                                    GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
-                                        it,
-                                        contentPadding = paddingValues,
-                                        state = commentListState
-                                    )
-                                }
-                            }
-                        } ?: EmptyContent(
-                            R.string.empty_geeklist,
-                            Icons.AutoMirrored.Filled.ListAlt,
-                            Modifier
-                                .padding(paddingValues)
-                                .fillMaxSize()
-                        )
-                    }
                 }
             }
         }
     }
 
-    override fun bindLayout() {
-        binding = ActivityDrawerComposeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-    }
+    private fun shareGeekList() {
+        val description = String.format(getString(R.string.share_geeklist_text), geekListTitle)
+        val uri = createBggUri("geeklist", geekListId)
+        share(getString(R.string.share_geeklist_subject), "$description\n\n$uri")
 
-    private fun safelySetTitle(title: String?) {
-        if (!title.isNullOrBlank()) {
-            supportActionBar?.title = title
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekList")
+            param(FirebaseAnalytics.Param.ITEM_ID, geekListId.toString())
+            param(FirebaseAnalytics.Param.ITEM_ID, geekListTitle)
         }
-    }
-
-    override val optionsMenuId = R.menu.view_share
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_view -> linkToBgg("geeklist", geekListId)
-            R.id.menu_share -> {
-                val description = String.format(getString(R.string.share_geeklist_text), geekListTitle)
-                val uri = createBggUri("geeklist", geekListId)
-                share(getString(R.string.share_geeklist_subject), "$description\n\n$uri")
-
-                firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
-                    param(FirebaseAnalytics.Param.CONTENT_TYPE, "GeekList")
-                    param(FirebaseAnalytics.Param.ITEM_ID, geekListId.toString())
-                    param(FirebaseAnalytics.Param.ITEM_ID, geekListTitle)
-                }
-            }
-            else -> super.onOptionsItemSelected(item)
-        }
-        return true
     }
 
     companion object {
@@ -223,13 +213,55 @@ class GeekListActivity : DrawerActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GeekListTopAppBar(
+    geekListTitle: String,
+    onBack: () -> Unit,
+    onOpenInBrowser: () -> Unit,
+    onShare: () -> Unit,
+    modifier: Modifier = Modifier,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+) {
+    MediumTopAppBar(
+        title = {
+            Text(
+                geekListTitle.ifEmpty { stringResource(R.string.title_geeklist) }
+            )
+        },
+        modifier = modifier,
+        scrollBehavior = scrollBehavior,
+        navigationIcon = {
+            IconButton(onClick = { onBack() }) {
+                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
+            }
+        },
+        actions = {
+            IconButton(onClick = { onOpenInBrowser() }) {
+                Icon(Icons.Default.OpenInBrowser, contentDescription = null)
+            }
+            IconButton(onClick = { onShare() }) {
+                Icon(Icons.Default.Share, contentDescription = null)
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@PreviewLightDark
+@Composable
+private fun GeekListTopAppBarPreview() {
+    BggAppTheme {
+        GeekListTopAppBar("My GeekList", {}, {}, {})
+    }
+}
+
 enum class GeekListTab(@StringRes val resId: Int) {
     Description(R.string.title_description),
     Items(R.string.title_items),
     Comments(R.string.title_comments),
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GeekListTabRow(selectedDestination: Int, modifier: Modifier = Modifier, onClick: (Int) -> Unit) {
     SecondaryTabRow(
@@ -289,19 +321,14 @@ fun GeekListDescriptionContent(
     scrollState: ScrollState = rememberScrollState(),
     markupConverter: XmlApiMarkupConverter? = null
 ) {
-    Column(
+    Text(
+        text = AnnotatedString.fromHtml(markupConverter?.toHtml(geekList.description) ?: geekList.description),
         modifier = modifier
             .fillMaxSize()
+            .padding(top = 16.dp)
             .verticalScroll(scrollState)
-    ) {
-        //GeekListHeader(geekList, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-        Text(
-            text = AnnotatedString.fromHtml(markupConverter?.toHtml(geekList.description) ?: geekList.description),
-            modifier = Modifier.padding(top = 16.dp)
-        )
-    }
+    )
 }
-
 
 @Composable
 fun GeekListItemListContent(geekList: GeekList?, contentPadding: PaddingValues, state: LazyListState = rememberLazyListState()) {
