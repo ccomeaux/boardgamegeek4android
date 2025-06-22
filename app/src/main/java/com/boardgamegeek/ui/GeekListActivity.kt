@@ -3,6 +3,7 @@ package com.boardgamegeek.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -78,7 +79,7 @@ class GeekListActivity : DrawerComposeActivity() {
             }
         }
 
-        composeView?.setContent {
+        setContent {
             val markupConverter = XmlApiMarkupConverter(this)
 
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
@@ -88,91 +89,93 @@ class GeekListActivity : DrawerComposeActivity() {
             viewModel.setId(geekListId)
 
             BggAppTheme {
-                Scaffold(
-                    modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-                    topBar = {
-                        GeekListTopAppBar(
-                            geekList.value.data?.title.orEmpty().ifEmpty { geekListTitle },
-                            { onBackPressedDispatcher.onBackPressed() },
-                            { linkToBgg("geeklist", geekListId) },
-                            { shareGeekList() },
-                            scrollBehavior = scrollBehavior,
-                        )
-                    }
-                ) { contentPadding ->
-                    when (geekList.value.status) {
-                        Status.ERROR -> {
-                            ErrorContent(
-                                text = geekList.value.message.ifEmpty { stringResource(R.string.error_loading_geeklist) },
-                                imageVector = Icons.AutoMirrored.Filled.ListAlt,
-                                modifier = Modifier.padding(contentPadding)
+                Drawer {
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            GeekListTopAppBar(
+                                geekList.value.data?.title.orEmpty().ifEmpty { geekListTitle },
+                                onBack = { onBackPressedDispatcher.onBackPressed() },
+                                onOpenInBrowser = { linkToBgg("geeklist", geekListId) },
+                                onShare = { shareGeekList() },
+                                scrollBehavior = scrollBehavior,
                             )
                         }
-                        Status.REFRESHING -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(contentPadding)
-                            ) {
-                                LoadingIndicator(
-                                    Modifier
-                                        .align(Alignment.Center)
-                                        .padding(dimensionResource(R.dimen.padding_extra))
+                    ) { contentPadding ->
+                        when (geekList.value.status) {
+                            Status.ERROR -> {
+                                ErrorContent(
+                                    text = geekList.value.message.ifEmpty { stringResource(R.string.error_loading_geeklist) },
+                                    imageVector = Icons.AutoMirrored.Filled.ListAlt,
+                                    modifier = Modifier.padding(contentPadding)
                                 )
                             }
-                        }
-                        Status.SUCCESS -> {
-                            val paddingValues = PaddingValues(
-                                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                                vertical = dimensionResource(R.dimen.material_margin_vertical)
-                            )
-                            geekList.value.data?.let {
-                                Column(modifier = Modifier.padding(contentPadding)) {
-                                    var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
-                                    val descriptionScrollState: ScrollState = rememberScrollState()
-                                    val itemListState: LazyListState = rememberLazyListState()
-                                    val commentListState: LazyListState = rememberLazyListState()
-
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(MaterialTheme.colorScheme.surface)
-                                            .padding(paddingValues)
-                                    ) {
-                                        GeekListHeader(it, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-                                    }
-                                    GeekListTabRow(
-                                        selectedDestination = selectedDestination,
-                                        onClick = { newDestination -> selectedDestination = newDestination },
+                            Status.REFRESHING -> {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(contentPadding)
+                                ) {
+                                    LoadingIndicator(
+                                        Modifier
+                                            .align(Alignment.Center)
+                                            .padding(dimensionResource(R.dimen.padding_extra))
                                     )
-                                    when (selectedDestination) {
-                                        GeekListTab.Description.ordinal -> {
-                                            GeekListDescriptionContent(
+                                }
+                            }
+                            Status.SUCCESS -> {
+                                val paddingValues = PaddingValues(
+                                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                                    vertical = dimensionResource(R.dimen.material_margin_vertical)
+                                )
+                                geekList.value.data?.let {
+                                    Column(modifier = Modifier.padding(contentPadding)) {
+                                        var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
+                                        val descriptionScrollState: ScrollState = rememberScrollState()
+                                        val itemListState: LazyListState = rememberLazyListState()
+                                        val commentListState: LazyListState = rememberLazyListState()
+
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .background(MaterialTheme.colorScheme.surface)
+                                                .padding(paddingValues)
+                                        ) {
+                                            GeekListHeader(it, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                                        }
+                                        GeekListTabRow(
+                                            selectedDestination = selectedDestination,
+                                            onClick = { newDestination -> selectedDestination = newDestination },
+                                        )
+                                        when (selectedDestination) {
+                                            GeekListTab.Description.ordinal -> {
+                                                GeekListDescriptionContent(
+                                                    it,
+                                                    modifier = Modifier.padding(paddingValues),
+                                                    scrollState = descriptionScrollState,
+                                                    markupConverter,
+                                                )
+                                            }
+                                            GeekListTab.Items.ordinal -> GeekListItemListContent(
                                                 it,
-                                                modifier = Modifier.padding(paddingValues),
-                                                scrollState = descriptionScrollState,
-                                                markupConverter,
+                                                contentPadding = paddingValues,
+                                                state = itemListState
+                                            )
+                                            GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
+                                                it,
+                                                contentPadding = paddingValues,
+                                                state = commentListState
                                             )
                                         }
-                                        GeekListTab.Items.ordinal -> GeekListItemListContent(
-                                            it,
-                                            contentPadding = paddingValues,
-                                            state = itemListState
-                                        )
-                                        GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
-                                            it,
-                                            contentPadding = paddingValues,
-                                            state = commentListState
-                                        )
                                     }
-                                }
-                            } ?: EmptyContent(
-                                R.string.empty_geeklist,
-                                Icons.AutoMirrored.Filled.ListAlt,
-                                Modifier
-                                    .padding(contentPadding)
-                                    .fillMaxSize()
-                            )
+                                } ?: EmptyContent(
+                                    R.string.empty_geeklist,
+                                    Icons.AutoMirrored.Filled.ListAlt,
+                                    Modifier
+                                        .padding(contentPadding)
+                                        .fillMaxSize()
+                                )
+                            }
                         }
                     }
                 }
