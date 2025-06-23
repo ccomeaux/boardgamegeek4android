@@ -5,7 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -173,29 +176,38 @@ class GeekListActivity : DrawerComposeActivity() {
                 selectedDestination = selectedDestination,
                 onClick = { newDestination -> selectedDestination = newDestination },
             )
-            //AnimatedContent(selectedDestination) {
-            when (selectedDestination) {
-                GeekListTab.Description.ordinal -> {
-                    GeekListDescriptionContent(
+            AnimatedContent(
+                targetState = selectedDestination,
+                transitionSpec = {
+                    val slideDirection =
+                        if (targetState > initialState) AnimatedContentTransitionScope.SlideDirection.Start
+                        else AnimatedContentTransitionScope.SlideDirection.End
+                    slideIntoContainer(towards = slideDirection) togetherWith slideOutOfContainer(towards = slideDirection)
+                }
+            ) { targetState ->
+                when (targetState) {
+                    GeekListTab.Description.ordinal -> {
+                        GeekListDescriptionContent(
+                            it,
+                            modifier = Modifier.padding(paddingValues),
+                            scrollState = descriptionScrollState,
+                            markupConverter,
+                        )
+                    }
+                    GeekListTab.Items.ordinal -> GeekListItemListContent(
                         it,
-                        modifier = Modifier.padding(paddingValues),
-                        scrollState = descriptionScrollState,
-                        markupConverter,
+                        contentPadding = paddingValues,
+                        imageProgress = imageProgress,
+                        lazyListState = itemListState,
+                        scrollState = emptyItemListScrollState,
+                    )
+                    GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
+                        it,
+                        contentPadding = paddingValues,
+                        lazyListState = commentListState,
+                        scrollState = emptyCommentListScrollState,
                     )
                 }
-                GeekListTab.Items.ordinal -> GeekListItemListContent(
-                    it,
-                    contentPadding = paddingValues,
-                    imageProgress = imageProgress,
-                    lazyListState = itemListState,
-                    scrollState = emptyItemListScrollState,
-                )
-                GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
-                    it,
-                    contentPadding = paddingValues,
-                    lazyListState = commentListState,
-                    scrollState = emptyCommentListScrollState,
-                )
             }
         }
     }
