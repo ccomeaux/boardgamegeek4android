@@ -25,6 +25,10 @@ class GeekListViewModel @Inject constructor(
         if (_geekListId.value != geekListId) _geekListId.value = geekListId
     }
 
+    private val _imageProgress = MutableLiveData<Float>()
+    val imageProgress: LiveData<Float>
+        get() = _imageProgress
+
     val geekList: LiveData<RefreshableResource<GeekList>> = _geekListId.switchMap { id ->
         liveData {
             emit(RefreshableResource.refreshing(latestValue?.data))
@@ -33,7 +37,7 @@ class GeekListViewModel @Inject constructor(
             } else {
                 try {
                     val geekList = geekListRepository.getGeekList(id)
-                    emit(RefreshableResource.refreshing(geekList))
+                    emit(RefreshableResource.success(geekList))
                     val itemsWithImages = geekList.items.toMutableList()
                     itemsWithImages.forEachIndexed { index, it ->
                         if (it.thumbnailUrls == null || it.heroImageUrls == null) {
@@ -45,15 +49,16 @@ class GeekListViewModel @Inject constructor(
                                 urls[ImageRepository.ImageType.THUMBNAIL] to urls[ImageRepository.ImageType.HERO]
                             }
                             itemsWithImages[index] = it.copy(thumbnailUrls = urlPair.first, heroImageUrls = urlPair.second)
-                            emit(RefreshableResource.refreshing(geekList.copy(items = itemsWithImages)))
+                            emit(RefreshableResource.success(geekList.copy(items = itemsWithImages)))
+                            _imageProgress.postValue(index.toFloat() / itemsWithImages.size)
                             delay(500)
                         }
                     }
-                    emit(RefreshableResource.success(geekList.copy(items = itemsWithImages)))
                 } catch (e: Exception) {
                     emit(RefreshableResource.error(e, application))
                 }
             }
+            _imageProgress.postValue(1.0f)
         }
     }
 }

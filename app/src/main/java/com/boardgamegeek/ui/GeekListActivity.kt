@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.ListAlt
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -27,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -86,6 +89,8 @@ class GeekListActivity : DrawerComposeActivity() {
 
             val viewModel: GeekListViewModel = viewModel()
             val geekList = viewModel.geekList.observeAsState(RefreshableResource.refreshing(null))
+            val imageProgress = viewModel.imageProgress.observeAsState(0.0f)
+            val animatedImageProgress = animateFloatAsState(imageProgress.value, animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec)
             viewModel.setId(geekListId)
 
             BggAppTheme {
@@ -111,74 +116,86 @@ class GeekListActivity : DrawerComposeActivity() {
                                 )
                             }
                             Status.REFRESHING -> {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(contentPadding)
-                                ) {
-                                    LoadingIndicator(
-                                        Modifier
-                                            .align(Alignment.Center)
-                                            .padding(dimensionResource(R.dimen.padding_extra))
-                                    )
-                                }
+                                RefreshContent(contentPadding)
                             }
                             Status.SUCCESS -> {
-                                val paddingValues = PaddingValues(
-                                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                                    vertical = dimensionResource(R.dimen.material_margin_vertical)
-                                )
                                 geekList.value.data?.let {
-                                    Column(modifier = Modifier.padding(contentPadding)) {
-                                        var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
-                                        val descriptionScrollState: ScrollState = rememberScrollState()
-                                        val itemListState: LazyListState = rememberLazyListState()
-                                        val commentListState: LazyListState = rememberLazyListState()
-
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .background(MaterialTheme.colorScheme.surface)
-                                                .padding(paddingValues)
-                                        ) {
-                                            GeekListHeader(it, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-                                        }
-                                        GeekListTabRow(
-                                            selectedDestination = selectedDestination,
-                                            onClick = { newDestination -> selectedDestination = newDestination },
-                                        )
-                                        when (selectedDestination) {
-                                            GeekListTab.Description.ordinal -> {
-                                                GeekListDescriptionContent(
-                                                    it,
-                                                    modifier = Modifier.padding(paddingValues),
-                                                    scrollState = descriptionScrollState,
-                                                    markupConverter,
-                                                )
-                                            }
-                                            GeekListTab.Items.ordinal -> GeekListItemListContent(
-                                                it,
-                                                contentPadding = paddingValues,
-                                                state = itemListState
-                                            )
-                                            GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
-                                                it,
-                                                contentPadding = paddingValues,
-                                                state = commentListState
-                                            )
-                                        }
-                                    }
-                                } ?: EmptyContent(
-                                    R.string.empty_geeklist,
-                                    Icons.AutoMirrored.Filled.ListAlt,
-                                    Modifier
-                                        .padding(contentPadding)
-                                        .fillMaxSize()
-                                )
+                                    SuccessfulGeekListContent(contentPadding, it, animatedImageProgress.value, markupConverter)
+                                } ?: EmptyGeekListContent(contentPadding)
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun EmptyGeekListContent(contentPadding: PaddingValues) {
+        EmptyContent(
+            R.string.empty_geeklist,
+            Icons.AutoMirrored.Filled.ListAlt,
+            Modifier
+                .padding(contentPadding)
+                .fillMaxSize()
+        )
+    }
+
+    @Composable
+    private fun SuccessfulGeekListContent(
+        contentPadding: PaddingValues,
+        it: GeekList,
+        imageProgress: Float,
+        markupConverter: XmlApiMarkupConverter
+    ) {
+        Column(modifier = Modifier.padding(contentPadding)) {
+            var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
+
+            val descriptionScrollState: ScrollState = rememberScrollState()
+            val itemListState: LazyListState = rememberLazyListState()
+            val emptyItemListScrollState: ScrollState = rememberScrollState()
+            val commentListState: LazyListState = rememberLazyListState()
+            val emptyCommentListScrollState: ScrollState = rememberScrollState()
+
+            val paddingValues = PaddingValues(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = dimensionResource(R.dimen.material_margin_vertical)
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(paddingValues)
+            ) {
+                GeekListHeader(it, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+            }
+            GeekListTabRow(
+                selectedDestination = selectedDestination,
+                onClick = { newDestination -> selectedDestination = newDestination },
+            )
+            //AnimatedContent(selectedDestination) {
+            when (selectedDestination) {
+                GeekListTab.Description.ordinal -> {
+                    GeekListDescriptionContent(
+                        it,
+                        modifier = Modifier.padding(paddingValues),
+                        scrollState = descriptionScrollState,
+                        markupConverter,
+                    )
+                }
+                GeekListTab.Items.ordinal -> GeekListItemListContent(
+                    it,
+                    contentPadding = paddingValues,
+                    imageProgress = imageProgress,
+                    lazyListState = itemListState,
+                    scrollState = emptyItemListScrollState,
+                )
+                GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
+                    it,
+                    contentPadding = paddingValues,
+                    lazyListState = commentListState,
+                    scrollState = emptyCommentListScrollState,
+                )
             }
         }
     }
@@ -259,6 +276,21 @@ private fun GeekListTopAppBarPreview() {
     }
 }
 
+@Composable
+private fun RefreshContent(contentPadding: PaddingValues) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(contentPadding)
+    ) {
+        LoadingIndicator(
+            Modifier
+                .align(Alignment.Center)
+                .padding(dimensionResource(R.dimen.padding_extra))
+        )
+    }
+}
+
 enum class GeekListTab(@StringRes val resId: Int) {
     Description(R.string.title_description),
     Items(R.string.title_items),
@@ -324,17 +356,34 @@ fun GeekListDescriptionContent(
     scrollState: ScrollState = rememberScrollState(),
     markupConverter: XmlApiMarkupConverter? = null
 ) {
-    Text(
-        text = AnnotatedString.fromHtml(markupConverter?.toHtml(geekList.description) ?: geekList.description),
-        modifier = modifier
-            .fillMaxSize()
-            .padding(top = 16.dp)
-            .verticalScroll(scrollState)
-    )
+    if (geekList.description.isEmpty()) {
+        EmptyContent(
+            R.string.empty_geeklist_description,
+            Icons.Filled.Description,
+            modifier = modifier
+                .padding(top = 16.dp)
+                .fillMaxSize(),
+            scrollState = scrollState,
+        )
+    } else {
+        Text(
+            text = AnnotatedString.fromHtml(markupConverter?.toHtml(geekList.description) ?: geekList.description),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(top = 16.dp)
+                .verticalScroll(scrollState)
+        )
+    }
 }
 
 @Composable
-fun GeekListItemListContent(geekList: GeekList?, contentPadding: PaddingValues, state: LazyListState = rememberLazyListState()) {
+fun GeekListItemListContent(
+    geekList: GeekList?,
+    imageProgress: Float,
+    contentPadding: PaddingValues,
+    lazyListState: LazyListState = rememberLazyListState(),
+    scrollState: ScrollState = rememberScrollState(),
+) {
     val geekListItems = geekList?.items.orEmpty()
     if (geekListItems.isEmpty()) {
         EmptyContent(
@@ -343,26 +392,44 @@ fun GeekListItemListContent(geekList: GeekList?, contentPadding: PaddingValues, 
             modifier = Modifier
                 .padding(contentPadding)
                 .fillMaxSize(),
+            scrollState = scrollState,
         )
     } else {
         val context = LocalContext.current
-        LazyColumn(state = state, contentPadding = contentPadding) {
-            itemsIndexed(geekListItems) { index, geekListItem ->
-                GeekListItemListItem(
-                    index + 1,
-                    geekListItem,
-                    geekList,
-                    onClick = {
-                        if (geekListItem.objectId != BggContract.INVALID_ID) {
-                            GeekListItemActivity.start(context, geekList!!, geekListItem, index + 1)
-                        }
-                    },
-                    modifier = Modifier.padding(vertical = dimensionResource(R.dimen.material_margin_vertical))
-                )
+        Box {
+            LazyColumn(state = lazyListState, contentPadding = contentPadding) {
+                itemsIndexed(geekListItems) { index, geekListItem ->
+                    GeekListItemListItem(
+                        index + 1,
+                        geekListItem,
+                        geekList,
+                        onClick = {
+                            if (geekListItem.objectId != BggContract.INVALID_ID) {
+                                GeekListItemActivity.start(context, geekList!!, geekListItem, index + 1)
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = dimensionResource(R.dimen.material_margin_vertical))
+                    )
+                }
             }
+            if (imageProgress > 0.0f && imageProgress < 1.0f)
+                LinearProgressIndicator(
+                    progress = { imageProgress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    strokeCap = StrokeCap.Butt,
+                )
         }
     }
+}
 
+@Preview
+@Composable
+private fun GeekListItemListContentPreview() {
+    BggAppTheme {
+        GeekListItemListContent(null, 0.6f, PaddingValues(16.dp))
+    }
 }
 
 @Composable
@@ -373,8 +440,8 @@ fun GeekListItemListItem(order: Int, geekListItem: GeekListItem, geekList: GeekL
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -433,10 +500,7 @@ private fun GeekListItemListItemPreview(
                 description = "This is a description",
             ),
             {},
-            Modifier.padding(
-                horizontal = 16.dp,
-                vertical = 8.dp,
-            )
+            Modifier
         )
     }
 }
@@ -467,20 +531,26 @@ class GeekListPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListI
 }
 
 @Composable
-fun GeekListItemCommentContent(data: GeekList?, contentPadding: PaddingValues, state: LazyListState = rememberLazyListState()) {
+fun GeekListItemCommentContent(
+    data: GeekList?,
+    contentPadding: PaddingValues,
+    lazyListState: LazyListState = rememberLazyListState(),
+    scrollState: ScrollState
+) {
     if (data?.comments.isNullOrEmpty()) {
         EmptyContent(
             R.string.empty_comments,
             painterResource(R.drawable.ic_twotone_comment_48),
             Modifier
-                .padding(contentPadding)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(contentPadding),
+            scrollState = scrollState,
         )
     } else {
         GeekListCommentList(
             data?.comments.orEmpty(),
             contentPadding = contentPadding,
-            state = state,
+            state = lazyListState,
         )
     }
 }

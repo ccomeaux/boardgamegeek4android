@@ -290,6 +290,7 @@
 	<string name="empty_thread">No posts in this thread.</string>
 	<string name="empty_comments">No one has anything to say.</string>
 	<string name="empty_geeklist">No list here.</string>
+	<string name="empty_geeklist_description">No description.</string>
 	<string name="error_loading_geeklist">Error loading GeekList.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_generic">Nothing to see here. Move along.</string>

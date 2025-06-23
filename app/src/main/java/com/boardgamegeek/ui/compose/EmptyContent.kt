@@ -1,10 +1,13 @@
 package com.boardgamegeek.ui.compose
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material3.Icon
@@ -24,11 +27,11 @@ import com.boardgamegeek.R
 import com.boardgamegeek.ui.theme.BggAppTheme
 
 @Composable
-fun EmptyContent(@StringRes textResource: Int, iconPainter: Painter, modifier: Modifier = Modifier) {
+fun EmptyContent(@StringRes textResource: Int, iconPainter: Painter, modifier: Modifier = Modifier, scrollState: ScrollState = rememberScrollState()) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier,
+        modifier = modifier.verticalScroll(scrollState),
     ) {
         Icon(
             painter = iconPainter,
@@ -44,11 +47,11 @@ fun EmptyContent(@StringRes textResource: Int, iconPainter: Painter, modifier: M
 }
 
 @Composable
-fun EmptyContent(@StringRes textResource: Int, imageVector: ImageVector, modifier: Modifier = Modifier) {
+fun EmptyContent(@StringRes textResource: Int, imageVector: ImageVector, modifier: Modifier = Modifier, scrollState: ScrollState = rememberScrollState()) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier,
+        modifier = modifier.verticalScroll(scrollState),
     ) {
         Icon(
             imageVector = imageVector,

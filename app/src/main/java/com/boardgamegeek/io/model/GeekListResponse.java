@@ -19,7 +19,7 @@ public class GeekListResponse {
 	@Element public String numitems;
 	@Element public String username;
 	@Element public String title;
-	@Element public String description;
+	@Element(required = false) public String description;
 	@ElementList(name = "comment", inline = true, required = false)
 	public List<GeekListCommentRemote> comments;
 	@ElementList(name = "item", inline = true, required = false) public List<GeekListItemRemote> items;
