@@ -309,6 +309,7 @@ class XmlApiMarkupConverter(context: Context) {
 
     init {
         replacerList = ArrayList()
+        replacerList.add(SimpleReplacer("\\n", "<br/>"))
         replacerList.add(SimpleReplacer("\\[hr\\]", "<hr/>"))
         replacerList.add(SimpleReplacer("\\[clear\\]", "<div style=\"clear:both\"></div>"))
         createPair("b")
