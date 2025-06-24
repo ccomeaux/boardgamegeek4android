@@ -50,8 +50,7 @@ private fun GeekListItemRemote.mapToModel(): GeekListItem {
         id = this.id.toLongOrNull() ?: BggContract.INVALID_ID.toLong(),
         objectId = this.objectid.toIntOrNull() ?: BggContract.INVALID_ID,
         objectName = this.objectname.orEmpty(),
-        objectType = this.objecttype.orEmpty(),
-        subtype = this.subtype.orEmpty(),
+        objectType = mapObjectType(this.objecttype.orEmpty(), this.subtype.orEmpty()),
         imageId = this.imageid.toIntOrNull() ?: 0,
         username = this.username.orEmpty(),
         body = this.body.orEmpty(),
@@ -60,6 +59,12 @@ private fun GeekListItemRemote.mapToModel(): GeekListItem {
         editDateTime = this.editdate.toMillis(dateFormat),
         comments = this.comments.mapToModel()
     )
+}
+
+private fun mapObjectType(objectType: String, subtype: String): GeekListItem.ObjectType {
+    return GeekListItem.ObjectType.entries.find { it.type == objectType && it.subtype == subtype }
+        ?: GeekListItem.ObjectType.entries.find { it.type == objectType && it.subtype.isEmpty() }
+        ?: GeekListItem.ObjectType.Unknown
 }
 
 private fun GeekListCommentRemote.mapToModel(): GeekListComment {

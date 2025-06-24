@@ -1,8 +1,6 @@
 package com.boardgamegeek.model
 
-import android.content.Context
 import android.os.Parcelable
-import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
@@ -12,8 +10,7 @@ data class GeekListItem(
     val id: Long = BggContract.INVALID_ID.toLong(),
     val objectId: Int = BggContract.INVALID_ID,
     val objectName: String = "",
-    private val objectType: String = "",
-    private val subtype: String = "",
+    val objectType: ObjectType = ObjectType.Unknown,
     val imageId: Int = 0,
     val username: String = "",
     val body: String = "",
@@ -24,55 +21,37 @@ data class GeekListItem(
     val thumbnailUrls: List<String>? = null,
     val heroImageUrls: List<String>? = null,
 ) : Parcelable {
+    enum class ObjectType(val type: String, val subtype: String) {
+        BoardGame(TYPE_THING, "boardgame"),
+        BoardGameAccessory(TYPE_THING, "boardgameaccessory"),
+        Thing(TYPE_THING, ""),
+        Publisher(TYPE_COMPANY, "boardgamepublisher"),
+        Company(TYPE_COMPANY, ""),
+        Designer(TYPE_PERSON, "boardgamedesigner"),
+        Person(TYPE_PERSON, ""),
+        BoardGameFamily(TYPE_FAMILY, "boardgamefamily"),
+        Family(TYPE_FAMILY, ""),
+        File(TYPE_FILE, ""),
+        GeekList(TYPE_GEEKLIST, ""),
+        Unknown("", ""),
+    }
+
     @IgnoredOnParcel
-    val isBoardGame: Boolean = "thing" == objectType
+    val isBoardGame: Boolean = objectType in listOf(ObjectType.BoardGame, ObjectType.BoardGameAccessory)
 
     @IgnoredOnParcel
     val objectUrl: String = when {
-        subtype.isNotBlank() -> "https://www.boardgamegeek.com/$subtype/$objectId"
-        objectType.isNotBlank() -> "https://www.boardgamegeek.com/$objectType/$objectId"
+        objectType.subtype.isNotBlank() -> "https://www.boardgamegeek.com/${objectType.subtype}/$objectId"
+        objectType.type.isNotBlank() -> "https://www.boardgamegeek.com/${objectType.type}/$objectId"
         else -> ""
     }
 
-    fun objectTypeDescription(context: Context): String {
-        val objectTypeResId = getObjectTypeResId()
-        return if (objectTypeResId == INVALID_OBJECT_TYPE_RES_ID) "" else context.getString(objectTypeResId)
-    }
-
-    private fun getObjectTypeResId(): Int {
-        return when (objectType) {
-            "thing" -> {
-                when (subtype) {
-                    "boardgame" -> R.string.title_board_game
-                    "boardgameaccessory" -> R.string.title_board_game_accessory
-                    else -> R.string.title_thing
-                }
-            }
-            "company" -> {
-                when (subtype) {
-                    "boardgamepublisher" -> R.string.title_board_game_publisher
-                    else -> R.string.title_company
-                }
-            }
-            "person" -> {
-                when (subtype) {
-                    "boardgamedesigner" -> R.string.title_board_game_designer
-                    else -> R.string.title_person
-                }
-            }
-            "family" -> {
-                when (subtype) {
-                    "boardgamefamily" -> R.string.title_board_game_family
-                    else -> R.string.title_family
-                }
-            }
-            "filepage" -> R.string.title_file
-            "geeklist" -> R.string.title_geeklist
-            else -> INVALID_OBJECT_TYPE_RES_ID
-        }
-    }
-
     companion object {
-        const val INVALID_OBJECT_TYPE_RES_ID = 0
+        private const val TYPE_THING = "thing"
+        private const val TYPE_COMPANY = "company"
+        private const val TYPE_PERSON = "person"
+        private const val TYPE_FAMILY = "family"
+        private const val TYPE_FILE = "filepage"
+        private const val TYPE_GEEKLIST = "geeklist"
     }
 }
