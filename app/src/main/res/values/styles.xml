@@ -504,17 +504,6 @@
 		<item name="fastScrollVerticalTrackDrawable">@color/fast_scroll_track</item>
 	</style>
 
-	<style name="GeekListInfoBar">
-		<item name="android:background">@color/info_background</item>
-		<item name="android:elevation">@dimen/material_elevation_subtle</item>
-		<item name="android:minHeight">48dp</item>
-		<item name="android:paddingBottom">@dimen/material_margin_vertical</item>
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingRight">@dimen/material_margin_horizontal</item>
-		<item name="android:paddingTop">@dimen/material_margin_vertical</item>
-		<item name="android:gravity">center</item>
-	</style>
-
 	<style name="TextWithImage">
 		<item name="android:drawablePadding">8dp</item>
 		<item name="android:gravity">center_vertical</item>

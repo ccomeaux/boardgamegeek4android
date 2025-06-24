@@ -1,128 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<LinearLayout
-		android:id="@+id/byline_container"
-		style="@style/GeekListInfoBar"
+	<androidx.compose.ui.platform.ComposeView
+		android:id="@+id/composeView"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:orientation="vertical">
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center"
-			android:orientation="horizontal">
-
-			<TextView
-				android:id="@+id/orderView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_vertical"
-				android:minWidth="48dp"
-				android:textAppearance="@style/TextAppearance.Headline"
-				tools:text="1" />
-
-			<TextView
-				android:id="@+id/geekListTitleView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center_vertical"
-				android:ellipsize="end"
-				android:gravity="center_vertical"
-				android:maxLines="2"
-				android:minHeight="40dp"
-				android:textAppearance="@style/TextAppearance.Subtitle"
-				tools:text="This is a GeekList title" />
-		</LinearLayout>
-
-		<LinearLayout
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:gravity="center"
-			android:minHeight="24dp"
-			android:orientation="horizontal">
-
-			<TextView
-				android:id="@+id/usernameView"
-				style="@style/TextWithImage.Secondary"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				app:drawableLeftCompat="@drawable/ic_outline_account_circle_18"
-				app:drawableStartCompat="@drawable/ic_outline_account_circle_18"
-				tools:text="ccomeaux" />
-
-			<View
-				android:layout_width="1dp"
-				android:layout_height="match_parent"
-				android:layout_marginLeft="@dimen/padding_standard"
-				android:layout_marginRight="@dimen/padding_standard"
-				android:background="@color/list_divider" />
-
-			<TextView
-				android:id="@+id/typeView"
-				style="@style/TextWithImage.Secondary"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				app:drawableLeftCompat="@drawable/ic_outline_label_18"
-				app:drawableStartCompat="@drawable/ic_outline_label_18"
-				tools:text="Board Game" />
-
-			<View
-				android:layout_width="1dp"
-				android:layout_height="match_parent"
-				android:layout_marginLeft="@dimen/padding_standard"
-				android:layout_marginRight="@dimen/padding_standard"
-				android:background="@color/list_divider" />
-
-			<TextView
-				android:id="@+id/thumbsView"
-				style="@style/TextWithImage.Secondary"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				app:drawableLeftCompat="@drawable/ic_outline_thumb_up_18"
-				app:drawableStartCompat="@drawable/ic_outline_thumb_up_18"
-				tools:text="13" />
-
-			<View
-				android:layout_width="1dp"
-				android:layout_height="match_parent"
-				android:layout_marginLeft="@dimen/padding_standard"
-				android:layout_marginRight="@dimen/padding_standard"
-				android:background="@color/list_divider" />
-
-			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/postedDateView"
-				style="@style/TextWithImage.Secondary"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:drawableStart="@drawable/ic_outline_schedule_18"
-				android:drawableLeft="@drawable/ic_outline_schedule_18"
-				tools:text="Yesterday" />
-
-			<View
-				android:id="@+id/datetimeDividerView"
-				android:layout_width="1dp"
-				android:layout_height="match_parent"
-				android:layout_marginLeft="@dimen/padding_standard"
-				android:layout_marginRight="@dimen/padding_standard"
-				android:background="@color/list_divider" />
-
-			<com.boardgamegeek.ui.widget.TimestampView
-				android:id="@+id/editedDateView"
-				style="@style/TextWithImage.Secondary"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:drawableStart="@drawable/ic_outline_edit_18"
-				android:drawableLeft="@drawable/ic_outline_edit_18"
-				tools:text="2 hours ago" />
-		</LinearLayout>
-	</LinearLayout>
+		android:layout_height="wrap_content" />
 
 	<FrameLayout style="@style/WebViewContainer">
 

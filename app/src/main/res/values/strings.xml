@@ -809,6 +809,11 @@
 	<string name="six_players">6P</string>
 	<string name="collection_analyze_summary">Your average rating is %1$s, which correlates with the average rating of %2$s by %3$s</string>
 	<string name="offer_for_trade">Offer for trade</string>
+	<string name="author">Author</string>
+	<string name="type">Type</string>
+	<string name="number_of_thumbs">Number of thumbs</string>
+	<string name="posted">Posted</string>
+	<string name="edited">Edited</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
