@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -33,7 +32,6 @@ fun GeekListCommentList(
             GeekListCommentRow(
                 comment,
                 markupConverter,
-                modifier = Modifier.padding(vertical = 8.dp)
             )
             if (index < geekListComments.lastIndex)
                 HorizontalDivider(Modifier)

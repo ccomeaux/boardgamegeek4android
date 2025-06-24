@@ -1,16 +1,18 @@
 package com.boardgamegeek.ui.compose
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,6 +24,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.ui.theme.BggAppTheme
@@ -33,19 +37,25 @@ import kotlin.time.toDuration
 
 @Composable
 fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupConverter, modifier: Modifier = Modifier) {
-    val context = LocalContext.current
-    val iconModifier = Modifier
-        .size(18.dp)
-        .padding(end = 8.dp)
-    val dividerModifier = Modifier
-        .size(18.dp)
-        .padding(horizontal = 8.dp)
+    val openAlertDialog = remember { mutableStateOf(false) }
+
     Column(
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp),
+            .heightIn(min = 56.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = dimensionResource(R.dimen.material_margin_vertical),
+            ),
     ) {
+        val context = LocalContext.current
+        val iconModifier = Modifier
+            .size(18.dp)
+            .padding(end = 8.dp)
+        val dividerModifier = Modifier
+            .size(18.dp)
+            .padding(horizontal = 8.dp)
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 Icons.Outlined.AccountCircle,
@@ -96,12 +106,23 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
             }
         }
         Text(
-            text = AnnotatedString.fromHtml(markupConverter.toHtml(comment.content)).also { Timber.i("CPC $it") },
+            text = AnnotatedString.fromHtml(markupConverter.toHtml(comment.content)),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(top = 4.dp, bottom = 0.dp),
             maxLines = 5,
             overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .padding(top = 4.dp, bottom = 0.dp)
+                .clickable {
+                    openAlertDialog.value = true
+                },
+        )
+    }
+    if (openAlertDialog.value) {
+        CommentDialog(
+            comment = comment,
+            markupConverter = markupConverter,
+            onDismissRequest = { openAlertDialog.value = false }
         )
     }
 }
@@ -116,10 +137,6 @@ private fun GeekListCommentRowPreviewEditedDark(
         GeekListCommentRow(
             geekListComment,
             markupConverter,
-            Modifier.padding(
-                horizontal = dimensionResource(com.boardgamegeek.R.dimen.material_margin_horizontal),
-                vertical = dimensionResource(com.boardgamegeek.R.dimen.material_margin_vertical),
-            ),
         )
     }
 }
@@ -142,4 +159,65 @@ class GeekListCommentPreviewParameterProvider : PreviewParameterProvider<GeekLis
             content = "I like this game. It is fun. Boy howdy. I sure do like to play it!".repeat(10)
         ),
     )
+}
+
+@Composable
+fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarkupConverter, onDismissRequest: () -> Unit) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        Card(modifier = Modifier.padding(vertical = 24.dp)) {
+            val iconModifier = Modifier
+                .size(18.dp)
+                .padding(end = 8.dp)
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = dimensionResource(R.dimen.material_margin_dialog))
+                    .padding(top = dimensionResource(R.dimen.material_margin_dialog), bottom = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    Icons.Outlined.AccountCircle,
+                    contentDescription = null,
+                    modifier = iconModifier
+                )
+                Text(
+                    text = comment.username,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    Icons.Outlined.ThumbUp,
+                    contentDescription = null,
+                    modifier = iconModifier
+                )
+                Text(
+                    text = comment.numberOfThumbs.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            val htmlString = markupConverter.toHtml(comment.content)
+            Text(
+                text = AnnotatedString.fromHtml(htmlString).also { Timber.i("HTML: $it") },
+                modifier = Modifier
+                    .padding(bottom = dimensionResource(R.dimen.material_margin_dialog))
+                    .padding(horizontal = dimensionResource(R.dimen.material_margin_dialog))
+                    .verticalScroll(rememberScrollState())
+                    .wrapContentSize(Alignment.Center),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun CommentDialogPreview(
+    @PreviewParameter(GeekListCommentPreviewParameterProvider::class) geekListComment: GeekListComment,
+) {
+    BggAppTheme {
+        val markupConverter = XmlApiMarkupConverter(LocalContext.current)
+        CommentDialog(geekListComment, markupConverter) {
+
+        }
+    }
 }
