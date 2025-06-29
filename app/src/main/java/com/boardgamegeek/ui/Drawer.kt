@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,6 +35,7 @@ import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.User
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
+import kotlinx.coroutines.launch
 
 enum class DrawerItem(@StringRes val labelResId: Int, val imageVector: ImageVector, val startOfGroup: Boolean = false) {
     Collection(R.string.title_collection, Icons.AutoMirrored.Filled.LibraryBooks), // TODO shelves
@@ -59,6 +61,7 @@ fun Drawer(
     ModalNavigationDrawer(
         drawerContent = {
             val context = LocalContext.current
+            val scope = rememberCoroutineScope()
             val viewModel: SelfUserViewModel = viewModel()
             val user = viewModel.user.observeAsState()
             ModalDrawerSheet {
@@ -71,7 +74,10 @@ fun Drawer(
                         label = { Text(stringResource(item.labelResId)) },
                         icon = { Icon(item.imageVector, contentDescription = null) },
                         selected = false,
-                        onClick = { context.startActivity<CollectionActivity>() }
+                        onClick = {
+                            context.startActivity<CollectionActivity>() // TODO navigate to proper activity
+                            scope.launch { drawerState.close() }
+                        }
                     )
                 }
             }
