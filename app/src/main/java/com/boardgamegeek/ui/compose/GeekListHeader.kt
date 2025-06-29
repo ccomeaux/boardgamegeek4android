@@ -12,15 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.ui.theme.BggAppTheme
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     val dividerModifier = Modifier
         .size(18.dp)
         .padding(horizontal = 8.dp)
@@ -37,7 +42,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.Outlined.AccountCircle,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.author),
                     modifier = iconModifier
                 )
                 Text(
@@ -48,7 +53,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.AutoMirrored.Outlined.List,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.number_of_items),
                     modifier = iconModifier
                 )
                 Text(
@@ -58,18 +63,18 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
                 VerticalDivider(dividerModifier)
                 Icon(
                     Icons.Outlined.ThumbUp,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.number_of_thumbs),
                     modifier = iconModifier,
                 )
                 Text(
-                    text = geekList.numberOfThumbs.toString(),
+                    text = numberFormat.format(geekList.numberOfThumbs),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     Icons.Outlined.Schedule,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.posted),
                     modifier = iconModifier,
                 )
                 Text(
@@ -81,7 +86,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
                     VerticalDivider(dividerModifier)
                     Icon(
                         Icons.Outlined.Edit,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.edited),
                         modifier = iconModifier,
                     )
                     Text(
