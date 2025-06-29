@@ -51,10 +51,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.model.GeekList
-import com.boardgamegeek.model.GeekListItem
-import com.boardgamegeek.model.RefreshableResource
-import com.boardgamegeek.model.Status
+import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.theme.BggAppTheme
@@ -67,7 +64,7 @@ import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
-class GeekListActivity : DrawerComposeActivity() {
+class GeekListActivity : BaseActivity() {
     private var geekListId = BggContract.INVALID_ID
     private var geekListTitle: String = ""
 
@@ -147,7 +144,7 @@ class GeekListActivity : DrawerComposeActivity() {
     @Composable
     private fun SuccessfulGeekListContent(
         contentPadding: PaddingValues,
-        it: GeekList,
+        geekList: GeekList,
         imageProgress: Float,
         markupConverter: XmlApiMarkupConverter
     ) {
@@ -170,7 +167,7 @@ class GeekListActivity : DrawerComposeActivity() {
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(paddingValues)
             ) {
-                GeekListHeader(it, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                GeekListHeader(geekList, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             }
             GeekListTabRow(
                 selectedDestination = selectedDestination,
@@ -188,21 +185,21 @@ class GeekListActivity : DrawerComposeActivity() {
                 when (targetState) {
                     GeekListTab.Description.ordinal -> {
                         GeekListDescriptionContent(
-                            it,
+                            geekList,
                             modifier = Modifier.padding(paddingValues),
                             scrollState = descriptionScrollState,
                             markupConverter,
                         )
                     }
                     GeekListTab.Items.ordinal -> GeekListItemListContent(
-                        it,
+                        geekList,
                         contentPadding = paddingValues,
                         imageProgress = imageProgress,
                         lazyListState = itemListState,
                         scrollState = emptyItemListScrollState,
                     )
-                    GeekListTab.Comments.ordinal -> GeekListItemCommentContent(
-                        it,
+                    GeekListTab.Comments.ordinal -> GeekListCommentContent(
+                        geekList.comments,
                         contentPadding = paddingValues,
                         lazyListState = commentListState,
                         scrollState = emptyCommentListScrollState,
@@ -256,24 +253,20 @@ fun GeekListTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     MediumTopAppBar(
-        title = {
-            Text(
-                geekListTitle.ifEmpty { stringResource(R.string.title_geeklist) }
-            )
-        },
+        title = { Text(geekListTitle.ifEmpty { stringResource(R.string.title_geeklist) }) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = { onBack() }) {
-                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
+                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.up))
             }
         },
         actions = {
             IconButton(onClick = { onOpenInBrowser() }) {
-                Icon(Icons.Default.OpenInBrowser, contentDescription = null)
+                Icon(Icons.Default.OpenInBrowser, contentDescription = stringResource(R.string.menu_view_in_browser))
             }
             IconButton(onClick = { onShare() }) {
-                Icon(Icons.Default.Share, contentDescription = null)
+                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.menu_share))
             }
         }
     )
@@ -390,7 +383,7 @@ fun GeekListDescriptionContent(
 
 @Composable
 fun GeekListItemListContent(
-    geekList: GeekList?,
+    geekList: GeekList?, // TODO don't accept nulls
     imageProgress: Float,
     contentPadding: PaddingValues,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -543,13 +536,13 @@ class GeekListPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListI
 }
 
 @Composable
-fun GeekListItemCommentContent(
-    data: GeekList?,
+fun GeekListCommentContent(
+    comments: List<GeekListComment>,
     contentPadding: PaddingValues,
     lazyListState: LazyListState = rememberLazyListState(),
     scrollState: ScrollState
 ) {
-    if (data?.comments.isNullOrEmpty()) {
+    if (comments.isEmpty()) {
         EmptyContent(
             R.string.empty_comments,
             painterResource(R.drawable.ic_twotone_comment_48),
@@ -560,7 +553,7 @@ fun GeekListItemCommentContent(
         )
     } else {
         GeekListCommentList(
-            data?.comments.orEmpty(),
+            comments,
             contentPadding = contentPadding,
             state = lazyListState,
         )
