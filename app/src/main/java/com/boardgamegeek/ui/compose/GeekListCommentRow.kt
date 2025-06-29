@@ -31,6 +31,8 @@ import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import timber.log.Timber
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
@@ -38,7 +40,7 @@ import kotlin.time.toDuration
 @Composable
 fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupConverter, modifier: Modifier = Modifier) {
     val openAlertDialog = remember { mutableStateOf(false) }
-
+    val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     Column(
         verticalArrangement = Arrangement.Center,
         modifier = modifier
@@ -73,7 +75,7 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
                 modifier = iconModifier
             )
             Text(
-                text = comment.numberOfThumbs.toString(),
+                text = numberFormat.format(comment.numberOfThumbs),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -112,6 +114,7 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
             maxLines = 5,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = 4.dp, bottom = 0.dp)
                 .clickable {
                     openAlertDialog.value = true
@@ -163,6 +166,7 @@ class GeekListCommentPreviewParameterProvider : PreviewParameterProvider<GeekLis
 
 @Composable
 fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarkupConverter, onDismissRequest: () -> Unit) {
+    val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(modifier = Modifier.padding(vertical = 24.dp)) {
             val iconModifier = Modifier
@@ -190,7 +194,7 @@ fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarkupConvert
                     modifier = iconModifier
                 )
                 Text(
-                    text = comment.numberOfThumbs.toString(),
+                    text = numberFormat.format(comment.numberOfThumbs),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

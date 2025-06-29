@@ -24,6 +24,8 @@ import com.boardgamegeek.R
 import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.ui.GeekListActivity
 import com.boardgamegeek.ui.theme.BggAppTheme
+import java.text.NumberFormat
+import java.util.Locale
 
 class GeekListsPagedListAdapter : PagingDataAdapter<GeekList, GeekListsPagedListAdapter.GeekListsViewHolder>(diffCallback) {
     companion object {
@@ -65,6 +67,7 @@ class GeekListsPagedListAdapter : PagingDataAdapter<GeekList, GeekListsPagedList
 
 @Composable
 private fun GeekListRow(geekList: GeekList, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     val dividerModifier = Modifier
         .size(18.dp)
         .padding(horizontal = 8.dp)
@@ -109,7 +112,7 @@ private fun GeekListRow(geekList: GeekList, onClick: () -> Unit, modifier: Modif
                     modifier = iconModifier
                 )
                 Text(
-                    text = geekList.numberOfItems.toString(),
+                    text = numberFormat.format(geekList.numberOfItems),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -120,7 +123,7 @@ private fun GeekListRow(geekList: GeekList, onClick: () -> Unit, modifier: Modif
                     modifier = iconModifier
                 )
                 Text(
-                    text = geekList.numberOfThumbs.toString(),
+                    text = numberFormat.format(geekList.numberOfThumbs),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
