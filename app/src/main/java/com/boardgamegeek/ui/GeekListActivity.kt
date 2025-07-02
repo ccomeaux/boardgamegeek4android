@@ -62,7 +62,7 @@ import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @AndroidEntryPoint
 class GeekListActivity : BaseActivity() {
     private var geekListId = BggContract.INVALID_ID
@@ -136,8 +136,8 @@ class GeekListActivity : BaseActivity() {
             R.string.empty_geeklist,
             Icons.AutoMirrored.Filled.ListAlt,
             Modifier
-                .padding(contentPadding)
                 .fillMaxSize()
+                .padding(contentPadding)
         )
     }
 
@@ -148,8 +148,12 @@ class GeekListActivity : BaseActivity() {
         imageProgress: Float,
         markupConverter: XmlApiMarkupConverter
     ) {
-        Column(modifier = Modifier.padding(contentPadding)) {
-            var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(contentPadding)
+        ) {
+            var selectedDestination by rememberSaveable { mutableIntStateOf(GeekListTab.Description.ordinal) }
 
             val descriptionScrollState: ScrollState = rememberScrollState()
             val itemListState: LazyListState = rememberLazyListState()
@@ -157,15 +161,14 @@ class GeekListActivity : BaseActivity() {
             val commentListState: LazyListState = rememberLazyListState()
             val emptyCommentListScrollState: ScrollState = rememberScrollState()
 
-            val paddingValues = PaddingValues(
-                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                vertical = dimensionResource(R.dimen.material_margin_vertical)
-            )
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.surface)
-                    .padding(paddingValues)
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                        vertical = dimensionResource(R.dimen.material_margin_vertical),
+                    )
             ) {
                 GeekListHeader(geekList, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             }
@@ -180,27 +183,23 @@ class GeekListActivity : BaseActivity() {
                         if (targetState > initialState) AnimatedContentTransitionScope.SlideDirection.Start
                         else AnimatedContentTransitionScope.SlideDirection.End
                     slideIntoContainer(towards = slideDirection) togetherWith slideOutOfContainer(towards = slideDirection)
-                }
+                },
+                modifier = Modifier.fillMaxSize()
             ) { targetState ->
                 when (targetState) {
-                    GeekListTab.Description.ordinal -> {
-                        GeekListDescriptionContent(
-                            geekList,
-                            modifier = Modifier.padding(paddingValues),
-                            scrollState = descriptionScrollState,
-                            markupConverter,
-                        )
-                    }
+                    GeekListTab.Description.ordinal -> GeekListDescriptionContent(
+                        description = geekList.description,
+                        scrollState = descriptionScrollState,
+                        markupConverter = markupConverter,
+                    )
                     GeekListTab.Items.ordinal -> GeekListItemListContent(
                         geekList,
-                        contentPadding = paddingValues,
                         imageProgress = imageProgress,
                         lazyListState = itemListState,
                         scrollState = emptyItemListScrollState,
                     )
                     GeekListTab.Comments.ordinal -> GeekListCommentContent(
                         geekList.comments,
-                        contentPadding = paddingValues,
                         lazyListState = commentListState,
                         scrollState = emptyCommentListScrollState,
                     )
@@ -242,7 +241,8 @@ class GeekListActivity : BaseActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@ExperimentalMaterial3ExpressiveApi
 @Composable
 fun GeekListTopAppBar(
     geekListTitle: String,
@@ -252,7 +252,7 @@ fun GeekListTopAppBar(
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
-    MediumTopAppBar(
+    MediumFlexibleTopAppBar(
         title = { Text(geekListTitle.ifEmpty { stringResource(R.string.title_geeklist) }) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
@@ -272,7 +272,7 @@ fun GeekListTopAppBar(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @PreviewLightDark
 @Composable
 private fun GeekListTopAppBarPreview() {
@@ -356,27 +356,33 @@ private fun GeekListTabRowPreview() {
 
 @Composable
 fun GeekListDescriptionContent(
-    geekList: GeekList,
+    description: String,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
-    markupConverter: XmlApiMarkupConverter? = null
+    markupConverter: XmlApiMarkupConverter? = null,
 ) {
-    if (geekList.description.isEmpty()) {
+    if (description.isEmpty()) {
         EmptyContent(
             R.string.empty_geeklist_description,
             Icons.Filled.Description,
             modifier = modifier
-                .padding(top = 16.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(
+                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                    vertical = dimensionResource(R.dimen.material_margin_vertical)
+                ),
             scrollState = scrollState,
         )
     } else {
         Text(
-            text = AnnotatedString.fromHtml(markupConverter?.toHtml(geekList.description) ?: geekList.description),
+            text = AnnotatedString.fromHtml(markupConverter?.toHtml(description) ?: description),
             modifier = modifier
                 .fillMaxSize()
-                .padding(top = 16.dp)
                 .verticalScroll(scrollState)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                    vertical = dimensionResource(R.dimen.material_margin_vertical)
+                )
         )
     }
 }
@@ -385,7 +391,7 @@ fun GeekListDescriptionContent(
 fun GeekListItemListContent(
     geekList: GeekList?, // TODO don't accept nulls
     imageProgress: Float,
-    contentPadding: PaddingValues,
+    modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     scrollState: ScrollState = rememberScrollState(),
 ) {
@@ -394,15 +400,18 @@ fun GeekListItemListContent(
         EmptyContent(
             R.string.empty_geeklist,
             Icons.AutoMirrored.Filled.List,
-            modifier = Modifier
-                .padding(contentPadding)
-                .fillMaxSize(),
+            modifier = modifier
+                .fillMaxSize()
+                .padding(
+                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                    vertical = dimensionResource(R.dimen.material_margin_vertical)
+                ),
             scrollState = scrollState,
         )
     } else {
         val context = LocalContext.current
-        Box {
-            LazyColumn(state = lazyListState, contentPadding = contentPadding) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(state = lazyListState, contentPadding = PaddingValues(vertical = 8.dp)) {
                 itemsIndexed(geekListItems) { index, geekListItem ->
                     GeekListItemListItem(
                         index + 1,
@@ -413,7 +422,6 @@ fun GeekListItemListContent(
                                 GeekListItemActivity.start(context, geekList!!, geekListItem, index + 1)
                             }
                         },
-                        modifier = Modifier.padding(vertical = dimensionResource(R.dimen.material_margin_vertical))
                     )
                 }
             }
@@ -429,54 +437,56 @@ fun GeekListItemListContent(
     }
 }
 
-@Preview
 @Composable
-private fun GeekListItemListContentPreview() {
-    BggAppTheme {
-        GeekListItemListContent(null, 0.6f, PaddingValues(16.dp))
-    }
-}
-
-@Composable
-fun GeekListItemListItem(order: Int, geekListItem: GeekListItem, geekList: GeekList?, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val iconModifier = Modifier
-        .size(18.dp)
-        .padding(end = 8.dp)
+fun GeekListItemListItem(
+    order: Int,
+    geekListItem: GeekListItem,
+    geekList: GeekList?,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .heightIn(min = 72.dp)
             .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
+            .padding(vertical = 12.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = order.toString(),
             style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(end = 16.dp)
-                .widthIn(min = 40.dp)
+                .width(48.dp)
                 .wrapContentWidth(Alignment.End)
         )
         AsyncImage(
-            model = geekListItem.thumbnailUrls?.first(), // TODO iterate through thumbnails?
+            model = geekListItem.thumbnailUrls?.first(), // TODO iterate through thumbnails? .crossfade(true)
             contentDescription = null,
             contentScale = ContentScale.Crop,
             placeholder = painterResource(id = R.drawable.thumbnail_image_empty),
             error = painterResource(id = R.drawable.thumbnail_image_empty),
             modifier = Modifier.size(56.dp)
         )
-        Column(modifier = Modifier.padding(start = 8.dp)) {
+        Column(modifier = Modifier.padding(start = 16.dp)) {
             Text(
                 text = geekListItem.objectName,
                 style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
             if (geekListItem.username != geekList?.username) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Outlined.AccountCircle,
                         contentDescription = null,
-                        modifier = iconModifier,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(18.dp)
+                            .padding(end = 8.dp),
                     )
                     Text(
                         text = geekListItem.username,
@@ -538,7 +548,6 @@ class GeekListPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListI
 @Composable
 fun GeekListCommentContent(
     comments: List<GeekListComment>,
-    contentPadding: PaddingValues,
     lazyListState: LazyListState = rememberLazyListState(),
     scrollState: ScrollState
 ) {
@@ -546,15 +555,18 @@ fun GeekListCommentContent(
         EmptyContent(
             R.string.empty_comments,
             painterResource(R.drawable.ic_twotone_comment_48),
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(contentPadding),
+                .padding(
+                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                    vertical = dimensionResource(R.dimen.material_margin_vertical)
+                ),
             scrollState = scrollState,
         )
     } else {
         GeekListCommentList(
             comments,
-            contentPadding = contentPadding,
+            modifier = Modifier.fillMaxSize(),
             state = lazyListState,
         )
     }

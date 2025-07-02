@@ -45,7 +45,10 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
+            .heightIn(min = 72.dp)
+            .clickable {
+                openAlertDialog.value = true
+            }
             .padding(
                 horizontal = dimensionResource(R.dimen.material_margin_horizontal),
                 vertical = dimensionResource(R.dimen.material_margin_vertical),
@@ -62,17 +65,20 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
             Icon(
                 Icons.Outlined.AccountCircle,
                 contentDescription = null,
-                modifier = iconModifier
+                modifier = iconModifier,
+                tint = MaterialTheme.colorScheme.onSurface,
             )
             Text(
                 text = comment.username,
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
             )
             VerticalDivider(dividerModifier)
             Icon(
                 Icons.Outlined.ThumbUp,
                 contentDescription = null,
-                modifier = iconModifier
+                modifier = iconModifier,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = numberFormat.format(comment.numberOfThumbs),
@@ -83,7 +89,8 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
             Icon(
                 Icons.Outlined.Schedule,
                 contentDescription = null,
-                modifier = iconModifier
+                modifier = iconModifier,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 // TODO figure out how to force a recompose each minute for relative time to update correctly
@@ -97,7 +104,8 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
                 Icon(
                     Icons.Outlined.Edit,
                     contentDescription = null,
-                    modifier = iconModifier
+                    modifier = iconModifier,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = comment.editDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString(),
@@ -108,7 +116,7 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
             }
         }
         Text(
-            text = AnnotatedString.fromHtml(markupConverter.toHtml(comment.content)),
+            text = AnnotatedString.fromHtml(markupConverter.toHtml(comment.content)), // TODO this seems to always have a trailing new line
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 5,
@@ -116,9 +124,6 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp, bottom = 0.dp)
-                .clickable {
-                    openAlertDialog.value = true
-                },
         )
     }
     if (openAlertDialog.value) {
@@ -156,6 +161,13 @@ class GeekListCommentPreviewParameterProvider : PreviewParameterProvider<GeekLis
         ),
         GeekListComment(
             postDate = postDate,
+            editDate = postDate,
+            numberOfThumbs = 11,
+            username = "ccomeaux",
+            content = "Brief comment."
+        ),
+        GeekListComment(
+            postDate = postDate,
             editDate = (postDate.toDuration(DurationUnit.MILLISECONDS) + 1.hours).inWholeMilliseconds,
             numberOfThumbs = 12,
             username = "ccomeaux",
@@ -181,22 +193,25 @@ fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarkupConvert
                 Icon(
                     Icons.Outlined.AccountCircle,
                     contentDescription = null,
-                    modifier = iconModifier
+                    modifier = iconModifier,
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     text = comment.username,
                     style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
                     Icons.Outlined.ThumbUp,
                     contentDescription = null,
-                    modifier = iconModifier
+                    modifier = iconModifier,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = numberFormat.format(comment.numberOfThumbs),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
             val htmlString = markupConverter.toHtml(comment.content)
@@ -208,6 +223,7 @@ fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarkupConvert
                     .verticalScroll(rememberScrollState())
                     .wrapContentSize(Alignment.Center),
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
             )
         }
     }

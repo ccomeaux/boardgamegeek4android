@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -19,13 +20,12 @@ import com.boardgamegeek.util.XmlApiMarkupConverter
 fun GeekListCommentList(
     geekListComments: List<GeekListComment>,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
     state: LazyListState = rememberLazyListState(),
 ) {
     val markupConverter = XmlApiMarkupConverter(LocalContext.current)
     LazyColumn(
         modifier = modifier,
-        contentPadding = contentPadding,
+        contentPadding = PaddingValues(vertical = 8.dp),
         state = state,
     ) {
         itemsIndexed(geekListComments) { index, comment ->
@@ -45,7 +45,7 @@ private fun GeekListCommentListPreview() {
     BggAppTheme {
         GeekListCommentList(
             GeekListCommentPreviewParameterProvider().values.toList(),
-            contentPadding = PaddingValues(vertical = 24.dp, horizontal = 16.dp),
+            modifier = Modifier.padding(vertical = 24.dp, horizontal = 16.dp),
         )
     }
 }

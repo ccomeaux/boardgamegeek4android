@@ -27,7 +27,12 @@ import com.boardgamegeek.R
 import com.boardgamegeek.ui.theme.BggAppTheme
 
 @Composable
-fun EmptyContent(@StringRes textResource: Int, iconPainter: Painter, modifier: Modifier = Modifier, scrollState: ScrollState = rememberScrollState()) {
+fun EmptyContent(
+    @StringRes textResource: Int,
+    iconPainter: Painter,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState()
+) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -47,7 +52,12 @@ fun EmptyContent(@StringRes textResource: Int, iconPainter: Painter, modifier: M
 }
 
 @Composable
-fun EmptyContent(@StringRes textResource: Int, imageVector: ImageVector, modifier: Modifier = Modifier, scrollState: ScrollState = rememberScrollState()) {
+fun EmptyContent(
+    @StringRes textResource: Int,
+    imageVector: ImageVector,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState()
+) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,

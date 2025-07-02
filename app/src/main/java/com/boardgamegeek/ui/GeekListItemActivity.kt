@@ -301,7 +301,7 @@ fun GeekListItemCommentContent(
     } else {
         GeekListCommentList(
             comments,
-            contentPadding = contentPadding,
+            modifier = Modifier.padding(contentPadding),
             state = lazyListState,
         )
     }
