@@ -5,16 +5,15 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
@@ -24,12 +23,8 @@ import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
@@ -60,6 +55,7 @@ import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -153,8 +149,6 @@ class GeekListActivity : BaseActivity() {
                 .fillMaxSize()
                 .padding(contentPadding)
         ) {
-            var selectedDestination by rememberSaveable { mutableIntStateOf(GeekListTab.Description.ordinal) }
-
             val descriptionScrollState: ScrollState = rememberScrollState()
             val itemListState: LazyListState = rememberLazyListState()
             val emptyItemListScrollState: ScrollState = rememberScrollState()
@@ -172,21 +166,23 @@ class GeekListActivity : BaseActivity() {
             ) {
                 GeekListHeader(geekList, Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
             }
-            GeekListTabRow(
-                selectedDestination = selectedDestination,
-                onClick = { newDestination -> selectedDestination = newDestination },
+            val pagerState = rememberPagerState(
+                initialPage = GeekListTab.Description.ordinal,
+                pageCount = { GeekListTab.entries.size },
             )
-            AnimatedContent(
-                targetState = selectedDestination,
-                transitionSpec = {
-                    val slideDirection =
-                        if (targetState > initialState) AnimatedContentTransitionScope.SlideDirection.Start
-                        else AnimatedContentTransitionScope.SlideDirection.End
-                    slideIntoContainer(towards = slideDirection) togetherWith slideOutOfContainer(towards = slideDirection)
+            val coroutineScope = rememberCoroutineScope()
+            GeekListTabRow(
+                selectedDestination = pagerState.currentPage,
+                onClick = { newDestination ->
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(newDestination)
+                    }
                 },
-                modifier = Modifier.fillMaxSize()
-            ) { targetState ->
-                when (targetState) {
+            )
+            HorizontalPager(
+                state = pagerState,
+            ) { page ->
+                when (page) {
                     GeekListTab.Description.ordinal -> GeekListDescriptionContent(
                         description = geekList.description,
                         scrollState = descriptionScrollState,
