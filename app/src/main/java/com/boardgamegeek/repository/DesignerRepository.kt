@@ -83,26 +83,31 @@ class DesignerRepository(
         }
     }
 
-    suspend fun refreshMissingImages(daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { designerDao.loadDesigners() }
-            .filter { it.designerThumbnailUrl.isNullOrBlank() &&
-                    (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days)) }
-            .sortedByDescending { it.whitmoreScore }
-            .take(limit.coerceIn(0, 25))
-            .map { it.mapToModel() }
-            .forEach {
-                Timber.i("Refreshing missing images for designer $it")
-                refreshImages(it)
+    suspend fun refreshMissingImages(daysOld: Int = 14, limit: Int = 10, progress: MutableLiveData<Float>? = null) =
+        withContext(Dispatchers.Default) {
+            val filteredList = withContext(Dispatchers.IO) { designerDao.loadDesigners() }
+                .filter {
+                    it.designerThumbnailUrl.isNullOrBlank() &&
+                            (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days))
+                }
+                .sortedByDescending { it.whitmoreScore }
+                .take(limit.coerceIn(0, 25))
+                .map { it.mapToModel() }
+            filteredList.forEachIndexed { index, person ->
+                Timber.d("Refreshing missing images for designer $person (${index + 1}/${filteredList.size})")
+                progress?.postValue((index + 1).toFloat() / filteredList.size)
+                refreshImages(person)
                 delay(2_000)
             }
-    }
+            progress?.postValue(1.0f)
+        }
 
     private suspend fun refreshImages(designer: Person) = withContext(Dispatchers.IO) {
-        val timestamp = Date()
+        val updateTimestamp = Date()
         val response = safeApiCall(context) { api.person(designer.id) }
         if (response.isSuccess) {
-            response.getOrNull()?.items?.firstOrNull()?.mapToModel(designer, timestamp)?.let { person ->
-                designerDao.updateImageUrls(person.id, person.imageUrl, person.thumbnailUrl, person.imagesUpdatedTimestamp ?: timestamp)
+            response.getOrNull()?.items?.firstOrNull()?.mapToModel(designer, updateTimestamp)?.let { person ->
+                designerDao.updateImageUrls(person.id, person.imageUrl, person.thumbnailUrl, person.imagesUpdatedTimestamp ?: updateTimestamp)
                 val thumbnailId = person.thumbnailUrl.getImageId()
                 if (thumbnailId != person.heroImageUrl.getImageId()) {
                     Timber.d("Designer $designer's hero URL doesn't match thumbnail ID $thumbnailId")
@@ -118,7 +123,7 @@ class DesignerRepository(
                     }
                 }
             }
-        }
+        } else Timber.w("Unable to refresh images for artist $designer")
     }
 
     suspend fun refreshMissingImagesForGame(gameId: Int, daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
@@ -137,7 +142,8 @@ class DesignerRepository(
             }
     }
 
-    suspend fun calculateStats(progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+    suspend fun calculateStats(progress: MutableLiveData<Float>) = withContext(Dispatchers.Default) {
+        progress.postValue(1.0f)
         val designers = withContext(Dispatchers.IO) { designerDao.loadDesigners() }
             .map { it.mapToModel() }
             .sortedWith(
@@ -146,12 +152,12 @@ class DesignerRepository(
             )
         val maxProgress = designers.size
         designers.forEachIndexed { i, designer ->
-            progress.postValue(i to maxProgress)
+            progress.postValue(i.toFloat() / maxProgress)
             calculateStats(designer.id, designer.whitmoreScore)
-            Timber.i("Updated stats for designer $designer")
+            Timber.d("Updated stats for designer $designer")
         }
         context.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS] = System.currentTimeMillis()
-        progress.postValue(0 to 0)
+        progress.postValue(1.0f)
     }
 
     suspend fun calculateStats(designerId: Int, whitmoreScore: Int? = null): PersonStats? = withContext(Dispatchers.Default) {

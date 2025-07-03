@@ -1,64 +1,289 @@
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+
 package com.boardgamegeek.ui
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import androidx.activity.viewModels
+import androidx.activity.compose.setContent
+import androidx.annotation.StringRes
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Sort
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.model.Person
+import com.boardgamegeek.ui.compose.EmptyContent
+import com.boardgamegeek.ui.compose.ListHeader
+import com.boardgamegeek.ui.compose.LoadingIndicator
+import com.boardgamegeek.ui.compose.PersonListItem
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.DesignersViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.Date
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
-class DesignersActivity : SimpleSinglePaneActivity() {
-    private var numberOfDesigners = -1
-    private var sortBy: Person.SortType? = null
-
-    private val viewModel by viewModels<DesignersViewModel>()
-
+class DesignersActivity : DrawerActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.designers.observe(this) {
-            numberOfDesigners = it?.size ?: 0
-            invalidateOptionsMenu()
-        }
-        viewModel.sort.observe(this) {
-            sortBy = it
-            invalidateOptionsMenu()
-        }
-    }
 
-    override fun createPane() = DesignersFragment()
+        setContent {
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+            val viewModel: DesignersViewModel = viewModel()
+            val designers = viewModel.designersByHeader.observeAsState()
+            val sortBy = viewModel.sort.observeAsState(Person.SortType.Name)
 
-    override val optionsMenuId = R.menu.designers
+            val calculationProgressState = viewModel.statsCalculationProgress.observeAsState(0.0f)
+            val animatedProgress by animateFloatAsState(
+                targetValue = calculationProgressState.value,
+                animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+            )
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        super.onPrepareOptionsMenu(menu)
-        val text = menu.findItem(
-            when (sortBy) {
-                Person.SortType.Name -> R.id.menu_sort_name
-                Person.SortType.ItemCount -> R.id.menu_sort_item_count
-                Person.SortType.WhitmoreScore -> R.id.menu_sort_whitmore_score
-                else -> View.NO_ID
+            BggAppTheme {
+                Drawer {
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            val showProgress = remember { derivedStateOf { animatedProgress > 0.0f && animatedProgress < 1.0f } }
+                            //val showProgress = animatedProgress > 0.0f && animatedProgress < 1.0f
+                            Column {
+                                DesignersTopBar(
+                                    designers.value?.values?.sumOf { it.size } ?: 0,
+                                    onUpClick = {
+                                        onBackPressedDispatcher.onBackPressed()
+                                    },
+                                    onRefreshClick = { viewModel.calculateStats() },
+                                    onSortClick = { sortType ->
+                                        viewModel.sort(sortType)
+                                    },
+                                    sortBy = sortBy.value,
+                                    scrollBehavior = scrollBehavior,
+                                )
+                                if (showProgress.value) {
+                                    LinearProgressIndicator(
+                                        progress = { animatedProgress },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(8.dp),
+                                        strokeCap = StrokeCap.Butt,
+                                    )
+                                }
+                            }
+                        },
+                    ) { contentPadding ->
+                        DesignersContent(
+                            designers = designers.value,
+                            contentPadding = contentPadding,
+                        )
+                    }
+                }
             }
-        )?.let {
-            it.isChecked = true
-            getString(R.string.by_prefix, it.title)
         }
-        menu.setActionBarCount(R.id.menu_list_count, numberOfDesigners, text)
-        return true
     }
+}
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.menu_sort_name -> viewModel.sort(Person.SortType.Name)
-            R.id.menu_sort_item_count -> viewModel.sort(Person.SortType.ItemCount)
-            R.id.menu_sort_whitmore_score -> viewModel.sort(Person.SortType.WhitmoreScore)
-            R.id.menu_refresh -> viewModel.reload()
-            else -> return super.onOptionsItemSelected(item)
+private enum class DesignersSort(
+    val type: Person.SortType,
+    @StringRes val labelResId: Int,
+) {
+    Name(Person.SortType.Name, R.string.menu_sort_name),
+    ItemCount(Person.SortType.ItemCount, R.string.menu_sort_item_count),
+    Whitmore(Person.SortType.WhitmoreScore, R.string.menu_sort_whitmore_score)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun DesignersTopBar(
+    designersCount: Int,
+    onUpClick: () -> Unit,
+    onRefreshClick: () -> Unit,
+    onSortClick: (Person.SortType) -> Unit,
+    sortBy: Person.SortType,
+    modifier: Modifier = Modifier,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+) {
+    var expandedMenu by remember { mutableStateOf(false) }
+    MediumFlexibleTopAppBar(
+        title = {
+            Text(stringResource(id = R.string.title_designers))
+        },
+        subtitle = {
+            if (designersCount > 0) {
+                DesignersSort.entries.find { it.type == sortBy }?.let {
+                    Text(stringResource(R.string.count_by_sort, designersCount, stringResource(it.labelResId)))
+                }
+            }
+        },
+        modifier = modifier,
+        navigationIcon = {
+            IconButton(
+                onClick = { onUpClick() }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.up),
+                )
+            }
+        },
+        actions = {
+            IconButton(onClick = { onRefreshClick() }) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = stringResource(R.string.menu_refresh),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+            IconButton(onClick = { expandedMenu = true }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.Sort,
+                    contentDescription = stringResource(R.string.menu_sort),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+            DropdownMenu(
+                expanded = expandedMenu,
+                onDismissRequest = { expandedMenu = false }
+            ) {
+                DesignersSort.entries.forEach {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(it.labelResId)) },
+                        leadingIcon = {
+                            RadioButton(
+                                selected = (it.type == sortBy),
+                                onClick = null
+                            )
+                        },
+                        onClick = {
+                            expandedMenu = false
+                            onSortClick(it.type)
+                        }
+                    )
+                }
+            }
+        },
+        scrollBehavior = scrollBehavior,
+    )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@PreviewLightDark
+@Composable
+private fun DesignersHeaderPreview() {
+    BggAppTheme {
+        DesignersTopBar(
+            1234,
+            onUpClick = {},
+            onRefreshClick = {},
+            onSortClick = {},
+            sortBy = Person.SortType.Name,
+        )
+    }
+}
+
+@Composable
+fun DesignersContent(
+    designers: Map<String, List<Person>>?,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+) {
+    when {
+        designers == null -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+
+            ) {
+                LoadingIndicator(
+                    Modifier
+                        .align(Alignment.Center)
+                        .padding(dimensionResource(R.dimen.padding_extra))
+                )
+            }
         }
-        return true
+        designers.isEmpty() -> {
+            EmptyContent(
+                R.string.empty_designers, Icons.Outlined.Edit,
+                Modifier
+                    .padding(contentPadding)
+                    .fillMaxSize()
+            )
+        }
+        else -> {
+            LazyColumn(contentPadding = contentPadding) {
+                designers.forEach { (headerText, designers) ->
+                    stickyHeader {
+                        ListHeader(headerText)
+                    }
+                    itemsIndexed(
+                        items = designers,
+                        key = { _, designer -> designer.id }
+                    ) { index, designer ->
+                        val context = LocalContext.current
+                        PersonListItem(
+                            person = designer,
+                            modifier = Modifier
+                                .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal))
+                                .animateItem(),
+                            onClick = { PersonActivity.startForDesigner(context, designer.id, designer.name) },
+                        )
+                        if (index < designers.lastIndex)
+                            HorizontalDivider()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Preview(heightDp = 256, backgroundColor = 0xFF00FFFF, showBackground = true)
+@Composable
+private fun TotalPreview() {
+    BggAppTheme {
+        DesignersContent(
+            mapOf(
+                "A" to listOf(
+                    Person(
+                        internalId = 42L,
+                        id = 1,
+                        name = "Chris Comeaux",
+                        description = "A dude!",
+                        updatedTimestamp = null,
+                        thumbnailUrl = "",
+                        itemCount = 42,
+                        whitmoreScore = 17,
+                    ),
+                    Person(
+                        internalId = 43L,
+                        id = 2,
+                        name = "Stefan Feld",
+                        description = "A dude!",
+                        updatedTimestamp = Date(12345678901L),
+                        thumbnailUrl = "https://cf.geekdo-images.com/yaDyQ_rrLU7P4HUm1ebX5Q__imagepagezoom/img/ryZWb1v-qW3gMLnXE1J6uxOc3LM=/fit-in/1200x900/filters:no_upscale():strip_icc()/pic1452960.jpg",
+                        itemCount = 1,
+                        whitmoreScore = 0,
+                    ),
+                )
+            ),
+            PaddingValues(8.dp)
+        )
     }
 }

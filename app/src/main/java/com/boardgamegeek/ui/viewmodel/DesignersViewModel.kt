@@ -3,9 +3,9 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.model.Person
 import com.boardgamegeek.repository.DesignerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -23,11 +23,15 @@ class DesignersViewModel @Inject constructor(
     val sort: LiveData<Person.SortType>
         get() = _sort
 
-    private val _progress = MutableLiveData<Pair<Int, Int>>()
-    val progress: LiveData<Pair<Int, Int>>
-        get() = _progress
+    private val _imageProgress = MutableLiveData<Float>()
+    val imageProgress: LiveData<Float>
+        get() = _imageProgress
 
-    private var isCalculating = AtomicBoolean()
+    private val _statsCalculationProgress = MutableLiveData<Float>()
+    val statsCalculationProgress: LiveData<Float>
+        get() = _statsCalculationProgress
+
+    private var isCalculatingStats = AtomicBoolean()
 
     init {
         val initialSort = if (application.preferences().isStatusSetToSync(CollectionStatus.Rated))
@@ -36,27 +40,30 @@ class DesignersViewModel @Inject constructor(
             Person.SortType.ItemCount
         sort(initialSort)
         refreshMissingImages()
-        calculateStats()
+
+        val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
+        if (lastCalculation.isOlderThan(1.hours)) {
+            calculateStats()
+        }
     }
 
-    val designers = _sort.switchMap {
-        designerRepository.loadDesignersFlow(it).distinctUntilChanged().asLiveData()
+    val designersByHeader = _sort.switchMap {
+        designerRepository.loadDesignersFlow(it).distinctUntilChanged().asLiveData().map { list ->
+            list.groupBy { person -> getSectionHeader(person) }
+        }
     }
 
     private fun refreshMissingImages() {
         viewModelScope.launch {
-            designerRepository.refreshMissingImages()
+            designerRepository.refreshMissingImages(progress = _imageProgress)
         }
     }
 
-    private fun calculateStats() {
+    fun calculateStats() {
         viewModelScope.launch {
-            val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_DESIGNERS, 0L] ?: 0L
-            if (lastCalculation.isOlderThan(1.hours) &&
-                isCalculating.compareAndSet(false, true)
-            ) {
-                designerRepository.calculateStats(_progress)
-                isCalculating.set(false)
+            if (isCalculatingStats.compareAndSet(false, true)) {
+                designerRepository.calculateStats(_statsCalculationProgress)
+                isCalculatingStats.set(false)
             }
         }
     }
@@ -65,12 +72,8 @@ class DesignersViewModel @Inject constructor(
         if (_sort.value != sortType) _sort.value = sortType
     }
 
-    fun reload() {
-        _sort.value?.let { _sort.value = it }
-    }
-
-    fun getSectionHeader(designer: Person?): String {
-        return when(sort.value) {
+    private fun getSectionHeader(designer: Person?): String {
+        return when (sort.value) {
             Person.SortType.Name -> if (designer?.name == "(Uncredited)") DEFAULT_HEADER else designer?.name.firstChar()
             Person.SortType.ItemCount -> (designer?.itemCount ?: 0).orderOfMagnitude()
             Person.SortType.WhitmoreScore -> (designer?.whitmoreScore ?: 0).orderOfMagnitude()
