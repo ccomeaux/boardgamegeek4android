@@ -14,6 +14,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -56,7 +57,7 @@ fun PersonListItem(person: Person, modifier: Modifier = Modifier, onClick: () ->
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                text = "Whitmore score of ${person.whitmoreScore}", // TODO stringResource
+                text = stringResource(R.string.whitmore_score_prefix, person.whitmoreScore),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -77,13 +78,13 @@ private fun PersonImage(person: Person, modifier: Modifier = Modifier) {
         contentScale = ContentScale.Crop,
         modifier = modifier
             .clip(CircleShape)
-            .size(40.dp)
+            .size(56.dp)
     )
 }
 
 @PreviewLightDark
 @Composable
-fun PersonRowPreview(
+fun PersonListItemPreview(
     @PreviewParameter(PersonPreviewParameterProvider::class) person: Person
 ) {
     BggAppTheme {

@@ -818,6 +818,7 @@
 	<string name="posted">Posted</string>
 	<string name="edited">Edited</string>
 	<string name="count_by_sort"><b>%,d</b> sorted by %s</string>
+	<string name="whitmore_score_prefix">Whitmore score of</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>

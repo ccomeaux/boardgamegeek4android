@@ -62,8 +62,7 @@ class ArtistsActivity : DrawerActivity() {
                     Scaffold(
                         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                         topBar = {
-                            val showProgress = remember { derivedStateOf { animatedProgress > 0.0f && animatedProgress < 1.0f } }
-                            //val showProgress = animatedProgress > 0.0f && animatedProgress < 1.0f
+                            val showProgress by remember { derivedStateOf { animatedProgress > 0.0f && animatedProgress < 1.0f } }
                             Column {
                                 ArtistsTopBar(
                                     artists.value?.values?.sumOf { it.size } ?: 0,
@@ -77,7 +76,7 @@ class ArtistsActivity : DrawerActivity() {
                                     sortBy = sortBy.value,
                                     scrollBehavior = scrollBehavior,
                                 )
-                                if (showProgress.value) {
+                                if (showProgress) {
                                     LinearProgressIndicator(
                                         progress = { animatedProgress },
                                         modifier = Modifier

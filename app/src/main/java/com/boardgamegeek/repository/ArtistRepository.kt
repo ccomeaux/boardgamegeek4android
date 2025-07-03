@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
+import androidx.annotation.IntRange
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.ArtistDao
 import com.boardgamegeek.db.CollectionDao
@@ -62,15 +63,19 @@ class ArtistRepository(
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { artistDao.deleteAll() }
 
-    suspend fun refreshMissingImages(daysOld: Int = 14, limit: Int = 10, progress: MutableLiveData<Float>? = null) =
+    suspend fun refreshMissingImages(
+        @IntRange(from = 0) daysOld: Int = 14,
+        @IntRange(from = 1, to = 25) limit: Int = 10,
+        progress: MutableLiveData<Float>? = null) =
         withContext(Dispatchers.Default) {
+            progress?.postValue(0.0f)
             val filteredList = withContext(Dispatchers.IO) { artistDao.loadArtists() }
                 .filter {
                     it.artistThumbnailUrl.isNullOrBlank() &&
                             (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days))
                 }
                 .sortedByDescending { it.whitmoreScore }
-                .take(limit.coerceIn(0, 25))
+                .take(limit)
                 .map { it.mapToModel() }
             filteredList.forEachIndexed { index, person ->
                 Timber.d("Refreshing missing images for artist $person (${index + 1}/${filteredList.size})")
@@ -146,6 +151,7 @@ class ArtistRepository(
     }
 
     suspend fun calculateStats(progress: MutableLiveData<Float>) = withContext(Dispatchers.Default) {
+        progress.postValue(0.0f)
         val artists = withContext(Dispatchers.IO) { artistDao.loadArtists() }
             .map { it.mapToModel() }
             .sortedWith(
