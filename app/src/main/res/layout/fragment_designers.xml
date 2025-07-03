@@ -28,7 +28,7 @@
 			android:layout_height="match_parent"
 			android:visibility="gone"
 			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-			tools:listitem="@layout/row_artist"
+			tools:listitem="@layout/row_designer"
 			tools:visibility="visible" />
 
 		<TextView

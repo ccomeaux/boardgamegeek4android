@@ -31,9 +31,9 @@ class DesignersViewModel @Inject constructor(
 
     init {
         val initialSort = if (application.preferences().isStatusSetToSync(CollectionStatus.Rated))
-            Person.SortType.WHITMORE_SCORE
+            Person.SortType.WhitmoreScore
         else
-            Person.SortType.ITEM_COUNT
+            Person.SortType.ItemCount
         sort(initialSort)
         refreshMissingImages()
         calculateStats()
@@ -71,9 +71,9 @@ class DesignersViewModel @Inject constructor(
 
     fun getSectionHeader(designer: Person?): String {
         return when(sort.value) {
-            Person.SortType.NAME -> if (designer?.name == "(Uncredited)") DEFAULT_HEADER else designer?.name.firstChar()
-            Person.SortType.ITEM_COUNT -> (designer?.itemCount ?: 0).orderOfMagnitude()
-            Person.SortType.WHITMORE_SCORE -> (designer?.whitmoreScore ?: 0).orderOfMagnitude()
+            Person.SortType.Name -> if (designer?.name == "(Uncredited)") DEFAULT_HEADER else designer?.name.firstChar()
+            Person.SortType.ItemCount -> (designer?.itemCount ?: 0).orderOfMagnitude()
+            Person.SortType.WhitmoreScore -> (designer?.whitmoreScore ?: 0).orderOfMagnitude()
             else -> DEFAULT_HEADER
         }
     }

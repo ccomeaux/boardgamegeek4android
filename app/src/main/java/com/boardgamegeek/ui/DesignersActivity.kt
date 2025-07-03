@@ -38,9 +38,9 @@ class DesignersActivity : SimpleSinglePaneActivity() {
         super.onPrepareOptionsMenu(menu)
         val text = menu.findItem(
             when (sortBy) {
-                Person.SortType.NAME -> R.id.menu_sort_name
-                Person.SortType.ITEM_COUNT -> R.id.menu_sort_item_count
-                Person.SortType.WHITMORE_SCORE -> R.id.menu_sort_whitmore_score
+                Person.SortType.Name -> R.id.menu_sort_name
+                Person.SortType.ItemCount -> R.id.menu_sort_item_count
+                Person.SortType.WhitmoreScore -> R.id.menu_sort_whitmore_score
                 else -> View.NO_ID
             }
         )?.let {
@@ -53,9 +53,9 @@ class DesignersActivity : SimpleSinglePaneActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sort_name -> viewModel.sort(Person.SortType.NAME)
-            R.id.menu_sort_item_count -> viewModel.sort(Person.SortType.ITEM_COUNT)
-            R.id.menu_sort_whitmore_score -> viewModel.sort(Person.SortType.WHITMORE_SCORE)
+            R.id.menu_sort_name -> viewModel.sort(Person.SortType.Name)
+            R.id.menu_sort_item_count -> viewModel.sort(Person.SortType.ItemCount)
+            R.id.menu_sort_whitmore_score -> viewModel.sort(Person.SortType.WhitmoreScore)
             R.id.menu_refresh -> viewModel.reload()
             else -> return super.onOptionsItemSelected(item)
         }

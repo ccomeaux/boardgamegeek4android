@@ -3,9 +3,9 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.model.Person
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.model.Person
 import com.boardgamegeek.repository.ArtistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -19,48 +19,51 @@ class ArtistsViewModel @Inject constructor(
     application: Application,
     private val artistRepository: ArtistRepository,
 ) : AndroidViewModel(application) {
-    enum class SortType {
-        NAME, ITEM_COUNT, WHITMORE_SCORE
-    }
-
     private val _sort = MutableLiveData<Person.SortType>()
     val sort: LiveData<Person.SortType>
         get() = _sort
 
-    private val _progress = MutableLiveData<Pair<Int, Int>>()
-    val progress: LiveData<Pair<Int, Int>>
-        get() = _progress
+    private val _imageProgress = MutableLiveData<Float>()
+    val imageProgress: LiveData<Float>
+        get() = _imageProgress
 
-    private var isCalculating = AtomicBoolean()
+    private val _statsCalculationProgress = MutableLiveData<Float>()
+    val statsCalculationProgress: LiveData<Float>
+        get() = _statsCalculationProgress
+
+    private var isCalculatingStats = AtomicBoolean()
 
     init {
         val initialSort = if (application.preferences().isStatusSetToSync(CollectionStatus.Rated))
-            Person.SortType.WHITMORE_SCORE
+            Person.SortType.WhitmoreScore
         else
-            Person.SortType.ITEM_COUNT
+            Person.SortType.ItemCount
         sort(initialSort)
         refreshMissingImages()
-        calculateStats()
+
+        val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L] ?: 0L
+        if (lastCalculation.isOlderThan(1.hours)) {
+            calculateStats()
+        }
     }
 
-    val artists = _sort.switchMap {
-        artistRepository.loadArtistsFlow(it).distinctUntilChanged().asLiveData()
+    val artistsByHeader = _sort.switchMap {
+        artistRepository.loadArtistsFlow(it).distinctUntilChanged().asLiveData().map { list ->
+            list.groupBy { person -> getSectionHeader(person) }
+        }
     }
 
     private fun refreshMissingImages() {
         viewModelScope.launch {
-            artistRepository.refreshMissingImages()
+            artistRepository.refreshMissingImages(progress = _imageProgress)
         }
     }
 
-    private fun calculateStats() {
+    fun calculateStats() {
         viewModelScope.launch {
-            val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS, 0L] ?: 0L
-            if (lastCalculation.isOlderThan(1.hours) &&
-                isCalculating.compareAndSet(false, true)
-            ) {
-                artistRepository.calculateStats(_progress)
-                isCalculating.set(false)
+            if (isCalculatingStats.compareAndSet(false, true)) {
+                artistRepository.calculateStats(_statsCalculationProgress)
+                isCalculatingStats.set(false)
             }
         }
     }
@@ -69,15 +72,11 @@ class ArtistsViewModel @Inject constructor(
         if (_sort.value != sortType) _sort.value = sortType
     }
 
-    fun reload() {
-        _sort.value?.let { _sort.value = it }
-    }
-
-    fun getSectionHeader(artist: Person?): String {
-        return when(sort.value) {
-            Person.SortType.NAME -> if (artist?.name == "(Uncredited)") DEFAULT_HEADER else artist?.name.firstChar()
-            Person.SortType.ITEM_COUNT -> (artist?.itemCount ?: 0).orderOfMagnitude()
-            Person.SortType.WHITMORE_SCORE -> (artist?.whitmoreScore ?: 0).orderOfMagnitude()
+    private fun getSectionHeader(artist: Person?): String {
+        return when (sort.value) {
+            Person.SortType.Name -> if (artist?.name == "(Uncredited)") DEFAULT_HEADER else artist?.name.firstChar()
+            Person.SortType.ItemCount -> (artist?.itemCount ?: 0).orderOfMagnitude()
+            Person.SortType.WhitmoreScore -> (artist?.whitmoreScore ?: 0).orderOfMagnitude()
             else -> DEFAULT_HEADER
         }
     }

@@ -38,12 +38,10 @@ class ArtistRepository(
 ) {
     fun loadArtistsFlow(sortBy: Person.SortType): Flow<List<Person>> {
         return artistDao.loadArtistsFlow()
-            .map {
-                it.map { entity -> entity.mapToModel() }
-            }.flowOn(Dispatchers.Default)
-            .map {
-                it.applySort(sortBy)
-            }.flowOn(Dispatchers.Default)
+            .map { it.map { entity -> entity.mapToModel() } }
+            .flowOn(Dispatchers.Default)
+            .map { it.applySort(sortBy) }
+            .flowOn(Dispatchers.Default)
             .conflate()
     }
 
@@ -64,26 +62,33 @@ class ArtistRepository(
 
     suspend fun deleteAll() = withContext(Dispatchers.IO) { artistDao.deleteAll() }
 
-    suspend fun refreshMissingImages(daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
-        withContext(Dispatchers.IO) { artistDao.loadArtists() }
-            .filter { it.artistThumbnailUrl.isNullOrBlank() &&
-                    (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days)) }
-            .sortedByDescending { it.whitmoreScore }
-            .take(limit.coerceIn(0, 25))
-            .map { it.mapToModel() }
-            .forEach {
-                Timber.i("Refreshing missing images for artist $it")
-                refreshImages(it)
+    suspend fun refreshMissingImages(daysOld: Int = 14, limit: Int = 10, progress: MutableLiveData<Float>? = null) =
+        withContext(Dispatchers.Default) {
+            val filteredList = withContext(Dispatchers.IO) { artistDao.loadArtists() }
+                .filter {
+                    it.artistThumbnailUrl.isNullOrBlank() &&
+                            (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days))
+                }
+                .sortedByDescending { it.whitmoreScore }
+                .take(limit.coerceIn(0, 25))
+                .map { it.mapToModel() }
+            filteredList.forEachIndexed { index, person ->
+                Timber.d("Refreshing missing images for artist $person (${index + 1}/${filteredList.size})")
+                progress?.postValue((index + 1).toFloat() / filteredList.size)
+                refreshImages(person)
                 delay(2_000)
             }
-    }
+            progress?.postValue(1.0f)
+        }
 
     suspend fun refreshMissingImagesForGame(gameId: Int, daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
         Timber.i("Refreshing up to $limit artist images from game $gameId missing for more than $daysOld days")
         withContext(Dispatchers.IO) { artistDao.loadArtistsForGame(gameId) }
             .asSequence()
-            .filter { it.artistThumbnailUrl.isNullOrBlank() &&
-                    (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days)) }
+            .filter {
+                it.artistThumbnailUrl.isNullOrBlank() &&
+                        (it.imagesUpdatedTimestamp == null || it.imagesUpdatedTimestamp.time.isOlderThan(daysOld.days))
+            }
             .sortedByDescending { it.whitmoreScore }
             .take(limit.coerceIn(0, 25))
             .map { it.mapToModel() }.toList()
@@ -116,18 +121,18 @@ class ArtistRepository(
     }
 
     private suspend fun refreshImages(artist: Person) = withContext(Dispatchers.IO) {
-        val timestamp = Date()
+        val updateTimestamp = Date()
         val response = safeApiCall(context) { api.person(artist.id) }
         if (response.isSuccess) {
-            response.getOrNull()?.items?.firstOrNull()?.mapToModel(artist, timestamp)?.let { person ->
-                artistDao.updateImageUrls(artist.id, person.imageUrl, person.thumbnailUrl, person.imagesUpdatedTimestamp ?: timestamp)
+            response.getOrNull()?.items?.firstOrNull()?.mapToModel(artist, updateTimestamp)?.let { person ->
+                artistDao.updateImageUrls(artist.id, person.imageUrl, person.thumbnailUrl, person.imagesUpdatedTimestamp ?: updateTimestamp)
                 val thumbnailId = person.thumbnailUrl.getImageId()
                 if (thumbnailId != artist.heroImageUrl.getImageId()) {
+                    Timber.d("Artist $artist's hero URL=${artist.heroImageUrl} doesn't match thumbnail ID $thumbnailId")
                     if (thumbnailId == INVALID_IMAGE_ID) {
-                        Timber.d("Updating designer $artist with blank hero URL")
+                        Timber.d("Updating artist $artist with blank hero URL")
                         artistDao.updateHeroImageUrl(artist.id, "")
                     } else {
-                        Timber.d("Artist $artist's hero URL doesn't match thumbnail ID $thumbnailId")
                         val urlMap = imageRepository.getImageUrls(thumbnailId)
                         urlMap[ImageRepository.ImageType.HERO]?.firstOrNull()?.let { heroUrl ->
                             Timber.d("Updating artist $artist with hero URL $heroUrl")
@@ -137,24 +142,24 @@ class ArtistRepository(
                 }
                 Timber.i("Updated images for artist $artist")
             }
-        } else Timber.w("Unable to refresh images for artist $artist" )
+        } else Timber.w("Unable to refresh images for artist $artist")
     }
 
-    suspend fun calculateStats(progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+    suspend fun calculateStats(progress: MutableLiveData<Float>) = withContext(Dispatchers.Default) {
         val artists = withContext(Dispatchers.IO) { artistDao.loadArtists() }
             .map { it.mapToModel() }
             .sortedWith(
-                compareBy<Person> { it.statsUpdatedTimestamp}
+                compareBy<Person> { it.statsUpdatedTimestamp }
                     .thenByDescending { it.itemCount }
             )
         val maxProgress = artists.size
         artists.forEachIndexed { i, person ->
-            progress.postValue(i to maxProgress)
+            progress.postValue(i.toFloat() / maxProgress)
             calculateStats(person.id, person.whitmoreScore)
-            Timber.i("Updated stats for artist $person")
+            Timber.d("Updated stats for artist $person")
         }
         context.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_ARTISTS] = System.currentTimeMillis()
-        progress.postValue(0 to 0)
+        progress.postValue(1.0f)
     }
 
     suspend fun calculateStats(artistId: Int, whitmoreScore: Int? = null): PersonStats? = withContext(Dispatchers.Default) {
