@@ -3,9 +3,9 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.*
 import com.boardgamegeek.BggApplication
-import com.boardgamegeek.model.Company
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.model.Company
 import com.boardgamegeek.repository.PublisherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -24,20 +24,31 @@ class PublishersViewModel @Inject constructor(
     val sort: LiveData<Company.SortType>
         get() = _sort
 
-    private val _progress = MutableLiveData<Pair<Int, Int>>()
-    val progress: LiveData<Pair<Int, Int>>
-        get() = _progress
+    private val _statsCalculationProgress = MutableLiveData<Float>()
+    val statsCalculationProgress: LiveData<Float>
+        get() = _statsCalculationProgress
 
     private var isCalculating = AtomicBoolean()
 
     init {
         val initialSort = if (application.preferences().isStatusSetToSync(CollectionStatus.Rated))
-            Company.SortType.WHITMORE_SCORE
+            Company.SortType.WhitmoreScore
         else
-            Company.SortType.ITEM_COUNT
+            Company.SortType.ItemCount
         sort(initialSort)
         refreshMissingThumbnails()
-        calculateStats()
+        viewModelScope.launch {
+            val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
+            if (lastCalculation.isOlderThan(1.hours)) {
+                calculateStats()
+            }
+        }
+    }
+
+    val publishersByHeader = _sort.switchMap {
+        publisherRepository.loadPublishersFlow(it).distinctUntilChanged().asLiveData().map { list ->
+            list.groupBy { company -> getSectionHeader(company) }
+        }
     }
 
     val publishers = _sort.switchMap {
@@ -54,13 +65,10 @@ class PublishersViewModel @Inject constructor(
         }
     }
 
-    private fun calculateStats() {
+    fun calculateStats() {
         viewModelScope.launch {
-            val lastCalculation = getApplication<BggApplication>().preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS, 0L] ?: 0L
-            if (lastCalculation.isOlderThan(1.hours) &&
-                isCalculating.compareAndSet(false, true)
-            ) {
-                publisherRepository.calculateStats(_progress)
+            if (isCalculating.compareAndSet(false, true)) {
+                publisherRepository.calculateStats(_statsCalculationProgress)
                 isCalculating.set(false)
             }
         }
@@ -70,15 +78,11 @@ class PublishersViewModel @Inject constructor(
         if (_sort.value != sortType) _sort.value = sortType
     }
 
-    fun reload() {
-        _sort.value?.let { _sort.value = it }
-    }
-
-    fun getSectionHeader(publisher: Company?): String {
-        return when(sort.value) {
-            Company.SortType.NAME -> if (publisher?.name == "(Uncredited)") DEFAULT_HEADER else publisher?.name.firstChar()
-            Company.SortType.ITEM_COUNT -> (publisher?.itemCount ?: 0).orderOfMagnitude()
-            Company.SortType.WHITMORE_SCORE -> (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
+    private fun getSectionHeader(publisher: Company?): String {
+        return when (sort.value) {
+            Company.SortType.Name -> if (publisher?.name == "(Uncredited)") DEFAULT_HEADER else publisher?.name.firstChar()
+            Company.SortType.ItemCount -> (publisher?.itemCount ?: 0).orderOfMagnitude()
+            Company.SortType.WhitmoreScore -> (publisher?.whitmoreScore ?: 0).orderOfMagnitude()
             else -> DEFAULT_HEADER
         }
     }

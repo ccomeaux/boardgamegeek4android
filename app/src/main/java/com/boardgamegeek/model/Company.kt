@@ -21,17 +21,17 @@ data class Company(
     }
 
     enum class SortType {
-        NAME, ITEM_COUNT, WHITMORE_SCORE
+        Name, ItemCount, WhitmoreScore
     }
 
     companion object {
         fun List<Company>.applySort(sortBy: SortType): List<Company> {
             return sortedWith(
                 when (sortBy) {
-                    SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                    SortType.WHITMORE_SCORE -> compareByDescending<Company> { it.whitmoreScore }
+                    SortType.Name -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.WhitmoreScore -> compareByDescending<Company> { it.whitmoreScore }
                         .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                    SortType.ITEM_COUNT -> compareByDescending<Company> { it.itemCount }
+                    SortType.ItemCount -> compareByDescending<Company> { it.itemCount }
                         .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
                 }
             )

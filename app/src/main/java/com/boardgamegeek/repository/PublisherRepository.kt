@@ -1,6 +1,7 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
+import androidx.annotation.IntRange
 import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.db.PublisherDao
@@ -83,12 +84,17 @@ class PublisherRepository(
         }
     }
 
-    suspend fun refreshMissingThumbnails(daysOld: Int = 14, limit: Int = 10) = withContext(Dispatchers.Default) {
+    suspend fun refreshMissingThumbnails(
+        @IntRange(from = 0) daysOld: Int = 14,
+        @IntRange(from = 1, to = 25) limit: Int = 10
+    ) = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { publisherDao.loadPublishers() }
-            .filter { it.publisherThumbnailUrl.isNullOrBlank() &&
-                    (it.updatedTimestamp == null || it.updatedTimestamp.time.isOlderThan(daysOld.days)) }
+            .filter {
+                it.publisherThumbnailUrl.isNullOrBlank() &&
+                        (it.updatedTimestamp == null || it.updatedTimestamp.time.isOlderThan(daysOld.days))
+            }
             .sortedByDescending { it.whitmoreScore }
-            .take(limit.coerceIn(0, 25))
+            .take(limit)
             .map { it.mapToModel() }
             .forEach {
                 Timber.d("Refreshing missing images for publisher $it")
@@ -102,8 +108,10 @@ class PublisherRepository(
         Timber.i("Refreshing up to $limit publisher images from game $gameId missing for more than $daysOld days")
         withContext(Dispatchers.IO) { publisherDao.loadPublishersForGame(gameId) }
             .asSequence()
-            .filter { it.publisherThumbnailUrl.isNullOrBlank() &&
-                    (it.updatedTimestamp == null || it.updatedTimestamp.time.isOlderThan(daysOld.days)) }
+            .filter {
+                it.publisherThumbnailUrl.isNullOrBlank() &&
+                        (it.updatedTimestamp == null || it.updatedTimestamp.time.isOlderThan(daysOld.days))
+            }
             .sortedByDescending { it.whitmoreScore }
             .take(limit.coerceIn(0, 25))
             .map { it.mapToModel() }.toList()
@@ -129,7 +137,8 @@ class PublisherRepository(
         }
     }
 
-    suspend fun calculateStats(progress: MutableLiveData<Pair<Int, Int>>) = withContext(Dispatchers.Default) {
+    suspend fun calculateStats(progress: MutableLiveData<Float>) = withContext(Dispatchers.Default) {
+        progress.postValue(0.0f)
         val publishers = withContext(Dispatchers.IO) { publisherDao.loadPublishers() }
             .map { it.mapToModel() }
             .sortedWith(
@@ -138,12 +147,12 @@ class PublisherRepository(
             )
         val maxProgress = publishers.size
         publishers.forEachIndexed { i, publisher ->
-            progress.postValue(i to maxProgress)
+            progress.postValue(i.toFloat() / maxProgress)
             calculateStats(publisher.id, publisher.whitmoreScore)
-            Timber.i("Updated stats for publisher $publisher")
+            Timber.d("Updated stats for publisher $publisher")
         }
         context.preferences()[PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS] = System.currentTimeMillis()
-        progress.postValue(0 to 0)
+        progress.postValue(1.0f)
     }
 
     suspend fun calculateStats(publisherId: Int, whitmoreScore: Int? = null): PersonStats? = withContext(Dispatchers.Default) {
@@ -151,7 +160,8 @@ class PublisherRepository(
         val timestamp = Date()
         val collection = withContext(Dispatchers.IO) { collectionDao.loadForPublisher(publisherId).map { it.mapToModel() } }
         val stats = PersonStats.fromLinkedCollection(collection, context)
-        val currentWhitmoreScore = (whitmoreScore ?: withContext(Dispatchers.IO) { publisherDao.loadPublisher(publisherId) }?.whitmoreScore ?: 0).coerceAtLeast(0)
+        val currentWhitmoreScore =
+            (whitmoreScore ?: withContext(Dispatchers.IO) { publisherDao.loadPublisher(publisherId) }?.whitmoreScore ?: 0).coerceAtLeast(0)
         if (stats.whitmoreScore != currentWhitmoreScore) {
             withContext(Dispatchers.IO) { publisherDao.updateWhitmoreScore(publisherId, stats.whitmoreScore, timestamp) }
         }
