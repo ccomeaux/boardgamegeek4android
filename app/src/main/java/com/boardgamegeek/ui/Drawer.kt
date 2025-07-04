@@ -33,6 +33,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.User
+import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import kotlinx.coroutines.launch
@@ -55,6 +56,7 @@ enum class DrawerItem(@StringRes val labelResId: Int, val imageVector: ImageVect
 @Composable
 fun Drawer(
     modifier: Modifier = Modifier,
+    selectedItem: Int? = null,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     content: @Composable () -> Unit,
 ) {
@@ -64,20 +66,39 @@ fun Drawer(
             val scope = rememberCoroutineScope()
             val viewModel: SelfUserViewModel = viewModel()
             val user = viewModel.user.observeAsState()
-            ModalDrawerSheet {
-                DrawerHeader(user.value)
+            ModalDrawerSheet(
+                modifier = Modifier.width(360.dp),
+            ) {
+                DrawerHeader(
+                    user.value,
+                    modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+                )
                 HorizontalDivider()
-                DrawerItem.entries.forEach { item ->
+                DrawerItem.entries.forEachIndexed { index, item ->
                     if (item.startOfGroup)
-                        HorizontalDivider()
+                        HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     NavigationDrawerItem(
                         label = { Text(stringResource(item.labelResId)) },
                         icon = { Icon(item.imageVector, contentDescription = null) },
-                        selected = false,
+                        selected = (index == selectedItem),
                         onClick = {
-                            context.startActivity<CollectionActivity>() // TODO navigate to proper activity
+                            when (index) {
+                                DrawerItem.Collection.ordinal -> context.startActivity<CollectionDetailsActivity>()
+                                DrawerItem.CollectionLegacy.ordinal -> context.startActivity<CollectionActivity>()
+                                DrawerItem.Plays.ordinal -> context.startActivity<PlaysSummaryActivity>()
+                                DrawerItem.Buddies.ordinal -> context.startActivity<BuddiesActivity>()
+                                DrawerItem.Search.ordinal -> context.startActivity<SearchResultsActivity>()
+                                DrawerItem.Hotness.ordinal -> context.startActivity<HotnessActivity>()
+                                DrawerItem.TopGames.ordinal -> context.startActivity<TopGamesActivity>()
+                                DrawerItem.GeekLists.ordinal -> context.startActivity<GeekListsActivity>()
+                                DrawerItem.Forums.ordinal -> context.startActivity<ForumsActivity>()
+                                DrawerItem.Sync.ordinal -> context.startActivity<SyncActivity>()
+                                DrawerItem.Backup.ordinal -> context.startActivity<DataActivity>()
+                                DrawerItem.Settings.ordinal -> context.startActivity<SettingsActivity>()
+                            }
                             scope.launch { drawerState.close() }
-                        }
+                        },
+                        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                     )
                 }
             }
@@ -91,13 +112,12 @@ fun Drawer(
 }
 
 @Composable
-private fun DrawerHeader(user: User?) {
+private fun DrawerHeader(user: User?, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val horizontalPadding = Modifier.padding(horizontal = 16.dp)
     if (user == null) {
         Button(
             onClick = { context.startActivity<LoginActivity>() },
-            modifier = horizontalPadding.padding(vertical = 12.dp)
+            modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
             Icon(Icons.AutoMirrored.Default.Login, contentDescription = null)
             Spacer(Modifier.width(8.dp))
@@ -105,15 +125,17 @@ private fun DrawerHeader(user: User?) {
         }
     } else {
         Column(
-            Modifier
+            modifier = modifier
                 .fillMaxWidth()
-                .clickable { context.linkToBgg("user/${user.username}") }) {
+                .padding(horizontal = 16.dp)
+                .clickable { context.linkToBgg("user/${user.username}") }
+        ) {
             Spacer(Modifier.height(12.dp))
             if (user.avatarUrl.isNotBlank()) {
                 AsyncImage(
                     model = user.avatarUrl,
                     contentDescription = null,
-                    modifier = horizontalPadding
+                    modifier = Modifier
                         .padding(bottom = 12.dp)
                         .size(dimensionResource(R.dimen.drawer_header_image_size))
                         .clip(CircleShape),
@@ -123,10 +145,10 @@ private fun DrawerHeader(user: User?) {
                 )
             }
             if (user.fullName.isBlank()) {
-                Text(user.username, modifier = horizontalPadding, style = MaterialTheme.typography.titleLarge)
+                Text(user.username, style = MaterialTheme.typography.titleLarge)
             } else {
-                Text(user.fullName, modifier = horizontalPadding, style = MaterialTheme.typography.titleLarge)
-                Text(user.username, modifier = horizontalPadding)
+                Text(user.fullName, style = MaterialTheme.typography.titleLarge)
+                Text(user.username, style = MaterialTheme.typography.titleSmall)
             }
             Spacer(Modifier.height(12.dp))
         }
