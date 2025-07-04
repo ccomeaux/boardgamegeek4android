@@ -293,6 +293,7 @@
 	<string name="empty_geeklist">No list here.</string>
 	<string name="empty_geeklist_description">No description.</string>
 	<string name="error_loading_geeklist">Error loading GeekList.</string>
+	<string name="error_loading_forums">Error loading forums.</string>
 	<string name="empty_hotness">The hotness has gone cold.</string>
 	<string name="empty_generic">Nothing to see here. Move along.</string>
 	<string name="empty_player_colors">This GeekBuddy hasn\'t set their list of favorites colors. Get started by generating a list of colors in random order.</string>
@@ -810,6 +811,7 @@
 	<string name="six_players">6P</string>
 	<string name="collection_analyze_summary">Your average rating is %1$s, which correlates with the average rating of %2$s by %3$s</string>
 	<string name="offer_for_trade">Offer for trade</string>
+	<string name="navigation_drawer">Navigation drawer</string>
 	<string name="up">Up</string>
 	<string name="author">Author</string>
 	<string name="type">Type</string>
