@@ -218,7 +218,7 @@ class GeekListItemActivity : BaseActivity() {
 }
 
 @Composable
-fun GeekListItemTopAppBar(
+private fun GeekListItemTopAppBar(
     geekListTitle: String,
     onUpClick: () -> Unit,
     onViewClick: () -> Unit,
@@ -255,13 +255,13 @@ private fun GeekListItemTopAppBarPreview() {
     }
 }
 
-enum class GeekListItemTab(@StringRes val resId: Int) {
+private enum class GeekListItemTab(@StringRes val resId: Int) {
     Description(R.string.title_description),
     Comments(R.string.title_comments),
 }
 
 @Composable
-fun GeekListItemTabRow(selectedDestination: Int, modifier: Modifier = Modifier, onClick: (Int) -> Unit) {
+private fun GeekListItemTabRow(selectedDestination: Int, modifier: Modifier = Modifier, onClick: (Int) -> Unit) {
     SecondaryTabRow(
         selectedTabIndex = selectedDestination,
         modifier = modifier,
@@ -283,7 +283,7 @@ fun GeekListItemTabRow(selectedDestination: Int, modifier: Modifier = Modifier, 
 }
 
 @Composable
-fun GeekListItemCommentContent(
+private fun GeekListItemCommentContent(
     comments: List<GeekListComment>,
     contentPadding: PaddingValues,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -326,7 +326,7 @@ private fun GeekListItem.titleResId(): Int {
 }
 
 @Composable
-fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTitle: String, modifier: Modifier = Modifier) {
+private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTitle: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     val dividerModifier = Modifier
@@ -421,7 +421,7 @@ fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTitle: Str
 }
 
 @Composable
-fun GeekListItemDescriptionContent(
+private fun GeekListItemDescriptionContent(
     body: String,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
@@ -462,7 +462,7 @@ private fun GeekListItemPreview(
     }
 }
 
-class GeekListItemPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListItem, Int>> {
+private class GeekListItemPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListItem, Int>> {
     override val values = sequenceOf(
         GeekListItem(
             id = 1,

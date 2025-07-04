@@ -190,7 +190,7 @@ class GeekListActivity : BaseActivity() {
                     )
                     GeekListTab.Items.ordinal -> GeekListItemListContent(
                         geekList,
-                        imageProgress = imageProgress,
+                        imageProgress = imageProgress(),
                         lazyListState = itemListState,
                         scrollState = emptyItemListScrollState,
                     )
@@ -292,14 +292,14 @@ private fun RefreshContent(contentPadding: PaddingValues) {
     }
 }
 
-enum class GeekListTab(@StringRes val resId: Int) {
+private enum class GeekListTab(@StringRes val resId: Int) {
     Description(R.string.title_description),
     Items(R.string.title_items),
     Comments(R.string.title_comments),
 }
 
 @Composable
-fun GeekListTabRow(selectedDestination: Int, modifier: Modifier = Modifier, onClick: (Int) -> Unit) {
+private fun GeekListTabRow(selectedDestination: Int, modifier: Modifier = Modifier, onClick: (Int) -> Unit) {
     SecondaryTabRow(
         selectedTabIndex = selectedDestination,
         modifier = modifier,
@@ -351,7 +351,7 @@ private fun GeekListTabRowPreview() {
 }
 
 @Composable
-fun GeekListDescriptionContent(
+private fun GeekListDescriptionContent(
     description: String,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
@@ -384,7 +384,7 @@ fun GeekListDescriptionContent(
 }
 
 @Composable
-fun GeekListItemListContent(
+private fun GeekListItemListContent(
     geekList: GeekList?, // TODO don't accept nulls
     imageProgress: Float,
     modifier: Modifier = Modifier,
@@ -434,7 +434,7 @@ fun GeekListItemListContent(
 }
 
 @Composable
-fun GeekListItemListItem(
+private fun GeekListItemListItem(
     order: Int,
     geekListItem: GeekListItem,
     geekList: GeekList?,
@@ -516,7 +516,7 @@ private fun GeekListItemListItemPreview(
     }
 }
 
-class GeekListPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListItem, Int>> {
+private class GeekListPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListItem, Int>> {
     override val values = sequenceOf(
         GeekListItem(
             id = 1,
@@ -542,7 +542,7 @@ class GeekListPreviewParameterProvider : PreviewParameterProvider<Pair<GeekListI
 }
 
 @Composable
-fun GeekListCommentContent(
+private fun GeekListCommentContent(
     comments: List<GeekListComment>,
     lazyListState: LazyListState = rememberLazyListState(),
     scrollState: ScrollState
