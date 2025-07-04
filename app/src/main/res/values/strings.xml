@@ -814,6 +814,7 @@
 	<string name="navigation_drawer">Navigation drawer</string>
 	<string name="up">Up</string>
 	<string name="author">Author</string>
+	<string name="replies">Replies</string>
 	<string name="type">Type</string>
 	<string name="number_of_items">Number of items</string>
 	<string name="number_of_thumbs">Number of thumbs</string>
