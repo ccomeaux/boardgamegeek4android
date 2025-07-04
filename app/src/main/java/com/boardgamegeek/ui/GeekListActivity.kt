@@ -86,7 +86,7 @@ class GeekListActivity : BaseActivity() {
             val viewModel: GeekListViewModel = viewModel()
             val geekList = viewModel.geekList.observeAsState(RefreshableResource.refreshing(null))
             val imageProgress = viewModel.imageProgress.observeAsState(0.0f)
-            val animatedImageProgress = animateFloatAsState(imageProgress.value, animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec)
+            val animatedImageProgress by animateFloatAsState(imageProgress.value, animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec)
             viewModel.setId(geekListId)
 
             BggAppTheme {
@@ -116,7 +116,7 @@ class GeekListActivity : BaseActivity() {
                             }
                             Status.SUCCESS -> {
                                 geekList.value.data?.let {
-                                    SuccessfulGeekListContent(contentPadding, it, animatedImageProgress.value, markupConverter)
+                                    SuccessfulGeekListContent(contentPadding, it, { animatedImageProgress }, markupConverter)
                                 } ?: EmptyGeekListContent(contentPadding)
                             }
                         }
@@ -141,7 +141,7 @@ class GeekListActivity : BaseActivity() {
     private fun SuccessfulGeekListContent(
         contentPadding: PaddingValues,
         geekList: GeekList,
-        imageProgress: Float,
+        imageProgress: () -> Float,
         markupConverter: XmlApiMarkupConverter
     ) {
         Column(
