@@ -38,7 +38,7 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
-class PublishersActivity : DrawerActivity() {
+class PublishersActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -108,7 +108,7 @@ private enum class PublishersSort(
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun PublishersTopBar(
+private fun PublishersTopBar(
     publishersCount: Int,
     onUpClick: () -> Unit,
     onRefreshClick: () -> Unit,
@@ -196,7 +196,7 @@ private fun PublishersTopBarPreview() {
 }
 
 @Composable
-fun PublishersContent(
+private fun PublishersContent(
     publishers: Map<String, List<Company>>?,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {

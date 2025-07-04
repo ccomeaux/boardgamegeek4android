@@ -240,7 +240,7 @@ class GeekListActivity : BaseActivity() {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun GeekListTopAppBar(
+private fun GeekListTopAppBar(
     geekListTitle: String,
     onBack: () -> Unit,
     onOpenInBrowser: () -> Unit,

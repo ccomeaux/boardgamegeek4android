@@ -41,7 +41,7 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
-class DesignersActivity : DrawerActivity() {
+class DesignersActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -111,7 +111,7 @@ private enum class DesignersSort(
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun DesignersTopBar(
+private fun DesignersTopBar(
     designersCount: Int,
     onUpClick: () -> Unit,
     onRefreshClick: () -> Unit,
@@ -199,7 +199,7 @@ private fun DesignersHeaderPreview() {
 }
 
 @Composable
-fun DesignersContent(
+private fun DesignersContent(
     designers: Map<String, List<Person>>?,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
