@@ -4,18 +4,11 @@ data class SearchResult(
     val id: Int,
     val name: String,
     val yearPublished: Int,
-    private val _nameType: String,
+    val nameType: NameType = NameType.Unknown,
 ) {
-    companion object {
-        const val NAME_TYPE_PRIMARY = 0
-        const val NAME_TYPE_ALTERNATE = 1
-        const val NAME_TYPE_UNKNOWN = -1
+    enum class NameType {
+        Primary,
+        Alternate,
+        Unknown,
     }
-
-    val nameType
-        get() = when (_nameType) {
-            "primary" -> NAME_TYPE_PRIMARY
-            "alternate" -> NAME_TYPE_ALTERNATE
-            else -> NAME_TYPE_UNKNOWN
-        }
 }

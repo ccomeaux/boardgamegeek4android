@@ -8,5 +8,9 @@ fun SearchResultRemote.mapToModel() = SearchResult(
     id = id,
     name = name,
     yearPublished = yearPublished.asYear(),
-    nameType
+    when (nameType) {
+        SearchResultRemote.NAME_TYPE_PRIMARY -> SearchResult.NameType.Primary
+        SearchResultRemote.NAME_TYPE_ALTERNATE -> SearchResult.NameType.Alternate
+        else -> SearchResult.NameType.Unknown
+    }
 )

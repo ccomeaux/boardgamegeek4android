@@ -1,20 +1,16 @@
 package com.boardgamegeek.ui.adapter
 
-import android.graphics.Typeface
 import android.util.SparseBooleanArray
-import android.view.View
 import android.view.ViewGroup
+import androidx.compose.ui.platform.ComposeView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_ID
-import com.boardgamegeek.R
-import com.boardgamegeek.databinding.RowSearchBinding
-import com.boardgamegeek.model.SearchResult
-import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.filterTrue
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.toggle
+import com.boardgamegeek.model.SearchResult
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.SearchResultViewHolder
+import com.boardgamegeek.ui.compose.SearchResultListItem
 import kotlin.properties.Delegates
 
 class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapter<SearchResultViewHolder>(), AutoUpdatableAdapter {
@@ -29,11 +25,11 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultViewHolder {
-        return SearchResultViewHolder(parent.inflate(R.layout.row_search))
+        return SearchResultViewHolder(ComposeView(parent.context))
     }
 
     override fun onBindViewHolder(holder: SearchResultViewHolder, position: Int) {
-        holder.bind(results.getOrNull(position), position)
+        results.getOrNull(position)?.let { holder.bind(it, position) }
     }
 
     override fun getItemCount() = results.size
@@ -46,32 +42,21 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
         results = emptyList()
     }
 
-    inner class SearchResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val binding = RowSearchBinding.bind(itemView)
-
-        fun bind(game: SearchResult?, position: Int) {
-            game?.let { result ->
-                binding.nameView.text = result.name
-                val style = when (result.nameType) {
-                    SearchResult.NAME_TYPE_ALTERNATE -> Typeface.ITALIC
-                    SearchResult.NAME_TYPE_PRIMARY, SearchResult.NAME_TYPE_UNKNOWN -> Typeface.NORMAL
-                    else -> Typeface.NORMAL
-                }
-                binding.nameView.setTypeface(binding.nameView.typeface, style)
-                binding.yearView.text = result.yearPublished.asYear(itemView.context)
-                binding.gameIdView.text = itemView.context.getString(R.string.id_list_text, result.id.toString())
-
-                itemView.isActivated = selectedItems.get(position, false)
-
-                itemView.setOnClickListener {
-                    if (callback?.onItemClick(position) != true) {
-                        GameActivity.start(itemView.context, result.id, result.name)
-                    }
-                }
-
-                itemView.setOnLongClickListener {
-                    callback?.onItemLongClick(position) ?: false
-                }
+    inner class SearchResultViewHolder(val view: ComposeView) : RecyclerView.ViewHolder(view) {
+        fun bind(game: SearchResult, position: Int) {
+            view.setContent {
+                SearchResultListItem(
+                    game,
+                    isSelected = selectedItems.get(position, false),
+                    onClick = {
+                        if (callback?.onItemClick(position) != true) {
+                            GameActivity.start(itemView.context, game.id, game.name)
+                        }
+                    },
+                    onLongClick = {
+                        callback?.onItemLongClick(position) ?: false
+                    },
+                )
             }
         }
     }
