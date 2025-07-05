@@ -10,9 +10,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -30,10 +28,12 @@ import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.util.XmlApiMarkupConverter
+import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
@@ -92,9 +92,26 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
                 modifier = iconModifier,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            var relativePostTimestamp by remember {
+                mutableStateOf(
+                    comment.postDate.formatTimestamp(
+                        context,
+                        includeTime = false,
+                        isForumTimestamp = false
+                    ).toString()
+                )
+            }
+            var relativeEditTimestamp by remember {
+                mutableStateOf(
+                    comment.editDate.formatTimestamp(
+                        context,
+                        includeTime = false,
+                        isForumTimestamp = false
+                    ).toString()
+                )
+            }
             Text(
-                // TODO figure out how to force a recompose each minute for relative time to update correctly
-                text = comment.postDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString(),
+                text = relativePostTimestamp,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1
@@ -108,11 +125,25 @@ fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupCo
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    text = comment.editDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString(),
+                    text = relativeEditTimestamp,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1
                 )
+            }
+            LaunchedEffect(comment.editDate) {
+                relativeEditTimestamp = comment.editDate.formatTimestamp(
+                    context,
+                    includeTime = false,
+                    isForumTimestamp = false
+                ).toString()
+            }
+            LaunchedEffect(Unit) {
+                while (true) {
+                    delay(30.seconds)
+                    relativePostTimestamp = comment.postDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString()
+                    relativeEditTimestamp = comment.editDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString()
+                }
             }
         }
         Text(

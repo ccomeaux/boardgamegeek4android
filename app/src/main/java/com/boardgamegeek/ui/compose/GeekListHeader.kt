@@ -8,7 +8,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -19,8 +19,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.ui.theme.BggAppTheme
+import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
@@ -77,8 +79,10 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
                     contentDescription = stringResource(R.string.posted),
                     modifier = iconModifier,
                 )
+                var relativePostTimestamp by remember { mutableStateOf(geekList.postTicks.formatTimestamp(context).toString()) }
+                var relativeEditTimestamp by remember { mutableStateOf(geekList.editTicks.formatTimestamp(context).toString()) }
                 Text(
-                    text = geekList.postTicks.formatTimestamp(context).toString(),
+                    text = relativePostTimestamp,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                 )
@@ -90,10 +94,17 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
                         modifier = iconModifier,
                     )
                     Text(
-                        text = geekList.editTicks.formatTimestamp(context).toString(),
+                        text = relativeEditTimestamp,
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                     )
+                }
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        delay(30.seconds)
+                        relativePostTimestamp = geekList.postTicks.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
+                        relativeEditTimestamp = geekList.editTicks.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
+                    }
                 }
             }
         }

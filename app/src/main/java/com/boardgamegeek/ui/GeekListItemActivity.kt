@@ -64,8 +64,10 @@ import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 class GeekListItemActivity : BaseActivity() {
@@ -397,8 +399,10 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
                     contentDescription = stringResource(R.string.posted),
                     modifier = iconModifier,
                 )
+                var relativePostTimestamp by remember { mutableStateOf(geekListItem.postDateTime.formatTimestamp(context).toString()) }
+                var relativeEditTimestamp by remember { mutableStateOf(geekListItem.editDateTime.formatTimestamp(context).toString()) }
                 Text(
-                    text = geekListItem.postDateTime.formatTimestamp(context).toString(),
+                    text = relativePostTimestamp,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
                 )
@@ -410,10 +414,17 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
                         modifier = iconModifier,
                     )
                     Text(
-                        text = geekListItem.editDateTime.formatTimestamp(context).toString(),
+                        text = relativeEditTimestamp,
                         style = MaterialTheme.typography.bodyMedium,
                         maxLines = 1,
                     )
+                }
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        delay(30.seconds)
+                        relativePostTimestamp = geekListItem.postDateTime.formatTimestamp(context).toString()
+                        relativeEditTimestamp = geekListItem.editDateTime.formatTimestamp(context).toString()
+                    }
                 }
             }
         }

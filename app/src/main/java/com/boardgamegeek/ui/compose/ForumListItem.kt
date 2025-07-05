@@ -9,7 +9,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -22,7 +22,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.Forum
 import com.boardgamegeek.ui.theme.BggAppTheme
+import kotlinx.coroutines.delay
 import java.text.NumberFormat
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun ForumListItem(forum: Forum, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -77,11 +79,27 @@ fun ForumListItem(forum: Forum, onClick: () -> Unit, modifier: Modifier = Modifi
                     modifier = iconModifier,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                val context = LocalContext.current
+                var relativeTimestamp by remember {
+                    mutableStateOf(
+                        forum.lastPostDateTime.formatTimestamp(
+                            context,
+                            includeTime = false,
+                            isForumTimestamp = true
+                        ).toString()
+                    )
+                }
                 Text(
-                    text = forum.lastPostDateTime.formatTimestamp(LocalContext.current, includeTime = false, isForumTimestamp = true).toString(),
+                    text = relativeTimestamp,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        delay(30.seconds)
+                        relativeTimestamp = forum.lastPostDateTime.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
+                    }
+                }
             }
         }
     }

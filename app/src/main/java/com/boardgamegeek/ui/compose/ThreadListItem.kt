@@ -10,7 +10,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,7 +25,9 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.Thread
 import com.boardgamegeek.ui.theme.BggAppTheme
+import kotlinx.coroutines.delay
 import java.text.NumberFormat
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Modifier) {
@@ -91,11 +93,27 @@ fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Mod
                 modifier = iconModifier,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            val context = LocalContext.current
+            var relativeTimestamp by remember {
+                mutableStateOf(
+                    thread.lastPostDate.formatTimestamp(
+                        context,
+                        includeTime = false,
+                        isForumTimestamp = true
+                    ).toString()
+                )
+            }
             Text(
-                text = thread.lastPostDate.formatTimestamp(LocalContext.current, includeTime = false, isForumTimestamp = true).toString(),
+                text = relativeTimestamp,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            LaunchedEffect(Unit) {
+                while (true) {
+                    delay(30.seconds)
+                    relativeTimestamp = thread.lastPostDate.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
+                }
+            }
         }
     }
 }
@@ -124,7 +142,7 @@ private class ThreadPreviewParameterProvider : PreviewParameterProvider<Thread> 
         ),
         Thread(
             threadId = 1,
-            subject = "This is a fairly long thread subject, but I've seen longer",
+            subject = "This is a fairly long thread subject, but I've seen longer. Not much longer mind you.",
             author = "aldie",
             numberOfArticles = 42,
             lastPostDate = System.currentTimeMillis(),
