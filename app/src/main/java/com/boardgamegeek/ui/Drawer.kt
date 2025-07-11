@@ -56,7 +56,7 @@ enum class DrawerItem(@StringRes val labelResId: Int, val imageVector: ImageVect
 @Composable
 fun Drawer(
     modifier: Modifier = Modifier,
-    selectedItem: Int? = null,
+    selectedItem: DrawerItem? = null,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     content: @Composable () -> Unit,
 ) {
@@ -80,7 +80,7 @@ fun Drawer(
                     NavigationDrawerItem(
                         label = { Text(stringResource(item.labelResId)) },
                         icon = { Icon(item.imageVector, contentDescription = null) },
-                        selected = (index == selectedItem),
+                        selected = (index == selectedItem?.ordinal),
                         onClick = {
                             when (index) {
                                 DrawerItem.Collection.ordinal -> context.startActivity<CollectionDetailsActivity>()

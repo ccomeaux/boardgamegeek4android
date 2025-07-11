@@ -75,7 +75,7 @@ class ForumsActivity : DrawerComposeActivity() {
 
             BggAppTheme {
                 Drawer(
-                    selectedItem = DrawerItem.Forums.ordinal,
+                    selectedItem = DrawerItem.Forums,
                     drawerState = drawerState,
                 ) {
                     Scaffold(

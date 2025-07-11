@@ -2,10 +2,10 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.SearchResult
-import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import com.boardgamegeek.repository.SearchRepository
@@ -21,8 +21,22 @@ class SearchViewModel @Inject constructor(
     private val repository: SearchRepository,
     private val playRepository: PlayRepository
 ) : AndroidViewModel(application) {
-    private val _query = MutableLiveData<Pair<String, Boolean>>()
-    val query: LiveData<Pair<String, Boolean>>
+    data class Query(
+        val text: String = "",
+        val exact: Boolean = true,
+    )
+
+    data class SearchResults(
+        val query: Query,
+        val results: List<SearchResult>
+    ) {
+        companion object {
+            val EMPTY = SearchResults(Query(), emptyList())
+        }
+    }
+
+    private val _query = MutableLiveData<Query>()
+    val query: LiveData<Query>
         get() = _query
 
     private val _errorMessage = MediatorLiveData<Event<String>>()
@@ -33,38 +47,40 @@ class SearchViewModel @Inject constructor(
     val loggedPlayResult: LiveData<Event<PlayUploadResult>>
         get() = _loggedPlayResult
 
-    fun search(query: String) {
+    fun search(text: String) {
         FirebaseAnalytics.getInstance(getApplication()).logEvent(FirebaseAnalytics.Event.SEARCH) {
-            param(FirebaseAnalytics.Param.SEARCH_TERM, query)
+            param(FirebaseAnalytics.Param.SEARCH_TERM, text)
             param("exact", true.toString())
         }
-        if (_query.value?.first != query) _query.value = (query to true)
+        if (_query.value?.text != text) _query.value = Query(text, true)
     }
 
-    fun searchInexact(query: String) {
+    fun searchInexact(text: String) {
         FirebaseAnalytics.getInstance(getApplication()).logEvent(FirebaseAnalytics.Event.SEARCH) {
-            param(FirebaseAnalytics.Param.SEARCH_TERM, query)
+            param(FirebaseAnalytics.Param.SEARCH_TERM, text)
             param("exact", false.toString())
         }
-        if (_query.value?.first != query || _query.value?.second != false) _query.value = query to false
+        if (_query.value?.text != text || _query.value?.exact != false) _query.value = Query(text, false)
     }
 
-    val searchResults: LiveData<RefreshableResource<List<SearchResult>>> = _query.switchMap { q ->
+    val searchResults: LiveData<RefreshableResource<SearchResults>> = _query.switchMap { query ->
         liveData {
             when {
-                q.first.isNotBlank() ->
+                query.text.isNotBlank() ->
                     try {
-                        emit(RefreshableResource.refreshing(null))
-                        val results = repository.search(q.first, q.second)
-                        if (results.isEmpty() && q.second) {
-                            searchInexact(q.first)
+                        emit(RefreshableResource.refreshing(latestValue?.data))
+                        val results = repository.search(query.text, query.exact)
+                        if (results.isEmpty() && query.exact) {
+                            searchInexact(query.text)
                         } else {
-                            emit(RefreshableResource.success(results))
+                            emit(RefreshableResource.success(SearchResults(query, results)))
                         }
                     } catch (e: Exception) {
                         emit(RefreshableResource.error(e, application))
                     }
-                else -> emit(RefreshableResource.success(null))
+                else -> {
+                    emit(RefreshableResource.success(SearchResults(query, emptyList())))
+                }
             }
         }
     }

@@ -16,6 +16,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.bundleOf
@@ -142,3 +143,14 @@ fun Context.getBitmap(@DrawableRes resId: Int, tintColor: Int? = null): Bitmap {
 fun Context.createStatusMap() = resources.getStringArray(R.array.pref_sync_status_values)
     .zip(resources.getStringArray(R.array.pref_sync_status_entries))
     .toMap()
+
+fun Context.getActivity(): AppCompatActivity? {
+    var currentContext = this
+    while (currentContext is ContextWrapper) {
+        if (currentContext is AppCompatActivity) {
+            return currentContext
+        }
+        currentContext = currentContext.baseContext
+    }
+    return null
+}
