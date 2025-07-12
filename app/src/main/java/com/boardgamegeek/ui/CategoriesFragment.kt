@@ -4,6 +4,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -12,9 +25,11 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCategoriesBinding
-import com.boardgamegeek.databinding.RowCategoryBinding
 import com.boardgamegeek.model.Category
-import com.boardgamegeek.extensions.inflate
+import com.boardgamegeek.ui.compose.ListItemPrimaryText
+import com.boardgamegeek.ui.compose.ListItemSecondaryText
+import com.boardgamegeek.ui.compose.ListItemTokens
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -62,7 +77,7 @@ class CategoriesFragment : Fragment() {
         override fun getItemId(position: Int): Long = getItem(position).id.toLong()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-            return CategoryViewHolder(parent.inflate(R.layout.row_category))
+            return CategoryViewHolder(ComposeView(parent.context))
         }
 
         override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
@@ -75,16 +90,69 @@ class CategoriesFragment : Fragment() {
             override fun areContentsTheSame(oldItem: Category, newItem: Category) = oldItem == newItem
         }
 
-        inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val binding = RowCategoryBinding.bind(itemView)
-
+        inner class CategoryViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
             fun bind(category: Category) {
-                binding.nameView.text = category.name
-                binding.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, category.itemCount, category.itemCount)
-                itemView.setOnClickListener {
-                    CategoryActivity.start(itemView.context, category.id, category.name)
+                composeView.setContent {
+                    CategoryListItem(
+                        category,
+                        onClick = {
+                            CategoryActivity.start(composeView.context, category.id, category.name)
+                        }
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+private fun CategoryListItem(
+    category: Category,
+    modifier: Modifier = Modifier,
+    onClick: (Category) -> Unit = {},
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = { onClick(category) })
+            .padding(ListItemTokens.paddingValues)
+            .then(modifier)
+    ) {
+        ListItemPrimaryText(category.name)
+        ListItemSecondaryText(pluralStringResource(R.plurals.games_suffix, category.itemCount, category.itemCount))
+    }
+}
+
+@Preview
+@Composable
+private fun CategoryListItemPreview(
+    @PreviewParameter(CategoryPreviewParameterProvider::class) category: Category
+) {
+    BggAppTheme {
+        CategoryListItem(category)
+    }
+}
+
+private class CategoryPreviewParameterProvider : PreviewParameterProvider<Category> {
+    override val values = sequenceOf(
+        Category(
+            id = 99,
+            name = "Deck Building",
+            itemCount = 30,
+        ),
+        Category(
+            id = 99,
+            name = "Auction",
+            itemCount = 0,
+        ),
+        Category(
+            id = 99,
+            name = "Dice Rolling",
+            itemCount = 1,
+        )
+    )
 }
