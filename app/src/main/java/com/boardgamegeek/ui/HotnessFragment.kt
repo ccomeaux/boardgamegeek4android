@@ -160,7 +160,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
         inner class ViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
             fun bind(position: Int) {
                 composeView.setContent {
-                    HotnessListItem(
+                    HotGameListItem(
                         hotGame = games[position],
                         isSelected = selectedItems[position, false],
                         onClick = { hotGame ->
@@ -261,7 +261,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
 }
 
 @Composable
-fun HotnessListItem(
+fun HotGameListItem(
     hotGame: HotGame,
     modifier: Modifier = Modifier,
     onClick: (hotGame: HotGame) -> Unit = {},
@@ -300,11 +300,11 @@ fun HotnessListItem(
 
 @PreviewLightDark
 @Composable
-private fun HotnessListItemPreview(
+private fun HotGameListItemPreview(
     @PreviewParameter(HotGamePreviewParameterProvider::class) hotGame: HotGame,
 ) {
     BggAppTheme {
-        HotnessListItem(hotGame, Modifier)
+        HotGameListItem(hotGame, Modifier)
     }
 }
 

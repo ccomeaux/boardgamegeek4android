@@ -20,6 +20,8 @@ import com.boardgamegeek.ui.theme.BggAppTheme
 
 object ListItemTokens {
     val verticalTextPadding = 4.dp
+    val paddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+    val tallPaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
 }
 
 @Composable
