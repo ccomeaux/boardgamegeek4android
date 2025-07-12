@@ -3,6 +3,22 @@ package com.boardgamegeek.ui
 import android.os.Bundle
 import android.util.SparseBooleanArray
 import android.view.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarToday
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -10,11 +26,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.databinding.FragmentHotnessBinding
-import com.boardgamegeek.databinding.RowHotnessBinding
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.HotGame
 import com.boardgamegeek.model.Status
-import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
+import com.boardgamegeek.ui.compose.*
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.HotnessViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlin.properties.Delegates
@@ -130,7 +147,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
             autoNotify(old, new) { o, n -> o == n }
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent.inflate(R.layout.row_hotness))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(ComposeView(parent.context))
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.bind(position)
@@ -140,22 +157,21 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
 
         override fun getItemId(position: Int) = games.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val binding = RowHotnessBinding.bind(itemView)
-
+        inner class ViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
             fun bind(position: Int) {
-                games.getOrNull(position)?.let { game ->
-                    binding.nameView.text = game.name
-                    binding.yearView.text = game.yearPublished.asYear(itemView.context)
-                    binding.rankView.text = game.rank.toString()
-                    binding.thumbnailView.loadThumbnail(game.thumbnailUrl)
-                    itemView.isActivated = selectedItems[position, false]
-                    itemView.setOnClickListener {
-                        if (callback?.onItemClick(position) != true) {
-                            GameActivity.start(requireContext(), game.id, game.name, game.thumbnailUrl)
+                composeView.setContent {
+                    HotnessListItem(
+                        hotGame = games[position],
+                        isSelected = selectedItems[position, false],
+                        onClick = { hotGame ->
+                            if (callback?.onItemClick(position) != true) {
+                                GameActivity.start(requireContext(), hotGame.id, hotGame.name, hotGame.thumbnailUrl)
+                            }
+                        },
+                        onLongClick = {
+                            callback?.onItemLongClick(position)
                         }
-                    }
-                    itemView.setOnLongClickListener { callback?.onItemLongClick(position) ?: false }
+                    )
                 }
             }
         }
@@ -242,4 +258,75 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
         mode.finish()
         return true
     }
+}
+
+@Composable
+fun HotnessListItem(
+    hotGame: HotGame,
+    modifier: Modifier = Modifier,
+    onClick: (hotGame: HotGame) -> Unit = {},
+    onLongClick: () -> Unit = {},
+    isSelected: Boolean = false,
+) {
+    Row(
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier // TODO move some of this to other modifier?
+            .fillMaxWidth()
+            .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
+            .combinedClickable(
+                onLongClick = onLongClick,
+            ) {
+                onClick(hotGame)
+            }
+            .padding(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = 12.dp,
+            )
+            .then(modifier)
+    ) {
+        ListItemIndex(hotGame.rank)
+        ListItemThumbnail(hotGame.thumbnailUrl)
+        Column {
+            ListItemPrimaryText(hotGame.name)
+            ListItemSecondaryText(
+                hotGame.yearPublished.asYear(LocalContext.current),
+                modifier = modifier.padding(bottom = ListItemTokens.verticalTextPadding),
+                icon = Icons.Outlined.CalendarToday,
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun HotnessListItemPreview(
+    @PreviewParameter(HotGamePreviewParameterProvider::class) hotGame: HotGame,
+) {
+    BggAppTheme {
+        HotnessListItem(hotGame, Modifier)
+    }
+}
+
+private class HotGamePreviewParameterProvider : PreviewParameterProvider<HotGame> {
+    override val values = sequenceOf(
+        HotGame(
+            rank = 1,
+            id = 99,
+            name = "Spirit Island",
+            yearPublished = 2019,
+        ),
+        HotGame(
+            rank = 22,
+            id = 99,
+            name = "Star Wars: the Deck Building Game",
+            yearPublished = 2023,
+        ),
+        HotGame(
+            rank = 50,
+            id = 99,
+            name = "Sky Team",
+            yearPublished = 2022,
+        )
+    )
 }
