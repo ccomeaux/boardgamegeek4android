@@ -1,27 +1,18 @@
 package com.boardgamegeek.ui.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Person
 import com.boardgamegeek.ui.theme.BggAppTheme
@@ -32,74 +23,33 @@ fun PersonListItem(person: Person, modifier: Modifier = Modifier, onClick: () ->
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 88.dp)
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(ListItemTokens.paddingValues)
             .clickable(onClick = onClick)
-            .padding(vertical = 12.dp)
-            .then(modifier)
     ) {
-        PersonImage(
-            person,
-            modifier = Modifier
-                .padding(end = 16.dp)
-                .align(Alignment.Top)
-        )
+        ListItemAvatar(person.thumbnailUrl)
         Column {
-            Text(
-                person.name,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = pluralStringResource(R.plurals.games_suffix, person.itemCount, person.itemCount),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = stringResource(R.string.whitmore_score_prefix, person.whitmoreScore),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            ListItemPrimaryText(person.name)
+            ListItemSecondaryText(pluralStringResource(R.plurals.games_suffix, person.itemCount, person.itemCount))
+            ListItemSecondaryText(stringResource(R.string.whitmore_score_prefix, person.whitmoreScore))
         }
     }
 }
 
-@Composable
-private fun PersonImage(person: Person, modifier: Modifier = Modifier) {
-    AsyncImage(
-        model = ImageRequest.Builder(LocalContext.current)
-            .data(person.thumbnailUrl)
-            .crossfade(true)
-            .build(),
-        placeholder = painterResource(R.drawable.person_image_empty),
-        error = painterResource(R.drawable.person_image_empty),
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = modifier
-            .clip(CircleShape)
-            .size(56.dp)
-    )
-}
-
 @PreviewLightDark
 @Composable
-fun PersonListItemPreview(
+private fun PersonListItemPreview(
     @PreviewParameter(PersonPreviewParameterProvider::class) person: Person
 ) {
     BggAppTheme {
-        PersonListItem(
-            person,
-            Modifier
-                .padding(
-                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                    vertical = dimensionResource(R.dimen.material_margin_vertical),
-                )
-        )
+        PersonListItem(person)
     }
 }
 
-class PersonPreviewParameterProvider : PreviewParameterProvider<Person> {
+private class PersonPreviewParameterProvider : PreviewParameterProvider<Person> {
     override val values = sequenceOf(
         Person(
             internalId = 42L,

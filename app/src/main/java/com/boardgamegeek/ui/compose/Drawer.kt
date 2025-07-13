@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui
+package com.boardgamegeek.ui.compose
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
@@ -34,6 +34,7 @@ import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.User
 import com.boardgamegeek.pref.SettingsActivity
+import com.boardgamegeek.ui.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import kotlinx.coroutines.launch

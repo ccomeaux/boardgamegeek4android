@@ -208,7 +208,7 @@ class GeekListCommentPreviewParameterProvider : PreviewParameterProvider<GeekLis
 }
 
 @Composable
-fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarkupConverter, onDismissRequest: () -> Unit) {
+private fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarkupConverter, onDismissRequest: () -> Unit) {
     val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     Dialog(onDismissRequest = { onDismissRequest() }) {
         Card(modifier = Modifier.padding(vertical = 24.dp)) {

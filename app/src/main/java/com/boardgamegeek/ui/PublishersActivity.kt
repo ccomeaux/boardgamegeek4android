@@ -236,9 +236,7 @@ private fun PublishersContent(
                         val context = LocalContext.current
                         CompanyListItem(
                             company = publisher,
-                            modifier = Modifier
-                                .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal))
-                                .animateItem(),
+                            modifier = Modifier.animateItem(),
                             onClick = { PersonActivity.startForPublisher(context, publisher.id, publisher.name) },
                         )
                         if (index < publishers.lastIndex)

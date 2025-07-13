@@ -1,14 +1,12 @@
 package com.boardgamegeek.ui.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.Forum
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,23 +25,17 @@ import java.text.NumberFormat
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun ForumListItem(forum: Forum, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     if (forum.isHeader) {
         ListHeader(forum.title, modifier)
     } else {
-        val iconModifier = Modifier
-            .size(18.dp)
-            .padding(end = 8.dp)
-        val dividerModifier = Modifier
-            .size(18.dp)
-            .padding(horizontal = 8.dp)
-        val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
         Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .heightIn(min = 72.dp)
+                .background(MaterialTheme.colorScheme.surface)
                 .clickable(onClick = onClick)
                 .padding(
                     horizontal = dimensionResource(R.dimen.material_margin_horizontal),
@@ -51,34 +43,17 @@ fun ForumListItem(forum: Forum, onClick: () -> Unit, modifier: Modifier = Modifi
                 )
                 .then(modifier)
         ) {
-            Text(
-                text = forum.title,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
+            ListItemPrimaryText(forum.title, modifier = modifier.padding(bottom = 4.dp))
             Row(
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    Icons.Outlined.Forum,
-                    contentDescription = null,
-                    modifier = iconModifier,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
+                ListItemSecondaryText(
+                    numberFormat.format(forum.numberOfThreads),
+                    icon = Icons.Outlined.Forum,
                 )
-                Text(
-                    text = numberFormat.format(forum.numberOfThreads),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                VerticalDivider(dividerModifier)
-                Icon(
-                    Icons.Outlined.AccessTime,
-                    contentDescription = null,
-                    modifier = iconModifier,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                ListItemVerticalDivider()
                 val context = LocalContext.current
                 var relativeTimestamp by remember {
                     mutableStateOf(
@@ -89,10 +64,9 @@ fun ForumListItem(forum: Forum, onClick: () -> Unit, modifier: Modifier = Modifi
                         ).toString()
                     )
                 }
-                Text(
-                    text = relativeTimestamp,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                ListItemSecondaryText(
+                    relativeTimestamp,
+                    icon = Icons.Outlined.AccessTime,
                 )
                 LaunchedEffect(Unit) {
                     while (true) {
@@ -111,14 +85,11 @@ private fun ForumListItemPreview(
     @PreviewParameter(ForumPreviewParameterProvider::class) forum: Forum
 ) {
     BggAppTheme {
-        ForumListItem(
-            forum,
-            {},
-        )
+        ForumListItem(forum)
     }
 }
 
-class ForumPreviewParameterProvider : PreviewParameterProvider<Forum> {
+private class ForumPreviewParameterProvider : PreviewParameterProvider<Forum> {
     override val values = sequenceOf(
         Forum(
             id = 1,

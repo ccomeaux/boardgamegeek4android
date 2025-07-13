@@ -57,6 +57,7 @@ import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
+import com.boardgamegeek.ui.compose.Drawer
 import com.boardgamegeek.ui.compose.EmptyContent
 import com.boardgamegeek.ui.compose.GeekListCommentList
 import com.boardgamegeek.ui.theme.BggAppTheme

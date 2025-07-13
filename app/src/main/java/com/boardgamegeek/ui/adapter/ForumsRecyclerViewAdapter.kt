@@ -30,7 +30,7 @@ class ForumsRecyclerViewAdapter(
     }
 
     override fun onBindViewHolder(holder: ForumItemViewHolder, position: Int) {
-        return holder.bind(forums.getOrNull(position), objectId, objectName, objectType)
+        forums.getOrNull(position)?.let { holder.bind(it, objectId, objectName, objectType) }
     }
 
     override fun getItemCount() = forums.size
@@ -38,11 +38,13 @@ class ForumsRecyclerViewAdapter(
     override fun getItemId(position: Int) = position.toLong()
 
     class ForumItemViewHolder(val view: ComposeView) : RecyclerView.ViewHolder(view) {
-        fun bind(forum: Forum?, objectId: Int, objectName: String, objectType: Forum.Type) {
-            if (forum == null) return
+        fun bind(forum: Forum, objectId: Int, objectName: String, objectType: Forum.Type) {
             view.setContent {
                 BggAppTheme {
-                    ForumListItem(forum, { ForumActivity.start(itemView.context, forum.id, forum.title, objectId, objectName, objectType) })
+                    ForumListItem(
+                        forum,
+                        onClick = { ForumActivity.start(itemView.context, forum.id, forum.title, objectId, objectName, objectType) }
+                    )
                 }
             }
         }

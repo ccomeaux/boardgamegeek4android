@@ -30,10 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Person
-import com.boardgamegeek.ui.compose.EmptyContent
-import com.boardgamegeek.ui.compose.ListHeader
-import com.boardgamegeek.ui.compose.LoadingIndicator
-import com.boardgamegeek.ui.compose.PersonListItem
+import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.DesignersViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -239,9 +236,7 @@ private fun DesignersContent(
                         val context = LocalContext.current
                         PersonListItem(
                             person = designer,
-                            modifier = Modifier
-                                .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal))
-                                .animateItem(),
+                            modifier = Modifier.animateItem(),
                             onClick = { PersonActivity.startForDesigner(context, designer.id, designer.name) },
                         )
                         if (index < designers.lastIndex)
@@ -281,8 +276,7 @@ private fun TotalPreview() {
                         whitmoreScore = 0,
                     ),
                 )
-            ),
-            PaddingValues(8.dp)
+            )
         )
     }
 }

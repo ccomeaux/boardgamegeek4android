@@ -44,9 +44,7 @@ import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.SearchResult
 import com.boardgamegeek.model.Status
-import com.boardgamegeek.ui.compose.EmptyContent
-import com.boardgamegeek.ui.compose.ErrorContent
-import com.boardgamegeek.ui.compose.SearchResultListItem
+import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -342,7 +340,7 @@ private fun SearchResultsContent(
                     .padding(contentPadding)
                     .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal)),
             ) {
-                com.boardgamegeek.ui.compose.LoadingIndicator(
+                LoadingIndicator(
                     Modifier
                         .align(Alignment.Center)
                         .padding(dimensionResource(R.dimen.padding_extra))

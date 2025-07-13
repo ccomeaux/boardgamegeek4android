@@ -261,7 +261,7 @@ class HotnessFragment : Fragment(), ActionMode.Callback {
 }
 
 @Composable
-fun HotGameListItem(
+private fun HotGameListItem(
     hotGame: HotGame,
     modifier: Modifier = Modifier,
     onClick: (hotGame: HotGame) -> Unit = {},
@@ -271,7 +271,7 @@ fun HotGameListItem(
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier // TODO move some of this to other modifier?
+        modifier = Modifier
             .fillMaxWidth()
             .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
             .combinedClickable(

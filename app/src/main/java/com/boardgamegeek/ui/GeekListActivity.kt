@@ -23,8 +23,10 @@ import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
@@ -44,6 +46,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.*
@@ -459,7 +463,10 @@ private fun GeekListItemListItem(
                 .wrapContentWidth(Alignment.End)
         )
         AsyncImage(
-            model = geekListItem.thumbnailUrls?.first(), // TODO iterate through thumbnails? .crossfade(true)
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(geekListItem.thumbnailUrls?.first()) // TODO iterate through thumbnails?
+                .crossfade(true)
+                .build(),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             placeholder = painterResource(id = R.drawable.thumbnail_image_empty),

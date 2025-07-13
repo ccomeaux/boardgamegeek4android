@@ -1,20 +1,26 @@
 package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.theme.BggAppTheme
 
@@ -40,12 +46,36 @@ fun ListItemIndex(index: Int, modifier: Modifier = Modifier, isWide: Boolean = f
 @Composable
 fun ListItemThumbnail(url: String, modifier: Modifier = Modifier) {
     AsyncImage(
-        model = url,
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(url)
+            .crossfade(true)
+            .build(),
         contentDescription = null,
-        contentScale = ContentScale.Crop,
         placeholder = painterResource(id = R.drawable.thumbnail_image_empty),
         error = painterResource(id = R.drawable.thumbnail_image_empty),
-        modifier = modifier.padding(end = 16.dp).size(56.dp)
+        contentScale = ContentScale.Crop,
+        modifier = modifier
+            .padding(end = 16.dp)
+            .size(56.dp)
+            .clip(MaterialTheme.shapes.extraSmall)
+    )
+}
+
+@Composable
+fun ListItemAvatar(url: String, modifier: Modifier = Modifier) {
+    AsyncImage(
+        model = ImageRequest.Builder(LocalContext.current)
+            .data(url)
+            .crossfade(true)
+            .build(),
+        contentDescription = null,
+        placeholder = painterResource(R.drawable.person_image_empty),
+        error = painterResource(R.drawable.person_image_empty),
+        contentScale = ContentScale.Crop,
+        modifier = modifier
+            .padding(end = 16.dp)
+            .size(56.dp)
+            .clip(CircleShape)
     )
 }
 
@@ -89,6 +119,15 @@ fun ListItemSecondaryText(
             color = getOnVariantColor(isSelected),
         )
     }
+}
+
+@Composable
+fun ListItemVerticalDivider(modifier: Modifier = Modifier) {
+    VerticalDivider(
+        modifier
+            .size(18.dp)
+            .padding(horizontal = 8.dp)
+    )
 }
 
 @Composable

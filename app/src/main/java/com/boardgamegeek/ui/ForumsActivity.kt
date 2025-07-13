@@ -33,10 +33,7 @@ import com.boardgamegeek.model.Forum
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.Status
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.compose.EmptyContent
-import com.boardgamegeek.ui.compose.ErrorContent
-import com.boardgamegeek.ui.compose.ForumListItem
-import com.boardgamegeek.ui.compose.LoadingIndicator
+import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -46,7 +43,7 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @AndroidEntryPoint
-class ForumsActivity : DrawerComposeActivity() {
+class ForumsActivity : BaseActivity() {
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
 
