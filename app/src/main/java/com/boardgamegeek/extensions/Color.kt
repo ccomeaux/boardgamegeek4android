@@ -2,13 +2,13 @@ package com.boardgamegeek.extensions
 
 import android.graphics.Color
 import androidx.annotation.ColorInt
-import java.util.*
+import java.util.Locale
 
 @ColorInt
-fun @receiver:ColorInt Int.darkenColor(): Int {
+fun @receiver:ColorInt Int.darkenColor(ratio: Double = 0.5): Int {
     return if (this == Color.TRANSPARENT) {
         Color.argb(127, 127, 127, 127)
-    } else blendWith(Color.BLACK, 0.5)
+    } else blendWith(Color.BLACK, ratio)
 }
 
 @ColorInt

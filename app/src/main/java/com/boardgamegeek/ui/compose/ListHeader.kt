@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,7 +16,7 @@ import com.boardgamegeek.ui.theme.BggAppTheme
 @Composable
 fun ListHeader(headerText: String, modifier: Modifier = Modifier) {
     Surface(
-        color = MaterialTheme.colorScheme.primaryContainer,
+        color = MaterialTheme.colorScheme.primary,
         modifier = modifier,
     ) {
         Text(

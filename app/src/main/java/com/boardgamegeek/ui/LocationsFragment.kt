@@ -4,16 +4,31 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentLocationsBinding
-import com.boardgamegeek.databinding.RowLocationBinding
 import com.boardgamegeek.model.Location
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
+import com.boardgamegeek.ui.compose.ListItemPrimaryText
+import com.boardgamegeek.ui.compose.ListItemSecondaryText
+import com.boardgamegeek.ui.compose.ListItemTokens
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
@@ -72,11 +87,11 @@ class LocationsFragment : Fragment() {
         override fun getItemCount() = locations.size
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationsViewHolder {
-            return LocationsViewHolder(parent.inflate(R.layout.row_location))
+            return LocationsViewHolder(ComposeView(parent.context))
         }
 
         override fun onBindViewHolder(holder: LocationsViewHolder, position: Int) {
-            holder.bind(locations.getOrNull(position))
+            locations.getOrNull(position)?.let { holder.bind(it) }
         }
 
         override fun isSection(position: Int): Boolean {
@@ -96,18 +111,67 @@ class LocationsFragment : Fragment() {
             }
         }
 
-        inner class LocationsViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val binding = RowLocationBinding.bind(itemView)
-
-            fun bind(location: Location?) {
-                location?.let { l ->
-                    binding.nameView.text = l.name.ifBlank { itemView.context.getString(R.string.no_location) }
-                    binding.quantityView.text = itemView.resources.getQuantityString(R.plurals.plays_suffix, l.playCount, l.playCount)
-                    itemView.setOnClickListener {
-                        LocationActivity.start(itemView.context, l.name)
-                    }
+        inner class LocationsViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+            fun bind(location: Location) {
+                composeView.setContent {
+                    LocationListItem(
+                        location,
+                        onClick = {
+                            LocationActivity.start(itemView.context, location.name)
+                        }
+                    )
                 }
             }
         }
     }
+}
+
+
+@Composable
+private fun LocationListItem(
+    location: Location,
+    modifier: Modifier = Modifier,
+    onClick: (Location) -> Unit = {},
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 72.dp)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = { onClick(location) })
+            .padding(ListItemTokens.paddingValues)
+            .then(modifier)
+    ) {
+        ListItemPrimaryText(location.name)
+        ListItemSecondaryText(pluralStringResource(R.plurals.plays_suffix, location.playCount, location.playCount))
+    }
+}
+
+@Preview
+@Composable
+private fun LocationListItemPreview(
+    @PreviewParameter(LocationPreviewParameterProvider::class) location: Location
+) {
+    BggAppTheme {
+        LocationListItem(location)
+    }
+}
+
+private class LocationPreviewParameterProvider : PreviewParameterProvider<Location> {
+    override val values = sequenceOf(
+        Location(
+            name = "House",
+            playCount = 256,
+        ),
+        Location(
+            name = "Gulf Games",
+            playCount = 0,
+        ),
+        Location(
+            name = "Library",
+            playCount = 1,
+        )
+    )
 }

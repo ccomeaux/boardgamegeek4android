@@ -4,6 +4,18 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.dp
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -13,9 +25,13 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentBuddiesBinding
-import com.boardgamegeek.databinding.RowBuddyBinding
-import com.boardgamegeek.model.User
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.User
+import com.boardgamegeek.ui.compose.ListItemAvatar
+import com.boardgamegeek.ui.compose.ListItemPrimaryText
+import com.boardgamegeek.ui.compose.ListItemSecondaryText
+import com.boardgamegeek.ui.compose.ListItemTokens
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
@@ -53,9 +69,11 @@ class BuddiesFragment : Fragment() {
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
-            it?.let { it.getContentIfNotHandled()?.let { message ->
-                showError(message)
-            } }
+            it?.let {
+                it.getContentIfNotHandled()?.let { message ->
+                    showError(message)
+                }
+            }
         }
 
         viewModel.buddies.observe(viewLifecycleOwner) {
@@ -122,7 +140,7 @@ class BuddiesFragment : Fragment() {
         override fun getItemId(position: Int) = getItem(position).username.hashCode().toLong()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BuddyViewHolder {
-            return BuddyViewHolder(parent.inflate(R.layout.row_buddy))
+            return BuddyViewHolder(ComposeView(parent.context))
         }
 
         override fun onBindViewHolder(holder: BuddyViewHolder, position: Int) {
@@ -142,22 +160,87 @@ class BuddiesFragment : Fragment() {
             return viewModel.getSectionHeader(getItem(position))
         }
 
-        inner class BuddyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val binding = RowBuddyBinding.bind(itemView)
-
+        inner class BuddyViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
             fun bind(buddy: User) {
-                binding.avatarView.loadThumbnail(buddy.avatarUrl, R.drawable.person_image_empty)
-                if (buddy.fullName.isBlank()) {
-                    binding.fullNameView.text = buddy.username
-                    binding.usernameView.isVisible = false
-                } else {
-                    binding.fullNameView.text = buddy.fullName
-                    binding.usernameView.setTextOrHide(buddy.username)
-                }
-                itemView.setOnClickListener {
-                    BuddyActivity.start(itemView.context, buddy.username, buddy.fullName)
+                composeView.setContent {
+                    UserListItem(
+                        buddy,
+                        onClick = {
+                            BuddyActivity.start(itemView.context, buddy.username, buddy.fullName)
+                        }
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+fun UserListItem(
+    buddy: User,
+    modifier: Modifier = Modifier,
+    onClick: (User) -> Unit = {}
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 72.dp)
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(ListItemTokens.paddingValues)
+            .clickable(onClick = { onClick(buddy) })
+    ) {
+        ListItemAvatar(buddy.avatarUrl)
+        Column {
+            if (buddy.fullName.isNotBlank()) {
+                ListItemPrimaryText(buddy.fullName)
+                ListItemSecondaryText(buddy.username)
+            } else {
+                ListItemPrimaryText(buddy.username)
+            }
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun PersonListItemPreview(
+    @PreviewParameter(BuddyPreviewParameterProvider::class) person: User
+) {
+    BggAppTheme {
+        UserListItem(person)
+    }
+}
+
+private class BuddyPreviewParameterProvider : PreviewParameterProvider<User> {
+    override val values = sequenceOf(
+        User(
+            username = "ccomeaux",
+            firstName = "Chris",
+            lastName = "Comeaux",
+            avatarUrl = "",
+            playNickname = "Chris",
+            updatedTimestamp = System.currentTimeMillis(),
+            isBuddy = true,
+        ),
+        User(
+            username = "aldie",
+            firstName = "Scott",
+            lastName = "Alden",
+            avatarUrl = "",
+            playNickname = "Aldie",
+            updatedTimestamp = System.currentTimeMillis(),
+            isBuddy = true,
+        ),
+        User(
+            username = "cberg",
+            firstName = "",
+            lastName = "",
+            avatarUrl = "",
+            playNickname = "Craig",
+            updatedTimestamp = System.currentTimeMillis(),
+            isBuddy = true,
+        ),
+    )
 }
