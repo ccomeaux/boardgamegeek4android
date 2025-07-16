@@ -27,7 +27,7 @@ import com.boardgamegeek.model.Location
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.compose.ListItemPrimaryText
 import com.boardgamegeek.ui.compose.ListItemSecondaryText
-import com.boardgamegeek.ui.compose.ListItemTokens
+import com.boardgamegeek.ui.compose.ListItemDefaults
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -141,8 +141,7 @@ private fun LocationListItem(
             .heightIn(min = 72.dp)
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = { onClick(location) })
-            .padding(ListItemTokens.paddingValues)
-            .then(modifier)
+            .padding(ListItemDefaults.paddingValues)
     ) {
         ListItemPrimaryText(location.name)
         ListItemSecondaryText(pluralStringResource(R.plurals.plays_suffix, location.playCount, location.playCount))

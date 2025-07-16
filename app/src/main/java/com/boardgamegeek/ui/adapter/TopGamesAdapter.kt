@@ -77,12 +77,12 @@ private fun TopGameListItem(
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .heightIn(min = ListItemDefaults.threeLineHeight)
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = { onClick(topGame) })
-            .padding(ListItemTokens.tallPaddingValues)
-            .then(modifier)
+            .padding(ListItemDefaults.tallPaddingValues)
     ) {
         ListItemIndex(topGame.rank, isWide = true)
         ListItemThumbnail(topGame.thumbnailUrl)
@@ -90,7 +90,7 @@ private fun TopGameListItem(
             ListItemPrimaryText(topGame.name)
             ListItemSecondaryText(
                 topGame.yearPublished.asYear(LocalContext.current),
-                modifier = modifier.padding(bottom = ListItemTokens.verticalTextPadding),
+                modifier = modifier.padding(bottom = ListItemDefaults.verticalTextPadding),
                 icon = Icons.Outlined.CalendarToday,
             )
         }

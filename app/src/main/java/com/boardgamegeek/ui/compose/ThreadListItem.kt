@@ -1,22 +1,18 @@
 package com.boardgamegeek.ui.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Forum
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -31,68 +27,34 @@ import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Modifier) {
-    val iconModifier = Modifier
-        .size(18.dp)
-        .padding(end = 8.dp)
-    val dividerModifier = Modifier
-        .size(18.dp)
-        .padding(horizontal = 8.dp)
-    val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
+            .heightIn(min = ListItemDefaults.threeLineHeight)
+            .background(color = MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
-            .padding(
-                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                vertical = dimensionResource(R.dimen.material_margin_vertical),
-            )
-            .then(modifier)
+            .padding(ListItemDefaults.tallPaddingValues)
     ) {
-        Text(
-            thread.subject,
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = 4.dp),
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
+        ListItemPrimaryText(thread.subject, modifier = modifier.padding(bottom = 4.dp))
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                Icons.Outlined.AccountCircle,
-                contentDescription = stringResource(R.string.author),
-                modifier = iconModifier,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
+            ListItemSecondaryText(
                 text = thread.author,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                icon = Icons.Outlined.AccountCircle,
+                contentDescription = stringResource(R.string.author),
             )
-            VerticalDivider(dividerModifier)
-            Icon(
-                Icons.Outlined.Forum,
-                contentDescription = stringResource(R.string.replies),
-                modifier = iconModifier,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
+            ListItemVerticalDivider()
+            val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
+            ListItemSecondaryText(
                 text = numberFormat.format(thread.numberOfArticles - 1),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                icon = Icons.Outlined.Forum,
+                contentDescription = stringResource(R.string.replies),
             )
-            VerticalDivider(dividerModifier)
-            Icon(
-                Icons.Outlined.AccessTime,
-                contentDescription = stringResource(R.string.posted),
-                modifier = iconModifier,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            ListItemVerticalDivider()
             val context = LocalContext.current
             var relativeTimestamp by remember {
                 mutableStateOf(
@@ -103,10 +65,10 @@ fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Mod
                     ).toString()
                 )
             }
-            Text(
+            ListItemSecondaryText(
                 text = relativeTimestamp,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                icon = Icons.Outlined.AccessTime,
+                contentDescription = stringResource(R.string.posted),
             )
             LaunchedEffect(Unit) {
                 while (true) {

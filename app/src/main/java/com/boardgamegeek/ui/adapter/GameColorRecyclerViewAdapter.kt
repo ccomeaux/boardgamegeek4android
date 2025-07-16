@@ -21,7 +21,7 @@ import androidx.core.util.size
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.compose.ListItemPrimaryText
-import com.boardgamegeek.ui.compose.ListItemTokens
+import com.boardgamegeek.ui.compose.ListItemDefaults
 import com.boardgamegeek.ui.theme.BggAppTheme
 import kotlin.properties.Delegates
 
@@ -111,7 +111,7 @@ private fun ColorListItem(
             ) {
                 onClick()
             }
-            .padding(ListItemTokens.paddingValues),
+            .padding(ListItemDefaults.paddingValues),
     ) {
         val colorRgb = colorName.asColorRgb()
         Box(

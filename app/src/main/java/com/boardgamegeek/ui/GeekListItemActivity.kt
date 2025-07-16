@@ -77,6 +77,7 @@ class GeekListItemActivity : BaseActivity() {
     private var order = 0
     private var geekListItem = GeekListItem()
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         geekListTitle = intent.getStringExtra(KEY_TITLE).orEmpty()

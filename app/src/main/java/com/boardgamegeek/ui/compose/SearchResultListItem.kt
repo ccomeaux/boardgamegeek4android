@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,7 +13,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.model.SearchResult
@@ -31,9 +29,9 @@ fun SearchResultListItem(
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 72.dp)
+            .heightIn(min = ListItemDefaults.twoLineHeight)
             .background(
                 if (isSelected)
                     MaterialTheme.colorScheme.primaryContainer
@@ -45,35 +43,33 @@ fun SearchResultListItem(
             ) {
                 onClick()
             }
-            .padding(vertical = 8.dp, horizontal = 16.dp)
-            .then(modifier)
+            .padding(ListItemDefaults.paddingValues)
     ) {
         val titleStyle = if (searchResult.nameType == SearchResult.NameType.Alternate)
-            MaterialTheme.typography.titleMedium.copy(fontStyle = FontStyle.Italic)
+            ListItemDefaults.primaryTextStyle().copy(fontStyle = FontStyle.Italic)
         else
-            MaterialTheme.typography.titleMedium
+            ListItemDefaults.primaryTextStyle()
         val variantStyle = if (searchResult.nameType == SearchResult.NameType.Alternate)
-            MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic)
+            ListItemDefaults.secondaryTextStyle().copy(fontStyle = FontStyle.Italic)
         else
-            MaterialTheme.typography.bodyMedium
-        Text(
+            ListItemDefaults.secondaryTextStyle()
+        ListItemPrimaryText(
             searchResult.name,
-            style = titleStyle,
-            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+            textStyle = titleStyle,
+            isSelected = isSelected,
         )
         Row(
             modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = searchResult.yearPublished.asYear(LocalContext.current),
-                style = variantStyle,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+            ListItemSecondaryText(
+                searchResult.yearPublished.asYear(LocalContext.current),
+                textStyle = variantStyle,
+                isSelected = isSelected,
             )
-            Text(
-                text = stringResource(R.string.id_list_text, searchResult.id),
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+            ListItemSecondaryText(
+                stringResource(R.string.id_list_text, searchResult.id),
+                isSelected = isSelected,
             )
         }
     }

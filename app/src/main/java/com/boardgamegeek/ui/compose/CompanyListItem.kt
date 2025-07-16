@@ -22,12 +22,11 @@ fun CompanyListItem(company: Company, modifier: Modifier = Modifier, onClick: ()
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = onClick)
-            .padding(ListItemTokens.paddingValues)
-            .then(modifier)
+            .padding(ListItemDefaults.paddingValues)
     ) {
         ListItemThumbnail(company.thumbnailUrl)
         Column {

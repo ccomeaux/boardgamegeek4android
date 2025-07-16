@@ -4,10 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,6 +13,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
@@ -24,10 +23,20 @@ import coil3.request.crossfade
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.theme.BggAppTheme
 
-object ListItemTokens {
+object ListItemDefaults {
     val verticalTextPadding = 4.dp
-    val paddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+    val horizontalPadding = 16.dp
+    val paddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
     val tallPaddingValues = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
+    val oneLineHeight = 56.dp
+    val twoLineHeight = 72.dp
+    val threeLineHeight = 88.dp
+    val imageSize = 56.dp
+    val secondaryImageSize = 18.dp
+    @Composable
+    fun secondaryTextStyle() = MaterialTheme.typography.bodyMedium
+    @Composable
+    fun primaryTextStyle() = MaterialTheme.typography.titleMedium
 }
 
 @Composable
@@ -37,7 +46,7 @@ fun ListItemIndex(index: Int, modifier: Modifier = Modifier, isWide: Boolean = f
         style = MaterialTheme.typography.headlineSmall,
         color = getOnColor(isSelected),
         modifier = modifier
-            .padding(end = 16.dp)
+            .padding(end = ListItemDefaults.horizontalPadding)
             .width(if (isWide) 44.dp else 32.dp)
             .wrapContentWidth(Alignment.End)
     )
@@ -55,8 +64,8 @@ fun ListItemThumbnail(url: String, modifier: Modifier = Modifier) {
         error = painterResource(id = R.drawable.thumbnail_image_empty),
         contentScale = ContentScale.Crop,
         modifier = modifier
-            .padding(end = 16.dp)
-            .size(56.dp)
+            .padding(end = ListItemDefaults.horizontalPadding)
+            .size(ListItemDefaults.imageSize)
             .clip(MaterialTheme.shapes.extraSmall)
     )
 }
@@ -73,20 +82,26 @@ fun ListItemAvatar(url: String, modifier: Modifier = Modifier) {
         error = painterResource(R.drawable.person_image_empty),
         contentScale = ContentScale.Crop,
         modifier = modifier
-            .padding(end = 16.dp)
-            .size(56.dp)
+            .padding(end = ListItemDefaults.horizontalPadding)
+            .size(ListItemDefaults.imageSize)
             .clip(CircleShape)
     )
 }
 
 @Composable
-fun ListItemPrimaryText(text: String, modifier: Modifier = Modifier, isSelected: Boolean = false) {
+fun ListItemPrimaryText(
+    text: String,
+    modifier: Modifier = Modifier,
+    textStyle: TextStyle = ListItemDefaults.primaryTextStyle(),
+    isSelected: Boolean = false
+) {
     Text(
         text = text,
-        style = MaterialTheme.typography.titleMedium,
+        style = textStyle,
         color = getOnColor(isSelected),
         modifier = modifier,
         maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
     )
 }
 
@@ -96,6 +111,7 @@ fun ListItemSecondaryText(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     contentDescription: String? = null,
+    textStyle: TextStyle = ListItemDefaults.secondaryTextStyle(),
     isSelected: Boolean = false,
 ) {
     Row(
@@ -108,14 +124,14 @@ fun ListItemSecondaryText(
                 imageVector = it,
                 contentDescription = contentDescription,
                 modifier = Modifier
-                    .size(24.dp)
-                    .padding(end = 8.dp),
+                    .padding(end = 4.dp)
+                    .size(ListItemDefaults.secondaryImageSize),
                 tint = getOnVariantColor(isSelected),
             )
         }
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyMedium,
+            style = textStyle,
             color = getOnVariantColor(isSelected),
         )
     }
@@ -125,7 +141,7 @@ fun ListItemSecondaryText(
 fun ListItemVerticalDivider(modifier: Modifier = Modifier) {
     VerticalDivider(
         modifier
-            .size(18.dp)
+            .height(ListItemDefaults.secondaryImageSize)
             .padding(horizontal = 8.dp)
     )
 }
@@ -148,7 +164,12 @@ private fun ListItemPreviews() {
             ListItemThumbnail("")
             ListItemPrimaryText("Title")
             ListItemSecondaryText("Description")
-            ListItemSecondaryText("Description", icon = Icons.Outlined.Star)
+            ListItemSecondaryText("Favorite", icon = Icons.Outlined.Star)
+            Row {
+                ListItemSecondaryText("Description")
+                VerticalDivider()
+                ListItemSecondaryText("Favorite", icon = Icons.Outlined.Star)
+            }
         }
     }
 }

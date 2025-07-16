@@ -11,12 +11,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.Forum
 import com.boardgamegeek.ui.theme.BggAppTheme
@@ -32,16 +30,12 @@ fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: () -> Un
         Column(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.Center,
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxWidth()
-                .heightIn(min = 72.dp)
+                .heightIn(min = ListItemDefaults.twoLineHeight)
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable(onClick = onClick)
-                .padding(
-                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                    vertical = dimensionResource(R.dimen.material_margin_vertical),
-                )
-                .then(modifier)
+                .padding(ListItemDefaults.paddingValues)
         ) {
             ListItemPrimaryText(forum.title, modifier = modifier.padding(bottom = 4.dp))
             Row(

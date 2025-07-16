@@ -30,7 +30,7 @@ import com.boardgamegeek.model.User
 import com.boardgamegeek.ui.compose.ListItemAvatar
 import com.boardgamegeek.ui.compose.ListItemPrimaryText
 import com.boardgamegeek.ui.compose.ListItemSecondaryText
-import com.boardgamegeek.ui.compose.ListItemTokens
+import com.boardgamegeek.ui.compose.ListItemDefaults
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -188,7 +188,7 @@ fun UserListItem(
             .fillMaxWidth()
             .heightIn(min = 72.dp)
             .background(MaterialTheme.colorScheme.surface)
-            .padding(ListItemTokens.paddingValues)
+            .padding(ListItemDefaults.paddingValues)
             .clickable(onClick = { onClick(buddy) })
     ) {
         ListItemAvatar(buddy.avatarUrl)

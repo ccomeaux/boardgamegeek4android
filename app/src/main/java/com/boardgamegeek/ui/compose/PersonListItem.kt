@@ -27,8 +27,8 @@ fun PersonListItem(person: Person, modifier: Modifier = Modifier, onClick: () ->
             .fillMaxWidth()
             .heightIn(min = 88.dp)
             .background(MaterialTheme.colorScheme.surface)
-            .padding(ListItemTokens.paddingValues)
             .clickable(onClick = onClick)
+            .padding(ListItemDefaults.paddingValues)
     ) {
         ListItemAvatar(person.thumbnailUrl)
         Column {

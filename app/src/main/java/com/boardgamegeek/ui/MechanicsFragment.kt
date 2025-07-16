@@ -16,7 +16,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -28,7 +27,7 @@ import com.boardgamegeek.databinding.FragmentMechanicsBinding
 import com.boardgamegeek.model.Mechanic
 import com.boardgamegeek.ui.compose.ListItemPrimaryText
 import com.boardgamegeek.ui.compose.ListItemSecondaryText
-import com.boardgamegeek.ui.compose.ListItemTokens
+import com.boardgamegeek.ui.compose.ListItemDefaults
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -116,11 +115,10 @@ private fun MechanicListItem(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
+            .heightIn(min = ListItemDefaults.twoLineHeight)
             .background(MaterialTheme.colorScheme.surface)
             .clickable(onClick = { onClick(mechanic) })
-            .padding(ListItemTokens.paddingValues)
-            .then(modifier)
+            .padding(ListItemDefaults.paddingValues)
     ) {
         ListItemPrimaryText(mechanic.name)
         ListItemSecondaryText(pluralStringResource(R.plurals.games_suffix, mechanic.itemCount, mechanic.itemCount))

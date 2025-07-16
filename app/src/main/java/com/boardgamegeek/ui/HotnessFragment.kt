@@ -14,11 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.dp
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -271,19 +269,16 @@ private fun HotGameListItem(
     Row(
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
+            .heightIn(min = ListItemDefaults.threeLineHeight)
             .background(if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface)
             .combinedClickable(
                 onLongClick = onLongClick,
             ) {
                 onClick(hotGame)
             }
-            .padding(
-                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                vertical = 12.dp,
-            )
-            .then(modifier)
+            .padding(ListItemDefaults.paddingValues)
     ) {
         ListItemIndex(hotGame.rank)
         ListItemThumbnail(hotGame.thumbnailUrl)
@@ -291,7 +286,7 @@ private fun HotGameListItem(
             ListItemPrimaryText(hotGame.name)
             ListItemSecondaryText(
                 hotGame.yearPublished.asYear(LocalContext.current),
-                modifier = modifier.padding(bottom = ListItemTokens.verticalTextPadding),
+                modifier = modifier.padding(bottom = ListItemDefaults.verticalTextPadding),
                 icon = Icons.Outlined.CalendarToday,
             )
         }
