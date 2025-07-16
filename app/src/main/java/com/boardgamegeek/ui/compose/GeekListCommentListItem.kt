@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui.compose
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,12 +10,16 @@ import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,111 +43,52 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 
 @Composable
-fun GeekListCommentRow(comment: GeekListComment, markupConverter: XmlApiMarkupConverter, modifier: Modifier = Modifier) {
+fun GeekListCommentListItem(comment: GeekListComment, markupConverter: XmlApiMarkupConverter, modifier: Modifier = Modifier) {
     val openAlertDialog = remember { mutableStateOf(false) }
     val numberFormat = NumberFormat.getInstance(Locale.getDefault())
     Column(
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 72.dp)
-            .clickable {
-                openAlertDialog.value = true
-            }
-            .padding(
-                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                vertical = dimensionResource(R.dimen.material_margin_vertical),
-            ),
+            .heightIn(min = ListItemDefaults.threeLineHeight)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { openAlertDialog.value = true }
+            .padding(ListItemDefaults.tallPaddingValues)
     ) {
         val context = LocalContext.current
-        val iconModifier = Modifier
-            .size(18.dp)
-            .padding(end = 8.dp)
-        val dividerModifier = Modifier
-            .size(18.dp)
-            .padding(horizontal = 8.dp)
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                Icons.Outlined.AccountCircle,
-                contentDescription = null,
-                modifier = iconModifier,
-                tint = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
+            ListItemSecondaryText(
                 text = comment.username,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                icon = Icons.Outlined.AccountCircle,
+                contentDescription = stringResource(R.string.author),
             )
-            VerticalDivider(dividerModifier)
-            Icon(
-                Icons.Outlined.ThumbUp,
-                contentDescription = null,
-                modifier = iconModifier,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
+            ListItemVerticalDivider()
+            ListItemSecondaryText(
                 text = numberFormat.format(comment.numberOfThumbs),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                icon = Icons.Outlined.ThumbUp,
+                contentDescription = stringResource(R.string.number_of_thumbs),
             )
-            VerticalDivider(dividerModifier)
-            Icon(
-                Icons.Outlined.Schedule,
-                contentDescription = null,
-                modifier = iconModifier,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            var relativePostTimestamp by remember {
-                mutableStateOf(
-                    comment.postDate.formatTimestamp(
-                        context,
-                        includeTime = false,
-                        isForumTimestamp = false
-                    ).toString()
-                )
-            }
-            var relativeEditTimestamp by remember {
-                mutableStateOf(
-                    comment.editDate.formatTimestamp(
-                        context,
-                        includeTime = false,
-                        isForumTimestamp = false
-                    ).toString()
-                )
-            }
-            Text(
+            ListItemVerticalDivider()
+            var relativePostTimestamp by remember { mutableStateOf("") }
+            var relativeEditTimestamp by remember { mutableStateOf("") }
+            ListItemSecondaryText(
                 text = relativePostTimestamp,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
+                icon = Icons.Outlined.Schedule,
+                contentDescription = stringResource(R.string.posted),
             )
             if (comment.editDate != comment.postDate) {
-                VerticalDivider(dividerModifier)
-                Icon(
-                    Icons.Outlined.Edit,
-                    contentDescription = null,
-                    modifier = iconModifier,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
+                ListItemVerticalDivider()
+                ListItemSecondaryText(
                     text = relativeEditTimestamp,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1
+                    icon = Icons.Outlined.Edit,
+                    contentDescription = stringResource(R.string.edited),
                 )
-            }
-            LaunchedEffect(comment.editDate) {
-                relativeEditTimestamp = comment.editDate.formatTimestamp(
-                    context,
-                    includeTime = false,
-                    isForumTimestamp = false
-                ).toString()
             }
             LaunchedEffect(Unit) {
                 while (true) {
-                    delay(30.seconds)
                     relativePostTimestamp = comment.postDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString()
                     relativeEditTimestamp = comment.editDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString()
+                    delay(30.seconds)
                 }
             }
         }
@@ -173,7 +119,7 @@ private fun GeekListCommentRowPreviewEditedDark(
 ) {
     BggAppTheme {
         val markupConverter = XmlApiMarkupConverter(LocalContext.current)
-        GeekListCommentRow(
+        GeekListCommentListItem(
             geekListComment,
             markupConverter,
         )

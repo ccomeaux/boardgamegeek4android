@@ -133,6 +133,8 @@ fun ListItemSecondaryText(
             text = text,
             style = textStyle,
             color = getOnVariantColor(isSelected),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
         )
     }
 }

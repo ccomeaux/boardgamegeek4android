@@ -29,7 +29,7 @@ fun GeekListCommentList(
         state = state,
     ) {
         itemsIndexed(geekListComments) { index, comment ->
-            GeekListCommentRow(
+            GeekListCommentListItem(
                 comment,
                 markupConverter,
             )
