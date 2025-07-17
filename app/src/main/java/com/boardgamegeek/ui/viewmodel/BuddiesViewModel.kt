@@ -3,21 +3,17 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import android.content.SharedPreferences
 import androidx.lifecycle.*
-import com.boardgamegeek.model.User
-import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_BUDDIES
-import com.boardgamegeek.extensions.firstChar
-import com.boardgamegeek.extensions.isOlderThan
-import com.boardgamegeek.extensions.preferences
-import com.boardgamegeek.repository.UserRepository
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
+import com.boardgamegeek.livedata.LiveSharedPreference
+import com.boardgamegeek.model.User
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
+import com.boardgamegeek.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.lang.Exception
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
@@ -45,7 +41,8 @@ class BuddiesViewModel @Inject constructor(
 
     init {
         sort(User.SortType.USERNAME)
-        refresh()
+        if (syncPrefs.getBuddiesTimestamp().isOlderThan(1.days))
+            refresh()
     }
 
     val buddies: LiveData<List<User>> = sort.switchMap {
@@ -58,12 +55,24 @@ class BuddiesViewModel @Inject constructor(
         }
     }
 
+    val syncBuddies: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_BUDDIES)
+
+    fun enableSyncing() {
+        prefs[PREFERENCES_KEY_SYNC_BUDDIES] = true
+        refresh()
+    }
+
+    val buddiesByHeader = _sort.switchMap {
+        userRepository.loadBuddiesFlow(it).distinctUntilChanged().asLiveData().map { list ->
+            list.groupBy { person -> getSectionHeader(person) }
+        }
+    }
+
     fun refresh() {
         viewModelScope.launch {
             _refreshing.value = true
             try {
                 if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true &&
-                    syncPrefs.getBuddiesTimestamp().isOlderThan(1.days) &&
                     isRefreshing.compareAndSet(false, true)
                 ) {
                     userRepository.refreshBuddies()?.let { errorMessage ->
@@ -81,7 +90,7 @@ class BuddiesViewModel @Inject constructor(
         if (_sort.value != sortType) _sort.value = sortType
     }
 
-    fun getSectionHeader(user: User?): String {
+    private fun getSectionHeader(user: User?): String {
         return when (sort.value) {
             User.SortType.FIRST_NAME -> user?.firstName.firstChar()
             User.SortType.LAST_NAME -> user?.lastName.firstChar()
