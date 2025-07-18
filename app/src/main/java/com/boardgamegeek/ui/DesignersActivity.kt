@@ -45,12 +45,13 @@ class DesignersActivity : BaseActivity() {
         setContent {
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
             val viewModel: DesignersViewModel = viewModel()
-            val designers = viewModel.designersByHeader.observeAsState()
-            val sortBy = viewModel.sort.observeAsState(Person.SortType.Name)
+            val designers by viewModel.designersByHeader.observeAsState()
+            val designerCount by remember { derivedStateOf { designers?.values?.sumOf { it.size } ?: 0 } }
+            val sortBy by viewModel.sort.observeAsState(Person.SortType.Name)
 
-            val calculationProgressState = viewModel.statsCalculationProgress.observeAsState(0.0f)
+            val calculationProgressState by viewModel.statsCalculationProgress.observeAsState(0.0f)
             val animatedProgress by animateFloatAsState(
-                targetValue = calculationProgressState.value,
+                targetValue = calculationProgressState,
                 animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
             )
 
@@ -62,15 +63,11 @@ class DesignersActivity : BaseActivity() {
                             val showProgress by remember { derivedStateOf { animatedProgress > 0.0f && animatedProgress < 1.0f } }
                             Column {
                                 DesignersTopBar(
-                                    designers.value?.values?.sumOf { it.size } ?: 0,
-                                    onUpClick = {
-                                        onBackPressedDispatcher.onBackPressed()
-                                    },
+                                    designersCount = designerCount,
+                                    onUpClick = { onBackPressedDispatcher.onBackPressed() },
                                     onRefreshClick = { viewModel.calculateStats() },
-                                    onSortClick = { sortType ->
-                                        viewModel.sort(sortType)
-                                    },
-                                    sortBy = sortBy.value,
+                                    onSortClick = { sortType -> viewModel.sort(sortType) },
+                                    sortBy = sortBy,
                                     scrollBehavior = scrollBehavior,
                                 )
                                 if (showProgress) {
@@ -86,7 +83,7 @@ class DesignersActivity : BaseActivity() {
                         },
                     ) { contentPadding ->
                         DesignersContent(
-                            designers = designers.value,
+                            designers = designers,
                             contentPadding = contentPadding,
                         )
                     }
@@ -206,7 +203,6 @@ private fun DesignersContent(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-
             ) {
                 LoadingIndicator(
                     Modifier
