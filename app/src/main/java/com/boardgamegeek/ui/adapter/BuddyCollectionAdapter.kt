@@ -1,15 +1,26 @@
 package com.boardgamegeek.ui.adapter
 
-import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.recyclerview.widget.RecyclerView
-import com.boardgamegeek.R
-import com.boardgamegeek.databinding.RowCollectionBuddyBinding
-import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.firstChar
-import com.boardgamegeek.extensions.inflate
-import com.boardgamegeek.ui.GameActivity.Companion.start
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.adapter.BuddyCollectionAdapter.BuddyGameViewHolder
+import com.boardgamegeek.ui.compose.ListItemDefaults
+import com.boardgamegeek.ui.compose.ListItemPrimaryText
+import com.boardgamegeek.ui.compose.ListItemSecondaryText
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import kotlin.properties.Delegates
 
@@ -23,21 +34,21 @@ class BuddyCollectionAdapter : RecyclerView.Adapter<BuddyGameViewHolder>(), Auto
     override fun getItemCount() = items.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BuddyGameViewHolder {
-        return BuddyGameViewHolder(parent.inflate(R.layout.row_collection_buddy))
+        return BuddyGameViewHolder(ComposeView(parent.context))
     }
 
     override fun onBindViewHolder(holder: BuddyGameViewHolder, position: Int) {
-        holder.bind(items.getOrNull(position))
+        items.getOrNull(position)?.let { holder.bind(it) }
     }
 
-    inner class BuddyGameViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val binding = RowCollectionBuddyBinding.bind(itemView)
-
-        fun bind(item: CollectionItem?) {
-            binding.nameView.text = item?.gameName.orEmpty()
-            binding.yearView.text = item?.gameId?.toString().orEmpty()
-            itemView.setOnClickListener {
-                if (item != null) start(itemView.context, item.gameId, item.gameName)
+    inner class BuddyGameViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+        fun bind(item: CollectionItem) {
+            composeView.setContent {
+                BggAppTheme {
+                    CollectionRow(item) {
+                        GameActivity.start(itemView.context, item.gameId, item.gameName)
+                    }
+                }
             }
         }
     }
@@ -60,3 +71,45 @@ class BuddyCollectionAdapter : RecyclerView.Adapter<BuddyGameViewHolder>(), Auto
         }
     }
 }
+
+@Composable
+private fun CollectionRow(
+    collectionItem: CollectionItem,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = ListItemDefaults.twoLineHeight)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable { onClick() }
+            .padding(ListItemDefaults.paddingValues)
+    ) {
+        ListItemPrimaryText(collectionItem.gameName)
+        ListItemSecondaryText(collectionItem.gameId.toString())
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun CollectionRowPreview(
+    @PreviewParameter(CollectionItemPreviewParameterProvider::class) collectionItem: CollectionItem,
+) {
+    BggAppTheme {
+        CollectionRow(collectionItem, Modifier)
+    }
+}
+
+private class CollectionItemPreviewParameterProvider : PreviewParameterProvider<CollectionItem> {
+    override val values = sequenceOf(
+        CollectionItem(
+            gameId = 13,
+            gameName = "CATAN",
+            rank = 1,
+        ),
+    )
+}
+
