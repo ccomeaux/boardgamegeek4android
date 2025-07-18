@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 
 package com.boardgamegeek.ui
 
@@ -17,7 +17,6 @@ import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -72,7 +71,6 @@ class BuddiesActivity : BaseActivity() {
                 LaunchedEffect(errorMessage) {
                     errorMessage?.getContentIfNotHandled()?.let {
                         coroutineScope.launch {
-                            // TODO style error message as snackbar
                             snackbarHostState.showSnackbar(it.ifBlank { getString(R.string.msg_error_buddies) })
                         }
                     }
@@ -214,7 +212,7 @@ private fun BuddiesContent(
             PullToRefreshBox(
                 isRefreshing = isRefreshing,
                 onRefresh = onRefresh,
-                modifier = modifier.padding(contentPadding), // TODO set BggColors
+                modifier = modifier.padding(contentPadding),
             ) {
                 LazyColumn(
                     modifier = modifier.fillMaxSize(),
@@ -342,7 +340,7 @@ private fun UserListItem(
 
 @PreviewLightDark
 @Composable
-private fun PersonListItemPreview(
+private fun UserListItemPreview(
     @PreviewParameter(BuddyPreviewParameterProvider::class) person: User
 ) {
     BggAppTheme {

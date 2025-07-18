@@ -12,8 +12,10 @@ import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.getBuddiesTimestamp
 import com.boardgamegeek.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.days
@@ -78,12 +80,46 @@ class BuddiesViewModel @Inject constructor(
                     userRepository.refreshBuddies()?.let { errorMessage ->
                         _error.setMessage(errorMessage)
                     }
+
+                    val maxBuddiesToRefresh = 10
+                    val allBuddies = userRepository.loadBuddies().sortedBy { it.updatedTimestamp }
+                    val (newBuddies, existingBuddies) = allBuddies.partition { it.updatedTimestamp == 0L }
+
+                    if (newBuddies.isNotEmpty()) {
+                        val n = newBuddies.size.coerceAtMost(maxBuddiesToRefresh)
+                        Timber.i("Found ${newBuddies.size} buddies that haven't been updated; updating $n of them")
+                        refreshUsers(newBuddies.take(n).map { it.username })?.let {
+                            _error.setMessage(it)
+                        }
+                    }
+
+                    val existingBuddiesToRefresh = maxBuddiesToRefresh - newBuddies.size
+                    if (existingBuddiesToRefresh > 0) {
+                        Timber.i("Syncing the stalest $existingBuddiesToRefresh buddies")
+                        refreshUsers(existingBuddies.take(existingBuddiesToRefresh).map { it.username })?.let {
+                            _error.setMessage(it)
+                        }
+                    }
                 }
             } finally {
                 _refreshing.value = false
                 isRefreshing.set(false)
             }
         }
+    }
+
+    private suspend fun refreshUsers(usernames: List<String>): String? {
+        val delay = 1_500L
+        usernames.forEach { username ->
+            Timber.i("About to refresh user $username")
+            delay(delay)
+            try {
+                userRepository.refresh(username)
+            } catch (e: Exception) {
+                return e.toString()
+            }
+        }
+        return null
     }
 
     fun sort(sortType: User.SortType) {
