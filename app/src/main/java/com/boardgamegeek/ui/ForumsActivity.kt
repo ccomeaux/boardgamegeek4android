@@ -103,7 +103,7 @@ class ForumsActivity : BaseActivity() {
                                         .fillMaxSize()
                                         .padding(contentPadding)
                                 ) {
-                                    LoadingIndicator(
+                                    BggLoadingIndicator(
                                         Modifier
                                             .align(Alignment.Center)
                                             .padding(dimensionResource(R.dimen.padding_extra))
@@ -172,7 +172,7 @@ private fun ForumsContent(
                     .fillMaxSize()
                     .padding(contentPadding)
             ) {
-                LoadingIndicator(
+                BggLoadingIndicator(
                     Modifier
                         .align(Alignment.Center)
                         .padding(dimensionResource(R.dimen.padding_extra))

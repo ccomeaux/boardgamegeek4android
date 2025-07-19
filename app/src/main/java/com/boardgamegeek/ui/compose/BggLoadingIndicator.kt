@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.boardgamegeek.ui.theme.BggAppTheme
 
 @Composable
-fun LoadingIndicator(modifier: Modifier = Modifier) {
+fun BggLoadingIndicator(modifier: Modifier = Modifier) {
     CircularProgressIndicator(
         modifier = modifier.size(64.dp),
         strokeWidth = 8.dp,
@@ -25,6 +25,6 @@ fun LoadingIndicator(modifier: Modifier = Modifier) {
 @Composable
 private fun LoadingIndicatorPreview() {
     BggAppTheme {
-        LoadingIndicator()
+        BggLoadingIndicator()
     }
 }

@@ -358,7 +358,7 @@ private fun SearchResultsContent(
                     .padding(contentPadding)
                     .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal)),
             ) {
-                LoadingIndicator(
+                BggLoadingIndicator(
                     Modifier
                         .align(Alignment.Center)
                         .padding(dimensionResource(R.dimen.padding_extra))

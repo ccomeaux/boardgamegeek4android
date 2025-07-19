@@ -208,7 +208,7 @@ private fun PublishersContent(
                     .padding(contentPadding)
 
             ) {
-                LoadingIndicator(
+                BggLoadingIndicator(
                     Modifier
                         .align(Alignment.Center)
                         .padding(dimensionResource(R.dimen.padding_extra))
