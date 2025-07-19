@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -40,7 +39,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.getActivity
+import com.boardgamegeek.extensions.linkBgg
+import com.boardgamegeek.extensions.notifyLoggedPlay
+import com.boardgamegeek.extensions.shareGames
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.SearchResult
 import com.boardgamegeek.model.Status
@@ -63,14 +65,20 @@ class SearchResultsActivity : BaseActivity() {
                 val textFieldState = rememberTextFieldState(intent.getStringExtra(SearchManager.QUERY).orEmpty())
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
                 val snackbarHostState = remember { SnackbarHostState() }
-                val selectedItems = remember { mutableStateListOf<SearchResult>() } // TODO make saveable by implementing a custom saver
+                val selectedIds = remember { mutableStateSetOf<Int>() }
+                val inSelectionMode by remember { derivedStateOf { selectedIds.isNotEmpty() } }
                 val context = LocalContext.current
 
                 val viewModel: SearchViewModel = viewModel()
-                val query = viewModel.query.observeAsState()
-                val results = viewModel.searchResults.observeAsState(RefreshableResource.success(SearchViewModel.SearchResults.EMPTY))
-                val errorMessage = viewModel.errorMessage.observeAsState()
-                val loggedPlayResult = viewModel.loggedPlayResult.observeAsState()
+                val query by viewModel.query.observeAsState()
+                val results by viewModel.searchResults.observeAsState(RefreshableResource.success(SearchViewModel.SearchResults.EMPTY))
+                val errorMessage by viewModel.errorMessage.observeAsState()
+                val loggedPlayResult by viewModel.loggedPlayResult.observeAsState()
+
+                fun nameFromId(id: Int): String? =
+                    results.data?.results?.find { result ->
+                        result.id == id
+                    }?.name
 
                 Drawer(
                     drawerState = drawerState,
@@ -78,32 +86,40 @@ class SearchResultsActivity : BaseActivity() {
                 ) {
                     Scaffold(
                         topBar = {
-                            if (!selectedItems.isEmpty()) {
-                                val quickLogPlayMessage = pluralStringResource(R.plurals.msg_logging_plays, selectedItems.size)
+                            if (inSelectionMode) {
+                                val quickLogPlayMessage = pluralStringResource(R.plurals.msg_logging_plays, selectedIds.size)
                                 MultiSelectionTopAppBar(
-                                    selectedItems,
+                                    selectedCount = selectedIds.size,
                                     Authenticator.isSignedIn(LocalContext.current),
-                                    onLogPlay = { LogPlayActivity.logPlay(context, it.id, it.name) },
-                                    onLogPlayWizard = { NewPlayActivity.start(context, it.id, it.name) },
+                                    onClear = { selectedIds.clear() },
+                                    onLogPlay = {
+                                        selectedIds.firstOrNull()?.let { LogPlayActivity.logPlay(context, it, nameFromId(it).orEmpty()) }
+                                        selectedIds.clear()
+                                    },
+                                    onLogPlayWizard = {
+                                        selectedIds.firstOrNull()?.let {
+                                            NewPlayActivity.start(context, it, nameFromId(it).orEmpty())
+                                        }
+                                        selectedIds.clear()
+                                    },
                                     onQuickLogPlay = {
                                         coroutineScope.launch {
                                             snackbarHostState.showSnackbar(quickLogPlayMessage)
                                         }
-                                        selectedItems.forEach {
-                                            viewModel.logQuickPlay(it.id, it.name)
+                                        selectedIds.forEach {
+                                            viewModel.logQuickPlay(it, nameFromId(it).orEmpty())
                                         }
+                                        selectedIds.clear()
                                     },
                                     onShare = {
-                                        val shareMethod = "Search"
-                                        if (selectedItems.size == 1) {
-                                            val game = selectedItems.firstOrNull()
-                                            game?.let { context.getActivity()?.shareGame(it.id, it.name, shareMethod, firebaseAnalytics) }
-                                        } else {
-                                            val games = selectedItems.map { it.id to it.name }
-                                            context.getActivity()?.shareGames(games, shareMethod, firebaseAnalytics)
-                                        }
+                                        context.getActivity()
+                                            ?.shareGames(selectedIds.map { it to nameFromId(it).orEmpty() }, "Search", firebaseAnalytics)
+                                        selectedIds.clear()
                                     },
-                                    onView = { context.linkBgg(it.id) },
+                                    onView = {
+                                        selectedIds.firstOrNull()?.let { context.linkBgg(it) }
+                                        selectedIds.clear()
+                                    },
                                 )
                             } else {
                                 SearchTopBar(
@@ -128,12 +144,25 @@ class SearchResultsActivity : BaseActivity() {
                         snackbarHost = { SnackbarHost(snackbarHostState) },
                     ) { contentPadding ->
                         SearchResultsContent(
-                            results.value.status,
-                            results.value.message,
-                            results.value.data?.results.orEmpty(),
-                            results.value.data?.query?.text.orEmpty(),
+                            results.status,
+                            results.message,
+                            results.data?.results.orEmpty(),
+                            results.data?.query?.text.orEmpty(),
                             contentPadding = contentPadding,
-                            selectedItems = selectedItems,
+                            selectedIds = selectedIds,
+                            onClick = {
+                                if (inSelectionMode) {
+                                    if (selectedIds.contains(it))
+                                        selectedIds.remove(it)
+                                    else
+                                        selectedIds.add(it)
+                                } else {
+                                    GameActivity.start(context, it, nameFromId(it).orEmpty())
+                                }
+                            },
+                            onLongClick = {
+                                selectedIds.add(it)
+                            }
                         )
                     }
                 }
@@ -141,25 +170,24 @@ class SearchResultsActivity : BaseActivity() {
                     focusRequester.requestFocus()
                     keyboardController?.show()
                 }
-                LaunchedEffect(loggedPlayResult.value) {
-                    loggedPlayResult.value?.getContentIfNotHandled()?.let {
+                LaunchedEffect(loggedPlayResult) {
+                    loggedPlayResult?.getContentIfNotHandled()?.let {
                         context.notifyLoggedPlay(it)
                     }
                 }
-                LaunchedEffect(errorMessage.value) {
-                    errorMessage.value?.getContentIfNotHandled()?.let {
+                LaunchedEffect(errorMessage) {
+                    errorMessage?.getContentIfNotHandled()?.let {
                         coroutineScope.launch {
-                            // TODO style error message as snackbar
                             snackbarHostState.showSnackbar(it)
                         }
                     }
                 }
-                LaunchedEffect(results.value) {
-                    results.value.data?.query?.let {
+                LaunchedEffect(results) {
+                    results.data?.query?.let {
                         if (it.text.isNotBlank()) {
                             keyboardController?.hide()
                             coroutineScope.launch {
-                                val count = results.value.data?.results?.size ?: 0
+                                val count = results.data?.results?.size ?: 0
                                 if (it.exact) {
                                     val message = context.resources.getQuantityString(R.plurals.search_results_exact, count, count, it.text)
                                     val result = snackbarHostState.showSnackbar(
@@ -168,7 +196,7 @@ class SearchResultsActivity : BaseActivity() {
                                         duration = SnackbarDuration.Indefinite
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.searchInexact(query.value?.text.orEmpty())
+                                        viewModel.searchInexact(query?.text.orEmpty())
                                     }
                                 } else {
                                     val message = context.resources.getQuantityString(R.plurals.search_results, count, count, it.text)
@@ -229,33 +257,30 @@ private fun SearchTopBar(
 
 @Composable
 private fun MultiSelectionTopAppBar(
-    selectedItems: SnapshotStateList<SearchResult>,
+    selectedCount: Int,
     isAuthenticated: Boolean,
-    onLogPlay: (SearchResult) -> Unit = {},
-    onLogPlayWizard: (SearchResult) -> Unit = {},
-    onQuickLogPlay: (List<SearchResult>) -> Unit = {},
-    onShare: (List<SearchResult>) -> Unit = {},
-    onView: (SearchResult) -> Unit = {},
+    onClear: () -> Unit = {},
+    onLogPlay: () -> Unit = {},
+    onLogPlayWizard: () -> Unit = {},
+    onQuickLogPlay: () -> Unit = {},
+    onShare: () -> Unit = {},
+    onView: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
-            val count = selectedItems.size
-            Text(pluralStringResource(R.plurals.msg_games_selected, count, count))
+            Text(pluralStringResource(R.plurals.msg_games_selected, selectedCount, selectedCount))
         },
         modifier = Modifier,
         navigationIcon = {
-            IconButton(onClick = { selectedItems.clear() }) {
+            IconButton(onClick = { onClear() }) {
                 Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.cancel))
             }
         },
         actions = {
             if (isAuthenticated) {
                 var expandedMenu by remember { mutableStateOf(false) }
-                if (selectedItems.size == 1) {
-                    IconButton(onClick = {
-                        onQuickLogPlay(selectedItems)
-                        selectedItems.clear()
-                    }) {
+                if (selectedCount == 1) {
+                    IconButton(onClick = { onQuickLogPlay() }) {
                         Icon(
                             painterResource(R.drawable.ic_baseline_event_available_24),
                             contentDescription = stringResource(R.string.menu_log_play),
@@ -275,44 +300,35 @@ private fun MultiSelectionTopAppBar(
                         DropdownMenuItem(
                             text = { stringResource(R.string.menu_log_play_short) },
                             onClick = {
-                                selectedItems.firstOrNull()?.let { onLogPlay(it) }
+                                onLogPlay()
                                 expandedMenu = false
-                                selectedItems.clear()
                             }
                         )
                         DropdownMenuItem(
                             text = { stringResource(R.string.menu_log_play_wizard_short) },
                             onClick = {
-                                selectedItems.firstOrNull()?.let { onLogPlayWizard(it) }
+                                onLogPlayWizard()
                                 expandedMenu = false
-                                selectedItems.clear()
                             }
                         )
                         DropdownMenuItem(
                             text = { stringResource(R.string.menu_log_play_quick_short) },
                             onClick = {
-                                onQuickLogPlay(selectedItems)
+                                onQuickLogPlay()
                                 expandedMenu = false
-                                selectedItems.clear()
                             }
                         )
                     }
                 }
             }
-            IconButton(onClick = {
-                onShare(selectedItems)
-                selectedItems.clear()
-            }) {
+            IconButton(onClick = { onShare() }) {
                 Icon(
                     painterResource(R.drawable.ic_baseline_share_24),
                     contentDescription = stringResource(R.string.menu_share),
                 )
             }
-            if (selectedItems.size == 1) {
-                IconButton(onClick = {
-                    selectedItems.firstOrNull()?.let { onView(it) }
-                    selectedItems.clear()
-                }) {
+            if (selectedCount == 1) {
+                IconButton(onClick = { onView() }) {
                     Icon(
                         painterResource(R.drawable.ic_baseline_open_in_browser_24),
                         contentDescription = stringResource(R.string.menu_view),
@@ -330,7 +346,9 @@ private fun SearchResultsContent(
     data: List<SearchResult>?,
     queryText: String,
     contentPadding: PaddingValues = PaddingValues(),
-    selectedItems: MutableList<SearchResult> = remember { mutableStateListOf() }
+    selectedIds: MutableSet<Int> = remember { mutableStateSetOf() },
+    onClick: (Int) -> Unit = {},
+    onLongClick: (Int) -> Unit = {},
 ) {
     when (status) {
         Status.REFRESHING -> {
@@ -377,26 +395,13 @@ private fun SearchResultsContent(
                         items = data,
                         key = { _, searchResult -> searchResult.id }
                     ) { index, searchResult ->
-                        val context = LocalContext.current
+                        val isSelected by remember { derivedStateOf { selectedIds.contains(searchResult.id) } }
                         SearchResultListItem(
                             searchResult = searchResult,
                             modifier = Modifier.animateItem(),
-                            isSelected = selectedItems.contains(searchResult),
-                            onClick = {
-                                if (selectedItems.isNotEmpty()) {
-                                    if (selectedItems.contains(searchResult))
-                                        selectedItems.remove(searchResult)
-                                    else
-                                        selectedItems.add(searchResult)
-                                } else {
-                                    GameActivity.start(context, searchResult.id, searchResult.name)
-                                }
-                            },
-                            onLongClick = {
-                                if (selectedItems.isEmpty()) {
-                                    selectedItems.add(searchResult)
-                                }
-                            },
+                            isSelected = isSelected,
+                            onClick = { onClick(searchResult.id) },
+                            onLongClick = { onLongClick(searchResult.id) },
                         )
                         if (index < data.lastIndex)
                             HorizontalDivider()
@@ -421,6 +426,9 @@ private fun SearchTopBarPreview() {
 @Composable
 private fun MultiSelectionTopAppBarPreview() {
     BggAppTheme {
-        MultiSelectionTopAppBar(mutableStateListOf(), true)
+        MultiSelectionTopAppBar(
+            2,
+            isAuthenticated = true,
+        )
     }
 }

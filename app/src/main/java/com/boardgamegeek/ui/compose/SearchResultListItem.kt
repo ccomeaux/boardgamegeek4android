@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -38,11 +39,15 @@ fun SearchResultListItem(
                 else
                     MaterialTheme.colorScheme.surface
             )
-            .combinedClickable(
-                onLongClick = onLongClick,
-            ) {
-                onClick()
-            }
+            .then(
+                if (isSelected)
+                    Modifier.clickable(onClick = onClick)
+                else
+                    Modifier.combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    )
+            )
             .padding(ListItemDefaults.paddingValues)
     ) {
         val titleStyle = if (searchResult.nameType == SearchResult.NameType.Alternate)
