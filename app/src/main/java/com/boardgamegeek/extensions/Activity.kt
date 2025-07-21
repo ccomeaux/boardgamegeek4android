@@ -28,21 +28,28 @@ fun Activity.shareGame(gameId: Int, gameName: String, method: String, firebaseAn
 }
 
 fun Activity.shareGames(games: List<Pair<Int, String>>, method: String, firebaseAnalytics: FirebaseAnalytics? = null) {
-    val text = StringBuilder(resources.getString(R.string.share_games_text))
-    text.append("\n\n")
-    val gameNames = arrayListOf<String>()
-    val gameIds = arrayListOf<Int>()
-    for (game in games) {
-        text.append(formatGameLink(game.first, game.second))
-        gameNames.add(game.second)
-        gameIds.add(game.first)
-    }
-    share(resources.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games)
-    firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.SHARE) {
-        param(FirebaseAnalytics.Param.METHOD, method)
-        param(FirebaseAnalytics.Param.ITEM_ID, gameIds.formatList())
-        param(FirebaseAnalytics.Param.ITEM_NAME, gameNames.formatList())
-        param(FirebaseAnalytics.Param.CONTENT_TYPE, "Games")
+    if (games.isEmpty()) return
+    if (games.size == 1) {
+        games.first().let {
+            this.shareGame(it.first, it.second, method, firebaseAnalytics)
+        }
+    } else {
+        val text = StringBuilder(resources.getString(R.string.share_games_text))
+        text.append("\n\n")
+        val gameNames = arrayListOf<String>()
+        val gameIds = arrayListOf<Int>()
+        for (game in games) {
+            text.append(formatGameLink(game.first, game.second))
+            gameNames.add(game.second)
+            gameIds.add(game.first)
+        }
+        share(resources.getString(R.string.share_games_subject), text.toString(), R.string.title_share_games)
+        firebaseAnalytics?.logEvent(FirebaseAnalytics.Event.SHARE) {
+            param(FirebaseAnalytics.Param.METHOD, method)
+            param(FirebaseAnalytics.Param.ITEM_ID, gameIds.formatList())
+            param(FirebaseAnalytics.Param.ITEM_NAME, gameNames.formatList())
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "Games")
+        }
     }
 }
 
