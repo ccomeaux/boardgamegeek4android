@@ -341,14 +341,14 @@ private fun UserListItem(
 @PreviewLightDark
 @Composable
 private fun UserListItemPreview(
-    @PreviewParameter(BuddyPreviewParameterProvider::class) person: User
+    @PreviewParameter(BuddiesPreviewParameterProvider::class) person: User
 ) {
     BggAppTheme {
         UserListItem(person)
     }
 }
 
-private class BuddyPreviewParameterProvider : PreviewParameterProvider<User> {
+private class BuddiesPreviewParameterProvider : PreviewParameterProvider<User> {
     override val values = sequenceOf(
         User(
             username = "ccomeaux",

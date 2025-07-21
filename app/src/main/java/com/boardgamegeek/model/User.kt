@@ -11,6 +11,8 @@ data class User(
 ) {
     val fullName = "$firstName $lastName".trim()
 
+    val nicknameCandidate = firstName.ifEmpty { lastName.ifEmpty { username } }
+
     override fun toString(): String {
         return if (username.isBlank()) fullName else "$fullName ($username)"
     }
