@@ -230,11 +230,7 @@ private fun GeekListItemTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
     MediumTopAppBar(
-        title = {
-            Column {
-                Text(geekListTitle.ifEmpty { stringResource(R.string.title_geeklist_item) })
-            }
-        },
+        title = { Text(geekListTitle.ifEmpty { stringResource(R.string.title_geeklist_item) }) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {
