@@ -107,10 +107,19 @@ class BuddyViewModel @Inject constructor(
         }
     }
 
+    fun generateColors() {
+        viewModelScope.launch {
+            user.value?.let { (name, type) ->
+                val colors = playRepository.generatePlayerColors(name to type)
+                playRepository.savePlayerColors(name, type, colors)
+            }
+        }
+    }
+
     val colors = user.switchMap { user ->
         liveData {
             user.first?.let {
-                emit(playRepository.loadPlayerColors(it, user.second))
+                emitSource(playRepository.loadPlayerColorsAsFlow(it, user.second).asLiveData())
             }
         }
     }

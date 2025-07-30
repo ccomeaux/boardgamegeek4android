@@ -5,14 +5,11 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.boardgamegeek.extensions.BggColors
 import com.boardgamegeek.repository.PlayRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -53,32 +50,7 @@ class PlayerColorsViewModel @Inject constructor(
 
     fun generate() {
         viewModelScope.launch {
-            withContext(Dispatchers.Default) {
-                val availableColors = BggColors.standardColorList.map { it.first }.toMutableList()
-                val rankedColors = mutableListOf<String>()
-
-                user.value?.let { (name, type) ->
-                    val playedColors =  playRepository.loadPlayerUsedColors(name, type)
-                    val sortedColors = playedColors.asSequence()
-                        .filter { availableColors.contains(it) } // only include available colors
-                        .groupBy { it }
-                        .map { it.key to it.value.size }
-                        .sortedByDescending { it.second }
-                        .map { it.first }
-                        .toMutableList()
-                    while (sortedColors.isNotEmpty()) {
-                        val description = sortedColors.removeAt(0)
-                        availableColors.remove(availableColors.find { it == description })
-                        rankedColors.add(description)
-                    }
-                }
-
-                if (availableColors.isNotEmpty()) {
-                    rankedColors.addAll(availableColors.shuffled())
-                }
-
-                _colors.postValue(rankedColors)
-            }
+            _colors.postValue(playRepository.generatePlayerColors(user.value))
             logEvent("Generate")
         }
     }

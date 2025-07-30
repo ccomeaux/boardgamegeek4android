@@ -13,10 +13,13 @@ interface PlayerColorDao {
     suspend fun loadColorsForUser(username: String): List<PlayerColorsEntity>
 
     @Query("SELECT * FROM player_colors WHERE player_type = ${PlayerColorsEntity.TYPE_USER} AND player_name = :username  ORDER BY player_color_sort ASC")
-    fun loadColorsForUserFlow(username: String): Flow<List<PlayerColorsEntity>>
+    fun loadColorsForUserAsFlow(username: String): Flow<List<PlayerColorsEntity>>
 
     @Query("SELECT * FROM player_colors WHERE player_type = ${PlayerColorsEntity.TYPE_PLAYER} AND player_name = :playerName ORDER BY player_color_sort ASC")
     suspend fun loadColorsForPlayer(playerName: String): List<PlayerColorsEntity>
+
+    @Query("SELECT * FROM player_colors WHERE player_type = ${PlayerColorsEntity.TYPE_PLAYER} AND player_name = :playerName ORDER BY player_color_sort ASC")
+    fun loadColorsForPlayerAsFlow(playerName: String): Flow<List<PlayerColorsEntity>>
 
     @Transaction
     suspend fun upsertColorsForPlayer(colors: List<PlayerColorsEntity>): List<Long> {

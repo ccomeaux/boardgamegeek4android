@@ -212,18 +212,28 @@ class PlayRepository(
         }
     }
 
+    fun loadPlayerColorsAsFlow(name: String, type: PlayerType): Flow<List<PlayerColor>> {
+        return when (type) {
+            PlayerType.USER -> loadUserColorsAsFlow(name)
+            PlayerType.NON_USER -> loadNonUserColorsAsFlow(name)
+        }
+    }
+
     suspend fun loadUserColors(username: String) = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playerColorDao.loadColorsForUser(username) }.map { it.mapToModel() }
     }
 
-    fun loadUserColorsFlow(username: String) =
-        playerColorDao.loadColorsForUserFlow(username).map { list -> list.map { it.mapToModel() } }
+    fun loadUserColorsAsFlow(username: String) =
+        playerColorDao.loadColorsForUserAsFlow(username).map { list -> list.map { it.mapToModel() } }
 
     suspend fun loadNonUserColors(playerName: String) = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playerColorDao.loadColorsForPlayer(playerName).map { it.mapToModel() } }
     }
 
-    suspend fun loadPlayerUsedColors(name: String?, type: PlayerType): List<String> = withContext(Dispatchers.Default) {
+    private fun loadNonUserColorsAsFlow(playerName: String) =
+        playerColorDao.loadColorsForPlayerAsFlow(playerName).map { list -> list.map { it.mapToModel() } }
+
+    private suspend fun loadPlayerUsedColors(name: String?, type: PlayerType): List<String> = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) {
             when {
                 name.isNullOrBlank() -> emptyList()
@@ -232,6 +242,33 @@ class PlayRepository(
                 else -> emptyList()
             }
         }.mapNotNull { it.player.color }
+    }
+
+    suspend fun generatePlayerColors(player: Pair<String?, PlayerType>?): List<String> = withContext(Dispatchers.Default) {
+        val availableColors = BggColors.standardColorList.map { it.first }.toMutableList()
+        val rankedColors = mutableListOf<String>()
+
+        player?.let { (name, type) ->
+            val playedColors = loadPlayerUsedColors(name, type)
+            val sortedColors = playedColors.asSequence()
+                .filter { availableColors.contains(it) }
+                .groupBy { it }
+                .map { it.key to it.value.size }
+                .sortedByDescending { it.second }
+                .map { it.first }
+                .toMutableList()
+            while (sortedColors.isNotEmpty()) {
+                val description = sortedColors.removeAt(0)
+                availableColors.remove(availableColors.find { it == description })
+                rankedColors.add(description)
+            }
+        }
+
+        if (availableColors.isNotEmpty()) {
+            rankedColors.addAll(availableColors.shuffled())
+        }
+
+        rankedColors
     }
 
     suspend fun loadLocations(sortBy: Location.SortType = Location.SortType.PLAY_COUNT): List<Location> = withContext(Dispatchers.Default) {
@@ -666,17 +703,21 @@ class PlayRepository(
 
     suspend fun savePlayerColors(name: String?, type: PlayerType, colors: List<String>?) {
         if (!name.isNullOrBlank()) {
-            colors?.let { list ->
-                val entities = list.filterNot { it.isBlank() }.mapIndexed { index, color ->
+            val playerType = if (type == PlayerType.USER) PlayerColorsEntity.TYPE_USER else PlayerColorsEntity.TYPE_PLAYER
+            val validColors = colors?.filterNot { it.isBlank() }.orEmpty()
+            if (validColors.isNotEmpty()) {
+                val entities = validColors.mapIndexed { index, color ->
                     PlayerColorsEntity(
                         internalId = 0,
-                        if (type == PlayerType.USER) PlayerColorsEntity.TYPE_USER else PlayerColorsEntity.TYPE_PLAYER,
+                        playerType,
                         name,
                         color,
                         index + 1,
                     )
                 }
                 playerColorDao.upsertColorsForPlayer(entities)
+            } else {
+                playerColorDao.deleteColorsForPlayer(playerType, name)
             }
         }
     }

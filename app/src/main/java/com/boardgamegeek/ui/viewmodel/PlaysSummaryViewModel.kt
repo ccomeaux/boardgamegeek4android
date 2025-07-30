@@ -113,7 +113,7 @@ class PlaysSummaryViewModel @Inject constructor(
 
     val colors: LiveData<List<PlayerColor>> = username.switchMap {
         liveData {
-            emitSource(playRepository.loadUserColorsFlow(it.orEmpty()).asLiveData())
+            emitSource(playRepository.loadUserColorsAsFlow(it.orEmpty()).asLiveData())
         }
     }
 

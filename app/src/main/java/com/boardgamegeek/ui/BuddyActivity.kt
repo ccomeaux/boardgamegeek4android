@@ -7,6 +7,9 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -126,6 +129,7 @@ class BuddyActivity : BaseActivity() {
                                     playerColors = colors.orEmpty(),
                                     isRefreshing = isRefreshing,
                                     onRefresh = { viewModel.refresh() },
+                                    onGenerateColors = { viewModel.generateColors() },
                                     modifier = Modifier.padding(contentPadding),
                                 )
                             }
@@ -231,6 +235,7 @@ private fun BuddyScreen(
     playerColors: List<PlayerColor>,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
+    onGenerateColors: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -324,9 +329,7 @@ private fun BuddyScreen(
             PlayerColors(
                 playerColors,
                 modifier = Modifier.padding(bottom = 16.dp),
-                onGenerateClick = { // TODO move generate colors logic to view model
-                    PlayerColorsActivity.start(context, buddy.username, null)
-                },
+                onGenerateClick = { onGenerateColors() },
                 onEditClick = { PlayerColorsActivity.start(context, buddy.username, null) },
             )
             Text(
@@ -362,7 +365,13 @@ private fun PlayStats(
                 text = stringResource(R.string.title_play_stats),
                 style = MaterialTheme.typography.headlineSmall,
             )
-            Button(onClick = { onMoreClick() }) {
+            Button(
+                onClick = { onMoreClick() },
+                colors = ButtonDefaults.buttonColors().copy(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                )
+            ) {
                 Text(stringResource(R.string.more))
             }
         }
@@ -404,7 +413,9 @@ private fun PlayerColors(
     onEditClick: () -> Unit = {},
 ) {
     Card(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .animateContentSize()
     ) {
         Row(
             modifier = Modifier
@@ -417,19 +428,45 @@ private fun PlayerColors(
                 text = stringResource(R.string.title_favorite_colors),
                 style = MaterialTheme.typography.headlineSmall,
             )
-            Button(onClick = { onEditClick() }) {
-                Text(text = stringResource(R.string.edit))
+            AnimatedVisibility(
+                colors.isNotEmpty(),
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                Button(
+                    onClick = { onEditClick() },
+                    colors = ButtonDefaults.buttonColors().copy(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Text(text = stringResource(R.string.edit))
+                }
             }
         }
-        if (colors.isEmpty()) {
-            Button(
-                onClick = { onGenerateClick() }, modifier = Modifier
+        AnimatedVisibility(
+            colors.isEmpty(),
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(16.dp)
-                    .align(Alignment.CenterHorizontally)
             ) {
-                Text(text = stringResource(R.string.empty_player_colors_button))
+                Button(
+                    onClick = { onGenerateClick() },
+                    modifier = Modifier.align(Alignment.Center)
+                ) {
+                    Text(text = stringResource(R.string.empty_player_colors_button))
+                }
             }
-        } else {
+        }
+        AnimatedVisibility(
+            colors.isNotEmpty(),
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
             Row(
                 modifier = Modifier
                     .padding(16.dp)
@@ -437,14 +474,16 @@ private fun PlayerColors(
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val firstChoice = colors.first()
-                ColorBox(firstChoice.description, size = ColorBoxDefaults.sizeLarge) { foregroundColor ->
-                    Text(
-                        text = firstChoice.sortOrder.toString(),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = foregroundColor,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
+                val firstChoice = colors.firstOrNull()
+                firstChoice?.let {
+                    ColorBox(firstChoice.description, size = ColorBoxDefaults.sizeLarge) { foregroundColor ->
+                        Text(
+                            text = firstChoice.sortOrder.toString(),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = foregroundColor,
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    }
                 }
                 FlowRow(
                     horizontalArrangement = Arrangement.Start,
@@ -485,6 +524,7 @@ private fun BuddyScreenPreview(
             player,
             BggColors.standardColorList.mapIndexed { index, color -> PlayerColor(color.first, index + 1) },
             true,
+            {},
             {},
         )
     }
