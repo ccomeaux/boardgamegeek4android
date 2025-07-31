@@ -2,6 +2,8 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.R
+import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.RefreshableResource
@@ -37,17 +39,26 @@ class BuddyCollectionViewModel @Inject constructor(
         it.second
     }
 
-    val collection: LiveData<RefreshableResource<List<CollectionItem>>> =
-        usernameAndStatus.switchMap {
-            liveData {
-                emit(RefreshableResource.refreshing(null))
+    val collection = usernameAndStatus.switchMap {
+        liveData {
+            emit(RefreshableResource.refreshing(null))
+            if (it.first.isBlank()) {
+                emit(RefreshableResource.error(application.getString(R.string.error_null_username), null))
+            } else {
                 try {
-                    emit(RefreshableResource.success(userRepository.refreshCollection(it.first, it.second)))
+                    val collectionItems = userRepository.refreshCollection(it.first, it.second)
+                    val map = collectionItems.groupBy { person -> getSectionHeader(person) }
+                    emit(RefreshableResource.success(map))
                 } catch (e: Exception) {
                     emit(RefreshableResource.error(e, application))
                 }
             }
         }
+    }
+
+    private fun getSectionHeader(user: CollectionItem?): String {
+        return user?.sortName.firstChar()
+    }
 
     companion object {
         val DEFAULT_STATUS = CollectionStatus.Own

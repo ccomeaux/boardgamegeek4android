@@ -273,7 +273,7 @@
 	<string name="sync">Sync</string>
 	<string name="empty_game_collection">This game isn\'t in your collection.</string>
 	<string name="re_sync">Re-sync</string>
-	<string name="empty_buddy_collection">No games in this GeekBuddy\'s collection.</string>
+	<string name="empty_buddy_collection">No games in this GeekBuddy\'s %s collection.</string>
 	<string name="empty_colors">No teams/colors set for this game.</string>
 	<string name="empty_plays">You haven\'t logged any plays.</string>
 	<string name="empty_plays_sync_off">If you want to see your Plays, go to Settings > Sync and check the box next to Plays.</string>

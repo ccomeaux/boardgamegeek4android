@@ -18,8 +18,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -32,21 +34,40 @@ fun EmptyContent(
     iconPainter: Painter,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState()
+) = EmptyContent(
+    text = stringResource(textResource),
+    iconPainter = iconPainter,
+    modifier = modifier,
+    scrollState = scrollState
+)
+
+@Composable
+fun EmptyContent(
+    text: String,
+    iconPainter: Painter,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState()
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.verticalScroll(scrollState),
+        modifier = modifier
+            .verticalScroll(scrollState)
+            .padding(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = dimensionResource(R.dimen.material_margin_vertical)
+            ),
     ) {
         Icon(
             painter = iconPainter,
             contentDescription = null,
             modifier = Modifier.size(108.dp),
-            tint = MaterialTheme.colorScheme.secondary // colorResource(R.color.empty_tint),
+            tint = MaterialTheme.colorScheme.secondary,
         )
         Text(
-            text = stringResource(textResource),
+            text = text,
             style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -57,21 +78,40 @@ fun EmptyContent(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState()
+) = EmptyContent(
+    text = stringResource(textResource),
+    imageVector = imageVector,
+    modifier = modifier,
+    scrollState = scrollState
+)
+
+@Composable
+fun EmptyContent(
+    text: String,
+    imageVector: ImageVector,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState()
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier.verticalScroll(scrollState),
+        modifier = modifier
+            .verticalScroll(scrollState)
+            .padding(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = dimensionResource(R.dimen.material_margin_vertical)
+            ),
     ) {
         Icon(
             imageVector = imageVector,
             contentDescription = null,
             modifier = Modifier.size(108.dp),
-            tint = MaterialTheme.colorScheme.secondary // colorResource(R.color.empty_tint),
+            tint = MaterialTheme.colorScheme.secondary,
         )
         Text(
-            text = stringResource(textResource),
+            text = text,
             style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
         )
     }
 }
@@ -81,7 +121,7 @@ fun EmptyContent(
 private fun EmptyContentPreview() {
     BggAppTheme {
         EmptyContent(
-            R.string.empty_comments,
+            R.string.search_initial_help,
             painterResource(R.drawable.ic_twotone_comment_48),
             Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
@@ -95,7 +135,6 @@ private fun EmptyContentPreviewImageVector() {
         EmptyContent(
             R.string.empty_geeklist,
             Icons.AutoMirrored.Filled.ListAlt,
-            Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
     }
 }
@@ -107,7 +146,6 @@ private fun EmptyListContentPreviewLightDark() {
         EmptyContent(
             R.string.empty_comments,
             painterResource(R.drawable.ic_twotone_comment_48),
-            Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
     }
 }

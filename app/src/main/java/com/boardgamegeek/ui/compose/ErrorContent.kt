@@ -9,20 +9,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.theme.BggAppTheme
 
 @Composable
 fun ErrorContent(text: String, iconPainter: Painter, modifier: Modifier = Modifier) {
-    Box(contentAlignment = Alignment.Center, modifier = modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.padding(
+            horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+            vertical = dimensionResource(R.dimen.material_margin_vertical)
+        )
+    ) {
         OutlinedCard(
             modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 16.dp)
                 .heightIn(min = 160.dp, max = 320.dp)
                 .widthIn(min = 160.dp, max = 320.dp),
             colors = CardDefaults.cardColors(
@@ -32,7 +36,9 @@ fun ErrorContent(text: String, iconPainter: Painter, modifier: Modifier = Modifi
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 12.dp, horizontal = 20.dp),
             ) {
                 Icon(
                     painter = iconPainter,
@@ -51,10 +57,15 @@ fun ErrorContent(text: String, iconPainter: Painter, modifier: Modifier = Modifi
 
 @Composable
 fun ErrorContent(text: String, imageVector: ImageVector, modifier: Modifier = Modifier) {
-    Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.padding(
+            horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+            vertical = dimensionResource(R.dimen.material_margin_vertical)
+        )
+    ) {
         OutlinedCard(
             modifier = Modifier
-                .padding(vertical = 8.dp, horizontal = 16.dp)
                 .heightIn(min = 160.dp, max = 320.dp)
                 .widthIn(min = 160.dp, max = 320.dp),
             colors = CardDefaults.cardColors(
@@ -64,7 +75,9 @@ fun ErrorContent(text: String, imageVector: ImageVector, modifier: Modifier = Mo
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 12.dp, horizontal = 20.dp),
             ) {
                 Icon(
                     imageVector = imageVector,
@@ -81,12 +94,12 @@ fun ErrorContent(text: String, imageVector: ImageVector, modifier: Modifier = Mo
     }
 }
 
-@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 320, heightDp = 320)
+@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 640, heightDp = 640)
 @Composable
 private fun ErrorContentPreview() {
     BggAppTheme {
         ErrorContent(
-            stringResource(R.string.error_incorrect_password),
+            "A long error message. I mean a really long one. I mean a really, really long one.",
             painterResource(R.drawable.ic_twotone_comment_48),
             Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
@@ -98,24 +111,12 @@ private fun ErrorContentPreview() {
 private fun ErrorContentImageVector() {
     BggAppTheme {
         ErrorContent(
-            stringResource(R.string.error_incorrect_password),
+            "A long error message. I mean a really long one. I mean a really, really long one.",
             Icons.Filled.Password,
             Modifier
                 .padding(vertical = 8.dp, horizontal = 16.dp)
                 .heightIn(min = 160.dp, max = 320.dp)
                 .widthIn(min = 160.dp, max = 320.dp)
-        )
-    }
-}
-
-@PreviewLightDark
-@Composable
-private fun EmptyListContentPreviewLightDark() {
-    BggAppTheme {
-        EmptyContent(
-            R.string.empty_comments,
-            painterResource(R.drawable.ic_twotone_comment_48),
-            Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
         )
     }
 }
