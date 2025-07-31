@@ -2,9 +2,9 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.model.Location
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
+import com.boardgamegeek.model.Location
 import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -20,17 +20,13 @@ class LocationsViewModel @Inject constructor(
         get() = _sortType
 
     init {
-        sort(Location.SortType.NAME)
+        sort(Location.SortType.PLAY_COUNT)
     }
 
-    val locations: LiveData<List<Location>> = sortType.switchMap {
-        liveData {
-            emitSource(playRepository.loadLocationsFlow(it).distinctUntilChanged().asLiveData())
+    val locations = _sortType.switchMap {
+        playRepository.loadLocationsFlow(it).distinctUntilChanged().asLiveData().map { list ->
+            list.groupBy { location -> getSectionHeader(location) }
         }
-    }
-
-    fun refresh() {
-        _sortType.value?.let { _sortType.value = it }
     }
 
     fun sort(sortType: Location.SortType) {
@@ -38,7 +34,7 @@ class LocationsViewModel @Inject constructor(
     }
 
     fun getSectionHeader(location: Location?): String {
-        return when(sortType.value) {
+        return when (sortType.value) {
             Location.SortType.NAME -> location?.name.firstChar()
             Location.SortType.PLAY_COUNT -> (location?.playCount ?: 0).orderOfMagnitude()
             null -> ""
