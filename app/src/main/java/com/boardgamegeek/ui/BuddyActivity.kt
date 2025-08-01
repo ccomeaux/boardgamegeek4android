@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material3.*
@@ -47,6 +48,7 @@ import com.boardgamegeek.model.Player
 import com.boardgamegeek.model.PlayerColor
 import com.boardgamegeek.model.User
 import com.boardgamegeek.ui.compose.*
+import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
@@ -57,16 +59,13 @@ import timber.log.Timber
 
 @AndroidEntryPoint
 class BuddyActivity : BaseActivity() {
-    private var name: String? = null
-    private var username: String? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        name = intent.getStringExtra(KEY_PLAYER_NAME)
-        username = intent.getStringExtra(KEY_USERNAME)
+        val playerName = intent.getStringExtra(KEY_PLAYER_NAME).orEmpty()
+        val username = intent.getStringExtra(KEY_USERNAME).orEmpty()
 
-        if (name.isNullOrBlank() && username.isNullOrBlank()) {
+        if (playerName.isBlank() && username.isBlank()) {
             finish()
             return
         }
@@ -74,8 +73,8 @@ class BuddyActivity : BaseActivity() {
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Buddy")
-                param(FirebaseAnalytics.Param.ITEM_ID, username.orEmpty())
-                param(FirebaseAnalytics.Param.ITEM_NAME, name.orEmpty())
+                param(FirebaseAnalytics.Param.ITEM_ID, username)
+                param(FirebaseAnalytics.Param.ITEM_NAME, playerName)
             }
         }
 
@@ -84,10 +83,10 @@ class BuddyActivity : BaseActivity() {
             val snackbarHostState = remember { SnackbarHostState() }
 
             val viewModel: BuddyViewModel = viewModel()
-            if (username != null && username?.isNotBlank() == true) {
+            if (username.isNotBlank()) {
                 viewModel.setUsername(username)
             } else {
-                viewModel.setPlayerName(name)
+                viewModel.setPlayerName(playerName)
             }
 
             val buddy by viewModel.buddy.observeAsState()
@@ -106,14 +105,16 @@ class BuddyActivity : BaseActivity() {
                     Scaffold(
                         topBar = {
                             BuddyTopBar(
-                                buddy?.username.orEmpty(),
+                                username,
+                                playerName,
                                 onUpClick = { context.startActivity(context.intentFor<BuddiesActivity>().clearTop()) },
-                                onViewClick = { linkToBgg("user/${buddy?.username}") },
+                                onViewUserClick = { linkToBgg("user/${buddy?.username}") },
+                                onAddUsernameClick = { showAndSurvive(EditUsernameDialogFragment()) },
                             )
                         },
                         snackbarHost = { SnackbarHost(snackbarHostState) },
                     ) { contentPadding ->
-                        if (buddy == null) {
+                        if (buddy == null && player == null) {
                             Box(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -122,17 +123,29 @@ class BuddyActivity : BaseActivity() {
                                 BggLoadingIndicator(Modifier.align(Alignment.Center))
                             }
                         } else {
-                            buddy?.let {
-                                BuddyScreen(
-                                    buddy = it,
-                                    player = player,
-                                    playerColors = colors.orEmpty(),
-                                    isRefreshing = isRefreshing,
-                                    onRefresh = { viewModel.refresh() },
-                                    onGenerateColors = { viewModel.generateColors() },
-                                    modifier = Modifier.padding(contentPadding),
-                                )
-                            }
+                            BuddyScreen(
+                                buddy = buddy,
+                                player = player,
+                                playerColors = colors.orEmpty(),
+                                isRefreshing = isRefreshing,
+                                onRefresh = { viewModel.refresh() },
+                                onGenerateColors = { viewModel.generateColors() },
+                                onMoreStatsClick = {
+                                    if (username.isBlank()) {
+                                        PlayerPlaysActivity.start(context, playerName)
+                                    } else {
+                                        BuddyPlaysActivity.start(context, username)
+                                    }
+                                },
+                                onEditColorsClick = {
+                                    if (username.isBlank()) {
+                                        PlayerColorsActivity.start(context, null, playerName)
+                                    } else {
+                                        PlayerColorsActivity.start(context, username, null)
+                                    }
+                                },
+                                modifier = Modifier.padding(contentPadding),
+                            )
                         }
                     }
                 }
@@ -201,14 +214,15 @@ class BuddyActivity : BaseActivity() {
 @Composable
 private fun BuddyTopBar(
     username: String,
+    playerName: String,
     modifier: Modifier = Modifier,
     onUpClick: () -> Unit = {},
-    onViewClick: () -> Unit = {},
+    onViewUserClick: () -> Unit = {},
+    onAddUsernameClick: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
-            // supportActionBar?.subtitle = if (username.isNullOrBlank()) name else username
-            Text(text = username.ifBlank { stringResource(id = R.string.title_buddy) })
+            Text(text = username.ifBlank { playerName }.ifBlank { stringResource(id = R.string.title_buddy) })
         },
         modifier = modifier,
         navigationIcon = {
@@ -217,11 +231,18 @@ private fun BuddyTopBar(
             }
         },
         actions = {
-            IconButton(
-                onClick = { onViewClick() },
-                enabled = username.isNotBlank(),
-            ) {
-                Icon(Icons.Default.OpenInBrowser, contentDescription = stringResource(R.string.menu_view_in_browser))
+            if (username.isBlank()) {
+                IconButton(
+                    onClick = { onAddUsernameClick() },
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.menu_add_username))
+                }
+            } else {
+                IconButton(
+                    onClick = { onViewUserClick() },
+                ) {
+                    Icon(Icons.Default.OpenInBrowser, contentDescription = stringResource(R.string.menu_view_in_browser))
+                }
             }
         }
     )
@@ -230,18 +251,20 @@ private fun BuddyTopBar(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun BuddyScreen(
-    buddy: User,
+    buddy: User?,
     player: Player?,
     playerColors: List<PlayerColor>,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onGenerateColors: () -> Unit,
+    onMoreStatsClick: () -> Unit,
+    onEditColorsClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     PullToRefreshBox(
         isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
+        onRefresh = { onRefresh() },
         modifier = modifier,
     ) {
         Column(
@@ -253,94 +276,92 @@ private fun BuddyScreen(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                text = buddy.fullName,
-                style = MaterialTheme.typography.displaySmall,
-            )
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                TooltipBox(
-                    positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
-                    tooltip = {
-                        PlainTooltip { Text(stringResource(R.string.nickname_description)) }
-                    },
-                    state = rememberTooltipState(isPersistent = true)
+            buddy?.let { buddy ->
+                Text(
+                    text = buddy.fullName,
+                    style = MaterialTheme.typography.displaySmall,
+                )
+                Row(
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (buddy.playNickname.isNotBlank()) {
-                        Text(
-                            text = buddy.playNickname,
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
-                    } else {
-                        Text(
-                            text = buddy.nicknameCandidate,
-                            style = MaterialTheme.typography.headlineSmall,
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    TooltipBox(
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        tooltip = {
+                            PlainTooltip { Text(stringResource(R.string.nickname_description)) }
+                        },
+                        state = rememberTooltipState(isPersistent = true)
+                    ) {
+                        if (buddy.playNickname.isNotBlank()) {
+                            Text(
+                                text = buddy.playNickname,
+                                style = MaterialTheme.typography.headlineSmall,
+                            )
+                        } else {
+                            Text(
+                                text = buddy.nicknameCandidate,
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                            )
+                        }
+                    }
+                    FilledTonalIconButton(
+                        onClick = {
+                            context.getActivity()
+                                ?.showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(buddy.playNickname.ifBlank { buddy.nicknameCandidate }))
+                        },
+                        modifier = Modifier
+                            .minimumInteractiveComponentSize()
+                            .size(IconButtonDefaults.extraSmallContainerSize()),
+                        shape = IconButtonDefaults.smallRoundShape,
+                    ) {
+                        Icon(
+                            Icons.Filled.Edit,
+                            contentDescription = stringResource(R.string.title_edit_nickname),
+                            modifier = Modifier.size(IconButtonDefaults.extraSmallIconSize),
                         )
                     }
                 }
-                FilledTonalIconButton(
-                    onClick = {
-                        context.getActivity()
-                            ?.showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(buddy.playNickname.ifBlank { buddy.nicknameCandidate }))
-                    },
-                    modifier = Modifier
-                        .minimumInteractiveComponentSize()
-                        .size(IconButtonDefaults.extraSmallContainerSize()),
-                    shape = IconButtonDefaults.smallRoundShape,
-                ) {
-                    Icon(
-                        Icons.Filled.Edit,
-                        contentDescription = stringResource(R.string.title_edit_nickname),
-                        modifier = Modifier.size(IconButtonDefaults.extraSmallIconSize),
+                var showImage by remember { mutableStateOf(true) }
+                AnimatedVisibility(showImage) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context).data(buddy.avatarUrl).crossfade(true).build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        placeholder = painterResource(id = R.drawable.person_image_empty),
+                        modifier = Modifier
+                            .size(88.dp)
+                            .clip(CircleShape)
+                            .border(1.dp, MaterialTheme.colorScheme.onBackground, CircleShape),
+                        onError = { showImage = false },
                     )
                 }
-            }
-            var showImage by remember { mutableStateOf(true) }
-            AnimatedVisibility(showImage) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context).data(buddy.avatarUrl).crossfade(true).build(),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id = R.drawable.person_image_empty),
-                    modifier = Modifier
-                        .size(88.dp)
-                        .clip(CircleShape)
-                        .border(1.dp, MaterialTheme.colorScheme.onBackground, CircleShape),
-                    onError = { showImage = false },
-                )
-            }
-            Button(onClick = { BuddyCollectionActivity.start(context, buddy.username) }, modifier = Modifier.padding(16.dp)) {
-                Text(text = stringResource(R.string.title_collection))
+                Button(onClick = { BuddyCollectionActivity.start(context, buddy.username) }, modifier = Modifier.padding(16.dp)) {
+                    Text(text = stringResource(R.string.title_collection))
+                }
             }
             PlayStats(
                 player = player,
                 modifier = Modifier.padding(bottom = 16.dp),
-                onMoreClick = {
-                    if (buddy.username.isBlank()) {
-                        PlayerPlaysActivity.start(context, buddy.playNickname) // TODO - move this whole non-user player thing to its own activity
-                    } else {
-                        BuddyPlaysActivity.start(context, buddy.username)
-                    }
-                }
+                onMoreClick = { onMoreStatsClick() },
             )
             PlayerColors(
                 playerColors,
                 modifier = Modifier.padding(bottom = 16.dp),
                 onGenerateClick = { onGenerateColors() },
-                onEditClick = { PlayerColorsActivity.start(context, buddy.username, null) },
+                onEditClick = { onEditColorsClick() },
             )
-            Text(
-                text = if (buddy.updatedTimestamp == 0L)
-                    stringResource(R.string.needs_updating)
-                else
-                    stringResource(R.string.updated_prefix, buddy.updatedTimestamp.formatTimestamp(context, false).toString()),
-                modifier = Modifier.fillMaxWidth(),
-                style = MaterialTheme.typography.labelMedium,
-                textAlign = TextAlign.End,
-            )
+            buddy?.let {
+                Text(
+                    text = if (buddy.updatedTimestamp == 0L)
+                        stringResource(R.string.needs_updating)
+                    else
+                        stringResource(R.string.updated_prefix, buddy.updatedTimestamp.formatTimestamp(context, false).toString()),
+                    modifier = Modifier.fillMaxWidth(),
+                    style = MaterialTheme.typography.labelMedium,
+                    textAlign = TextAlign.End,
+                )
+            }
         }
     }
 }
@@ -524,8 +545,7 @@ private fun BuddyScreenPreview(
             player,
             BggColors.standardColorList.mapIndexed { index, color -> PlayerColor(color.first, index + 1) },
             true,
-            {},
-            {},
+            {}, {}, {}, {},
         )
     }
 }
