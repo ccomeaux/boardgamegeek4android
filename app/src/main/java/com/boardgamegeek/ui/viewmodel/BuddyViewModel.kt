@@ -13,6 +13,7 @@ import com.boardgamegeek.repository.UserRepository
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -205,6 +206,7 @@ class BuddyViewModel @Inject constructor(
 
     fun validateUsername(username: String) {
         viewModelScope.launch {
+            delay(200)
             _isUsernameValid.value = Event(userRepository.validateUsername(username))
         }
     }

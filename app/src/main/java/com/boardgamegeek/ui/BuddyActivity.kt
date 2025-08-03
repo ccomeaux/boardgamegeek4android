@@ -15,10 +15,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material3.*
@@ -27,12 +31,15 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -48,9 +55,9 @@ import com.boardgamegeek.model.Player
 import com.boardgamegeek.model.PlayerColor
 import com.boardgamegeek.model.User
 import com.boardgamegeek.ui.compose.*
-import com.boardgamegeek.ui.dialog.EditUsernameDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.theme.BggAppTheme
+import com.boardgamegeek.ui.theme.extendedColorScheme
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
@@ -81,6 +88,7 @@ class BuddyActivity : BaseActivity() {
         setContent {
             val context = LocalContext.current
             val snackbarHostState = remember { SnackbarHostState() }
+            val openAlertDialog = remember { mutableStateOf(false) }
 
             val viewModel: BuddyViewModel = viewModel()
             if (username.isNotBlank()) {
@@ -109,7 +117,9 @@ class BuddyActivity : BaseActivity() {
                                 playerName,
                                 onUpClick = { context.startActivity(context.intentFor<BuddiesActivity>().clearTop()) },
                                 onViewUserClick = { linkToBgg("user/${buddy?.username}") },
-                                onAddUsernameClick = { showAndSurvive(EditUsernameDialogFragment()) },
+                                onAddUsernameClick = {
+                                    openAlertDialog.value = true
+                                },
                             )
                         },
                         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -146,6 +156,35 @@ class BuddyActivity : BaseActivity() {
                                 },
                                 modifier = Modifier.padding(contentPadding),
                             )
+                            val usernameValidity = remember { mutableStateOf(UsernameValidity.Unknown) }
+                            val isUsernameValid by viewModel.isUsernameValid.observeAsState()
+                            LaunchedEffect(isUsernameValid) {
+                                val content = isUsernameValid?.getContentIfNotHandled()
+                                if (content != null) {
+                                    usernameValidity.value = if (content) UsernameValidity.Valid else UsernameValidity.Invalid
+                                }
+                            }
+                            if (openAlertDialog.value) {
+                                AddUsernameDialog(
+                                    onDismissRequest = {
+                                        openAlertDialog.value = false
+                                        usernameValidity.value = UsernameValidity.Unknown
+                                    },
+                                    onConfirmation = {
+                                        openAlertDialog.value = false
+                                        usernameValidity.value = UsernameValidity.Unknown
+                                        viewModel.addUsernameToPlayer(it)
+                                    },
+                                    usernameValidity = usernameValidity.value,
+                                    onValidate = {
+                                        usernameValidity.value = UsernameValidity.Validating
+                                        viewModel.validateUsername(it)
+                                    },
+                                    onValidUnknown = {
+                                        usernameValidity.value = UsernameValidity.Unknown
+                                    },
+                                )
+                            }
                         }
                     }
                 }
@@ -580,4 +619,110 @@ private class BuddyPreviewParameterProvider : PreviewParameterProvider<User> {
             isBuddy = true,
         ),
     )
+}
+
+private enum class UsernameValidity {
+    Unknown,
+    Validating,
+    Valid,
+    Invalid,
+}
+
+@Composable
+private fun AddUsernameDialog(
+    onConfirmation: (String) -> Unit,
+    onDismissRequest: () -> Unit,
+    usernameValidity: UsernameValidity,
+    modifier: Modifier = Modifier,
+    onValidate: (String) -> Unit = { },
+    onValidUnknown: () -> Unit = { },
+    focusRequester: FocusRequester = FocusRequester()
+) {
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    val textFieldValue = remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            TextButton(onClick = { onConfirmation(textFieldValue.value) }) { Text(stringResource(R.string.ok)) }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissRequest() }) { Text(stringResource(R.string.cancel)) }
+        },
+        title = { Text(text = stringResource(R.string.title_add_username)) },
+        text = {
+            Column(horizontalAlignment = Alignment.End) {
+                TextField(
+                    value = textFieldValue.value,
+                    maxLines = 1,
+                    label = { Text(stringResource(R.string.username)) },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            when (usernameValidity) {
+                                UsernameValidity.Unknown -> onValidate(textFieldValue.value)
+                                UsernameValidity.Valid -> onConfirmation(textFieldValue.value)
+                                else -> { /* do nothing */ }
+                            }
+                            onValidate(textFieldValue.value)
+                        }
+                    ),
+                    onValueChange = {
+                        textFieldValue.value = it
+                        onValidUnknown()
+                    },
+                    modifier = Modifier.padding(bottom = 8.dp).focusRequester(focusRequester = focusRequester)
+                )
+                Button(
+                    onClick = {
+                        if (usernameValidity == UsernameValidity.Unknown) onValidate(textFieldValue.value)
+                    },
+                    colors = when (usernameValidity) {
+                        UsernameValidity.Unknown -> ButtonDefaults.buttonColors()
+                        UsernameValidity.Validating -> ButtonDefaults.buttonColors()
+                        UsernameValidity.Valid -> ButtonDefaults.buttonColors(containerColor = MaterialTheme.extendedColorScheme.current.valid.color)
+                        UsernameValidity.Invalid -> ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    }
+                ) {
+                    when (usernameValidity) {
+                        UsernameValidity.Unknown -> {}
+                        UsernameValidity.Validating -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(ButtonDefaults.IconSize),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                strokeWidth = 2.dp,
+                            )
+                            Spacer(Modifier.width(4.dp))
+                        }
+                        UsernameValidity.Valid -> Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.padding(end = 4.dp))
+                        UsernameValidity.Invalid -> Icon(Icons.Default.Cancel, contentDescription = null, modifier = Modifier.padding(end = 4.dp))
+                    }
+                    Text(
+                        stringResource(
+                            when (usernameValidity) {
+                                UsernameValidity.Unknown -> R.string.validate
+                                UsernameValidity.Validating -> R.string.validating
+                                UsernameValidity.Valid -> R.string.valid
+                                UsernameValidity.Invalid -> R.string.not_found
+                            }
+                        )
+                    )
+                }
+            }
+        },
+        modifier = modifier,
+    )
+}
+
+@Preview
+@Composable
+private fun AddUsernameDialogPreview() {
+    BggAppTheme {
+        AddUsernameDialog(
+            {},
+            {},
+            usernameValidity = UsernameValidity.Valid,
+        )
+    }
 }

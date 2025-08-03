@@ -217,3 +217,33 @@ val surfaceContainerLowDarkHighContrast = Color(0xFF1F1F25)
 val surfaceContainerDarkHighContrast = Color(0xFF303036)
 val surfaceContainerHighDarkHighContrast = Color(0xFF3B3B41)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF47464C)
+
+val validLight = Color(0xFF336940)
+val onValidLight = Color(0xFFFFFFFF)
+val validContainerLight = Color(0xFFB5F1BC)
+val onValidContainerLight = Color(0xFF19512A)
+
+val validLightMediumContrast = Color(0xFF023F1B)
+val onValidLightMediumContrast = Color(0xFFFFFFFF)
+val validContainerLightMediumContrast = Color(0xFF42794E)
+val onValidContainerLightMediumContrast = Color(0xFFFFFFFF)
+
+val validLightHighContrast = Color(0xFF003415)
+val onValidLightHighContrast = Color(0xFFFFFFFF)
+val validContainerLightHighContrast = Color(0xFF1C532D)
+val onValidContainerLightHighContrast = Color(0xFFFFFFFF)
+
+val validDark = Color(0xFF9AD4A2)
+val onValidDark = Color(0xFF003917)
+val validContainerDark = Color(0xFF19512A)
+val onValidContainerDark = Color(0xFFB5F1BC)
+
+val validDarkMediumContrast = Color(0xFFAFEBB7)
+val onValidDarkMediumContrast = Color(0xFF002D11)
+val validContainerDarkMediumContrast = Color(0xFF659D6F)
+val onValidContainerDarkMediumContrast = Color(0xFF000000)
+
+val validDarkHighContrast = Color(0xFFC2FFC9)
+val onValidDarkHighContrast = Color(0xFF000000)
+val validContainerDarkHighContrast = Color(0xFF96D09E)
+val onValidContainerDarkHighContrast = Color(0xFF000F03)

@@ -1,19 +1,24 @@
 package com.boardgamegeek.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.lightColorScheme
-import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.Typography
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+
+val LocalLightCustomColors = staticCompositionLocalOf { extendedLight }
+val LocalDarkCustomColors = staticCompositionLocalOf { extendedDark }
+
+val MaterialTheme.extendedColorScheme
+    @Composable get() = (if (isSystemInDarkTheme()) LocalDarkCustomColors else LocalLightCustomColors)
+
+@Immutable
+data class ExtendedColorScheme(
+    val valid: ColorFamily,
+)
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -243,6 +248,60 @@ private val highContrastDarkColorScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDarkHighContrast,
 )
 
+val extendedLight = ExtendedColorScheme(
+    valid = ColorFamily(
+        validLight,
+        onValidLight,
+        validContainerLight,
+        onValidContainerLight,
+    ),
+)
+
+val extendedDark = ExtendedColorScheme(
+    valid = ColorFamily(
+        validDark,
+        onValidDark,
+        validContainerDark,
+        onValidContainerDark,
+    ),
+)
+
+val extendedLightMediumContrast = ExtendedColorScheme(
+    valid = ColorFamily(
+        validLightMediumContrast,
+        onValidLightMediumContrast,
+        validContainerLightMediumContrast,
+        onValidContainerLightMediumContrast,
+    ),
+)
+
+val extendedLightHighContrast = ExtendedColorScheme(
+    valid = ColorFamily(
+        validLightHighContrast,
+        onValidLightHighContrast,
+        validContainerLightHighContrast,
+        onValidContainerLightHighContrast,
+    ),
+)
+
+val extendedDarkMediumContrast = ExtendedColorScheme(
+    valid = ColorFamily(
+        validDarkMediumContrast,
+        onValidDarkMediumContrast,
+        validContainerDarkMediumContrast,
+        onValidContainerDarkMediumContrast,
+    ),
+)
+
+val extendedDarkHighContrast = ExtendedColorScheme(
+    valid = ColorFamily(
+        validDarkHighContrast,
+        onValidDarkHighContrast,
+        validContainerDarkHighContrast,
+        onValidContainerDarkHighContrast,
+    ),
+)
+
 @Immutable
 data class ColorFamily(
     val color: Color,
@@ -267,7 +326,6 @@ fun BggAppTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-
         darkTheme -> darkScheme
         else -> lightScheme
     }
