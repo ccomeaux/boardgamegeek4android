@@ -2,8 +2,21 @@ package com.boardgamegeek.ui
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.text.SpannableStringBuilder
 import android.view.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.MenuProvider
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -12,9 +25,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlayersBinding
-import com.boardgamegeek.databinding.RowPlayersPlayerBinding
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.requestFocusAndKeyboard
+import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.model.Player
+import com.boardgamegeek.ui.compose.ListItemDefaults
+import com.boardgamegeek.ui.compose.ListItemPrimaryText
+import com.boardgamegeek.ui.compose.ListItemSecondaryText
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
@@ -163,11 +180,13 @@ class PlayersFragment : Fragment() {
         override fun getItemCount() = players.size
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            return ViewHolder(parent.inflate(R.layout.row_players_player))
+            return ViewHolder(ComposeView(parent.context))
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            holder.bind(players.getOrNull(position))
+            players.getOrNull(position)?.let {
+                holder.bind(it)
+            }
         }
 
         override fun isSection(position: Int): Boolean {
@@ -187,30 +206,78 @@ class PlayersFragment : Fragment() {
             }
         }
 
-        inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val binding = RowPlayersPlayerBinding.bind(itemView)
-            fun bind(player: Player?) {
-                player?.let {
-                    val builder = SpannableStringBuilder()
-                    if (it.userFullName.isNullOrBlank()) {
-                        builder.append(it.name)
-                    } else if (it.userFullName.contains(it.name)) {
-                        val splits = it.userFullName.split(it.name)
-                        splits.forEachIndexed { i, split ->
-                            if (i > 0) builder.appendBold(it.name)
-                            builder.append(split)
+        inner class ViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+            fun bind(player: Player) {
+                composeView.setContent {
+                    PlayerListItem(
+                        player,
+                        onClick = {
+                            BuddyActivity.start(itemView.context, it.username, it.name)
                         }
-                    } else {
-                        builder.append(it.userFullName + " (").appendBold(it.name).append(")")
-                    }
-                    binding.nameView.text = builder
-                    binding.usernameView.setTextOrHide(it.username)
-                    binding.quantityView.setTextOrHide(viewModel.getDisplayText(it))
-                    itemView.setOnClickListener { _ ->
-                        BuddyActivity.start(itemView.context, it.username, it.name)
-                    }
+                    )
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PlayerListItem(
+    player: Player,
+    modifier: Modifier = Modifier,
+    onClick: (Player) -> Unit = {},
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = ListItemDefaults.threeLineHeight)
+            .background(MaterialTheme.colorScheme.surface)
+            .clickable(onClick = { onClick(player) })
+            .padding(ListItemDefaults.paddingValues)
+
+    ) {
+        val primaryText = buildAnnotatedString {
+            withStyle(style = ListItemDefaults.primaryTextStyle().toSpanStyle()) {
+                if (player.userFullName.isNullOrBlank()) {
+                    append(player.name)
+                } else if (player.userFullName.contains(player.name)) {
+                    val splits = player.userFullName.split(player.name)
+                    splits.forEachIndexed { i, split ->
+                        if (i > 0)
+                            withStyle(SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                                append(player.name)
+                            }
+                        append(split)
+                    }
+                } else {
+                    append(player.userFullName + "(")
+                    withStyle(SpanStyle(fontWeight = FontWeight.ExtraBold)) {
+                        append(player.name)
+                    }
+                    append(")")
+                }
+            }
+        }
+        ListItemPrimaryText(primaryText)
+        if (player.username.isNotBlank()) {
+            ListItemSecondaryText(player.username)
+        }
+        ListItemSecondaryText(pluralStringResource(R.plurals.plays_suffix, player.playCount, player.playCount)) // TODO show wins when sorted that way
+    }
+}
+
+@Preview
+@Composable
+private fun PlayerListItemPreview() {
+    BggAppTheme {
+        PlayerListItem(
+            Player(
+                name = "Chris",
+                username = "ccomeaux",
+                userFullName = "Mr. Chris Comeaux"
+            )
+        )
     }
 }

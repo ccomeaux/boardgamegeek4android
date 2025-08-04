@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -85,6 +86,22 @@ fun ListItemAvatar(url: String, modifier: Modifier = Modifier) {
             .padding(end = ListItemDefaults.horizontalPadding)
             .size(ListItemDefaults.imageSize)
             .clip(CircleShape)
+    )
+}
+
+
+@Composable
+fun ListItemPrimaryText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false
+) {
+    Text(
+        text = text,
+        color = getOnColor(isSelected),
+        modifier = modifier,
+        maxLines = 2,
+        overflow = TextOverflow.Ellipsis,
     )
 }
 
