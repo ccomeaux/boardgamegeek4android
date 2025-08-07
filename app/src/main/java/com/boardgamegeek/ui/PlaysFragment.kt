@@ -7,6 +7,21 @@ import android.util.SparseBooleanArray
 import android.view.*
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -14,16 +29,20 @@ import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlaysBinding
-import com.boardgamegeek.databinding.RowPlayBinding
-import com.boardgamegeek.model.Play
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.Play
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.ui.compose.ListItemDefaults
+import com.boardgamegeek.ui.compose.ListItemPrimaryText
+import com.boardgamegeek.ui.compose.ListItemSecondaryText
+import com.boardgamegeek.ui.compose.ListItemTertiaryText
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 @AndroidEntryPoint
 open class PlaysFragment : Fragment(), ActionMode.Callback {
@@ -113,7 +132,13 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
     private fun logPlay() {
         when (requireActivity().preferences().logPlayPreference()) {
-            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(requireContext(), gameId, gameName.orEmpty(), heroImageUrl.orEmpty(), arePlayersCustomSorted)
+            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(
+                requireContext(),
+                gameId,
+                gameName.orEmpty(),
+                heroImageUrl.orEmpty(),
+                arePlayersCustomSorted
+            )
             LOG_PLAY_TYPE_QUICK -> viewModel.logQuickPlay(gameId, gameName.orEmpty())
             LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(requireContext(), gameId, gameName.orEmpty())
         }
@@ -175,49 +200,36 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
         override fun getItemId(position: Int) = getItem(position)?.internalId ?: RecyclerView.NO_ID
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent.inflate(R.layout.row_play))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(ComposeView(parent.context))
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-            holder.bind(getItem(position), position)
+            getItem(position)?.let { holder.bind(it, position) }
         }
 
-        internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-            val binding = RowPlayBinding.bind(itemView)
-
-            fun bind(play: Play?, position: Int) {
-                if (play == null) return
-
-                binding.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
-                binding.infoView.setTextOrHide(play.describe(requireContext(), showGameName))
-                binding.commentView.setTextOrHide(markupConverter.strip(play.comments))
-
-                @StringRes val statusMessageId = when {
-                    play.deleteTimestamp > 0 -> R.string.sync_pending_delete
-                    play.updateTimestamp > 0 -> R.string.sync_pending_update
-                    play.dirtyTimestamp > 0 -> if (play.isSynced) R.string.sync_editing else R.string.sync_draft
-                    else -> 0
-                }
-                binding.statusView.setTextOrHide(statusMessageId)
-
-                itemView.isActivated = selectedItems.get(position, false)
-
-                itemView.setOnClickListener {
-                    if (actionMode == null) {
-                        PlayActivity.start(requireContext(), play.internalId)
-                    } else {
-                        toggleSelection(position)
-                    }
-                }
-                itemView.setOnLongClickListener {
-                    if (actionMode != null) {
-                        return@setOnLongClickListener false
-                    }
-                    actionMode = requireActivity().startActionMode(this@PlaysFragment)
-                    if (actionMode == null) {
-                        return@setOnLongClickListener false
-                    }
-                    toggleSelection(position)
-                    true
+        internal inner class ViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+            fun bind(play: Play, position: Int) {
+                composeView.setContent {
+                    PlayListItem(
+                        play = play,
+                        showGameName = showGameName,
+                        markupConverter = markupConverter,
+                        isSelected = selectedItems.get(position, false),
+                        onClick = {
+                            if (actionMode == null) {
+                                PlayActivity.start(requireContext(), play.internalId)
+                            } else {
+                                toggleSelection(position)
+                            }
+                        },
+                        onLongClick = {
+                            if (actionMode == null) {
+                                actionMode = requireActivity().startActionMode(this@PlaysFragment)
+                                if (actionMode != null) {
+                                    toggleSelection(position)
+                                }
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -375,4 +387,109 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             }
         }
     }
+}
+
+@Composable
+fun PlayListItem(
+    play: Play,
+    showGameName: Boolean,
+    markupConverter: XmlApiMarkupConverter,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = ListItemDefaults.threeLineHeight)
+            .background(
+                if (isSelected)
+                    MaterialTheme.colorScheme.primaryContainer
+                else
+                    MaterialTheme.colorScheme.surface
+            )
+            .then(
+                if (isSelected)
+                    Modifier.clickable(onClick = onClick)
+                else
+                    Modifier.combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    )
+            )
+            .padding(ListItemDefaults.paddingValues)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ListItemPrimaryText(
+                if (showGameName) play.gameName else play.dateForDisplay(LocalContext.current).toString(), isSelected = isSelected
+            )
+            @StringRes val statusMessageId = when {
+                play.deleteTimestamp > 0 -> R.string.sync_pending_delete
+                play.updateTimestamp > 0 -> R.string.sync_pending_update
+                play.dirtyTimestamp > 0 -> if (play.isSynced) R.string.sync_editing else R.string.sync_draft
+                else -> ResourcesCompat.ID_NULL
+            }
+            if (statusMessageId != ResourcesCompat.ID_NULL) {
+                ListItemTertiaryText(stringResource(statusMessageId), isSelected = isSelected)
+            }
+        }
+        ListItemSecondaryText(play.describe(LocalContext.current, showGameName), isSelected = isSelected)
+        val comments = markupConverter.strip(play.comments.replace("\n", " "))
+        if (comments.isNotBlank()) {
+            ListItemSecondaryText(comments, isSelected = isSelected)
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun PlayListItemPreview(
+    @PreviewParameter(PlayPreviewParameterProvider::class) play: Play,
+) {
+    BggAppTheme {
+        PlayListItem(
+            play = play,
+            showGameName = true,
+            markupConverter = XmlApiMarkupConverter(LocalContext.current),
+            isSelected = false,
+        )
+    }
+}
+
+private class PlayPreviewParameterProvider : PreviewParameterProvider<Play> {
+    override val values = sequenceOf(
+        Play(
+            internalId = INVALID_ID.toLong(),
+            playId = INVALID_ID,
+            dateInMillis = System.currentTimeMillis(),
+            gameId = 13,
+            gameName = "CATAN",
+            quantity = 1,
+            length = 92,
+            location = "House",
+//    incomplete = false,
+//    val noWinStats = false,
+            comments = "Lots of 5s and 9s got rolled!",
+//    val syncTimestamp: Long = 0L,
+//    private val initialPlayerCount: Int = 0,
+            dirtyTimestamp = 1L,
+            updateTimestamp = 1L,
+            deleteTimestamp = 0L,
+//    val startTime: Long = 0L,
+//    val imageUrl: String = "",
+//    val thumbnailUrl: String = "",
+//    val heroImageUrl: String = "",
+//    val updatedPlaysTimestamp: Long = 0L,
+//    val gameIsCustomSorted: Boolean = false,
+//    val subtypes: List<String> = emptyList(),
+//    private val _players: List<PlayPlayer>? = null,
+        ),
+    )
 }

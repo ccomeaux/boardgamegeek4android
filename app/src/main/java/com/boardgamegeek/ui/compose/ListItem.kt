@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -154,6 +157,22 @@ fun ListItemSecondaryText(
             maxLines = 1,
         )
     }
+}
+
+@Composable
+fun ListItemTertiaryText(
+    text: String,
+    modifier: Modifier = Modifier,
+    isSelected: Boolean = false,
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        style = MaterialTheme.typography.labelSmall,
+        color = getOnVariantColor(isSelected),
+        overflow = TextOverflow.Clip,
+        maxLines = 1,
+    )
 }
 
 @Composable
