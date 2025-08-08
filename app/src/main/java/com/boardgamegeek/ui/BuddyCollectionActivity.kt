@@ -235,7 +235,7 @@ private fun BuddyCollectionScreen(
                     items,
                     key = { it.collectionId }
                 ) { item ->
-                    CollectionRow(item) {
+                    CollectionListItem(item) {
                         GameActivity.start(context, item.gameId, item.gameName)
                     }
                 }
@@ -245,7 +245,7 @@ private fun BuddyCollectionScreen(
 }
 
 @Composable
-private fun CollectionRow(
+private fun CollectionListItem(
     collectionItem: CollectionItem,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
@@ -267,11 +267,11 @@ private fun CollectionRow(
 
 @PreviewLightDark
 @Composable
-private fun CollectionRowPreview(
+private fun CollectionListItemPreview(
     @PreviewParameter(CollectionItemPreviewParameterProvider::class) collectionItem: CollectionItem,
 ) {
     BggAppTheme {
-        CollectionRow(collectionItem, Modifier)
+        CollectionListItem(collectionItem, Modifier)
     }
 }
 
