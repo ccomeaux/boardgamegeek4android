@@ -6,15 +6,30 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.TextView
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlaysSummaryBinding
-import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.Location
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.Player
+import com.boardgamegeek.model.PlayerColor
+import com.boardgamegeek.ui.compose.ListItemDefaults
+import com.boardgamegeek.ui.compose.ListItemPrimaryText
+import com.boardgamegeek.ui.compose.ListItemSecondaryText
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.PlaysSummaryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -132,10 +147,11 @@ class PlaysSummaryFragment : Fragment() {
     }
 
     private fun addPlayToContainer(play: Play, container: LinearLayout) {
-        val view = createRow(container, play.gameName, play.describe(requireContext(), true))
-        view.setOnClickListener {
-            PlayActivity.start(requireContext(), play.internalId)
-        }
+        createRow(
+            container,
+            play.gameName,
+            play.describe(requireContext(), true)
+        ) { PlayActivity.start(requireContext(), play.internalId) }
     }
 
     private fun bindPlayCount(playCount: Int) {
@@ -156,8 +172,12 @@ class PlaysSummaryFragment : Fragment() {
         } else {
             binding.playersCard.isVisible = true
             for (player in players) {
-                createRowWithPlayCount(binding.playersContainer, player.description, player.playCount).apply {
-                    setOnClickListener { BuddyActivity.start(requireContext(), player.username, player.name) }
+                createRow(
+                    binding.playersContainer,
+                    player.description,
+                    resources.getQuantityString(R.plurals.plays_suffix, player.playCount, player.playCount)
+                ) {
+                    BuddyActivity.start(requireContext(), player.username, player.name)
                 }
             }
             binding.morePlayersButton.isVisible = true
@@ -173,8 +193,12 @@ class PlaysSummaryFragment : Fragment() {
         } else {
             binding.locationsCard.isVisible = true
             for ((name, playCount) in locations) {
-                createRowWithPlayCount(binding.locationsContainer, name, playCount).apply {
-                    setOnClickListener { LocationActivity.start(context, name) }
+                createRow(
+                    binding.locationsContainer,
+                    name,
+                    resources.getQuantityString(R.plurals.plays_suffix, playCount, playCount)
+                ) {
+                    LocationActivity.start(requireContext(), name)
                 }
             }
             binding.moreLocationsButton.isVisible = true
@@ -182,16 +206,13 @@ class PlaysSummaryFragment : Fragment() {
         binding.moreLocationsButton.setOnClickListener { startActivity<LocationsActivity>() }
     }
 
-    private fun createRow(container: ViewGroup, title: String, text: String): View {
-        return LayoutInflater.from(context).inflate(R.layout.row_play_summary, container, false).apply {
-            findViewById<TextView>(R.id.line1).text = title
-            findViewById<TextView>(R.id.line2).text = text
+    private fun createRow(container: ViewGroup, title: String, text: String, onClick: () -> Unit): View {
+        return ComposeView(container.context).apply {
+            this.setContent {
+                SimpleListItem(title, text, onClick)
+            }
             container.addView(this)
         }
-    }
-
-    private fun createRowWithPlayCount(container: LinearLayout, title: String, playCount: Int): View {
-        return createRow(container, title, resources.getQuantityString(R.plurals.plays_suffix, playCount, playCount))
     }
 
     private fun bindColors(colors: List<PlayerColor>?) {
@@ -214,5 +235,35 @@ class PlaysSummaryFragment : Fragment() {
                 PlayerColorsActivity.start(requireContext(), username, null)
             }
         }
+    }
+}
+
+@Composable
+private fun SimpleListItem(
+    title: String,
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = ListItemDefaults.twoLineHeight)
+            .background(MaterialTheme.colorScheme.background)
+            .clickable(onClick = onClick)
+            .padding(ListItemDefaults.paddingValues)
+    ) {
+        ListItemPrimaryText(title)
+        ListItemSecondaryText(text)
+    }
+}
+
+@Preview
+@Composable
+private fun SimpleListItemPreview() {
+    BggAppTheme {
+        SimpleListItem("Title", "Supporting text", {})
     }
 }
