@@ -420,7 +420,7 @@ fun PlayListItem(
                         onLongClick = onLongClick,
                     )
             )
-            .padding(ListItemDefaults.paddingValues)
+            .padding(ListItemDefaults.tallPaddingValues)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
