@@ -24,7 +24,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.startActivity
@@ -32,8 +31,9 @@ import com.boardgamegeek.model.Play
 import com.boardgamegeek.ui.compose.BggLoadingIndicator
 import com.boardgamegeek.ui.compose.Drawer
 import com.boardgamegeek.ui.compose.EmptyContent
+import com.boardgamegeek.ui.compose.ListHeader
 import com.boardgamegeek.ui.theme.BggAppTheme
-import com.boardgamegeek.ui.viewmodel.PlaysViewModel
+import com.boardgamegeek.ui.viewmodel.BuddyPlaysViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
@@ -55,7 +55,7 @@ class BuddyPlaysActivity : BaseActivity() {
         }
 
         setContent {
-            val viewModel by viewModels<PlaysViewModel>()
+            val viewModel by viewModels<BuddyPlaysViewModel>()
             val plays by viewModel.plays.observeAsState()
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -68,7 +68,7 @@ class BuddyPlaysActivity : BaseActivity() {
                         topBar = {
                             BuddyPlaysTopBar(
                                 buddyName = buddyName,
-                                playCount = plays?.sumOf { play -> play.quantity } ?: 0,
+                                playCount = plays?.values?.sumOf { list -> list.sumOf { play -> play.quantity } } ?: 0,
                                 scrollBehavior = scrollBehavior,
                                 onUpClick = {
                                     BuddyActivity.startUp(this, buddyName)
@@ -126,7 +126,7 @@ private fun BuddyPlaysTopBar(
 
 @Composable
 private fun BuddyPlaysScreen(
-    plays: List<Play>?,
+    plays: Map<String, List<Play>>?,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
@@ -160,40 +160,24 @@ private fun BuddyPlaysScreen(
                 modifier = modifier.fillMaxSize(),
                 contentPadding = contentPadding,
             ) {
-                items(plays) {
-                    PlayListItem(
-                        it,
-                        showGameName = true,
-                        markupConverter = markupConverter,
+                plays.forEach { (headerText, plays) ->
+                    stickyHeader {
+                        ListHeader(headerText)
+                    }
+                    items(
+                        items = plays,
+                        key = { it.internalId },
                     ) {
-                        PlayActivity.start(context, it.internalId)
+                        PlayListItem(
+                            it,
+                            showGameName = true,
+                            markupConverter = markupConverter,
+                        ) {
+                            PlayActivity.start(context, it.internalId)
+                        }
                     }
                 }
-//                locations.forEach { (headerText, locations) ->
-//                    stickyHeader {
-//                        ListHeader(headerText)
-//                    }
-//                    items(
-//                        items = locations,
-//                        key = { it.name }
-//                    ) { location ->
-//                        LocationListItem(
-//                            location,
-//                            onClick = { onItemClick(location) }
-//                        )
-//                    }
-//                }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun BuddyPlaysScreenPreview() {
-    BggAppTheme {
-        BuddyPlaysScreen(
-            emptyList()
-        )
     }
 }

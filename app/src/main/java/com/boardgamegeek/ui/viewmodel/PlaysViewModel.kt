@@ -33,7 +33,7 @@ class PlaysViewModel @Inject constructor(
     )
 
     enum class Mode {
-        ALL, GAME, BUDDY, PLAYER, LOCATION
+        ALL, GAME, PLAYER, LOCATION
     }
 
     enum class FilterType {
@@ -80,7 +80,6 @@ class PlaysViewModel @Inject constructor(
                 Mode.ALL -> playRepository.loadPlaysFlow()
                 Mode.GAME -> playRepository.loadPlaysByGameFlow(it.id)
                 Mode.LOCATION -> playRepository.loadPlaysByLocationFlow(it.name)
-                Mode.BUDDY -> playRepository.loadPlaysByUsernameFlow(it.name)
                 Mode.PLAYER -> playRepository.loadPlaysByPlayerNameFlow(it.name)
             }
             emitSource(list.distinctUntilChanged().asLiveData())
@@ -137,10 +136,6 @@ class PlaysViewModel @Inject constructor(
 
     fun setLocation(locationName: String) {
         playInfo.value = PlayInfo(Mode.LOCATION, locationName)
-    }
-
-    fun setUsername(username: String) {
-        playInfo.value = PlayInfo(Mode.BUDDY, username)
     }
 
     fun setPlayerName(playerName: String) {
