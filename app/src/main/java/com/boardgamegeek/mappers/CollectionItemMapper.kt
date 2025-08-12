@@ -2,17 +2,17 @@ package com.boardgamegeek.mappers
 
 import android.graphics.Color
 import com.boardgamegeek.db.model.*
-import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.extensions.asDateForApi
 import com.boardgamegeek.extensions.sortName
 import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.model.CollectionItemRemote
-import com.boardgamegeek.model.GameSubtype
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.provider.BggContract
 import okhttp3.FormBody
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
 
 fun CollectionItemRemote.mapForInsert(updatedTimestamp: Long) = CollectionItemForInsert(
     internalId = 0L,
@@ -360,7 +360,7 @@ private fun CollectionItem.addGame(game: GameEntity): CollectionItem {
         allPlaysColor = game.allPlaysColor ?: Color.TRANSPARENT,
         playingTime = game.playingTime ?: 0,
         minimumAge = game.minimumAge ?: 0,
-        rank = game.gameRank ?: GameSubtype.RANK_UNKNOWN,
+        rank = game.gameRank ?: Game.RANK_UNKNOWN,
         geekRating = game.bayesAverage ?: CollectionItem.UNRATED,
         averageWeight = game.averageWeight ?: CollectionItem.UNWEIGHTED,
         isFavorite = game.isStarred ?: false,

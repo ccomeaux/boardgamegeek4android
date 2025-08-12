@@ -235,7 +235,7 @@ data class CollectionItem(
 
     companion object {
         const val WISHLIST_PRIORITY_UNKNOWN = 0
-        const val RANK_UNKNOWN = GameSubtype.RANK_UNKNOWN
+        const val RANK_UNKNOWN = Game.RANK_UNKNOWN
         const val YEAR_UNKNOWN = Game.YEAR_UNKNOWN
         const val UNRATED = Game.UNRATED
         const val UNWEIGHTED = Game.UNWEIGHTED
@@ -279,7 +279,7 @@ data class CollectionItem(
 
         fun Iterable<CollectionItem>.filterRated() = filter { it.rating != UNRATED }
 
-        fun Iterable<CollectionItem>.filterUnrated() = filter { it.rating == UNRATED  }
+        fun Iterable<CollectionItem>.filterUnrated() = filter { it.rating == UNRATED }
 
         fun Iterable<CollectionItem>.filterUncommented() = filter { it.comment.isBlank() }
 

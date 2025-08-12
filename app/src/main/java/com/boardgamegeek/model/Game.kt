@@ -32,7 +32,7 @@ data class Game(
     val numberOfComments: Int = 0,
     val numberOfUsersWeighting: Int = 0,
     val averageWeight: Double = 0.0,
-    val overallRank: Int = GameSubtype.RANK_UNKNOWN,
+    val overallRank: Int = RANK_UNKNOWN,
     val updated: Long = 0,
     val updatedPlays: Long = 0,
     val customPlayerSort: Boolean = false,
@@ -80,5 +80,6 @@ data class Game(
         const val YEAR_UNKNOWN = 0
         const val UNRATED = 0.0
         const val UNWEIGHTED = 0.0
+        const val RANK_UNKNOWN = Integer.MAX_VALUE
     }
 }

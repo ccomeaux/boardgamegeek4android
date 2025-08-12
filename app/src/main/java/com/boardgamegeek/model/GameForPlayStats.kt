@@ -4,6 +4,6 @@ data class GameForPlayStats(
     val id: Int,
     val name: String,
     val playCount: Int,
-    val bggRank: Int = GameSubtype.RANK_UNKNOWN,
+    val bggRank: Int = Game.RANK_UNKNOWN,
     val isOwned: Boolean = false,
 )

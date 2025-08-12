@@ -3,10 +3,10 @@ package com.boardgamegeek.filterer
 import android.content.Context
 import androidx.annotation.StringRes
 import com.boardgamegeek.R
-import com.boardgamegeek.model.CollectionItem
-import com.boardgamegeek.model.GameSubtype
 import com.boardgamegeek.extensions.IntervalDelegate
-import java.util.*
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Game
+import java.util.Locale
 
 class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
     var min by IntervalDelegate(LOWER_BOUND, LOWER_BOUND, UPPER_BOUND)
@@ -45,7 +45,7 @@ class GeekRankingFilterer(context: Context) : CollectionFilterer(context) {
 
     override fun filter(item: CollectionItem): Boolean {
         return when {
-            item.rank == GameSubtype.RANK_UNKNOWN -> includeUnranked
+            item.rank == Game.RANK_UNKNOWN -> includeUnranked
             max == UPPER_BOUND -> item.rank >= min
             min == LOWER_BOUND -> item.rank <= max
             min == max -> item.rank == min

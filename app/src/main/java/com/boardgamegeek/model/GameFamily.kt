@@ -7,7 +7,7 @@ import com.boardgamegeek.extensions.getText
 
 data class GameFamily(
     val family: Family,
-    val rank: Int = RANK_UNKNOWN,
+    val rank: Int = Game.RANK_UNKNOWN,
     val bayesAverage: Double = 0.0,
 ) {
     enum class Family {
@@ -22,7 +22,7 @@ data class GameFamily(
         Unknown,
     }
 
-    fun isRankValid() = rank != RANK_UNKNOWN
+    fun isRankValid() = rank != Game.RANK_UNKNOWN
 
     fun describe(context: Context): CharSequence {
         val typeDescription = describeType(context)
@@ -35,7 +35,7 @@ data class GameFamily(
     /**
      * Describes the rank with either the subtype or the family name.
      */
-    fun describeType(context: Context): CharSequence {
+    fun describeType(context: Context): String {
         @StringRes val resId = when (family) {
             Family.Abstract -> R.string.title_abstract
             Family.Childrens -> R.string.title_childrens
@@ -47,10 +47,6 @@ data class GameFamily(
             Family.War -> R.string.title_war
             Family.Unknown -> 0
         }
-        return if (resId == 0) "" else context.getText(resId)
-    }
-
-    companion object {
-        private const val RANK_UNKNOWN = Integer.MAX_VALUE
+        return if (resId == 0) "" else context.getString(resId)
     }
 }
