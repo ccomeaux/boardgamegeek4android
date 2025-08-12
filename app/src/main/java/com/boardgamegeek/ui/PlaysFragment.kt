@@ -375,12 +375,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
             }
         }
 
-        fun newInstanceForBuddy(): PlaysFragment {
-            return PlaysFragment().apply {
-                arguments = bundleOf(KEY_EMPTY_STRING_RES_ID to R.string.empty_plays_buddy)
-            }
-        }
-
         fun newInstanceForPlayer(): PlaysFragment {
             return PlaysFragment().apply {
                 arguments = bundleOf(KEY_EMPTY_STRING_RES_ID to R.string.empty_plays_player)
@@ -396,8 +390,8 @@ fun PlayListItem(
     markupConverter: XmlApiMarkupConverter,
     modifier: Modifier = Modifier,
     isSelected: Boolean = false,
-    onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
+    onClick: () -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
