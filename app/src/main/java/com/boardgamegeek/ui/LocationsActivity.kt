@@ -61,7 +61,7 @@ class LocationsActivity : BaseActivity() {
                     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                     topBar = {
                         LocationsTopBar(
-                            locationCount = locations?.size ?: 0,
+                            locationCount = locations?.values?.sumOf { it.size } ?: 0,
                             sortBy = sortBy,
                             scrollBehavior = scrollBehavior,
                             onUpClick = { finish() },
@@ -91,7 +91,7 @@ private enum class LocationsSort(
 }
 
 @Composable
-fun LocationsTopBar(
+private fun LocationsTopBar(
     locationCount: Int,
     sortBy: Location.SortType,
     modifier: Modifier = Modifier,
