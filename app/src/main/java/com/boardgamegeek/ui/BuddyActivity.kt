@@ -42,6 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
@@ -207,18 +208,6 @@ class BuddyActivity : BaseActivity() {
 //            }
 //        }
     }
-
-//    override val optionsMenuId = R.menu.buddy
-//
-//    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-//        when (item.itemId) {
-//            R.id.add_username -> {
-//                showAndSurvive(EditUsernameDialogFragment())
-//                return true
-//            }
-//        }
-//        return super.onOptionsItemSelected(item)
-//    }
 
     companion object {
         private const val KEY_USERNAME = "BUDDY_NAME"
@@ -715,7 +704,7 @@ private fun AddUsernameDialog(
     )
 }
 
-@Preview
+@PreviewLightDark
 @Composable
 private fun AddUsernameDialogPreview() {
     BggAppTheme {
