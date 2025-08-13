@@ -13,27 +13,23 @@ class CategoriesViewModel @Inject constructor(
     application: Application,
     private val repository: CategoryRepository,
 ) : AndroidViewModel(application) {
-    private val _sort = MutableLiveData<Category.SortType>()
-    val sort: LiveData<Category.SortType>
-        get() = _sort
+    private val _sortType = MutableLiveData<Category.SortType>()
+    val sortType: LiveData<Category.SortType>
+        get() = _sortType
 
     init {
         sort(Category.SortType.ITEM_COUNT)
     }
 
-    val categories = sort.switchMap {
+    val categories = sortType.switchMap {
         liveData {
-            sort.value?.let {
+            sortType.value?.let {
                 emitSource(repository.loadCategoriesFlow(it).distinctUntilChanged().asLiveData())
             }
         }
     }
 
     fun sort(sortType: Category.SortType) {
-        if (_sort.value != sortType) _sort.value = sortType
-    }
-
-    fun reload() {
-        _sort.value?.let { _sort.value = it }
+        if (_sortType.value != sortType) _sortType.value = sortType
     }
 }

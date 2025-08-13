@@ -13,27 +13,23 @@ class MechanicsViewModel @Inject constructor(
     application: Application,
     private val repository: MechanicRepository,
 ) : AndroidViewModel(application) {
-    private val _sort = MutableLiveData<Mechanic.SortType>()
-    val sort: LiveData<Mechanic.SortType>
-        get() = _sort
+    private val _sortType = MutableLiveData<Mechanic.SortType>()
+    val sortType: LiveData<Mechanic.SortType>
+        get() = _sortType
 
     init {
         sort(Mechanic.SortType.ITEM_COUNT)
     }
 
-    val mechanics = sort.switchMap {
+    val mechanics = sortType.switchMap {
         liveData {
-            sort.value?.let {
+            sortType.value?.let {
                 emitSource(repository.loadMechanicsFlow(it).distinctUntilChanged().asLiveData())
             }
         }
     }
 
     fun sort(sortType: Mechanic.SortType) {
-        if (_sort.value != sortType) _sort.value = sortType
-    }
-
-    fun reload() {
-        _sort.value?.let { _sort.value = it }
+        if (_sortType.value != sortType) _sortType.value = sortType
     }
 }
