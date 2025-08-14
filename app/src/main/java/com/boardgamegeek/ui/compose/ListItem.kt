@@ -203,7 +203,7 @@ private fun ListItemPreviews() {
             ListItemPrimaryText("Title")
             ListItemSecondaryText("Description")
             ListItemSecondaryText("Favorite", icon = Icons.Outlined.Star)
-            Row {
+            Row(modifier = Modifier.heightIn(max = ListItemDefaults.oneLineHeight)) {
                 ListItemSecondaryText("Description")
                 VerticalDivider()
                 ListItemSecondaryText("Favorite", icon = Icons.Outlined.Star)
