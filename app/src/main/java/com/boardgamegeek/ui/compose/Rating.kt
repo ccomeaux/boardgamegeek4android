@@ -16,29 +16,39 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.BggColors
-import com.boardgamegeek.extensions.asBoundedRating
-import com.boardgamegeek.extensions.darkenColor
-import com.boardgamegeek.extensions.toColor
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import java.text.DecimalFormat
+
+object RatingDefaults {
+    val widthLarge = 56.dp
+    val widthSmall = 48.dp
+    @Composable
+    fun textStyleLarge() = MaterialTheme.typography.labelLarge
+    @Composable
+    fun textStyleSmall() = MaterialTheme.typography.titleMedium
+
+}
 
 @Composable
 fun Rating(
     rating: Double,
     modifier: Modifier = Modifier,
     format: DecimalFormat = DecimalFormat("#0.#"),
-    style: TextStyle = MaterialTheme.typography.labelLarge,
+    style: TextStyle = RatingDefaults.textStyleLarge(),
+    width: Dp = RatingDefaults.widthLarge,
 ) {
     val colorRgb = rating.toColor(BggColors.ratingColors)
     val shape = RoundedCornerShape(4.dp)
     Text(
         text = rating.asBoundedRating(LocalContext.current, format, R.string.unrated_abbr),
+        color = Color(colorRgb.getTextColor()),
         textAlign = TextAlign.Center,
         modifier = modifier
-            .widthIn(min = 56.dp)
+            .widthIn(min = width)
             .background(Color(colorRgb), shape)
             .border(1.dp, Color(colorRgb.darkenColor(0.75)), shape),
         style = style,

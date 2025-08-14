@@ -36,6 +36,7 @@ import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.GameFamily
 import com.boardgamegeek.model.GameSubtype
 import com.boardgamegeek.ui.compose.Rating
+import com.boardgamegeek.ui.compose.RatingDefaults
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -139,7 +140,7 @@ private fun GameSubtypeListItem(
         description = gameSubtype.describeType(LocalContext.current),
         rating = gameSubtype.bayesAverage,
         textStyle = MaterialTheme.typography.titleMedium,
-        labelStyle = MaterialTheme.typography.labelLarge,
+        labelStyle = RatingDefaults.textStyleLarge(),
         modifier = modifier,
     )
 }
@@ -154,7 +155,7 @@ private fun GameFamilyListItem(
         description = gameFamily.describeType(LocalContext.current),
         rating = gameFamily.bayesAverage,
         textStyle = MaterialTheme.typography.bodyMedium,
-        labelStyle = MaterialTheme.typography.labelMedium,
+        labelStyle = RatingDefaults.textStyleSmall(),
         modifier = modifier,
     )
 }
