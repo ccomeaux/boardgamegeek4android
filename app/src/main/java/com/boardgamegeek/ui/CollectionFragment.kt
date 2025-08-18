@@ -37,7 +37,7 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemViewHolder
-import com.boardgamegeek.ui.adapter.CollectionRowItem
+import com.boardgamegeek.ui.compose.CollectionItemListItem
 import com.boardgamegeek.ui.dialog.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
@@ -420,7 +420,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
             fun bindView(item: CollectionItem, position: Int) {
                 composeView.setContent {
                     BggAppTheme {
-                        CollectionRowItem(
+                        CollectionItemListItem(
                             name = item.collectionName,
                             thumbnailUrl = item.thumbnailUrl,
                             yearPublished = item.yearPublished,
@@ -462,7 +462,8 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                             onLongClick = {
                                 if (!isCreatingShortcut &&
                                     changingGamePlayId == BggContract.INVALID_ID.toLong() &&
-                                    actionMode == null) {
+                                    actionMode == null
+                                ) {
                                     actionMode = requireActivity().startActionMode(this@CollectionFragment)
                                     toggleSelection(position)
                                 }
