@@ -19,5 +19,5 @@ abstract class CollectionDateSorter(context: Context) : CollectionSorter(context
         return if (time == null || time == 0L) context.getString(defaultValueResId) else headerDateFormat.format(time)
     }
 
-    override fun getDisplayInfo(item: CollectionItem) = ""
+    override fun getDisplayInfo(item: CollectionItem) = null
 }

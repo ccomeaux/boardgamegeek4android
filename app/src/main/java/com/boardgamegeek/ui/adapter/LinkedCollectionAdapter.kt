@@ -3,6 +3,7 @@ package com.boardgamegeek.ui.adapter
 import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -21,8 +22,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.asPastDaySpan
 import com.boardgamegeek.extensions.asYear
-import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.ui.GameActivity
@@ -72,7 +73,7 @@ class LinkedCollectionAdapter :
 }
 
 @Composable
-private fun CollectionRowItem(
+fun CollectionRowItem(
     name: String,
     thumbnailUrl: String,
     yearPublished: Int?,
@@ -81,7 +82,9 @@ private fun CollectionRowItem(
     rating: Double?,
     timestamp: Long?,
     modifier: Modifier = Modifier,
-    onClick: () -> Unit = {}
+    isSelected: Boolean = false,
+    onClick: () -> Unit = {},
+    onLongClick: () -> Unit = {},
 ) {
     Row(
         horizontalArrangement = Arrangement.Start,
@@ -89,8 +92,21 @@ private fun CollectionRowItem(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = ListItemDefaults.threeLineHeight)
-            .background(MaterialTheme.colorScheme.surface)
-            .clickable(onClick = onClick)
+            .background(
+                if (isSelected)
+                    MaterialTheme.colorScheme.primaryContainer
+                else
+                    MaterialTheme.colorScheme.surface
+            )
+            .then(
+                if (isSelected)
+                    Modifier.clickable(onClick = onClick)
+                else
+                    Modifier.combinedClickable(
+                        onClick = onClick,
+                        onLongClick = onLongClick,
+                    )
+            )
             .padding(ListItemDefaults.tallPaddingValues),
     ) {
         ListItemThumbnail(thumbnailUrl)
@@ -99,7 +115,8 @@ private fun CollectionRowItem(
             Row(modifier = Modifier.fillMaxWidth()) {
                 ListItemPrimaryText(
                     text = name,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    isSelected = isSelected,
                 )
                 if (isFavorite) {
                     Icon(
@@ -119,7 +136,8 @@ private fun CollectionRowItem(
                     ListItemSecondaryText(
                         text = yearPublished.asYear(context),
                         icon = Icons.Outlined.CalendarToday,
-                        modifier = Modifier.alignByBaseline()
+                        modifier = Modifier.alignByBaseline(),
+                        isSelected = isSelected,
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                 }
@@ -135,25 +153,26 @@ private fun CollectionRowItem(
                     Spacer(modifier = Modifier.weight(1f))
                     ListItemSecondaryText(
                         text = infoText,
-                        modifier = Modifier.alignByBaseline()
+                        modifier = Modifier.alignByBaseline(),
+                        isSelected = isSelected,
                     )
                 } else if (timestamp != null) {
                     Spacer(modifier = Modifier.weight(1f))
+                    val never = stringResource(R.string.never)
                     var relativeTimestamp by remember {
-                        mutableStateOf(
-                            timestamp.formatTimestamp(context, includeTime = false).toString()
-                        )
+                        mutableStateOf(never)
+                    }
+                    LaunchedEffect(Unit) {
+                        while (true) {
+                            relativeTimestamp = timestamp.asPastDaySpan(context).toString()
+                            delay(30.seconds)
+                        }
                     }
                     ListItemSecondaryText(
                         text = relativeTimestamp,
-                        modifier = Modifier.alignByBaseline()
+                        modifier = Modifier.alignByBaseline(),
+                        isSelected = isSelected,
                     )
-                    LaunchedEffect(Unit) {
-                        while (true) {
-                            delay(30.seconds)
-                            relativeTimestamp = timestamp.formatTimestamp(context, includeTime = false).toString()
-                        }
-                    }
                 }
             }
         }

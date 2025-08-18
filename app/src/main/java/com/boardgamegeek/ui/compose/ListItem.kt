@@ -36,7 +36,7 @@ object ListItemDefaults {
     val twoLineHeight = 72.dp
     val threeLineHeight = 88.dp
     val imageSize = 56.dp
-    val secondaryImageSize = 18.dp
+    val secondaryImageSize = 12.dp
     @Composable
     fun secondaryTextStyle() = MaterialTheme.typography.bodyMedium
     @Composable

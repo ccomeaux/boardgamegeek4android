@@ -25,7 +25,7 @@ class LastViewedSorter(context: Context) : CollectionSorter(context) {
 
     override fun getHeaderText(item: CollectionItem) = item.lastViewedDate.asPastDaySpan(context).toString()
 
-    override fun getDisplayInfo(item: CollectionItem) = ""
+    override fun getDisplayInfo(item: CollectionItem) = null
 
     override fun getTimestamp(item: CollectionItem) = item.lastViewedDate
 }

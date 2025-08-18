@@ -12,6 +12,8 @@ import android.widget.LinearLayout
 import androidx.annotation.StringRes
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.Toolbar
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
@@ -21,11 +23,9 @@ import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentCollectionBinding
-import com.boardgamegeek.databinding.RowCollectionBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionStatusFilterer
@@ -37,7 +37,9 @@ import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemViewHolder
+import com.boardgamegeek.ui.adapter.CollectionRowItem
 import com.boardgamegeek.ui.dialog.*
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
 import com.google.android.material.chip.Chip
@@ -213,7 +215,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     private fun shareCollection() {
         val description: String = when {
             viewId > 0 && viewName.isNotEmpty() -> viewName
-            filters.size > 0 -> getString(R.string.title_filtered_collection)
+            filters.isNotEmpty() -> getString(R.string.title_filtered_collection)
             else -> getString(R.string.title_collection)
         }
         val text = StringBuilder(description)
@@ -343,7 +345,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
             bottom = if (show) resources.getDimensionPixelSize(R.dimen.chip_group_height) else 0
         )
 
-        val hasFiltersApplied = filters.size > 0
+        val hasFiltersApplied = filters.isNotEmpty()
         val hasSortApplied = sorter?.let { it.first.getType(it.second) != CollectionSorterFactory.TYPE_DEFAULT } ?: false
         binding.footerToolbar.menu.findItem(R.id.menu_collection_view_save)?.isEnabled = hasFiltersApplied || hasSortApplied
     }
@@ -407,74 +409,66 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
         override fun getItemId(position: Int) = getItem(position)?.internalId ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CollectionItemViewHolder {
-            return CollectionItemViewHolder(parent.inflate(R.layout.row_collection))
+            return CollectionItemViewHolder(ComposeView(parent.context))
         }
 
         override fun onBindViewHolder(holder: CollectionItemViewHolder, position: Int) {
-            holder.bindView(getItem(position), position)
+            getItem(position)?.let { holder.bindView(it, position) }
         }
 
-        inner class CollectionItemViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            val binding = RowCollectionBinding.bind(itemView)
-
-            fun bindView(item: CollectionItem?, position: Int) {
-                if (item == null) return
-                binding.thumbnailView.loadThumbnail(item.thumbnailUrl, lifecycleScope = viewLifecycleOwner.lifecycleScope)
-                binding.nameView.text = item.collectionName
-                binding.yearView.text = item.yearPublished.asYear(context)
-                binding.favoriteView.isVisible = item.isFavorite
-
-                val timestamp = sorter?.first?.getTimestamp(item) ?: 0L
-                val ratingText = sorter?.first?.getRatingText(item).orEmpty()
-                if (timestamp > 0L) {
-                    binding.timestampView.isVisible = true
-                    binding.timestampView.timestamp = timestamp
-                    binding.ratingView.isVisible = false
-                    binding.infoView.isVisible = false
-                } else if (ratingText.isNotEmpty()) {
-                    val rating = sorter?.first?.getRating(item) ?: 0.0
-                    binding.timestampView.isVisible = false
-                    binding.ratingView.setTextOrHide(ratingText)
-                    binding.ratingView.setTextViewBackground(rating.toColor(BggColors.ratingColors))
-                    binding.infoView.isVisible = false
-                } else {
-                    binding.timestampView.isVisible = false
-                    binding.ratingView.isVisible = false
-                    binding.infoView.setTextOrHide(sorter?.first?.getDisplayInfo(item))
-                }
-
-                itemView.isActivated = selectedItems[position, false]
-                itemView.setOnClickListener {
-                    when {
-                        isCreatingShortcut -> {
-                            GameActivity.createShortcutInfo(requireContext(), item.gameId, item.gameName)?.let {
-                                val intent = ShortcutManagerCompat.createShortcutResultIntent(requireContext(), it)
-                                requireActivity().setResult(Activity.RESULT_OK, intent)
-                                requireActivity().finish()
+        inner class CollectionItemViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+            fun bindView(item: CollectionItem, position: Int) {
+                composeView.setContent {
+                    BggAppTheme {
+                        CollectionRowItem(
+                            name = item.collectionName,
+                            thumbnailUrl = item.thumbnailUrl,
+                            yearPublished = item.yearPublished,
+                            isFavorite = item.isFavorite,
+                            infoText = sorter?.first?.getDisplayInfo(item),
+                            rating = sorter?.first?.getRating(item),
+                            timestamp = sorter?.first?.getTimestamp(item),
+                            modifier = Modifier,
+                            isSelected = selectedItems[position, false],
+                            onClick = {
+                                when {
+                                    isCreatingShortcut -> {
+                                        GameActivity.createShortcutInfo(requireContext(), item.gameId, item.gameName)?.let {
+                                            val intent = ShortcutManagerCompat.createShortcutResultIntent(requireContext(), it)
+                                            requireActivity().setResult(Activity.RESULT_OK, intent)
+                                            requireActivity().finish()
+                                        }
+                                    }
+                                    changingGamePlayId != BggContract.INVALID_ID.toLong() -> {
+                                        LogPlayActivity.changeGame(
+                                            requireContext(),
+                                            changingGamePlayId,
+                                            item.gameId,
+                                            item.gameName,
+                                            item.robustHeroImageUrl,
+                                        )
+                                        requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
+                                    }
+                                    actionMode == null -> GameActivity.start(
+                                        requireContext(),
+                                        item.gameId,
+                                        item.gameName,
+                                        item.thumbnailUrl,
+                                        item.heroImageUrl
+                                    )
+                                    else -> adapter.toggleSelection(position)
+                                }
+                            },
+                            onLongClick = {
+                                if (!isCreatingShortcut &&
+                                    changingGamePlayId == BggContract.INVALID_ID.toLong() &&
+                                    actionMode == null) {
+                                    actionMode = requireActivity().startActionMode(this@CollectionFragment)
+                                    toggleSelection(position)
+                                }
                             }
-                        }
-                        changingGamePlayId != BggContract.INVALID_ID.toLong() -> {
-                            LogPlayActivity.changeGame(
-                                requireContext(),
-                                changingGamePlayId,
-                                item.gameId,
-                                item.gameName,
-                                item.robustHeroImageUrl,
-                            )
-                            requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
-                        }
-                        actionMode == null -> GameActivity.start(requireContext(), item.gameId, item.gameName, item.thumbnailUrl, item.heroImageUrl)
-                        else -> adapter.toggleSelection(position)
+                        )
                     }
-                }
-                itemView.setOnLongClickListener {
-                    if (isCreatingShortcut) return@setOnLongClickListener false
-                    if (changingGamePlayId != BggContract.INVALID_ID.toLong()) return@setOnLongClickListener false
-                    if (actionMode != null) return@setOnLongClickListener false
-                    actionMode = requireActivity().startActionMode(this@CollectionFragment)
-                    if (actionMode == null) return@setOnLongClickListener false
-                    toggleSelection(position)
-                    true
                 }
             }
         }

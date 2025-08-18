@@ -13,8 +13,8 @@ abstract class RatingSorter(context: Context) : CollectionSorter(context) {
 
     override fun getHeaderText(item: CollectionItem): String {
         val rating = getRating(item)
-        return if (rating == 0.0) defaultValue else rating.asBoundedRating(context, DecimalFormat("#0.0"), R.string.unrated_abbr)
+        return if (rating == 0.0) defaultValue else rating?.asBoundedRating(context, DecimalFormat("#0.0"), R.string.unrated_abbr) ?: defaultValue
     }
 
-    override fun getRatingText(item: CollectionItem) = getRating(item).asBoundedRating(context, displayFormat, R.string.unrated_abbr)
+    override fun getRatingText(item: CollectionItem) = getRating(item)?.asBoundedRating(context, displayFormat, R.string.unrated_abbr) ?: ""
 }

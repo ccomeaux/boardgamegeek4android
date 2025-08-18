@@ -31,14 +31,14 @@ abstract class CollectionSorter(protected val context: Context) {
 
     fun sort(items: Iterable<CollectionItem>, direction: Boolean) = if (direction) sortDescending(items) else sortAscending(items)
 
-    open fun getHeaderText(item: CollectionItem): String = ""
+    open fun getHeaderText(item: CollectionItem): String? = null
 
     /**
      * Gets the detail text to display on each row.
      */
     open fun getDisplayInfo(item: CollectionItem) = getHeaderText(item)
 
-    open fun getRating(item: CollectionItem): Double = 0.0
+    open fun getRating(item: CollectionItem): Double? = null
 
     open fun getRatingText(item: CollectionItem) = ""
 
