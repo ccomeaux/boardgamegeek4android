@@ -144,7 +144,7 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
         return if (changingGamePlayId != BggContract.INVALID_ID.toLong()) {
             CollectionFragment.newInstanceForPlayGameChange(changingGamePlayId)
         } else {
-            CollectionFragment.newInstance(isCreatingShortcut)
+            CollectionFragment.newInstance()
         }
     }
 

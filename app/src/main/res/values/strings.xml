@@ -250,6 +250,7 @@
 	<string name="msg_confirm_trade">Are you sure you want to trade this item?</string>
 	<string name="msg_remove_status">Do you want to remove %s status?</string>
 	<string name="empty_game">No information</string>
+	<string name="empty_games">No games</string>
 	<string name="empty_buddies">It appears as if you have no GeekBuddies.</string>
 	<string name="empty_players">It appears as if you have played against no one.</string>
 	<string name="empty_locations">It appears as if you have played nowhere.</string>
@@ -366,6 +367,7 @@
 	<string name="favorites">Favorites</string>
 	<string name="not_favorites">Not favorites</string>
 	<string name="title_add_a_copy">Add a Copy</string>
+	<string name="title_shortcut_selection">Choose game</string>
 	<string name="collection_sort_acquisition_date">Acquisition Date</string>
 	<string name="collection_sort_average_rating">Average Rating</string>
 	<string name="collection_sort_average_weight">Average Weight</string>
@@ -748,6 +750,7 @@
 	<string name="msg_sync_error_http_code">Problem communicating with BoardGameGeek (HTTP code: %s)</string>
 	<string name="msg_sync_error_timeout">Timed out trying to communicate with BoardGameGeek</string>
 	<string name="msg_sync_error">Problem communicating with BoardGameGeek</string>
+	<string name="error_shortcut_create">Problem creating shortcut</string>
 	<string name="msg_sync_unauthed">Not logged in</string>
 	<string name="game">game</string>
 	<string name="play">play</string>
@@ -814,6 +817,7 @@
 	<string name="offer_for_trade">Offer for trade</string>
 	<string name="navigation_drawer">Navigation drawer</string>
 	<string name="up">Up</string>
+	<string name="close">Close</string>
 	<string name="author">Author</string>
 	<string name="replies">Replies</string>
 	<string name="type">Type</string>

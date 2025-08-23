@@ -1,7 +1,6 @@
 package com.boardgamegeek.ui
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
@@ -15,7 +14,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
-import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.isNotEmpty
@@ -58,7 +56,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     private var viewName = ""
     private var sorter: Pair<CollectionSorter, Boolean>? = null
     private val filters = mutableListOf<CollectionFilterer>()
-    private var isCreatingShortcut = false
     private var changingGamePlayId: Long = 0
     private var actionMode: ActionMode? = null
 
@@ -71,7 +68,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firebaseAnalytics = Firebase.analytics
-        isCreatingShortcut = arguments?.getBoolean(KEY_IS_CREATING_SHORTCUT) ?: false
         changingGamePlayId = arguments?.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong()) ?: BggContract.INVALID_ID.toLong()
     }
 
@@ -86,16 +82,14 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
         binding.listView.adapter = adapter
 
-        if (isCreatingShortcut) {
-            binding.swipeRefreshLayout.longSnackbar(R.string.msg_shortcut_create)
-        } else if (changingGamePlayId != BggContract.INVALID_ID.toLong()) {
+        if (changingGamePlayId != BggContract.INVALID_ID.toLong()) {
             binding.swipeRefreshLayout.longSnackbar(R.string.msg_change_play_game)
         }
 
         binding.footerToolbar.inflateMenu(R.menu.collection_fragment)
         binding.footerToolbar.setOnMenuItemClickListener(footerMenuListener)
         binding.footerToolbar.menu.apply {
-            if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()) {
+            if (changingGamePlayId != BggContract.INVALID_ID.toLong()) {
                 findItem(R.id.menu_collection_random_game)?.isVisible = false
                 findItem(R.id.menu_create_shortcut)?.isVisible = false
                 findItem(R.id.menu_collection_view_save)?.isVisible = false
@@ -432,13 +426,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                             isSelected = selectedItems[position, false],
                             onClick = {
                                 when {
-                                    isCreatingShortcut -> {
-                                        GameActivity.createShortcutInfo(requireContext(), item.gameId, item.gameName)?.let {
-                                            val intent = ShortcutManagerCompat.createShortcutResultIntent(requireContext(), it)
-                                            requireActivity().setResult(Activity.RESULT_OK, intent)
-                                            requireActivity().finish()
-                                        }
-                                    }
                                     changingGamePlayId != BggContract.INVALID_ID.toLong() -> {
                                         LogPlayActivity.changeGame(
                                             requireContext(),
@@ -460,8 +447,7 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                                 }
                             },
                             onLongClick = {
-                                if (!isCreatingShortcut &&
-                                    changingGamePlayId == BggContract.INVALID_ID.toLong() &&
+                                if (changingGamePlayId == BggContract.INVALID_ID.toLong() &&
                                     actionMode == null
                                 ) {
                                     actionMode = requireActivity().startActionMode(this@CollectionFragment)
@@ -573,13 +559,10 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     }
 
     companion object {
-        private const val KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT"
         private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
 
-        fun newInstance(isCreatingShortcut: Boolean): CollectionFragment {
-            return CollectionFragment().apply {
-                arguments = bundleOf(KEY_IS_CREATING_SHORTCUT to isCreatingShortcut)
-            }
+        fun newInstance(): CollectionFragment {
+            return CollectionFragment()
         }
 
         fun newInstanceForPlayGameChange(playId: Long): CollectionFragment {
