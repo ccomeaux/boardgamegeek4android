@@ -12,8 +12,10 @@ fun @receiver:ColorInt Int.darkenColor(ratio: Double = 0.5): Int {
 }
 
 @ColorInt
-fun @receiver:ColorInt Int.getTextColor(): Int {
-    return if (this != Color.TRANSPARENT && this.isColorDark())
+fun @receiver:ColorInt Int.getTextColor(transparentColor: Int = Color.BLACK): Int {
+    return if (this == Color.TRANSPARENT)
+        transparentColor
+    else if (this.isColorDark())
         Color.WHITE
     else
         Color.BLACK

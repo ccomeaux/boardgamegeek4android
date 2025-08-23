@@ -37,6 +37,7 @@ object RatingDefaults {
 fun Rating(
     rating: Double,
     modifier: Modifier = Modifier,
+    textColor: Color = MaterialTheme.colorScheme.onSurface,
     format: DecimalFormat = DecimalFormat("#0.#"),
     style: TextStyle = RatingDefaults.textStyleLarge(),
     width: Dp = RatingDefaults.widthLarge,
@@ -45,7 +46,7 @@ fun Rating(
     val shape = RoundedCornerShape(4.dp)
     Text(
         text = rating.asBoundedRating(LocalContext.current, format, R.string.unrated_abbr),
-        color = Color(colorRgb.getTextColor()),
+        color = Color(colorRgb.getTextColor(0)).takeUnless { it == Color.Transparent } ?: textColor,
         textAlign = TextAlign.Center,
         modifier = modifier
             .widthIn(min = width)
