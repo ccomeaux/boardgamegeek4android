@@ -9,14 +9,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -26,14 +23,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -222,27 +217,13 @@ private fun SearchTopBar(
 ) {
     TopAppBar(
         title = {
-            TextField(
-                state = textFieldState,
+            SearchTextField(
+                textFieldState = textFieldState,
                 modifier = modifier
                     .fillMaxWidth()
                     .padding(end = 8.dp),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-                onKeyboardAction = { performDefaultAction ->
-                    onSearchClick()
-                    performDefaultAction()
-                },
-                lineLimits = TextFieldLineLimits.SingleLine,
-                placeholder = { Text(stringResource(R.string.search_hint)) },
-                textStyle = MaterialTheme.typography.bodyLarge,
-                shape = MaterialTheme.shapes.extraLarge,
-                colors = TextFieldDefaults.colors(focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent),
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = {
-                    IconButton(onClick = { onClearClick() }) {
-                        Icon(Icons.Default.Clear, contentDescription = stringResource(R.string.clear))
-                    }
-                },
+                onSearchClick = onSearchClick,
+                onClearClick = onClearClick
             )
         },
         modifier = modifier,
