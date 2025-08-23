@@ -2,8 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.BggApplication
-import com.boardgamegeek.R
 import com.boardgamegeek.extensions.firstChar
 import com.boardgamegeek.extensions.orderOfMagnitude
 import com.boardgamegeek.model.Player
@@ -67,20 +65,6 @@ class PlayersViewModel @Inject constructor(
             Player.SortType.PLAY_COUNT -> (player?.playCount ?: 0).orderOfMagnitude()
             Player.SortType.WIN_COUNT -> (player?.winCount ?: 0).orderOfMagnitude()
             else -> ""
-        }
-    }
-
-    fun getDisplayText(player: Player?): String {
-        val context = getApplication<BggApplication>()
-        return when (_sortType.value) {
-            Player.SortType.WIN_COUNT -> {
-                val winCount = player?.winCount ?: 0
-                context.resources.getQuantityString(R.plurals.wins_suffix, winCount, winCount)
-            }
-            else -> {
-                val playCount = player?.playCount ?: 0
-                context.resources.getQuantityString(R.plurals.plays_suffix, playCount, playCount)
-            }
         }
     }
 
