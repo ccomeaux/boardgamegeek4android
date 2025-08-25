@@ -48,8 +48,8 @@ fun CollectionItemListItem(
     rating: Double? = null,
     timestamp: Long? = null,
     isSelected: Boolean = false,
-    onClick: () -> Unit = {},
     onLongClick: () -> Unit = {},
+    onClick: () -> Unit = {},
 ) {
     Row(
         horizontalArrangement = Arrangement.Start,
