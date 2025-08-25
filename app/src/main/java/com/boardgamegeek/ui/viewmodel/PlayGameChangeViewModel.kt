@@ -1,20 +1,13 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.lifecycle.*
-import com.boardgamegeek.BggApplication
-import com.boardgamegeek.R
-import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.repository.GameCollectionRepository
-import com.boardgamegeek.repository.ImageRepository
-import com.boardgamegeek.ui.GameActivity
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
