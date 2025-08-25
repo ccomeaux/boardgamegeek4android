@@ -243,7 +243,6 @@
 	<string name="backup_description_game">The list of colors associated with each game.</string>
 	<string name="backup_description_user">Users\' favorite colors, which includes both GeekBuddies and players you\'ve played against.</string>
 	<string name="msg_shortcut_create">Select a game to place it on the home screen.</string>
-	<string name="msg_change_play_game">Select a new game for this play</string>
 	<string name="msg_missing_nickname">Must supply a name to update plays</string>
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
@@ -368,6 +367,7 @@
 	<string name="not_favorites">Not favorites</string>
 	<string name="title_add_a_copy">Add a Copy</string>
 	<string name="title_shortcut_selection">Choose game</string>
+	<string name="title_play_game_change">Select a new game for this play</string>
 	<string name="collection_sort_acquisition_date">Acquisition Date</string>
 	<string name="collection_sort_average_rating">Average Rating</string>
 	<string name="collection_sort_average_weight">Average Weight</string>

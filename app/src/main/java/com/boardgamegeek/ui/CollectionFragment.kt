@@ -14,7 +14,6 @@ import androidx.appcompat.widget.Toolbar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.children
 import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
@@ -31,7 +30,6 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.pref.SettingsActivity
 import com.boardgamegeek.pref.SyncPrefs
 import com.boardgamegeek.pref.SyncPrefs.Companion.TIMESTAMP_COLLECTION_COMPLETE
-import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.sorter.CollectionSorter
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.CollectionFragment.CollectionAdapter.CollectionItemViewHolder
@@ -56,7 +54,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     private var viewName = ""
     private var sorter: Pair<CollectionSorter, Boolean>? = null
     private val filters = mutableListOf<CollectionFilterer>()
-    private var changingGamePlayId: Long = 0
     private var actionMode: ActionMode? = null
 
     private lateinit var firebaseAnalytics: FirebaseAnalytics
@@ -68,7 +65,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         firebaseAnalytics = Firebase.analytics
-        changingGamePlayId = arguments?.getLong(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong()) ?: BggContract.INVALID_ID.toLong()
     }
 
     @Suppress("RedundantNullableReturnType")
@@ -82,26 +78,14 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
 
         binding.listView.adapter = adapter
 
-        if (changingGamePlayId != BggContract.INVALID_ID.toLong()) {
-            binding.swipeRefreshLayout.longSnackbar(R.string.msg_change_play_game)
-        }
-
         binding.footerToolbar.inflateMenu(R.menu.collection_fragment)
         binding.footerToolbar.setOnMenuItemClickListener(footerMenuListener)
         binding.footerToolbar.menu.apply {
-            if (changingGamePlayId != BggContract.INVALID_ID.toLong()) {
-                findItem(R.id.menu_collection_random_game)?.isVisible = false
-                findItem(R.id.menu_create_shortcut)?.isVisible = false
-                findItem(R.id.menu_collection_view_save)?.isVisible = false
-                findItem(R.id.menu_collection_view_delete)?.isVisible = false
-                findItem(R.id.menu_share)?.isVisible = false
-            } else {
-                findItem(R.id.menu_collection_random_game)?.isVisible = true
-                findItem(R.id.menu_create_shortcut)?.isVisible = true
-                findItem(R.id.menu_collection_view_save)?.isVisible = true
-                findItem(R.id.menu_collection_view_delete)?.isVisible = true
-                findItem(R.id.menu_share)?.isVisible = true
-            }
+            findItem(R.id.menu_collection_random_game)?.isVisible = true
+            findItem(R.id.menu_create_shortcut)?.isVisible = true
+            findItem(R.id.menu_collection_view_save)?.isVisible = true
+            findItem(R.id.menu_collection_view_delete)?.isVisible = true
+            findItem(R.id.menu_share)?.isVisible = true
         }
 
         setEmptyText()
@@ -425,31 +409,20 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
                             modifier = Modifier,
                             isSelected = selectedItems[position, false],
                             onClick = {
-                                when {
-                                    changingGamePlayId != BggContract.INVALID_ID.toLong() -> {
-                                        LogPlayActivity.changeGame(
-                                            requireContext(),
-                                            changingGamePlayId,
-                                            item.gameId,
-                                            item.gameName,
-                                            item.robustHeroImageUrl,
-                                        )
-                                        requireActivity().finish() // don't want to come back to collection activity in "pick a new game" mode
-                                    }
-                                    actionMode == null -> GameActivity.start(
+                                if (actionMode == null) {
+                                    GameActivity.start(
                                         requireContext(),
                                         item.gameId,
                                         item.gameName,
                                         item.thumbnailUrl,
                                         item.heroImageUrl
                                     )
-                                    else -> adapter.toggleSelection(position)
+                                } else {
+                                    adapter.toggleSelection(position)
                                 }
                             },
                             onLongClick = {
-                                if (changingGamePlayId == BggContract.INVALID_ID.toLong() &&
-                                    actionMode == null
-                                ) {
+                                if (actionMode == null) {
                                     actionMode = requireActivity().startActionMode(this@CollectionFragment)
                                     toggleSelection(position)
                                 }
@@ -559,16 +532,6 @@ class CollectionFragment : Fragment(), ActionMode.Callback {
     }
 
     companion object {
-        private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
-
-        fun newInstance(): CollectionFragment {
-            return CollectionFragment()
-        }
-
-        fun newInstanceForPlayGameChange(playId: Long): CollectionFragment {
-            return CollectionFragment().apply {
-                arguments = bundleOf(KEY_CHANGING_GAME_PLAY_ID to playId)
-            }
-        }
+        fun newInstance(): CollectionFragment = CollectionFragment()
     }
 }

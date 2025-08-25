@@ -14,9 +14,8 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.model.CollectionView
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.model.CollectionView
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -27,9 +26,6 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class CollectionActivity : TopLevelSinglePaneActivity() {
     private var viewId: Int = CollectionViewPrefs.DEFAULT_DEFAULT_ID
-    private var isCreatingShortcut = false
-    private var changingGamePlayId: Long = BggContract.INVALID_ID.toLong()
-    private var hideNavigation = false
     private var snackbar: Snackbar? = null
 
     private val viewModel by viewModels<CollectionViewViewModel>()
@@ -39,15 +35,9 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
         super.onCreate(savedInstanceState)
 
         supportActionBar?.let {
-            if (hideNavigation) {
-                it.setHomeButtonEnabled(false)
-                it.setDisplayHomeAsUpEnabled(false)
-                it.setTitle(R.string.app_name)
-            } else {
-                it.setDisplayShowTitleEnabled(false)
-                it.setDisplayShowCustomEnabled(true)
-                it.setCustomView(R.layout.actionbar_collection)
-            }
+            it.setDisplayShowTitleEnabled(false)
+            it.setDisplayShowCustomEnabled(true)
+            it.setCustomView(R.layout.actionbar_collection)
         }
 
         viewModel.errorMessage.observe(this) {
@@ -75,16 +65,10 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
             }
             selectView(
-                if (hideNavigation) CollectionViewPrefs.DEFAULT_DEFAULT_ID else intent.getIntExtra(KEY_VIEW_ID, viewModel.defaultViewId.value ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID),
+                intent.getIntExtra(KEY_VIEW_ID, viewModel.defaultViewId.value ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID),
                 false
             )
         }
-    }
-
-    override fun readIntent() {
-        isCreatingShortcut = Intent.ACTION_CREATE_SHORTCUT == intent.action
-        changingGamePlayId = intent.getLongExtra(KEY_CHANGING_GAME_PLAY_ID, BggContract.INVALID_ID.toLong())
-        hideNavigation = isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID.toLong()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -123,14 +107,6 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
 
     override val optionsMenuId: Int = R.menu.search
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        super.onPrepareOptionsMenu(menu)
-        if (hideNavigation) {
-            menu.findItem(R.id.menu_search)?.isVisible = false
-        }
-        return true
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return if (item.itemId == R.id.menu_search) {
             startActivity(intentFor<SearchResultsActivity>())
@@ -140,21 +116,10 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
         }
     }
 
-    override fun onCreatePane(): Fragment {
-        return if (changingGamePlayId != BggContract.INVALID_ID.toLong()) {
-            CollectionFragment.newInstanceForPlayGameChange(changingGamePlayId)
-        } else {
-            CollectionFragment.newInstance()
-        }
-    }
+    override fun onCreatePane(): Fragment = CollectionFragment.newInstance()
 
     companion object {
         private const val KEY_VIEW_ID = "VIEW_ID"
-        private const val KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID"
-
-        fun startForGameChange(context: Context, playId: Long) {
-            context.startActivity<CollectionActivity>(KEY_CHANGING_GAME_PLAY_ID to playId)
-        }
 
         fun createShortcutInfo(context: Context, viewId: Int, viewName: String): ShortcutInfoCompat {
             val intent = context.intentFor<CollectionActivity>(KEY_VIEW_ID to viewId)
