@@ -5,21 +5,19 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -29,9 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.pm.ShortcutManagerCompat
 import com.boardgamegeek.R
-import com.boardgamegeek.ui.compose.BggLoadingIndicator
-import com.boardgamegeek.ui.compose.CollectionItemListItem
-import com.boardgamegeek.ui.compose.EmptyContent
 import com.boardgamegeek.ui.compose.SearchTextField
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.ShortcutSelectionViewModel
@@ -83,53 +78,15 @@ class ShortcutSelectionActivity : BaseActivity() {
                     },
                     snackbarHost = { SnackbarHost(snackbarHostState) },
                 ) { contentPadding ->
-                    when {
-                        collectionItems == null -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(contentPadding)
-                            ) {
-                                BggLoadingIndicator(
-                                    Modifier
-                                        .align(Alignment.Center)
-                                        .padding(dimensionResource(R.dimen.padding_extra))
-                                )
-                            }
-                        }
-                        collectionItems.orEmpty().isEmpty() -> {
-                            EmptyContent(
-                                if (textFieldState.text.isBlank())
-                                    R.string.empty_games
-                                else
-                                    R.string.empty_search,
-                                Icons.Default.Collections,
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding(contentPadding)
-                                    .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal)),
-                            )
-                        }
-                        else -> {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = contentPadding,
-                            ) {
-                                items(
-                                    items = collectionItems.orEmpty(),
-                                ) {
-                                    CollectionItemListItem(
-                                        name = it.collectionName,
-                                        thumbnailUrl = it.robustThumbnailUrl,
-                                        yearPublished = it.yearPublished,
-                                        rating = it.rating,
-                                        onClick = { viewModel.createShortcut(it) },
-                                        onLongClick = {},
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    SimpleCollectionItemList(
+                        collectionItems,
+                        contentPadding = contentPadding,
+                        emptyTextResource = if (textFieldState.text.isBlank())
+                            R.string.empty_games
+                        else
+                            R.string.empty_search,
+                        onItemClick = { viewModel.createShortcut(it) }
+                    )
                 }
             }
         }

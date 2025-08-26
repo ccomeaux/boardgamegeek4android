@@ -5,22 +5,18 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -31,9 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.compose.BggLoadingIndicator
-import com.boardgamegeek.ui.compose.CollectionItemListItem
-import com.boardgamegeek.ui.compose.EmptyContent
 import com.boardgamegeek.ui.compose.SearchTextField
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.PlayGameChangeViewModel
@@ -70,74 +63,34 @@ class PlayGameChangeActivity : BaseActivity() {
                 val textFieldState: TextFieldState = rememberTextFieldState()
                 Scaffold(
                     topBar = {
-                        Column(Modifier.background(MaterialTheme.colorScheme.surface)) {
-                            LaunchedEffect(textFieldState.text) {
-                                viewModel.filter(textFieldState.text.toString())
-                            }
-                            PlayGameChangeTopAppBar(
-                                textFieldState = textFieldState,
-                                onCloseClick = { finish() },
-                            )
+                        LaunchedEffect(textFieldState.text) {
+                            viewModel.filter(textFieldState.text.toString())
                         }
-                    },
+                        PlayGameChangeTopAppBar(
+                            textFieldState = textFieldState,
+                            onCloseClick = { finish() },
+                        )
+0                    },
                     snackbarHost = { SnackbarHost(snackbarHostState) },
                 ) { contentPadding ->
-                    when {
-                        collectionItems == null -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(contentPadding)
-                            ) {
-                                BggLoadingIndicator(
-                                    Modifier
-                                        .align(Alignment.Center)
-                                        .padding(dimensionResource(R.dimen.padding_extra))
-                                )
-                            }
-                        }
-                        collectionItems.orEmpty().isEmpty() -> {
-                            EmptyContent(
-                                if (textFieldState.text.isBlank())
-                                    R.string.empty_games
-                                else
-                                    R.string.empty_search,
-                                Icons.Default.Collections,
-                                Modifier
-                                    .fillMaxSize()
-                                    .padding(contentPadding)
-                                    .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal)),
+                    SimpleCollectionItemList(
+                        collectionItems,
+                        contentPadding = contentPadding,
+                        emptyTextResource = if (textFieldState.text.isBlank())
+                            R.string.empty_games
+                        else
+                            R.string.empty_search,
+                        onItemClick = {
+                            LogPlayActivity.changeGame(
+                                context,
+                                changingGamePlayId,
+                                it.gameId,
+                                it.gameName,
+                                it.robustHeroImageUrl,
                             )
+                            finish()
                         }
-                        else -> {
-                            LazyColumn(
-                                modifier = Modifier.fillMaxSize(),
-                                contentPadding = contentPadding,
-                            ) {
-                                items(
-                                    items = collectionItems.orEmpty(),
-                                ) {
-                                    CollectionItemListItem(
-                                        name = it.collectionName,
-                                        thumbnailUrl = it.robustThumbnailUrl,
-                                        yearPublished = it.yearPublished,
-                                        rating = it.rating,
-                                        onClick = {
-                                            LogPlayActivity.changeGame(
-                                                context,
-                                                changingGamePlayId,
-                                                it.gameId,
-                                                it.gameName,
-                                                it.robustHeroImageUrl,
-                                            )
-                                            finish()
-                                        },
-                                        onLongClick = {},
-                                    )
-                                }
-                            }
-                        }
-                    }
+                    )
                 }
             }
         }
@@ -187,7 +140,7 @@ private fun PlayGameChangeTopAppBar(
                         focusRequester.requestFocus()
                     }
                 } else {
-                    Text(stringResource(R.string.msg_change_play_game))
+                    Text(stringResource(R.string.title_play_game_change))
                 }
             }
         },
