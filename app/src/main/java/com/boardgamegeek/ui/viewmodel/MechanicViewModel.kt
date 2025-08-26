@@ -26,10 +26,6 @@ class MechanicViewModel @Inject constructor(
             _mechanic.value = (_mechanic.value?.first ?: BggContract.INVALID_ID) to sortType
     }
 
-    fun reload() {
-        _mechanic.value?.let { _mechanic.value = it }
-    }
-
     val sort = _mechanic.map {
         it.second
     }

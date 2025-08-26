@@ -26,10 +26,6 @@ class CategoryViewModel @Inject constructor(
             _category.value = (_category.value?.first ?: BggContract.INVALID_ID) to sortType
     }
 
-    fun reload() {
-        _category.value?.let { _category.value = it }
-    }
-
     val sort = _category.map {
         it.second
     }
