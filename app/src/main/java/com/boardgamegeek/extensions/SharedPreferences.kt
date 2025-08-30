@@ -122,7 +122,7 @@ fun SharedPreferences.getSyncStatusesOrDefault(): Set<CollectionStatus> {
     return this.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, setOf(CollectionStatus.Own.mapToPreference()))?.map { it.mapToEnum() }?.toSet().orEmpty()
 }
 
-fun collectionStatusLiveData(context: Context) = LiveSharedPreference<Set<String>>(context, PREFERENCES_KEY_SYNC_STATUSES).map { set ->
+fun collectionStatusLiveData(context: Context) = LiveSharedPreference<Set<String>>(context, PREFERENCES_KEY_SYNC_STATUSES, defaultValue = emptySet()).map { set ->
     set?.map { it.mapToEnum() }?.toSet()
 }
 

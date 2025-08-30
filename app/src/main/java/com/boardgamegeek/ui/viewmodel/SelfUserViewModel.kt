@@ -19,7 +19,7 @@ class SelfUserViewModel @Inject constructor(
     application: Application,
     private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
-    val username: LiveData<String?> = LiveSharedPreference<String>(getApplication(), AccountPreferences.KEY_USERNAME).distinctUntilChanged()
+    val username: LiveData<String?> = LiveSharedPreference<String?>(getApplication(), AccountPreferences.KEY_USERNAME, defaultValue = null).distinctUntilChanged()
 
     val user: LiveData<User?> = username.switchMap { username ->
         liveData {

@@ -57,7 +57,7 @@ class BuddiesViewModel @Inject constructor(
         }
     }
 
-    val syncBuddies: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_BUDDIES)
+    val syncBuddies: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_BUDDIES, defaultValue = false)
 
     fun enableSyncing() {
         prefs[PREFERENCES_KEY_SYNC_BUDDIES] = true

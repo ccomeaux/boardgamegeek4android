@@ -42,7 +42,7 @@ class CollectionViewViewModel @Inject constructor(
     private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
 
     private val prefs: SharedPreferences by lazy { application.preferences() }
-    val defaultViewId: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID)
+    val defaultViewId: LiveSharedPreference<Int> = LiveSharedPreference(getApplication(), CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID, defaultValue = CollectionViewPrefs.DEFAULT_DEFAULT_ID)
 
     private val collectionSorterFactory: CollectionSorterFactory by lazy { CollectionSorterFactory(application) }
 

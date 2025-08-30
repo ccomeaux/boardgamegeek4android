@@ -6,17 +6,17 @@ import androidx.lifecycle.MutableLiveData
 import com.boardgamegeek.extensions.preferences
 
 @Suppress("UNCHECKED_CAST")
-class LiveSharedPreference<T>(context: Context, preferenceKey: String, sharedPreferencesName: String? = null) : MutableLiveData<T?>() {
+class LiveSharedPreference<T>(context: Context, preferenceKey: String, sharedPreferencesName: String? = null, defaultValue: T) : MutableLiveData<T>() {
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             if (key == preferenceKey) {
-                value = sharedPreferences.all[key] as T
+                value = sharedPreferences.all[key] as? T ?: defaultValue
             }
         }
     private val sharedPreferences: SharedPreferences = context.preferences(sharedPreferencesName)
 
     init {
-        value = sharedPreferences.all[preferenceKey] as T
+        value = sharedPreferences.all[preferenceKey] as? T ?: defaultValue
     }
 
     override fun onActive() {

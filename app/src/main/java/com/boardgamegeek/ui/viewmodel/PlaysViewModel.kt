@@ -24,7 +24,7 @@ class PlaysViewModel @Inject constructor(
     application: Application,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
+    private val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS, defaultValue = null)
 
     private data class PlayInfo(
         val mode: Mode,

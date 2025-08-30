@@ -35,20 +35,20 @@ class SyncViewModel @Inject constructor(
 
     val syncCollectionStatuses: LiveData<Set<CollectionStatus>?> = collectionStatusLiveData(getApplication())
 
-    val collectionCompleteTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE, SyncPrefs.NAME)
-    val collectionPartialTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_PARTIAL, SyncPrefs.NAME)
-    val collectionCompleteCurrentTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE_CURRENT, SyncPrefs.NAME)
+    val collectionCompleteTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE, SyncPrefs.NAME, defaultValue = null)
+    val collectionPartialTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_PARTIAL, SyncPrefs.NAME, defaultValue = null)
+    val collectionCompleteCurrentTimestamp: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE_CURRENT, SyncPrefs.NAME, defaultValue = null)
 
-    val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS)
-    private val oldestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME)
-    private val newestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME)
+    val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS, defaultValue = null)
+    private val oldestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME, defaultValue = null)
+    private val newestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME, defaultValue = null)
 
     private val _playSyncState = MediatorLiveData<Triple<Long, Long, Int>>()
     val playSyncState: LiveData<Triple<Long, Long, Int>>
         get() = _playSyncState
 
-    val syncBuddies: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_BUDDIES)
-    val buddySyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_BUDDIES, SyncPrefs.NAME)
+    val syncBuddies: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_BUDDIES, defaultValue = null)
+    val buddySyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_BUDDIES, SyncPrefs.NAME, defaultValue = null)
 
     private val collectionWorkInfos = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(SyncCollectionWorker.UNIQUE_WORK_NAME_AD_HOC)
     private val playWorkInfos = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(SyncPlaysWorker.UNIQUE_WORK_NAME_AD_HOC)
@@ -109,11 +109,11 @@ class SyncViewModel @Inject constructor(
 
     fun collectionStatusCompleteTimestamp(status: CollectionStatus): LiveData<Long?> {
         return if (status == CollectionStatus.Unknown) MutableLiveData(null)
-        else LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(null, status), SyncPrefs.NAME)
+        else LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(null, status), SyncPrefs.NAME, defaultValue = null)
     }
 
     fun collectionStatusAccessoryCompleteTimestamp(status: CollectionStatus): LiveData<Long?> {
-        return LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(Game.Subtype.BoardGameAccessory, status), SyncPrefs.NAME)
+        return LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(Game.Subtype.BoardGameAccessory, status), SyncPrefs.NAME, defaultValue = null)
     }
 
     fun syncCollection(status: CollectionStatus = CollectionStatus.Unknown) {
