@@ -22,7 +22,8 @@ import com.boardgamegeek.extensions.isColorDark
 import com.boardgamegeek.ui.theme.BggAppTheme
 
 object ColorBoxDefaults {
-    val sizeSmall = 40.dp
+    val sizeSmall = 24.dp
+    val sizeMedium = 40.dp
     val sizeLarge = 64.dp
 }
 
@@ -30,7 +31,7 @@ object ColorBoxDefaults {
 fun ColorBox(
     colorName: String,
     modifier: Modifier = Modifier,
-    size: Dp = ColorBoxDefaults.sizeSmall,
+    size: Dp = ColorBoxDefaults.sizeMedium,
     content: @Composable BoxScope.(Color) -> Unit,
 ) {
     val colorRgb = colorName.asColorRgb()
@@ -50,7 +51,7 @@ fun ColorBox(
 @Composable
 private fun ColoBoxPreview() {
     BggAppTheme {
-        ColorBox("red", size = ColorBoxDefaults.sizeSmall) {
+        ColorBox("red", size = ColorBoxDefaults.sizeMedium) {
             Text("X", color = it, modifier = Modifier.align(Alignment.Center))
         }
     }
