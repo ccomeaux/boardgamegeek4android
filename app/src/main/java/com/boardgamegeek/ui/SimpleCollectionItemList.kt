@@ -67,9 +67,7 @@ fun SimpleCollectionItemList(
                         thumbnailUrl = it.robustThumbnailUrl,
                         yearPublished = it.yearPublished,
                         rating = it.rating,
-                        onClick = { onItemClick(it) },
-                        onLongClick = {},
-                    )
+                    ) { onItemClick(it) }
                 }
             }
         }
