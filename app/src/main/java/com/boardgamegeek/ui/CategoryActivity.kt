@@ -21,6 +21,7 @@ import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.compose.SimpleCollectionItemList
 import com.boardgamegeek.ui.viewmodel.CategoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 

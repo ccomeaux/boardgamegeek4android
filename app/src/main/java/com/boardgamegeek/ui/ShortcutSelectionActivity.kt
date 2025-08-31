@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.content.pm.ShortcutManagerCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.compose.SearchTextField
+import com.boardgamegeek.ui.compose.SimpleCollectionItemList
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.ShortcutSelectionViewModel
 import dagger.hilt.android.AndroidEntryPoint

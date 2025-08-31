@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui
+package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -17,9 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.model.CollectionItem
-import com.boardgamegeek.ui.compose.BggLoadingIndicator
-import com.boardgamegeek.ui.compose.CollectionItemListItem
-import com.boardgamegeek.ui.compose.EmptyContent
 import com.boardgamegeek.ui.theme.BggAppTheme
 
 @Composable

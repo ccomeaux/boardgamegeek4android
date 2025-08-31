@@ -28,6 +28,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.compose.SearchTextField
+import com.boardgamegeek.ui.compose.SimpleCollectionItemList
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.PlayGameChangeViewModel
 import dagger.hilt.android.AndroidEntryPoint
