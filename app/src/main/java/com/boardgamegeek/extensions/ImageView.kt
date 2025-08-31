@@ -65,7 +65,7 @@ private fun ImageView.safelyLoadImage(imageUrls: Queue<String>?, @DrawableRes er
         } else {
             url = polledUrl
         }
-    } while (url.isNullOrBlank())
+    } while (url.isBlank())
     if (url.isEmpty()) {
         callback?.onFailedImageLoad()
         return
