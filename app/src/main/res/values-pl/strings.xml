@@ -221,7 +221,6 @@
 	<string name="backup_description_game">Lista kolorów powiązana z każdą grą.</string>
 	<string name="backup_description_user">Ulubione kolory użytkowników, włączając GeekBuddies oraz graczy, z którymi grałeś.</string>
 	<string name="msg_shortcut_create">Wybierz grę do umieszczenie na ekranie głównym.</string>
-	<string name="msg_change_play_game">Wybierz grę do tej rozgrywki</string>
 	<string name="msg_missing_nickname">Musisz podać nazwę aby zaktualizować rozgrywki</string>
 	<string name="msg_updated_nickname">Imię Twojego GeekBuddy-ego zostało zmienione na \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">Już istnieje widok kolekcji o tej nazwie. Zaktualizować istniejący widok czy utworzyć nowy?</string>
