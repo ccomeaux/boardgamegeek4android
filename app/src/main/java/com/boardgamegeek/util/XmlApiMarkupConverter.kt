@@ -6,7 +6,7 @@ import android.content.Context
 import android.text.TextUtils
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.ensureHttpsScheme
-import java.util.*
+import java.util.Locale
 import java.util.regex.Pattern
 
 /**
@@ -37,13 +37,16 @@ class XmlApiMarkupConverter(context: Context) {
         replacerList.add(SimpleReplacer.createImage("${color}train", "ttr_$color.gif"))
     }
 
-    fun toHtml(text: String): String {
+    fun toHtml(text: String, prewrap: Boolean = true): String {
         if (text.isEmpty()) return ""
         var replacedText = text
         for (replacer in replacerList) {
             replacedText = replacer.replace(replacedText)
         }
-        return "<div style=\"white-space: pre-wrap\">$replacedText</div>"
+        return if (prewrap)
+            "<div style=\"white-space: pre-wrap\">$replacedText</div>"
+        else
+            replacedText
     }
 
     fun strip(text: String): String {

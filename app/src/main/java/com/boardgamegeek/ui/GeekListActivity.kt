@@ -375,7 +375,7 @@ private fun GeekListDescriptionContent(
         )
     } else {
         Text(
-            text = AnnotatedString.fromHtml(markupConverter?.toHtml(description) ?: description),
+            text = AnnotatedString.fromHtml(markupConverter?.toHtml(description, prewrap = false) ?: description),
             modifier = modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)

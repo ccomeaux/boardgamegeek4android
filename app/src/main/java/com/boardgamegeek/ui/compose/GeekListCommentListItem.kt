@@ -93,7 +93,7 @@ fun GeekListCommentListItem(comment: GeekListComment, markupConverter: XmlApiMar
             }
         }
         Text(
-            text = AnnotatedString.fromHtml(markupConverter.toHtml(comment.content)), // TODO this seems to always have a trailing new line
+            text = AnnotatedString.fromHtml(markupConverter.toHtml(comment.content, prewrap = false)), // TODO this seems to always have a trailing new line
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurface,
             maxLines = 5,
@@ -191,7 +191,7 @@ private fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarku
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            val htmlString = markupConverter.toHtml(comment.content)
+            val htmlString = markupConverter.toHtml(comment.content, prewrap = false)
             Text(
                 text = AnnotatedString.fromHtml(htmlString).also { Timber.i("HTML: $it") },
                 modifier = Modifier

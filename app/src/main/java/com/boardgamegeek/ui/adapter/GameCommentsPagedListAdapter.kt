@@ -79,7 +79,7 @@ fun CommentListItem(
             ListItemPrimaryText(gameComment.username)
             Rating(gameComment.rating)
         }
-        val comment = markupConverter.toHtml(gameComment.comment)
+        val comment = markupConverter.toHtml(gameComment.comment, prewrap = false)
         if (comment.isNotBlank()) {
             ListItemSecondaryText(comment)
         }

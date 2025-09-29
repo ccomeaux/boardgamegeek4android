@@ -447,7 +447,7 @@ private fun GeekListItemDescriptionContent(
         )
     } else {
         Text(
-            text = AnnotatedString.fromHtml(markupConverter?.toHtml(body) ?: body),
+            text = AnnotatedString.fromHtml(markupConverter?.toHtml(body, prewrap = false) ?: body),
             modifier = modifier
                 .fillMaxSize()
                 .padding(top = 16.dp)
