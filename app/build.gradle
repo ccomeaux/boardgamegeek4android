@@ -154,7 +154,7 @@ dependencies {
         exclude group: 'xpp3', module: 'xpp3'
     }
 
-    def okhttp_version = '4.12.0'
+    def okhttp_version = '5.1.0'
     //noinspection GradleDependency
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     //noinspection GradleDependency
