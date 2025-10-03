@@ -35,7 +35,7 @@
 			android:gravity="bottom"
 			android:paddingBottom="@dimen/padding_half"
 			android:minHeight="48dp"
-			android:paddingHorizontal="@dimen/activity_horizontal_margin"
+			android:paddingHorizontal="@dimen/material_margin_horizontal"
 			android:textAppearance="@style/TextAppearance.Title"
 			tools:text="Games to Rate" />
 
@@ -57,7 +57,7 @@
 		android:layout_marginVertical="@dimen/padding_half"
 		android:clipToPadding="false"
 		android:orientation="horizontal"
-		android:paddingHorizontal="@dimen/activity_horizontal_margin"
+		android:paddingHorizontal="@dimen/material_margin_horizontal"
 		android:visibility="gone"
 		app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 		tools:listitem="@layout/row_collection_item"
