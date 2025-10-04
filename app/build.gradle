@@ -32,8 +32,8 @@ repositories {
 
 android {
     namespace 'com.boardgamegeek'
+    compileSdk = 36
 
-    compileSdk 35
 
     buildFeatures {
         viewBinding true
@@ -45,7 +45,7 @@ android {
         applicationId "com.boardgamegeek"
 
         minSdkVersion 23
-        targetSdk 35
+        targetSdk 36
         multiDexEnabled true
 
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
