@@ -126,9 +126,10 @@ dependencies {
     ksp "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-    implementation 'androidx.work:work-runtime:2.10.1'
-    implementation 'androidx.hilt:hilt-work:1.2.0'
-    ksp 'androidx.hilt:hilt-compiler:1.2.0'
+    implementation 'androidx.work:work-runtime:2.10.5'
+    def hilt_work_version = '1.3.0'
+    implementation "androidx.hilt:hilt-work:$hilt_work_version"
+    ksp "androidx.hilt:hilt-compiler:$hilt_work_version"
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
