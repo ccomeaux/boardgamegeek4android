@@ -314,7 +314,7 @@ private fun BuddyScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     TooltipBox(
-                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(),
+                        positionProvider = TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Below),
                         tooltip = {
                             PlainTooltip { Text(stringResource(R.string.nickname_description)) }
                         },

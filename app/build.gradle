@@ -108,8 +108,8 @@ dependencies {
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
     implementation 'androidx.paging:paging-runtime-ktx:3.3.6'
 
-    implementation 'androidx.compose.material3:material3:1.4.0-alpha18'
-    Dependency composeBom = platform('androidx.compose:compose-bom:2025.06.01')
+    implementation 'androidx.compose.material3:material3:1.5.0-alpha04'
+    Dependency composeBom = platform('androidx.compose:compose-bom:2025.09.01')
     implementation composeBom
     testImplementation composeBom
     androidTestImplementation composeBom
