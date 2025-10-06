@@ -125,35 +125,35 @@ class BuddyViewModel @Inject constructor(
         }
     }
 
-    fun updateNickName(nickName: String, updatePlays: Boolean) {
+    fun updateNickname(nickname: String, updatePlays: Boolean) {
         viewModelScope.launch {
             user.value?.let { (username, type) ->
                 if (type == PlayRepository.PlayerType.USER && !username.isNullOrBlank()) {
-                    userRepository.updateNickName(username, nickName)
+                    userRepository.updateNickname(username, nickname)
 
                     val message = if (updatePlays) {
-                        val newNickName = nickName.ifBlank { buddy.value?.fullName }
-                        if (newNickName.isNullOrBlank()) {
+                        val newNickname = nickname.ifBlank { buddy.value?.fullName }
+                        if (newNickname.isNullOrBlank()) {
                             getApplication<BggApplication>().getString(R.string.msg_missing_nickname)
                         } else {
-                            val internalIds = playRepository.updatePlaysWithNickName(username, newNickName)
+                            val internalIds = playRepository.updatePlaysWithNickname(username, newNickname)
                             playRepository.enqueueUploadRequest(internalIds)
                             getApplication<BggApplication>().resources.getQuantityString(
                                 R.plurals.msg_updated_plays_buddy_nickname,
                                 internalIds.size,
                                 internalIds.size,
                                 username,
-                                newNickName
+                                newNickname
                             )
                         }
                     } else {
-                        getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickName)
+                        getApplication<BggApplication>().getString(R.string.msg_updated_nickname, nickname)
                     }
                     setUpdateMessage(message)
                     firebaseAnalytics.logEvent("DataManipulation") {
                         param(FirebaseAnalytics.Param.CONTENT_TYPE, "BuddyNickname")
                         param("Username", username)
-                        param("NickName", nickName)
+                        param("Nickname", nickname)
                         param("Action", "Edit")
                     }
                 }
@@ -186,7 +186,7 @@ class BuddyViewModel @Inject constructor(
                 if (type == PlayRepository.PlayerType.NON_USER && username.isNotBlank() && !playerName.isNullOrBlank()) {
                     val error = userRepository.refresh(username)
                     if (error.isNullOrEmpty()) {
-                        userRepository.updateNickName(username, playerName)
+                        userRepository.updateNickname(username, playerName)
 
                         val internalIds = playRepository.addUsernameToPlayer(playerName, username)
                         playRepository.enqueueUploadRequest(internalIds)

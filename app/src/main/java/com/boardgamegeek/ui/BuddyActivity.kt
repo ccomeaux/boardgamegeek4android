@@ -20,14 +20,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.OpenInBrowser
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,7 +53,6 @@ import com.boardgamegeek.model.Player
 import com.boardgamegeek.model.PlayerColor
 import com.boardgamegeek.model.User
 import com.boardgamegeek.ui.compose.*
-import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.theme.extendedColorScheme
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
@@ -89,7 +85,8 @@ class BuddyActivity : BaseActivity() {
         setContent {
             val context = LocalContext.current
             val snackbarHostState = remember { SnackbarHostState() }
-            val openAlertDialog = remember { mutableStateOf(false) }
+            var openAddUsernameAlertDialog by rememberSaveable { mutableStateOf(false) }
+            var openUpdateNicknameAlertDialog by rememberSaveable { mutableStateOf(false) }
 
             val viewModel: BuddyViewModel = viewModel()
             if (username.isNotBlank()) {
@@ -118,9 +115,7 @@ class BuddyActivity : BaseActivity() {
                                 playerName,
                                 onUpClick = { context.startActivity(context.intentFor<BuddiesActivity>().clearTop()) },
                                 onViewUserClick = { linkToBgg("user/${buddy?.username}") },
-                                onAddUsernameClick = {
-                                    openAlertDialog.value = true
-                                },
+                                onAddUsernameClick = { openAddUsernameAlertDialog = true },
                             )
                         },
                         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -155,6 +150,9 @@ class BuddyActivity : BaseActivity() {
                                         PlayerColorsActivity.start(context, username, null)
                                     }
                                 },
+                                onUpdateNicknameClick = {
+                                    openUpdateNicknameAlertDialog = true
+                                },
                                 modifier = Modifier.padding(contentPadding),
                             )
                             val usernameValidity = remember { mutableStateOf(UsernameValidity.Unknown) }
@@ -165,14 +163,14 @@ class BuddyActivity : BaseActivity() {
                                     usernameValidity.value = if (content) UsernameValidity.Valid else UsernameValidity.Invalid
                                 }
                             }
-                            if (openAlertDialog.value) {
+                            if (openAddUsernameAlertDialog) {
                                 AddUsernameDialog(
                                     onDismissRequest = {
-                                        openAlertDialog.value = false
+                                        openAddUsernameAlertDialog = false
                                         usernameValidity.value = UsernameValidity.Unknown
                                     },
                                     onConfirmation = {
-                                        openAlertDialog.value = false
+                                        openAddUsernameAlertDialog = false
                                         usernameValidity.value = UsernameValidity.Unknown
                                         viewModel.addUsernameToPlayer(it)
                                     },
@@ -183,6 +181,17 @@ class BuddyActivity : BaseActivity() {
                                     },
                                     onValidUnknown = {
                                         usernameValidity.value = UsernameValidity.Unknown
+                                    },
+                                )
+                            }
+                            if (openUpdateNicknameAlertDialog) {
+                                UpdateNicknameDialog(
+                                    onConfirmation = { nickname, updatePlays ->
+                                        openUpdateNicknameAlertDialog = false
+                                        viewModel.updateNickname(nickname, updatePlays)
+                                    },
+                                    onDismissRequest = {
+                                        openUpdateNicknameAlertDialog = false
                                     },
                                 )
                             }
@@ -287,6 +296,7 @@ private fun BuddyScreen(
     onGenerateColors: () -> Unit,
     onMoreStatsClick: () -> Unit,
     onEditColorsClick: () -> Unit,
+    onUpdateNicknameClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -335,8 +345,7 @@ private fun BuddyScreen(
                     }
                     FilledTonalIconButton(
                         onClick = {
-                            context.getActivity()
-                                ?.showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(buddy.playNickname.ifBlank { buddy.nicknameCandidate }))
+                            onUpdateNicknameClick()
                         },
                         modifier = Modifier
                             .minimumInteractiveComponentSize()
@@ -573,7 +582,7 @@ private fun BuddyScreenPreview(
             player,
             BggColors.standardColorList.mapIndexed { index, color -> PlayerColor(color.first, index + 1) },
             true,
-            {}, {}, {}, {},
+            {}, {}, {}, {}, {},
         )
     }
 }
@@ -652,7 +661,8 @@ private fun AddUsernameDialog(
                             when (usernameValidity) {
                                 UsernameValidity.Unknown -> onValidate(textFieldValue.value)
                                 UsernameValidity.Valid -> onConfirmation(textFieldValue.value)
-                                else -> { /* do nothing */ }
+                                else -> { /* do nothing */
+                                }
                             }
                             onValidate(textFieldValue.value)
                         }
@@ -661,7 +671,9 @@ private fun AddUsernameDialog(
                         textFieldValue.value = it
                         onValidUnknown()
                     },
-                    modifier = Modifier.padding(bottom = 8.dp).focusRequester(focusRequester = focusRequester)
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .focusRequester(focusRequester = focusRequester)
                 )
                 Button(
                     onClick = {
@@ -712,6 +724,73 @@ private fun AddUsernameDialogPreview() {
             {},
             {},
             usernameValidity = UsernameValidity.Valid,
+        )
+    }
+}
+
+@Composable
+private fun UpdateNicknameDialog(
+    onConfirmation: (String, Boolean) -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    focusRequester: FocusRequester = FocusRequester()
+) {
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    var textFieldValue by rememberSaveable { mutableStateOf("") }
+    var changePlaysCheckBox by rememberSaveable { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirmation(textFieldValue.trim(), changePlaysCheckBox) },
+                enabled = textFieldValue.isNotBlank()
+            ) {
+                Text(stringResource(R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissRequest() }) { Text(stringResource(R.string.cancel)) }
+        },
+        title = { Text(text = stringResource(R.string.title_add_username)) },
+        text = {
+            Column {
+                TextField(
+                    value = textFieldValue,
+                    maxLines = 1,
+                    label = { Text(stringResource(R.string.nickname)) },
+                    onValueChange = {
+                        textFieldValue = it
+                    },
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .focusRequester(focusRequester = focusRequester)
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = changePlaysCheckBox,
+                        onCheckedChange = { changePlaysCheckBox = it },
+                    )
+                    Text(
+                        text = stringResource(R.string.nickname_update_plays),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+            }
+        },
+        modifier = modifier,
+    )
+}
+
+@Preview(widthDp = 480)
+@Composable
+private fun UpdateNicknameDialogPreview() {
+    BggAppTheme {
+        UpdateNicknameDialog(
+            { _, _ -> },
+            {},
+            modifier = Modifier.padding(16.dp)
         )
     }
 }

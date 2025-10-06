@@ -146,12 +146,12 @@ class UserRepository(
         }
     }
 
-    suspend fun updateNickName(username: String, nickName: String) = withContext(Dispatchers.IO) {
-        if (username.isNotBlank()) userDao.updateNickname(username, nickName)
+    suspend fun updateNickname(username: String, nickname: String) = withContext(Dispatchers.IO) {
+        if (username.isNotBlank()) userDao.updateNickname(username, nickname)
     }
 
     fun updateSelf(user: User?) {
-        if (!user?.username.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user?.username.hashCode().toString())
+        if (!user?.username.isNullOrEmpty()) FirebaseCrashlytics.getInstance().setUserId(user.username.hashCode().toString())
         prefs[AccountPreferences.KEY_USERNAME] = user?.username.orEmpty()
         prefs[AccountPreferences.KEY_FULL_NAME] = user?.fullName.orEmpty()
         prefs[AccountPreferences.KEY_AVATAR_URL] = user?.avatarUrl.orEmpty()

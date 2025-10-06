@@ -307,7 +307,7 @@ class PlayRepository(
                 } else {
                     return@withContext result.exceptionOrNull()?.localizedMessage ?: "Error"
                 }
-            } while (result?.getOrNull()?.hasMorePages() == true)
+            } while (result.getOrNull()?.hasMorePages() == true)
         }
         null
     }
@@ -644,12 +644,12 @@ class PlayRepository(
         }
     }
 
-    suspend fun updatePlaysWithNickName(username: String, nickName: String): Collection<Long> = withContext(Dispatchers.IO) {
+    suspend fun updatePlaysWithNickname(username: String, nickname: String): Collection<Long> = withContext(Dispatchers.IO) {
         val internalIds = mutableListOf<Long>()
         playDao.loadPlayersForUser(username).forEach {
-            if (it.player.name != nickName) {
+            if (it.player.name != nickname) {
                 internalIds += it.player.internalPlayId
-                playDao.updateNickname(it.player.internalPlayId, it.player.internalId, nickName)
+                playDao.updateNickname(it.player.internalPlayId, it.player.internalId, nickname)
             }
         }
         internalIds
