@@ -2,8 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import com.boardgamegeek.BggApplication
-import com.boardgamegeek.R
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.livedata.Event
@@ -33,7 +31,7 @@ class PlaysViewModel @Inject constructor(
     )
 
     enum class Mode {
-        ALL, GAME, PLAYER, LOCATION
+        ALL, GAME, PLAYER
     }
 
     enum class FilterType {
@@ -45,10 +43,6 @@ class PlaysViewModel @Inject constructor(
     }
 
     private val playInfo = MutableLiveData<PlayInfo>()
-
-    private val _updateMessage = MutableLiveData<Event<String>>()
-    val updateMessage: LiveData<Event<String>>
-        get() = _updateMessage
 
     private val _errorMessage = EventLiveData()
     val errorMessage: LiveData<Event<String>>
@@ -79,7 +73,6 @@ class PlaysViewModel @Inject constructor(
             val list: Flow<List<Play>> = when (it.mode) {
                 Mode.ALL -> playRepository.loadPlaysFlow()
                 Mode.GAME -> playRepository.loadPlaysByGameFlow(it.id)
-                Mode.LOCATION -> playRepository.loadPlaysByLocationFlow(it.name)
                 Mode.PLAYER -> playRepository.loadPlaysByPlayerNameFlow(it.name)
             }
             emitSource(list.distinctUntilChanged().asLiveData())
@@ -120,10 +113,6 @@ class PlaysViewModel @Inject constructor(
         _plays.postValue(sortedList)
     }
 
-    val location: LiveData<String> = playInfo.map {
-        if (it.mode == Mode.LOCATION) it.name else ""
-    }
-
     fun setAll() {
         setFilter(FilterType.ALL)
         setSort(SortType.DATE)
@@ -132,10 +121,6 @@ class PlaysViewModel @Inject constructor(
 
     fun setGame(gameId: Int) {
         playInfo.value = PlayInfo(Mode.GAME, id = gameId)
-    }
-
-    fun setLocation(locationName: String) {
-        playInfo.value = PlayInfo(Mode.LOCATION, locationName)
     }
 
     fun setPlayerName(playerName: String) {
@@ -148,23 +133,6 @@ class PlaysViewModel @Inject constructor(
 
     fun setSort(type: SortType) {
         if (sortType.value != type) _sortType.value = type
-    }
-
-    fun renameLocation(oldLocationName: String, newLocationName: String) {
-        viewModelScope.launch {
-            val internalIds = playRepository.renameLocation(oldLocationName, newLocationName)
-            playRepository.enqueueUploadRequest(internalIds)
-            _updateMessage.value = Event(
-                getApplication<BggApplication>().resources.getQuantityString(
-                    R.plurals.msg_play_location_change,
-                    internalIds.size,
-                    internalIds.size,
-                    oldLocationName,
-                    newLocationName
-                )
-            )
-            setLocation(newLocationName)
-        }
     }
 
     fun refresh() {

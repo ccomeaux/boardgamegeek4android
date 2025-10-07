@@ -2,36 +2,57 @@ package com.boardgamegeek.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Event
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.longSnackbar
-import com.boardgamegeek.extensions.setActionBarCount
-import com.boardgamegeek.extensions.showAndSurvive
+import com.boardgamegeek.extensions.clearTop
+import com.boardgamegeek.extensions.intentFor
 import com.boardgamegeek.extensions.startActivity
-import com.boardgamegeek.ui.dialog.EditLocationNameDialogFragment
-import com.boardgamegeek.ui.viewmodel.PlaysViewModel
-import com.google.android.material.snackbar.Snackbar
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.ui.compose.BggLoadingIndicator
+import com.boardgamegeek.ui.compose.Drawer
+import com.boardgamegeek.ui.compose.EmptyContent
+import com.boardgamegeek.ui.compose.ListHeader
+import com.boardgamegeek.ui.theme.BggAppTheme
+import com.boardgamegeek.ui.viewmodel.LocationPlaysViewModel
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
+@OptIn(ExperimentalMaterial3Api::class)
 @AndroidEntryPoint
-class LocationActivity : SimpleSinglePaneActivity() {
-    private val viewModel by viewModels<PlaysViewModel>()
-
-    private var locationName = ""
-    private var playCount = -1
-    private var snackbar: Snackbar? = null
-
-    override val optionsMenuId: Int
-        get() = R.menu.location
+class LocationActivity : BaseActivity() {
+//    private var snackbar: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setSubtitle()
+        val locationName = intent.getStringExtra(KEY_LOCATION_NAME).orEmpty()
 
         if (savedInstanceState == null) {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM) {
@@ -40,49 +61,68 @@ class LocationActivity : SimpleSinglePaneActivity() {
             }
         }
 
-        viewModel.location.observe(this) {
-            locationName = it
-            intent.putExtra(KEY_LOCATION_NAME, locationName)
-            setSubtitle()
-        }
-        viewModel.plays.observe(this) {
-            playCount = it?.sumOf { play -> play.quantity } ?: 0
-            invalidateOptionsMenu()
-        }
-        viewModel.updateMessage.observe(this) {
-            it.getContentIfNotHandled()?.let { content ->
-                if (content.isBlank()) {
-                    snackbar?.dismiss()
-                } else {
-                    snackbar = rootContainer?.longSnackbar(content)
+        setContent {
+            val snackbarHostState = remember { SnackbarHostState() }
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+            val viewModel by viewModels<LocationPlaysViewModel>()
+            val plays by viewModel.plays.observeAsState()
+            val updateMessage by viewModel.updateMessage.observeAsState()
+
+            viewModel.setLocation(locationName)
+
+            LaunchedEffect(updateMessage) {
+                updateMessage?.getContentIfNotHandled()?.let { content ->
+                    snackbarHostState.showSnackbar(content, duration = SnackbarDuration.Long)
+                }
+            }
+            BggAppTheme {
+                Drawer {
+                    var openDialog by remember { mutableStateOf(false) }
+                    Scaffold(
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+                        topBar = {
+                            LocationPlaysTopBar(
+                                locationName = locationName,
+                                playCount = plays?.values?.sumOf { list -> list.sumOf { play -> play.quantity } } ?: 0,
+                                scrollBehavior = scrollBehavior,
+                                onUpClick = {
+                                    startActivity(intentFor<LocationsActivity>().clearTop())
+                                    finish()
+                                },
+                                onEditClick = {
+                                    // showAndSurvive(EditLocationNameDialogFragment.newInstance(locationName))
+                                    openDialog = true
+                                }
+                            )
+                        },
+                        snackbarHost = { snackbarHostState }
+                    ) { contentPadding ->
+                        LocationPlaysScreen(
+                            plays,
+                            contentPadding = contentPadding,
+                        )
+                        if (openDialog) {
+                            EditDialog(
+                                onConfirmation = { newLocationName ->
+                                    viewModel.renameLocation(locationName, newLocationName)
+                                    openDialog = false
+                                },
+                                onDismissRequest = {
+                                    openDialog = false
+                                },
+                            )
+                        }
+                    }
                 }
             }
         }
-        viewModel.setLocation(locationName)
-    }
 
-    override fun readIntent() {
-        locationName = intent.getStringExtra(KEY_LOCATION_NAME).orEmpty()
-    }
-
-    private fun setSubtitle() {
-        supportActionBar?.subtitle = locationName.ifBlank { getString(R.string.no_location) }
-    }
-
-    override fun createPane() = PlaysFragment.newInstanceForLocation()
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        super.onPrepareOptionsMenu(menu)
-        menu.setActionBarCount(R.id.menu_list_count, playCount)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.menu_edit) {
-            showAndSurvive(EditLocationNameDialogFragment.newInstance(locationName))
-            return true
-        }
-        return super.onOptionsItemSelected(item)
+//        viewModel.location.observe(this) {
+//            locationName = it
+//            intent.putExtra(KEY_LOCATION_NAME, locationName)
+//            setSubtitle()
+//        }
     }
 
     companion object {
@@ -92,4 +132,141 @@ class LocationActivity : SimpleSinglePaneActivity() {
             context.startActivity<LocationActivity>(KEY_LOCATION_NAME to locationName)
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun LocationPlaysTopBar(
+    locationName: String,
+    playCount: Int,
+    modifier: Modifier = Modifier,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+    onUpClick: () -> Unit = {},
+    onEditClick: () -> Unit = {},
+) {
+    MediumFlexibleTopAppBar(
+        title = { Text(locationName.ifBlank { stringResource(R.string.no_location) }) },
+        subtitle = {
+            if (playCount > 0) {
+                Text(pluralStringResource(R.plurals.plays_suffix, playCount, playCount))
+            }
+        },
+        modifier = modifier,
+        scrollBehavior = scrollBehavior,
+        navigationIcon = {
+            IconButton(onClick = { onUpClick() }) {
+                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.up))
+            }
+        },
+        actions = {
+            IconButton(onClick = { onEditClick() }) {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = stringResource(R.string.menu_edit),
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+            }
+        }
+    )
+}
+
+
+@Composable
+private fun LocationPlaysScreen(
+    plays: Map<String, List<Play>>?,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+) {
+    when {
+        plays == null -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+            ) {
+                BggLoadingIndicator(
+                    Modifier
+                        .align(Alignment.Center)
+                        .padding(dimensionResource(R.dimen.padding_extra))
+                )
+            }
+        }
+        plays.isEmpty() -> {
+            EmptyContent(
+                stringResource(R.string.empty_plays_location),
+                Icons.Outlined.Event,
+                modifier
+                    .padding(contentPadding)
+                    .fillMaxSize()
+            )
+        }
+        else -> {
+            val context = LocalContext.current
+            val markupConverter = XmlApiMarkupConverter(context)
+            LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                contentPadding = contentPadding,
+            ) {
+                plays.forEach { (headerText, plays) ->
+                    stickyHeader {
+                        ListHeader(headerText)
+                    }
+                    items(
+                        items = plays,
+                        key = { it.internalId },
+                    ) {
+                        PlayListItem(
+                            it,
+                            showGameName = true,
+                            markupConverter = markupConverter,
+                        ) {
+                            PlayActivity.start(context, it.internalId)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EditDialog(
+    onConfirmation: (String) -> Unit,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier = Modifier,
+    focusRequester: FocusRequester = FocusRequester()
+) {
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    var textFieldValue by rememberSaveable { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = { onDismissRequest() },
+        confirmButton = {
+            TextButton(
+                onClick = { onConfirmation(textFieldValue.trim()) },
+                enabled = textFieldValue.isNotBlank()
+            ) {
+                Text(stringResource(R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismissRequest() }) { Text(stringResource(R.string.cancel)) }
+        },
+        title = { Text(text = stringResource(R.string.title_edit_location)) },
+        text = {
+            TextField(
+                value = textFieldValue,
+                maxLines = 1,
+                label = { Text(stringResource(R.string.location)) },
+                onValueChange = {
+                    textFieldValue = it
+                },
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .focusRequester(focusRequester = focusRequester)
+            )
+        },
+        modifier = modifier,
+    )
 }
