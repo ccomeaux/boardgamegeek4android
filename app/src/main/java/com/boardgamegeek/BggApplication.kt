@@ -146,9 +146,7 @@ class BggApplication : MultiDexApplication(), Configuration.Provider {
                 .detectFileUriExposure()
                 .detectLeakedRegistrationObjects()
                 .penaltyLog()
-            if (VERSION.SDK_INT >= VERSION_CODES.M) {
-                builder.detectCleartextNetwork()
-            }
+            builder.detectCleartextNetwork()
             StrictMode.setVmPolicy(builder.build())
             StrictMode.setThreadPolicy(
                 ThreadPolicy.Builder()

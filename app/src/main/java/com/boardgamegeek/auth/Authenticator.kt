@@ -2,10 +2,7 @@ package com.boardgamegeek.auth
 
 import android.accounts.*
 import android.content.Context
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import android.os.Bundle
-import androidx.annotation.RequiresApi
 import androidx.core.os.bundleOf
 import com.boardgamegeek.extensions.AccountPreferences
 import com.boardgamegeek.extensions.preferences
@@ -198,33 +195,9 @@ class Authenticator(
         }
 
         private fun removeAccountCompat(context: Context, account: Account, postEvent: Boolean) {
-            if (VERSION.SDK_INT >= VERSION_CODES.LOLLIPOP_MR1) {
-                removeAccountWithActivity(context, account, postEvent)
-            } else {
-                removeAccount(context, account, postEvent)
-            }
+            removeAccountWithActivity(context, account, postEvent)
         }
 
-        private fun removeAccount(context: Context, account: Account, postEvent: Boolean) {
-            val accountManagerCallback = AccountManagerCallback { future ->
-                if (future.isDone) {
-                    try {
-                        if (postEvent && future.result)
-                            context.preferences()[AccountPreferences.KEY_USERNAME] = null
-                    } catch (e: OperationCanceledException) {
-                        Timber.e(e, "removeAccount")
-                    } catch (e: AuthenticatorException) {
-                        Timber.e(e, "removeAccount")
-                    } catch (e: IOException) {
-                        Timber.e(e, "removeAccount")
-                    }
-                }
-            }
-            @Suppress("DEPRECATION")
-            AccountManager.get(context).removeAccount(account, accountManagerCallback, null)
-        }
-
-        @RequiresApi(VERSION_CODES.LOLLIPOP_MR1)
         private fun removeAccountWithActivity(context: Context, account: Account, postEvent: Boolean) {
             val accountManagerCallback = AccountManagerCallback<Bundle> { future ->
                 if (future.isDone) {

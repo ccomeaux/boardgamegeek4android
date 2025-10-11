@@ -68,7 +68,7 @@ fun Context.createNotificationBuilder(
         .setColor(ContextCompat.getColor(this, R.color.primary))
         .setContentTitle(title)
         .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-    val flags = PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+    val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     val resultPendingIntent = PendingIntent.getActivity(this, 0, intent, flags)
     builder.setContentIntent(resultPendingIntent)
     return builder
@@ -108,7 +108,7 @@ private fun Context.buildAndNotifyPlaying(
         this,
         0,
         intent,
-        PendingIntent.FLAG_CANCEL_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+        PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
     var info = getString(R.string.playing)
@@ -223,7 +223,7 @@ private fun createRematchAction(context: Context, play: Play): NotificationCompa
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         val pendingIntent = PendingIntent.getActivity(
             context, 0, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         NotificationCompat.Action.Builder(R.drawable.ic_baseline_replay_24, context.getString(R.string.rematch), pendingIntent).build()
     } else null

@@ -83,7 +83,7 @@ class SyncUsersWorker @AssistedInject constructor(
             Timber.i("Updating $limit users; ${existingBuddies.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
             syncUsers(existingBuddies.take(limit).map { it.username }, PROGRESS_STEP_STALE_BUDDIES)?.let { return Result.failure(it) }
 
-            val allPlayers = playRepository.loadPlayers(Player.SortType.PLAY_COUNT).filter { it.username.isNotEmpty() }
+            val allPlayers = playRepository.loadPlayers(Player.SortType.PlayCount).filter { it.username.isNotEmpty() }
             val (newPlayers, existingPlayers) = allPlayers.partition { it.userUpdatedTimestamp == null || it.userUpdatedTimestamp == 0L }
 
             Timber.i("Syncing new players")
