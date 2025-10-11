@@ -117,12 +117,6 @@ class LocationActivity : BaseActivity() {
                 }
             }
         }
-
-//        viewModel.location.observe(this) {
-//            locationName = it
-//            intent.putExtra(KEY_LOCATION_NAME, locationName)
-//            setSubtitle()
-//        }
     }
 
     companion object {
