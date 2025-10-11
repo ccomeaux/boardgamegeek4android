@@ -20,7 +20,7 @@ class LocationsViewModel @Inject constructor(
         get() = _sortType
 
     init {
-        sort(Location.SortType.PLAY_COUNT)
+        sort(Location.SortType.PlayCount)
     }
 
     val locations = _sortType.switchMap {
@@ -35,8 +35,8 @@ class LocationsViewModel @Inject constructor(
 
     fun getSectionHeader(location: Location?): String {
         return when (sortType.value) {
-            Location.SortType.NAME -> location?.name.firstChar()
-            Location.SortType.PLAY_COUNT -> (location?.playCount ?: 0).orderOfMagnitude()
+            Location.SortType.Name -> location?.name.firstChar()
+            Location.SortType.PlayCount -> (location?.playCount ?: 0).orderOfMagnitude()
             null -> ""
         }
     }

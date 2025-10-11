@@ -52,7 +52,7 @@ class LocationsActivity : BaseActivity() {
         setContent {
             val context = LocalContext.current
             val viewModel by viewModels<LocationsViewModel>()
-            val sortBy by viewModel.sortType.observeAsState(Location.SortType.PLAY_COUNT)
+            val sortBy by viewModel.sortType.observeAsState(Location.SortType.PlayCount)
             val locations by viewModel.locations.observeAsState()
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
@@ -86,8 +86,8 @@ private enum class LocationsSort(
     val type: Location.SortType,
     @StringRes val labelResId: Int,
 ) {
-    Name(Location.SortType.NAME, R.string.menu_sort_name),
-    PlayCount(Location.SortType.PLAY_COUNT, R.string.menu_sort_quantity),
+    Name(Location.SortType.Name, R.string.menu_sort_name),
+    PlayCount(Location.SortType.PlayCount, R.string.menu_sort_quantity),
 }
 
 @Composable

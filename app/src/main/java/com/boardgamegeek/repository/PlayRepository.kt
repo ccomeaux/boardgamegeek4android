@@ -271,13 +271,13 @@ class PlayRepository(
         rankedColors
     }
 
-    suspend fun loadLocations(sortBy: Location.SortType = Location.SortType.PLAY_COUNT): List<Location> = withContext(Dispatchers.Default) {
+    suspend fun loadLocations(sortBy: Location.SortType = Location.SortType.PlayCount): List<Location> = withContext(Dispatchers.Default) {
         withContext(Dispatchers.IO) { playDao.loadLocations() }
             .map { it.mapToModel() }
             .applySort(sortBy)
     }
 
-    fun loadLocationsFlow(sortBy: Location.SortType = Location.SortType.PLAY_COUNT): Flow<List<Location>> {
+    fun loadLocationsFlow(sortBy: Location.SortType = Location.SortType.PlayCount): Flow<List<Location>> {
         return playDao.loadLocationsFlow()
             .map { it.map { location -> location.mapToModel() }.applySort(sortBy) }
             .flowOn(Dispatchers.Default)
