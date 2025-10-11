@@ -61,7 +61,7 @@ data class Player(
     }
 
     enum class SortType {
-        NAME, PLAY_COUNT, WIN_COUNT
+        Name, PlayCount, WinCount
     }
 
     companion object {
@@ -71,10 +71,10 @@ data class Player(
         fun List<Player>.applySort(sortBy: SortType): List<Player> {
             return sortedWith(
                 when (sortBy) {
-                    SortType.NAME -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                    SortType.PLAY_COUNT -> compareByDescending<Player> { it.playCount }
+                    SortType.Name -> compareBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+                    SortType.PlayCount -> compareByDescending<Player> { it.playCount }
                         .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
-                    SortType.WIN_COUNT -> compareByDescending<Player> { it.winCount }
+                    SortType.WinCount -> compareByDescending<Player> { it.winCount }
                         .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
                 }
             )

@@ -15,7 +15,7 @@ class PlayersViewModel @Inject constructor(
     application: Application,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    val players = MediatorLiveData<List<Player>>()
+    private val players = MediatorLiveData<List<Player>>()
 
     private val _sortType = MutableLiveData<Player.SortType>()
     val sortType: LiveData<Player.SortType>
@@ -25,7 +25,7 @@ class PlayersViewModel @Inject constructor(
     val filter: LiveData<String>
         get() = _filter
 
-    private val _allPlayers: LiveData<List<Player>> = _sortType.switchMap {
+    private val _sortedPlayers: LiveData<List<Player>> = _sortType.switchMap {
         liveData {
             emitSource(
                 playRepository.loadPlayersFlow(it)
@@ -35,19 +35,27 @@ class PlayersViewModel @Inject constructor(
         }
     }
 
+    val playersMap = players.map {
+        it.groupBy { player -> getSectionHeader(player) }
+    }
+
     init {
-        players.addSource(_allPlayers) { result ->
+        players.addSource(_sortedPlayers) { result ->
             result?.let {
-                players.value = assembleAvailablePlayers(allPlayers = result)
+                assembleAvailablePlayers(sortedPlayers = result)?.let {
+                    players.value = it
+                }
             }
         }
         players.addSource(_filter) { result ->
             result?.let {
-                players.value = assembleAvailablePlayers(filter = result)
+                assembleAvailablePlayers(filter = result)?.let {
+                    players.value = it
+                }
             }
         }
 
-        sort(Player.SortType.NAME)
+        sort(Player.SortType.Name)
         filter("")
     }
 
@@ -61,19 +69,19 @@ class PlayersViewModel @Inject constructor(
 
     fun getSectionHeader(player: Player?): String {
         return when (_sortType.value) {
-            Player.SortType.NAME -> player?.name.firstChar()
-            Player.SortType.PLAY_COUNT -> (player?.playCount ?: 0).orderOfMagnitude()
-            Player.SortType.WIN_COUNT -> (player?.winCount ?: 0).orderOfMagnitude()
+            Player.SortType.Name -> player?.name.firstChar()
+            Player.SortType.PlayCount -> (player?.playCount ?: 0).orderOfMagnitude()
+            Player.SortType.WinCount -> (player?.winCount ?: 0).orderOfMagnitude()
             else -> ""
         }
     }
 
     private fun assembleAvailablePlayers(
-        allPlayers: List<Player>? = _allPlayers.value,
+        sortedPlayers: List<Player>? = _sortedPlayers.value,
         filter: String? = _filter.value,
-    ): List<Player> {
+    ): List<Player>? {
         return filter?.let { filterText ->
-            allPlayers?.filter {
+            sortedPlayers?.filter {
                 it.name.contains(filterText, true) ||
                         it.username.contains(filterText, true) ||
                         (it.userFullName?.contains(filterText, true) == true)

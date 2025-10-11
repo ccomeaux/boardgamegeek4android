@@ -135,7 +135,7 @@ class PlayRepository(
         }
     }
 
-    suspend fun loadPlayers(sortBy: Player.SortType = Player.SortType.PLAY_COUNT): List<Player> = withContext(Dispatchers.Default) {
+    suspend fun loadPlayers(sortBy: Player.SortType = Player.SortType.PlayCount): List<Player> = withContext(Dispatchers.Default) {
         val players = withContext(Dispatchers.IO) { playDao.loadPlayers() }
         val grouping = players.groupBy { it.key() }
         grouping
@@ -148,7 +148,7 @@ class PlayRepository(
             .applySort(sortBy)
     }
 
-    fun loadPlayersFlow(sortBy: Player.SortType = Player.SortType.PLAY_COUNT): Flow<List<Player>> {
+    fun loadPlayersFlow(sortBy: Player.SortType = Player.SortType.PlayCount): Flow<List<Player>> {
         return playDao.loadPlayersFlow()
             .map { list ->
                 list.groupBy { player -> player.key() }
@@ -866,7 +866,7 @@ class PlayRepository(
                             context,
                             0,
                             Intent(context, PlayStatsActivity::class.java),
-                            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                         )
                     ), NotificationTags.PLAY_STATS, notificationId
                 )
