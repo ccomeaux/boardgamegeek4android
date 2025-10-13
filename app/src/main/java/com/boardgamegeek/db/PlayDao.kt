@@ -37,6 +37,10 @@ interface PlayDao {
     @Query("SELECT * FROM plays ORDER BY date DESC, play_id DESC")
     fun loadPlaysFlow(): Flow<List<PlayEntity>>
 
+    @Transaction
+    @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT JOIN games ON games.game_id = plays.object_id ORDER BY date DESC, play_id DESC")
+    fun loadPlaysWithImagesFlow(): Flow<List<PlayWithImagesEntity>>
+
     @Query("SELECT * FROM plays WHERE play_id = :playId")
     suspend fun loadPlay(playId: Int): PlayEntity?
 
@@ -49,11 +53,11 @@ interface PlayDao {
     @Query("SELECT * FROM plays WHERE location = :location ORDER BY date DESC, play_id DESC")
     suspend fun loadPlaysForLocation(location: String): List<PlayEntity>
 
-    @Query("SELECT * FROM plays WHERE location = :location ORDER BY date DESC, play_id DESC")
-    fun loadPlaysForLocationFlow(location: String): Flow<List<PlayEntity>>
+    @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT JOIN games ON games.game_id = plays.object_id WHERE location = :location ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForLocationFlow(location: String): Flow<List<PlayWithImagesEntity>>
 
-    @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE user_name = :username ORDER BY date DESC, play_id DESC")
-    fun loadPlaysForUserFlow(username: String): Flow<List<PlayEntity>>
+    @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT OUTER JOIN games ON games.game_id = plays.object_id LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE user_name = :username ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForUserFlow(username: String): Flow<List<PlayWithImagesEntity>>
 
     @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE user_name = :username AND (delete_timestamp=0 OR delete_timestamp IS NULL)")
     suspend fun loadPlayersForUser(username: String): List<PlayerWithPlayEntity>
@@ -61,8 +65,8 @@ interface PlayDao {
     @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE user_name = :username AND object_id = :gameId ORDER BY date DESC, play_id DESC")
     suspend fun loadPlaysForUserAndGame(username: String, gameId: Int): List<PlayEntity>
 
-    @Query("SELECT plays.* FROM plays LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE name = :name AND (user_name = '' OR user_name IS NULL) ORDER BY date DESC, play_id DESC")
-    fun loadPlaysForPlayerFlow(name: String): Flow<List<PlayEntity>>
+    @Query("SELECT plays.*, games.image_url AS gameImageUrl, games.thumbnail_url As gameThumbnailUrl, games.hero_image_url AS gameHeroImageUrl FROM plays LEFT OUTER JOIN games ON games.game_id = plays.object_id LEFT OUTER JOIN play_players ON plays._id = play_players._play_id WHERE name = :name AND (user_name = '' OR user_name IS NULL) ORDER BY date DESC, play_id DESC")
+    fun loadPlaysForPlayerFlow(name: String): Flow<List<PlayWithImagesEntity>>
 
     @Query("SELECT play_players.*, plays.quantity, plays.no_win_stats AS noWinStats, plays.incomplete, users.avatar_url AS avatarUrl, users.first_name AS firstName, users.last_name AS lastName FROM play_players JOIN plays ON plays._id = play_players._play_id LEFT JOIN users ON users.username = play_players.user_name WHERE name = :name AND (user_name = '' OR user_name IS NULL)")
     suspend fun loadPlayersForPlayer(name: String): List<PlayerWithPlayEntity>

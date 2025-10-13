@@ -105,6 +105,12 @@ fun PlayEntity.mapToModel() = Play(
     updateTimestamp = updateTimestamp ?: 0L,
 )
 
+fun PlayWithImagesEntity.mapToModel() = this.play.mapToModel().copy(
+    imageUrl = gameImageUrl.orEmpty(),
+    thumbnailUrl = gameThumbnailUrl.orEmpty(),
+    heroImageUrl = gameHeroImageUrl.orEmpty(),
+)
+
 fun PlayWithPlayersEntity.mapToModel() = Play(
     internalId = play.internalId,
     playId = play.playId ?: BggContract.INVALID_ID,

@@ -62,7 +62,7 @@ class PlayRepository(
     // region Load
 
     fun loadPlaysFlow(): Flow<List<Play>> {
-        return playDao.loadPlaysFlow()
+        return playDao.loadPlaysWithImagesFlow()
             .map {
                 it.map { entity -> entity.mapToModel() }.filterNot { play -> play.deleteTimestamp > 0L }
             }
@@ -603,7 +603,7 @@ class PlayRepository(
             }
         }
         Timber.i(
-            "Saved %1\$,d plays: %2\$,d updated, %3\$,d inserted, %4$,d unchanged, %5$,d dirty, %6$,d errors",
+            "Saved %1$,d plays: %2$,d updated, %3$,d inserted, %4$,d unchanged, %5$,d dirty, %6$,d errors",
             plays.size,
             updateCount,
             insertCount,
