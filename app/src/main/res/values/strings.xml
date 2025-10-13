@@ -605,6 +605,7 @@
 	<string name="play_stat_penny">Penny</string>
 	<string name="play_stat_win_percentage">%1$,d/%2$,d (%3$,d%%)</string>
 	<string name="percentage">%,d%%</string>
+	<string name="winning_percentage">Winning percentage of %,d%%</string>
 	<string name="title_win_skill">Skill</string>
 	<string name="winnable">Winnable</string>
 	<string name="all">All</string>

@@ -19,6 +19,7 @@ data class Player(
     val username: String,
     val playCount: Int = 0,
     val winCount: Int = 0,
+    val lastPlayDate: Long? = null,
     val userAvatarUrl: String? = null,
     val userFullName: String? = null,
     val userUpdatedTimestamp: Long? = null,

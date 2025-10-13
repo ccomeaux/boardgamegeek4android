@@ -8,6 +8,7 @@ data class PlayerWithPlayEntity(
     val quantity: Int,
     val noWinStats: Boolean,
     val incomplete: Boolean,
+    val date: String,
     val avatarUrl: String?,
     val firstName: String?,
     val lastName: String?,

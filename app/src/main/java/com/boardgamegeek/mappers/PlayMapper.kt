@@ -174,12 +174,13 @@ fun List<PlayerWithPlayEntity>.mapToModel() =
     firstOrNull()?.let {
         if (!it.player.name.isNullOrBlank() || !it.player.username.isNullOrBlank()) {
             Player(
-                it.player.name.orEmpty(),
-                it.player.username.orEmpty(),
-                sumOf { play -> play.quantity },
-                filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
-                it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
-                it.fullName(),
+                name = it.player.name.orEmpty(),
+                username = it.player.username.orEmpty(),
+                playCount = sumOf { play -> play.quantity },
+                winCount = filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
+                lastPlayDate = maxOfOrNull { play -> play.date }?.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), Play.UNKNOWN_DATE),
+                userAvatarUrl = it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
+                userFullName = it.fullName()
             )
         } else null
     }
@@ -188,13 +189,14 @@ fun List<PlayerWithUserAndPlayEntity>.mapToModelWithUser() =
     firstOrNull()?.let {
         if (!it.player.name.isNullOrBlank() || !it.player.username.isNullOrBlank()) {
             Player(
-                it.player.name.orEmpty(),
-                it.player.username.orEmpty(),
-                sumOf { play -> play.quantity },
-                filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
-                it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
-                it.fullName(),
-                it.userUpdatedTimestamp?.time,
+                name = it.player.name.orEmpty(),
+                username = it.player.username.orEmpty(),
+                playCount = sumOf { play -> play.quantity },
+                winCount = filter { play -> !play.noWinStats && play.player.isWin == true }.sumOf { play -> play.quantity },
+                //lastPlayDate = maxOfOrNull { play -> play.date }?.toMillis(SimpleDateFormat(DATE_FORMAT_PATTERN, Locale.US), Play.UNKNOWN_DATE),
+                userAvatarUrl = it.avatarUrl.takeIf { url ->  url != "N/A" }.orEmpty(),
+                userFullName = it.fullName(),
+                userUpdatedTimestamp = it.userUpdatedTimestamp?.time,
             )
         } else null
     }

@@ -136,7 +136,7 @@ class BuddyActivity : BaseActivity() {
                                 isRefreshing = isRefreshing,
                                 onRefresh = { viewModel.refresh() },
                                 onGenerateColors = { viewModel.generateColors() },
-                                onMoreStatsClick = {
+                                onMorePlaysClick = {
                                     if (username.isBlank()) {
                                         PlayerPlaysActivity.start(context, playerName)
                                     } else {
@@ -294,7 +294,7 @@ private fun BuddyScreen(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onGenerateColors: () -> Unit,
-    onMoreStatsClick: () -> Unit,
+    onMorePlaysClick: () -> Unit,
     onEditColorsClick: () -> Unit,
     onUpdateNicknameClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -377,10 +377,10 @@ private fun BuddyScreen(
                     Text(text = stringResource(R.string.title_collection))
                 }
             }
-            PlayStats(
+            Plays(
                 player = player,
                 modifier = Modifier.padding(bottom = 16.dp),
-                onMoreClick = { onMoreStatsClick() },
+                onMoreClick = { onMorePlaysClick() },
             )
             PlayerColors(
                 playerColors,
@@ -404,7 +404,7 @@ private fun BuddyScreen(
 }
 
 @Composable
-private fun PlayStats(
+private fun Plays(
     player: Player?,
     modifier: Modifier = Modifier,
     onMoreClick: () -> Unit = {},
@@ -420,7 +420,7 @@ private fun PlayStats(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = stringResource(R.string.title_play_stats),
+                text = stringResource(R.string.title_plays),
                 style = MaterialTheme.typography.headlineSmall,
             )
             Button(
@@ -434,23 +434,25 @@ private fun PlayStats(
             }
         }
         val playCount = player?.playCount ?: 0
-        val winCount = player?.winCount ?: 0
-        if (playCount > 0 || winCount > 0) {
+        if (playCount > 0) {
             Text(
-                text = pluralStringResource(R.plurals.winnable_plays_suffix, playCount, playCount),
+                text = pluralStringResource(R.plurals.plays_suffix, playCount, playCount),
                 modifier = Modifier.padding(start = 40.dp),
                 style = MaterialTheme.typography.bodyLarge,
             )
+            val winCount = player?.winCount ?: 0
             Text(
-                text = pluralStringResource(R.plurals.wins_suffix, winCount, winCount),
+                text = stringResource(R.string.winning_percentage, (winCount.toDouble() / playCount * 100).toInt()),
                 modifier = Modifier.padding(start = 40.dp),
                 style = MaterialTheme.typography.bodyLarge,
             )
-            Text(
-                text = stringResource(R.string.percentage, (winCount.toDouble() / playCount * 100).toInt()),
-                modifier = Modifier.padding(start = 40.dp),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            player?.lastPlayDate?.let {
+                Text(
+                    text = stringResource(R.string.last_played_prefix, it.asPastDaySpan(LocalContext.current, includeWeekDay = true)),
+                    modifier = Modifier.padding(start = 40.dp),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
             Spacer(modifier = Modifier.height(16.dp))
         } else {
             Text(
@@ -575,6 +577,7 @@ private fun BuddyScreenPreview(
         username = "ccomeaux",
         playCount = 13,
         winCount = 6,
+        lastPlayDate = System.currentTimeMillis(),
     )
     BggAppTheme {
         BuddyScreen(
