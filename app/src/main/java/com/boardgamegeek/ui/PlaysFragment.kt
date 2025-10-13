@@ -368,18 +368,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 )
             }
         }
-
-        fun newInstanceForLocation(): PlaysFragment {
-            return PlaysFragment().apply {
-                arguments = bundleOf(KEY_EMPTY_STRING_RES_ID to R.string.empty_plays_location)
-            }
-        }
-
-        fun newInstanceForPlayer(): PlaysFragment {
-            return PlaysFragment().apply {
-                arguments = bundleOf(KEY_EMPTY_STRING_RES_ID to R.string.empty_plays_player)
-            }
-        }
     }
 }
 

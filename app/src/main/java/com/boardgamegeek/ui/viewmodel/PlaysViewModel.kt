@@ -31,7 +31,7 @@ class PlaysViewModel @Inject constructor(
     )
 
     enum class Mode {
-        ALL, GAME, PLAYER
+        ALL, GAME
     }
 
     enum class FilterType {
@@ -73,7 +73,6 @@ class PlaysViewModel @Inject constructor(
             val list: Flow<List<Play>> = when (it.mode) {
                 Mode.ALL -> playRepository.loadPlaysFlow()
                 Mode.GAME -> playRepository.loadPlaysByGameFlow(it.id)
-                Mode.PLAYER -> playRepository.loadPlaysByPlayerNameFlow(it.name)
             }
             emitSource(list.distinctUntilChanged().asLiveData())
         }
@@ -121,10 +120,6 @@ class PlaysViewModel @Inject constructor(
 
     fun setGame(gameId: Int) {
         playInfo.value = PlayInfo(Mode.GAME, id = gameId)
-    }
-
-    fun setPlayerName(playerName: String) {
-        playInfo.value = PlayInfo(Mode.PLAYER, playerName)
     }
 
     fun setFilter(type: FilterType) {
