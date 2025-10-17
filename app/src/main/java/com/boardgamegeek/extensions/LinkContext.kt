@@ -24,22 +24,17 @@ fun Context?.linkBgg(gameId: Int) {
 
 fun Context?.linkBgPrices(gameName: String) {
     if (gameName.isBlank()) return
-    link("http://boardgameprices.com/compare-prices-for?q=${gameName.encodeForUrl()}")
-}
-
-fun Context?.linkBgPricesUk(gameName: String) {
-    if (gameName.isBlank()) return
-    link("https://boardgameprices.co.uk/item/search?search=${gameName.encodeForUrl()}")
+    link("https://boardgameprices.com/item/search?search=${gameName.encodeForUrl()}")
 }
 
 fun Context?.linkAmazon(gameName: String, domain: String) {
     if (gameName.isBlank()) return
-    link("http://$domain/gp/aw/s/?i=toys&keywords=${gameName.encodeForUrl()}")
+    link("https://$domain/s?k=${gameName.encodeForUrl()}&i=toys")
 }
 
 fun Context?.linkEbay(gameName: String) {
     if (gameName.isBlank()) return
-    link("http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + gameName.encodeForUrl())
+    link("https://www.ebay.com/sch/i.html?_nkw=${gameName.encodeForUrl()}&_sacat=233")
 }
 
 fun Context?.linkToBgg(path: String) {
@@ -61,7 +56,7 @@ private fun Context?.link(link: Uri) {
         FirebaseAnalytics.getInstance(this).logEvent("link") {
             param("Uri", link.toString())
         }
-    } catch (e: ActivityNotFoundException) {
+    } catch (_: ActivityNotFoundException) {
         val message = "Can't figure out how to launch $link"
         Timber.w(message)
         toast(message)
