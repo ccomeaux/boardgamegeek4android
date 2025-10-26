@@ -3,7 +3,6 @@ package com.boardgamegeek.ui
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -18,11 +17,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -98,17 +95,9 @@ class ForumsActivity : BaseActivity() {
                                 )
                             }
                             Status.REFRESHING -> {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(contentPadding)
-                                ) {
-                                    BggLoadingIndicator(
-                                        Modifier
-                                            .align(Alignment.Center)
-                                            .padding(dimensionResource(R.dimen.padding_extra))
-                                    )
-                                }
+                                BggLoadingIndicatorBox(
+                                    modifier = Modifier.padding(contentPadding)
+                                )
                             }
                             Status.SUCCESS -> {
                                 forums.value.data?.let {
@@ -165,17 +154,11 @@ private fun ForumsContent(
 ) {
     when {
         forums == null -> {
-            Box(
+            BggLoadingIndicatorBox(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-            ) {
-                BggLoadingIndicator(
-                    Modifier
-                        .align(Alignment.Center)
-                        .padding(dimensionResource(R.dimen.padding_extra))
-                )
-            }
+            )
         }
         forums.isEmpty() -> {
             EmptyFullSizeScrollableContent(

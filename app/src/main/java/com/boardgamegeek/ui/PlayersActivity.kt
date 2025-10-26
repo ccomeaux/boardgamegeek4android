@@ -202,17 +202,11 @@ private fun PlayersScreen(
 ) {
     when {
         players == null -> {
-            Box(
+            BggLoadingIndicatorBox(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-            ) {
-                BggLoadingIndicator(
-                    Modifier
-                        .align(Alignment.Center)
-                        .padding(dimensionResource(R.dimen.padding_extra))
-                )
-            }
+            )
         }
         players.isEmpty() -> {
             EmptyFullSizeScrollableContent(

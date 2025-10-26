@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,18 +16,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.Play
-import com.boardgamegeek.ui.compose.BggLoadingIndicator
+import com.boardgamegeek.ui.compose.BggLoadingIndicatorBox
 import com.boardgamegeek.ui.compose.Drawer
 import com.boardgamegeek.ui.compose.EmptyFullSizeScrollableContent
 import com.boardgamegeek.ui.compose.ListHeader
@@ -132,17 +129,11 @@ private fun BuddyPlaysScreen(
 ) {
     when {
         plays == null -> {
-            Box(
+            BggLoadingIndicatorBox(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-            ) {
-                BggLoadingIndicator(
-                    Modifier
-                        .align(Alignment.Center)
-                        .padding(dimensionResource(R.dimen.padding_extra))
-                )
-            }
+            )
         }
         plays.isEmpty() -> {
             EmptyFullSizeScrollableContent(

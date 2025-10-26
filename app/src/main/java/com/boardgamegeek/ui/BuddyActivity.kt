@@ -121,13 +121,11 @@ class BuddyActivity : BaseActivity() {
                         snackbarHost = { SnackbarHost(snackbarHostState) },
                     ) { contentPadding ->
                         if (buddy == null && player == null) {
-                            Box(
+                            BggLoadingIndicatorBox(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(contentPadding)
-                            ) {
-                                BggLoadingIndicator(Modifier.align(Alignment.Center))
-                            }
+                            )
                         } else {
                             BuddyScreen(
                                 buddy = buddy,

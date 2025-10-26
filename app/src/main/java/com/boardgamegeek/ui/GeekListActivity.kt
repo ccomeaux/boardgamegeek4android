@@ -281,17 +281,11 @@ private fun GeekListTopAppBarPreview() {
 
 @Composable
 private fun RefreshContent(contentPadding: PaddingValues) {
-    Box(
+    BggLoadingIndicatorBox(
         modifier = Modifier
             .fillMaxSize()
             .padding(contentPadding)
-    ) {
-        BggLoadingIndicator(
-            Modifier
-                .align(Alignment.Center)
-                .padding(dimensionResource(R.dimen.padding_extra))
-        )
-    }
+    )
 }
 
 private enum class GeekListTab(@StringRes val resId: Int) {

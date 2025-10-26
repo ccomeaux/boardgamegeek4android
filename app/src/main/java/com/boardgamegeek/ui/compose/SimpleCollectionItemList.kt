@@ -1,6 +1,5 @@
 package com.boardgamegeek.ui.compose
 
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,9 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
@@ -29,26 +26,17 @@ fun SimpleCollectionItemList(
 ) {
     when {
         collectionItems == null -> {
-            Box(
+            BggLoadingIndicatorBox(
                 modifier = modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-            ) {
-                BggLoadingIndicator(
-                    Modifier
-                        .align(Alignment.Center)
-                        .padding(dimensionResource(R.dimen.padding_extra))
-                )
-            }
+            )
         }
         collectionItems.isEmpty() -> {
-            EmptyContent(
+            EmptyFullSizeScrollableContent(
                 emptyTextResource,
                 Icons.Default.Collections,
-                modifier
-                    .fillMaxSize()
-                    .padding(contentPadding)
-                    .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal)),
+                padding = contentPadding,
             )
         }
         else -> {

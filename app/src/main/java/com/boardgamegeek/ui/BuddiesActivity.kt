@@ -23,7 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -193,17 +192,11 @@ private fun BuddiesContent(
 ) {
     when {
         buddies == null -> {
-            Box(
+            BggLoadingIndicatorBox(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding)
-            ) {
-                BggLoadingIndicator(
-                    Modifier
-                        .align(Alignment.Center)
-                        .padding(dimensionResource(R.dimen.padding_extra))
-                )
-            }
+            )
         }
         buddies.isEmpty() -> {
             Empty(isSetToSyncBuddies, modifier, contentPadding, onEnableSyncClick)
@@ -254,7 +247,7 @@ private fun Empty(
             padding = contentPadding,
         )
     } else {
-        Column(
+        Column( // TODO add option for button on EmptyContent
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = modifier
