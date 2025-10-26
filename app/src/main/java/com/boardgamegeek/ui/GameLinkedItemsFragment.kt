@@ -4,131 +4,118 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Link
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.databinding.FragmentGameLinkedItemsBinding
+import com.boardgamegeek.databinding.FragmentNestedComposeViewBinding
+import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.GameDetail
-import com.boardgamegeek.extensions.loadIcon
-import com.boardgamegeek.extensions.setBggColors
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.compose.BggLoadingIndicatorBox
+import com.boardgamegeek.ui.compose.EmptyContent
+import com.boardgamegeek.ui.compose.GameDetailsFlowRow
+import com.boardgamegeek.ui.compose.GameFooter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class GameLinkedItemsFragment : Fragment() {
-    private var _binding: FragmentGameLinkedItemsBinding? = null
+    private var _binding: FragmentNestedComposeViewBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<GameViewModel>()
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentGameLinkedItemsBinding.inflate(inflater, container, false)
+        _binding = FragmentNestedComposeViewBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshGame() }
-        binding.swipeRefresh.setBggColors()
-
-        binding.footer.lastModifiedView.timestamp = 0
-
-        viewModel.gameIsRefreshing.observe(viewLifecycleOwner) {
-            it?.let { binding.swipeRefresh.isRefreshing }
-        }
-        viewModel.game.observe(viewLifecycleOwner) { game ->
-            if (game == null) {
-                binding.emptyMessage.isVisible = true
-                binding.footer.gameIdView.isVisible = false
-                binding.footer.lastModifiedView.isVisible = false
-            } else {
-                binding.footer.gameIdView.text = game.id.toString()
-                binding.footer.lastModifiedView.timestamp = game.updated
-                binding.footer.gameIdView.isVisible = true
-                binding.footer.lastModifiedView.isVisible = true
-                binding.emptyMessage.isVisible = false
-                listOf(binding.expansionsHeaderView, binding.baseGamesHeaderView).forEach { tv -> tv.setTextColor(game.iconColor) }
-            }
-            binding.contentLoadingProgressBar.hide()
-        }
-        viewModel.expansions.observe(viewLifecycleOwner) {
-            it?.let { list ->
-                binding.expansionsHeaderView.isGone = list.isEmpty()
-                binding.expansionsChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_flip_to_back_24,
-                    R.string.expansions,
-                    GameViewModel.ProducerType.EXPANSION,
+        binding.composeView.setContent {
+            val viewModel by activityViewModels<GameViewModel>()
+            val game by viewModel.game.observeAsState()
+            val baseGames by viewModel.baseGames.observeAsState()
+            val expansions by viewModel.expansions.observeAsState()
+            GameLinkedItemsScreen(
+                game,
+                baseGames,
+                expansions,
+                PaddingValues(
+                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                    vertical = dimensionResource(R.dimen.material_margin_vertical),
                 )
-                binding.expansionsDividerView.isGone = list.isEmpty()
-            }
-        }
-        viewModel.baseGames.observe(viewLifecycleOwner) {
-            it?.let { list ->
-                binding.baseGamesHeaderView.isGone = list.isEmpty()
-                binding.baseGamesChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_flip_to_front_24,
-                    R.string.base_games,
-                    GameViewModel.ProducerType.BASE_GAME,
-                )
-                binding.baseGamesDividerView.isGone = list.isEmpty()
-            }
+            )
         }
     }
+}
 
-    private fun ChipGroup.bindData(
-        list: List<GameDetail>,
-        @DrawableRes iconResId: Int,
-        @StringRes labelResId: Int,
-        type: GameViewModel.ProducerType,
-        limit: Int = 4,
-    ) {
-        if (list.isEmpty()) {
-            visibility = View.GONE
-        } else {
-            removeAllViews()
-            if (list.size <= limit) {
-                list.forEach { producer ->
-                    addView(createChip(producer))
-                }
-            } else {
-                list.take(limit - 1).forEach { producer ->
-                    addView(createChip(producer))
-                }
-                val moreChip = Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
-                    layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    if (iconResId != 0) setChipIconResource(iconResId)
-                    text = context.getString(R.string.more_suffix, list.size - limit + 1)
-                    setOnClickListener {
-                        val gameId = viewModel.gameId.value ?: BggContract.INVALID_ID
-                        val gameName = viewModel.game.value?.name.orEmpty()
-                        GameDetailActivity.start(context, getString(labelResId), gameId, gameName, type)
-                    }
-                }
-                addView(moreChip)
-            }
-            visibility = View.VISIBLE
+@Composable
+private fun GameLinkedItemsScreen(
+    game: Game?,
+    baseGames: List<GameDetail>?,
+    expansions: List<GameDetail>?,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+) {
+    val count = (baseGames?.size ?: 0) + (expansions?.size ?: 0)
+    when {
+        game == null -> {
+            BggLoadingIndicatorBox(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding)
+            )
         }
-    }
-
-    private fun createChip(producer: GameDetail): Chip {
-        return Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            text = producer.name
-            if (producer.thumbnailUrl.isNotBlank())
-                loadIcon(producer.thumbnailUrl)
-            setOnClickListener {
-                GameActivity.start(context, producer.id, producer.name)
+        count == 0 -> {
+            EmptyContent(
+                stringResource(R.string.empty_game),
+                rememberVectorPainter(Icons.Filled.Link),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(contentPadding),
+            )
+        }
+        else -> {
+            Column(Modifier.padding(contentPadding)) {
+                val context = LocalContext.current
+                if (!baseGames.isNullOrEmpty()) {
+                    val headerText = stringResource(R.string.base_games)
+                    GameDetailsFlowRow(
+                        list = baseGames,
+                        headerText = headerText,
+                        moreButtonIconId = R.drawable.ic_baseline_flip_to_front_24,
+                        onItemClick = { GameActivity.start(context, it.id, it.name, it.thumbnailUrl) },
+                        onMoreClick = {
+                            GameDetailActivity.start(context, headerText, game.id, game.name, GameViewModel.ProducerType.BASE_GAME)
+                        }
+                    )
+                }
+                if (!expansions.isNullOrEmpty()) {
+                    val headerText = stringResource(R.string.expansions)
+                    GameDetailsFlowRow(
+                        list = expansions,
+                        headerText = headerText,
+                        moreButtonIconId = R.drawable.ic_baseline_flip_to_front_24,
+                        onItemClick = { GameActivity.start(context, it.id, it.name, it.thumbnailUrl) },
+                        onMoreClick = {
+                            GameDetailActivity.start(context, headerText, game.id, game.name, GameViewModel.ProducerType.EXPANSION)
+                        }
+                    )
+                }
+                Spacer(Modifier.heightIn(8.dp))
+                HorizontalDivider()
+                GameFooter(game.updated, game.id, modifier = Modifier.fillMaxWidth())
             }
         }
     }

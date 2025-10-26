@@ -103,7 +103,7 @@ fun EmptyFullSizeScrollableContent(
 )
 
 @Composable
-private fun EmptyContent(
+fun EmptyContent(
     text: String,
     iconPainter: Painter,
     modifier: Modifier = Modifier,
