@@ -163,12 +163,10 @@ private fun MechanicsScreen(
             }
         }
         mechanics.isEmpty() -> {
-            EmptyContent(
+            EmptyFullSizeScrollableContent(
                 R.string.empty_mechanics,
                 Icons.Default.Build,
-                Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize(),
+                padding = contentPadding,
             )
         }
         else -> {

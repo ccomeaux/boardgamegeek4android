@@ -215,12 +215,10 @@ private fun PlayersScreen(
             }
         }
         players.isEmpty() -> {
-            EmptyContent(
+            EmptyFullSizeScrollableContent(
                 R.string.empty_players,
                 Icons.Default.Person,
-                Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize(),
+                padding = contentPadding,
             )
         }
         else -> {

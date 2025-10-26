@@ -216,11 +216,10 @@ private fun ArtistsContent(
             }
         }
         artists.isEmpty() -> {
-            EmptyContent(
-                R.string.empty_artists, Icons.Outlined.Brush,
-                Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize()
+            EmptyFullSizeScrollableContent(
+                R.string.empty_artists,
+                Icons.Outlined.Brush,
+                padding = contentPadding
             )
         }
         else -> {

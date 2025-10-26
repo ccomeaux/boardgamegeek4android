@@ -2,10 +2,7 @@ package com.boardgamegeek.ui.compose
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -18,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,81 +27,94 @@ import com.boardgamegeek.R
 import com.boardgamegeek.ui.theme.BggAppTheme
 
 @Composable
-fun EmptyContent(
+fun EmptyFullSizeScrollableContent(
+    @StringRes textResource: Int,
+    imageVector: ImageVector,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+    padding: PaddingValues = PaddingValues(
+        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+        vertical = dimensionResource(R.dimen.material_margin_vertical),
+    ),
+) = EmptyContent(
+    text = stringResource(textResource),
+    iconPainter = rememberVectorPainter(imageVector),
+    modifier
+        .fillMaxSize()
+        .verticalScroll(scrollState)
+        .padding(padding)
+)
+
+@Composable
+fun EmptyFullSizeScrollableContent(
+    text: String,
+    iconPainter: Painter,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+    padding: PaddingValues = PaddingValues(
+        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+        vertical = dimensionResource(R.dimen.material_margin_vertical),
+    ),
+) = EmptyContent(
+    text = text,
+    iconPainter = iconPainter,
+    modifier
+        .fillMaxSize()
+        .verticalScroll(scrollState)
+        .padding(padding)
+)
+
+@Composable
+fun EmptyFullSizeScrollableContent(
+    text: String,
+    imageVector: ImageVector,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+    padding: PaddingValues = PaddingValues(
+        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+        vertical = dimensionResource(R.dimen.material_margin_vertical),
+    ),
+) = EmptyContent(
+    text = text,
+    iconPainter = rememberVectorPainter(imageVector),
+    modifier
+        .fillMaxSize()
+        .verticalScroll(scrollState)
+        .padding(padding)
+)
+
+@Composable
+fun EmptyFullSizeScrollableContent(
     @StringRes textResource: Int,
     iconPainter: Painter,
     modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState()
+    scrollState: ScrollState = rememberScrollState(),
+    padding: PaddingValues = PaddingValues(
+        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+        vertical = dimensionResource(R.dimen.material_margin_vertical),
+    ),
 ) = EmptyContent(
     text = stringResource(textResource),
     iconPainter = iconPainter,
-    modifier = modifier,
-    scrollState = scrollState
+    modifier
+        .fillMaxSize()
+        .verticalScroll(scrollState)
+        .padding(padding)
 )
 
 @Composable
-fun EmptyContent(
+private fun EmptyContent(
     text: String,
     iconPainter: Painter,
     modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState()
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .verticalScroll(scrollState)
-            .padding(
-                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                vertical = dimensionResource(R.dimen.material_margin_vertical)
-            ),
+        modifier = modifier,
     ) {
         Icon(
             painter = iconPainter,
-            contentDescription = null,
-            modifier = Modifier.size(108.dp),
-            tint = MaterialTheme.colorScheme.secondary,
-        )
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-fun EmptyContent(
-    @StringRes textResource: Int,
-    imageVector: ImageVector,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState()
-) = EmptyContent(
-    text = stringResource(textResource),
-    imageVector = imageVector,
-    modifier = modifier,
-    scrollState = scrollState
-)
-
-@Composable
-fun EmptyContent(
-    text: String,
-    imageVector: ImageVector,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState()
-) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-            .verticalScroll(scrollState)
-            .padding(
-                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                vertical = dimensionResource(R.dimen.material_margin_vertical)
-            ),
-    ) {
-        Icon(
-            imageVector = imageVector,
             contentDescription = null,
             modifier = Modifier.size(108.dp),
             tint = MaterialTheme.colorScheme.secondary,
@@ -120,10 +131,10 @@ fun EmptyContent(
 @Composable
 private fun EmptyContentPreview() {
     BggAppTheme {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.search_initial_help,
             painterResource(R.drawable.ic_twotone_comment_48),
-            Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+            Modifier.padding(0.dp)
         )
     }
 }
@@ -132,7 +143,7 @@ private fun EmptyContentPreview() {
 @Composable
 private fun EmptyContentPreviewImageVector() {
     BggAppTheme {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.empty_geeklist,
             Icons.AutoMirrored.Filled.ListAlt,
         )
@@ -143,7 +154,7 @@ private fun EmptyContentPreviewImageVector() {
 @Composable
 private fun EmptyListContentPreviewLightDark() {
     BggAppTheme {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.empty_comments,
             painterResource(R.drawable.ic_twotone_comment_48),
         )

@@ -58,7 +58,7 @@ import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
 import com.boardgamegeek.ui.compose.Drawer
-import com.boardgamegeek.ui.compose.EmptyContent
+import com.boardgamegeek.ui.compose.EmptyFullSizeScrollableContent
 import com.boardgamegeek.ui.compose.GeekListCommentList
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -163,7 +163,6 @@ class GeekListItemActivity : BaseActivity() {
                                     GeekListItemTab.Description.ordinal -> {
                                         GeekListItemDescriptionContent(
                                             geekListItem.body,
-                                            modifier = Modifier.padding(paddingValues),
                                             scrollState = descriptionScrollState,
                                             markupConverter,
                                         )
@@ -290,13 +289,11 @@ private fun GeekListItemCommentContent(
     scrollState: ScrollState
 ) {
     if (comments.isEmpty()) {
-        EmptyContent(
-            R.string.empty_comments,
-            painterResource(R.drawable.ic_twotone_comment_48),
-            Modifier
-                .fillMaxSize()
-                .padding(contentPadding),
+        EmptyFullSizeScrollableContent(
+            textResource = R.string.empty_comments,
+            iconPainter = painterResource(R.drawable.ic_twotone_comment_48),
             scrollState = scrollState,
+            padding = contentPadding,
         )
     } else {
         GeekListCommentList(
@@ -432,26 +429,25 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
 @Composable
 private fun GeekListItemDescriptionContent(
     body: String,
-    modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
     markupConverter: XmlApiMarkupConverter? = null
 ) {
     if (body.isEmpty()) {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.empty_geeklist_description,
             Icons.Filled.Description,
-            modifier = modifier
-                .padding(top = 16.dp)
-                .fillMaxSize(),
             scrollState = scrollState,
         )
     } else {
         Text(
             text = AnnotatedString.fromHtml(markupConverter?.toHtml(body, prewrap = false) ?: body),
-            modifier = modifier
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 16.dp)
                 .verticalScroll(scrollState)
+                .padding(
+                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                    vertical = dimensionResource(R.dimen.material_margin_vertical),
+                )
         )
     }
 }

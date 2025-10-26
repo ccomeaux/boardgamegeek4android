@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -120,7 +121,8 @@ class BuddyCollectionActivity : BaseActivity() {
                             BuddyCollectionScreen(
                                 collection.data.orEmpty(),
                                 status = status,
-                                contentPadding = contentPadding,)
+                                contentPadding = contentPadding,
+                            )
                         }
                     }
                 }
@@ -208,23 +210,20 @@ private fun BuddyCollectionTopBarPreview() {
 private fun BuddyCollectionScreen(
     collectionItems: Map<String, List<CollectionItem>>,
     status: CollectionStatus?,
-    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     if (collectionItems.isEmpty()) {
         val statuses = LocalContext.current.createStatusMap()
         val statusDescription = status?.let { statuses[it.mapToPreference()] } ?: status.toString()
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             stringResource(R.string.empty_buddy_collection, statusDescription),
-            Icons.Outlined.Person,
-            modifier
-                .padding(contentPadding)
-                .fillMaxSize()
+            rememberVectorPainter(Icons.Outlined.Person),
+            padding = contentPadding
         )
     } else {
         val context = LocalContext.current
         LazyColumn(
-            modifier = modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             contentPadding = contentPadding,
         ) {
             collectionItems.forEach { (headerText, items) ->

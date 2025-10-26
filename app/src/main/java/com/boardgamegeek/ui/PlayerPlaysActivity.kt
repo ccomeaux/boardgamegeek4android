@@ -28,11 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.Play
-import com.boardgamegeek.ui.compose.BggLoadingIndicator
-import com.boardgamegeek.ui.compose.Drawer
-import com.boardgamegeek.ui.compose.EmptyContent
-import com.boardgamegeek.ui.compose.ListHeader
-import com.boardgamegeek.ui.compose.PlayListItem
+import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.PlayerPlaysViewModel
 import com.boardgamegeek.util.XmlApiMarkupConverter
@@ -128,7 +124,6 @@ private fun PlayerPlaysTopBar(
 @Composable
 private fun PlayerPlaysScreen(
     plays: Map<String, List<Play>>?,
-    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     when {
@@ -146,19 +141,17 @@ private fun PlayerPlaysScreen(
             }
         }
         plays.isEmpty() -> {
-            EmptyContent(
-                stringResource(R.string.empty_plays_player),
+            EmptyFullSizeScrollableContent(
+                R.string.empty_plays_player,
                 Icons.Outlined.Event,
-                modifier
-                    .padding(contentPadding)
-                    .fillMaxSize()
+                padding = contentPadding,
             )
         }
         else -> {
             val context = LocalContext.current
             val markupConverter = XmlApiMarkupConverter(context)
             LazyColumn(
-                modifier = modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = contentPadding,
             ) {
                 plays.forEach { (headerText, plays) ->

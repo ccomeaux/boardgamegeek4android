@@ -132,12 +132,10 @@ class GeekListActivity : BaseActivity() {
 
     @Composable
     private fun EmptyGeekListContent(contentPadding: PaddingValues) {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.empty_geeklist,
             Icons.AutoMirrored.Filled.ListAlt,
-            Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
+            padding = contentPadding,
         )
     }
 
@@ -362,15 +360,9 @@ private fun GeekListDescriptionContent(
     markupConverter: XmlApiMarkupConverter? = null,
 ) {
     if (description.isEmpty()) {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.empty_geeklist_description,
             Icons.Filled.Description,
-            modifier = modifier
-                .fillMaxSize()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                    vertical = dimensionResource(R.dimen.material_margin_vertical)
-                ),
             scrollState = scrollState,
         )
     } else {
@@ -391,21 +383,14 @@ private fun GeekListDescriptionContent(
 private fun GeekListItemListContent(
     geekList: GeekList?, // TODO don't accept nulls
     imageProgress: Float,
-    modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     scrollState: ScrollState = rememberScrollState(),
 ) {
     val geekListItems = geekList?.items.orEmpty()
     if (geekListItems.isEmpty()) {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.empty_geeklist,
             Icons.AutoMirrored.Filled.List,
-            modifier = modifier
-                .fillMaxSize()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                    vertical = dimensionResource(R.dimen.material_margin_vertical)
-                ),
             scrollState = scrollState,
         )
     } else {
@@ -555,15 +540,9 @@ private fun GeekListCommentContent(
     scrollState: ScrollState
 ) {
     if (comments.isEmpty()) {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.empty_comments,
             painterResource(R.drawable.ic_twotone_comment_48),
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                    vertical = dimensionResource(R.dimen.material_margin_vertical)
-                ),
             scrollState = scrollState,
         )
     } else {

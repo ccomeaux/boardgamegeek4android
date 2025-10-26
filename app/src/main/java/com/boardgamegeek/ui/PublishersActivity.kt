@@ -216,11 +216,10 @@ private fun PublishersContent(
             }
         }
         publishers.isEmpty() -> {
-            EmptyContent(
-                R.string.empty_publishers, Icons.AutoMirrored.Outlined.MenuBook,
-                Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize()
+            EmptyFullSizeScrollableContent(
+                R.string.empty_publishers,
+                Icons.AutoMirrored.Outlined.MenuBook,
+                padding = contentPadding,
             )
         }
         else -> {

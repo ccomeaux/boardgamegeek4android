@@ -248,12 +248,10 @@ private fun Empty(
     onEnableSyncClick: () -> Unit
 ) {
     if (isSetToSyncBuddies) {
-        EmptyContent(
+        EmptyFullSizeScrollableContent(
             R.string.empty_buddies,
             Icons.Outlined.Person,
-            Modifier
-                .padding(contentPadding)
-                .fillMaxSize()
+            padding = contentPadding,
         )
     } else {
         Column(

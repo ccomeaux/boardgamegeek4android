@@ -164,12 +164,10 @@ private fun CategoriesScreen(
             }
         }
         categories.isEmpty() -> {
-            EmptyContent(
+            EmptyFullSizeScrollableContent(
                 R.string.empty_categories,
                 Icons.Default.Category,
-                Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize(),
+                padding = contentPadding,
             )
         }
         else -> {

@@ -212,11 +212,10 @@ private fun DesignersContent(
             }
         }
         designers.isEmpty() -> {
-            EmptyContent(
-                R.string.empty_designers, Icons.Outlined.Edit,
-                Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize()
+            EmptyFullSizeScrollableContent(
+                R.string.empty_designers,
+                Icons.Outlined.Edit,
+                padding = contentPadding,
             )
         }
         else -> {

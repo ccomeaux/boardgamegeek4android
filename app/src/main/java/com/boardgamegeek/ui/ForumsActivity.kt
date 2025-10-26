@@ -116,12 +116,10 @@ class ForumsActivity : BaseActivity() {
                                     ForumsContent(it, contentPadding) { forum ->
                                         ForumActivity.start(context, forum.id, forum.title, objectId, objectName, Forum.Type.REGION)
                                     }
-                                } ?: EmptyContent(
+                                } ?: EmptyFullSizeScrollableContent(
                                     R.string.empty_forums,
                                     Icons.Filled.Forum,
-                                    Modifier
-                                        .fillMaxSize()
-                                        .padding(contentPadding)
+                                    padding = contentPadding,
                                 )
                             }
                         }
@@ -180,11 +178,10 @@ private fun ForumsContent(
             }
         }
         forums.isEmpty() -> {
-            EmptyContent(
-                R.string.empty_forums, Icons.Outlined.Forum,
-                Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize()
+            EmptyFullSizeScrollableContent(
+                R.string.empty_forums,
+                Icons.Outlined.Forum,
+                padding = contentPadding,
             )
         }
         else -> {

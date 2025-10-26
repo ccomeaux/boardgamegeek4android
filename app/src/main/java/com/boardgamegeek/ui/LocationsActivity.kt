@@ -170,12 +170,10 @@ private fun LocationsScreen(
             }
         }
         locations.isEmpty() -> {
-            EmptyContent(
+            EmptyFullSizeScrollableContent(
                 R.string.empty_locations,
                 Icons.Default.LocationOn,
-                Modifier
-                    .padding(contentPadding)
-                    .fillMaxSize(),
+                padding = contentPadding,
             )
         }
         else -> {

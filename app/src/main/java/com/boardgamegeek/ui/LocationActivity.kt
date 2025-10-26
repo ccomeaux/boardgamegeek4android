@@ -35,7 +35,7 @@ import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.ui.compose.BggLoadingIndicator
 import com.boardgamegeek.ui.compose.Drawer
-import com.boardgamegeek.ui.compose.EmptyContent
+import com.boardgamegeek.ui.compose.EmptyFullSizeScrollableContent
 import com.boardgamegeek.ui.compose.ListHeader
 import com.boardgamegeek.ui.compose.PlayListItem
 import com.boardgamegeek.ui.theme.BggAppTheme
@@ -169,7 +169,6 @@ private fun LocationPlaysTopBar(
 @Composable
 private fun LocationPlaysScreen(
     plays: Map<String, List<Play>>?,
-    modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
 ) {
     when {
@@ -187,19 +186,17 @@ private fun LocationPlaysScreen(
             }
         }
         plays.isEmpty() -> {
-            EmptyContent(
-                stringResource(R.string.empty_plays_location),
+            EmptyFullSizeScrollableContent(
+                R.string.empty_plays_location,
                 Icons.Outlined.Event,
-                modifier
-                    .padding(contentPadding)
-                    .fillMaxSize()
+                padding = contentPadding,
             )
         }
         else -> {
             val context = LocalContext.current
             val markupConverter = XmlApiMarkupConverter(context)
             LazyColumn(
-                modifier = modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 contentPadding = contentPadding,
             ) {
                 plays.forEach { (headerText, plays) ->

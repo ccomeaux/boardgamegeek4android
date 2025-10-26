@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -177,6 +178,7 @@ class SearchResultsActivity : BaseActivity() {
                         }
                     }
                 }
+                val res = LocalResources.current
                 LaunchedEffect(results) {
                     results.data?.query?.let {
                         if (it.text.isNotBlank()) {
@@ -184,7 +186,7 @@ class SearchResultsActivity : BaseActivity() {
                             coroutineScope.launch {
                                 val count = results.data?.results?.size ?: 0
                                 if (it.exact) {
-                                    val message = context.resources.getQuantityString(R.plurals.search_results_exact, count, count, it.text)
+                                    val message = res.getQuantityString(R.plurals.search_results_exact, count, count, it.text)
                                     val result = snackbarHostState.showSnackbar(
                                         message,
                                         actionLabel = context.getString(R.string.more),
@@ -194,7 +196,7 @@ class SearchResultsActivity : BaseActivity() {
                                         viewModel.searchInexact(query?.text.orEmpty())
                                     }
                                 } else {
-                                    val message = context.resources.getQuantityString(R.plurals.search_results, count, count, it.text)
+                                    val message = res.getQuantityString(R.plurals.search_results, count, count, it.text)
                                     snackbarHostState.showSnackbar(message)
                                 }
                             }
@@ -357,16 +359,13 @@ private fun SearchResultsContent(
         }
         Status.SUCCESS -> {
             if (data.isNullOrEmpty()) {
-                EmptyContent(
+                EmptyFullSizeScrollableContent(
                     if (queryText.isBlank())
                         R.string.search_initial_help
                     else
                         R.string.empty_search,
                     Icons.Default.Search,
-                    Modifier
-                        .fillMaxSize()
-                        .padding(contentPadding)
-                        .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal)),
+                    padding = contentPadding,
                 )
             } else {
                 LazyColumn(
