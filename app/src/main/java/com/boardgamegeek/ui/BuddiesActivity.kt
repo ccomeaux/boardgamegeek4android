@@ -10,8 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Menu
@@ -24,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -199,7 +196,7 @@ private fun BuddiesContent(
             )
         }
         buddies.isEmpty() -> {
-            Empty(isSetToSyncBuddies, modifier, contentPadding, onEnableSyncClick)
+            Empty(isSetToSyncBuddies, contentPadding, onEnableSyncClick)
         }
         else -> {
             PullToRefreshBox(
@@ -236,7 +233,6 @@ private fun BuddiesContent(
 @Composable
 private fun Empty(
     isSetToSyncBuddies: Boolean,
-    modifier: Modifier,
     contentPadding: PaddingValues,
     onEnableSyncClick: () -> Unit
 ) {
@@ -247,26 +243,11 @@ private fun Empty(
             padding = contentPadding,
         )
     } else {
-        Column( // TODO add option for button on EmptyContent
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(contentPadding)
-                .verticalScroll(rememberScrollState())
+        EmptyFullSizeScrollableContent(
+            R.string.empty_buddies_sync_off,
+            Icons.Outlined.Person,
+            padding = contentPadding,
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Person,
-                contentDescription = null,
-                modifier = Modifier.size(108.dp),
-                tint = MaterialTheme.colorScheme.secondary,
-            )
-            Text(
-                text = stringResource(R.string.empty_buddies_sync_off),
-                style = MaterialTheme.typography.bodyLarge,
-                textAlign = TextAlign.Center,
-            )
             Spacer(Modifier.height(24.dp))
             Button(
                 onClick = { onEnableSyncClick() },

@@ -36,13 +36,15 @@ fun EmptyFullSizeScrollableContent(
         horizontal = dimensionResource(R.dimen.material_margin_horizontal),
         vertical = dimensionResource(R.dimen.material_margin_vertical),
     ),
+    extraContent: @Composable ColumnScope.() -> Unit = {},
 ) = EmptyContent(
     text = stringResource(textResource),
     iconPainter = rememberVectorPainter(imageVector),
     modifier
         .fillMaxSize()
         .verticalScroll(scrollState)
-        .padding(padding)
+        .padding(padding),
+    extraContent,
 )
 
 @Composable
@@ -107,6 +109,7 @@ fun EmptyContent(
     text: String,
     iconPainter: Painter,
     modifier: Modifier = Modifier,
+    extraContent: @Composable ColumnScope.() -> Unit = {},
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -124,6 +127,7 @@ fun EmptyContent(
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center,
         )
+        extraContent.invoke(this)
     }
 }
 
@@ -158,5 +162,19 @@ private fun EmptyListContentPreviewLightDark() {
             R.string.empty_comments,
             painterResource(R.drawable.ic_twotone_comment_48),
         )
+    }
+}
+
+@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+private fun EmptyContentExtraContentPreview() {
+    BggAppTheme {
+        EmptyFullSizeScrollableContent(
+            R.string.empty_buddies,
+            Icons.AutoMirrored.Filled.ListAlt,
+        ) {
+            Spacer(Modifier.height(16.dp))
+            Text("Extra content")
+        }
     }
 }
