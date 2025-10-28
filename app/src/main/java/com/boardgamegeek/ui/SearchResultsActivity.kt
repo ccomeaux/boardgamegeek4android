@@ -29,7 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -37,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.addOrRemove
 import com.boardgamegeek.extensions.getActivity
 import com.boardgamegeek.extensions.linkBgg
 import com.boardgamegeek.extensions.notifyLoggedPlay
@@ -150,10 +150,7 @@ class SearchResultsActivity : BaseActivity() {
                             selectedIds = selectedIds,
                             onClick = {
                                 if (inSelectionMode) {
-                                    if (selectedIds.contains(it))
-                                        selectedIds.remove(it)
-                                    else
-                                        selectedIds.add(it)
+                                    selectedIds.addOrRemove(it)
                                 } else {
                                     GameActivity.start(context, it, nameFromId(it).orEmpty())
                                 }
@@ -263,62 +260,15 @@ private fun MultiSelectionTopAppBar(
         },
         actions = {
             if (isAuthenticated) {
-                var expandedMenu by remember { mutableStateOf(false) }
                 if (selectedCount == 1) {
-                    IconButton(onClick = { onQuickLogPlay() }) {
-                        Icon(
-                            painterResource(R.drawable.ic_baseline_event_available_24),
-                            contentDescription = stringResource(R.string.menu_log_play),
-                        )
-                    }
+                    LogPlayAppBarExpandableActions(onLogPlay, onLogPlayWizard, onQuickLogPlay)
                 } else {
-                    IconButton(onClick = { expandedMenu = true }) {
-                        Icon(
-                            painterResource(R.drawable.ic_baseline_event_available_24),
-                            contentDescription = stringResource(R.string.menu_log_play),
-                        )
-                    }
-                    DropdownMenu(
-                        expanded = expandedMenu,
-                        onDismissRequest = { expandedMenu = false }
-                    ) {
-                        DropdownMenuItem(
-                            text = { stringResource(R.string.menu_log_play_short) },
-                            onClick = {
-                                onLogPlay()
-                                expandedMenu = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { stringResource(R.string.menu_log_play_wizard_short) },
-                            onClick = {
-                                onLogPlayWizard()
-                                expandedMenu = false
-                            }
-                        )
-                        DropdownMenuItem(
-                            text = { stringResource(R.string.menu_log_play_quick_short) },
-                            onClick = {
-                                onQuickLogPlay()
-                                expandedMenu = false
-                            }
-                        )
-                    }
+                    LogPlayQuickAppBarAction(onQuickLogPlay)
                 }
             }
-            IconButton(onClick = { onShare() }) {
-                Icon(
-                    painterResource(R.drawable.ic_baseline_share_24),
-                    contentDescription = stringResource(R.string.menu_share),
-                )
-            }
+            ShareAppBarAction(onShare)
             if (selectedCount == 1) {
-                IconButton(onClick = { onView() }) {
-                    Icon(
-                        painterResource(R.drawable.ic_baseline_open_in_browser_24),
-                        contentDescription = stringResource(R.string.menu_view),
-                    )
-                }
+                ViewAppBarAction(onView)
             }
         }
     )

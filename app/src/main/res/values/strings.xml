@@ -129,6 +129,7 @@
 	<string name="are_you_sure_clear_colors">Are you sure you want to clear the list of colors?</string>
 	<string name="are_you_sure_delete_collection_item">Are you sure you want to remove this item from your collection?</string>
 	<string name="are_you_sure_log_quick_play">Are you sure you want to log a play of %s?</string>
+	<string name="are_you_sure_log_quick_plays">Are you sure you want to log a play of the selected games?</string>
 	<string name="app_name" translatable="false">BGG4A</string>
 	<string name="provider_label">Collection, Plays, and GeekBuddies</string>
 	<string name="title_search">Search</string>

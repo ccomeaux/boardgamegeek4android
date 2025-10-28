@@ -59,10 +59,7 @@ fun ErrorContent(text: String, iconPainter: Painter, modifier: Modifier = Modifi
 fun ErrorContent(text: String, imageVector: ImageVector, modifier: Modifier = Modifier) {
     Box(
         contentAlignment = Alignment.Center,
-        modifier = modifier.padding(
-            horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-            vertical = dimensionResource(R.dimen.material_margin_vertical)
-        )
+        modifier = modifier
     ) {
         OutlinedCard(
             modifier = Modifier
@@ -114,9 +111,9 @@ private fun ErrorContentImageVector() {
             "A long error message. I mean a really long one. I mean a really, really long one.",
             Icons.Filled.Password,
             Modifier
-                .padding(vertical = 8.dp, horizontal = 16.dp)
                 .heightIn(min = 160.dp, max = 320.dp)
                 .widthIn(min = 160.dp, max = 320.dp)
+                .padding(vertical = 8.dp, horizontal = 16.dp)
         )
     }
 }
