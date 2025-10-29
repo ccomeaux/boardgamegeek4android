@@ -9,6 +9,8 @@ import timber.log.Timber
 
 class RemoteConfig {
     companion object {
+        const val KEY_BGG_BEARER_TOKEN = "bgg_bearer_token"
+
         const val KEY_SYNC_ENABLED = "sync_enabled"
         const val KEY_SYNC_BUDDIES_DAYS = "sync_buddies_days"
         const val KEY_SYNC_BUDDIES_MAX = "sync_buddies_max"
@@ -49,15 +51,14 @@ class RemoteConfig {
             }
             firebaseRemoteConfig.setConfigSettingsAsync(configSettings)
             firebaseRemoteConfig.setDefaultsAsync(R.xml.remote_config_defaults)
+            fetchAndActivate()
         }
 
-        @Suppress("unused")
-        fun fetch() {
+        fun fetchAndActivate() {
             val firebaseRemoteConfig = Firebase.remoteConfig
-            firebaseRemoteConfig.fetch().addOnCompleteListener { task ->
+            firebaseRemoteConfig.fetchAndActivate().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Timber.i("Successfully fetched Firebase remote config.")
-                    firebaseRemoteConfig.activate()
                 } else {
                     Timber.i(task.exception, "Failed to fetch Firebase remote config.")
                 }
@@ -71,5 +72,7 @@ class RemoteConfig {
         fun getLong(key: String) = Firebase.remoteConfig.getLong(key)
 
         fun getDouble(key: String) = Firebase.remoteConfig.getDouble(key)
+
+        fun getString(key: String) = Firebase.remoteConfig.getString(key)
     }
 }

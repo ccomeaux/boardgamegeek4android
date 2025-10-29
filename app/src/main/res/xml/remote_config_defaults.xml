@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <defaultsMap>
 	<entry>
+		<key>bgg_bearer_token</key>
+		<value>INVALID_DEFAULT</value>
+	</entry>
+	<entry>
 		<key>sync_enabled</key>
 		<value>true</value>
 	</entry>
