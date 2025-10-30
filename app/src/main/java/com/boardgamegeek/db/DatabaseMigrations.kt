@@ -5,9 +5,15 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import timber.log.Timber
 
 object DatabaseMigrations {
+    val MIGRATION_56_60 = object : Migration(56, 60) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            Timber.i("Initializing Room database from version 56...")
+        }
+    }
+
     val MIGRATION_60_61 = object : Migration(60, 61) {
         override fun migrate(db: SupportSQLiteDatabase) {
-            Timber.i("Initializing Room database...")
+            Timber.i("Initializing Room database from version 60...")
         }
     }
 
