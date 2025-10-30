@@ -152,15 +152,24 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val growthRate = allItems.switchMap {
+    val growthRate = allItems.switchMap { list ->
         liveData {
-            val itemsWithAcquisitionDate = it.filter { it.acquisitionDate > 0L }
+            val itemsWithAcquisitionDate = list.filter { it.acquisitionDate > 0L }
 
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = itemsWithAcquisitionDate.minOf { it.acquisitionDate }
-            val yearsAcquiring = 2025 - calendar.get(Calendar.YEAR) + 1
+            if (itemsWithAcquisitionDate.isEmpty()) {
+                emit(0.0)
+            } else {
 
-            emit(itemsWithAcquisitionDate.sumOf { it.quantity } / yearsAcquiring)
+                val calendar = Calendar.getInstance()
+                calendar.timeInMillis = itemsWithAcquisitionDate.minOf { it.acquisitionDate }
+                val yearsAcquiring = 2025 - calendar.get(Calendar.YEAR) + 1
+
+                if (yearsAcquiring < 1) {
+                    emit(0.0)
+                } else {
+                    emit(itemsWithAcquisitionDate.sumOf { it.quantity } / yearsAcquiring)
+                }
+            }
         }
     }
 
@@ -217,12 +226,16 @@ class CollectionDetailsViewModel @Inject constructor(
     )
 
     val collectionAcquireStats: LiveData<CollectionAcquireStats> = allItems.map { items ->
-        val incomingCount = items.filter { it.isIncoming }.sumOf { it.quantity }
         val ownCount = items.filter { it.own }.sumOf { it.quantity }
-        val forTradeCount = items.filter { it.forTrade }.sumOf { it.quantity }
-        CollectionAcquireStats(
-            incomingCount, (incomingCount - forTradeCount).toDouble() / ownCount,
-        )
+        val incomingCount = items.filter { it.isIncoming }.sumOf { it.quantity }
+        if (ownCount < 1) {
+            return@map CollectionAcquireStats(incomingCount, 0.0)
+        } else {
+            val forTradeCount = items.filter { it.forTrade }.sumOf { it.quantity }
+            CollectionAcquireStats(
+                incomingCount, (incomingCount - forTradeCount).toDouble() / ownCount,
+            )
+        }
     }
 
     val preordered = allItems.switchMap {
@@ -449,7 +462,7 @@ class CollectionDetailsViewModel @Inject constructor(
 
     private fun List<CollectionItem>.filterByPlayerCount(playerCount: Int?, playerCountType: PlayerCountType): List<CollectionItem> {
         return playerCount?.let {
-            return when (playerCountType) {
+            when (playerCountType) {
                 PlayerCountType.All -> this
                 PlayerCountType.Supports -> filter { item -> it in item.minPlayerCount..item.maxPlayerCount }
                 PlayerCountType.GoodWith -> filter { item -> item.recommendedPlayerCounts?.contains(it) == true }
