@@ -157,7 +157,7 @@ class CollectionDetailsViewModel @Inject constructor(
             val itemsWithAcquisitionDate = list.filter { it.acquisitionDate > 0L }
 
             if (itemsWithAcquisitionDate.isEmpty()) {
-                emit(0.0)
+                emit(0)
             } else {
 
                 val calendar = Calendar.getInstance()
@@ -165,7 +165,7 @@ class CollectionDetailsViewModel @Inject constructor(
                 val yearsAcquiring = 2025 - calendar.get(Calendar.YEAR) + 1
 
                 if (yearsAcquiring < 1) {
-                    emit(0.0)
+                    emit(0)
                 } else {
                     emit(itemsWithAcquisitionDate.sumOf { it.quantity } / yearsAcquiring)
                 }
