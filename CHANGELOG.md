@@ -1,8 +1,11 @@
 Release Notes
 =============
 
-Coming Soon...
---------------
+Version 6.9
+-----------
+ * Addressed BoardGameGeek's new API key requirement
+ * New way to view your collection
+ * New screen to view sync progress
  * Display GeekList comments
  * Add better support for forum markup, including spoilers
  * Filter on rating for just unrated games
