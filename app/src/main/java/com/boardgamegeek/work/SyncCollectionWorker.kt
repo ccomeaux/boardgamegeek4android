@@ -495,7 +495,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         private fun CollectionStatus.mapToString() = when (this) {
             CollectionStatus.Own -> "own"
             CollectionStatus.PreviouslyOwned -> "previously_owned"
-            CollectionStatus.Preordered -> "preorderd"
+            CollectionStatus.Preordered -> "preordered"
             CollectionStatus.Played -> "played"
             CollectionStatus.ForTrade -> "for_trade"
             CollectionStatus.WantInTrade -> "want_in_trade"
