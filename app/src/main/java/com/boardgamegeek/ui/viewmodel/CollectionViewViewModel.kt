@@ -105,7 +105,7 @@ class CollectionViewViewModel @Inject constructor(
             _sortType.postValue(CollectionSorterFactory.TYPE_UNKNOWN)
             _addedFilters.postValue(emptyList())
             _removedFilterTypes.postValue(emptyList())
-            if (it == CollectionViewPrefs.DEFAULT_DEFAULT_ID)
+            if (it == null || it == CollectionViewPrefs.DEFAULT_DEFAULT_ID)
                 emit(viewRepository.defaultView)
             else
                 emitSource(viewRepository.loadViewFlow(it).distinctUntilChanged().asLiveData())
