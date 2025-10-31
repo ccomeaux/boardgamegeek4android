@@ -25,7 +25,10 @@ class DatabaseModule {
         BggDatabase::class.java,
         "bgg.db",
     ).addMigrations(
-        DatabaseMigrations.MIGRATION_56_60,
+        DatabaseMigrations.MIGRATION_56_57,
+        DatabaseMigrations.MIGRATION_57_58,
+        DatabaseMigrations.MIGRATION_58_59,
+        DatabaseMigrations.MIGRATION_59_60,
         DatabaseMigrations.MIGRATION_60_61,
         DatabaseMigrations.MIGRATION_61_62,
         DatabaseMigrations.MIGRATION_62_63,
