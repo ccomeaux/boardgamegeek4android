@@ -118,9 +118,9 @@ interface BggService {
             val options = mutableMapOf<String, String>()
 
             if (collectionId != INVALID_ID)
-                COLLECTION_QUERY_KEY_COLLECTION_ID to collectionId.toString()
+                options[COLLECTION_QUERY_KEY_COLLECTION_ID] = collectionId.toString()
             else if (gameId != INVALID_ID)
-                COLLECTION_QUERY_KEY_ID to gameId.toString()
+                options[COLLECTION_QUERY_KEY_ID] = gameId.toString()
             else if (gameIds?.isNotEmpty() == true)
                 options[COLLECTION_QUERY_KEY_ID] = gameIds.joinToString(",")
 
