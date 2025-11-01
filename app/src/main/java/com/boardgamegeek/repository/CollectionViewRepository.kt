@@ -37,8 +37,8 @@ class CollectionViewRepository(
         collectionViewDao.loadViews().map { it.key.mapToModel(it.value) }
     }
 
-    fun loadViewFlow(viewId: Int): Flow<CollectionView> {
-        return collectionViewDao.loadViewFlow(viewId).map { it.view.mapToModel(it.filters, context) }
+    fun loadViewFlow(viewId: Int): Flow<CollectionView?> {
+        return collectionViewDao.loadViewFlow(viewId).map { it?.view?.mapToModel(it.filters, context) }
     }
 
     suspend fun insertView(view: CollectionView): Int {

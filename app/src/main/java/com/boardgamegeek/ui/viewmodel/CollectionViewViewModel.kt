@@ -100,7 +100,7 @@ class CollectionViewViewModel @Inject constructor(
             emitSource(viewRepository.loadViewsWithoutFiltersFlow().distinctUntilChanged().asLiveData())
         }
 
-    private val selectedView: LiveData<CollectionView> = _selectedViewId.switchMap {
+    private val selectedView: LiveData<CollectionView?> = _selectedViewId.switchMap {
         liveData {
             _sortType.postValue(CollectionSorterFactory.TYPE_UNKNOWN)
             _addedFilters.postValue(emptyList())
@@ -112,8 +112,8 @@ class CollectionViewViewModel @Inject constructor(
         }
     }
 
-    val selectedViewName: LiveData<String> = selectedView.map {
-        it.name
+    val selectedViewName: LiveData<String?> = selectedView.map {
+        it?.name ?: viewRepository.defaultView.name
     }
 
     init {

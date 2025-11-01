@@ -22,7 +22,7 @@ interface CollectionViewDao {
 
     @Transaction
     @Query("SELECT * FROM collection_filters WHERE _id = :id")
-    fun loadViewFlow(id: Int): Flow<CollectionViewWithFilters>
+    fun loadViewFlow(id: Int): Flow<CollectionViewWithFilters?>
 
     @Transaction
     suspend fun insert(view: CollectionViewEntity, filters: List<CollectionViewFilterEntity>): Long {
