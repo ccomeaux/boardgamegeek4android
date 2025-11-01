@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.pm.ShortcutManagerCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionViewDao
+import com.boardgamegeek.db.model.CollectionViewEntity
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.mappers.mapToEntity
 import com.boardgamegeek.mappers.mapToModel
@@ -27,7 +28,7 @@ class CollectionViewRepository(
     )
 
     fun loadViewsWithoutFiltersFlow(): Flow<List<CollectionView>> {
-        return collectionViewDao.loadViewsWithoutFiltersFlow()
+        return collectionViewDao.loadViewsWithoutFiltersByNameFlow()
             .map { list -> listOf(defaultView) + list.map { it.mapToModel() } }
             .flowOn(Dispatchers.Default)
             .conflate()
@@ -51,7 +52,8 @@ class CollectionViewRepository(
 
     suspend fun updateView(view: CollectionView) = withContext(Dispatchers.IO) {
         collectionViewDao.update(view.mapToEntity(), view.filters?.map { it.mapToEntity(view.id) }.orEmpty())
-        val defaultViewId = context.preferences()[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID, CollectionViewPrefs.DEFAULT_DEFAULT_ID] ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID
+        val defaultViewId = context.preferences()[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID, CollectionViewPrefs.DEFAULT_DEFAULT_ID]
+            ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID
         if (view.starred) {
             context.preferences()[CollectionViewPrefs.PREFERENCES_KEY_DEFAULT_ID] = view.id
         } else if (view.id == defaultViewId) {
@@ -89,7 +91,7 @@ class CollectionViewRepository(
             withContext(Dispatchers.Default) {
                 ShortcutManagerCompat.reportShortcutUsed(context, CollectionActivity.createShortcutName(viewId))
                 val shortcuts = withContext(Dispatchers.IO) { collectionViewDao.loadViewsWithoutFilters() }
-                    .sortedByDescending { it.selectedCount }
+                    .sortedWith(compareByDescending<CollectionViewEntity> { it.selectedCount }.thenByDescending { it.selectedTimestamp })
                     .filterNot { it.name.isNullOrBlank() }
                     .take(SHORTCUT_COUNT)
                     .map { view -> CollectionActivity.createShortcutInfo(context, view.id, view.name.orEmpty()) }
