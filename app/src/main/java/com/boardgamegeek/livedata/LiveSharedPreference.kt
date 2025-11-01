@@ -10,13 +10,13 @@ class LiveSharedPreference<T>(context: Context, preferenceKey: String, sharedPre
     private val listener: SharedPreferences.OnSharedPreferenceChangeListener =
         SharedPreferences.OnSharedPreferenceChangeListener { sharedPreferences, key ->
             if (key == preferenceKey) {
-                value = sharedPreferences.all[key] as T
+                value = sharedPreferences.all[key] as? T
             }
         }
     private val sharedPreferences: SharedPreferences = context.preferences(sharedPreferencesName)
 
     init {
-        value = sharedPreferences.all[preferenceKey] as T
+        value = sharedPreferences.all[preferenceKey] as? T
     }
 
     override fun onActive() {
