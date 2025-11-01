@@ -14,8 +14,8 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import com.boardgamegeek.model.CollectionView
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.CollectionView
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.CollectionViewAdapter
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
@@ -23,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
+import timber.log.Timber
 
 @AndroidEntryPoint
 class CollectionActivity : TopLevelSinglePaneActivity() {
@@ -74,8 +75,19 @@ class CollectionActivity : TopLevelSinglePaneActivity() {
             firebaseAnalytics.logEvent(FirebaseAnalytics.Event.VIEW_ITEM_LIST) {
                 param(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
             }
+            val id = try {
+                if (hideNavigation) {
+                    CollectionViewPrefs.DEFAULT_DEFAULT_ID
+                } else {
+                    val defaultValue = viewModel.defaultViewId.value ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID
+                    intent.getIntExtra(KEY_VIEW_ID, defaultValue)
+                }
+            } catch (e: ClassCastException) {
+                Timber.e(e, "Invalid view id")
+                CollectionViewPrefs.DEFAULT_DEFAULT_ID
+            }
             selectView(
-                if (hideNavigation) CollectionViewPrefs.DEFAULT_DEFAULT_ID else intent.getIntExtra(KEY_VIEW_ID, viewModel.defaultViewId.value ?: CollectionViewPrefs.DEFAULT_DEFAULT_ID),
+                id,
                 false
             )
         }
