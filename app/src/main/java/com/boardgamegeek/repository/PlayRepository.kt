@@ -318,14 +318,18 @@ class PlayRepository(
         val response = safeApiCall(context) { api.plays(username, null, null, 1) }
         if (response.isSuccess) {
             val plays = response.getOrNull()?.plays.mapToModel(syncInitiatedTimestamp)
-            saveFromSync(plays, syncInitiatedTimestamp)
-            Timber.i("Synced ${plays.size} most recent plays")
-            val date = plays.minOf { it.dateInMillis }
-            if (date != 0L) {
-                deleteUnupdatedPlaysSince(syncInitiatedTimestamp, date.addDay(1))
+            if (plays.isEmpty()) {
+                Timber.i("No recent plays found.")
+            } else {
+                saveFromSync(plays, syncInitiatedTimestamp)
+                Timber.i("Synced ${plays.size} most recent plays")
+                val date = plays.minOf { it.dateInMillis }
+                if (date != 0L) {
+                    deleteUnupdatedPlaysSince(syncInitiatedTimestamp, date.addDay(1))
+                }
+                prefs[PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP] = syncInitiatedTimestamp
+                calculateStats()
             }
-            prefs[PREFERENCES_KEY_SYNC_PLAYS_DISABLED_TIMESTAMP] = syncInitiatedTimestamp
-            calculateStats()
             null
         } else {
             response.exceptionOrNull()?.localizedMessage
@@ -567,7 +571,7 @@ class PlayRepository(
             }
         }
         Timber.i(
-            "Saved %1\$,d plays: %2\$,d updated, %3\$,d inserted, %4$,d unchanged, %5$,d dirty, %6$,d errors",
+            "Saved %1$,d plays: %2$,d updated, %3$,d inserted, %4$,d unchanged, %5$,d dirty, %6$,d errors",
             plays.size,
             updateCount,
             insertCount,
