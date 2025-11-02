@@ -299,3 +299,7 @@ const val PREFERENCES_KEY_STATS_CALCULATED_TIMESTAMP_PUBLISHERS = "statsCalculat
 
 const val KEY_HAPTIC_FEEDBACK = "haptic_feedback"
 const val KEY_HAS_SEEN_NAV_DRAWER = "has_seen_nav_drawer"
+
+const val KEY_START_SCREEN = "advancedStartScreen"
+const val START_SCREEN_LEGACY = "legacy"
+const val START_SCREEN_SHELVES = "shelves"

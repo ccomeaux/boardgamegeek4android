@@ -15,7 +15,13 @@ class HomeActivity : TopLevelActivity() {
                     Authenticator.signOut(this)
                     intentFor<HotnessActivity>()
                 }
-                prefs.isCollectionSetToSync() -> intentFor<CollectionDetailsActivity>()
+                prefs.isCollectionSetToSync() -> {
+                    val startScreen = prefs[KEY_START_SCREEN, START_SCREEN_LEGACY]
+                    if (startScreen == START_SCREEN_SHELVES)
+                        intentFor<CollectionDetailsActivity>()
+                    else
+                        intentFor<CollectionActivity>()
+                }
                 prefs[PREFERENCES_KEY_SYNC_PLAYS, false] == true -> intentFor<PlaysSummaryActivity>()
                 prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true -> intentFor<BuddiesActivity>()
                 else -> intentFor<HotnessActivity>()

@@ -82,4 +82,12 @@
 		<item>Is Empty</item>
 		<item>Is Not Empty</item>
 	</string-array>
+	<string-array name="pref_start_screen">
+		<item>Collection (Legacy)</item>
+		<item>Collection Shelves</item>
+	</string-array>
+	<string-array name="pref_start_screen_values">
+		<item>legacy</item>
+		<item>shelves</item>
+	</string-array>
 </resources>

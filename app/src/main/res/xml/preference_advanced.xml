@@ -1,16 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 
+	<androidx.preference.DropDownPreference
+		android:defaultValue="legacy"
+		android:entries="@array/pref_start_screen"
+		android:entryValues="@array/pref_start_screen_values"
+		android:key="advancedStartScreen"
+		android:title="@string/pref_advanced_start_screen"
+		app:useSimpleSummaryProvider="true" />
 	<androidx.preference.CheckBoxPreference
 		android:defaultValue="false"
 		android:key="advancedForumDates"
 		android:summaryOff="@string/pref_advanced_forum_dates_off"
 		android:summaryOn="@string/pref_advanced_forum_dates_on"
-		android:title="@string/pref_advanced_forum_dates"/>
+		android:title="@string/pref_advanced_forum_dates" />
 	<androidx.preference.CheckBoxPreference
 		android:defaultValue="true"
 		android:key="haptic_feedback"
-		android:title="@string/pref_advanced_haptic_feedback"
-		android:summary="@string/pref_advanced_haptic_feedback_summary"/>
+		android:summary="@string/pref_advanced_haptic_feedback_summary"
+		android:title="@string/pref_advanced_haptic_feedback" />
 
 </androidx.preference.PreferenceScreen>
