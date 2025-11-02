@@ -11,7 +11,7 @@ interface CollectionViewDao {
     @Query("SELECT * FROM collection_filters ORDER BY selected_count DESC, selected_timestamp DESC")
     suspend fun loadViewsWithoutFilters(): List<CollectionViewEntity>
 
-    @Query("SELECT * FROM collection_filters ORDER BY name DESC")
+    @Query("SELECT * FROM collection_filters ORDER BY name ASC")
     fun loadViewsWithoutFiltersByNameFlow(): Flow<List<CollectionViewEntity>>
 
     @Query("SELECT * FROM collection_filters LEFT OUTER JOIN collection_filters_details ON collection_filters._id = collection_filters_details.filter_id  ORDER BY selected_count DESC, selected_timestamp DESC")
