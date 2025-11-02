@@ -214,12 +214,12 @@
 		<item name="android:minHeight">72dp</item>
 	</style>
 
-	<style name="RowContainer.VeryTall">
-		<item name="android:minHeight">88dp</item>
+	<style name="RowContainer.Tall.WithThumbnail">
+		<item name="android:paddingLeft">@dimen/material_margin_horizontal_thumbnail</item>
 	</style>
 
-	<style name="RowContainer.VeryTall.WithThumbnail">
-		<item name="android:paddingLeft">@dimen/material_margin_horizontal_thumbnail</item>
+	<style name="RowContainer.VeryTall">
+		<item name="android:minHeight">88dp</item>
 	</style>
 
 	<style name="RowSeparator" parent="@style/TextAppearance.MaterialComponents.Subtitle2">
