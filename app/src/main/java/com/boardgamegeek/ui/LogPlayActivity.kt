@@ -522,6 +522,20 @@ class LogPlayActivity : AppCompatActivity() {
             playerAdapter.shouldCustomSortPlayers = it.getBoolean(KEY_CUSTOM_PLAYER_SORT)
         }
 
+        if (isUserShowingLocation || preferences().showLogPlayLocation())
+            binding.locationFrame.isVisible = true
+        if (isUserShowingLength || preferences().showLogPlayLength())
+            binding.lengthGroup.isVisible = true
+        if ( isUserShowingQuantity || preferences().showLogPlayQuantity())
+            binding.quantityFrame.isVisible = true
+        if (isUserShowingIncomplete || preferences().showLogPlayIncomplete())
+            binding.incompleteView.isVisible = true
+        if (isUserShowingNoWinStats || preferences().showLogPlayNoWinStats())
+            binding.noWinStatsView.isVisible = true
+        if (isUserShowingComments || preferences().showLogPlayComments())
+            binding.commentsFrame.isVisible = true
+        bindPlayerHeader()
+
         shouldDeletePlayOnActivityCancel = if (internalId == INVALID_ID.toLong()) true else (isRequestingRematch || isChangingGame)
 
         bindHeader()
