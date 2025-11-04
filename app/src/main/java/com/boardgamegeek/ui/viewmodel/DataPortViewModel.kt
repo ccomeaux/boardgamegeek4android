@@ -16,8 +16,8 @@ import com.boardgamegeek.export.model.*
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.ProgressData
 import com.boardgamegeek.livedata.ProgressLiveData
-import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.mappers.mapForExport
+import com.boardgamegeek.mappers.mapToModel
 import com.boardgamegeek.repository.CollectionViewRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -189,7 +189,7 @@ class DataPortViewModel @Inject constructor(
                 Constants.TYPE_COLLECTION_VIEWS_DESCRIPTION,
                 _collectionViewProgress,
                 { reader -> gson.fromJson(reader, CollectionViewForExport::class.java) },
-                { item: CollectionViewForExport, _ -> collectionViewRepository.insertView(item.mapToModel()) },
+                { item: CollectionViewForExport, _ -> collectionViewRepository.insertView(item.mapToModel(getApplication())) },
                 { collectionViewRepository.deleteAll() },
             )
         }
@@ -214,7 +214,12 @@ class DataPortViewModel @Inject constructor(
                 Constants.TYPE_USERS_DESCRIPTION,
                 _userProgress,
                 { reader: JsonReader -> gson.fromJson(reader, UserForExport::class.java) },
-                { item: UserForExport, _ -> playRepository.savePlayerColors( item.name, PlayRepository.PlayerType.USER, item.colors.sortedBy { it.sort }.map { it.color }) },
+                { item: UserForExport, _ ->
+                    playRepository.savePlayerColors(
+                        item.name,
+                        PlayRepository.PlayerType.USER,
+                        item.colors.sortedBy { it.sort }.map { it.color })
+                },
             )
         }
     }

@@ -35,7 +35,7 @@ class CollectionViewRepository(
     }
 
     suspend fun loadViews(): List<CollectionView> = withContext(Dispatchers.IO) {
-        collectionViewDao.loadViews().map { it.key.mapToModel(it.value) }
+        collectionViewDao.loadViews().map { it.key.mapToModel(it.value, context) }
     }
 
     fun loadViewFlow(viewId: Int): Flow<CollectionView?> {

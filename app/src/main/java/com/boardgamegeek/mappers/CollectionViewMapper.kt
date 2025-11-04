@@ -35,8 +35,8 @@ fun CollectionView.mapForExport() = CollectionViewForExport(
     filters = this.filters?.map { CollectionViewFilterForExport(it.type, it.deflate()) }.orEmpty(),
 )
 
-fun CollectionViewForExport.mapToModel(context: Context? = null): CollectionView {
-    val factory = context?.let { CollectionFiltererFactory(it) }
+fun CollectionViewForExport.mapToModel(context: Context): CollectionView {
+    val factory = CollectionFiltererFactory(context)
     return CollectionView(
         id = BggContract.INVALID_ID,
         name = name,
@@ -44,7 +44,7 @@ fun CollectionViewForExport.mapToModel(context: Context? = null): CollectionView
         count = 0,
         timestamp = 0L,
         starred = starred,
-        filters = filters.mapNotNull { factory?.create(it.type, it.data) }
+        filters = filters.mapNotNull { factory.create(it.type, it.data) }
     )
 }
 
