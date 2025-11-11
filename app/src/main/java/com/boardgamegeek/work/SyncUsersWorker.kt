@@ -46,7 +46,9 @@ class SyncUsersWorker @AssistedInject constructor(
         try {
             Timber.i("Syncing list of buddies")
             setProgress(PROGRESS_STEP_BUDDY_LIST)
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_list)))
+
+            if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+                setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_list)))
 
             if (prefs[PREFERENCES_KEY_SYNC_BUDDIES, false] == true) {
                 val forceBuddySync = inputData.getBoolean(KEY_FORCE_BUDDY_SYNC, false)
@@ -73,12 +75,14 @@ class SyncUsersWorker @AssistedInject constructor(
             val (newBuddies, existingBuddies) = allBuddies.partition { it.updatedTimestamp == 0L }
 
             Timber.i("Syncing new buddies")
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_unupdated)))
+            if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+                setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_unupdated)))
             Timber.i("Found ${newBuddies.size} buddies that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
             syncUsers(newBuddies.take(buddySyncSliceMaxSize).map { it.username }, PROGRESS_STEP_NEW_BUDDIES)?.let { return Result.failure(it) }
 
             Timber.i("Syncing stale buddies")
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
+            if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+                setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_buddies_oldest)))
             val limit = (existingBuddies.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
             Timber.i("Updating $limit users; ${existingBuddies.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
             syncUsers(existingBuddies.take(limit).map { it.username }, PROGRESS_STEP_STALE_BUDDIES)?.let { return Result.failure(it) }
@@ -87,15 +91,20 @@ class SyncUsersWorker @AssistedInject constructor(
             val (newPlayers, existingPlayers) = allPlayers.partition { it.userUpdatedTimestamp == null || it.userUpdatedTimestamp == 0L }
 
             Timber.i("Syncing new players")
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_unupdated)))
+            if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+                setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_unupdated)))
             Timber.i("Found ${newPlayers.size} players that haven't been updated; updating at most $buddySyncSliceMaxSize of them")
             syncUsers(newPlayers.take(buddySyncSliceMaxSize).map { it.username }, PROGRESS_STEP_NEW_PLAYERS)?.let { return Result.failure(it) }
 
             Timber.i("Syncing stale players")
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_oldest)))
+            if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+                setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_players_oldest)))
             val playerLimit = (existingPlayers.size / buddySyncSliceCount).coerceAtMost(buddySyncSliceMaxSize)
             Timber.i("Updating $playerLimit users; ${existingPlayers.size} total users cut in $buddySyncSliceCount slices of no more than $buddySyncSliceMaxSize")
-            syncUsers(existingPlayers.sortedBy { it.userUpdatedTimestamp }.take(playerLimit).map { it.username }, PROGRESS_STEP_STALE_PLAYERS)?.let { return Result.failure(it) }
+            syncUsers(
+                existingPlayers.sortedBy { it.userUpdatedTimestamp }.take(playerLimit).map { it.username },
+                PROGRESS_STEP_STALE_PLAYERS,
+            )?.let { return Result.failure(it) }
 
             return Result.success()
         } catch (e: Exception) {
@@ -113,7 +122,8 @@ class SyncUsersWorker @AssistedInject constructor(
             setProgress(step, username, index, usernames.size)
 
             Timber.i("About to refresh user $username")
-            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_user, username)))
+            if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+                setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_user, username)))
             delay(userFetchPauseMilliseconds)
             try {
                 userRepository.refresh(username)

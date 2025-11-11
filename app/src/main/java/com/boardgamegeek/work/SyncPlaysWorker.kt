@@ -41,7 +41,9 @@ class SyncPlaysWorker @AssistedInject constructor(
         }
 
         Timber.i("Begin downloading plays")
-        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays)))
+        if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays)))
+
         return try {
             startTime = System.currentTimeMillis()
 
@@ -96,7 +98,8 @@ class SyncPlaysWorker @AssistedInject constructor(
                 page > 1 -> applicationContext.getString(R.string.sync_notification_page_suffix, message, page)
                 else -> message
             }.also { Timber.i(it) }
-            setForeground(createForegroundInfo(contentText))
+            if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+                setForeground(createForegroundInfo(contentText))
 
             var shouldContinue: Boolean
             try {

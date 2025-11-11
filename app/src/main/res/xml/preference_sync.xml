@@ -28,6 +28,10 @@
 			android:title="@string/pref_sync_errors"/>
 		<androidx.preference.CheckBoxPreference
 			android:defaultValue="false"
+			android:key="sync_progress"
+			android:title="@string/pref_sync_progress"/>
+		<androidx.preference.CheckBoxPreference
+			android:defaultValue="false"
 			android:key="sync_only_charging"
 			android:title="@string/pref_sync_only_charging"/>
 		<androidx.preference.CheckBoxPreference
