@@ -29,7 +29,7 @@ class GameDetailRow @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
 
-    private val binding = WidgetGameDetailRowBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding = WidgetGameDetailRowBinding.inflate(LayoutInflater.from(context), this)
     
     private val oneMore: String by lazy {
         context.getString(R.string.one_more)

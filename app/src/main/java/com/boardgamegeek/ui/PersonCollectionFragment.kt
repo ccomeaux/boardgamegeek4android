@@ -96,7 +96,7 @@ class PersonCollectionFragment : Fragment() {
     }
 
     private fun setEmptyMessage(@StringRes resId: Int) {
-        binding.emptyMessage.text = getString(R.string.empty_linked_collection, getString(resId).toLowerCase(Locale.getDefault()))
+        binding.emptyMessage.text = getString(R.string.empty_linked_collection, getString(resId).lowercase(Locale.getDefault()))
     }
 
     companion object {

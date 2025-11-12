@@ -55,7 +55,7 @@ public class DialogUtils {
 			R.string.discard_new_message :
 			R.string.discard_changes_message);
 		return createThemedBuilder(activity)
-			.setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()))
+			.setMessage(String.format(messageFormat, activity.getString(objectResId).lowercase()))
 			.setPositiveButton(R.string.keep_editing, null)
 			.setNegativeButton(R.string.discard, (dialog, id) -> {
 				if (listener != null) listener.onDiscard();

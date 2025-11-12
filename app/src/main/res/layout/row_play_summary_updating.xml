@@ -12,7 +12,7 @@
 	android:paddingTop="@dimen/padding_half">
 
 	<view class="com.boardgamegeek.ui.GamePlaysFragment$InProgressPlay"
-		android:id="@id/line1"
+		android:id="@+id/line1"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textAppearance="@style/TextAppearance.RowTitle"

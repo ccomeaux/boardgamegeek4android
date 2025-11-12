@@ -55,7 +55,7 @@
 						tools:visibility="visible"/>
 				</FrameLayout>
 
-				<include layout="@layout/include_game_footer"/>
+				<include android:id="@+id/footer" layout="@layout/include_game_footer"/>
 			</LinearLayout>
 		</FrameLayout>
 	</androidx.core.widget.NestedScrollView>

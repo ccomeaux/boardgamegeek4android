@@ -36,13 +36,13 @@ class GameDescriptionFragment : Fragment() {
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         binding.swipeRefresh.setBggColors()
 
-        binding.lastModifiedView.timestamp = 0L
+        binding.footer.lastModifiedView.timestamp = 0L
 
-        viewModel.gameId.observe(this, Observer {
-            binding.gameIdView.text = it.toString()
+        viewModel.gameId.observe(viewLifecycleOwner, Observer {
+            binding.footer.gameIdView.text = it.toString()
         })
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
@@ -68,8 +68,8 @@ class GameDescriptionFragment : Fragment() {
         binding.gameDescription.setTextMaybeHtml(game.description)
         binding.gameDescription.fadeIn()
 
-        binding.gameIdView.text = game.id.toString()
-        binding.lastModifiedView.timestamp = game.updated
+        binding.footer.gameIdView.text = game.id.toString()
+        binding.footer.lastModifiedView.timestamp = game.updated
     }
 
     override fun onDestroyView() {

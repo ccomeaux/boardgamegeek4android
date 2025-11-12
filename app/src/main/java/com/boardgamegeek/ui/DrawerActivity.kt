@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.LayoutRes
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.Group
 import androidx.core.content.ContextCompat
@@ -15,9 +14,11 @@ import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.viewbinding.ViewBinding
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.databinding.ActivityDrawerBaseBinding
 import com.boardgamegeek.events.SignInEvent
 import com.boardgamegeek.events.SignOutEvent
 import com.boardgamegeek.events.SyncCompleteEvent
@@ -48,13 +49,13 @@ abstract class DrawerActivity : BaseActivity() {
     protected open val navigationItemId: Int
         get() = 0
 
-    protected open val layoutResId: Int
-        @LayoutRes
-        get() = R.layout.activity_drawer_base
+    protected open fun inflateRootView(): View {
+        return ActivityDrawerBaseBinding.inflate(layoutInflater).rootContainer
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(layoutResId)
+        setContentView(inflateRootView())
 
         drawerLayout = findViewById(R.id.drawer_layout)
         navigationView = findViewById(R.id.navigation)

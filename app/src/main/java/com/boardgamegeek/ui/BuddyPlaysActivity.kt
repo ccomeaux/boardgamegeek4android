@@ -39,7 +39,7 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
     }
 
     override fun readIntent(intent: Intent) {
-        buddyName = intent.getStringExtra(KEY_BUDDY_NAME)
+        buddyName = intent.getStringExtra(KEY_BUDDY_NAME) ?: ""
     }
 
     override fun onCreatePane(intent: Intent): Fragment {

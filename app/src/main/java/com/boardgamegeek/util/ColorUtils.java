@@ -162,7 +162,7 @@ public class ColorUtils {
 	}
 
 	private static String formatKey(String name) {
-		return name.toLowerCase(Locale.US);
+		return name.lowercase(Locale.US);
 	}
 
 	public static List<Pair<String, Integer>> getColorList() {

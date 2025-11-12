@@ -52,14 +52,14 @@ class GameFragment : Fragment(R.layout.fragment_game) {
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         binding.swipeRefresh.setBggColors()
 
-        binding.lastModifiedView.timestamp = 0
+        binding.footer.lastModifiedView.timestamp = 0
 
-        viewModel.gameId.observe(this, Observer { gameId ->
+        viewModel.gameId.observe(viewLifecycleOwner, Observer { gameId ->
             this.gameId = gameId
-            binding.gameIdView.text = gameId.toString()
+            binding.footer.gameIdView.text = gameId.toString()
         })
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
@@ -69,17 +69,17 @@ class GameFragment : Fragment(R.layout.fragment_game) {
             }
             binding.progress.hide()
 
-            viewModel.ranks.observe(this, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
+            viewModel.ranks.observe(viewLifecycleOwner, Observer { gameRanks -> onRankQueryComplete(gameRanks) })
 
-            viewModel.languagePoll.observe(this, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
+            viewModel.languagePoll.observe(viewLifecycleOwner, Observer { gamePollEntity -> onLanguagePollQueryComplete(gamePollEntity) })
 
-            viewModel.agePoll.observe(this, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
+            viewModel.agePoll.observe(viewLifecycleOwner, Observer { gameSuggestedAgePollEntity -> onAgePollQueryComplete(gameSuggestedAgePollEntity) })
 
-            viewModel.playerPoll.observe(this, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
+            viewModel.playerPoll.observe(viewLifecycleOwner, Observer { gamePlayerPollEntities -> onPlayerCountQueryComplete(gamePlayerPollEntities) })
 
-            viewModel.expansions.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoExpansions) })
+            viewModel.expansions.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoExpansions) })
 
-            viewModel.baseGames.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoBaseGames) })
+            viewModel.baseGames.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoBaseGames) })
         })
 
         showcaseViewWizard = setUpShowcaseViewWizard()
@@ -123,7 +123,7 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     private fun colorize(@ColorInt iconColor: Int) {
         if (!isAdded) return
 
-        listOf(binding.ranksIcon, binding.ratingIcon, binding.yearIcon, binding.playTimeIcon, binding.playerCountIcon, binding.playerAgeIcon, binding.weightIcon, binding.languageIcon)
+        listOf(binding.ranks.ranksIcon, binding.ratings.ratingIcon, binding.years.yearIcon, binding.time.playTimeIcon, binding.range.playerCountIcon, binding.ages.playerAgeIcon, binding.weight.weightIcon, binding.language.languageIcon)
                 .forEach { it.setOrClearColorFilter(iconColor) }
 
         listOf(binding.gameInfoExpansions, binding.gameInfoBaseGames)
@@ -135,43 +135,43 @@ class GameFragment : Fragment(R.layout.fragment_game) {
 
         gameName = game.name
 
-        binding.rankView.text = game.overallRank.asRank(requireContext(), game.subtype)
-        binding.rankContainer.setOnClickListener { GameRanksFragment.launch(this) }
+        binding.ranks.rankView.text = game.overallRank.asRank(requireContext(), game.subtype)
+        binding.ranks.rankContainer.setOnClickListener { GameRanksFragment.launch(this) }
 
-        binding.ratingView.text = game.rating.asRating(context)
-        binding.ratingView.setTextViewBackground(game.rating.toColor(ratingColors))
+        binding.ratings.ratingView.text = game.rating.asRating(context)
+        binding.ratings.ratingView.setTextViewBackground(game.rating.toColor(ratingColors))
         val numberOfRatings = context?.getQuantityText(R.plurals.ratings_suffix, game.numberOfRatings, game.numberOfRatings)
                 ?: ""
         val numberOfComments = context?.getQuantityText(R.plurals.comments_suffix, game.numberOfComments, game.numberOfComments)
                 ?: ""
-        binding.ratingVotesView.text = listOf(numberOfRatings, " & ", numberOfComments).concat()
-        binding.ratingContainer.setOrClearOnClickListener(game.numberOfRatings > 0 || game.numberOfComments > 0) {
+        binding.ratings.ratingVotesView.text = listOf(numberOfRatings, " & ", numberOfComments).concat()
+        binding.ratings.ratingContainer.setOrClearOnClickListener(game.numberOfRatings > 0 || game.numberOfComments > 0) {
             CommentsActivity.startRating(context, Games.buildGameUri(gameId), gameName)
         }
 
-        binding.yearView.text = game.yearPublished.asYear(context)
+        binding.years.yearView.text = game.yearPublished.asYear(context)
 
-        binding.playTimeView.text = context?.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
+        binding.time.playTimeView.text = context?.getQuantityText(R.plurals.mins_suffix, game.maxPlayingTime, (game.minPlayingTime to game.maxPlayingTime).asRange())
                 ?: ""
 
-        binding.playerCountView.text = context?.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange())
+        binding.range.playerCountView.text = context?.getQuantityText(R.plurals.player_range_suffix, game.maxPlayers, (game.minPlayers to game.maxPlayers).asRange())
                 ?: ""
 
-        binding.playerAgeView.text = game.minimumAge.asAge(context)
+        binding.ages.playerAgeView.text = game.minimumAge.asAge(context)
 
-        binding.weightView.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
+        binding.weight.weightView.text = game.averageWeight.toDescription(requireContext(), R.array.game_weight, R.string.unknown_weight)
         if (game.averageWeight == 0.0) {
-            binding.weightScoreView.isVisible = false
+            binding.weight.weightScoreView.isVisible = false
         } else {
-            binding.weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
+            binding.weight.weightScoreView.setTextOrHide(game.averageWeight.asScore(context))
         }
-        val textColor = binding.weightColorView.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
-        binding.weightView.setTextColor(textColor)
-        binding.weightScoreView.setTextColor(textColor)
-        binding.weightVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, game.numberOfUsersWeighting, game.numberOfUsersWeighting))
+        val textColor = binding.weight.weightColorView.setTextViewBackground(game.averageWeight.toColor(fiveStageColors))
+        binding.weight.weightView.setTextColor(textColor)
+        binding.weight.weightScoreView.setTextColor(textColor)
+        binding.weight.weightVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, game.numberOfUsersWeighting, game.numberOfUsersWeighting))
 
-        binding.gameIdView.text = game.id.toString()
-        binding.lastModifiedView.timestamp = game.updated
+        binding.footer.gameIdView.text = game.id.toString()
+        binding.footer.lastModifiedView.timestamp = game.updated
 
         binding.emptyMessage.fadeOut()
         binding.dataContainer.fadeIn()
@@ -180,26 +180,26 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     private fun onRankQueryComplete(gameRanks: List<GameRankEntity>?) {
         val descriptions = gameRanks?.filter { it.isFamilyType }?.map { it.value.asRank(requireContext(), it.name, it.type) }
                 ?: emptyList()
-        binding.subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
+        binding.ranks.subtypeView.setTextOrHide(descriptions.joinTo(rankSeparator))
     }
 
     private fun onLanguagePollQueryComplete(entity: GamePollEntity?) {
         val score = entity?.calculateScore() ?: 0.0
         val totalVotes = entity?.totalVotes ?: 0
 
-        binding.languageView.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
+        binding.language.languageView.text = score.toDescription(requireContext(), R.array.language_poll, R.string.unknown_language)
         if (score == 0.0) {
-            binding.languageScoreView.isVisible = false
+            binding.language.languageScoreView.isVisible = false
         } else {
-            binding.languageScoreView.setTextOrHide(score.asScore(context))
+            binding.language.languageScoreView.setTextOrHide(score.asScore(context))
         }
-        binding.languageVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
+        binding.language.languageVotesView.setTextOrHide(requireContext().getQuantityText(R.plurals.votes_suffix, totalVotes, totalVotes))
 
-        val textColor = binding.languageColorView.setTextViewBackground(score.toColor(fiveStageColors))
-        binding.languageView.setTextColor(textColor)
-        binding.languageScoreView.setTextColor(textColor)
+        val textColor = binding.language.languageColorView.setTextViewBackground(score.toColor(fiveStageColors))
+        binding.language.languageView.setTextColor(textColor)
+        binding.language.languageScoreView.setTextColor(textColor)
 
-        binding.languageContainer.setOrClearOnClickListener(totalVotes > 0) {
+        binding.language.languageContainer.setOrClearOnClickListener(totalVotes > 0) {
             PollFragment.launchLanguageDependence(this)
         }
     }
@@ -207,8 +207,8 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     private fun onAgePollQueryComplete(entity: GamePollEntity?) {
         val message = if (entity?.modalValue.isNullOrBlank()) ""
         else context?.getText(R.string.age_community, entity?.modalValue ?: "") ?: ""
-        binding.playerAgePollView.setTextOrHide(message)
-        binding.playerAgeContainer.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
+        binding.ages.playerAgePollView.setTextOrHide(message)
+        binding.ages.playerAgeContainer.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
             PollFragment.launchSuggestedPlayerAge(this)
         }
     }
@@ -225,8 +225,8 @@ class GameFragment : Fragment(R.layout.fragment_game) {
             goodCounts.isNotEmpty() -> good
             else -> ""
         }
-        binding.playerCountCommunityView.setTextOrHide(communityText)
-        binding.playerCountContainer.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
+        binding.range.playerCountCommunityView.setTextOrHide(communityText)
+        binding.range.playerCountContainer.setOrClearOnClickListener(entity?.totalVotes ?: 0 > 0) {
             SuggestedPlayerCountPollFragment.launch(this)
         }
     }

@@ -52,7 +52,7 @@ public class SearchSuggestProvider extends BaseProvider {
 	protected Cursor query(ContentResolver resolver, SQLiteDatabase db, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 		String query = null;
 		if (uri.getPathSegments().size() > 1) {
-			query = uri.getLastPathSegment().toLowerCase(Locale.US);
+			query = uri.getLastPathSegment().lowercase(Locale.US);
 		}
 
 		SQLiteQueryBuilder qb = new SQLiteQueryBuilder();

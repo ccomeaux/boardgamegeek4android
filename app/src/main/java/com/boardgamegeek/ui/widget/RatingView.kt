@@ -19,7 +19,7 @@ class RatingView @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0)
     : ForegroundLinearLayout(context, attrs) {
-    private val binding = WidgetRatingBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding = WidgetRatingBinding.inflate(LayoutInflater.from(context), this)
     private val hideWhenZero: Boolean
     private var isEditMode: Boolean = false
     private var gameId = BggContract.INVALID_ID

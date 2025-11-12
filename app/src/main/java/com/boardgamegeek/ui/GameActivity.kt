@@ -40,7 +40,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     }
 
     private val adapter: GamePagerAdapter by lazy {
-        GamePagerAdapter(supportFragmentManager, this, gameId, intent.getStringExtra(KEY_GAME_NAME))
+        GamePagerAdapter(supportFragmentManager, this, gameId, intent.getStringExtra(KEY_GAME_NAME) ?: "")
     }
 
     override val optionsMenuId = R.menu.game
@@ -57,7 +57,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
         initializeViewPager()
 
         changeName(intent.getStringExtra(KEY_GAME_NAME) ?: "")
-        changeImage(intent.getStringExtra(KEY_HERO_IMAGE_URL), intent.getStringExtra(KEY_THUMBNAIL_URL))
+        changeImage(intent.getStringExtra(KEY_HERO_IMAGE_URL) ?: "", intent.getStringExtra(KEY_THUMBNAIL_URL) ?: "")
 
         viewModel.setId(gameId)
 

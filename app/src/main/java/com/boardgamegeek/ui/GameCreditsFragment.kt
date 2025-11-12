@@ -44,13 +44,13 @@ class GameCreditsFragment : Fragment() {
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         binding.swipeRefresh.setBggColors()
 
-        binding.lastModifiedView.timestamp = 0
+        binding.footer.lastModifiedView.timestamp = 0
 
-        viewModel.gameId.observe(this, Observer { gameId ->
-            binding.gameIdView.text = gameId.toString()
+        viewModel.gameId.observe(viewLifecycleOwner, Observer { gameId ->
+            binding.footer.gameIdView.text = gameId.toString()
         })
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
@@ -60,15 +60,15 @@ class GameCreditsFragment : Fragment() {
             }
             binding.progress.hide()
 
-            viewModel.designers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoDesigners) })
+            viewModel.designers.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoDesigners) })
 
-            viewModel.artists.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoArtists) })
+            viewModel.artists.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoArtists) })
 
-            viewModel.publishers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoPublishers) })
+            viewModel.publishers.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoPublishers) })
 
-            viewModel.categories.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoCategories) })
+            viewModel.categories.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoCategories) })
 
-            viewModel.mechanics.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoMechanics) })
+            viewModel.mechanics.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoMechanics) })
         })
     }
 
@@ -90,8 +90,8 @@ class GameCreditsFragment : Fragment() {
     private fun onGameContentChanged(game: GameEntity) {
         colorize(game.iconColor)
 
-        binding.gameIdView.text = game.id.toString()
-        binding.lastModifiedView.timestamp = game.updated
+        binding.footer.gameIdView.text = game.id.toString()
+        binding.footer.lastModifiedView.timestamp = game.updated
 
         binding.emptyMessage.fadeOut()
         binding.dataContainer.fadeIn()

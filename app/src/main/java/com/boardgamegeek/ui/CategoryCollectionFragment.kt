@@ -40,7 +40,7 @@ class CategoryCollectionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        binding.emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_category).toLowerCase(Locale.getDefault()))
+        binding.emptyMessage.text = getString(R.string.empty_linked_collection, getString(R.string.title_category).lowercase(Locale.getDefault()))
         viewModel.sort.observe(this, Observer {
             sortType = it
         })

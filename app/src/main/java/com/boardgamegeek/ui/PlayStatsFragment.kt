@@ -98,12 +98,12 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
     override fun onResume() {
         super.onResume()
-        PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(this)
+        PreferenceManager.getDefaultSharedPreferences(requireContext()).registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        PreferenceManager.getDefaultSharedPreferences(context).unregisterOnSharedPreferenceChangeListener(this)
+        PreferenceManager.getDefaultSharedPreferences(requireContext()).unregisterOnSharedPreferenceChangeListener(this)
     }
 
     private fun bindCollectionStatusMessage() {
@@ -115,19 +115,19 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     private fun bindAccuracyMessage() {
         val messages = ArrayList<String>(3)
         if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-            messages.add(getString(R.string.incomplete_games).toLowerCase())
+            messages.add(getString(R.string.incomplete_games).lowercase())
         }
         if (!PreferencesUtils.logPlayStatsExpansions(context)) {
-            messages.add(getString(R.string.expansions).toLowerCase())
+            messages.add(getString(R.string.expansions).lowercase())
         }
         if (!PreferencesUtils.logPlayStatsAccessories(context)) {
-            messages.add(getString(R.string.accessories).toLowerCase())
+            messages.add(getString(R.string.accessories).lowercase())
         }
         if (messages.isEmpty()) {
             binding.accuracyContainer.visibility = View.GONE
         } else {
             binding.accuracyContainer.visibility = View.VISIBLE
-            binding.accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).toLowerCase()))
+            binding.accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).lowercase()))
         }
     }
 
@@ -269,8 +269,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (key.startsWith(PreferencesUtils.LOG_PLAY_STATS_PREFIX)) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
+        if (key?.startsWith(PreferencesUtils.LOG_PLAY_STATS_PREFIX) ?: false) {
             bindAccuracyMessage()
             // TODO refresh view model
         }

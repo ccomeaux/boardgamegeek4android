@@ -81,7 +81,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             if (resource == null) return@Observer
 
             when (resource.status) {
-                Status.REFRESHING -> binding.progressContainer.fadeIn()
+                Status.REFRESHING -> binding.progress.progressContainer.fadeIn()
                 Status.ERROR -> {
                     if (resource.message.isBlank()) {
                         binding.emptyView.setText(R.string.empty_http_error) // TODO better message?
@@ -90,7 +90,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     }
                     binding.emptyView.fadeIn()
                     binding.recyclerView.fadeOut()
-                    binding.progressContainer.fadeOut()
+                    binding.progress.progressContainer.fadeOut()
                 }
                 Status.SUCCESS -> {
                     val data = resource.data
@@ -114,7 +114,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                     if (query != null) {
                         showSnackbar(query.first, query.second, data?.size ?: 0)
                     }
-                    binding.progressContainer.fadeOut()
+                    binding.progress.progressContainer.fadeOut()
                 }
             }
 
@@ -146,7 +146,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding.progressView.isIndeterminate = true
+        binding.progress.progressView.isIndeterminate = true
         binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
         binding.recyclerView.adapter = searchResultsAdapter
     }

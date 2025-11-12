@@ -16,7 +16,7 @@ import com.boardgamegeek.util.FileUtils
 
 @SuppressLint("ViewConstructor")
 class DataStepRow(context: Context) : LinearLayout(context) {
-    private val binding = WidgetDataStepRowBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding = WidgetDataStepRowBinding.inflate(LayoutInflater.from(context), this)
     private var type: String? = null
     private var listener: Listener? = null
 

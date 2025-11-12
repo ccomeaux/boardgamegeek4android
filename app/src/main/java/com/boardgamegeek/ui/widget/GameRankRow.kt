@@ -13,7 +13,7 @@ import java.text.DecimalFormat
 
 @SuppressLint("ViewConstructor")
 class GameRankRow(context: Context, isFamily: Boolean) : LinearLayout(context) {
-    private val binding = RowGameRankSubtypeBinding.inflate(LayoutInflater.from(context), this)
+    private val binding = RowGameRankSubtypeBinding.inflate(LayoutInflater.from(context))
 
     init {
         if (isFamily) {

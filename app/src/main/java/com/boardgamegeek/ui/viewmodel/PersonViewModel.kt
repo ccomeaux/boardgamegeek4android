@@ -76,7 +76,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                     PersonType.ARTIST -> artistRepository.loadArtist(person.id)
                     PersonType.DESIGNER -> designerRepository.loadDesigner(person.id)
                     PersonType.PUBLISHER -> {
-                        publisher.map(publisher) { company ->
+                        publisher.map() { company ->
                             RefreshableResource.map(company, company.data?.let {
                                 PersonEntity(
                                         it.id,

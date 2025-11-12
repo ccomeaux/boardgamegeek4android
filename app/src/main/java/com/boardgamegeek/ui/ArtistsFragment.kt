@@ -43,18 +43,18 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter))
 
-        viewModel.artists.observe(this, Observer {
+        viewModel.artists.observe(viewLifecycleOwner, Observer {
             showData(it)
             binding.progressBar.hide()
         })
 
-        viewModel.progress.observe(this, Observer {
+        viewModel.progress.observe(viewLifecycleOwner, Observer {
             if (it == null) {
-                binding.progressContainer.isVisible = false
+                binding.progress.progressContainer.isVisible = false
             } else {
-                binding.progressContainer.isVisible = it.second > 0
-                binding.progressView.max = it.second
-                binding.progressView.progress = it.first
+                binding.progress.progressContainer.isVisible = it.second > 0
+                binding.progress.progressView.max = it.second
+                binding.progress.progressView.progress = it.first
             }
         })
     }

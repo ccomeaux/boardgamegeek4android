@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.palette.graphics.Palette
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
@@ -18,6 +19,7 @@ abstract class HeroTabActivity : DrawerActivity() {
     protected lateinit var binding: ActivityHeroTabBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ActivityHeroTabBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
@@ -34,8 +36,8 @@ abstract class HeroTabActivity : DrawerActivity() {
         return null
     }
 
-    override fun setBinding() {
-        binding = ActivityHeroTabBinding.inflate(layoutInflater)
+    override fun inflateRootView(): View {
+        return binding.root
     }
 
     protected fun safelySetTitle(title: String?) {

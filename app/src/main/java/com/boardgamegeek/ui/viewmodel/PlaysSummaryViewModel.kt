@@ -33,11 +33,11 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
         list?.data?.sumBy { it.quantity } ?: 0
     }
 
-    val playsInProgress: LiveData<List<PlayEntity>> = plays.map() { list ->
-        list?.data?.filter { it.dirtyTimestamp > 0L }
+    val playsInProgress: LiveData<List<PlayEntity>?> = plays.map() { list ->
+        list.data?.filter { it.dirtyTimestamp > 0L }
     }
 
-    val playsNotInProgress: LiveData<List<PlayEntity>> = plays.map() { list ->
+    val playsNotInProgress: LiveData<List<PlayEntity>?> = plays.map() { list ->
         list?.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY)
     }
 

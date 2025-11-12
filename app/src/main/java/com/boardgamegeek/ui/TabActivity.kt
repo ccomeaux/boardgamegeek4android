@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.FragmentPagerAdapter
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.ActivityTabBinding
@@ -12,6 +13,8 @@ abstract class TabActivity : DrawerActivity() {
     protected lateinit var binding: ActivityTabBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ActivityTabBinding.inflate(layoutInflater)
+
         super.onCreate(savedInstanceState)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -22,8 +25,8 @@ abstract class TabActivity : DrawerActivity() {
 
     protected abstract fun createAdapter(): FragmentPagerAdapter
 
-    override fun setBinding() {
-        binding = ActivityTabBinding.inflate(layoutInflater)
+    override fun inflateRootView(): View {
+        return binding.root
     }
 
     protected fun safelySetTitle(title: String?) {

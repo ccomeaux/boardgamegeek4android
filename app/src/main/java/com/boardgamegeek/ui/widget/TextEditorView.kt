@@ -19,7 +19,7 @@ class TextEditorView @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0) : ForegroundLinearLayout(context, attrs, defStyleAttr) {
 
-    private val binding = WidgetTextEditorBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding = WidgetTextEditorBinding.inflate(LayoutInflater.from(context), this)
     private val xmlConverter = XmlConverter()
 
     init {

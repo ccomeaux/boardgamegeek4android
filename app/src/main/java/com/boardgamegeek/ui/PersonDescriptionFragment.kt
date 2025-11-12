@@ -37,15 +37,15 @@ class PersonDescriptionFragment : Fragment() {
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         binding.swipeRefresh.setBggColors()
 
-        emptyMessageDescription = getString(R.string.title_person).toLowerCase()
+        emptyMessageDescription = getString(R.string.title_person).lowercase()
         binding.lastUpdated.timestamp = 0L
 
         viewModel.person.observe(this, Observer {
             binding.idView.text = it.id.toString()
             emptyMessageDescription = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
-                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
-                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).toLowerCase()
+                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).lowercase()
+                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).lowercase()
+                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).lowercase()
             }
         })
 

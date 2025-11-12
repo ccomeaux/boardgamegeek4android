@@ -2,6 +2,7 @@ package com.boardgamegeek.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.View.OnClickListener
 import androidx.annotation.DrawableRes
 import androidx.fragment.app.Fragment
@@ -17,6 +18,7 @@ import com.boardgamegeek.util.ImageUtils.Callback
  */
 abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
     protected lateinit var binding: ActivityHeroBinding
+
     protected var fragment: Fragment? = null
         private set
     private var isRefreshing: Boolean = false
@@ -26,6 +28,8 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
         get() = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        binding = ActivityHeroBinding.inflate(layoutInflater)
+
         super.onCreate(savedInstanceState)
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -69,8 +73,8 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
      */
     protected abstract fun onCreatePane(): Fragment
 
-    override fun setBinding() {
-        binding = ActivityHeroBinding.inflate(layoutInflater)
+    override fun inflateRootView(): View {
+        return binding.root
     }
 
     protected fun safelySetTitle(title: String) {

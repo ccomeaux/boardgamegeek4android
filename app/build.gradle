@@ -176,8 +176,9 @@ dependencies {
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
 
-    implementation 'com.mikepenz:aboutlibraries-core:13.1.0'
-    implementation 'com.mikepenz:aboutlibraries:13.1.0'
+    implementation('com.mikepenz:aboutlibraries:7.0.3@aar') {
+        transitive = true
+    }
 
     implementation 'org.greenrobot:eventbus:3.3.1'
     annotationProcessor 'org.greenrobot:eventbus-annotation-processor:3.3.1'

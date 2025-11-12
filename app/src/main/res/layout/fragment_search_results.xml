@@ -7,7 +7,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
-	<include layout="@layout/include_horizontal_progress"/>
+	<include android:id="@+id/progress" layout="@layout/include_horizontal_progress"/>
 
 	<TextView
 		android:id="@+id/emptyView"

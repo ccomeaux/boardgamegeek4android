@@ -12,7 +12,7 @@ import com.boardgamegeek.databinding.WidgetStatBarBinding
 import java.text.NumberFormat
 
 class StatBar @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) : FrameLayout(context, attrs, defStyle) {
-    private val binding = WidgetStatBarBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding = WidgetStatBarBinding.inflate(LayoutInflater.from(context), this)
 
     init {
         layoutParams = LinearLayout.LayoutParams(

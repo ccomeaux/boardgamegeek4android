@@ -16,7 +16,7 @@ class PlayerStatView @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
-    private val binding = WidgetPlayerStatBinding.inflate(LayoutInflater.from(context), this, true)
+    private val binding = WidgetPlayerStatBinding.inflate(LayoutInflater.from(context), this)
 
     init {
         orientation = LinearLayout.VERTICAL

@@ -49,16 +49,16 @@ class PersonStatsFragment : Fragment() {
 
         bindCollectionStatusMessage()
 
-        objectDescription = getString(R.string.title_person).toLowerCase()
-        viewModel.person.observe(this, Observer {
+        objectDescription = getString(R.string.title_person).lowercase()
+        viewModel.person.observe(viewLifecycleOwner, Observer {
             objectDescription = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
-                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
-                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).toLowerCase()
+                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).lowercase()
+                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).lowercase()
+                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).lowercase()
             }
         })
 
-        viewModel.stats.observe(this, Observer {
+        viewModel.stats.observe(viewLifecycleOwner, Observer {
             when (it) {
                 null -> showEmpty()
                 else -> showData(it)
