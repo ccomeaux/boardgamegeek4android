@@ -7,45 +7,46 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowGameRankSubtypeBinding
 import com.boardgamegeek.extensions.*
-import kotlinx.android.synthetic.main.row_game_rank_subtype.view.*
 import java.text.DecimalFormat
 
 @SuppressLint("ViewConstructor")
 class GameRankRow(context: Context, isFamily: Boolean) : LinearLayout(context) {
+    private val binding = RowGameRankSubtypeBinding.inflate(LayoutInflater.from(context), this)
+
     init {
-        LayoutInflater.from(context).inflate(R.layout.row_game_rank_subtype, this)
         if (isFamily) {
             @Suppress("DEPRECATION")
-            rankView?.setTextAppearance(context, R.style.Text)
+            binding.rankView.setTextAppearance(context, R.style.Text)
             @Suppress("DEPRECATION")
-            nameView?.setTextAppearance(context, R.style.Text)
-            ratingView?.setTypeface(ratingView?.typeface, Typeface.NORMAL)
+            binding.nameView.setTextAppearance(context, R.style.Text)
+            binding.ratingView.setTypeface(binding.ratingView.typeface, Typeface.NORMAL)
         } else {
             @Suppress("DEPRECATION")
-            rankView?.setTextAppearance(context, R.style.Text_Subtitle)
+            binding.rankView.setTextAppearance(context, R.style.Text_Subtitle)
             @Suppress("DEPRECATION")
-            nameView?.setTextAppearance(context, R.style.Text_Subtitle)
-            ratingView?.setTypeface(ratingView?.typeface, Typeface.BOLD)
+            binding.nameView.setTextAppearance(context, R.style.Text_Subtitle)
+            binding.ratingView.setTypeface(binding.ratingView.typeface, Typeface.BOLD)
         }
     }
 
     fun setRank(rank: Int) {
         if (rank.isRankValid()) {
-            rankView?.text = context.getString(R.string.rank_prefix, rank)
-            rankView?.visibility = View.VISIBLE
+            binding.rankView.text = context.getString(R.string.rank_prefix, rank)
+            binding.rankView.visibility = View.VISIBLE
         } else {
-            rankView?.visibility = View.INVISIBLE
+            binding.rankView.visibility = View.INVISIBLE
         }
     }
 
     fun setName(name: CharSequence) {
-        nameView?.text = name
+        binding.nameView.text = name
     }
 
     fun setRatingView(rating: Double) {
-        ratingView?.text = rating.asScore(context, format = AVERAGE_RATING_FORMAT)
-        ratingView.setTextViewBackground(rating.toColor(ratingColors))
+        binding.ratingView.text = rating.asScore(context, format = AVERAGE_RATING_FORMAT)
+        binding.ratingView.setTextViewBackground(rating.toColor(ratingColors))
     }
 
     companion object {

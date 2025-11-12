@@ -1,6 +1,7 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
@@ -9,20 +10,21 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentDesignersBinding
+import com.boardgamegeek.databinding.RowDesignerBinding
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.DesignsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import kotlinx.android.synthetic.main.fragment_designers.*
-import kotlinx.android.synthetic.main.include_horizontal_progress.*
-import kotlinx.android.synthetic.main.row_designer.view.*
 import kotlin.properties.Delegates
 
 class DesignersFragment : Fragment(R.layout.fragment_designers) {
+    private var _binding: FragmentDesignersBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: DesignsViewModel by lazy {
         ViewModelProvider(this).get(DesignsViewModel::class.java)
     }
@@ -32,38 +34,44 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        _binding = FragmentDesignersBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(RecyclerSectionItemDecoration(
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addItemDecoration(RecyclerSectionItemDecoration(
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter))
 
         viewModel.designers.observe(this, Observer {
             showData(it)
-            progressBar.hide()
+            binding.progressBar.hide()
         })
 
         viewModel.progress.observe(this, Observer {
             if (it == null) {
-                progressContainer.isVisible = false
+                binding.progressContainer.isVisible = false
             } else {
-                progressContainer.isVisible = it.second > 0
-                progressView.max = it.second
-                progressView.progress = it.first
+                binding.progressContainer.isVisible = it.second > 0
+                binding.progressView.max = it.second
+                binding.progressView.progress = it.first
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showData(designers: List<PersonEntity>) {
         adapter.designers = designers
         if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
-            emptyTextView.fadeIn()
+            binding.recyclerView.fadeOut()
+            binding.emptyTextView.fadeIn()
         } else {
-            recyclerView.fadeIn()
-            emptyTextView.fadeOut()
+            binding.recyclerView.fadeIn()
+            binding.emptyTextView.fadeOut()
         }
     }
 
@@ -89,7 +97,8 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
         override fun getItemId(position: Int) = designers.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DesignerViewHolder {
-            return DesignerViewHolder(parent.inflate(R.layout.row_designer))
+            val binding = RowDesignerBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return DesignerViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: DesignerViewHolder, position: Int) {
@@ -113,15 +122,15 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
             }
         }
 
-        inner class DesignerViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class DesignerViewHolder(private val binding: RowDesignerBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(designer: PersonEntity?) {
                 designer?.let { d ->
-                    itemView.avatarView.loadThumbnailInList(d.thumbnailUrl, R.drawable.person_image_empty)
-                    itemView.nameView.text = d.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
-                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")
-                    itemView.setOnClickListener {
-                        PersonActivity.startForDesigner(itemView.context, d.id, d.name)
+                    binding.avatarView.loadThumbnailInList(d.thumbnailUrl, R.drawable.person_image_empty)
+                    binding.nameView.text = d.name
+                    binding.countView.text = binding.root.context.resources.getQuantityString(R.plurals.games_suffix, d.itemCount, d.itemCount)
+                    binding.whitmoreScoreView.text = binding.root.context.getString(R.string.whitmore_score).plus(" ${d.whitmoreScore}")
+                    binding.root.setOnClickListener {
+                        PersonActivity.startForDesigner(binding.root.context, d.id, d.name)
                     }
                 }
             }

@@ -6,36 +6,44 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
-import kotlinx.android.synthetic.main.fragment_collection_details.*
+import com.boardgamegeek.databinding.FragmentCollectionDetailsBinding
 import org.jetbrains.anko.support.v4.startActivity
 
 class CollectionDetailsFragment : Fragment() {
+    private var _binding: FragmentCollectionDetailsBinding? = null
+    private val binding get() = _binding!!
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_collection_details, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentCollectionDetailsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        designersButton.setOnClickListener {
+        binding.designersButton.setOnClickListener {
             startActivity<DesignersActivity>()
         }
 
-        artistsButton.setOnClickListener {
+        binding.artistsButton.setOnClickListener {
             startActivity<ArtistsActivity>()
         }
 
-        publishersButton.setOnClickListener {
+        binding.publishersButton.setOnClickListener {
             startActivity<PublishersActivity>()
         }
 
-        mechanicsButton.setOnClickListener {
+        binding.mechanicsButton.setOnClickListener {
             startActivity<MechanicsActivity>()
         }
 
-        categoriesButton.setOnClickListener {
+        binding.categoriesButton.setOnClickListener {
             startActivity<CategoriesActivity>()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

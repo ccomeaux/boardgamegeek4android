@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentTopGamesBinding
 import com.boardgamegeek.entities.TopGameEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.TopGamesAdapter
-import kotlinx.android.synthetic.main.fragment_top_games.*
 import org.jsoup.Jsoup
 import rx.Single
 import rx.SingleSubscriber
@@ -20,19 +20,28 @@ import timber.log.Timber
 import java.io.IOException
 
 class TopGamesFragment : Fragment() {
+    private var _binding: FragmentTopGamesBinding? = null
+    private val binding get() = _binding!!
+
     private val adapter: TopGamesAdapter by lazy {
         TopGamesAdapter()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_top_games, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentTopGamesBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
         loadTopGames()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun loadTopGames() {
@@ -51,24 +60,24 @@ class TopGamesFragment : Fragment() {
                     override fun onSuccess(topGames: List<TopGameEntity>) {
                         if (!isAdded) return
                         if (topGames.isEmpty()) {
-                            emptyView.setText(R.string.empty_top_games)
-                            emptyView.fadeIn()
-                            recyclerView.fadeOut()
+                            binding.emptyView.setText(R.string.empty_top_games)
+                            binding.emptyView.fadeIn()
+                            binding.recyclerView.fadeOut()
                         } else {
                             adapter.results = topGames
-                            recyclerView.fadeIn()
-                            emptyView.fadeOut()
+                            binding.recyclerView.fadeIn()
+                            binding.emptyView.fadeOut()
                         }
-                        progressView.hide()
+                        binding.progressView.hide()
                     }
 
                     override fun onError(error: Throwable) {
                         Timber.w(error, "Error loading top games")
                         if (!isAdded) return
-                        emptyView.text = getString(R.string.empty_http_error, error.localizedMessage)
-                        recyclerView.fadeOut()
-                        emptyView.fadeIn()
-                        progressView.hide()
+                        binding.emptyView.text = getString(R.string.empty_http_error, error.localizedMessage)
+                        binding.recyclerView.fadeOut()
+                        binding.emptyView.fadeIn()
+                        binding.progressView.hide()
                     }
                 })
     }

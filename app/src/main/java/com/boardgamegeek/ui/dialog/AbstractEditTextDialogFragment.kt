@@ -10,38 +10,44 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogEditTextBinding
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
-import kotlinx.android.synthetic.main.dialog_edit_text.*
 
 abstract class AbstractEditTextDialogFragment : DialogFragment() {
-    private lateinit var layout: View
+    private var _binding: DialogEditTextBinding? = null
+    protected val binding get() = _binding!!
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_edit_text, null)
+        _binding = DialogEditTextBinding.inflate(LayoutInflater.from(context))
 
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setView(layout)
+                .setView(binding.root)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
                     onPositiveButton()
                 }
         if (titleResId != 0) builder.setTitle(titleResId)
         return builder.create().apply {
-            requestFocus(editText)
+            requestFocus(binding.editText)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        editText.inputType = editText.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+        binding.editText.inputType = binding.editText.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
         if (savedInstanceState == null) {
-            editText.setAndSelectExistingText(originalText)
+            binding.editText.setAndSelectExistingText(originalText)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     open val titleResId

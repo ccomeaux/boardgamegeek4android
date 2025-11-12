@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentForumsBinding
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.fadeIn
@@ -16,9 +17,10 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.adapter.ForumsRecyclerViewAdapter
 import com.boardgamegeek.ui.viewmodel.ForumsViewModel
-import kotlinx.android.synthetic.main.fragment_forums.*
 
 class ForumsFragment : Fragment() {
+    private var _binding: FragmentForumsBinding? = null
+    private val binding get() = _binding!!
     private var forumType = ForumEntity.ForumType.REGION
     private var objectId = BggContract.INVALID_ID
     private var objectName: String? = null
@@ -31,8 +33,9 @@ class ForumsFragment : Fragment() {
         ViewModelProvider(this).get(ForumsViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_forums, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentForumsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -41,9 +44,9 @@ class ForumsFragment : Fragment() {
         objectId = arguments?.getInt(KEY_OBJECT_ID, BggContract.INVALID_ID) ?: BggContract.INVALID_ID
         objectName = arguments?.getString(KEY_OBJECT_NAME)
 
-        recyclerView?.setHasFixedSize(true)
-        recyclerView?.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        recyclerView?.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        binding.recyclerView.adapter = adapter
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -58,27 +61,32 @@ class ForumsFragment : Fragment() {
         viewModel.forums.observe(this, Observer {
             when (it?.status) {
                 null, Status.REFRESHING -> {
-                    progressView?.show()
+                    binding.progressView.show()
                 }
                 Status.ERROR -> {
-                    emptyView?.text = it.message
-                    emptyView?.fadeIn()
-                    recyclerView?.fadeOut()
-                    progressView?.hide()
+                    binding.emptyView.text = it.message
+                    binding.emptyView.fadeIn()
+                    binding.recyclerView.fadeOut()
+                    binding.progressView.hide()
                 }
                 Status.SUCCESS -> {
                     adapter.forums = it.data ?: emptyList()
                     if (adapter.itemCount == 0) {
-                        emptyView?.fadeIn()
-                        recyclerView?.fadeOut()
+                        binding.emptyView.fadeIn()
+                        binding.recyclerView.fadeOut()
                     } else {
-                        recyclerView?.fadeIn()
-                        emptyView?.fadeOut()
+                        binding.recyclerView.fadeIn()
+                        binding.emptyView.fadeOut()
                     }
-                    progressView?.hide()
+                    binding.progressView.hide()
                 }
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

@@ -15,12 +15,12 @@ import android.widget.Spinner
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogPrivateInfoBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract.Collection
 import com.boardgamegeek.ui.adapter.AutoCompleteAdapter
 import com.boardgamegeek.ui.model.PrivateInfo
 import com.boardgamegeek.ui.widget.DatePickerDialogFragment
-import kotlinx.android.synthetic.main.dialog_private_info.*
 import java.text.DecimalFormat
 import java.util.*
 
@@ -31,6 +31,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
         fun onPrivateInfoChanged(privateInfo: PrivateInfo)
     }
 
+    private var _binding: DialogPrivateInfoBinding? = null
+    private val binding get() = _binding!!
     private lateinit var layout: View
     private var listener: PrivateInfoDialogListener? = null
     private var acquisitionDate = ""
@@ -50,8 +52,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_private_info, null)
+        _binding = DialogPrivateInfoBinding.inflate(LayoutInflater.from(context))
+        layout = binding.root
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_private_info)
                 .setView(layout)
@@ -69,17 +71,17 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     private fun captureForm(): PrivateInfo {
         return PrivateInfo(
-                priceCurrencyView.selectedItem.toString(),
-                priceView.getDouble(),
-                currentValueCurrencyView.selectedItem.toString(),
-                currentValueView.getDouble(),
-                quantityView.getInt(),
+                binding.priceCurrencyView.selectedItem.toString(),
+                binding.priceView.getDouble(),
+                binding.currentValueCurrencyView.selectedItem.toString(),
+                binding.currentValueView.getDouble(),
+                binding.quantityView.getInt(),
                 acquisitionDate,
-                acquiredFromView.text.trim().toString(),
-                inventoryLocationView.text.trim().toString())
+                binding.acquiredFromView.text.trim().toString(),
+                binding.inventoryLocationView.text.trim().toString())
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return layout
     }
 
@@ -99,24 +101,24 @@ class PrivateInfoDialogFragment : DialogFragment() {
             )
         }
 
-        setUpCurrencyView(priceCurrencyView, privateInfo.priceCurrency)
-        setUpValue(priceView, privateInfo.price)
-        setUpCurrencyView(currentValueCurrencyView, privateInfo.currentValueCurrency)
-        setUpValue(currentValueView, privateInfo.currentValue)
-        quantityView.setAndSelectExistingText(privateInfo.quantity.toString())
+        setUpCurrencyView(binding.priceCurrencyView, privateInfo.priceCurrency)
+        setUpValue(binding.priceView, privateInfo.price)
+        setUpCurrencyView(binding.currentValueCurrencyView, privateInfo.currentValueCurrency)
+        setUpValue(binding.currentValueView, privateInfo.currentValue)
+        binding.quantityView.setAndSelectExistingText(privateInfo.quantity.toString())
         acquisitionDate = privateInfo.acquisitionDate ?: ""
-        acquisitionDateView.text = formatDateFromApi(privateInfo.acquisitionDate)
+        binding.acquisitionDateView.text = formatDateFromApi(privateInfo.acquisitionDate)
         showOrHideAcquisitionDateLabel()
-        acquiredFromView.setAndSelectExistingText(privateInfo.acquiredFrom)
-        inventoryLocationView.setAndSelectExistingText(privateInfo.inventoryLocation)
+        binding.acquiredFromView.setAndSelectExistingText(privateInfo.acquiredFrom)
+        binding.inventoryLocationView.setAndSelectExistingText(privateInfo.inventoryLocation)
 
-        acquisitionDateView.setOnClickListener {
+        binding.acquisitionDateView.setOnClickListener {
             val datePickerDialogFragment = createDatePickerDialogFragment()
             fragmentManager?.executePendingTransactions()
             datePickerDialogFragment.setOnDateSetListener(OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
                 val calendar = Calendar.getInstance()
                 calendar.set(year, monthOfYear, dayOfMonth)
-                acquisitionDateView.text = DateUtils.formatDateTime(context, calendar.timeInMillis, DateUtils.FORMAT_SHOW_DATE)
+                binding.acquisitionDateView.text = DateUtils.formatDateTime(context, calendar.timeInMillis, DateUtils.FORMAT_SHOW_DATE)
                 acquisitionDate = calendar.timeInMillis.asDateForApi()
                 showOrHideAcquisitionDateLabel()
             })
@@ -125,11 +127,16 @@ class PrivateInfoDialogFragment : DialogFragment() {
         }
 
 
-        clearDateView.setOnClickListener {
+        binding.clearDateView.setOnClickListener {
             acquisitionDate = ""
-            acquisitionDateView.text = ""
+            binding.acquisitionDateView.text = ""
             showOrHideAcquisitionDateLabel()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -158,8 +165,8 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
     override fun onResume() {
         super.onResume()
-        acquiredFromView.setAdapter<AutoCompleteAdapter>(acquiredFromAdapter)
-        inventoryLocationView.setAdapter<AutoCompleteAdapter>(inventoryLocationAdapter)
+        binding.acquiredFromView.setAdapter<AutoCompleteAdapter>(acquiredFromAdapter)
+        binding.inventoryLocationView.setAdapter<AutoCompleteAdapter>(inventoryLocationAdapter)
     }
 
     override fun onPause() {
@@ -180,7 +187,7 @@ class PrivateInfoDialogFragment : DialogFragment() {
     }
 
     private fun showOrHideAcquisitionDateLabel() {
-        acquisitionDateLabelView.visibility = if (acquisitionDateView.text.isEmpty()) View.INVISIBLE else View.VISIBLE
+        binding.acquisitionDateLabelView.visibility = if (binding.acquisitionDateView.text.isEmpty()) View.INVISIBLE else View.VISIBLE
     }
 
     companion object {

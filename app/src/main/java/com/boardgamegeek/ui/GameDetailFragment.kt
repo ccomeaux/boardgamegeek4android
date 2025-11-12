@@ -9,14 +9,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentGameDetailsBinding
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.GameDetailAdapter
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
-import kotlinx.android.synthetic.main.fragment_game_details.*
 
 class GameDetailFragment : Fragment() {
+    private var _binding: FragmentGameDetailsBinding? = null
+    private val binding get() = _binding!!
+    
     private val adapter: GameDetailAdapter by lazy {
         GameDetailAdapter()
     }
@@ -25,15 +28,16 @@ class GameDetailFragment : Fragment() {
         ViewModelProvider(this).get(GameViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_details, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentGameDetailsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView?.layoutManager = LinearLayoutManager(context)
-        recyclerView?.setHasFixedSize(true)
-        recyclerView?.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -46,14 +50,19 @@ class GameDetailFragment : Fragment() {
         viewModel.producers.observe(this, Observer {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
-                emptyMessage?.fadeOut()
-                recyclerView?.fadeIn()
+                binding.emptyMessage.fadeOut()
+                binding.recyclerView.fadeIn()
             } else {
                 adapter.items = emptyList()
-                emptyMessage?.fadeIn()
-                recyclerView?.fadeOut()
+                binding.emptyMessage.fadeIn()
+                binding.recyclerView.fadeOut()
             }
-            progressView?.hide()
+            binding.progressView.hide()
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

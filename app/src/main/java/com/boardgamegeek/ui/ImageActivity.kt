@@ -9,20 +9,22 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityImageBinding
 import com.boardgamegeek.extensions.ensureHttpsScheme
 import com.boardgamegeek.util.PaletteTransformation
 import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_image.*
 import org.jetbrains.anko.startActivity
 import timber.log.Timber
 
 class ImageActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityImageBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_image)
+        binding = ActivityImageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val imageUrl = intent.getStringExtra(KEY_IMAGE_URL)
         if (imageUrl.isNullOrBlank()) {
@@ -41,19 +43,19 @@ class ImageActivity : AppCompatActivity() {
                 .fit()
                 .centerInside()
                 .transform(PaletteTransformation.instance())
-                .into(imageView, object : Callback.EmptyCallback() {
+                .into(binding.imageView, object : Callback.EmptyCallback() {
                     override fun onSuccess() {
                         setBackgroundColor()
-                        progressBar.visibility = View.GONE
+                        binding.progressBar.visibility = View.GONE
                     }
                 })
     }
 
     private fun setBackgroundColor() {
-        val bitmap = (imageView.drawable as BitmapDrawable).bitmap
+        val bitmap = (binding.imageView.drawable as BitmapDrawable).bitmap
         val palette = PaletteTransformation.getPalette(bitmap)
         val swatch: Palette.Swatch? = palette?.darkMutedSwatch ?: palette?.darkVibrantSwatch ?: palette?.mutedSwatch
-        imageView.setBackgroundColor(swatch?.rgb ?: Color.BLACK)
+        binding.imageView.setBackgroundColor(swatch?.rgb ?: Color.BLACK)
     }
 
     companion object {

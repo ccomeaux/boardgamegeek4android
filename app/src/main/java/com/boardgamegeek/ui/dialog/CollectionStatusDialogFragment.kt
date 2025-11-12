@@ -13,9 +13,11 @@ import androidx.appcompat.app.AlertDialog.Builder
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
-import kotlinx.android.synthetic.main.dialog_collection_status.*
+import com.boardgamegeek.databinding.DialogCollectionStatusBinding
 
 class CollectionStatusDialogFragment : DialogFragment() {
+    private var _binding: DialogCollectionStatusBinding? = null
+    private val binding get() = _binding!!
     private lateinit var layout: View
     private var listener: Listener? = null
 
@@ -30,18 +32,18 @@ class CollectionStatusDialogFragment : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_status, null)
+        _binding = DialogCollectionStatusBinding.inflate(LayoutInflater.from(context))
+        layout = binding.root
 
         val builder = Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(R.string.title_add_a_copy)
                 .setView(layout)
                 .setPositiveButton(R.string.ok) { _, _ ->
                     if (listener != null) {
-                        val statuses = container.children.filterIsInstance<CheckBox>().filter {
+                        val statuses = binding.container.children.filterIsInstance<CheckBox>().filter {
                             it.isChecked
                         }.map { it.tag as String }.toList()
-                        val wishlistPriority = if (wishlistView.isChecked) wishlistPriorityView.selectedItemPosition + 1 else 0
+                        val wishlistPriority = if (binding.wishlistView.isChecked) binding.wishlistPriorityView.selectedItemPosition + 1 else 0
                         listener?.onSelectStatuses(statuses, wishlistPriority)
                     }
                 }
@@ -49,16 +51,21 @@ class CollectionStatusDialogFragment : DialogFragment() {
         return builder.create()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return layout
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        wishlistPriorityView.adapter = WishlistPriorityAdapter(requireContext())
-        wishlistPriorityView.isEnabled = wishlistView.isChecked
-        wishlistView.setOnClickListener {
-            wishlistPriorityView.isEnabled = wishlistView.isChecked
+        binding.wishlistPriorityView.adapter = WishlistPriorityAdapter(requireContext())
+        binding.wishlistPriorityView.isEnabled = binding.wishlistView.isChecked
+        binding.wishlistView.setOnClickListener {
+            binding.wishlistPriorityView.isEnabled = binding.wishlistView.isChecked
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private class WishlistPriorityAdapter(context: Context)

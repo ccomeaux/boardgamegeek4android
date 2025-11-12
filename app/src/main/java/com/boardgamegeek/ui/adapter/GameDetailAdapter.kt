@@ -1,16 +1,14 @@
 package com.boardgamegeek.ui.adapter
 
-import android.view.View
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowGameDetailBinding
 import com.boardgamegeek.entities.GameDetailEntity
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.PersonActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import kotlinx.android.synthetic.main.row_game_detail.view.*
 import kotlin.properties.Delegates
 
 class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolder>(), AutoUpdatableAdapter {
@@ -29,7 +27,8 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailViewHolder {
-        return DetailViewHolder(parent.inflate(R.layout.row_game_detail))
+        val binding = RowGameDetailBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return DetailViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: DetailViewHolder, position: Int) {
@@ -40,20 +39,20 @@ class GameDetailAdapter : RecyclerView.Adapter<GameDetailAdapter.DetailViewHolde
 
     override fun getItemId(position: Int): Long = items.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
-    inner class DetailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class DetailViewHolder(private val binding: RowGameDetailBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(gameDetail: GameDetailEntity?) {
             gameDetail?.let { entity ->
-                itemView.nameView?.text = entity.name
-                itemView.descriptionView.setTextOrHide(entity.description)
+                binding.nameView.text = entity.name
+                binding.descriptionView.setTextOrHide(entity.description)
                 when (type) {
                     GameViewModel.ProducerType.EXPANSIONS,
-                    GameViewModel.ProducerType.BASE_GAMES -> itemView.setOnClickListener { GameActivity.start(itemView.context, entity.id, entity.name) }
-                    GameViewModel.ProducerType.PUBLISHER -> itemView.setOnClickListener { PersonActivity.startForPublisher(itemView.context, entity.id, entity.name) }
-                    GameViewModel.ProducerType.ARTIST -> itemView.setOnClickListener { PersonActivity.startForArtist(itemView.context, entity.id, entity.name) }
-                    GameViewModel.ProducerType.DESIGNER -> itemView.setOnClickListener { PersonActivity.startForDesigner(itemView.context, entity.id, entity.name) }
+                    GameViewModel.ProducerType.BASE_GAMES -> binding.root.setOnClickListener { GameActivity.start(binding.root.context, entity.id, entity.name) }
+                    GameViewModel.ProducerType.PUBLISHER -> binding.root.setOnClickListener { PersonActivity.startForPublisher(binding.root.context, entity.id, entity.name) }
+                    GameViewModel.ProducerType.ARTIST -> binding.root.setOnClickListener { PersonActivity.startForArtist(binding.root.context, entity.id, entity.name) }
+                    GameViewModel.ProducerType.DESIGNER -> binding.root.setOnClickListener { PersonActivity.startForDesigner(binding.root.context, entity.id, entity.name) }
                     else -> {
-                        itemView.setOnClickListener { }
-                        itemView.isClickable = false
+                        binding.root.setOnClickListener { }
+                        binding.root.isClickable = false
                     }
                 }
             }

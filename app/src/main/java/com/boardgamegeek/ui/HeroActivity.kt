@@ -8,14 +8,15 @@ import androidx.fragment.app.Fragment
 import androidx.palette.graphics.Palette
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.ActivityHeroBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.util.ImageUtils.Callback
-import kotlinx.android.synthetic.main.activity_hero.*
 
 /**
  * A navigation drawer activity that displays a hero image.
  */
 abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
+    protected lateinit var binding: ActivityHeroBinding
     protected var fragment: Fragment? = null
         private set
     private var isRefreshing: Boolean = false
@@ -37,17 +38,17 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
             fragment = supportFragmentManager.findFragmentByTag(TAG_SINGLE_PANE)
         }
         if (isRefreshable) {
-            swipeRefreshLayout.setOnRefreshListener(this)
-            swipeRefreshLayout.setBggColors()
-            swipeRefreshLayout.isEnabled = true
+            binding.swipeRefreshLayout.setOnRefreshListener(this)
+            binding.swipeRefreshLayout.setBggColors()
+            binding.swipeRefreshLayout.isEnabled = true
         } else {
-            swipeRefreshLayout.isEnabled = false
+            binding.swipeRefreshLayout.isEnabled = false
         }
     }
 
     override fun onResume() {
         super.onResume()
-        fab.setOnClickListener(fabOnClickListener)
+        binding.fab.setOnClickListener(fabOnClickListener)
     }
 
     protected abstract fun readIntent(intent: Intent)
@@ -68,35 +69,37 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
      */
     protected abstract fun onCreatePane(): Fragment
 
-    override val layoutResId = R.layout.activity_hero
+    override fun setBinding() {
+        binding = ActivityHeroBinding.inflate(layoutInflater)
+    }
 
     protected fun safelySetTitle(title: String) {
         if (title.isNotBlank()) {
-            collapsingToolbar.title = title
+            binding.collapsingToolbar.title = title
         }
     }
 
     protected fun ensureFabShown() {
-        fab.ensureShown()
+        binding.fab.ensureShown()
     }
 
     protected fun setFabImageResource(@DrawableRes imageResId: Int) {
-        fab.setImageResource(imageResId)
+        binding.fab.setImageResource(imageResId)
     }
 
     protected fun loadToolbarImage(url: String) {
-        toolbarImage.loadUrl(url, object : Callback {
+        binding.toolbarImage.loadUrl(url, object : Callback {
             override fun onSuccessfulImageLoad(palette: Palette?) {
-                scrimView.applyDarkScrim()
+                binding.scrimView.applyDarkScrim()
                 if (palette != null) {
                     onPaletteGenerated(palette)
-                    fab.colorize(palette.getIconSwatch().rgb)
+                    binding.fab.colorize(palette.getIconSwatch().rgb)
                 }
-                fab.show()
+                binding.fab.show()
             }
 
             override fun onFailedImageLoad() {
-                fab.show()
+                binding.fab.show()
             }
         })
     }
@@ -104,7 +107,7 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
     protected abstract fun onPaletteGenerated(palette: Palette?)
 
     protected fun enableSwipeRefreshLayout(isEnabled: Boolean) {
-        swipeRefreshLayout.isEnabled = isEnabled
+        binding.swipeRefreshLayout.isEnabled = isEnabled
     }
 
     override fun onRefresh() {
@@ -113,7 +116,7 @@ abstract class HeroActivity : DrawerActivity(), OnRefreshListener {
 
     protected fun updateRefreshStatus(refreshing: Boolean) {
         this.isRefreshing = refreshing
-        swipeRefreshLayout?.post { swipeRefreshLayout?.isRefreshing = isRefreshing }
+        binding.swipeRefreshLayout.post { binding.swipeRefreshLayout.isRefreshing = isRefreshing }
     }
 
     companion object {

@@ -16,6 +16,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentPlaysBinding
+import com.boardgamegeek.databinding.RowPlayBinding
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.events.SyncCompleteEvent
@@ -30,8 +32,6 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.util.DateTimeUtils
-import kotlinx.android.synthetic.main.fragment_plays.*
-import kotlinx.android.synthetic.main.row_play.view.*
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -41,6 +41,8 @@ import kotlin.collections.ArrayList
 import kotlin.properties.Delegates
 
 open class PlaysFragment : Fragment(), ActionMode.Callback {
+    private var _binding: FragmentPlaysBinding? = null
+    private val binding get() = _binding!!
     private val viewModel by lazy {
         ViewModelProvider(this).get(PlaysViewModel::class.java)
     }
@@ -60,33 +62,34 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
     private var isSyncing = false
     private var actionMode: ActionMode? = null
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_plays, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentPlaysBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
 
         viewModel.plays.observe(this, Observer {
-            progressBar.isVisible = it.status == Status.REFRESHING
+            binding.progressBar.isVisible = it.status == Status.REFRESHING
             adapter.items = it.data ?: emptyList()
             val sectionItemDecoration = RecyclerSectionItemDecoration(
                     resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                     adapter
             )
-            while (recyclerView.itemDecorationCount > 0) {
-                recyclerView.removeItemDecorationAt(0)
+            while (binding.recyclerView.itemDecorationCount > 0) {
+                binding.recyclerView.removeItemDecorationAt(0)
             }
-            recyclerView.addItemDecoration(sectionItemDecoration)
+            binding.recyclerView.addItemDecoration(sectionItemDecoration)
 
             if (it.data.isNullOrEmpty()) {
-                emptyContainer.fadeIn()
-                recyclerView.fadeOut()
+                binding.emptyContainer.fadeIn()
+                binding.recyclerView.fadeOut()
             } else {
-                recyclerView.fadeIn()
-                emptyContainer.fadeOut()
+                binding.recyclerView.fadeIn()
+                binding.emptyContainer.fadeOut()
             }
         })
 
@@ -95,8 +98,13 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         })
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     private fun updateEmptyText() {
-        emptyTextView.setText(
+        binding.emptyTextView.setText(
                 when (viewModel.filterType.value) {
                     PlaysViewModel.FilterType.DIRTY -> R.string.empty_plays_draft
                     PlaysViewModel.FilterType.PENDING -> R.string.empty_plays_pending
@@ -133,19 +141,19 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
         @ColorInt val iconColor = arguments?.getInt(KEY_ICON_COLOR, Color.TRANSPARENT) ?: Color.TRANSPARENT
 
         if (gameId != INVALID_ID) {
-            fabView.colorize(iconColor)
-            fabView.setOnClickListener {
+            binding.fabView.colorize(iconColor)
+            binding.fabView.setOnClickListener {
                 LogPlayActivity.logPlay(context, gameId, gameName, thumbnailUrl, imageUrl, heroImageUrl, arePlayersCustomSorted)
             }
-            fabView.show()
+            binding.fabView.show()
         } else {
-            fabView.hide()
+            binding.fabView.hide()
         }
 
         updateEmptyText()
 
-        swipeRefreshLayout.setBggColors()
-        swipeRefreshLayout.setOnRefreshListener { triggerRefresh() }
+        binding.swipeRefreshLayout.setBggColors()
+        binding.swipeRefreshLayout.setOnRefreshListener { triggerRefresh() }
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
@@ -160,8 +168,8 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
     fun isSyncing(value: Boolean) {
         isSyncing = value
-        swipeRefreshLayout?.post {
-            swipeRefreshLayout?.isRefreshing = isSyncing
+        _binding?.swipeRefreshLayout?.post {
+            _binding?.swipeRefreshLayout?.isRefreshing = isSyncing
         }
     }
 
@@ -238,19 +246,22 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
         override fun getItemId(position: Int) = getItem(position)?.internalId ?: RecyclerView.NO_ID
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder(parent.inflate(R.layout.row_play))
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+            val binding = RowPlayBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return ViewHolder(binding)
+        }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             holder.bind(getItem(position), position)
         }
 
-        internal inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        internal inner class ViewHolder(private val binding: RowPlayBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(play: PlayEntity?, position: Int) {
                 if (play == null) return
 
-                itemView.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
-                itemView.infoView.setTextOrHide(play.describe(requireContext(), showGameName))
-                itemView.commentView.setTextOrHide(play.comments)
+                binding.titleView.text = if (showGameName) play.gameName else play.dateForDisplay(requireContext())
+                binding.infoView.setTextOrHide(play.describe(requireContext(), showGameName))
+                binding.commentView.setTextOrHide(play.comments)
 
                 @StringRes val statusMessageId = when {
                     play.deleteTimestamp > 0 -> R.string.sync_pending_delete
@@ -258,18 +269,18 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                     play.dirtyTimestamp > 0 -> if (play.playId > 0) R.string.sync_editing else R.string.sync_draft
                     else -> 0
                 }
-                itemView.statusView.setTextOrHide(statusMessageId)
+                binding.statusView.setTextOrHide(statusMessageId)
 
-                itemView.isActivated = selectedItems.get(position, false)
+                binding.root.isActivated = selectedItems.get(position, false)
 
-                itemView.setOnClickListener {
+                binding.root.setOnClickListener {
                     if (actionMode == null) {
                         PlayActivity.start(context, play.internalId, play.gameId, play.gameName, play.thumbnailUrl, play.imageUrl, play.heroImageUrl)
                     } else {
                         toggleSelection(position)
                     }
                 }
-                itemView.setOnLongClickListener {
+                binding.root.setOnLongClickListener {
                     if (actionMode != null) {
                         return@setOnLongClickListener false
                     }

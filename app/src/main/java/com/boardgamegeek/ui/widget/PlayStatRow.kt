@@ -12,24 +12,22 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.WidgetPlayStatBinding
 import com.boardgamegeek.extensions.setSelectableBackground
-import kotlinx.android.synthetic.main.widget_play_stat.view.*
 import java.text.DecimalFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PlayStatRow(context: Context) : TableRow(context) {
-    init {
-        LayoutInflater.from(context).inflate(R.layout.widget_play_stat, this)
-    }
+    private val binding = WidgetPlayStatBinding.inflate(LayoutInflater.from(context), this)
 
     fun setLabel(text: CharSequence) {
-        labelView.text = text
+        binding.labelView.text = text
     }
 
     fun setLabel(@StringRes textId: Int) {
-        labelView.setText(textId)
+        binding.labelView.setText(textId)
     }
 
     fun setValue(value: Int) {
@@ -53,19 +51,19 @@ class PlayStatRow(context: Context) : TableRow(context) {
     }
 
     fun setValue(text: CharSequence) {
-        valueView.text = text
+        binding.valueView.text = text
     }
 
     fun setInfoText(@StringRes textResId: Int) {
         val text = context.getString(textResId)
-        infoImageView.visibility = View.VISIBLE
-        labelContainer.setSelectableBackground()
+        binding.infoImageView.visibility = View.VISIBLE
+        binding.labelContainer.setSelectableBackground()
         val spannableString = SpannableString(text)
         Linkify.addLinks(spannableString, Linkify.WEB_URLS)
         val builder = AlertDialog.Builder(context)
-        builder.setTitle(labelView.text).setMessage(spannableString)
+        builder.setTitle(binding.labelView.text).setMessage(spannableString)
 
-        labelContainer.setOnClickListener {
+        binding.labelContainer.setOnClickListener {
             val dialog = builder.show()
             val textView = dialog.findViewById<TextView>(android.R.id.message)
             textView?.movementMethod = LinkMovementMethod.getInstance()

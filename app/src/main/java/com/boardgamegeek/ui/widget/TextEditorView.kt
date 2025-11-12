@@ -9,21 +9,20 @@ import androidx.core.text.HtmlCompat
 import androidx.core.view.isVisible
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.WidgetTextEditorBinding
 import com.boardgamegeek.extensions.setSelectableBackground
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.util.XmlConverter
-import kotlinx.android.synthetic.main.widget_text_editor.view.*
 
 class TextEditorView @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0) : ForegroundLinearLayout(context, attrs, defStyleAttr) {
 
+    private val binding = WidgetTextEditorBinding.inflate(LayoutInflater.from(context), this, true)
     private val xmlConverter = XmlConverter()
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.widget_text_editor, this, true)
-
         visibility = View.GONE
 
         gravity = Gravity.CENTER_VERTICAL
@@ -34,7 +33,7 @@ class TextEditorView @JvmOverloads constructor(
         if (attrs != null) {
             val a = context.obtainStyledAttributes(attrs, R.styleable.TextEditorView, defStyleAttr, 0)
             try {
-                headerView.text = a.getString(R.styleable.TextEditorView_headerText)
+                binding.headerView.text = a.getString(R.styleable.TextEditorView_headerText)
             } finally {
                 a.recycle()
             }
@@ -44,22 +43,22 @@ class TextEditorView @JvmOverloads constructor(
     private var isEditMode: Boolean = false
 
     val contentText: String
-        get() = contentView.tag.toString()
+        get() = binding.contentView.tag.toString()
 
     val headerText: String
-        get() = headerView.text.toString()
+        get() = binding.headerView.text.toString()
 
     fun setContent(text: CharSequence, timestamp: Long) {
-        contentView.tag = text
-        contentView.setTextMaybeHtml(xmlConverter.toHtml(text.toString()), HtmlCompat.FROM_HTML_MODE_COMPACT)
-        contentView.isVisible = text.isNotBlank()
+        binding.contentView.tag = text
+        binding.contentView.setTextMaybeHtml(xmlConverter.toHtml(text.toString()), HtmlCompat.FROM_HTML_MODE_COMPACT)
+        binding.contentView.isVisible = text.isNotBlank()
 
-        timestampView.timestamp = timestamp
+        binding.timestampView.timestamp = timestamp
         setEditMode()
     }
 
     fun setHeaderColor(swatch: Palette.Swatch) {
-        headerView.setTextColor(swatch.rgb)
+        binding.headerView.setTextColor(swatch.rgb)
     }
 
     fun enableEditMode(enable: Boolean) {
@@ -68,8 +67,8 @@ class TextEditorView @JvmOverloads constructor(
     }
 
     private fun setEditMode() {
-        imageView.isVisible = isEditMode
-        isVisible = isEditMode || !contentView.text.isNullOrBlank() || timestampView.timestamp != 0L
+        binding.imageView.isVisible = isEditMode
+        isVisible = isEditMode || !binding.contentView.text.isNullOrBlank() || binding.timestampView.timestamp != 0L
         isClickable = isEditMode
     }
 }

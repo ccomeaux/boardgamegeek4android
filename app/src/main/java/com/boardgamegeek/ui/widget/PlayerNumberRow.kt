@@ -9,21 +9,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.boardgamegeek.R
-import kotlinx.android.synthetic.main.row_poll_players.view.*
+import com.boardgamegeek.databinding.RowPollPlayersBinding
 
 class PlayerNumberRow @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
+    private val binding = RowPollPlayersBinding.inflate(LayoutInflater.from(context), this)
     private var totalVoteCount: Int = 0
     private var bestVoteCount: Int = 0
     private var recommendedVoteCount: Int = 0
     private var notRecommendedVoteCount: Int = 0
-
-    init {
-        LayoutInflater.from(context).inflate(R.layout.row_poll_players, this)
-    }
 
     val votes: IntArray
         get() {
@@ -58,7 +55,7 @@ class PlayerNumberRow @JvmOverloads constructor(
     }
 
     fun setText(text: CharSequence) {
-        labelView.text = text
+        binding.labelView.text = text
     }
 
     fun setVotes(bestVoteCount: Int, recommendedVoteCount: Int, notRecommendedVoteCount: Int, totalVoteCount: Int) {
@@ -66,25 +63,25 @@ class PlayerNumberRow @JvmOverloads constructor(
         this.recommendedVoteCount = recommendedVoteCount
         this.notRecommendedVoteCount = notRecommendedVoteCount
         this.totalVoteCount = totalVoteCount
-        adjustSegment(bestSegment, bestVoteCount)
-        adjustSegment(recommendedSegment, recommendedVoteCount)
-        adjustSegment(missingVotesSegment, totalVoteCount - bestVoteCount - recommendedVoteCount - notRecommendedVoteCount)
-        adjustSegment(notRecommendedSegment, notRecommendedVoteCount)
-        votesView.text = (bestVoteCount + recommendedVoteCount + notRecommendedVoteCount).toString()
+        adjustSegment(binding.bestSegment, bestVoteCount)
+        adjustSegment(binding.recommendedSegment, recommendedVoteCount)
+        adjustSegment(binding.missingVotesSegment, totalVoteCount - bestVoteCount - recommendedVoteCount - notRecommendedVoteCount)
+        adjustSegment(binding.notRecommendedSegment, notRecommendedVoteCount)
+        binding.votesView.text = (bestVoteCount + recommendedVoteCount + notRecommendedVoteCount).toString()
     }
 
     fun showNoVotes(show: Boolean) {
-        missingVotesSegment.visibility = if (show) View.VISIBLE else View.GONE
-        votesView.visibility = if (show) View.GONE else View.VISIBLE
+        binding.missingVotesSegment.visibility = if (show) View.VISIBLE else View.GONE
+        binding.votesView.visibility = if (show) View.GONE else View.VISIBLE
     }
 
     fun setHighlight() {
-        labelView.setBackgroundResource(R.drawable.highlight)
+        binding.labelView.setBackgroundResource(R.drawable.highlight)
     }
 
     fun clearHighlight() {
         @Suppress("DEPRECATION")
-        labelView.setBackgroundDrawable(null)
+        binding.labelView.setBackgroundDrawable(null)
     }
 
     private fun adjustSegment(segment: View, votes: Int) {

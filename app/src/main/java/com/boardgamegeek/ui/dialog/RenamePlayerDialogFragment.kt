@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import kotlinx.android.synthetic.main.dialog_edit_text.*
 import org.jetbrains.anko.support.v4.act
 
 class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
@@ -19,7 +18,7 @@ class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
         get() = arguments?.getString(KEY_TEXT)
 
     override fun onPositiveButton() {
-        val text = editText.text.trim().toString()
+        val text = binding.editText.text.trim().toString()
         viewModel.renamePlayer(text)
     }
 
