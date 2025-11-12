@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CategoryEntity
@@ -21,7 +21,7 @@ import kotlin.properties.Delegates
 
 class CategoriesFragment : Fragment() {
     private val viewModel: CategoriesViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(CategoriesViewModel::class.java)
+        ViewModelProvider(this).get(CategoriesViewModel::class.java)
     }
 
     private val adapter: CategoriesAdapter by lazy {

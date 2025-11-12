@@ -93,7 +93,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
@@ -214,7 +214,7 @@ public class CollectionFragment extends Fragment implements
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 
-		viewModel = ViewModelProviders.of(requireActivity()).get(CollectionViewViewModel.class);
+		viewModel = new ViewModelProvider(requireActivity()).get(CollectionViewViewModel.class);
 
 		viewModel.getSelectedViewId().observe(this, id -> viewId = id);
 

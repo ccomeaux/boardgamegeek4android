@@ -8,7 +8,7 @@ import androidx.annotation.PluralsRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -39,7 +39,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     }
 
     private val viewModel: SearchViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(SearchViewModel::class.java)
+        ViewModelProvider(this).get(SearchViewModel::class.java)
     }
 
     private val searchResultsAdapter: SearchResultsAdapter by lazy {

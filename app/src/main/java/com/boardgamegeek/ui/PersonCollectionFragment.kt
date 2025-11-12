@@ -5,7 +5,7 @@ import android.view.*
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -22,7 +22,7 @@ class PersonCollectionFragment : Fragment() {
     }
 
     private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
+        ViewModelProvider(this).get(PersonViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.MechanicEntity
@@ -21,7 +21,7 @@ import kotlin.properties.Delegates
 
 class MechanicsFragment : Fragment() {
     private val viewModel: MechanicsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(MechanicsViewModel::class.java)
+        ViewModelProvider(this).get(MechanicsViewModel::class.java)
     }
 
     private val adapter: MechanicsAdapter by lazy {

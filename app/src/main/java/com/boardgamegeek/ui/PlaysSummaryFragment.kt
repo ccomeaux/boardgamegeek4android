@@ -11,7 +11,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.entities.*
@@ -27,7 +27,7 @@ class PlaysSummaryFragment : Fragment() {
     private var newestSyncDate = 0L
 
     val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlaysSummaryViewModel::class.java)
+        ViewModelProvider(this).get(PlaysSummaryViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

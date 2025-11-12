@@ -11,7 +11,7 @@ import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.*
@@ -44,7 +44,7 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     private val rankSeparator = "  " + Html.fromHtml("&#9679;") + "  "
 
     private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
+        ViewModelProvider(this).get(GameViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

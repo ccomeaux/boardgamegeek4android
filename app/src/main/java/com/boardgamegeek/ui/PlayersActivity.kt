@@ -7,7 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlayersViewModel
@@ -15,7 +15,7 @@ import org.jetbrains.anko.startActivity
 
 class PlayersActivity : SimpleSinglePaneActivity() {
     private val viewModel: PlayersViewModel by lazy {
-        ViewModelProviders.of(this).get(PlayersViewModel::class.java)
+        ViewModelProvider(this).get(PlayersViewModel::class.java)
     }
 
     private var playerCount = -1

@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.db.DesignerDao
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.COLLECTION_STATUS_RATED
@@ -32,7 +32,7 @@ class DesignsViewModel(application: Application) : AndroidViewModel(application)
         sort(initialSort)
     }
 
-    val designers: LiveData<List<PersonEntity>> = Transformations.switchMap(sort) {
+    val designers: LiveData<List<PersonEntity>> = sort.switchMap() {
         designerRepository.loadDesigners(it.sortBy)
     }
 

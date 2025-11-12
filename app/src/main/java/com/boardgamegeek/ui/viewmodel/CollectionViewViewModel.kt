@@ -29,7 +29,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
     val effectiveSortType = MediatorLiveData<Int>()
     val effectiveFilters = MediatorLiveData<MutableList<CollectionFilterer>>()
 
-    private val selectedView: LiveData<CollectionViewEntity> = Transformations.switchMap(_selectedViewId) {
+    private val selectedView: LiveData<CollectionViewEntity> = _selectedViewId.switchMap() {
         _sortType.value = CollectionSorterFactory.TYPE_UNKNOWN
         _addedFilters.value?.clear()
         _removedFilters.value?.clear()
@@ -149,7 +149,7 @@ class CollectionViewViewModel(application: Application) : AndroidViewModel(appli
         _removedFilters.value = removedFilters
     }
 
-    val selectedViewName: LiveData<String> = Transformations.map(selectedView) {
+    val selectedViewName: LiveData<String> = selectedView.map() {
         it?.name ?: application.getString(R.string.title_collection)
     }
 

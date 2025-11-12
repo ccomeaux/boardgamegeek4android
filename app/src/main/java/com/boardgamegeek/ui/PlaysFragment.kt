@@ -13,7 +13,7 @@ import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PlayEntity
@@ -42,7 +42,7 @@ import kotlin.properties.Delegates
 
 open class PlaysFragment : Fragment(), ActionMode.Callback {
     private val viewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PlaysViewModel::class.java)
+        ViewModelProvider(this).get(PlaysViewModel::class.java)
     }
 
     private val adapter: PlayAdapter by lazy {

@@ -9,7 +9,7 @@ import android.view.MenuItem
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.provider.BggContract
@@ -18,7 +18,7 @@ import org.jetbrains.anko.intentFor
 
 class GamePlaysActivity : SimpleSinglePaneActivity() {
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
+        ViewModelProvider(this).get(PlaysViewModel::class.java)
     }
 
     private var gameId = BggContract.INVALID_ID

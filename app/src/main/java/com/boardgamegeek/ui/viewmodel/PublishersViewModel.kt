@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.db.PublisherDao
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.COLLECTION_STATUS_RATED
@@ -32,7 +32,7 @@ class PublishersViewModel(application: Application) : AndroidViewModel(applicati
         sort(initialSort)
     }
 
-    val publishers: LiveData<List<CompanyEntity>> = Transformations.switchMap(sort) {
+    val publishers: LiveData<List<CompanyEntity>> = sort.switchMap() {
         publisherRepository.loadPublishers(it.sortBy)
     }
 

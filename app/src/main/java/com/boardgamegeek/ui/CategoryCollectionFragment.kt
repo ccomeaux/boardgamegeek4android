@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
@@ -21,7 +21,7 @@ class CategoryCollectionFragment : Fragment() {
     }
 
     private val viewModel: CategoryViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(CategoryViewModel::class.java)
+        ViewModelProvider(this).get(CategoryViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

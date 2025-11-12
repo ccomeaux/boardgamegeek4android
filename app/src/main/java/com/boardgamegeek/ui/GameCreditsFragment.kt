@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.entities.GameEntity
@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.include_game_footer.*
 
 class GameCreditsFragment : Fragment() {
     private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
+        ViewModelProvider(this).get(GameViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

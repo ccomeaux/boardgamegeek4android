@@ -8,7 +8,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
@@ -25,7 +25,7 @@ import kotlin.properties.Delegates
 
 class BuddiesFragment : Fragment() {
     private val viewModel: BuddiesViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(BuddiesViewModel::class.java)
+        ViewModelProvider(this).get(BuddiesViewModel::class.java)
     }
 
     private val adapter: BuddiesAdapter by lazy {

@@ -43,7 +43,7 @@ private fun encodeArgs(args: Array<out Any?>): List<Any?> {
  */
 fun Context.versionName(): String {
     return try {
-        packageManager.getPackageInfo(packageName, 0).versionName
+        packageManager.getPackageInfo(packageName, 0).versionName ?: "?.?"
     } catch (e: PackageManager.NameNotFoundException) {
         "?.?"
     }

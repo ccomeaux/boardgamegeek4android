@@ -12,7 +12,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getViewDefaultId
 import com.boardgamegeek.extensions.queryLong
@@ -33,7 +33,7 @@ class SaveViewDialogFragment : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         layout = LayoutInflater.from(context).inflate(R.layout.dialog_save_view, null)
-        val viewModel = ViewModelProviders.of(act).get(CollectionViewViewModel::class.java)
+        val viewModel = ViewModelProvider(this).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_saved, Toast.LENGTH_SHORT) // TODO improve message
 
         arguments?.let {

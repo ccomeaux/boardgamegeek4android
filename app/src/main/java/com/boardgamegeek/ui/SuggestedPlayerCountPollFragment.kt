@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.setViewBackground
@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.fragment_poll_suggested_player_count.*
 
 class SuggestedPlayerCountPollFragment : DialogFragment() {
     val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
+        ViewModelProvider(this).get(GameViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

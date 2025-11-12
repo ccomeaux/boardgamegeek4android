@@ -123,12 +123,12 @@ class SettingsActivity : DrawerActivity() {
 
         override fun onResume() {
             super.onResume()
-            preferenceScreen.sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+            preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
         }
 
         override fun onPause() {
             super.onPause()
-            preferenceScreen.sharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+            preferenceScreen.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
         }
 
         override fun onStop() {
@@ -140,7 +140,7 @@ class SettingsActivity : DrawerActivity() {
             }
         }
 
-        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+        override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
             when (key) {
                 PREFERENCES_KEY_SYNC_STATUSES -> {
                     updateSyncStatusSummary(key)
@@ -174,7 +174,7 @@ class SettingsActivity : DrawerActivity() {
             }
         }
 
-        override fun onPreferenceTreeClick(preference: Preference?): Boolean {
+        override fun onPreferenceTreeClick(preference: Preference): Boolean {
             preference?.key?.let {
                 return when {
                     it.startsWith(ACTION_PREFIX) -> {
@@ -191,7 +191,7 @@ class SettingsActivity : DrawerActivity() {
 
         private val dialogFragmentTag = "PreferenceFragment.DIALOG"
 
-        override fun onDisplayPreferenceDialog(preference: Preference?) {
+        override fun onDisplayPreferenceDialog(preference: Preference) {
             if (fragmentManager?.findFragmentByTag(dialogFragmentTag) != null) {
                 return
             }

@@ -1,7 +1,7 @@
 package com.boardgamegeek.ui.dialog
 
 import android.os.Bundle
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
 import kotlinx.android.synthetic.main.dialog_edit_text.*
@@ -9,7 +9,7 @@ import org.jetbrains.anko.support.v4.act
 
 class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProviders.of(act).get(BuddyViewModel::class.java)
+        ViewModelProvider(this).get(BuddyViewModel::class.java)
     }
 
     override val titleResId

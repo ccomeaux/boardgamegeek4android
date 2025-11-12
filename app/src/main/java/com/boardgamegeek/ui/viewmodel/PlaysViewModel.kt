@@ -4,7 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.map
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayEntity
 import com.boardgamegeek.entities.RefreshableResource
@@ -45,7 +46,7 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
 
     private val playInfo = MutableLiveData<PlayInfo>()
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(playInfo) {
+    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = playInfo.switchMap() {
         when (it.mode) {
             Mode.ALL -> {
                 val sortType = when (it.sort) {
@@ -67,11 +68,11 @@ class PlaysViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    val filterType: LiveData<FilterType> = Transformations.map(playInfo) {
+    val filterType: LiveData<FilterType> = playInfo.map() {
         it.filter
     }
 
-    val sortType: LiveData<SortType> = Transformations.map(playInfo) {
+    val sortType: LiveData<SortType> = playInfo.map() {
         it.sort
     }
 

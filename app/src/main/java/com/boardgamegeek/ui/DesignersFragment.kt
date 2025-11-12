@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.PersonEntity
@@ -24,7 +24,7 @@ import kotlin.properties.Delegates
 
 class DesignersFragment : Fragment(R.layout.fragment_designers) {
     private val viewModel: DesignsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(DesignsViewModel::class.java)
+        ViewModelProvider(this).get(DesignsViewModel::class.java)
     }
 
     private val adapter: DesignersAdapter by lazy {

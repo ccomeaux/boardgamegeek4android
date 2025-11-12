@@ -11,7 +11,7 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
@@ -29,7 +29,7 @@ class BuddyFragment : Fragment() {
     private var lightTextColor: Int = 0
 
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProviders.of(act).get(BuddyViewModel::class.java)
+        ViewModelProvider(this).get(BuddyViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

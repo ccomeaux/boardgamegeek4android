@@ -14,7 +14,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.auth.Authenticator
@@ -42,7 +42,7 @@ abstract class DrawerActivity : BaseActivity() {
     var rootContainer: ViewGroup? = null
 
     private val viewModel: SelfUserViewModel by lazy {
-        ViewModelProviders.of(this).get(SelfUserViewModel::class.java)
+        ViewModelProvider(this).get(SelfUserViewModel::class.java)
     }
 
     protected open val navigationItemId: Int

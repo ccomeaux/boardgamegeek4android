@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.linkToBgg
@@ -32,7 +32,7 @@ class PersonActivity : HeroTabActivity() {
     private var emptyMessageDescription = ""
 
     private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(this).get(PersonViewModel::class.java)
+        ViewModelProvider(this).get(PersonViewModel::class.java)
     }
 
     private val adapter: PersonPagerAdapter by lazy {

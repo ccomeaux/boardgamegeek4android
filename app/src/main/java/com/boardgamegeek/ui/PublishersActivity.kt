@@ -6,7 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PublishersViewModel
@@ -16,7 +16,7 @@ class PublishersActivity : SimpleSinglePaneActivity() {
     private var sortBy = PublishersViewModel.SortType.ITEM_COUNT
 
     private val viewModel: PublishersViewModel by lazy {
-        ViewModelProviders.of(this).get(PublishersViewModel::class.java)
+        ViewModelProvider(this).get(PublishersViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -10,7 +10,7 @@ import android.widget.RadioButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.sorter.CollectionSorterFactory
@@ -23,7 +23,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     private lateinit var layout: View
 
     private val viewModel: CollectionViewViewModel by lazy {
-        ViewModelProviders.of(act).get(CollectionViewViewModel::class.java)
+        ViewModelProvider(this).get(CollectionViewViewModel::class.java)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

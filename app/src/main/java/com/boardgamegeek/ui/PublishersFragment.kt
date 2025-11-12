@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.CompanyEntity
@@ -24,7 +24,7 @@ import kotlin.properties.Delegates
 
 class PublishersFragment : Fragment(R.layout.fragment_publishers) {
     private val viewModel: PublishersViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PublishersViewModel::class.java)
+        ViewModelProvider(this).get(PublishersViewModel::class.java)
     }
 
     private val adapter: PublisherAdapter by lazy {

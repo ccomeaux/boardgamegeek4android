@@ -9,7 +9,7 @@ import androidx.core.app.NavUtils
 import androidx.core.app.TaskStackBuilder
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.palette.graphics.Palette
 import androidx.viewpager.widget.ViewPager.OnPageChangeListener
 import com.boardgamegeek.R
@@ -36,7 +36,7 @@ class GameActivity : HeroTabActivity(), CollectionStatusDialogFragment.Listener 
     private var isUserMenuEnabled = false
 
     private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(this).get(GameViewModel::class.java)
+        ViewModelProvider(this).get(GameViewModel::class.java)
     }
 
     private val adapter: GamePagerAdapter by lazy {

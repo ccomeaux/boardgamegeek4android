@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.db.CategoryDao
 import com.boardgamegeek.entities.CategoryEntity
 import com.boardgamegeek.repository.CategoryRepository
@@ -24,7 +24,7 @@ class CategoriesViewModel(application: Application) : AndroidViewModel(applicati
         sort(SortType.ITEM_COUNT)
     }
 
-    val categories: LiveData<List<CategoryEntity>> = Transformations.switchMap(sort) {
+    val categories: LiveData<List<CategoryEntity>> = sort.switchMap() {
         repository.loadCategories(it.sortBy)
     }
 

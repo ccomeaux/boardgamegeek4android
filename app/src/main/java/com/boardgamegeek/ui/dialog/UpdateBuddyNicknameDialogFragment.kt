@@ -9,7 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
@@ -21,7 +21,7 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
     lateinit var layout: View
 
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProviders.of(act).get(BuddyViewModel::class.java)
+        ViewModelProvider(this).get(BuddyViewModel::class.java)
     }
 
     @SuppressLint("InflateParams")

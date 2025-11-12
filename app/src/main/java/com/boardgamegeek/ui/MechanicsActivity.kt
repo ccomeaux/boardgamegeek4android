@@ -6,7 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
@@ -16,7 +16,7 @@ class MechanicsActivity : SimpleSinglePaneActivity() {
     private var sortBy = MechanicsViewModel.SortType.ITEM_COUNT
 
     private val viewModel: MechanicsViewModel by lazy {
-        ViewModelProviders.of(this).get(MechanicsViewModel::class.java)
+        ViewModelProvider(this).get(MechanicsViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
