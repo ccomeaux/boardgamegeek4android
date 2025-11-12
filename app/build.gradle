@@ -179,6 +179,8 @@ dependencies {
 
     implementation 'com.github.PhilJay:MPAndroidChart:3.1.0'
 
+    implementation 'com.github.oli107:material-range-bar:1.4.8'
+
     implementation "com.facebook.stetho:stetho:$stetho_version"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
