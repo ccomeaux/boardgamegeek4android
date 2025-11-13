@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding;
 import com.boardgamegeek.extensions.DoubleUtils;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -77,11 +78,6 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
-import butterknife.BindView;
-import butterknife.BindViews;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -97,38 +93,27 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private Stats stats;
 	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
-	private Unbinder unbinder;
-	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(R.id.empty) View emptyView;
-	@BindView(R.id.data) View dataView;
-	@BindView(R.id.table_play_count) TableLayout playCountTable;
-	@BindView(R.id.chart_play_count) HorizontalBarChart playCountChart;
-	@BindView(R.id.card_score) View scoresCard;
-	@BindView(R.id.low_score) TextView lowScoreView;
-	@BindView(R.id.average_score) TextView averageScoreView;
-	@BindView(R.id.average_win_score) TextView averageWinScoreView;
-	@BindView(R.id.score_graph) ScoreGraphView scoreGraphView;
-	@BindView(R.id.high_score) TextView highScoreView;
-	@BindView(R.id.card_players) View playersCard;
-	@BindView(R.id.list_players) LinearLayout playersList;
-	@BindView(R.id.table_dates) TableLayout datesTable;
-	@BindView(R.id.table_play_time) TableLayout playTimeTable;
-	@BindView(R.id.card_locations) View locationsCard;
-	@BindView(R.id.table_locations) TableLayout locationsTable;
-	@BindView(R.id.table_advanced) TableLayout advancedTable;
-	@BindViews({
-		R.id.header_play_count,
-		R.id.header_scores,
-		R.id.header_players,
-		R.id.header_dates,
-		R.id.header_play_time,
-		R.id.header_locations,
-		R.id.header_advanced
-	}) List<TextView> colorizedHeaders;
-	@BindViews({
-		R.id.score_help,
-		R.id.players_skill_help
-	}) List<ImageView> colorizedIcons;
+	private FragmentGamePlayStatsBinding binding;
+	ContentLoadingProgressBar progressView;
+	View emptyView;
+	View dataView;
+	TableLayout playCountTable;
+	HorizontalBarChart playCountChart;
+	View scoresCard;
+	TextView lowScoreView;
+	TextView averageScoreView;
+	TextView averageWinScoreView;
+	ScoreGraphView scoreGraphView;
+	TextView highScoreView;
+	View playersCard;
+	LinearLayout playersList;
+	TableLayout datesTable;
+	TableLayout playTimeTable;
+	View locationsCard;
+	TableLayout locationsTable;
+	TableLayout advancedTable;
+	List<TextView> colorizedHeaders;
+	List<ImageView> colorizedIcons;
 
 	private Transition playerTransition;
 	@ColorInt private int headerColor;
@@ -152,42 +137,42 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		progressView = binding.progress;
 		emptyView = binding.empty;
 		dataView = binding.data;
-		playCountTable = binding.tablePlayCount;
-		playCountChart = binding.chartPlayCount;
-		scoresCard = binding.cardScore;
-		lowScoreView = binding.lowScore;
-		averageScoreView = binding.averageScore;
-		averageWinScoreView = binding.averageWinScore;
-		scoreGraphView = binding.scoreGraph;
-		highScoreView = binding.highScore;
-		playersCard = binding.cardPlayers;
-		playersList = binding.listPlayers;
-		datesTable = binding.tableDates;
-		playTimeTable = binding.tablePlayTime;
-		locationsCard = binding.cardLocations;
-		locationsTable = binding.tableLocations;
-		advancedTable = binding.tableAdvanced;
+		playCountTable = binding.counts.tablePlayCount;
+		playCountChart = binding.counts.chartPlayCount;
+		scoresCard = binding.scores.cardScore;
+		lowScoreView = binding.scores.lowScore;
+		averageScoreView = binding.scores.averageScore;
+		averageWinScoreView = binding.scores.averageWinScore;
+		scoreGraphView = binding.scores.scoreGraph;
+		highScoreView = binding.scores.highScore;
+		playersCard = binding.players.cardPlayers;
+		playersList = binding.players.listPlayers;
+		datesTable = binding.dates.tableDates;
+		playTimeTable = binding.time.tablePlayTime;
+		locationsCard = binding.locations.cardLocations;
+		locationsTable = binding.locations.tableLocations;
+		advancedTable = binding.advanced.tableAdvanced;
 
 		// Manually create the collections of views
 		colorizedHeaders = java.util.Arrays.asList(
-			binding.headerPlayCount,
-			binding.headerScores,
-			binding.headerPlayers,
-			binding.headerDates,
-			binding.headerPlayTime,
-			binding.headerLocations,
-			binding.headerAdvanced
+			binding.counts.headerPlayCount,
+			binding.scores.headerScores,
+			binding.players.headerPlayers,
+			binding.dates.headerDates,
+			binding.time.headerPlayTime,
+			binding.locations.headerLocations,
+			binding.advanced.headerAdvanced
 		);
 		colorizedIcons = java.util.Arrays.asList(
-			binding.scoreHelp,
-			binding.playersSkillHelp
+			binding.scores.scoreHelp,
+			binding.players.playersSkillHelp
 		);
 
 		// Setup click listeners
-		binding.scoreHelp.setOnClickListener(v -> onScoreHelpClick());
-		binding.lowScore.setOnClickListener(v -> onLowScoreClick());
-		binding.highScore.setOnClickListener(v -> onHighScoreClick());
-		binding.playersSkillHelp.setOnClickListener(v -> onPlayersClick());
+		binding.scores.scoreHelp.setOnClickListener(v -> onScoreHelpClick());
+		binding.scores.lowScore.setOnClickListener(v -> onLowScoreClick());
+		binding.scores.highScore.setOnClickListener(v -> onHighScoreClick());
+		binding.players.playersSkillHelp.setOnClickListener(v -> onPlayersClick());
 
 		if (headerColor != Color.TRANSPARENT) {
 			for (TextView view : colorizedHeaders) {
@@ -241,7 +226,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	@NonNull

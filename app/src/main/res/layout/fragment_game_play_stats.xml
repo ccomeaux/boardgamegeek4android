@@ -27,19 +27,19 @@
 			android:paddingBottom="@dimen/padding_standard"
 			android:paddingTop="@dimen/padding_standard">
 
-			<include layout="@layout/include_game_play_stats_counts"/>
+			<include android:id="@+id/counts" layout="@layout/include_game_play_stats_counts"/>
 
-			<include layout="@layout/include_game_play_stats_scores"/>
+			<include android:id="@+id/scores" layout="@layout/include_game_play_stats_scores"/>
 
-			<include layout="@layout/include_game_play_stats_players"/>
+			<include android:id="@+id/players" layout="@layout/include_game_play_stats_players"/>
 
-			<include layout="@layout/include_game_play_stats_dates"/>
+			<include android:id="@+id/dates" layout="@layout/include_game_play_stats_dates"/>
 
-			<include layout="@layout/include_game_play_stats_time"/>
+			<include android:id="@+id/time" layout="@layout/include_game_play_stats_time"/>
 
-			<include layout="@layout/include_game_play_stats_locations"/>
+			<include android:id="@+id/locations" layout="@layout/include_game_play_stats_locations"/>
 
-			<include layout="@layout/include_game_play_stats_advanced"/>
+			<include android:id="@+id/advanced" layout="@layout/include_game_play_stats_advanced"/>
 		</LinearLayout>
 	</ScrollView>
 
