@@ -101,11 +101,10 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
 import timber.log.Timber;
+
+import com.boardgamegeek.databinding.FragmentCollectionBinding;
+import com.boardgamegeek.databinding.RowCollectionBinding;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -117,18 +116,18 @@ public class CollectionFragment extends Fragment implements
 	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
 	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
 
-	private Unbinder unbinder;
-	@BindView(R.id.empty_container) ViewGroup emptyContainer;
-	@BindView(android.R.id.empty) TextView emptyTextView;
-	@BindView(R.id.empty_button) Button emptyButton;
-	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
-	@BindView(android.R.id.list) RecyclerView listView;
-	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@BindView(R.id.toolbar_footer) Toolbar footerToolbar;
-	@BindView(R.id.row_count) TextView rowCountView;
-	@BindView(R.id.sort_description) TextView sortDescriptionView;
-	@BindView(R.id.chipGroupScrollView) HorizontalScrollView chipGroupScrollView;
-	@BindView(R.id.chipGroup) ChipGroup chipGroup;
+	private FragmentCollectionBinding binding;
+	private ViewGroup emptyContainer;
+	private TextView emptyTextView;
+	private Button emptyButton;
+	private ContentLoadingProgressBar progressBar;
+	private RecyclerView listView;
+	private SwipeRefreshLayout swipeRefreshLayout;
+	private Toolbar footerToolbar;
+	private TextView rowCountView;
+	private TextView sortDescriptionView;
+	private HorizontalScrollView chipGroupScrollView;
+	private ChipGroup chipGroup;
 
 	private CollectionViewViewModel viewModel;
 	private CollectionAdapter adapter;
@@ -186,9 +185,19 @@ public class CollectionFragment extends Fragment implements
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_collection, container, false);
-		unbinder = ButterKnife.bind(this, view);
-		return view;
+		binding = FragmentCollectionBinding.inflate(inflater, container, false);
+		emptyContainer = binding.emptyContainer;
+		emptyTextView = binding.empty;
+		emptyButton = binding.emptyButton;
+		progressBar = binding.progress;
+		listView = binding.list;
+		swipeRefreshLayout = binding.swipeRefresh;
+		footerToolbar = binding.toolbarFooter;
+		rowCountView = binding.rowCount;
+		sortDescriptionView = binding.sortDescription;
+		chipGroupScrollView = binding.chipGroupScrollView;
+		chipGroup = binding.chipGroup;
+		return binding.getRoot();
 	}
 
 	@Override
@@ -205,6 +214,8 @@ public class CollectionFragment extends Fragment implements
 		invalidateMenu();
 
 		setEmptyText();
+		
+		emptyButton.setOnClickListener(v -> onSyncClick());
 
 		SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
 		swipeRefreshLayout.setOnRefreshListener(this);
@@ -238,7 +249,7 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	private CollectionSorter getCollectionSorter(int sortType) {
@@ -559,7 +570,6 @@ public class CollectionFragment extends Fragment implements
 		emptyButton.setVisibility(View.GONE);
 	}
 
-	@OnClick(R.id.empty_button)
 	void onSyncClick() {
 		startActivity(new Intent(getContext(), SettingsActivity.class));
 	}
@@ -749,17 +759,24 @@ public class CollectionFragment extends Fragment implements
 		}
 
 		public class CollectionItemViewHolder extends RecyclerView.ViewHolder {
-			@BindView(R.id.name) TextView nameView;
-			@BindView(R.id.year) TextView yearView;
-			@BindView(R.id.info) TextView infoView;
-			@BindView(R.id.timestamp) TimestampView timestampView;
-			@BindView(R.id.rating) TextView ratingView;
-			@BindView(R.id.thumbnail) ImageView thumbnailView;
-			@BindView(R.id.favorite) ImageView favoriteView;
+			private final TextView nameView;
+			private final TextView yearView;
+			private final TextView infoView;
+			private final TimestampView timestampView;
+			private final TextView ratingView;
+			private final ImageView thumbnailView;
+			private final ImageView favoriteView;
 
 			public CollectionItemViewHolder(View view) {
 				super(view);
-				ButterKnife.bind(this, view);
+				RowCollectionBinding binding = RowCollectionBinding.bind(view);
+				nameView = binding.name;
+				yearView = binding.year;
+				infoView = binding.info;
+				timestampView = binding.timestamp;
+				ratingView = binding.rating;
+				thumbnailView = binding.thumbnail;
+				favoriteView = binding.favorite;
 			}
 
 			public void bindView(final CollectionItem item, final int position) {

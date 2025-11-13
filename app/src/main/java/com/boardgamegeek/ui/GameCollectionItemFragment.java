@@ -62,16 +62,11 @@ import androidx.loader.app.LoaderManager.LoaderCallbacks;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 import androidx.palette.graphics.Palette;
-import butterknife.BindView;
-import butterknife.BindViews;
-import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
-import butterknife.OnClick;
-import butterknife.OnItemSelected;
-import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
+
+import com.boardgamegeek.databinding.FragmentGameCollectionItemBinding;
 
 public class GameCollectionItemFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
@@ -79,96 +74,58 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	private static final int _TOKEN = 0;
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 
-	private Unbinder unbinder;
+	private FragmentGameCollectionItemBinding binding;
 
-	@BindView(R.id.invalid_status) View invalidStatusView;
-	@BindView(R.id.main_container) ViewGroup mainContainer;
+	private View invalidStatusView;
+	private ViewGroup mainContainer;
 
 	// statuses
-	@BindView(R.id.status) TextView statusView;
-	@BindView(R.id.want_to_buy) CheckBox wantToBuyView;
-	@BindView(R.id.preordered) CheckBox preorderedView;
-	@BindView(R.id.own) CheckBox ownView;
-	@BindView(R.id.want_to_play) CheckBox wantToPlayView;
-	@BindView(R.id.previously_owned) CheckBox previouslyOwnedView;
+	private TextView statusView;
+	private CheckBox wantToBuyView;
+	private CheckBox preorderedView;
+	private CheckBox ownView;
+	private CheckBox wantToPlayView;
+	private CheckBox previouslyOwnedView;
 
 	// rating
-	@BindView(R.id.rating) RatingView ratingView;
+	private RatingView ratingView;
 
 	// comment
-	@BindView(R.id.comment) TextEditorView commentView;
+	private TextEditorView commentView;
 
 	// wishlist
-	@BindView(R.id.wishlist_status) TextView wishlistStatusView;
-	@BindView(R.id.wishlist) CheckBox wishlistView;
-	@BindView(R.id.wishlist_priority) Spinner wishlistPriorityView;
-	@BindView(R.id.wishlist_comment) TextEditorView wishlistCommentView;
+	private TextView wishlistStatusView;
+	private CheckBox wishlistView;
+	private Spinner wishlistPriorityView;
+	private TextEditorView wishlistCommentView;
 
 	// trade
-	@BindView(R.id.trade_status) TextView tradeStatusView;
-	@BindView(R.id.want_in_trade) CheckBox wantInTradeView;
-	@BindView(R.id.for_trade) CheckBox forTradeView;
-	@BindView(R.id.condition) TextEditorView conditionView;
-	@BindView(R.id.want_parts) TextEditorView wantPartsView;
-	@BindView(R.id.has_parts) TextEditorView hasPartsView;
+	private TextView tradeStatusView;
+	private CheckBox wantInTradeView;
+	private CheckBox forTradeView;
+	private TextEditorView conditionView;
+	private TextEditorView wantPartsView;
+	private TextEditorView hasPartsView;
 
 	// private info
-	@BindView(R.id.private_info_container) ViewGroup privateInfoContainer;
-	@BindView(R.id.private_info_hint) TextView privateInfoHintView;
-	@BindView(R.id.private_info_view) TextView viewPrivateInfoView;
-	@BindView(R.id.private_info_edit) TextView editPrivateInfoView;
-	@BindView(R.id.private_comment) TextEditorView privateInfoCommentView;
+	private ViewGroup privateInfoContainer;
+	private TextView privateInfoHintView;
+	private TextView viewPrivateInfoView;
+	private TextView editPrivateInfoView;
+	private TextEditorView privateInfoCommentView;
 
 	// footer
-	@BindView(R.id.last_modified) TimestampView lastModifiedView;
-	@BindView(R.id.collection_id) TextView idView;
-	@BindView(R.id.updated) TimestampView updatedView;
+	private TimestampView lastModifiedView;
+	private TextView idView;
+	private TimestampView updatedView;
 
-	@BindViews({
-		R.id.card_header_private_info,
-		R.id.wishlist_header,
-		R.id.trade_header,
-		R.id.private_info_hint
-	}) List<TextView> colorizedHeaders;
-	@BindViews({
-		R.id.comment,
-		R.id.private_comment,
-		R.id.wishlist_comment,
-		R.id.condition,
-		R.id.want_parts,
-		R.id.has_parts
-	}) List<TextEditorView> textEditorViews;
-	@BindViews({
-		R.id.status_edit_container,
-		R.id.private_info_edit_container,
-		R.id.wishlist_edit_container,
-		R.id.trade_edit_container
-	}) List<View> editFields;
-	@BindViews({
-		R.id.status
-	}) List<View> viewOnlyFields;
-	@BindViews({
-		R.id.status,
-		R.id.private_info_view,
-		R.id.wishlist_status,
-		R.id.trade_status
-	}) List<View> visibleByTagOrGoneViews;
-	@BindViews({
-		R.id.main_container,
-		R.id.private_info_container,
-		R.id.wishlist_container,
-		R.id.trade_container
-	}) List<ViewGroup> visibleByChildrenViews;
-	@BindViews({
-		R.id.want_to_buy,
-		R.id.preordered,
-		R.id.own,
-		R.id.want_to_play,
-		R.id.previously_owned,
-		R.id.want_in_trade,
-		R.id.for_trade,
-		R.id.wishlist
-	}) List<CheckBox> statusViews;
+	private List<TextView> colorizedHeaders;
+	private List<TextEditorView> textEditorViews;
+	private List<View> editFields;
+	private List<View> viewOnlyFields;
+	private List<View> visibleByTagOrGoneViews;
+	private List<ViewGroup> visibleByChildrenViews;
+	private List<CheckBox> statusViews;
 
 	private int gameId = BggContract.INVALID_ID;
 	private int collectionId = BggContract.INVALID_ID;
@@ -206,13 +163,116 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_game_collection_item, container, false);
+		binding = FragmentGameCollectionItemBinding.inflate(inflater, container, false);
+		
+		// Bind all individual views
+		invalidStatusView = binding.invalidStatus;
+		mainContainer = binding.mainContainer;
+		statusView = binding.status;
+		wantToBuyView = binding.wantToBuy;
+		preorderedView = binding.preordered;
+		ownView = binding.own;
+		wantToPlayView = binding.wantToPlay;
+		previouslyOwnedView = binding.previouslyOwned;
+		ratingView = binding.rating;
+		commentView = binding.comment;
+		wishlistStatusView = binding.wishlistStatus;
+		wishlistView = binding.wishlist;
+		wishlistPriorityView = binding.wishlistPriority;
+		wishlistCommentView = binding.wishlistComment;
+		tradeStatusView = binding.tradeStatus;
+		wantInTradeView = binding.wantInTrade;
+		forTradeView = binding.forTrade;
+		conditionView = binding.condition;
+		wantPartsView = binding.wantParts;
+		hasPartsView = binding.hasParts;
+		privateInfoContainer = binding.privateInfoContainer;
+		privateInfoHintView = binding.privateInfoHint;
+		viewPrivateInfoView = binding.privateInfoView;
+		editPrivateInfoView = binding.privateInfoEdit;
+		privateInfoCommentView = binding.privateComment;
+		lastModifiedView = binding.lastModified;
+		idView = binding.collectionId;
+		updatedView = binding.updated;
+
+		// Manually create collections of views
+		colorizedHeaders = java.util.Arrays.asList(
+			binding.cardHeaderPrivateInfo,
+			binding.wishlistHeader,
+			binding.tradeHeader,
+			privateInfoHintView
+		);
+		textEditorViews = java.util.Arrays.asList(
+			commentView,
+			privateInfoCommentView,
+			wishlistCommentView,
+			conditionView,
+			wantPartsView,
+			hasPartsView
+		);
+		editFields = java.util.Arrays.asList(
+			binding.statusEditContainer,
+			binding.privateInfoEditContainer,
+			binding.wishlistEditContainer,
+			binding.tradeEditContainer
+		);
+		viewOnlyFields = java.util.Arrays.asList(
+			statusView
+		);
+		visibleByTagOrGoneViews = java.util.Arrays.asList(
+			statusView,
+			viewPrivateInfoView,
+			wishlistStatusView,
+			tradeStatusView
+		);
+		visibleByChildrenViews = java.util.Arrays.asList(
+			mainContainer,
+			privateInfoContainer,
+			binding.wishlistContainer,
+			binding.tradeContainer
+		);
+		statusViews = java.util.Arrays.asList(
+			wantToBuyView,
+			preorderedView,
+			ownView,
+			wantToPlayView,
+			previouslyOwnedView,
+			wantInTradeView,
+			forTradeView,
+			wishlistView
+		);
+
+		// Setup listeners for checkboxes
+		CompoundButton.OnCheckedChangeListener statusCheckListener = (view, isChecked) -> onStatusCheckChanged(view);
+		for (CheckBox checkBox : statusViews) {
+			checkBox.setOnCheckedChangeListener(statusCheckListener);
+		}
+
+		// Setup listener for wishlist priority spinner
+		wishlistPriorityView.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+				onWishlistPrioritySelected();
+			}
+			@Override
+			public void onNothingSelected(android.widget.AdapterView<?> parent) {}
+		});
+
+		// Setup click listeners
+		commentView.setOnClickListener(v -> onCommentClick());
+		privateInfoCommentView.setOnClickListener(v -> onPrivateCommentClick());
+		wishlistCommentView.setOnClickListener(v -> onWishlistCommentClick());
+		conditionView.setOnClickListener(v -> onConditionClick());
+		wantPartsView.setOnClickListener(v -> onWantPartsClick());
+		hasPartsView.setOnClickListener(v -> onHasPartsClick());
+		binding.privateInfoEditContainer.setOnClickListener(v -> onPrivateInfoEditClick());
+
+		return binding.getRoot();
 	}
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		unbinder = ButterKnife.bind(this, view);
 
 		colorize(palette);
 
@@ -241,7 +301,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		unbinder.unbind();
+		binding = null;
 	}
 
 	@Override
@@ -397,16 +457,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		}
 	}
 
-	@OnCheckedChanged({
-		R.id.want_to_buy,
-		R.id.preordered,
-		R.id.own,
-		R.id.want_to_play,
-		R.id.previously_owned,
-		R.id.want_in_trade,
-		R.id.for_trade,
-		R.id.wishlist
-	})
 	void onStatusCheckChanged(CompoundButton view) {
 		if (view.getVisibility() != View.VISIBLE) return;
 		if (!isInEditMode) return;
@@ -416,7 +466,6 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		updateStatuses();
 	}
 
-	@OnItemSelected(R.id.wishlist_priority)
 	void onWishlistPrioritySelected() {
 		if (wishlistPriorityView.getVisibility() != View.VISIBLE) return;
 		if (!wishlistPriorityView.isEnabled()) return;
@@ -442,32 +491,26 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		TaskUtils.executeAsyncTask(task);
 	}
 
-	@OnClick(R.id.comment)
 	public void onCommentClick() {
 		onTextEditorClick(commentView, Collection.COMMENT, Collection.COMMENT_DIRTY_TIMESTAMP);
 	}
 
-	@OnClick(R.id.private_comment)
 	public void onPrivateCommentClick() {
 		onTextEditorClick(privateInfoCommentView, Collection.PRIVATE_INFO_COMMENT, Collection.PRIVATE_INFO_DIRTY_TIMESTAMP);
 	}
 
-	@OnClick(R.id.wishlist_comment)
 	public void onWishlistCommentClick() {
 		onTextEditorClick(wishlistCommentView, Collection.WISHLIST_COMMENT, Collection.WISHLIST_COMMENT_DIRTY_TIMESTAMP);
 	}
 
-	@OnClick(R.id.condition)
 	public void onConditionClick() {
 		onTextEditorClick(conditionView, Collection.CONDITION, Collection.TRADE_CONDITION_DIRTY_TIMESTAMP);
 	}
 
-	@OnClick(R.id.want_parts)
 	public void onWantPartsClick() {
 		onTextEditorClick(wantPartsView, Collection.WANTPARTS_LIST, Collection.WANT_PARTS_DIRTY_TIMESTAMP);
 	}
 
-	@OnClick(R.id.has_parts)
 	public void onHasPartsClick() {
 		onTextEditorClick(hasPartsView, Collection.HASPARTS_LIST, Collection.HAS_PARTS_DIRTY_TIMESTAMP);
 	}
@@ -481,8 +524,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		DialogUtils.showFragment(getActivity(), dialogFragment, view.toString());
 	}
 
-	@OnClick(R.id.private_info_edit_container)
-	public void onPrivateInfoClick() {
+	public void onPrivateInfoEditClick() {
 		PrivateInfoDialogFragment privateInfoDialogFragment = PrivateInfoDialogFragment.newInstance();
 		privateInfoDialogFragment.setPrivateInfo(new PrivateInfo(
 			String.valueOf(editPrivateInfoView.getTag(R.id.priceCurrencyView)),

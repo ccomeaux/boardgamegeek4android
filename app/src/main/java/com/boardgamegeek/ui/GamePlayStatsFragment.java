@@ -148,8 +148,46 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
 
-		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentGamePlayStatsBinding.inflate(inflater, container, false);
+		progressView = binding.progress;
+		emptyView = binding.empty;
+		dataView = binding.data;
+		playCountTable = binding.tablePlayCount;
+		playCountChart = binding.chartPlayCount;
+		scoresCard = binding.cardScore;
+		lowScoreView = binding.lowScore;
+		averageScoreView = binding.averageScore;
+		averageWinScoreView = binding.averageWinScore;
+		scoreGraphView = binding.scoreGraph;
+		highScoreView = binding.highScore;
+		playersCard = binding.cardPlayers;
+		playersList = binding.listPlayers;
+		datesTable = binding.tableDates;
+		playTimeTable = binding.tablePlayTime;
+		locationsCard = binding.cardLocations;
+		locationsTable = binding.tableLocations;
+		advancedTable = binding.tableAdvanced;
+
+		// Manually create the collections of views
+		colorizedHeaders = java.util.Arrays.asList(
+			binding.headerPlayCount,
+			binding.headerScores,
+			binding.headerPlayers,
+			binding.headerDates,
+			binding.headerPlayTime,
+			binding.headerLocations,
+			binding.headerAdvanced
+		);
+		colorizedIcons = java.util.Arrays.asList(
+			binding.scoreHelp,
+			binding.playersSkillHelp
+		);
+
+		// Setup click listeners
+		binding.scoreHelp.setOnClickListener(v -> onScoreHelpClick());
+		binding.lowScore.setOnClickListener(v -> onLowScoreClick());
+		binding.highScore.setOnClickListener(v -> onHighScoreClick());
+		binding.playersSkillHelp.setOnClickListener(v -> onPlayersClick());
 
 		if (headerColor != Color.TRANSPARENT) {
 			for (TextView view : colorizedHeaders) {
@@ -185,7 +223,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			AnimationUtils.setInterpolator(getContext(), playerTransition);
 		}
 
-		return rootView;
+		return binding.getRoot();
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -540,7 +578,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public void onLoaderReset(@NonNull Loader<Cursor> loader) {
 	}
 
-	@OnClick(R.id.score_help)
 	public void onScoreHelpClick() {
 		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -548,7 +585,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		builder.show();
 	}
 
-	@OnClick(R.id.low_score)
 	public void onLowScoreClick() {
 		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -556,7 +592,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		builder.show();
 	}
 
-	@OnClick(R.id.high_score)
 	public void onHighScoreClick() {
 		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
@@ -564,7 +599,6 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		builder.show();
 	}
 
-	@OnClick(R.id.players_skill_help)
 	public void onPlayersClick() {
 		if (getContext() == null) return;
 		AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
