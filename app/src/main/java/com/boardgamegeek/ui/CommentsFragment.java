@@ -29,18 +29,17 @@ import com.boardgamegeek.util.AnimationUtils;
 
 import java.util.List;
 
-import icepick.Icepick;
-import icepick.State;
 import retrofit2.Call;
 
 public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_SORT_BY_RATING = "SORT";
+	private static final String KEY_IS_SORTED_BY_RATING = "IS_SORTED_BY_RATING";
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 5;
 	private GameCommentsRecyclerViewAdapter adapter;
 	private int gameId;
-	@State boolean isSortedByRating = false;
+	private boolean isSortedByRating = false;
 
 	private FragmentCommentsBinding binding;
 
@@ -56,7 +55,9 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		readBundle(getArguments());
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			isSortedByRating = savedInstanceState.getBoolean(KEY_IS_SORTED_BY_RATING, false);
+		}
 		binding = FragmentCommentsBinding.inflate(inflater, container, false);
 		setUpRecyclerView();
 		return binding.getRoot();
@@ -77,7 +78,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putBoolean(KEY_IS_SORTED_BY_RATING, isSortedByRating);
 	}
 
 	@Override

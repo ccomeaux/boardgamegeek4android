@@ -51,8 +51,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
-import icepick.Icepick;
-import icepick.State;
 
 import com.boardgamegeek.databinding.ActivityLogplayerBinding;
 
@@ -73,11 +71,18 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 
 	private static final int HELP_VERSION = 2;
 	private static final int TOKEN_COLORS = 1;
+	private static final String KEY_SAVED_PLAYER = "SAVED_PLAYER";
+	private static final String KEY_USER_HAS_SHOWN_TEAM_COLOR = "USER_HAS_SHOWN_TEAM_COLOR";
+	private static final String KEY_USER_HAS_SHOWN_POSITION = "USER_HAS_SHOWN_POSITION";
+	private static final String KEY_USER_HAS_SHOWN_SCORE = "USER_HAS_SHOWN_SCORE";
+	private static final String KEY_USER_HAS_SHOWN_RATING = "USER_HAS_SHOWN_RATING";
+	private static final String KEY_USER_HAS_SHOWN_NEW = "USER_HAS_SHOWN_NEW";
+	private static final String KEY_USER_HAS_SHOWN_WIN = "USER_HAS_SHOWN_WIN";
 
 	private String gameName;
 	private int position;
 
-	@State Player player;
+	private Player player;
 	private Player originalPlayer;
 
 	private ActivityLogplayerBinding binding;
@@ -89,12 +94,12 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	private boolean preferToShowRating;
 	private boolean preferToShowNew;
 	private boolean preferToShowWin;
-	@State boolean userHasShownTeamColor;
-	@State boolean userHasShownPosition;
-	@State boolean userHasShownScore;
-	@State boolean userHasShownRating;
-	@State boolean userHasShownNew;
-	@State boolean userHasShownWin;
+	private boolean userHasShownTeamColor;
+	private boolean userHasShownPosition;
+	private boolean userHasShownScore;
+	private boolean userHasShownRating;
+	private boolean userHasShownNew;
+	private boolean userHasShownWin;
 	private int autoPosition;
 	private boolean isNewPlayer;
 	private ArrayList<String> usedColors;
@@ -191,7 +196,13 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 			}
 			originalPlayer = new Player(player);
 		} else {
-			Icepick.restoreInstanceState(this, savedInstanceState);
+			player = savedInstanceState.getParcelable(KEY_SAVED_PLAYER);
+			userHasShownTeamColor = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_TEAM_COLOR, false);
+			userHasShownPosition = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_POSITION, false);
+			userHasShownScore = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_SCORE, false);
+			userHasShownRating = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_RATING, false);
+			userHasShownNew = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_NEW, false);
+			userHasShownWin = savedInstanceState.getBoolean(KEY_USER_HAS_SHOWN_WIN, false);
 		}
 
 		this.usedColors = (usedColors == null) ?
@@ -265,7 +276,13 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putParcelable(KEY_SAVED_PLAYER, player);
+		outState.putBoolean(KEY_USER_HAS_SHOWN_TEAM_COLOR, userHasShownTeamColor);
+		outState.putBoolean(KEY_USER_HAS_SHOWN_POSITION, userHasShownPosition);
+		outState.putBoolean(KEY_USER_HAS_SHOWN_SCORE, userHasShownScore);
+		outState.putBoolean(KEY_USER_HAS_SHOWN_RATING, userHasShownRating);
+		outState.putBoolean(KEY_USER_HAS_SHOWN_NEW, userHasShownNew);
+		outState.putBoolean(KEY_USER_HAS_SHOWN_WIN, userHasShownWin);
 	}
 
 	@Override

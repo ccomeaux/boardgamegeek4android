@@ -195,9 +195,6 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.21'
 
-    implementation 'frankiesardo:icepick:3.2.0'
-    annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
-
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.14"
 
     annotationProcessor 'com.google.auto.service:auto-service:1.1.1'

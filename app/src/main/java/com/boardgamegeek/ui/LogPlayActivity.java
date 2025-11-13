@@ -111,8 +111,6 @@ import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import icepick.Icepick;
-import icepick.State;
 import timber.log.Timber;
 
 import com.boardgamegeek.databinding.ActivityLogplayBinding;
@@ -141,6 +139,16 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private static final String KEY_END_PLAY = "END_PLAY";
 	private static final String KEY_REMATCH = "REMATCH";
 	private static final String KEY_CHANGE_GAME = "CHANGE_GAME";
+	private static final String KEY_INTERNAL_ID = "INTERNAL_ID";
+	private static final String KEY_IS_USER_SHOWING_LOCATION = "IS_USER_SHOWING_LOCATION";
+	private static final String KEY_IS_USER_SHOWING_LENGTH = "IS_USER_SHOWING_LENGTH";
+	private static final String KEY_IS_USER_SHOWING_QUANTITY = "IS_USER_SHOWING_QUANTITY";
+	private static final String KEY_IS_USER_SHOWING_INCOMPLETE = "IS_USER_SHOWING_INCOMPLETE";
+	private static final String KEY_IS_USER_SHOWING_NO_WIN_STATS = "IS_USER_SHOWING_NO_WIN_STATS";
+	private static final String KEY_IS_USER_SHOWING_COMMENTS = "IS_USER_SHOWING_COMMENTS";
+	private static final String KEY_IS_USER_SHOWING_PLAYERS = "IS_USER_SHOWING_PLAYERS";
+	private static final String KEY_SHOULD_DELETE_PLAY_ON_CANCEL = "SHOULD_DELETE_PLAY_ON_CANCEL";
+	private static final String KEY_ARE_PLAYERS_CUSTOM_SORTED = "ARE_PLAYERS_CUSTOM_SORTED";
 	private static final int HELP_VERSION = 3;
 	private static final int REQUEST_ADD_PLAYER = 1;
 	private static final int REQUEST_EDIT_PLAYER = 2;
@@ -151,7 +159,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private static final int TOKEN_UNINITIALIZED = 1 << 15;
 	private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.#########");
 
-	@State long internalId = BggContract.INVALID_ID;
+	private long internalId = BggContract.INVALID_ID;
 	private int gameId;
 	private String gameName;
 	private boolean isRequestingToEndPlay;
@@ -185,15 +193,15 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private float horizontalPadding;
 	private ItemTouchHelper itemTouchHelper;
 
-	@State boolean isUserShowingLocation;
-	@State boolean isUserShowingLength;
-	@State boolean isUserShowingQuantity;
-	@State boolean isUserShowingIncomplete;
-	@State boolean isUserShowingNoWinStats;
-	@State boolean isUserShowingComments;
-	@State boolean isUserShowingPlayers;
-	@State boolean shouldDeletePlayOnActivityCancel;
-	@State boolean arePlayersCustomSorted;
+	private boolean isUserShowingLocation;
+	private boolean isUserShowingLength;
+	private boolean isUserShowingQuantity;
+	private boolean isUserShowingIncomplete;
+	private boolean isUserShowingNoWinStats;
+	private boolean isUserShowingComments;
+	private boolean isUserShowingPlayers;
+	private boolean shouldDeletePlayOnActivityCancel;
+	private boolean arePlayersCustomSorted;
 
 	private boolean isLaunchingActivity;
 	private boolean shouldSaveOnPause = true;
@@ -550,8 +558,17 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 		playAdapter.notifyLayoutChanged(R.layout.row_log_play_player_header);
 
-		Icepick.restoreInstanceState(this, savedInstanceState);
 		if (savedInstanceState != null) {
+			internalId = savedInstanceState.getLong(KEY_INTERNAL_ID, BggContract.INVALID_ID);
+			isUserShowingLocation = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_LOCATION, false);
+			isUserShowingLength = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_LENGTH, false);
+			isUserShowingQuantity = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_QUANTITY, false);
+			isUserShowingIncomplete = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_INCOMPLETE, false);
+			isUserShowingNoWinStats = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS, false);
+			isUserShowingComments = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_COMMENTS, false);
+			isUserShowingPlayers = savedInstanceState.getBoolean(KEY_IS_USER_SHOWING_PLAYERS, false);
+			shouldDeletePlayOnActivityCancel = savedInstanceState.getBoolean(KEY_SHOULD_DELETE_PLAY_ON_CANCEL, false);
+			arePlayersCustomSorted = savedInstanceState.getBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED, false);
 			play = PlayBuilder.fromBundle(savedInstanceState, "P");
 			originalPlay = PlayBuilder.fromBundle(savedInstanceState, "O");
 		}
@@ -590,7 +607,16 @@ public class LogPlayActivity extends AppCompatActivity implements
 			PlayBuilder.toBundle(play, outState, "P");
 			PlayBuilder.toBundle(originalPlay, outState, "O");
 		}
-		Icepick.saveInstanceState(this, outState);
+		outState.putLong(KEY_INTERNAL_ID, internalId);
+		outState.putBoolean(KEY_IS_USER_SHOWING_LOCATION, isUserShowingLocation);
+		outState.putBoolean(KEY_IS_USER_SHOWING_LENGTH, isUserShowingLength);
+		outState.putBoolean(KEY_IS_USER_SHOWING_QUANTITY, isUserShowingQuantity);
+		outState.putBoolean(KEY_IS_USER_SHOWING_INCOMPLETE, isUserShowingIncomplete);
+		outState.putBoolean(KEY_IS_USER_SHOWING_NO_WIN_STATS, isUserShowingNoWinStats);
+		outState.putBoolean(KEY_IS_USER_SHOWING_COMMENTS, isUserShowingComments);
+		outState.putBoolean(KEY_IS_USER_SHOWING_PLAYERS, isUserShowingPlayers);
+		outState.putBoolean(KEY_SHOULD_DELETE_PLAY_ON_CANCEL, shouldDeletePlayOnActivityCancel);
+		outState.putBoolean(KEY_ARE_PLAYERS_CUSTOM_SORTED, arePlayersCustomSorted);
 	}
 
 	@Override

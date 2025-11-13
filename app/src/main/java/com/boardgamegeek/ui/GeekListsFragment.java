@@ -28,8 +28,6 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import icepick.Icepick;
-import icepick.State;
 
 import com.boardgamegeek.databinding.FragmentGeeklistsBinding;
 
@@ -40,7 +38,8 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	private static final int SORT_TYPE_HOT = 0;
 	private static final int SORT_TYPE_RECENT = 1;
 	private static final int SORT_TYPE_ACTIVE = 2;
-	@State int sortType = 0;
+	private static final String KEY_SORT_TYPE = "SORT_TYPE";
+	private int sortType = 0;
 	private GeekListsRecyclerViewAdapter adapter;
 
 	private FragmentGeeklistsBinding binding;
@@ -51,7 +50,9 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(KEY_SORT_TYPE, 0);
+		}
 		setHasOptionsMenu(true);
 	}
 
@@ -74,7 +75,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putInt(KEY_SORT_TYPE, sortType);
 	}
 
 	@Override
