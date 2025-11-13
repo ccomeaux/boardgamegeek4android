@@ -26,7 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.databinding.FragmentCollectionBinding;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.entities.ConstantsKt;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
@@ -102,6 +101,10 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
 import static android.app.Activity.RESULT_OK;
@@ -114,7 +117,18 @@ public class CollectionFragment extends Fragment implements
 	private static final String KEY_IS_CREATING_SHORTCUT = "IS_CREATING_SHORTCUT";
 	private static final String KEY_CHANGING_GAME_PLAY_ID = "KEY_CHANGING_GAME_PLAY_ID";
 
-	private FragmentCollectionBinding binding;
+	private Unbinder unbinder;
+	@BindView(R.id.empty_container) ViewGroup emptyContainer;
+	@BindView(android.R.id.empty) TextView emptyTextView;
+	@BindView(R.id.empty_button) Button emptyButton;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
+	@BindView(android.R.id.list) RecyclerView listView;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.toolbar_footer) Toolbar footerToolbar;
+	@BindView(R.id.row_count) TextView rowCountView;
+	@BindView(R.id.sort_description) TextView sortDescriptionView;
+	@BindView(R.id.chipGroupScrollView) HorizontalScrollView chipGroupScrollView;
+	@BindView(R.id.chipGroup) ChipGroup chipGroup;
 
 	private CollectionViewViewModel viewModel;
 	private CollectionAdapter adapter;
@@ -173,7 +187,7 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_collection, container, false);
-		
+		unbinder = ButterKnife.bind(this, view);
 		return view;
 	}
 
@@ -181,19 +195,19 @@ public class CollectionFragment extends Fragment implements
 	public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		if (isCreatingShortcut) {
-			Snackbar.make(binding.swipeRefresh, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();
+			Snackbar.make(swipeRefreshLayout, R.string.msg_shortcut_create, Snackbar.LENGTH_LONG).show();
 		} else if (changingGamePlayId != BggContract.INVALID_ID) {
-			Snackbar.make(binding.swipeRefresh, R.string.msg_change_play_game, Snackbar.LENGTH_LONG).show();
+			Snackbar.make(swipeRefreshLayout, R.string.msg_change_play_game, Snackbar.LENGTH_LONG).show();
 		}
 
-		binding.footerToolbar.inflateMenu(R.menu.collection_fragment);
-		binding.footerToolbar.setOnMenuItemClickListener(footerMenuListener);
+		footerToolbar.inflateMenu(R.menu.collection_fragment);
+		footerToolbar.setOnMenuItemClickListener(footerMenuListener);
 		invalidateMenu();
 
 		setEmptyText();
 
-		SwipeRefreshLayoutUtils.setBggColors(binding.swipeRefresh);
-		binding.swipeRefresh.setOnRefreshListener(this);
+		SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
+		swipeRefreshLayout.setOnRefreshListener(this);
 	}
 
 	@Override
@@ -207,13 +221,13 @@ public class CollectionFragment extends Fragment implements
 		viewModel.getSelectedViewName().observe(this, name -> viewName = name);
 
 		viewModel.getEffectiveSortType().observe(this, sortType -> {
-			binding.progress.show();
+			progressBar.show();
 			sorter = getCollectionSorter(sortType);
 			LoaderManager.getInstance(this).restartLoader(Query._TOKEN, null, this);
 		});
 
 		viewModel.getEffectiveFilters().observe(this, f -> {
-			binding.progress.show();
+			progressBar.show();
 			filters.clear();
 			filters.addAll(f);
 			setEmptyText();
@@ -224,7 +238,7 @@ public class CollectionFragment extends Fragment implements
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		binding = null;
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	private CollectionSorter getCollectionSorter(int sortType) {
@@ -250,17 +264,17 @@ public class CollectionFragment extends Fragment implements
 
 	protected void isSyncing(boolean value) {
 		isSyncing = value;
-		if (binding.swipeRefresh != null) {
-			binding.swipeRefresh.post(() -> {
-				if (binding.swipeRefresh != null) {
-					binding.swipeRefresh.setRefreshing(isSyncing);
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(() -> {
+				if (swipeRefreshLayout != null) {
+					swipeRefreshLayout.setRefreshing(isSyncing);
 				}
 			});
 		}
 	}
 
 	private void invalidateMenu() {
-		final Menu menu = binding.footerToolbar.getMenu();
+		final Menu menu = footerToolbar.getMenu();
 		if (isCreatingShortcut || changingGamePlayId != BggContract.INVALID_ID) {
 			menu.findItem(R.id.menu_collection_random_game).setVisible(false);
 			menu.findItem(R.id.menu_create_shortcut).setVisible(false);
@@ -438,7 +452,7 @@ public class CollectionFragment extends Fragment implements
 		if (token == Query._TOKEN) {
 			if (adapter == null) {
 				adapter = new CollectionAdapter();
-				binding.list.setAdapter(adapter);
+				listView.setAdapter(adapter);
 			}
 			List<CollectionItem> items = new ArrayList<>(cursor.getCount());
 			if (cursor.moveToFirst()) {
@@ -454,28 +468,28 @@ public class CollectionFragment extends Fragment implements
 					getSectionCallback(items),
 					true
 				);
-			while (binding.list.getItemDecorationCount() > 0) {
-				binding.list.removeItemDecorationAt(0);
+			while (listView.getItemDecorationCount() > 0) {
+				listView.removeItemDecorationAt(0);
 			}
-			binding.list.addItemDecoration(sectionItemDecoration);
+			listView.addItemDecoration(sectionItemDecoration);
 
 			final int rowCount = cursor.getCount();
 			final String sortDescription = sorter == null ? "" : String.format(getActivity().getString(R.string.by_prefix), sorter.getDescription());
-			binding.rowCount.setText(String.format(Locale.getDefault(), "%,d", rowCount));
-			binding.sortDescription.setText(sortDescription);
+			rowCountView.setText(String.format(Locale.getDefault(), "%,d", rowCount));
+			sortDescriptionView.setText(sortDescription);
 			EventBus.getDefault().post(new CollectionCountChangedEvent(rowCount));
 			EventBus.getDefault().post(new CollectionSortChangedEvent(sortDescription));
 
 			bindFilterButtons();
 			invalidateMenu();
 			if (rowCount > 0) {
-				AnimationUtils.fadeIn(binding.list);
-				AnimationUtils.fadeOut(binding.emptyContainer);
+				AnimationUtils.fadeIn(listView);
+				AnimationUtils.fadeOut(emptyContainer);
 			} else {
-				AnimationUtils.fadeIn(binding.emptyContainer);
-				AnimationUtils.fadeOut(binding.list);
+				AnimationUtils.fadeIn(emptyContainer);
+				AnimationUtils.fadeOut(listView);
 			}
-			binding.progress.hide();
+			progressBar.hide();
 		} else {
 			Timber.d("Query complete, Not Actionable: %s", token);
 			cursor.close();
@@ -498,7 +512,7 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	private void setEmptyText() {
-		if (binding.emptyButton == null) return;
+		if (emptyButton == null) return;
 		if (PreferenceUtils.isCollectionSetToSync(getContext())) {
 			final Set<String> syncedStatuses = PreferenceUtils.getSyncStatuses(getContext());
 			if (SyncPrefs.noPreviousCollectionSync(requireContext())) {
@@ -536,13 +550,13 @@ public class CollectionFragment extends Fragment implements
 	}
 
 	private void setEmptyStateForSettingsAction(@StringRes int textResId) {
-		binding.emptyText.setText(textResId);
-		binding.emptyButton.setVisibility(View.VISIBLE);
+		emptyTextView.setText(textResId);
+		emptyButton.setVisibility(View.VISIBLE);
 	}
 
 	private void setEmptyStateForNoAction(@StringRes int textResId) {
-		binding.emptyText.setText(textResId);
-		binding.emptyButton.setVisibility(View.GONE);
+		emptyTextView.setText(textResId);
+		emptyButton.setVisibility(View.GONE);
 	}
 
 	@OnClick(R.id.empty_button)
@@ -565,7 +579,7 @@ public class CollectionFragment extends Fragment implements
 
 	@SuppressWarnings("SameReturnValue")
 	private void bindFilterButtons() {
-		binding.chipGroup.removeAllViews();
+		chipGroup.removeAllViews();
 		for (final CollectionFilterer filter : filters) {
 			if (filter != null && !TextUtils.isEmpty(filter.toShortDescription())) {
 				Chip chip = new Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter);
@@ -577,20 +591,20 @@ public class CollectionFragment extends Fragment implements
 					return true;
 				});
 
-				binding.chipGroup.addView(chip);
+				chipGroup.addView(chip);
 			}
 		}
 
-		final boolean show = binding.chipGroup.getChildCount() > 0;
+		final boolean show = chipGroup.getChildCount() > 0;
 		if (show) {
-			AnimationUtils.slideUpIn(binding.chipGroupScrollView);
+			AnimationUtils.slideUpIn(chipGroupScrollView);
 		} else {
-			AnimationUtils.slideDownOut(binding.chipGroupScrollView);
+			AnimationUtils.slideDownOut(chipGroupScrollView);
 		}
-		binding.swipeRefresh.setPadding(
-			binding.swipeRefresh.getPaddingLeft(),
-			binding.swipeRefresh.getPaddingTop(),
-			binding.swipeRefresh.getPaddingRight(),
+		swipeRefreshLayout.setPadding(
+			swipeRefreshLayout.getPaddingLeft(),
+			swipeRefreshLayout.getPaddingTop(),
+			swipeRefreshLayout.getPaddingRight(),
 			show ? getResources().getDimensionPixelSize(R.dimen.chip_group_height) : 0);
 	}
 
@@ -735,28 +749,35 @@ public class CollectionFragment extends Fragment implements
 		}
 
 		public class CollectionItemViewHolder extends RecyclerView.ViewHolder {
+			@BindView(R.id.name) TextView nameView;
+			@BindView(R.id.year) TextView yearView;
+			@BindView(R.id.info) TextView infoView;
+			@BindView(R.id.timestamp) TimestampView timestampView;
+			@BindView(R.id.rating) TextView ratingView;
+			@BindView(R.id.thumbnail) ImageView thumbnailView;
+			@BindView(R.id.favorite) ImageView favoriteView;
 
 			public CollectionItemViewHolder(View view) {
 				super(view);
-				
+				ButterKnife.bind(this, view);
 			}
 
 			public void bindView(final CollectionItem item, final int position) {
-				binding.name.setText(item.collectionName);
-				binding.year.setText(IntUtils.asYear(item.year, getContext()));
-				binding.timestamp.setTimestamp(item.timestamp);
-				binding.favorite.setVisibility(item.isFavorite ? View.VISIBLE : View.GONE);
+				nameView.setText(item.collectionName);
+				yearView.setText(IntUtils.asYear(item.year, getContext()));
+				timestampView.setTimestamp(item.timestamp);
+				favoriteView.setVisibility(item.isFavorite ? View.VISIBLE : View.GONE);
 				if (!TextUtils.isEmpty(item.ratingText)) {
-					binding.rating.setText(item.ratingText);
-					ColorUtils.setTextViewBackground(binding.rating, ColorUtils.getRatingColor(item.rating));
-					binding.rating.setVisibility(View.VISIBLE);
-					binding.info.setVisibility(View.GONE);
+					ratingView.setText(item.ratingText);
+					ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(item.rating));
+					ratingView.setVisibility(View.VISIBLE);
+					infoView.setVisibility(View.GONE);
 				} else {
-					TextViewUtils.setTextOrHide(binding.info, item.displayInfo);
-					binding.info.setVisibility(View.VISIBLE);
-					binding.rating.setVisibility(View.GONE);
+					TextViewUtils.setTextOrHide(infoView, item.displayInfo);
+					infoView.setVisibility(View.VISIBLE);
+					ratingView.setVisibility(View.GONE);
 				}
-				ImageUtils.loadThumbnail(binding.thumbnail, item.collectionThumbnailUrl, item.thumbnailUrl);
+				ImageUtils.loadThumbnail(thumbnailView, item.collectionThumbnailUrl, item.thumbnailUrl);
 
 				itemView.setActivated(selectedItems.get(position, false));
 

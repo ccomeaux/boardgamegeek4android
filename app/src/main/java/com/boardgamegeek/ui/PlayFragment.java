@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
-import com.boardgamegeek.databinding.FragmentPlayBinding;
 import com.boardgamegeek.events.PlayDeletedEvent;
 import com.boardgamegeek.events.PlaySentEvent;
 import com.boardgamegeek.extensions.SwipeRefreshLayoutUtils;
@@ -62,6 +61,10 @@ import androidx.loader.content.Loader;
 import androidx.palette.graphics.Palette;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
 
@@ -83,8 +86,31 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String heroImageUrl;
 	private boolean isRefreshing;
 
-	private FragmentPlayBinding binding;
+	private Unbinder unbinder;
 	private ListView playersView;
+	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
+	@BindView(R.id.progress) View progressContainer;
+	@BindView(R.id.list_container) View listContainer;
+	@BindView(R.id.empty) TextView emptyView;
+	@BindView(R.id.thumbnail) ImageView thumbnailView;
+	@BindView(R.id.header) TextView gameNameView;
+	@BindView(R.id.play_date) TextView dateView;
+	@BindView(R.id.play_quantity) TextView quantityView;
+	@BindView(R.id.length_root) View lengthContainer;
+	@BindView(R.id.play_length) TextView lengthView;
+	@BindView(R.id.timer_root) View timerContainer;
+	@BindView(R.id.timer) Chronometer timerView;
+	@BindView(R.id.location_root) View locationContainer;
+	@BindView(R.id.play_location) TextView locationView;
+	@BindView(R.id.play_incomplete) View incompleteView;
+	@BindView(R.id.play_no_win_stats) View noWinStatsView;
+	@BindView(R.id.play_comments) TextView commentsView;
+	@BindView(R.id.play_comments_label) View commentsLabel;
+	@BindView(R.id.play_players_label) View playersLabel;
+	@BindView(R.id.play_id) TextView playIdView;
+	@BindView(R.id.pending_timestamp) TimestampView pendingTimestampView;
+	@BindView(R.id.dirty_timestamp) TimestampView dirtyTimestampView;
+	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
 	private PlayPlayerAdapter adapter;
 	@State boolean hasBeenNotified;
 
@@ -95,9 +121,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		@Override
 		public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-			if (binding.swipeRefresh != null) {
+			if (swipeRefreshLayout != null) {
 				int topRowVerticalPosition = (view == null || view.getChildCount() == 0) ? 0 : view.getChildAt(0).getTop();
-				binding.swipeRefresh.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
+				swipeRefreshLayout.setEnabled(firstVisibleItem == 0 && topRowVerticalPosition >= 0);
 			}
 		}
 	};
@@ -147,11 +173,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		playersView.addHeaderView(View.inflate(getActivity(), R.layout.header_play, null), null, false);
 		playersView.addFooterView(View.inflate(getActivity(), R.layout.footer_play, null), null, false);
 
-		
+		unbinder = ButterKnife.bind(this, rootView);
 
-		if (binding.swipeRefresh != null) {
-			SwipeRefreshLayoutUtils.setBggColors(binding.swipeRefresh);
-			binding.swipeRefresh.setOnRefreshListener(this);
+		if (swipeRefreshLayout != null) {
+			SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
+			swipeRefreshLayout.setOnRefreshListener(this);
 		}
 
 		adapter = new PlayPlayerAdapter(getContext(), play);
@@ -159,7 +185,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 		LoaderManager.getInstance(this).restartLoader(PLAY_QUERY_TOKEN, null, this);
 
-		return binding.getRoot();
+		return rootView;
 	}
 
 	@Override
@@ -192,7 +218,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		binding = null;
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -287,11 +313,11 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@SuppressWarnings("unused")
 	private void updateRefreshStatus(final boolean value) {
 		isRefreshing = value;
-		if (binding.swipeRefresh != null) {
-			binding.swipeRefresh.post(new Runnable() {
+		if (swipeRefreshLayout != null) {
+			swipeRefreshLayout.post(new Runnable() {
 				@Override
 				public void run() {
-					if (binding.swipeRefresh != null) binding.swipeRefresh.setRefreshing(isRefreshing);
+					if (swipeRefreshLayout != null) swipeRefreshLayout.setRefreshing(isRefreshing);
 				}
 			});
 		}
@@ -338,7 +364,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 				break;
 			case PLAYER_QUERY_TOKEN:
 				PlayBuilder.addPlayers(cursor, play);
-				binding.playersLabel.setVisibility(play.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
+				playersLabel.setVisibility(play.getPlayers().size() == 0 ? View.GONE : View.VISIBLE);
 				adapter.replace(play);
 				maybeShowNotification();
 				showList();
@@ -352,10 +378,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	}
 
 	private void showList() {
-		binding.progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
-		binding.progressContainer.setVisibility(View.GONE);
-		binding.listContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
-		binding.listContainer.setVisibility(View.VISIBLE);
+		progressContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out));
+		progressContainer.setVisibility(View.GONE);
+		listContainer.startAnimation(AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in));
+		listContainer.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -367,18 +393,18 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	 */
 	private boolean onPlayQueryComplete(Cursor cursor) {
 		if (cursor == null || !cursor.moveToFirst()) {
-			binding.empty.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(internalId)));
-			binding.empty.setVisibility(View.VISIBLE);
+			emptyView.setText(String.format(getResources().getString(R.string.empty_play), String.valueOf(internalId)));
+			emptyView.setVisibility(View.VISIBLE);
 			return true;
 		}
 		playersView.setVisibility(View.VISIBLE);
-		binding.empty.setVisibility(View.GONE);
+		emptyView.setVisibility(View.GONE);
 
-		ImageUtils.safelyLoadImage(binding.thumbnail, imageUrl, thumbnailUrl, heroImageUrl, new Callback() {
+		ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, heroImageUrl, new Callback() {
 			@Override
 			public void onSuccessfulImageLoad(Palette palette) {
-				if (binding.gameName != null && isAdded()) {
-					binding.gameName.setBackgroundResource(R.color.black_overlay_light);
+				if (gameNameView != null && isAdded()) {
+					gameNameView.setBackgroundResource(R.color.black_overlay_light);
 				}
 			}
 
@@ -391,62 +417,62 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		play = PlayBuilder.fromCursor(cursor);
 		play.setPlayers(players);
 
-		binding.gameName.setText(play.gameName);
+		gameNameView.setText(play.gameName);
 
-		binding.date.setText(play.getDateForDisplay(getActivity()));
+		dateView.setText(play.getDateForDisplay(getActivity()));
 
-		binding.quantity.setText(getResources().getQuantityString(R.plurals.times_suffix, play.quantity, play.quantity));
-		binding.quantity.setVisibility((play.quantity == 1) ? View.GONE : View.VISIBLE);
+		quantityView.setText(getResources().getQuantityString(R.plurals.times_suffix, play.quantity, play.quantity));
+		quantityView.setVisibility((play.quantity == 1) ? View.GONE : View.VISIBLE);
 
 		if (play.length > 0) {
-			binding.lengthContainer.setVisibility(View.VISIBLE);
-			binding.length.setText(DateTimeUtils.describeMinutes(getActivity(), play.length));
-			binding.length.setVisibility(View.VISIBLE);
-			binding.timerContainer.setVisibility(View.GONE);
-			binding.timer.stop();
+			lengthContainer.setVisibility(View.VISIBLE);
+			lengthView.setText(DateTimeUtils.describeMinutes(getActivity(), play.length));
+			lengthView.setVisibility(View.VISIBLE);
+			timerContainer.setVisibility(View.GONE);
+			timerView.stop();
 		} else if (play.hasStarted()) {
-			binding.lengthContainer.setVisibility(View.VISIBLE);
-			binding.length.setVisibility(View.GONE);
-			binding.timerContainer.setVisibility(View.VISIBLE);
-			UIUtils.startTimerWithSystemTime(binding.timer, play.startTime);
+			lengthContainer.setVisibility(View.VISIBLE);
+			lengthView.setVisibility(View.GONE);
+			timerContainer.setVisibility(View.VISIBLE);
+			UIUtils.startTimerWithSystemTime(timerView, play.startTime);
 		} else {
-			binding.lengthContainer.setVisibility(View.GONE);
+			lengthContainer.setVisibility(View.GONE);
 		}
 
-		binding.location.setText(play.location);
-		binding.locationContainer.setVisibility(TextUtils.isEmpty(play.location) ? View.GONE : View.VISIBLE);
+		locationView.setText(play.location);
+		locationContainer.setVisibility(TextUtils.isEmpty(play.location) ? View.GONE : View.VISIBLE);
 
-		binding.incomplete.setVisibility(play.incomplete ? View.VISIBLE : View.GONE);
-		binding.noWinStats.setVisibility(play.noWinStats ? View.VISIBLE : View.GONE);
+		incompleteView.setVisibility(play.incomplete ? View.VISIBLE : View.GONE);
+		noWinStatsView.setVisibility(play.noWinStats ? View.VISIBLE : View.GONE);
 
-		binding.comments.setText(play.comments);
-		binding.comments.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
-		binding.commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
+		commentsView.setText(play.comments);
+		commentsView.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
+		commentsLabel.setVisibility(TextUtils.isEmpty(play.comments) ? View.GONE : View.VISIBLE);
 
 		if (play.deleteTimestamp > 0) {
-			binding.pendingTimestamp.setVisibility(View.VISIBLE);
-			binding.pendingTimestamp.setFormat(getString(R.string.delete_pending_prefix));
-			binding.pendingTimestamp.setTimestamp(play.deleteTimestamp);
+			pendingTimestampView.setVisibility(View.VISIBLE);
+			pendingTimestampView.setFormat(getString(R.string.delete_pending_prefix));
+			pendingTimestampView.setTimestamp(play.deleteTimestamp);
 		} else if (play.updateTimestamp > 0) {
-			binding.pendingTimestamp.setVisibility(View.VISIBLE);
-			binding.pendingTimestamp.setFormat(getString(R.string.update_pending_prefix));
-			binding.pendingTimestamp.setTimestamp(play.updateTimestamp);
+			pendingTimestampView.setVisibility(View.VISIBLE);
+			pendingTimestampView.setFormat(getString(R.string.update_pending_prefix));
+			pendingTimestampView.setTimestamp(play.updateTimestamp);
 		} else {
-			binding.pendingTimestamp.setVisibility(View.GONE);
+			pendingTimestampView.setVisibility(View.GONE);
 		}
 
 		if (play.dirtyTimestamp > 0) {
-			binding.dirtyTimestamp.setFormat(getString(play.playId > 0 ? R.string.editing_prefix : R.string.draft_prefix));
-			binding.dirtyTimestamp.setTimestamp(play.dirtyTimestamp);
+			dirtyTimestampView.setFormat(getString(play.playId > 0 ? R.string.editing_prefix : R.string.draft_prefix));
+			dirtyTimestampView.setTimestamp(play.dirtyTimestamp);
 		} else {
-			binding.dirtyTimestamp.setVisibility(View.GONE);
+			dirtyTimestampView.setVisibility(View.GONE);
 		}
 
 		if (play.playId > 0) {
-			binding.playId.setText(String.format(getResources().getString(R.string.play_id_prefix), String.valueOf(play.playId)));
+			playIdView.setText(String.format(getResources().getString(R.string.play_id_prefix), String.valueOf(play.playId)));
 		}
 
-		binding.syncTimestamp.setTimestamp(play.syncTimestamp);
+		syncTimestampView.setTimestamp(play.syncTimestamp);
 
 		getActivity().invalidateOptionsMenu();
 		LoaderManager.getInstance(this).restartLoader(PLAYER_QUERY_TOKEN, null, this);

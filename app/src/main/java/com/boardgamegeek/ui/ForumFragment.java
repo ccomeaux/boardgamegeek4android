@@ -30,8 +30,9 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.boardgamegeek.databinding.FragmentForumBinding;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class ForumFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
@@ -49,7 +50,10 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	private String objectName;
 	private ForumType objectType;
 
-	private FragmentForumBinding binding;
+	Unbinder unbinder;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
+	@BindView(android.R.id.empty) View emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	public static ForumFragment newInstance(int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
 		Bundle args = new Bundle();
@@ -68,9 +72,10 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	@Override
 	public View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		readBundle(getArguments());
-		binding = FragmentForumBinding.inflate(inflater, container, false);
+		View rootView = inflater.inflate(R.layout.fragment_forum, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
-		return binding.getRoot();
+		return rootView;
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -90,18 +95,18 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onDestroyView() {
-		binding = null;
+		unbinder.unbind();
 		super.onDestroyView();
 	}
 
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		binding.list.setLayoutManager(layoutManager);
+		recyclerView.setLayoutManager(layoutManager);
 
-		binding.list.setHasFixedSize(true);
-		binding.list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
 
-		binding.list.addOnScrollListener(new RecyclerView.OnScrollListener() {
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
 			public void onScrollStateChanged(@NotNull RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
@@ -144,23 +149,23 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onLoadFinished(@NotNull Loader<PaginatedData<Thread>> loader, PaginatedData<Thread> data) {
-		if (getActivity() == null || binding == null) {
+		if (getActivity() == null) {
 			return;
 		}
 
 		if (adapter == null) {
 			adapter = new ForumRecyclerViewAdapter(getActivity(), data, forumId, forumTitle, objectId, objectName, objectType);
-			binding.list.setAdapter(adapter);
+			recyclerView.setAdapter(adapter);
 		} else {
 			adapter.update(data);
 		}
 
 		if (adapter.getItemCount() == 0) {
-			AnimationUtils.fadeIn(getActivity(), binding.empty, isResumed());
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else {
-			AnimationUtils.fadeIn(getActivity(), binding.list, isResumed());
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		}
-		binding.progress.hide();
+		progressView.hide();
 	}
 
 	@Override

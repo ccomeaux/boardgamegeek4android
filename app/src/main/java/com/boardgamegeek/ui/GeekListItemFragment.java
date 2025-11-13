@@ -8,7 +8,6 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.databinding.FragmentGeeklistItemBinding;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.UIUtils;
 import com.boardgamegeek.util.XmlConverter;
@@ -18,6 +17,10 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import butterknife.BindView;
+import butterknife.BindViews;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class GeekListItemFragment extends Fragment {
 	private static final String KEY_ORDER = "GEEK_LIST_ORDER";
@@ -39,7 +42,18 @@ public class GeekListItemFragment extends Fragment {
 	private String body;
 	private XmlConverter xmlConverter;
 
-	private FragmentGeeklistItemBinding binding;
+	private Unbinder unbinder;
+	@BindView(R.id.order) TextView orderView;
+	@BindView(R.id.list_title) TextView geekListTitleView;
+	@BindView(R.id.type) TextView typeView;
+	@BindView(R.id.byline_container) View bylineContainer;
+	@BindView(R.id.username) TextView usernameView;
+	@BindView(R.id.thumbs) TextView thumbsView;
+	@BindView(R.id.posted_date) TimestampView postedDateView;
+	@BindView(R.id.datetime_divider) View datetimeDividerView;
+	@BindView(R.id.edited_date) TimestampView editedDateView;
+	@BindView(R.id.body) WebView bodyView;
+	@BindViews({
 		R.id.order,
 		R.id.list_title,
 		R.id.username,
@@ -86,34 +100,34 @@ public class GeekListItemFragment extends Fragment {
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentGeeklistItemBinding.inflate(inflater, container, false);
-		
+		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
 		populateUi();
-		return binding.getRoot();
+		return rootView;
 	}
 
 	private void populateUi() {
-		binding.order.setText(String.valueOf(order));
+		orderView.setText(String.valueOf(order));
 		geekListTitleView.setText(geekListTitle);
-		binding.type.setText(type);
-		binding.username.setText(username);
-		binding.thumbs.setText(String.valueOf(numberOfThumbs));
+		typeView.setText(type);
+		usernameView.setText(username);
+		thumbsView.setText(String.valueOf(numberOfThumbs));
 		String content = xmlConverter.toHtml(body);
-		UIUtils.setWebViewText(binding.body, content);
-		binding.postedDate.setTimestamp(postedDate);
+		UIUtils.setWebViewText(bodyView, content);
+		postedDateView.setTimestamp(postedDate);
 		if (editedDate == postedDate) {
-			binding.editedDate.setVisibility(View.GONE);
-			binding.datetimeDivider.setVisibility(View.GONE);
+			editedDateView.setVisibility(View.GONE);
+			datetimeDividerView.setVisibility(View.GONE);
 		} else {
-			binding.editedDate.setVisibility(View.VISIBLE);
-			binding.datetimeDivider.setVisibility(View.VISIBLE);
-			binding.editedDate.setTimestamp(editedDate);
+			editedDateView.setVisibility(View.VISIBLE);
+			datetimeDividerView.setVisibility(View.VISIBLE);
+			editedDateView.setTimestamp(editedDate);
 		}
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		binding = null;
+		if (unbinder != null) unbinder.unbind();
 	}
 }

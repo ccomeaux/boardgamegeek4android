@@ -22,13 +22,18 @@ import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.boardgamegeek.databinding.FragmentGeeklistItems;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class GeekListItemsFragment extends Fragment {
 	private GeekListRecyclerViewAdapter adapter;
 
-	private FragmentGeeklistItems binding;
+	Unbinder unbinder;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	public static GeekListItemsFragment newInstance() {
 		return new GeekListItemsFragment();
@@ -37,30 +42,30 @@ public class GeekListItemsFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
-		
+		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
-		return binding.getRoot();
+		return rootView;
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		binding = null;
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	private void setUpRecyclerView() {
-		binding.list.setLayoutManager(new LinearLayoutManager(getActivity()));
-		binding.list.setHasFixedSize(true);
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+		recyclerView.setHasFixedSize(true);
 	}
 
 	public void setData(GeekList geekList, List<GeekListItem> geekListItems) {
 		if (geekList == null || geekListItems == null) return;
 		if (adapter == null) {
 			adapter = new GeekListRecyclerViewAdapter(getActivity(), geekList, geekListItems);
-			binding.list.setAdapter(adapter);
+			recyclerView.setAdapter(adapter);
 		}
-		AnimationUtils.fadeIn(binding.list, isResumed());
-		binding.progress.hide();
+		AnimationUtils.fadeIn(recyclerView, isResumed());
+		progressView.hide();
 	}
 
 	public void setError() {
@@ -68,9 +73,9 @@ public class GeekListItemsFragment extends Fragment {
 	}
 
 	public void setError(String message) {
-		binding.empty.setText(message);
-		AnimationUtils.fadeIn(binding.empty, isResumed());
-		binding.progress.hide();
+		emptyView.setText(message);
+		AnimationUtils.fadeIn(emptyView, isResumed());
+		progressView.hide();
 	}
 
 	public static class GeekListRecyclerViewAdapter extends RecyclerView.Adapter<GeekListRecyclerViewAdapter.GeekListViewHolder> {

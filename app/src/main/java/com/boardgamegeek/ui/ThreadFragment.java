@@ -37,7 +37,9 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
-import com.boardgamegeek.databinding.FragmentThreadBinding;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 
 public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<ThreadSafeResponse> {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
@@ -60,7 +62,10 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	private int currentAdapterPosition = 0;
 	private int latestArticleId = PreferencesUtils.INVALID_ARTICLE_ID;
 
-	private FragmentThreadBinding binding;
+	Unbinder unbinder;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	public static ThreadFragment newInstance(int threadId, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
 		Bundle args = new Bundle();
@@ -85,10 +90,10 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
-		binding = FragmentThreadBinding.inflate(inflater, container, false);
-		
+		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
-		return binding.getRoot();
+		return rootView;
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -122,7 +127,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		binding = null;
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override
@@ -171,21 +176,21 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 		if (position != RecyclerView.NO_POSITION) {
 			int difference = Math.abs(currentAdapterPosition - position);
 			if (difference <= SMOOTH_SCROLL_THRESHOLD) {
-				binding.list.smoothScrollToPosition(position);
+				recyclerView.smoothScrollToPosition(position);
 			} else {
-				binding.list.scrollToPosition(position);
+				recyclerView.scrollToPosition(position);
 			}
 		}
 	}
 
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		binding.list.setLayoutManager(layoutManager);
-		binding.list.setHasFixedSize(true);
-		binding.list.addOnScrollListener(new OnScrollListener() {
+		recyclerView.setLayoutManager(layoutManager);
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addOnScrollListener(new OnScrollListener() {
 			@Override
-			public void onScrollStateChanged(@NotNull RecyclerView binding.list, int newState) {
-				super.onScrollStateChanged(binding.list, newState);
+			public void onScrollStateChanged(@NotNull RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
 				currentAdapterPosition = layoutManager.findLastCompletelyVisibleItemPosition();
 				if (currentAdapterPosition != RecyclerView.NO_POSITION) {
 					long currentArticleId = adapter.getItemId(currentAdapterPosition);
@@ -213,7 +218,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	}
 
 	private Target getTarget() {
-		final View child = HelpUtils.getRecyclerViewVisibleChild(binding.list);
+		final View child = HelpUtils.getRecyclerViewVisibleChild(recyclerView);
 		return child == null ? null : new SafeViewTarget(child.findViewById(R.id.view_button));
 	}
 
@@ -231,24 +236,24 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 
 		if (adapter == null) {
 			adapter = new ThreadRecyclerViewAdapter(getActivity(), data, forumId, forumTitle, objectId, objectName, objectType);
-			binding.list.setAdapter(adapter);
+			recyclerView.setAdapter(adapter);
 		}
 
 		if (data == null) {
-			AnimationUtils.fadeIn(getActivity(), binding.empty, isResumed());
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else if (data.hasParseError()) {
-			binding.empty.setText(R.string.parse_error);
-			AnimationUtils.fadeIn(getActivity(), binding.empty, isResumed());
+			emptyView.setText(R.string.parse_error);
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else if (data.hasError()) {
-			binding.empty.setText(data.getErrorMessage());
-			AnimationUtils.fadeIn(getActivity(), binding.empty, isResumed());
+			emptyView.setText(data.getErrorMessage());
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else if (adapter.getItemCount() == 0) {
-			AnimationUtils.fadeIn(getActivity(), binding.empty, isResumed());
+			AnimationUtils.fadeIn(getActivity(), emptyView, isResumed());
 		} else {
-			AnimationUtils.fadeIn(getActivity(), binding.list, isResumed());
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 			maybeShowHelp();
 		}
-		binding.progress.hide();
+		progressView.hide();
 
 		getActivity().invalidateOptionsMenu();
 	}
