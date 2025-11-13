@@ -7,6 +7,7 @@ import android.os.StrictMode.ThreadPolicy.Builder;
 import android.os.StrictMode.VmPolicy;
 
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.events.BggEventBusIndex;
 import com.boardgamegeek.extensions.PreferenceUtils;
 import com.boardgamegeek.pref.SyncPrefs;
 import com.boardgamegeek.util.CrashReportingTree;
@@ -53,7 +54,7 @@ public class BggApplication extends MultiDexApplication {
 		EventBus.builder()
 			.logNoSubscriberMessages(BuildConfig.DEBUG)
 			.throwSubscriberException(BuildConfig.DEBUG)
-//			.addIndex(new BggEventBusIndex())
+			.addIndex(new BggEventBusIndex())
 			.installDefaultEventBus();
 
 		Picasso.setSingletonInstance(new Picasso.Builder(this)

@@ -12,14 +12,11 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ScrollView;
-import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.ActivityLogplayerBinding;
 import com.boardgamegeek.extensions.FloatingActionButtonUtils;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract;
@@ -39,7 +36,6 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.targets.Target;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -49,10 +45,7 @@ import java.util.List;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
-
-import com.boardgamegeek.databinding.ActivityLogplayerBinding;
 
 public class LogPlayerActivity extends AppCompatActivity implements ColorPickerWithListenerDialogFragment.Listener {
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -335,7 +328,7 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 			editText.setInputType(
 				InputType.TYPE_CLASS_NUMBER |
 					InputType.TYPE_NUMBER_FLAG_DECIMAL);
-			if (editText == scoreView) {
+			if (editText == binding.logPlayerScore) {
 				editText.setInputType(editText.getInputType() | InputType.TYPE_NUMBER_FLAG_SIGNED);
 			} else {
 				editText.setInputType(editText.getInputType() & ~InputType.TYPE_NUMBER_FLAG_SIGNED);

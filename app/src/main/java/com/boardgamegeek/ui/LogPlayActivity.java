@@ -31,19 +31,25 @@ import android.view.View;
 import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.AutoCompleteTextView;
-import android.widget.Button;
-import android.widget.Chronometer;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.PopupMenu.OnMenuItemClickListener;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boardgamegeek.BggApplication;
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.ActivityLogplayBinding;
+import com.boardgamegeek.databinding.RowLogPlayAddPlayerBinding;
+import com.boardgamegeek.databinding.RowLogPlayCommentsBinding;
+import com.boardgamegeek.databinding.RowLogPlayDateBinding;
+import com.boardgamegeek.databinding.RowLogPlayHeaderBinding;
+import com.boardgamegeek.databinding.RowLogPlayIncompleteBinding;
+import com.boardgamegeek.databinding.RowLogPlayLengthBinding;
+import com.boardgamegeek.databinding.RowLogPlayLocationBinding;
+import com.boardgamegeek.databinding.RowLogPlayNoWinStatsBinding;
+import com.boardgamegeek.databinding.RowLogPlayPlayerHeaderBinding;
+import com.boardgamegeek.databinding.RowLogPlayQuantityBinding;
 import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
 import com.boardgamegeek.extensions.FloatingActionButtonUtils;
 import com.boardgamegeek.extensions.TaskUtils;
@@ -79,7 +85,6 @@ import com.boardgamegeek.util.StringUtils;
 import com.boardgamegeek.util.ToolbarUtils;
 import com.boardgamegeek.util.UIUtils;
 import com.github.amlcurran.showcaseview.targets.Target;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 import org.greenrobot.eventbus.EventBus;
@@ -99,11 +104,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
-import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.FragmentManager;
 import androidx.palette.graphics.Palette;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -112,18 +114,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import timber.log.Timber;
-
-import com.boardgamegeek.databinding.ActivityLogplayBinding;
-import com.boardgamegeek.databinding.RowLogPlayHeaderBinding;
-import com.boardgamegeek.databinding.RowLogPlayDateBinding;
-import com.boardgamegeek.databinding.RowLogPlayLocationBinding;
-import com.boardgamegeek.databinding.RowLogPlayLengthBinding;
-import com.boardgamegeek.databinding.RowLogPlayQuantityBinding;
-import com.boardgamegeek.databinding.RowLogPlayIncompleteBinding;
-import com.boardgamegeek.databinding.RowLogPlayNoWinStatsBinding;
-import com.boardgamegeek.databinding.RowLogPlayCommentsBinding;
-import com.boardgamegeek.databinding.RowLogPlayPlayerHeaderBinding;
-import com.boardgamegeek.databinding.RowLogPlayAddPlayerBinding;
 
 public class LogPlayActivity extends AppCompatActivity implements
 	ColorPickerWithListenerDialogFragment.Listener,
@@ -1726,7 +1716,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					}
 					play.addPlayer(player);
 					playAdapter.notifyPlayerAdded(play.getPlayerCount());
-					binding.list.smoothScrollToPosition(playAdapter.getItemCount());
+					LogPlayActivity.this.binding.list.smoothScrollToPosition(playAdapter.getItemCount());
 				}
 			}
 

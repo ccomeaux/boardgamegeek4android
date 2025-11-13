@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.FragmentGeeklistDescriptionBinding;
 import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.UIUtils;
@@ -16,8 +16,6 @@ import com.boardgamegeek.util.XmlConverter;
 import androidx.annotation.NonNull;
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
-
-import com.boardgamegeek.databinding.FragmentGeeklistDescriptionBinding;
 
 public class GeekListDescriptionFragment extends Fragment {
 	private FragmentGeeklistDescriptionBinding binding;
@@ -46,11 +44,11 @@ public class GeekListDescriptionFragment extends Fragment {
 		binding = FragmentGeeklistDescriptionBinding.inflate(inflater, container, false);
 		progressBar = binding.progress;
 		this.container = binding.container;
-		usernameView = binding.username;
-		itemCountView = binding.items;
-		thumbCountView = binding.thumbs;
-		postedDateView = binding.postedDate;
-		editedDateView = binding.editedDate;
+		usernameView = binding.header.username;
+		itemCountView = binding.header.items;
+		thumbCountView = binding.header.thumbs;
+		postedDateView = binding.header.postedDate;
+		editedDateView = binding.header.editedDate;
 		bodyView = binding.body;
 		ViewGroup rootView = (ViewGroup) binding.getRoot();
 		//noinspection deprecation

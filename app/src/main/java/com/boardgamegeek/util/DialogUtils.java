@@ -3,7 +3,6 @@ package com.boardgamegeek.util;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 
 import com.boardgamegeek.R;
@@ -55,7 +54,7 @@ public class DialogUtils {
 			R.string.discard_new_message :
 			R.string.discard_changes_message);
 		return createThemedBuilder(activity)
-			.setMessage(String.format(messageFormat, activity.getString(objectResId).lowercase()))
+			.setMessage(String.format(messageFormat, activity.getString(objectResId).toLowerCase()))
 			.setPositiveButton(R.string.keep_editing, null)
 			.setNegativeButton(R.string.discard, (dialog, id) -> {
 				if (listener != null) listener.onDiscard();

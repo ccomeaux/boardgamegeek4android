@@ -27,6 +27,8 @@ import android.widget.Toast;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.auth.AccountUtils;
+import com.boardgamegeek.databinding.FragmentCollectionBinding;
+import com.boardgamegeek.databinding.RowCollectionBinding;
 import com.boardgamegeek.entities.ConstantsKt;
 import com.boardgamegeek.events.CollectionCountChangedEvent;
 import com.boardgamegeek.events.CollectionSortChangedEvent;
@@ -102,9 +104,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 import timber.log.Timber;
-
-import com.boardgamegeek.databinding.FragmentCollectionBinding;
-import com.boardgamegeek.databinding.RowCollectionBinding;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -592,7 +591,7 @@ public class CollectionFragment extends Fragment implements
 		chipGroup.removeAllViews();
 		for (final CollectionFilterer filter : filters) {
 			if (filter != null && !TextUtils.isEmpty(filter.toShortDescription())) {
-				Chip chip = new Chip(requireContext(), null, R.style.Widget_MaterialComponents_Chip_Filter);
+				Chip chip = new Chip(requireContext(), null, com.google.android.material.R.style.Widget_Material3_Chip_Filter);
 				chip.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 				chip.setText(filter.toShortDescription());
 				chip.setOnClickListener(v -> launchFilterDialog(filter.getType()));
