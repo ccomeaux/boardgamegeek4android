@@ -199,6 +199,8 @@ dependencies {
     annotationProcessor 'frankiesardo:icepick-processor:3.2.0'
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.14"
+
+    annotationProcessor 'com.google.auto.service:auto-service:1.1.1'
 }
 
 apply plugin: 'com.google.gms.google-services'
