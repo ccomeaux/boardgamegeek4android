@@ -111,15 +111,21 @@ import androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import butterknife.BindDimen;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnCheckedChanged;
-import butterknife.OnClick;
-import butterknife.OnFocusChange;
 import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
+
+import com.boardgamegeek.databinding.ActivityLogplayBinding;
+import com.boardgamegeek.databinding.RowLogPlayHeaderBinding;
+import com.boardgamegeek.databinding.RowLogPlayDateBinding;
+import com.boardgamegeek.databinding.RowLogPlayLocationBinding;
+import com.boardgamegeek.databinding.RowLogPlayLengthBinding;
+import com.boardgamegeek.databinding.RowLogPlayQuantityBinding;
+import com.boardgamegeek.databinding.RowLogPlayIncompleteBinding;
+import com.boardgamegeek.databinding.RowLogPlayNoWinStatsBinding;
+import com.boardgamegeek.databinding.RowLogPlayCommentsBinding;
+import com.boardgamegeek.databinding.RowLogPlayPlayerHeaderBinding;
+import com.boardgamegeek.databinding.RowLogPlayAddPlayerBinding;
 
 public class LogPlayActivity extends AppCompatActivity implements
 	ColorPickerWithListenerDialogFragment.Listener,
@@ -170,16 +176,13 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private final List<String> names = new ArrayList<>();
 	private final ArrayList<String> gameColors = new ArrayList<>();
 
-	@BindView(R.id.coordinator) CoordinatorLayout coordinatorLayout;
-	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(R.id.fab) FloatingActionButton fab;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	private ActivityLogplayBinding binding;
 	private ShowcaseViewWizard showcaseWizard;
 	@ColorInt private int fabColor;
 	private final Paint swipePaint = new Paint();
 	private Bitmap deleteIcon;
 	private Bitmap editIcon;
-	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
+	private float horizontalPadding;
 	private ItemTouchHelper itemTouchHelper;
 
 	@State boolean isUserShowingLocation;
@@ -365,23 +368,23 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 
 		playAdapter.refresh();
-		progressView.hide();
-		recyclerView.setVisibility(View.VISIBLE);
+		binding.progress.hide();
+		binding.list.setVisibility(View.VISIBLE);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_logplay);
+		binding = ActivityLogplayBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
 		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
 
-		ButterKnife.bind(this);
-
 		playAdapter = new PlayAdapter(this);
-		recyclerView.setAdapter(playAdapter);
-		recyclerView.setLayoutManager(new LinearLayoutManager(this));
-		recyclerView.setHasFixedSize(true);
+		binding.list.setAdapter(playAdapter);
+		binding.list.setLayoutManager(new LinearLayoutManager(this));
+		binding.list.setHasFixedSize(true);
 
+		horizontalPadding = getResources().getDimension(R.dimen.material_margin_horizontal);
 		swipePaint.setColor(ContextCompat.getColor(this, R.color.medium_blue));
 		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
 		editIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_edit_white);
@@ -455,7 +458,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 						}
 						String message = getString(R.string.msg_player_deleted, description);
 						Snackbar
-							.make(coordinatorLayout, message, Snackbar.LENGTH_INDEFINITE)
+							.make(binding.coordinator, message, Snackbar.LENGTH_INDEFINITE)
 							.setAction(R.string.undo, new View.OnClickListener() {
 								@Override
 								public void onClick(View v) {
@@ -519,7 +522,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					return false;
 				}
 			});
-		itemTouchHelper.attachToRecyclerView(recyclerView);
+		itemTouchHelper.attachToRecyclerView(binding.list);
 
 		queryHandler = new QueryHandler(getContentResolver());
 
@@ -556,7 +559,14 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 		setUpShowcaseViewWizard();
 		showcaseWizard.maybeShowHelp();
-		fab.postDelayed(() -> fab.show(), 2000);
+		binding.fab.postDelayed(() -> binding.fab.show(), 2000);
+
+		binding.fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				addField();
+			}
+		});
 	}
 
 	@Override
@@ -624,7 +634,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					} else {
 						play.replaceOrAddPlayer(player, position);
 						playAdapter.notifyPlayerChanged(position);
-						recyclerView.smoothScrollToPosition(position);
+						binding.list.smoothScrollToPosition(position);
 					}
 					break;
 				default:
@@ -633,7 +643,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 			}
 		} else if (resultCode == RESULT_CANCELED) {
 			playAdapter.notifyPlayersChanged();
-			recyclerView.smoothScrollToPosition(playAdapter.getItemCount());
+			binding.list.smoothScrollToPosition(playAdapter.getItemCount());
 		}
 	}
 
@@ -645,7 +655,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 			playAdapter.notifyPlayersChanged();
 		}
 		if (event.getMessageId() != 0) {
-			Snackbar.make(coordinatorLayout, event.getMessageId(), Snackbar.LENGTH_LONG).show();
+			Snackbar.make(binding.coordinator, event.getMessageId(), Snackbar.LENGTH_LONG).show();
 		}
 	}
 
@@ -766,7 +776,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 	private boolean save() {
 		if (play == null) return false;
 		shouldSaveOnPause = false;
-		final View focusedView = recyclerView.findFocus();
+		final View focusedView = binding.list.findFocus();
 		if (focusedView != null) focusedView.clearFocus();
 		internalId = new PlayPersister(this).save(play, internalId, true);
 		return true;
@@ -811,7 +821,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 		SyncService.sync(this, SyncService.FLAG_SYNC_PLAYS_UPLOAD);
 	}
 
-	@OnClick(R.id.fab)
 	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
@@ -1006,7 +1015,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 			if (TextUtils.isEmpty(name)) {
 				name = String.format(getResources().getString(R.string.generic_player), 1);
 			}
-			Snackbar.make(coordinatorLayout, String.format(getResources().getString(R.string.notification_start_player), name), Snackbar.LENGTH_LONG).show();
+			Snackbar.make(binding.coordinator, String.format(getResources().getString(R.string.notification_start_player), name), Snackbar.LENGTH_LONG).show();
 		}
 	}
 
@@ -1242,7 +1251,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 							notifyItemInserted(position);
 						}
 					});
-				recyclerView.smoothScrollToPosition(position);
+				binding.list.smoothScrollToPosition(position);
 				// TODO focus field
 			}
 		}
@@ -1304,30 +1313,33 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 
 		public class HeaderViewHolder extends PlayViewHolder {
-			@BindView(R.id.header) TextView headerView;
-			@BindView(R.id.thumbnail) ImageView thumbnailView;
+			private final RowLogPlayHeaderBinding binding;
 
 			public HeaderViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_header, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayHeaderBinding.inflate(inflater, parent, false));
+			}
+
+			private HeaderViewHolder(RowLogPlayHeaderBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
 			}
 
 			@Override
 			public void bind() {
-				headerView.setText(gameName);
+				binding.header.setText(gameName);
 
 				fabColor = ContextCompat.getColor(LogPlayActivity.this, R.color.accent);
-				ImageUtils.safelyLoadImage(thumbnailView, imageUrl, thumbnailUrl, heroImageUrl, new ImageUtils.Callback() {
+				ImageUtils.safelyLoadImage(binding.thumbnail, imageUrl, thumbnailUrl, heroImageUrl, new ImageUtils.Callback() {
 					@Override
 					public void onSuccessfulImageLoad(Palette palette) {
-						headerView.setBackgroundResource(R.color.black_overlay_light);
+						binding.header.setBackgroundResource(R.color.black_overlay_light);
 
 						fabColor = PaletteUtils.getIconSwatch(palette).getRgb();
-						FloatingActionButtonUtils.colorize(fab, fabColor);
-						fab.post(new Runnable() {
+						FloatingActionButtonUtils.colorize(LogPlayActivity.this.binding.fab, fabColor);
+						LogPlayActivity.this.binding.fab.post(new Runnable() {
 							@Override
 							public void run() {
-								fab.show();
+								LogPlayActivity.this.binding.fab.show();
 							}
 						});
 
@@ -1336,7 +1348,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 					@Override
 					public void onFailedImageLoad() {
-						fab.show();
+						LogPlayActivity.this.binding.fab.show();
 					}
 				});
 			}
@@ -1345,24 +1357,33 @@ public class LogPlayActivity extends AppCompatActivity implements
 		public class DateViewHolder extends PlayViewHolder implements OnDateSetListener {
 			private static final String DATE_PICKER_DIALOG_TAG = "DATE_PICKER_DIALOG";
 			private DatePickerDialogFragment datePickerFragment;
-			@BindView(R.id.log_play_date) TextView dateButton;
+			private final RowLogPlayDateBinding binding;
 
 			public DateViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_date, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayDateBinding.inflate(inflater, parent, false));
+			}
+
+			private DateViewHolder(RowLogPlayDateBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
 				datePickerFragment = (DatePickerDialogFragment) getSupportFragmentManager().findFragmentByTag(DATE_PICKER_DIALOG_TAG);
 				if (datePickerFragment != null) {
 					datePickerFragment.setOnDateSetListener(this);
 				}
+				binding.logPlayDate.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						onDateClick();
+					}
+				});
 			}
 
 			@Override
 			public void bind() {
 				if (play == null) return;
-				dateButton.setText(play.getDateForDisplay(LogPlayActivity.this));
+				binding.logPlayDate.setText(play.getDateForDisplay(LogPlayActivity.this));
 			}
 
-			@OnClick(R.id.log_play_date)
 			public void onDateClick() {
 				final FragmentManager fragmentManager = getSupportFragmentManager();
 				datePickerFragment = (DatePickerDialogFragment) fragmentManager.findFragmentByTag(DATE_PICKER_DIALOG_TAG);
@@ -1388,13 +1409,17 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 
 		public class LocationViewHolder extends PlayViewHolder {
-			@BindView(R.id.log_play_location) AutoCompleteTextView locationView;
+			private final RowLogPlayLocationBinding binding;
 			private boolean canEdit;
 
 			public LocationViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_location, parent, false));
-				ButterKnife.bind(this, itemView);
-				locationView.addTextChangedListener(new TextWatcher() {
+				this(RowLogPlayLocationBinding.inflate(inflater, parent, false));
+			}
+
+			private LocationViewHolder(RowLogPlayLocationBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+				binding.logPlayLocation.addTextChangedListener(new TextWatcher() {
 					@Override
 					public void beforeTextChanged(CharSequence s, int start, int before, int count) {
 					}
@@ -1414,58 +1439,66 @@ public class LogPlayActivity extends AppCompatActivity implements
 
 			@Override
 			public void bind() {
-				if (locationView.getAdapter() == null) locationView.setAdapter(locationAdapter);
+				if (binding.logPlayLocation.getAdapter() == null) binding.logPlayLocation.setAdapter(locationAdapter);
 				if (play != null) {
-					locationView.setTextKeepState(play.location);
+					binding.logPlayLocation.setTextKeepState(play.location);
 					canEdit = true;
 				}
 			}
 		}
 
 		public class LengthViewHolder extends PlayViewHolder {
-			@BindView(R.id.log_play_length) EditText lengthView;
-			@BindView(R.id.timer) Chronometer timerView;
-			@BindView(R.id.timer_toggle) ImageView timerToggleView;
+			private final RowLogPlayLengthBinding binding;
 			private boolean canEdit;
 
 			public LengthViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_length, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayLengthBinding.inflate(inflater, parent, false));
+			}
+
+			private LengthViewHolder(RowLogPlayLengthBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+				binding.logPlayLength.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+					@Override
+					public void onFocusChange(View v, boolean hasFocus) {
+						if (canEdit && !hasFocus) {
+							play.length = StringUtils.parseInt(((EditText) v).getText().toString().trim());
+						}
+					}
+				});
+				binding.timerToggle.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						onTimer();
+					}
+				});
 			}
 
 			@Override
 			public void bind() {
 				if (play != null) {
-					lengthView.setTextKeepState((play.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(play.length));
-					UIUtils.startTimerWithSystemTime(timerView, play.startTime);
+					binding.logPlayLength.setTextKeepState((play.length == Play.LENGTH_DEFAULT) ? "" : String.valueOf(play.length));
+					UIUtils.startTimerWithSystemTime(binding.timer, play.startTime);
 					canEdit = true;
 					if (play.hasStarted()) {
-						lengthView.setVisibility(View.GONE);
-						timerView.setVisibility(View.VISIBLE);
+						binding.logPlayLength.setVisibility(View.GONE);
+						binding.timer.setVisibility(View.VISIBLE);
 					} else {
-						lengthView.setVisibility(View.VISIBLE);
-						timerView.setVisibility(View.GONE);
+						binding.logPlayLength.setVisibility(View.VISIBLE);
+						binding.timer.setVisibility(View.GONE);
 					}
 					if (play.hasStarted()) {
-						timerToggleView.setEnabled(true);
-						timerToggleView.setImageResource(R.drawable.ic_timer_off);
+						binding.timerToggle.setEnabled(true);
+						binding.timerToggle.setImageResource(R.drawable.ic_timer_off);
 					} else if (DateUtils.isToday(play.dateInMillis + play.length * 60 * 1000)) {
-						timerToggleView.setEnabled(true);
-						timerToggleView.setImageResource(R.drawable.ic_timer);
+						binding.timerToggle.setEnabled(true);
+						binding.timerToggle.setImageResource(R.drawable.ic_timer);
 					} else {
-						timerToggleView.setEnabled(false);
+						binding.timerToggle.setEnabled(false);
 					}
 				}
 			}
 
-			@OnFocusChange(R.id.log_play_length)
-			public void onLengthFocusChange(EditText v, boolean hasFocus) {
-				if (canEdit && !hasFocus) {
-					play.length = StringUtils.parseInt(v.getText().toString().trim());
-				}
-			}
-
-			@OnClick(R.id.timer_toggle)
 			public void onTimer() {
 				if (play.hasStarted()) {
 					isRequestingToEndPlay = true;
@@ -1473,7 +1506,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					bind();
 					cancelNotification();
 					if (play.length > 0) {
-						UIUtils.finishingEditing(lengthView);
+						UIUtils.finishingEditing(binding.logPlayLength);
 					}
 				} else {
 					if (play.length == 0) {
@@ -1513,111 +1546,140 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 
 		public class QuantityViewHolder extends PlayViewHolder {
-			@BindView(R.id.log_play_quantity) EditText quantityView;
+			private final RowLogPlayQuantityBinding binding;
 			private boolean canEdit;
 
 			public QuantityViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_quantity, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayQuantityBinding.inflate(inflater, parent, false));
+			}
+
+			private QuantityViewHolder(RowLogPlayQuantityBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+				binding.logPlayQuantity.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+					@Override
+					public void onFocusChange(View v, boolean hasFocus) {
+						if (canEdit && !hasFocus) {
+							play.quantity = StringUtils.parseInt(((EditText) v).getText().toString().trim(), 1);
+						}
+					}
+				});
 			}
 
 			@Override
 			public void bind() {
 				if (play != null) {
-					quantityView.setTextKeepState((play.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(play.quantity));
+					binding.logPlayQuantity.setTextKeepState((play.quantity == Play.QUANTITY_DEFAULT) ? "" : String.valueOf(play.quantity));
 					canEdit = true;
-				}
-			}
-
-			@OnFocusChange(R.id.log_play_quantity)
-			public void onQuantityFocusChange(EditText v, boolean hasFocus) {
-				if (canEdit && !hasFocus) {
-					play.quantity = StringUtils.parseInt(v.getText().toString().trim(), 1);
 				}
 			}
 		}
 
 		public class IncompleteViewHolder extends PlayViewHolder {
-			@BindView(R.id.log_play_incomplete) SwitchCompat incompleteView;
+			private final RowLogPlayIncompleteBinding binding;
 
 			public IncompleteViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_incomplete, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayIncompleteBinding.inflate(inflater, parent, false));
+			}
+
+			private IncompleteViewHolder(RowLogPlayIncompleteBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+				binding.logPlayIncomplete.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(android.widget.CompoundButton buttonView, boolean isChecked) {
+						play.incomplete = isChecked;
+					}
+				});
 			}
 
 			@Override
 			public void bind() {
 				if (play != null) {
-					incompleteView.setChecked(play.incomplete);
+					binding.logPlayIncomplete.setChecked(play.incomplete);
 				}
-			}
-
-			@OnCheckedChanged(R.id.log_play_incomplete)
-			public void onIncompleteCheckedChanged() {
-				play.incomplete = incompleteView.isChecked();
 			}
 		}
 
 		public class NoWinStatsViewHolder extends PlayViewHolder {
-			@BindView(R.id.log_play_no_win_stats) SwitchCompat noWinStatsView;
+			private final RowLogPlayNoWinStatsBinding binding;
 
 			public NoWinStatsViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_no_win_stats, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayNoWinStatsBinding.inflate(inflater, parent, false));
+			}
+
+			private NoWinStatsViewHolder(RowLogPlayNoWinStatsBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+				binding.logPlayNoWinStats.setOnCheckedChangeListener(new android.widget.CompoundButton.OnCheckedChangeListener() {
+					@Override
+					public void onCheckedChanged(android.widget.CompoundButton buttonView, boolean isChecked) {
+						play.noWinStats = isChecked;
+					}
+				});
 			}
 
 			@Override
 			public void bind() {
 				if (play != null) {
-					noWinStatsView.setChecked(play.noWinStats);
+					binding.logPlayNoWinStats.setChecked(play.noWinStats);
 				}
-			}
-
-			@OnCheckedChanged(R.id.log_play_no_win_stats)
-			public void onIncompleteCheckedChanged() {
-				play.noWinStats = noWinStatsView.isChecked();
 			}
 		}
 
 		public class CommentsViewHolder extends PlayViewHolder {
-			@BindView(R.id.log_play_comments) EditText commentsView;
+			private final RowLogPlayCommentsBinding binding;
 			private boolean canEdit;
 
 			public CommentsViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_comments, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayCommentsBinding.inflate(inflater, parent, false));
+			}
+
+			private CommentsViewHolder(RowLogPlayCommentsBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+				binding.logPlayComments.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+					@Override
+					public void onFocusChange(View v, boolean hasFocus) {
+						if (canEdit && !hasFocus) {
+							play.comments = ((EditText) v).getText().toString().trim();
+						}
+					}
+				});
 			}
 
 			@Override
 			public void bind() {
 				if (play != null) {
-					commentsView.setTextKeepState(play.comments);
+					binding.logPlayComments.setTextKeepState(play.comments);
 					canEdit = true;
-				}
-			}
-
-			@OnFocusChange(R.id.log_play_comments)
-			public void onCommentsFocusChange(EditText v, boolean hasFocus) {
-				if (canEdit && !hasFocus) {
-					play.comments = v.getText().toString().trim();
 				}
 			}
 		}
 
 		public class AddPlayerViewHolder extends PlayViewHolder {
-			@BindView(R.id.add_players_button) Button addPlayersButton;
+			private final RowLogPlayAddPlayerBinding binding;
 
 			public AddPlayerViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_add_player, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayAddPlayerBinding.inflate(inflater, parent, false));
+			}
+
+			private AddPlayerViewHolder(RowLogPlayAddPlayerBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+				binding.addPlayersButton.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						onAddPlayerClicked();
+					}
+				});
 			}
 
 			@Override
 			public void bind() {
-				ViewCompat.setBackgroundTintList(addPlayersButton, ColorStateList.valueOf(fabColor));
+				ViewCompat.setBackgroundTintList(binding.addPlayersButton, ColorStateList.valueOf(fabColor));
 			}
 
-			@OnClick(R.id.add_players_button)
 			public void onAddPlayerClicked() {
 				if (PreferencesUtils.getEditPlayerPrompted(LogPlayActivity.this)) {
 					addPlayers(PreferencesUtils.getEditPlayer(LogPlayActivity.this));
@@ -1638,7 +1700,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 					}
 					play.addPlayer(player);
 					playAdapter.notifyPlayerAdded(play.getPlayerCount());
-					recyclerView.smoothScrollToPosition(playAdapter.getItemCount());
+					binding.list.smoothScrollToPosition(playAdapter.getItemCount());
 				}
 			}
 
@@ -1666,25 +1728,39 @@ public class LogPlayActivity extends AppCompatActivity implements
 		}
 
 		public class PlayerHeaderViewHolder extends PlayViewHolder {
-			@BindView(R.id.assign_colors) View assignColorsButton;
-			@BindView(R.id.log_play_players_label) TextView playerLabelView;
+			private final RowLogPlayPlayerHeaderBinding binding;
 
 			public PlayerHeaderViewHolder(ViewGroup parent) {
-				super(inflater.inflate(R.layout.row_log_play_player_header, parent, false));
-				ButterKnife.bind(this, itemView);
+				this(RowLogPlayPlayerHeaderBinding.inflate(inflater, parent, false));
+			}
+
+			private PlayerHeaderViewHolder(RowLogPlayPlayerHeaderBinding binding) {
+				super(binding.getRoot());
+				this.binding = binding;
+				binding.playerSort.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						onPlayerSort(v);
+					}
+				});
+				binding.assignColors.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						onAssignColors();
+					}
+				});
 			}
 
 			@Override
 			public void bind() {
 				Resources r = getResources();
 				int playerCount = play.getPlayerCount();
-				playerLabelView.setText(playerCount <= 0 ?
+				binding.logPlayPlayersLabel.setText(playerCount <= 0 ?
 					r.getString(R.string.title_players) :
 					r.getString(R.string.title_players_with_count, playerCount));
-				assignColorsButton.setEnabled(play != null && playerCount > 0);
+				binding.assignColors.setEnabled(play != null && playerCount > 0);
 			}
 
-			@OnClick(R.id.player_sort)
 			public void onPlayerSort(View view) {
 				PopupMenu popup = new PopupMenu(LogPlayActivity.this, view);
 				popup.inflate(!arePlayersCustomSorted && play.getPlayerCount() > 1 ? R.menu.log_play_player_sort : R.menu.log_play_player_sort_short);
@@ -1753,7 +1829,6 @@ public class LogPlayActivity extends AppCompatActivity implements
 				popup.show();
 			}
 
-			@OnClick(R.id.assign_colors)
 			public void onAssignColors() {
 				if (play.hasColors()) {
 					Builder builder = new Builder(LogPlayActivity.this)

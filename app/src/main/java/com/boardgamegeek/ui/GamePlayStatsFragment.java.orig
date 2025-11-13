@@ -22,7 +22,6 @@ import android.widget.TableLayout;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding;
 import com.boardgamegeek.auth.AccountUtils;
 import com.boardgamegeek.extensions.DoubleUtils;
 import com.boardgamegeek.provider.BggContract;
@@ -78,6 +77,11 @@ import androidx.fragment.app.Fragment;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
+import butterknife.BindView;
+import butterknife.BindViews;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class GamePlayStatsFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -93,7 +97,26 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	private Stats stats;
 	private final SparseBooleanArray selectedItems = new SparseBooleanArray();
 
-	private FragmentGamePlayStatsBinding binding;
+	private Unbinder unbinder;
+	@BindView(R.id.progress) ContentLoadingProgressBar progressView;
+	@BindView(R.id.empty) View emptyView;
+	@BindView(R.id.data) View dataView;
+	@BindView(R.id.table_play_count) TableLayout playCountTable;
+	@BindView(R.id.chart_play_count) HorizontalBarChart playCountChart;
+	@BindView(R.id.card_score) View scoresCard;
+	@BindView(R.id.low_score) TextView lowScoreView;
+	@BindView(R.id.average_score) TextView averageScoreView;
+	@BindView(R.id.average_win_score) TextView averageWinScoreView;
+	@BindView(R.id.score_graph) ScoreGraphView scoreGraphView;
+	@BindView(R.id.high_score) TextView highScoreView;
+	@BindView(R.id.card_players) View playersCard;
+	@BindView(R.id.list_players) LinearLayout playersList;
+	@BindView(R.id.table_dates) TableLayout datesTable;
+	@BindView(R.id.table_play_time) TableLayout playTimeTable;
+	@BindView(R.id.card_locations) View locationsCard;
+	@BindView(R.id.table_locations) TableLayout locationsTable;
+	@BindView(R.id.table_advanced) TableLayout advancedTable;
+	@BindViews({
 		R.id.header_play_count,
 		R.id.header_scores,
 		R.id.header_players,
@@ -102,6 +125,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		R.id.header_locations,
 		R.id.header_advanced
 	}) List<TextView> colorizedHeaders;
+	@BindViews({
 		R.id.score_help,
 		R.id.players_skill_help
 	}) List<ImageView> colorizedIcons;
@@ -124,8 +148,8 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
 
-		binding = FragmentGamePlayStatsBinding.inflate(inflater, container, false);
-		
+		View rootView = inflater.inflate(R.layout.fragment_game_play_stats, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
 
 		if (headerColor != Color.TRANSPARENT) {
 			for (TextView view : colorizedHeaders) {
@@ -144,14 +168,14 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			};
 		}
 
-		binding.playCountChart.setDescription(null);
-		binding.playCountChart.setDrawGridBackground(false);
-		binding.playCountChart.getAxisLeft().setEnabled(false);
+		playCountChart.setDescription(null);
+		playCountChart.setDrawGridBackground(false);
+		playCountChart.getAxisLeft().setEnabled(false);
 
-		YAxis yAxis = binding.playCountChart.getAxisRight();
+		YAxis yAxis = playCountChart.getAxisRight();
 		yAxis.setGranularity(1.0f);
 
-		XAxis xAxis = binding.playCountChart.getXAxis();
+		XAxis xAxis = playCountChart.getXAxis();
 		xAxis.setGranularity(1.0f);
 		xAxis.setDrawGridLines(false);
 
@@ -161,7 +185,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			AnimationUtils.setInterpolator(getContext(), playerTransition);
 		}
 
-		return binding.getRoot();
+		return rootView;
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -179,7 +203,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		binding = null;
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@NonNull
@@ -269,10 +293,10 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private void bindUi(Stats stats) {
-		binding.playCountTable.removeAllViews();
-		binding.datesTable.removeAllViews();
-		binding.playTimeTable.removeAllViews();
-		binding.advancedTable.removeAllViews();
+		playCountTable.removeAllViews();
+		datesTable.removeAllViews();
+		playTimeTable.removeAllViews();
+		advancedTable.removeAllViews();
 
 		final PlayStatRow playStatRow = new PlayStatRow(getContext());
 		if (!TextUtils.isEmpty(stats.getDollarDate())) {
@@ -286,16 +310,16 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 		} else if (!TextUtils.isEmpty(stats.getNickelDate())) {
 			playStatRow.setValue(getString(R.string.play_stat_nickel));
 		}
-		binding.playCountTable.addView(playStatRow);
+		playCountTable.addView(playStatRow);
 
-		addPlayStat(binding.playCountTable, stats.getPlayCount(), R.string.play_stat_play_count);
+		addPlayStat(playCountTable, stats.getPlayCount(), R.string.play_stat_play_count);
 
 		if (stats.getPlayCountIncomplete() > 0) {
-			addPlayStat(binding.playCountTable, stats.getPlayCountIncomplete(), R.string.play_stat_play_count_incomplete);
+			addPlayStat(playCountTable, stats.getPlayCountIncomplete(), R.string.play_stat_play_count_incomplete);
 		}
-		addPlayStat(binding.playCountTable, stats.getMonthsPlayed(), R.string.play_stat_months_played);
+		addPlayStat(playCountTable, stats.getMonthsPlayed(), R.string.play_stat_months_played);
 		if (stats.getPlayRate() > 0.0) {
-			addPlayStat(binding.playCountTable, stats.getPlayRate(), R.string.play_stat_play_rate);
+			addPlayStat(playCountTable, stats.getPlayRate(), R.string.play_stat_play_rate);
 		}
 
 		ArrayList<BarEntry> playCountValues = new ArrayList<>();
@@ -316,70 +340,70 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 			dataSets.add(playCountDataSet);
 
 			BarData data = new BarData(dataSets);
-			binding.playCountChart.setData(data);
-			binding.playCountChart.animateY(1000, Easing.EaseInOutBack);
-			binding.playCountChart.setVisibility(View.VISIBLE);
+			playCountChart.setData(data);
+			playCountChart.animateY(1000, Easing.EaseInOutBack);
+			playCountChart.setVisibility(View.VISIBLE);
 		} else {
-			binding.playCountChart.setVisibility(View.GONE);
+			playCountChart.setVisibility(View.GONE);
 		}
 
 		if (stats.hasScores()) {
-			binding.lowScore.setText(SCORE_FORMAT.format(stats.getLowScore()));
-			binding.averageScore.setText(SCORE_FORMAT.format(stats.getAverageScore()));
-			binding.averageWinScore.setText(SCORE_FORMAT.format(stats.getAverageWinningScore()));
-			binding.highScore.setText(SCORE_FORMAT.format(stats.getHighScore()));
+			lowScoreView.setText(SCORE_FORMAT.format(stats.getLowScore()));
+			averageScoreView.setText(SCORE_FORMAT.format(stats.getAverageScore()));
+			averageWinScoreView.setText(SCORE_FORMAT.format(stats.getAverageWinningScore()));
+			highScoreView.setText(SCORE_FORMAT.format(stats.getHighScore()));
 			if (stats.getHighScore() > stats.getLowScore()) {
-				binding.scoreGraph.setLowScore(stats.getLowScore());
-				binding.scoreGraph.setAverageScore(stats.getAverageScore());
-				binding.scoreGraph.setAverageWinScore(stats.getAverageWinningScore());
-				binding.scoreGraph.setHighScore(stats.getHighScore());
-				binding.scoreGraph.setVisibility(View.VISIBLE);
+				scoreGraphView.setLowScore(stats.getLowScore());
+				scoreGraphView.setAverageScore(stats.getAverageScore());
+				scoreGraphView.setAverageWinScore(stats.getAverageWinningScore());
+				scoreGraphView.setHighScore(stats.getHighScore());
+				scoreGraphView.setVisibility(View.VISIBLE);
 			}
-			binding.scoresCard.setVisibility(View.VISIBLE);
+			scoresCard.setVisibility(View.VISIBLE);
 		} else {
-			binding.scoresCard.setVisibility(View.GONE);
+			scoresCard.setVisibility(View.GONE);
 		}
 
-		addStatRowMaybe(binding.datesTable, stats.getFirstPlayDate()).setLabel(R.string.play_stat_first_play);
-		addStatRowMaybe(binding.datesTable, stats.getNickelDate()).setLabel(R.string.play_stat_nickel);
-		addStatRowMaybe(binding.datesTable, stats.getDimeDate()).setLabel(R.string.play_stat_dime);
-		addStatRowMaybe(binding.datesTable, stats.getQuarterDate()).setLabel(R.string.play_stat_quarter);
-		addStatRowMaybe(binding.datesTable, stats.getHalfDollarDate()).setLabel(R.string.play_stat_half_dollar);
-		addStatRowMaybe(binding.datesTable, stats.getDollarDate()).setLabel(R.string.play_stat_dollar);
-		addStatRowMaybe(binding.datesTable, stats.getLastPlayDate()).setLabel(R.string.play_stat_last_play);
+		addStatRowMaybe(datesTable, stats.getFirstPlayDate()).setLabel(R.string.play_stat_first_play);
+		addStatRowMaybe(datesTable, stats.getNickelDate()).setLabel(R.string.play_stat_nickel);
+		addStatRowMaybe(datesTable, stats.getDimeDate()).setLabel(R.string.play_stat_dime);
+		addStatRowMaybe(datesTable, stats.getQuarterDate()).setLabel(R.string.play_stat_quarter);
+		addStatRowMaybe(datesTable, stats.getHalfDollarDate()).setLabel(R.string.play_stat_half_dollar);
+		addStatRowMaybe(datesTable, stats.getDollarDate()).setLabel(R.string.play_stat_dollar);
+		addStatRowMaybe(datesTable, stats.getLastPlayDate()).setLabel(R.string.play_stat_last_play);
 
-		final PlayStatRow playTimeView = addStatRow(binding.playTimeTable);
+		final PlayStatRow playTimeView = addStatRow(playTimeTable);
 		playTimeView.setLabel(R.string.play_stat_hours_played);
 		playTimeView.setValue((int) stats.getHoursPlayed());
 
 		int average = stats.getAveragePlayTime();
 		if (average > 0) {
-			addPlayStatMinutes(binding.playTimeTable, average, R.string.play_stat_average_play_time);
+			addPlayStatMinutes(playTimeTable, average, R.string.play_stat_average_play_time);
 			if (playingTime > 0) {
 				if (average > playingTime) {
-					addPlayStatMinutes(binding.playTimeTable, average - playingTime, R.string.play_stat_average_play_time_slower);
+					addPlayStatMinutes(playTimeTable, average - playingTime, R.string.play_stat_average_play_time_slower);
 				} else if (playingTime > average) {
-					addPlayStatMinutes(binding.playTimeTable, playingTime - average, R.string.play_stat_average_play_time_faster);
+					addPlayStatMinutes(playTimeTable, playingTime - average, R.string.play_stat_average_play_time_faster);
 				}
 				// don't display anything if the average is exactly as expected
 			}
 		}
 		int averagePerPlayer = stats.getAveragePlayTimePerPlayer();
 		if (averagePerPlayer > 0) {
-			addPlayStatMinutes(binding.playTimeTable, averagePerPlayer, R.string.play_stat_average_play_time_per_player);
+			addPlayStatMinutes(playTimeTable, averagePerPlayer, R.string.play_stat_average_play_time_per_player);
 		}
 
-		binding.locationsTable.removeAllViews();
+		locationsTable.removeAllViews();
 		for (Entry<String, Integer> location : stats.getPlaysPerLocation()) {
-			binding.locationsCard.setVisibility(View.VISIBLE);
-			addPlayStat(binding.locationsTable, location.getValue(), location.getKey());
+			locationsCard.setVisibility(View.VISIBLE);
+			addPlayStat(locationsTable, location.getValue(), location.getKey());
 		}
 
-		binding.playersList.removeAllViews();
+		playersList.removeAllViews();
 		int position = 0;
 		for (Entry<String, PlayerStats> playerStats : stats.getPlayerStats()) {
 			position++;
-			binding.playersCard.setVisibility(View.VISIBLE);
+			playersCard.setVisibility(View.VISIBLE);
 			PlayerStats ps = playerStats.getValue();
 
 			final PlayerStatView view = new PlayerStatView(getActivity());
@@ -403,7 +427,7 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					@Override
 					public void onClick(View v) {
 						if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-							TransitionManager.beginDelayedTransition(binding.playersList, playerTransition);
+							TransitionManager.beginDelayedTransition(playersList, playerTransition);
 						}
 
 						if (selectedItems.get(finalPosition, false)) {
@@ -416,30 +440,30 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 					}
 				});
 			}
-			binding.playersList.addView(view);
+			playersList.addView(view);
 		}
 
 		if (personalRating > 0) {
-			PlayStatRow view = addPlayStat(binding.advancedTable, stats.calculateFhm(), R.string.play_stat_fhm);
+			PlayStatRow view = addPlayStat(advancedTable, stats.calculateFhm(), R.string.play_stat_fhm);
 			view.setInfoText(R.string.play_stat_fhm_info);
 
-			view = addPlayStat(binding.advancedTable, stats.calculateHhm(), R.string.play_stat_hhm);
+			view = addPlayStat(advancedTable, stats.calculateHhm(), R.string.play_stat_hhm);
 			view.setInfoText(R.string.play_stat_hhm_info);
 
-			view = addPlayStat(binding.advancedTable, stats.calculateRuhm(), R.string.play_stat_ruhm);
+			view = addPlayStat(advancedTable, stats.calculateRuhm(), R.string.play_stat_ruhm);
 			view.setInfoText(R.string.play_stat_ruhm_info);
 		}
 
 		if (gameOwned) {
-			PlayStatRow view = addPlayStat(binding.advancedTable, DoubleUtils.asPercentage(stats.calculateUtilization()), R.string.play_stat_utilization);
+			PlayStatRow view = addPlayStat(advancedTable, DoubleUtils.asPercentage(stats.calculateUtilization()), R.string.play_stat_utilization);
 			view.setInfoText(R.string.play_stat_utilization_info);
 		}
 
 		int hIndexOffset = stats.getHIndexOffset();
 		if (hIndexOffset == -1) {
-			addStatRow(binding.advancedTable).setLabel(R.string.play_stat_game_h_index_offset_in);
+			addStatRow(advancedTable).setLabel(R.string.play_stat_game_h_index_offset_in);
 		} else {
-			final PlayStatRow hIndexView = addStatRow(binding.advancedTable);
+			final PlayStatRow hIndexView = addStatRow(advancedTable);
 			hIndexView.setLabel(R.string.play_stat_game_h_index_offset_out);
 			hIndexView.setValue(hIndexOffset);
 		}
@@ -486,15 +510,15 @@ public class GamePlayStatsFragment extends Fragment implements LoaderManager.Loa
 	}
 
 	private void showEmpty() {
-		binding.progress.hide();
-		AnimationUtils.fadeOut(binding.data);
-		AnimationUtils.fadeIn(binding.empty);
+		progressView.hide();
+		AnimationUtils.fadeOut(dataView);
+		AnimationUtils.fadeIn(emptyView);
 	}
 
 	private void showData() {
-		binding.progress.hide();
-		AnimationUtils.fadeOut(binding.empty);
-		AnimationUtils.fadeIn(binding.data);
+		progressView.hide();
+		AnimationUtils.fadeOut(emptyView);
+		AnimationUtils.fadeIn(dataView);
 	}
 
 	private PlayStatRow addStatRowMaybe(ViewGroup container, String date) {

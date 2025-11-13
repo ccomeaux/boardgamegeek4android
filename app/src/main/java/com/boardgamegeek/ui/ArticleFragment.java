@@ -10,14 +10,11 @@ import android.webkit.WebView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.FragmentArticleBinding;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.UIUtils;
 
 import java.text.NumberFormat;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 public class ArticleFragment extends Fragment {
 	private static final String KEY_USER = "USER";
@@ -32,11 +29,7 @@ public class ArticleFragment extends Fragment {
 	private int editCount;
 	private String body;
 
-	private Unbinder unbinder;
-	@BindView(R.id.username) TextView usernameView;
-	@BindView(R.id.post_date) TimestampView postDateView;
-	@BindView(R.id.edit_date) TimestampView editDateView;
-	@BindView(R.id.body) WebView bodyView;
+	private FragmentArticleBinding binding;
 
 	public static ArticleFragment newInstance(String user, long postDate, long editDate, int editCount, String body) {
 		Bundle args = new Bundle();
@@ -54,28 +47,27 @@ public class ArticleFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_article, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentArticleBinding.inflate(inflater, container, false);
 
-		usernameView.setText(user);
-		postDateView.setTimestamp(postDate);
+		binding.username.setText(user);
+		binding.postDate.setTimestamp(postDate);
 		if (editCount > 0) {
-			editDateView.setFormat(getResources().getQuantityString(R.plurals.edit_timestamp, editCount));
-			editDateView.setFormatArg(NumberFormat.getNumberInstance().format(editCount));
-			editDateView.setTimestamp(editDate);
-			editDateView.setVisibility(View.VISIBLE);
+			binding.editDate.setFormat(getResources().getQuantityString(R.plurals.edit_timestamp, editCount));
+			binding.editDate.setFormatArg(NumberFormat.getNumberInstance().format(editCount));
+			binding.editDate.setTimestamp(editDate);
+			binding.editDate.setVisibility(View.VISIBLE);
 		} else {
-			editDateView.setVisibility(View.GONE);
+			binding.editDate.setVisibility(View.GONE);
 		}
-		UIUtils.setWebViewText(bodyView, body);
+		UIUtils.setWebViewText(binding.body, body);
 
-		return rootView;
+		return binding.getRoot();
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		unbinder.unbind();
+		binding = null;
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {

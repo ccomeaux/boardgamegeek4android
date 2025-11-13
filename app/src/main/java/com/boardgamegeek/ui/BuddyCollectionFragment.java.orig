@@ -44,7 +44,9 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.boardgamegeek.databinding.FragmentBuddyCollection;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
 import timber.log.Timber;
@@ -62,7 +64,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 	private String[] statusEntries;
 	private boolean isListShown = false;
 
-	private FragmentBuddyCollection binding;
+	Unbinder unbinder;
 	@BindView(R.id.empty_container) ViewGroup emptyContainer;
 	@BindView(android.R.id.empty) TextView emptyTextView;
 	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
@@ -118,7 +120,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		binding = null;
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	@Override

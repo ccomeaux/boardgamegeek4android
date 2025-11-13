@@ -168,9 +168,6 @@ dependencies {
 
     implementation 'com.squareup.picasso:picasso:2.5.2'
 
-    implementation "com.jakewharton:butterknife:$butterknife_version"
-    annotationProcessor "com.jakewharton:butterknife-compiler:$butterknife_version"
-
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'

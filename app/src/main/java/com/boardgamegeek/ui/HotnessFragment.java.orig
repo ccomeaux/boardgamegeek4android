@@ -41,7 +41,9 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.boardgamegeek.databinding.FragmentHotness;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import retrofit2.Call;
 
 public class HotnessFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, ActionMode.Callback {
@@ -49,15 +51,18 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 
 	private HotGamesAdapter adapter;
 	private ActionMode actionMode;
-	private FragmentHotness binding;
+	private Unbinder unbinder;
 	@BindView(R.id.root_container) CoordinatorLayout containerView;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
+	@BindView(android.R.id.empty) TextView emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentHotness.inflate(inflater, container, false);
-		
+		View rootView = inflater.inflate(R.layout.fragment_hotness, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
-		return binding.getRoot();
+		return rootView;
 	}
 
 	@Override
@@ -69,12 +74,12 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		binding = null;
+		if (unbinder != null) unbinder.unbind();
 	}
 
 	private void setUpRecyclerView() {
-		binding.list.setLayoutManager(new LinearLayoutManager(getActivity()));
-		binding.list.setHasFixedSize(true);
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+		recyclerView.setHasFixedSize(true);
 	}
 
 	@Override
@@ -119,23 +124,23 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 						}
 					}
 				});
-			binding.list.setAdapter(adapter);
+			recyclerView.setAdapter(adapter);
 		} else {
 			adapter.notifyDataSetChanged();
 		}
 
 		if (data == null) {
-			AnimationUtils.fadeOut(binding.list);
-			AnimationUtils.fadeIn(binding.empty);
+			AnimationUtils.fadeOut(recyclerView);
+			AnimationUtils.fadeIn(emptyView);
 		} else if (data.hasError()) {
-			binding.empty.setText(getString(R.string.empty_http_error, data.getErrorMessage()));
-			AnimationUtils.fadeOut(binding.list);
-			AnimationUtils.fadeIn(binding.empty);
+			emptyView.setText(getString(R.string.empty_http_error, data.getErrorMessage()));
+			AnimationUtils.fadeOut(recyclerView);
+			AnimationUtils.fadeIn(emptyView);
 		} else {
-			AnimationUtils.fadeOut(binding.empty);
-			AnimationUtils.fadeIn(getActivity(), binding.list, isResumed());
+			AnimationUtils.fadeOut(emptyView);
+			AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		}
-		binding.progress.hide();
+		progressView.hide();
 	}
 
 	@Override

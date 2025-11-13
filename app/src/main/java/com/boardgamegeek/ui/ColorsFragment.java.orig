@@ -52,8 +52,12 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.boardgamegeek.databinding.FragmentColors;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import butterknife.BindDimen;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 import timber.log.Timber;
 
 public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> {
@@ -65,8 +69,11 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	private GameColorRecyclerViewAdapter adapter;
 	private ActionMode actionMode;
 
-	private FragmentColors binding;
+	private Unbinder unbinder;
 	@BindView(R.id.root_container) CoordinatorLayout containerView;
+	@BindView(android.R.id.progress) View progressView;
+	@BindView(android.R.id.empty) View emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 	@BindView(R.id.fab) FloatingActionButton fab;
 	private final Paint swipePaint = new Paint();
 	private Bitmap deleteIcon;
@@ -90,22 +97,22 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		binding = FragmentColors.inflate(inflater, container, false);
-		
+		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
 		FloatingActionButtonUtils.colorize(fab, iconColor);
 		setUpRecyclerView();
-		return binding.getRoot();
+		return rootView;
 	}
 
 	private void setUpRecyclerView() {
-		binding.list.setLayoutManager(new LinearLayoutManager(getActivity()));
+		recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 		swipePaint.setColor(ContextCompat.getColor(getContext(), R.color.medium_blue));
 		deleteIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_delete_white);
 
 		ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
 			@Override
-			public boolean onMove(RecyclerView binding.list, ViewHolder viewHolder, ViewHolder target) {
+			public boolean onMove(RecyclerView recyclerView, ViewHolder viewHolder, ViewHolder target) {
 				return false;
 			}
 
@@ -121,15 +128,15 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 			}
 
 			@Override
-			public int getSwipeDirs(RecyclerView binding.list, ViewHolder viewHolder) {
+			public int getSwipeDirs(RecyclerView recyclerView, ViewHolder viewHolder) {
 				if (actionMode != null) {
 					return 0;
 				}
-				return super.getSwipeDirs(binding.list, viewHolder);
+				return super.getSwipeDirs(recyclerView, viewHolder);
 			}
 
 			@Override
-			public void onChildDraw(Canvas c, RecyclerView binding.list, ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+			public void onChildDraw(Canvas c, RecyclerView recyclerView, ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
 				if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
 					View itemView = viewHolder.itemView;
 
@@ -166,15 +173,15 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 					c.drawRect(background, swipePaint);
 					c.drawBitmap(deleteIcon, iconSrc, iconDst, swipePaint);
 				}
-				super.onChildDraw(c, binding.list, viewHolder, dX, dY, actionState, isCurrentlyActive);
+				super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
 			}
 		});
-		itemTouchHelper.attachToRecyclerView(binding.list);
+		itemTouchHelper.attachToRecyclerView(recyclerView);
 	}
 
 	@Override
 	public void onDestroyView() {
-		binding = null;
+		unbinder.unbind();
 		super.onDestroyView();
 	}
 
@@ -288,15 +295,15 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 					}
 				}
 			});
-			binding.list.setAdapter(adapter);
+			recyclerView.setAdapter(adapter);
 		}
 
 		int token = loader.getId();
 		if (token == TOKEN) {
 			if (cursor.getCount() == 0) {
-				AnimationUtils.fadeIn(binding.empty);
+				AnimationUtils.fadeIn(emptyView);
 			} else {
-				AnimationUtils.fadeOut(binding.empty);
+				AnimationUtils.fadeOut(emptyView);
 			}
 
 			adapter.changeCursor(cursor);
@@ -305,9 +312,9 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 			cursor.close();
 		}
 
-		AnimationUtils.fadeIn(getActivity(), binding.list, isResumed());
+		AnimationUtils.fadeIn(getActivity(), recyclerView, isResumed());
 		fab.show();
-		AnimationUtils.fadeOut(binding.progress);
+		AnimationUtils.fadeOut(progressView);
 	}
 
 	@Override

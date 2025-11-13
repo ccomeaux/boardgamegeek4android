@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.RowThreadArticleBinding;
 import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.ui.ArticleActivity;
@@ -20,8 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecyclerViewAdapter.ArticleViewHolder> {
 	private final int threadId;
@@ -50,7 +49,8 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 	@NotNull
 	@Override
 	public ArticleViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
-		return new ArticleViewHolder(inflater.inflate(R.layout.row_thread_article, parent, false));
+		RowThreadArticleBinding binding = RowThreadArticleBinding.inflate(inflater, parent, false);
+		return new ArticleViewHolder(binding);
 	}
 
 	@Override
@@ -79,44 +79,38 @@ public class ThreadRecyclerViewAdapter extends RecyclerView.Adapter<ThreadRecycl
 	}
 
 	public class ArticleViewHolder extends RecyclerView.ViewHolder {
-		@BindView(R.id.row_header) View rowHeaderView;
-		@BindView(R.id.username) TextView usernameView;
-		@BindView(R.id.post_date) TimestampView postDateView;
-		@BindView(R.id.date_divider) View dateDivider;
-		@BindView(R.id.edit_date) TimestampView editDateView;
-		@BindView(R.id.body) TextView bodyView;
-		@BindView(R.id.view_button) View viewButton;
+		private final RowThreadArticleBinding binding;
 
-		public ArticleViewHolder(View itemView) {
-			super(itemView);
-			ButterKnife.bind(this, itemView);
+		public ArticleViewHolder(RowThreadArticleBinding binding) {
+			super(binding.getRoot());
+			this.binding = binding;
 		}
 
 		public void bind(final Article article) {
 			if (article == null) return;
 
 			if (article.getPostTicks() > 0L) {
-				rowHeaderView.setVisibility(View.VISIBLE);
+				binding.rowHeader.setVisibility(View.VISIBLE);
 				if (TextUtils.isEmpty(article.getUsername())) {
-					usernameView.setVisibility(View.GONE);
+					binding.username.setVisibility(View.GONE);
 				} else {
-					usernameView.setText(article.getUsername());
-					usernameView.setVisibility(View.VISIBLE);
+					binding.username.setText(article.getUsername());
+					binding.username.setVisibility(View.VISIBLE);
 				}
-				postDateView.setTimestamp(article.getPostTicks());
+				binding.postDate.setTimestamp(article.getPostTicks());
 				if (article.getEditTicks() != article.getPostTicks()) {
-					editDateView.setTimestamp(article.getEditTicks());
-					editDateView.setVisibility(View.VISIBLE);
-					dateDivider.setVisibility(View.VISIBLE);
+					binding.editDate.setTimestamp(article.getEditTicks());
+					binding.editDate.setVisibility(View.VISIBLE);
+					binding.dateDivider.setVisibility(View.VISIBLE);
 				} else {
-					editDateView.setVisibility(View.GONE);
-					dateDivider.setVisibility(View.GONE);
+					binding.editDate.setVisibility(View.GONE);
+					binding.dateDivider.setVisibility(View.GONE);
 				}
 			} else {
-				rowHeaderView.setVisibility(View.GONE);
+				binding.rowHeader.setVisibility(View.GONE);
 			}
-			TextViewUtils.setTextMaybeHtml(bodyView, article.getBody().trim());
-			viewButton.setOnClickListener(v -> ArticleActivity.start(v.getContext(), threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType, article));
+			TextViewUtils.setTextMaybeHtml(binding.body, article.getBody().trim());
+			binding.viewButton.setOnClickListener(v -> ArticleActivity.start(v.getContext(), threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType, article));
 		}
 	}
 }

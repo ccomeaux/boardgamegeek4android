@@ -45,10 +45,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import timber.log.Timber;
+
+import com.boardgamegeek.databinding.FragmentDataBinding;
 
 public class DataFragment extends Fragment implements Listener {
 	private static final int REQUEST_EXPORT = 1000;
@@ -57,21 +56,19 @@ public class DataFragment extends Fragment implements Listener {
 	private static final String ANSWERS_EVENT_NAME = "DataManagement";
 	private static final String ANSWERS_ATTRIBUTE_KEY_ACTION = "Action";
 
-	private Unbinder unbinder;
-	@BindView(R.id.backup_types) ViewGroup fileTypesView;
+	private FragmentDataBinding binding;
 	private String currentType;
 
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View root = inflater.inflate(R.layout.fragment_data, container, false);
+		binding = FragmentDataBinding.inflate(inflater, container, false);
 
-		unbinder = ButterKnife.bind(this, root);
 		createDataRow(Constants.TYPE_COLLECTION_VIEWS, R.string.backup_type_collection_view, R.string.backup_description_collection_view);
 		createDataRow(Constants.TYPE_GAMES, R.string.backup_type_game, R.string.backup_description_game);
 		createDataRow(Constants.TYPE_USERS, R.string.backup_type_user, R.string.backup_description_user);
 
-		return root;
+		return binding.getRoot();
 	}
 
 	private void createDataRow(String type, @StringRes int typeResId, @StringRes int descriptionResId) {
@@ -79,7 +76,7 @@ public class DataFragment extends Fragment implements Listener {
 		row.setListener(this);
 		row.bind(type, typeResId, descriptionResId);
 		row.setTag(type);
-		fileTypesView.addView(row);
+		binding.backupTypes.addView(row);
 	}
 
 	@Override
@@ -97,7 +94,7 @@ public class DataFragment extends Fragment implements Listener {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		unbinder.unbind();
+		binding = null;
 	}
 
 	@Nullable
@@ -268,8 +265,9 @@ public class DataFragment extends Fragment implements Listener {
 	}
 
 	private DataStepRow findRow(String type) {
-		for (int i = 0; i < fileTypesView.getChildCount(); i++) {
-			View view = fileTypesView.getChildAt(i);
+		if (binding == null) return null;
+		for (int i = 0; i < binding.backupTypes.getChildCount(); i++) {
+			View view = binding.backupTypes.getChildAt(i);
 			if (view != null) {
 				Object tag = view.getTag();
 				if (tag.equals(type)) {

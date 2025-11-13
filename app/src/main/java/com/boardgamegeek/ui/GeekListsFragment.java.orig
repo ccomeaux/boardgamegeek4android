@@ -28,7 +28,9 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.boardgamegeek.databinding.FragmentGeeklistsBinding;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import icepick.Icepick;
 import icepick.State;
 
@@ -42,7 +44,10 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@State int sortType = 0;
 	private GeekListsRecyclerViewAdapter adapter;
 
-	private FragmentGeeklistsBinding binding;
+	Unbinder unbinder;
+	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
+	@BindView(android.R.id.empty) View emptyView;
+	@BindView(android.R.id.list) RecyclerView recyclerView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -53,10 +58,10 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		binding = FragmentGeeklistsBinding.inflate(inflater, container, false);
-		
+		View rootView = inflater.inflate(R.layout.fragment_geeklists, container, false);
+		unbinder = ButterKnife.bind(this, rootView);
 		setUpRecyclerView();
-		return binding.getRoot();
+		return rootView;
 	}
 
 	@Override
@@ -73,7 +78,7 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 
 	@Override
 	public void onDestroyView() {
-		binding = null;
+		unbinder.unbind();
 		super.onDestroyView();
 	}
 
@@ -130,15 +135,15 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		binding.list.setLayoutManager(layoutManager);
+		recyclerView.setLayoutManager(layoutManager);
 
-		binding.list.setHasFixedSize(true);
-		binding.list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+		recyclerView.setHasFixedSize(true);
+		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
 
-		binding.list.addOnScrollListener(new RecyclerView.OnScrollListener() {
+		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
-			public void onScrollStateChanged(RecyclerView binding.list, int newState) {
-				super.onScrollStateChanged(binding.list, newState);
+			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+				super.onScrollStateChanged(recyclerView, newState);
 
 				final GeekListsLoader loader = getLoader();
 				if (loader != null && !loader.isLoading() && loader.hasMoreResults()) {
@@ -182,17 +187,17 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 
 		if (adapter == null) {
 			adapter = new GeekListsRecyclerViewAdapter(getActivity(), data);
-			binding.list.setAdapter(adapter);
+			recyclerView.setAdapter(adapter);
 		} else {
 			adapter.update(data);
 		}
 
 		if (adapter.getItemCount() == 0) {
-			AnimationUtils.fadeIn(binding.empty, isResumed());
+			AnimationUtils.fadeIn(emptyView, isResumed());
 		} else {
-			AnimationUtils.fadeIn(binding.list, isResumed());
+			AnimationUtils.fadeIn(recyclerView, isResumed());
 		}
-		binding.progress.hide();
+		progressView.hide();
 	}
 
 	@Override

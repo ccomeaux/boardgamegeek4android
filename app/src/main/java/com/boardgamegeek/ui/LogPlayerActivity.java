@@ -51,12 +51,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.ContextCompat;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.OnTextChanged;
 import icepick.Icepick;
 import icepick.State;
+
+import com.boardgamegeek.databinding.ActivityLogplayerBinding;
 
 public class LogPlayerActivity extends AppCompatActivity implements ColorPickerWithListenerDialogFragment.Listener {
 	public static final String KEY_GAME_ID = "GAME_ID";
@@ -82,24 +80,7 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	@State Player player;
 	private Player originalPlayer;
 
-	@BindView(R.id.scroll_container) ScrollView scrollContainer;
-	@BindView(R.id.header) TextView headerView;
-	@BindView(R.id.two_line_container) View twoLineContainer;
-	@BindView(R.id.header2) TextView titleView;
-	@BindView(R.id.subheader) TextView subtitleView;
-	@BindView(R.id.log_player_username) AutoCompleteTextView usernameView;
-	@BindView(R.id.log_player_name) AutoCompleteTextView nameView;
-	@BindView(R.id.log_player_team_color) AutoCompleteTextView teamColorView;
-	@BindView(R.id.color_view) ImageView colorView;
-	@BindView(R.id.log_player_position) EditText positionView;
-	@BindView(R.id.log_player_position_button) ImageButton positionButton;
-	@BindView(R.id.log_player_score) EditText scoreView;
-	@BindView(R.id.log_player_score_button) ImageButton scoreButton;
-	@BindView(R.id.log_player_rating) EditText ratingView;
-	@BindView(R.id.log_player_new) SwitchCompat newView;
-	@BindView(R.id.log_player_win) SwitchCompat winView;
-	@BindView(R.id.fab) FloatingActionButton fab;
-	@BindView(R.id.fab_buffer) View fabBuffer;
+	private ActivityLogplayerBinding binding;
 	private ShowcaseViewWizard showcaseWizard;
 
 	private boolean preferToShowTeamColor;
@@ -171,11 +152,11 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_logplayer);
-		ButterKnife.bind(this);
+		binding = ActivityLogplayerBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
 
-		nameView.setOnItemClickListener(nameClickListener());
-		usernameView.setOnItemClickListener(userNameClickListener());
+		binding.logPlayerName.setOnItemClickListener(nameClickListener());
+		binding.logPlayerUsername.setOnItemClickListener(userNameClickListener());
 
 		ToolbarUtils.setDoneCancelActionBarView(this, actionBarListener);
 
@@ -195,10 +176,10 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 
 		if (intent.getBooleanExtra(KEY_END_PLAY, false)) {
 			userHasShownScore = true;
-			scoreView.requestFocus();
+			binding.logPlayerScore.requestFocus();
 		}
 		isNewPlayer = intent.getBooleanExtra(KEY_NEW_PLAYER, false);
-		FloatingActionButtonUtils.colorize(fab, intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)));
+		FloatingActionButtonUtils.colorize(binding.fab, intent.getIntExtra(KEY_FAB_COLOR, ContextCompat.getColor(this, R.color.accent)));
 
 		if (savedInstanceState == null) {
 			player = intent.getParcelableExtra(KEY_PLAYER);
@@ -218,15 +199,52 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 			new ArrayList<>(Arrays.asList(usedColors));
 		this.usedColors.remove(player.color);
 
-		ImageUtils.safelyLoadImage(findViewById(R.id.thumbnail), imageUrl, thumbnailUrl, heroImageUrl);
+		ImageUtils.safelyLoadImage(binding.thumbnail, imageUrl, thumbnailUrl, heroImageUrl);
 		bindUi();
 
 		new QueryHandler(getContentResolver()).startQuery(TOKEN_COLORS, null, Games.buildColorsUri(gameId),
 			new String[] { GameColors.COLOR }, null, null, null);
 
-		nameView.setAdapter(new PlayerNameAdapter(this));
-		usernameView.setAdapter(new BuddyNameAdapter(this));
-		teamColorView.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
+		binding.logPlayerName.setAdapter(new PlayerNameAdapter(this));
+		binding.logPlayerUsername.setAdapter(new BuddyNameAdapter(this));
+		binding.logPlayerTeamColor.setAdapter(new GameColorAdapter(this, gameId, R.layout.autocomplete_color));
+
+		// Set up listeners
+		binding.colorView.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onColorClick();
+			}
+		});
+
+		binding.logPlayerTeamColor.addTextChangedListener(new android.text.TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+				LogPlayerActivity.this.afterTextChanged(s);
+			}
+		});
+
+		View.OnClickListener numberButtonListener = new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onNumberToTextClick((ImageButton) v);
+			}
+		};
+		binding.logPlayerPositionButton.setOnClickListener(numberButtonListener);
+		binding.logPlayerScoreButton.setOnClickListener(numberButtonListener);
+
+		binding.fab.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				addField();
+			}
+		});
 
 		setUpShowcaseViewWizard();
 		showcaseWizard.maybeShowHelp();
@@ -256,37 +274,34 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	}
 
 	private OnItemClickListener nameClickListener() {
-		return (parent, view, position, id) -> usernameView.setText((String) view.getTag());
+		return (parent, view, position, id) -> binding.logPlayerUsername.setText((String) view.getTag());
 	}
 
 	private OnItemClickListener userNameClickListener() {
-		return (parent, view, position, id) -> nameView.setText((String) view.getTag());
+		return (parent, view, position, id) -> binding.logPlayerName.setText((String) view.getTag());
 	}
 
-	@OnClick(R.id.color_view)
 	public void onColorClick() {
-		ColorPickerWithListenerDialogFragment fragment = ColorPickerWithListenerDialogFragment.newInstance(colors, teamColorView.getText().toString(), usedColors);
+		ColorPickerWithListenerDialogFragment fragment = ColorPickerWithListenerDialogFragment.newInstance(colors, binding.logPlayerTeamColor.getText().toString(), usedColors);
 		fragment.show(getSupportFragmentManager(), "color_picker");
 	}
 
 	@Override
 	public void onColorSelected(@NotNull String description, int color, int requestCode) {
-		teamColorView.setText(description);
+		binding.logPlayerTeamColor.setText(description);
 	}
 
-	@OnTextChanged(R.id.log_player_team_color)
 	public void afterTextChanged(Editable text) {
 		int color = ColorUtils.parseColor(text.toString());
-		ColorUtils.setColorViewValue(colorView, color);
+		ColorUtils.setColorViewValue(binding.colorView, color);
 	}
 
-	@OnClick({ R.id.log_player_position_button, R.id.log_player_score_button })
 	public void onNumberToTextClick(ImageButton button) {
 		EditText editText = null;
-		if (button == positionButton) {
-			editText = positionView;
-		} else if (button == scoreButton) {
-			editText = scoreView;
+		if (button == binding.logPlayerPositionButton) {
+			editText = binding.logPlayerPosition;
+		} else if (button == binding.logPlayerScoreButton) {
+			editText = binding.logPlayerScore;
 		}
 		if (editText == null) {
 			return;
@@ -320,42 +335,42 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 
 	private void bindUi() {
 		if (hasAutoPosition()) {
-			titleView.setText(gameName);
-			subtitleView.setText(getString(R.string.generic_player, autoPosition));
-			headerView.setVisibility(View.GONE);
-			twoLineContainer.setVisibility(View.VISIBLE);
+			binding.header2.setText(gameName);
+			binding.subheader.setText(getString(R.string.generic_player, autoPosition));
+			binding.header.setVisibility(View.GONE);
+			binding.twoLineContainer.setVisibility(View.VISIBLE);
 		} else {
-			headerView.setText(gameName);
-			headerView.setVisibility(View.VISIBLE);
-			twoLineContainer.setVisibility(View.GONE);
+			binding.header.setText(gameName);
+			binding.header.setVisibility(View.VISIBLE);
+			binding.twoLineContainer.setVisibility(View.GONE);
 		}
-		nameView.setTextKeepState(player.name);
-		usernameView.setTextKeepState(player.username);
-		teamColorView.setTextKeepState(player.color);
+		binding.logPlayerName.setTextKeepState(player.name);
+		binding.logPlayerUsername.setTextKeepState(player.username);
+		binding.logPlayerTeamColor.setTextKeepState(player.color);
 		if (player.getStartingPosition() != null) {
-			positionView.setTextKeepState(player.getStartingPosition());
+			binding.logPlayerPosition.setTextKeepState(player.getStartingPosition());
 		}
-		scoreView.setTextKeepState(player.score);
-		ratingView.setTextKeepState((player.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(player.rating));
-		newView.setChecked(player.isNew);
-		winView.setChecked(player.isWin);
+		binding.logPlayerScore.setTextKeepState(player.score);
+		binding.logPlayerRating.setTextKeepState((player.rating == Player.DEFAULT_RATING) ? "" : String.valueOf(player.rating));
+		binding.logPlayerNew.setChecked(player.isNew);
+		binding.logPlayerWin.setChecked(player.isWin);
 	}
 
 	private void setViewVisibility() {
-		boolean enableButton = hideRow(shouldHideTeamColor(), findViewById(R.id.log_player_team_color_container));
-		enableButton |= hideRow(shouldHidePosition(), findViewById(R.id.log_player_position_container));
+		boolean enableButton = hideRow(shouldHideTeamColor(), binding.logPlayerTeamColorContainer);
+		enableButton |= hideRow(shouldHidePosition(), binding.logPlayerPositionContainer);
 		if (hasAutoPosition()) {
-			hideRow(true, findViewById(R.id.log_player_position_container));
+			hideRow(true, binding.logPlayerPositionContainer);
 		}
-		enableButton |= hideRow(shouldHideScore(), findViewById(R.id.log_player_score_container));
-		enableButton |= hideRow(shouldHideRating(), findViewById(R.id.log_player_rating_container));
-		enableButton |= hideRow(shouldHideNew(), newView);
-		enableButton |= hideRow(shouldHideWin(), winView);
-		fabBuffer.setVisibility(enableButton ? View.VISIBLE : View.GONE);
+		enableButton |= hideRow(shouldHideScore(), binding.logPlayerScoreContainer);
+		enableButton |= hideRow(shouldHideRating(), binding.logPlayerRatingContainer);
+		enableButton |= hideRow(shouldHideNew(), binding.logPlayerNew);
+		enableButton |= hideRow(shouldHideWin(), binding.logPlayerWin);
+		binding.fabBuffer.setVisibility(enableButton ? View.VISIBLE : View.GONE);
 		if (enableButton) {
-			fab.show();
+			binding.fab.show();
 		} else {
-			fab.hide();
+			binding.fab.hide();
 		}
 	}
 
@@ -396,7 +411,6 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 		return !preferToShowWin && !userHasShownWin && !player.isWin;
 	}
 
-	@OnClick(R.id.fab)
 	public void addField() {
 		final CharSequence[] array = createAddFieldArray();
 		if (array == null || array.length == 0) {
@@ -411,30 +425,30 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 				String selection = array[which].toString();
 				if (selection.equals(r.getString(R.string.team_color))) {
 					userHasShownTeamColor = true;
-					viewToFocus = teamColorView;
-					viewToScroll = findViewById(R.id.log_player_team_color_container);
+					viewToFocus = binding.logPlayerTeamColor;
+					viewToScroll = binding.logPlayerTeamColorContainer;
 				} else if (selection.equals(r.getString(R.string.starting_position))) {
 					userHasShownPosition = true;
-					viewToFocus = positionView;
-					viewToScroll = findViewById(R.id.log_player_position_container);
+					viewToFocus = binding.logPlayerPosition;
+					viewToScroll = binding.logPlayerPositionContainer;
 				} else if (selection.equals(r.getString(R.string.score))) {
 					userHasShownScore = true;
-					viewToFocus = scoreView;
-					viewToScroll = findViewById(R.id.log_player_score_container);
+					viewToFocus = binding.logPlayerScore;
+					viewToScroll = binding.logPlayerScoreContainer;
 				} else if (selection.equals(r.getString(R.string.rating))) {
 					userHasShownRating = true;
-					viewToFocus = ratingView;
-					viewToScroll = findViewById(R.id.log_player_rating);
+					viewToFocus = binding.logPlayerRating;
+					viewToScroll = binding.logPlayerRating;
 				} else if (selection.equals(r.getString(R.string.new_label))) {
 					userHasShownNew = true;
-					newView.setChecked(true);
-					viewToScroll = newView;
-					viewToFocus = newView;
+					binding.logPlayerNew.setChecked(true);
+					viewToScroll = binding.logPlayerNew;
+					viewToFocus = binding.logPlayerNew;
 				} else if (selection.equals(r.getString(R.string.win))) {
 					userHasShownWin = true;
-					winView.setChecked(true);
-					viewToScroll = winView;
-					viewToFocus = winView;
+					binding.logPlayerWin.setChecked(true);
+					viewToScroll = binding.logPlayerWin;
+					viewToFocus = binding.logPlayerWin;
 				}
 				setViewVisibility();
 				if (viewToFocus != null) {
@@ -442,7 +456,7 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 				}
 				if (viewToScroll != null) {
 					final View finalView = viewToScroll;
-					scrollContainer.post(() -> scrollContainer.smoothScrollTo(0, finalView.getBottom()));
+					binding.scrollContainer.post(() -> binding.scrollContainer.smoothScrollTo(0, finalView.getBottom()));
 				}
 			}).show();
 	}
@@ -495,13 +509,13 @@ public class LogPlayerActivity extends AppCompatActivity implements ColorPickerW
 	}
 
 	private void captureForm() {
-		player.name = nameView.getText().toString().trim();
-		player.username = usernameView.getText().toString().trim();
-		player.color = teamColorView.getText().toString().trim();
-		player.setStartingPosition(positionView.getText().toString().trim());
-		player.score = scoreView.getText().toString().trim();
-		player.rating = StringUtils.parseDouble(ratingView.getText().toString().trim());
-		player.isNew = newView.isChecked();
-		player.isWin = winView.isChecked();
+		player.name = binding.logPlayerName.getText().toString().trim();
+		player.username = binding.logPlayerUsername.getText().toString().trim();
+		player.color = binding.logPlayerTeamColor.getText().toString().trim();
+		player.setStartingPosition(binding.logPlayerPosition.getText().toString().trim());
+		player.score = binding.logPlayerScore.getText().toString().trim();
+		player.rating = StringUtils.parseDouble(binding.logPlayerRating.getText().toString().trim());
+		player.isNew = binding.logPlayerNew.isChecked();
+		player.isWin = binding.logPlayerWin.isChecked();
 	}
 }

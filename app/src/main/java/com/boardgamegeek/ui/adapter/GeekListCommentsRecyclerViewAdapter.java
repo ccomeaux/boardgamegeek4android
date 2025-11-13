@@ -8,13 +8,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.RowGeeklistCommentBinding;
 import com.boardgamegeek.model.GeekListComment;
 import com.boardgamegeek.ui.widget.TimestampView;
 
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class GeekListCommentsRecyclerViewAdapter extends RecyclerView.Adapter<GeekListCommentsRecyclerViewAdapter.CommentViewHolder> {
 	private final List<GeekListComment> comments;
@@ -27,7 +25,8 @@ public class GeekListCommentsRecyclerViewAdapter extends RecyclerView.Adapter<Ge
 
 	@Override
 	public CommentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		return new CommentViewHolder(inflater.inflate(R.layout.row_geeklist_comment, parent, false));
+		RowGeeklistCommentBinding binding = RowGeeklistCommentBinding.inflate(inflater, parent, false);
+		return new CommentViewHolder(binding);
 	}
 
 	@Override
@@ -41,31 +40,26 @@ public class GeekListCommentsRecyclerViewAdapter extends RecyclerView.Adapter<Ge
 	}
 
 	public class CommentViewHolder extends RecyclerView.ViewHolder {
-		@BindView(R.id.username) TextView usernameView;
-		@BindView(R.id.number_of_thumbs) TextView numberOfThumbsView;
-		@BindView(R.id.posted_date) TimestampView postedDateView;
-		@BindView(R.id.datetime_divider) View datetimeDividerView;
-		@BindView(R.id.edited_date) TimestampView editedDateView;
-		@BindView(R.id.comment) TextView commentView;
+		private final RowGeeklistCommentBinding binding;
 
-		public CommentViewHolder(View itemView) {
-			super(itemView);
-			ButterKnife.bind(this, itemView);
+		public CommentViewHolder(RowGeeklistCommentBinding binding) {
+			super(binding.getRoot());
+			this.binding = binding;
 		}
 
 		public void bind(final GeekListComment comment) {
-			usernameView.setText(comment.getUsername());
-			numberOfThumbsView.setText(String.valueOf(comment.getNumberOfThumbs()));
-			postedDateView.setTimestamp(comment.getPostDate());
+			binding.username.setText(comment.getUsername());
+			binding.numberOfThumbs.setText(String.valueOf(comment.getNumberOfThumbs()));
+			binding.postedDate.setTimestamp(comment.getPostDate());
 			if (comment.getEditDate() == comment.getPostDate()) {
-				editedDateView.setVisibility(View.GONE);
-				datetimeDividerView.setVisibility(View.GONE);
+				binding.editedDate.setVisibility(View.GONE);
+				binding.datetimeDivider.setVisibility(View.GONE);
 			} else {
-				editedDateView.setVisibility(View.VISIBLE);
-				datetimeDividerView.setVisibility(View.VISIBLE);
-				editedDateView.setTimestamp(comment.getEditDate());
+				binding.editedDate.setVisibility(View.VISIBLE);
+				binding.datetimeDivider.setVisibility(View.VISIBLE);
+				binding.editedDate.setTimestamp(comment.getEditDate());
 			}
-			commentView.setText(comment.getContent());
+			binding.comment.setText(comment.getContent());
 		}
 	}
 }
