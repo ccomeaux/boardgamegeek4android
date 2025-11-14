@@ -4,17 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.os.AsyncTask;
 import androidx.annotation.Nullable;
 
 import com.boardgamegeek.events.CollectionItemDeletedEvent;
-import com.boardgamegeek.extensions.AsyncTaskKt;
 import com.boardgamegeek.provider.BggContract.Collection;
 
 import org.greenrobot.eventbus.EventBus;
 
-import kotlin.Unit;
-
-public class DeleteCollectionItemTask {
+public class DeleteCollectionItemTask extends AsyncTask<Void, Void, Boolean> {
 	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final long internalId;
 
@@ -23,7 +21,8 @@ public class DeleteCollectionItemTask {
 		this.internalId = internalId;
 	}
 
-	protected Boolean doInBackground() {
+	@Override
+	protected Boolean doInBackground(Void... params) {
 		if (context == null) return false;
 		final ContentResolver resolver = context.getContentResolver();
 		ContentValues values = new ContentValues();
@@ -31,15 +30,10 @@ public class DeleteCollectionItemTask {
 		return resolver.update(Collection.buildUri(internalId), values, null, null) > 0;
 	}
 
-	public void execute() {
-		AsyncTaskKt.launchTaskWithResult(
-			() -> doInBackground(),
-			result -> {
-				if (result) {
-					EventBus.getDefault().post(new CollectionItemDeletedEvent(internalId));
-				}
-				return Unit.INSTANCE;
-			}
-		);
+	@Override
+	protected void onPostExecute(Boolean result) {
+		if (result) {
+			EventBus.getDefault().post(new CollectionItemDeletedEvent(internalId));
+		}
 	}
 }

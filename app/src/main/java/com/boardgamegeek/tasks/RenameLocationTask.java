@@ -5,10 +5,10 @@ import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
+import android.os.AsyncTask;
 import androidx.annotation.Nullable;
 
 import com.boardgamegeek.R;
-import com.boardgamegeek.extensions.AsyncTaskKt;
 import com.boardgamegeek.provider.BggContract.Plays;
 import com.boardgamegeek.service.SyncService;
 import com.boardgamegeek.util.ResolverUtils;
@@ -18,12 +18,10 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 
-import kotlin.Unit;
-
 /**
  * Renames a location in all plays, then triggers an update.
  */
-public class RenameLocationTask {
+public class RenameLocationTask extends AsyncTask<String, Void, String> {
 	@SuppressLint("StaticFieldLeak") @Nullable private final Context context;
 	private final String oldLocationName;
 	private final String newLocationName;
@@ -36,7 +34,8 @@ public class RenameLocationTask {
 		startTime = System.currentTimeMillis();
 	}
 
-	protected String doInBackground() {
+	@Override
+	protected String doInBackground(String... params) {
 		if (context == null) return "Error.";
 
 		ArrayList<ContentProviderOperation> batch = new ArrayList<>();
@@ -81,14 +80,9 @@ public class RenameLocationTask {
 		return result;
 	}
 
-	public void execute() {
-		AsyncTaskKt.launchTaskWithResult(
-			() -> doInBackground(),
-			result -> {
-				EventBus.getDefault().post(new Event(newLocationName, result));
-				return Unit.INSTANCE;
-			}
-		);
+	@Override
+	protected void onPostExecute(String result) {
+		EventBus.getDefault().post(new Event(newLocationName, result));
 	}
 
 	public class Event {
@@ -98,7 +92,7 @@ public class RenameLocationTask {
 		public Event(String locationName, String message) {
 			this.locationName = locationName;
 			this.message = message;
-			}
+		}
 
 		public String getLocationName() {
 			return locationName;

@@ -76,7 +76,7 @@ public class SyncPlaysByGameTask extends SyncTask<PlaysResponse, CompletedEvent>
 		if (context == null) return;
 		deleteUnupdatedPlays(context, startTime);
 		updateGameTimestamp(context);
-		new CalculatePlayStatsTask(application).execute();
+		TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(application));
 	}
 
 	@NonNull

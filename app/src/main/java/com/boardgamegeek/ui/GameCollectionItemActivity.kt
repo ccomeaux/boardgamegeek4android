@@ -17,6 +17,7 @@ import com.boardgamegeek.events.CollectionItemUpdatedEvent
 import com.boardgamegeek.extensions.OnDiscardListener
 import com.boardgamegeek.extensions.createDiscardDialog
 import com.boardgamegeek.extensions.createThemedBuilder
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.service.SyncService
@@ -99,7 +100,7 @@ class GameCollectionItemActivity : HeroActivity(),
                         false,
                         R.string.keep, object : OnDiscardListener {
                     override fun onDiscard() {
-                        ResetCollectionItemTask(this@GameCollectionItemActivity, internalId).execute()
+                        ResetCollectionItemTask(this@GameCollectionItemActivity, internalId).executeAsyncTask()
                         return toggleEditMode()
                     }
                 }).show()
@@ -141,7 +142,7 @@ class GameCollectionItemActivity : HeroActivity(),
                 this.createThemedBuilder()
                         .setMessage(R.string.are_you_sure_delete_collection_item)
                         .setPositiveButton(R.string.delete) { _, _ ->
-                            DeleteCollectionItemTask(this, internalId).execute()
+                            DeleteCollectionItemTask(this, internalId).executeAsyncTask()
                             finish()
                         }
                         .setNegativeButton(R.string.cancel, null)

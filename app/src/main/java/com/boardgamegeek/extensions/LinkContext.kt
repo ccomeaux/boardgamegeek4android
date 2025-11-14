@@ -22,7 +22,7 @@ fun Context?.linkBgg(gameId: Int) {
 
 fun Context?.linkBgPrices(gameName: String) {
     if (gameName.isBlank()) return
-    link("https://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName))
+    link("http://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName))
 }
 
 fun Context?.linkBgPricesUk(gameName: String) {
@@ -32,12 +32,12 @@ fun Context?.linkBgPricesUk(gameName: String) {
 
 fun Context?.linkAmazon(gameName: String, domain: String) {
     if (gameName.isBlank()) return
-    link(String.format("https://%s/gp/aw/s/?i=toys&keywords=%s", domain, HttpUtils.encode(gameName)))
+    link(String.format("http://%s/gp/aw/s/?i=toys&keywords=%s", domain, HttpUtils.encode(gameName)))
 }
 
 fun Context?.linkEbay(gameName: String) {
     if (gameName.isBlank()) return
-    link("https://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName))
+    link("http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName))
 }
 
 fun Context?.linkToBgg(path: String) {

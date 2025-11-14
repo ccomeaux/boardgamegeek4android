@@ -9,6 +9,7 @@ import com.boardgamegeek.auth.AccountUtils
 import com.boardgamegeek.db.GameDao
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
@@ -157,7 +158,7 @@ class GameRepository(val application: BggApplication) {
                     values.put(BggContract.Games.UPDATED_PLAYS, System.currentTimeMillis())
                     dao.update(gameId, values)
                 }
-                CalculatePlayStatsTask(application).execute()
+                CalculatePlayStatsTask(application).executeAsyncTask()
                 isFullRefresh = false
             }
 

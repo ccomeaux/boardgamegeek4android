@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat.Action
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
+import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.getLongOrNull
 import com.boardgamegeek.extensions.toOrdinal
 import com.boardgamegeek.extensions.use
@@ -82,7 +83,7 @@ class SyncPlaysUpload(application: BggApplication, service: BggService, syncResu
     override fun execute() {
         deletePendingPlays()
         updatePendingPlays()
-        CalculatePlayStatsTask(application).execute()
+        CalculatePlayStatsTask(application).executeAsyncTask()
     }
 
     private fun updatePendingPlays() {

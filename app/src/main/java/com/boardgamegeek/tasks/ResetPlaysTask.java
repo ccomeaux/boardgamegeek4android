@@ -29,7 +29,7 @@ public class ResetPlaysTask extends ToastingAsyncTask {
 	}
 
 	@Override
-	protected Boolean doInBackground() {
+	protected Boolean doInBackground(Void... params) {
 		if (getContext() == null) return false;
 		SyncPrefs.clearPlaysTimestamps(getContext());
 		ContentValues values = new ContentValues(1);

@@ -5,13 +5,13 @@ import android.content.Context
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
+import android.os.AsyncTask
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import androidx.annotation.RequiresApi
 import androidx.core.content.contentValuesOf
 import androidx.core.content.getSystemService
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.launchTask
 import com.boardgamegeek.extensions.load
 import com.boardgamegeek.extensions.truncate
 import com.boardgamegeek.provider.BggContract.CollectionViews
@@ -19,7 +19,7 @@ import com.boardgamegeek.ui.CollectionActivity
 import com.boardgamegeek.util.ShortcutUtils
 import java.util.*
 
-class SelectCollectionViewTask(context: Context?, private val viewId: Long) {
+class SelectCollectionViewTask(context: Context?, private val viewId: Long) : AsyncTask<Void?, Void?, Void?>() {
     @SuppressLint("StaticFieldLeak")
     private val context: Context? = context?.applicationContext
 
@@ -31,18 +31,15 @@ class SelectCollectionViewTask(context: Context?, private val viewId: Long) {
         }
     }
 
-    fun execute() {
-        launchTask(
-            backgroundWork = {
-                if (context == null) return@launchTask
-                if (viewId <= 0) return@launchTask
-                updateSelection()
-                if (VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
-                    shortcutManager?.reportShortcutUsed(createShortcutName(viewId))
-                    setShortcuts()
-                }
-            }
-        )
+    override fun doInBackground(vararg params: Void?): Void? {
+        if (context == null) return null
+        if (viewId <= 0) return null
+        updateSelection()
+        if (VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
+            shortcutManager?.reportShortcutUsed(createShortcutName(viewId))
+            setShortcuts()
+        }
+        return null
     }
 
     private fun updateSelection() {

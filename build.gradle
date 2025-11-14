@@ -2,7 +2,6 @@
 buildscript {
     ext {
         kotlin_version = '2.2.0'
-        coroutines_version = '1.8.1'
         retrofit_version = '3.0.0'
         okhttp_version = '5.3.0'
         stetho_version = '1.6.0'

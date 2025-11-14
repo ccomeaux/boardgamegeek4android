@@ -322,7 +322,7 @@ public class GameCollectionItemFragment extends Fragment implements LoaderCallba
 		switch (item.getItemId()) {
 			case R.id.menu_discard:
 				DialogUtils.createDiscardDialog(getActivity(), R.string.collection_item, false, false, R.string.keep,
-					() -> new ResetCollectionItemTask(getContext(), internalId).execute()
+					() -> TaskUtils.executeAsyncTask(new ResetCollectionItemTask(getContext(), internalId))
 				).show();
 				return true;
 		}

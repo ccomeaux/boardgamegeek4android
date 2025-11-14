@@ -3,8 +3,10 @@ package com.boardgamegeek.service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.widget.Toast
 import com.boardgamegeek.BuildConfig
+import com.boardgamegeek.extensions.isOnWiFi
 import com.boardgamegeek.util.PreferencesUtils
 import timber.log.Timber
 
@@ -19,7 +21,11 @@ class CancelReceiver : BroadcastReceiver() {
                 if (PreferencesUtils.getSyncOnlyCharging(context)) {
                     cancelSync(context, "Cancelling sync because device was unplugged and user asked for this behavior.")
                 }
-            // CONNECTIVITY_ACTION handling removed - now handled by NetworkCallback in SyncAdapter
+            @Suppress("deprecation")
+            ConnectivityManager.CONNECTIVITY_ACTION ->
+                if (PreferencesUtils.getSyncOnlyWifi(context) && !context.isOnWiFi()) {
+                    cancelSync(context, "Cancelling sync because device lost Wifi and user asked for this behavior.")
+                }
             else -> notifyCause(context, "Not cancelling sync due to an unexpected action: " + intent.action)
         }
     }

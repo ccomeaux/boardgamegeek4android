@@ -28,7 +28,7 @@ public class ResetBuddiesTask extends ToastingAsyncTask {
 	}
 
 	@Override
-	protected Boolean doInBackground() {
+	protected Boolean doInBackground(Void... params) {
 		if (getContext() == null) return false;
 		SyncPrefs.clearBuddyListTimestamps(getContext());
 		int count = getContext().getContentResolver().delete(Buddies.CONTENT_URI, null, null);

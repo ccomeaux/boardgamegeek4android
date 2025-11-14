@@ -808,7 +808,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 						Plays.PLAY_ID));
 					version = VER_PLAY_PLAY_ID_NOT_REQUIRED;
 				case VER_PLAY_PLAY_ID_NOT_REQUIRED:
-					new ResetPlaysTask(context).execute();
+					TaskUtils.executeAsyncTask(new ResetPlaysTask(context));
 					version = VER_PLAYS_RESET;
 				case VER_PLAYS_RESET:
 					dropTable(db, Tables.PLAYS);
@@ -834,7 +834,7 @@ public class BggDatabase extends SQLiteOpenHelper {
 					addColumn(db, Tables.GAMES, Games.MAX_PLAYING_TIME, COLUMN_TYPE.INTEGER);
 					version = VER_MIN_MAX_PLAYING_TIME;
 				case VER_MIN_MAX_PLAYING_TIME:
-					new ResetGameTask(context).execute();
+					TaskUtils.executeAsyncTask(new ResetGameTask(context));
 					SyncService.sync(context, SyncService.FLAG_SYNC_GAMES);
 					version = VER_SUGGESTED_PLAYER_COUNT_RESYNC;
 				case VER_SUGGESTED_PLAYER_COUNT_RESYNC:

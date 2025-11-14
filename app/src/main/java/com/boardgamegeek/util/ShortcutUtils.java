@@ -28,12 +28,12 @@ public class ShortcutUtils {
 
 	public static void createCollectionShortcut(Context context, long viewId, String viewName) {
 		CollectionShortcutTask task = new CollectionShortcutTask(context, viewId, viewName);
-		task.execute();
+		TaskUtils.executeAsyncTask(task);
 	}
 
 	public static void createGameShortcut(Context context, int gameId, String gameName, String thumbnailUrl) {
 		GameShortcutTask task = new GameShortcutTask(context, gameId, gameName, thumbnailUrl);
-		task.execute();
+		TaskUtils.executeAsyncTask(task);
 	}
 
 	@Nullable
@@ -45,6 +45,20 @@ public class ShortcutUtils {
 			}
 		}
 		return null;
+	}
+
+	@NonNull
+	public static Intent createShortcutIntent(Context context, String shortcutName, Intent intent) {
+		return createShortcutIntent(context, shortcutName, intent, R.mipmap.ic_launcher_foreground);
+	}
+
+	@NonNull
+	public static Intent createShortcutIntent(Context context, String shortcutName, Intent intent, @DrawableRes int shortcutIconResId) {
+		Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
+		shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
+		shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, shortcutName);
+		shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(context, shortcutIconResId));
+		return shortcut;
 	}
 
 	public static @NonNull String createGameShortcutId(int gameId) {

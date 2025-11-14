@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -11,7 +12,6 @@ import android.text.TextUtils;
 
 import com.boardgamegeek.R;
 import com.boardgamegeek.events.ColorAssignmentCompleteEvent;
-import com.boardgamegeek.extensions.AsyncTaskKt;
 import com.boardgamegeek.model.Play;
 import com.boardgamegeek.model.Player;
 import com.boardgamegeek.provider.BggContract.GameColors;
@@ -26,10 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import kotlin.Unit;
 import timber.log.Timber;
 
-public class ColorAssignerTask {
+public class ColorAssignerTask extends AsyncTask<Void, Void, Results> {
 	private static final int SUCCESS = 1;
 	private static final int ERROR = -1;
 	private static final int ERROR_NO_PLAYERS = -2;
@@ -56,7 +55,8 @@ public class ColorAssignerTask {
 	}
 
 	@NonNull
-	protected Results doInBackground() {
+	@Override
+	protected Results doInBackground(Void... params) {
 		int result = populatePlayersNeedingColor();
 		if (result != SUCCESS) {
 			results.resultCode = result;
@@ -98,22 +98,13 @@ public class ColorAssignerTask {
 		return results;
 	}
 
+	@Override
 	protected void onPostExecute(@Nullable Results results) {
 		results = ensureResultsAreNotNull(results);
 		if (results.resultCode == SUCCESS) {
 			setPlayerColorsFromResults(results);
 		}
 		notifyCompletion(results, getMessageIdFromResults(results));
-	}
-
-	public void execute() {
-		AsyncTaskKt.launchTaskWithResult(
-			() -> doInBackground(),
-			result -> {
-				onPostExecute(result);
-				return Unit.INSTANCE;
-			}
-		);
 	}
 
 	@NonNull

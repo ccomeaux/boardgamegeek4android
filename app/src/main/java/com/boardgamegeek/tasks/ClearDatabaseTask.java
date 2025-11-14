@@ -47,7 +47,7 @@ public class ClearDatabaseTask extends ToastingAsyncTask {
 	}
 
 	@Override
-	protected Boolean doInBackground() {
+	protected Boolean doInBackground(Void... params) {
 		if (getContext() == null) return false;
 
 		SyncPrefs.clearCollection(getContext());
