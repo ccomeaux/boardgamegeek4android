@@ -9,7 +9,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.tasks.RenameLocationTask
@@ -87,7 +86,7 @@ class LocationActivity : SimpleSinglePaneActivity(), EditTextDialogListener {
 
     override fun onFinishEditDialog(text: String, originalText: String?) {
         if (text.isNotBlank()) {
-            RenameLocationTask(this, originalText, text).executeAsyncTask()
+            RenameLocationTask(this, originalText, text).execute()
         }
     }
 

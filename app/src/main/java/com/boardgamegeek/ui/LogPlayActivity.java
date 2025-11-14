@@ -1854,7 +1854,7 @@ public class LogPlayActivity extends AppCompatActivity implements
 						.setNegativeButton(R.string.keep, new OnClickListener() {
 							@Override
 							public void onClick(DialogInterface dialog, int which) {
-								TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
+								new ColorAssignerTask(LogPlayActivity.this, play).execute();
 							}
 						})
 						.setPositiveButton(R.string.clear, new OnClickListener() {
@@ -1863,12 +1863,12 @@ public class LogPlayActivity extends AppCompatActivity implements
 								for (Player player : play.getPlayers()) {
 									player.color = "";
 								}
-								TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
+								new ColorAssignerTask(LogPlayActivity.this, play).execute();
 							}
 						});
 					builder.show();
 				} else {
-					TaskUtils.executeAsyncTask(new ColorAssignerTask(LogPlayActivity.this, play));
+					new ColorAssignerTask(LogPlayActivity.this, play).execute();
 				}
 			}
 		}

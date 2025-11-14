@@ -6,7 +6,7 @@ import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.extensions.asDateForApi
-import com.boardgamegeek.extensions.executeAsyncTask
+
 import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.PlaysResponse
@@ -61,7 +61,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
                 Timber.i("...deleted $count unupdated plays")
                 SyncPrefs.setPlaysOldestTimestamp(context, 0L)
             }
-            CalculatePlayStatsTask(application).executeAsyncTask()
+            CalculatePlayStatsTask(application).execute()
         } finally {
             Timber.i("...complete!")
         }

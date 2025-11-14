@@ -67,7 +67,7 @@ public class SyncPlaysByDateTask extends SyncTask<PlaysResponse, CompletedEvent>
 
 	@Override
 	protected void finishSync() {
-		TaskUtils.executeAsyncTask(new CalculatePlayStatsTask(application));
+		new CalculatePlayStatsTask(application).execute();
 	}
 
 	@NonNull

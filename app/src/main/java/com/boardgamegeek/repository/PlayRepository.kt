@@ -13,7 +13,6 @@ import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.extensions.applyBatch
 import com.boardgamegeek.extensions.asDateForApi
-import com.boardgamegeek.extensions.executeAsyncTask
 import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.io.Adapter
 import com.boardgamegeek.io.model.PlaysResponse
@@ -295,7 +294,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             } else {
                 SyncPrefs.setPlaysOldestTimestamp(application, 0L)
             }
-            CalculatePlayStatsTask(application).executeAsyncTask()
+            CalculatePlayStatsTask(application).execute()
         }
 
         override fun onRefreshFailed() {
