@@ -31,7 +31,6 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RemoteConfig;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.fabric.CrashKeys;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -207,7 +206,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			final String content = body == null ? "" : body.string().trim();
 			if (content.contains("Please update your privacy and marketing preferences")) {
 				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-				PendingIntent pi = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				PendingIntent pi = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 				final String message = getContext().getString(R.string.sync_notification_message_privacy_error);
 				NotificationCompat.Builder builder = NotificationUtils
 					.createNotificationBuilder(getContext(), R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)

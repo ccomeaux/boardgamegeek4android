@@ -79,7 +79,7 @@
 					android:maxLines="1"/>
 			</com.google.android.material.textfield.TextInputLayout>
 
-			<Button
+			<com.google.android.material.button.MaterialButton
 				android:id="@+id/sign_in_button"
 				style="@style/ColoredButton"
 				android:layout_width="wrap_content"

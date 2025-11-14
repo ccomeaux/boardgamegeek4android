@@ -19,7 +19,7 @@ abstract class HeroTabActivity : DrawerActivity() {
     protected lateinit var binding: ActivityHeroTabBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ActivityHeroTabBinding.inflate(layoutInflater)
+        binding = ActivityHeroTabBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }

@@ -13,7 +13,7 @@ abstract class TabActivity : DrawerActivity() {
     protected lateinit var binding: ActivityTabBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        ActivityTabBinding.inflate(layoutInflater)
+        binding = ActivityTabBinding.inflate(layoutInflater)
 
         super.onCreate(savedInstanceState)
 

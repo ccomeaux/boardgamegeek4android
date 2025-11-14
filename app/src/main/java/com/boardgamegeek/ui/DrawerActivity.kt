@@ -50,7 +50,7 @@ abstract class DrawerActivity : BaseActivity() {
         get() = 0
 
     protected open fun inflateRootView(): View {
-        return ActivityDrawerBaseBinding.inflate(layoutInflater).rootContainer
+        return ActivityDrawerBaseBinding.inflate(layoutInflater).root
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

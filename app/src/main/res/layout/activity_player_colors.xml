@@ -52,7 +52,7 @@
 				android:text="@string/empty_player_colors"
 				android:textAppearance="@style/Text.Big"/>
 
-			<Button
+			<com.google.android.material.button.MaterialButton
 				android:id="@+id/emptyButton"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
