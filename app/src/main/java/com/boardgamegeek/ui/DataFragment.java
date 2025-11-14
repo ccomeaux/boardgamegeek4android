@@ -1,12 +1,10 @@
 package com.boardgamegeek.ui;
 
-import android.Manifest.permission;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -40,10 +38,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import timber.log.Timber;
 
@@ -52,7 +48,6 @@ import com.boardgamegeek.databinding.FragmentDataBinding;
 public class DataFragment extends Fragment implements Listener {
 	private static final int REQUEST_EXPORT = 1000;
 	private static final int REQUEST_IMPORT = 2000;
-	private static final int REQUEST_PERMISSIONS = 3000;
 	private static final String ANSWERS_EVENT_NAME = "DataManagement";
 	private static final String ANSWERS_ATTRIBUTE_KEY_ACTION = "Action";
 
@@ -128,20 +123,13 @@ public class DataFragment extends Fragment implements Listener {
 	@Override
 	public void onExportClicked(final String type) {
 		if (FileUtils.shouldUseDefaultFolders()) {
+			// Legacy path for old Android versions
 			DialogUtils.createConfirmationDialog(getActivity(),
 				R.string.msg_export_confirmation,
 				new OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						if (PackageManager.PERMISSION_GRANTED ==
-							ContextCompat.checkSelfPermission(getActivity(), permission.WRITE_EXTERNAL_STORAGE)) {
-							performExport(type, null);
-						} else {
-							if (shouldShowRequestPermissionRationale(permission.WRITE_EXTERNAL_STORAGE)) {
-								showSnackbar(R.string.msg_export_permission_rationale);
-							}
-							requestPermissions(new String[] { permission.WRITE_EXTERNAL_STORAGE }, REQUEST_PERMISSIONS);
-						}
+						performExport(type, null);
 					}
 				}).show();
 		} else {
@@ -197,18 +185,7 @@ public class DataFragment extends Fragment implements Listener {
 		}
 	}
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if (requestCode == REQUEST_PERMISSIONS) {
-			if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				performExport(currentType, null);
-			} else {
-				showSnackbar(R.string.msg_export_permission_denied);
-			}
-		} else {
-			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		}
-	}
+
 
 	private void performExport(String type, Uri uri) {
 		JsonExportTask task = getExportTask(type, uri);
