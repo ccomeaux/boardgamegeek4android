@@ -8,6 +8,7 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.BufferedOutputStream
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 
@@ -48,6 +49,8 @@ object FileUtils {
             BufferedOutputStream(FileOutputStream(file)).use { out ->
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             }
+        } catch (e: FileNotFoundException) {
+            Timber.e(e, "File not found while saving the thumbnail ${file.name}.")
         } catch (e: IOException) {
             Timber.e(e, "Error saving the thumbnail file at ${file.name}.")
         }
