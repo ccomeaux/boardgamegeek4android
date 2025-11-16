@@ -29,7 +29,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -121,9 +120,10 @@ class CollectionViewViewModel @Inject constructor(
         _selectedViewId.value = defaultViewId.value
     }
 
-    private suspend fun initMediators() = withContext(Dispatchers.Default) {
+    private fun initMediators() {
         _effectiveSort.addSource(selectedView) {
             // TODO java.lang.IllegalStateException: Cannot invoke observeForever on a background thread
+            // https://console.firebase.google.com/u/0/project/boardgamegeek4android-af330/crashlytics/app/android:com.boardgamegeek/issues/f6e3b5cde6b08dbbda1a261b220af6a4?time=7d&sessionEventKey=6911EC5501D80002244BF8F31C01251A_2149537904677546319
             createEffectiveSort(it, _sortType.value)
         }
         _effectiveSort.addSource(_sortType) {
