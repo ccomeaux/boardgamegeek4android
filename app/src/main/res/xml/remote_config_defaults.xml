@@ -50,7 +50,7 @@
 	</entry>
 	<entry>
 		<key>sync_games_fetch_max_unupdated</key>
-		<value>64</value>
+		<value>8192</value>
 	</entry>
 	<entry>
 		<key>sync_games_fetch_pause_millis</key>

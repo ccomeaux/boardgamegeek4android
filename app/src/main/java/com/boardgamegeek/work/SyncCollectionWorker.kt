@@ -334,9 +334,15 @@ class SyncCollectionWorker @AssistedInject constructor(
         }
     }
 
+    /**
+     * Refresh games that are missing details in the collection as well as the oldest few games in the collection.
+     * Returns a data object containing the error message, null if successful.
+     */
     private suspend fun refreshGames(): Data? {
+        val startTimestamp = System.currentTimeMillis()
+
         val gamesFetchMaxUnupdated = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_FETCH_MAX_UNUPDATED).coerceIn(1, if (quickSync) 8 else Int.MAX_VALUE)
-        Timber.i("Refreshing $gamesFetchMaxUnupdated games that are missing details in the collection")
+        Timber.i("Refreshing up to $gamesFetchMaxUnupdated games that are missing details in the collection")
         setProgress(PROGRESS_STEP_GAMES_NEW)
         if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_games_unupdated)))
@@ -350,13 +356,16 @@ class SyncCollectionWorker @AssistedInject constructor(
         setProgress(PROGRESS_STEP_GAMES_STALE)
         if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
             setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_games_oldest)))
-        val timestamp = System.currentTimeMillis()
-        val staleGames = gameRepository.loadOldestUpdatedGames(gamesFetchMax, timestamp)
+        val staleGames = gameRepository.loadOldestUpdatedGames(gamesFetchMax, startTimestamp)
         refreshGames(staleGames)?.let { return it }
 
         return null
     }
 
+    /**
+     * Refresh all games in the list of game IDs and names, splitting into chunks sized by remote configuration.
+     * If unsuccessful, it tries again with half of the chunk size. Returns a data object containing the error message, null if successful.
+     */
     private suspend fun refreshGames(games: List<Pair<Int, String>>): Data? {
         var fetchSize = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_PER_FETCH).coerceIn(1..32)
         var data = refreshGameChunks(games.chunked(fetchSize))
@@ -369,6 +378,10 @@ class SyncCollectionWorker @AssistedInject constructor(
         return data
     }
 
+    /**
+     * Refresh all game chunks of game IDs and names. Pauses a few seconds between chunks.
+     * Returns a data object containing the error message, null if successful.
+     */
     private suspend fun refreshGameChunks(gameChunks: List<List<Pair<Int, String>>>): Data? {
         var updatedCount = 0
         try {
@@ -407,6 +420,9 @@ class SyncCollectionWorker @AssistedInject constructor(
         }
     }
 
+    /**
+     * Log and notify of an exception. Returns a data object containing the error message.
+     */
     private fun handleException(contentText: String, throwable: Throwable?): Data {
         if (throwable is CancellationException) {
             Timber.i("Canceling collection sync")
