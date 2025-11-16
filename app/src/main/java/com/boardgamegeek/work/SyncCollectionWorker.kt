@@ -367,7 +367,7 @@ class SyncCollectionWorker @AssistedInject constructor(
      * If unsuccessful, it tries again with half of the chunk size. Returns a data object containing the error message, null if successful.
      */
     private suspend fun refreshGames(games: List<Pair<Int, String>>): Data? {
-        var fetchSize = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_PER_FETCH).coerceIn(1..32)
+        var fetchSize = RemoteConfig.getInt(RemoteConfig.KEY_SYNC_GAMES_PER_FETCH).coerceIn(1..MAX_THING_LIMIT)
         var data = refreshGameChunks(games.chunked(fetchSize))
         while (data != null && fetchSize > 1) {
             checkIfStopped("Canceled while refreshing games")?.let { return it }
@@ -485,6 +485,7 @@ class SyncCollectionWorker @AssistedInject constructor(
         private const val STOPPED_REASON = "STOPPED_REASON"
         private const val QUICK_SYNC = "QUICK_SYNC"
         private const val REQUESTED_STATUS = "REQUESTED_STATUS"
+        private const val MAX_THING_LIMIT = 20
 
         const val PROGRESS_KEY_STEP = "STEP"
         const val PROGRESS_KEY_SUBTYPE = "SUBTYPE"
