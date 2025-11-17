@@ -27,6 +27,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -316,6 +317,7 @@ class CollectionViewViewModel @Inject constructor(
             val viewId = viewRepository.insertView(view)
             logAction("Insert", name)
             postToastMessage(R.string.msg_collection_view_updated, name)
+            delay(500)
             selectView(viewId)
         }
     }
