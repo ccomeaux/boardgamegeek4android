@@ -50,7 +50,7 @@ class CollectionUploadWorker @AssistedInject constructor(
         val count = list.size
         val detail = applicationContext.resources.getQuantityString(resId, count, count)
         Timber.i(detail)
-        if (count > 0) setForeground(createForegroundInfo(detail))
+        if (count > 0 && prefs[KEY_SYNC_PROGRESS, true] == true) setForeground(createForegroundInfo(detail))
         list.forEach {
             if (isStopped) return@forEach
             val result = process(it)

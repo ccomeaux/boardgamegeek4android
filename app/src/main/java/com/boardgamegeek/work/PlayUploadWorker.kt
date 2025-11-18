@@ -1,15 +1,19 @@
 package com.boardgamegeek.work
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.annotation.StringRes
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.KEY_SYNC_PROGRESS
 import com.boardgamegeek.extensions.createWorkConstraints
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.extensions.formatList
+import com.boardgamegeek.extensions.get
 import com.boardgamegeek.extensions.notifyLoggedPlay
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import dagger.assisted.Assisted
@@ -23,12 +27,14 @@ class PlayUploadWorker @AssistedInject constructor(
     @Assisted workerParams: WorkerParameters,
     private val playRepository: PlayRepository,
 ) : CoroutineWorker(appContext, workerParams) {
+    private val prefs: SharedPreferences by lazy { appContext.preferences() }
     private val gameIds = mutableSetOf<Int>()
 
     override suspend fun doWork(): Result {
         Timber.i("Begin uploading plays")
 
-        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays_upload)))
+        if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays_upload)))
 
         val playsToDelete = mutableListOf<Play>()
         val playsToUpsert = mutableListOf<Play>()
@@ -71,7 +77,8 @@ class PlayUploadWorker @AssistedInject constructor(
             playRepository.uploadPlay(it)
         }
 
-        setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays_upload_stats)))
+        if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+            setForeground(createForegroundInfo(applicationContext.getString(R.string.sync_notification_plays_upload_stats)))
         gameIds.filterNot { it == BggContract.INVALID_ID }.forEach { gameId ->
             playRepository.updateGamePlayCount(gameId)
             Timber.i("Updated game [$gameId]'s game count")
@@ -90,7 +97,8 @@ class PlayUploadWorker @AssistedInject constructor(
         uploadItem: suspend (item: Play) -> kotlin.Result<PlayUploadResult>
     ) : Result {
         playsToUpsert.forEach { play ->
-            setForeground(createForegroundInfo(applicationContext.getString(messageResId, play.gameName)))
+            if (prefs[KEY_SYNC_PROGRESS, false] ?: false)
+                setForeground(createForegroundInfo(applicationContext.getString(messageResId, play.gameName)))
             val result = uploadItem(play)
             if (result.isSuccess) {
                 result.getOrNull()?.let {
