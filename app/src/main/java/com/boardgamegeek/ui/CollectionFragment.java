@@ -828,10 +828,14 @@ public class CollectionFragment extends Fragment implements
 			Intent intent = null;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 				intent = createShortcutForOreo(id, name, thumbnailUrl, shortcutIntent);
+			} else {
+				intent = ShortcutUtils.createShortcutIntent(getContext(), name, shortcutIntent);
+				File file = ShortcutUtils.getThumbnailFile(getContext(), thumbnailUrl);
+				if (file != null && file.exists()) {
+					intent.putExtra(Intent.EXTRA_SHORTCUT_ICON, BitmapFactory.decodeFile(file.getAbsolutePath()));
+				}
 			}
 
-			// Legacy shortcut creation (pre-Android 8.0) is no longer supported
-			// as it doesn't work on modern Android versions
 			if (intent != null) requireActivity().setResult(RESULT_OK, intent);
 		}
 		requireActivity().finish();
