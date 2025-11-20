@@ -287,7 +287,7 @@ public class BggContract {
 	}
 
 	public static final String COLLATE_NOCASE = " COLLATE NOCASE";
-	public static final String CONTENT_AUTHORITY = BuildConfig.APPLICATION_ID + ".provider";
+	public static final String CONTENT_AUTHORITY = BuildConfig.APPLICATION_ID;
 	private static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
 	public static final String PATH_GAMES = "games";

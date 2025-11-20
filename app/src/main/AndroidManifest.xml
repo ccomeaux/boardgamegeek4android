@@ -430,7 +430,7 @@
 
 		<provider
 			android:name=".provider.BggProvider"
-			android:authorities="${applicationId}.provider"
+			android:authorities="${applicationId}"
 			android:exported="true"
 			android:readPermission="com.boardgamegeek.permission.READ_BGG_PROVIDER"
 			android:label="@string/provider_label"/>
