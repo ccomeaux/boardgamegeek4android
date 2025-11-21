@@ -3,7 +3,6 @@ package com.boardgamegeek.util;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 
 import com.boardgamegeek.R;

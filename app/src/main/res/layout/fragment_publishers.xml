@@ -44,5 +44,5 @@
 			android:visibility="gone"/>
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-	<include layout="@layout/include_horizontal_progress"/>
+	<include android:id="@+id/progress" layout="@layout/include_horizontal_progress"/>
 </FrameLayout>

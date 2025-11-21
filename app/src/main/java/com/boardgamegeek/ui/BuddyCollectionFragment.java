@@ -44,31 +44,30 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
-import icepick.Icepick;
-import icepick.State;
 import timber.log.Timber;
+
+import com.boardgamegeek.databinding.FragmentBuddyCollectionBinding;
 
 public class BuddyCollectionFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<CollectionResponse>> {
 	private static final String KEY_BUDDY_NAME = "BUDDY_NAME";
+	private static final String KEY_STATUS_VALUE = "STATUS_VALUE";
+	private static final String KEY_STATUS_LABEL = "STATUS_LABEL";
 	private static final int BUDDY_GAMES_LOADER_ID = 1;
 
 	private BuddyCollectionAdapter adapter;
 	private SubMenu subMenu;
 	private String buddyName;
-	@State String statusValue;
-	@State String statusLabel;
+	private String statusValue;
+	private String statusLabel;
 	private String[] statusValues;
 	private String[] statusEntries;
 	private boolean isListShown = false;
 
-	Unbinder unbinder;
-	@BindView(R.id.empty_container) ViewGroup emptyContainer;
-	@BindView(android.R.id.empty) TextView emptyTextView;
-	@BindView(R.id.progress) ContentLoadingProgressBar progressBar;
-	@BindView(android.R.id.list) RecyclerView listView;
+	private FragmentBuddyCollectionBinding binding;
+	private ViewGroup emptyContainer;
+	private TextView emptyTextView;
+	private ContentLoadingProgressBar progressBar;
+	private RecyclerView listView;
 
 	public static BuddyCollectionFragment newInstance(String username) {
 		Bundle args = new Bundle();
@@ -93,7 +92,10 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 		statusValues = getResources().getStringArray(R.array.pref_sync_status_values);
 
 		setHasOptionsMenu(true);
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			statusValue = savedInstanceState.getString(KEY_STATUS_VALUE);
+			statusLabel = savedInstanceState.getString(KEY_STATUS_LABEL);
+		}
 		if (TextUtils.isEmpty(statusValue)) {
 			statusValue = statusValues[0];
 		}
@@ -105,13 +107,17 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		return inflater.inflate(R.layout.fragment_buddy_collection, container, false);
+		binding = FragmentBuddyCollectionBinding.inflate(inflater, container, false);
+		emptyContainer = binding.emptyContainer;
+		emptyTextView = binding.empty;
+		progressBar = binding.progress;
+		listView = binding.list;
+		return binding.getRoot();
 	}
 
 	@Override
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		unbinder = ButterKnife.bind(this, view);
 
 		listView.setLayoutManager(new LinearLayoutManager(getContext()));
 		listView.setHasFixedSize(true);
@@ -120,7 +126,7 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	@Override
@@ -132,7 +138,8 @@ public class BuddyCollectionFragment extends Fragment implements LoaderManager.L
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putString(KEY_STATUS_VALUE, statusValue);
+		outState.putString(KEY_STATUS_LABEL, statusLabel);
 	}
 
 	@Override

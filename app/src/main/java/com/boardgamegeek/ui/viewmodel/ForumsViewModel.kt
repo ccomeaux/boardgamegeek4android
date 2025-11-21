@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.entities.ForumEntity
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.livedata.AbsentLiveData
@@ -39,7 +39,7 @@ class ForumsViewModel(application: Application) : AndroidViewModel(application) 
         if (_id.value != ForumType.COMPANY to companyId) _id.value = (ForumType.COMPANY to companyId)
     }
 
-    val forums: LiveData<RefreshableResource<List<ForumEntity>>> = Transformations.switchMap(_id) { pair ->
+    val forums: LiveData<RefreshableResource<List<ForumEntity>>> = _id.switchMap() { pair ->
         when {
             pair.first == ForumType.REGION -> repository.getForums()
             pair.first == ForumType.GAME && pair.second != BggContract.INVALID_ID -> repository.getForumsForGame(pair.second)

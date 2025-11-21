@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import androidx.annotation.ColorInt
 import androidx.core.view.isVisible
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.WidgetGameDetailRowBinding
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.extensions.setOrClearColorFilter
 import com.boardgamegeek.extensions.setTextOrHide
@@ -22,13 +23,14 @@ import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.GameDetailActivity
 import com.boardgamegeek.ui.PersonActivity
 import com.boardgamegeek.ui.viewmodel.GameViewModel.ProducerType
-import kotlinx.android.synthetic.main.widget_game_detail_row.view.*
 
 class GameDetailRow @JvmOverloads constructor(
         context: Context,
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
 
+    private val binding = WidgetGameDetailRowBinding.inflate(LayoutInflater.from(context), this)
+    
     private val oneMore: String by lazy {
         context.getString(R.string.one_more)
     }
@@ -42,8 +44,6 @@ class GameDetailRow @JvmOverloads constructor(
     private var type: ProducerType = ProducerType.UNKNOWN
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.widget_game_detail_row, this, true)
-
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         val sa = context.obtainStyledAttributes(intArrayOf(android.R.attr.selectableItemBackground))
         try {
@@ -67,14 +67,14 @@ class GameDetailRow @JvmOverloads constructor(
                 a.recycle()
             }
         }
-        iconView.isVisible = (icon != null)
-        iconView.setImageDrawable(icon)
+        binding.iconView.isVisible = (icon != null)
+        binding.iconView.setImageDrawable(icon)
 
         type = ProducerType.fromInt(queryToken)
     }
 
     fun clear() {
-        dataView.text = ""
+        binding.dataView.text = ""
         setOnClickListener { }
     }
 
@@ -86,9 +86,9 @@ class GameDetailRow @JvmOverloads constructor(
             visibility = View.VISIBLE
             if (list.size == 1) {
                 list[0].apply {
-                    dataView.maxLines = 1
-                    dataView.text = name
-                    descriptionView.setTextOrHide(description)
+                    binding.dataView.maxLines = 1
+                    binding.dataView.text = name
+                    binding.descriptionView.setTextOrHide(description)
                     setOnClickListener {
                         when (type) {
                             ProducerType.ARTIST -> PersonActivity.startForArtist(context, id, name)
@@ -103,9 +103,9 @@ class GameDetailRow @JvmOverloads constructor(
                     }
                 }
             } else {
-                dataView.maxLines = 2
-                dataView.text = generateName(list.map { it.name })
-                descriptionView.visibility = View.GONE
+                binding.dataView.maxLines = 2
+                binding.dataView.text = generateName(list.map { it.name })
+                binding.descriptionView.visibility = View.GONE
                 setOnClickListener {
                     GameDetailActivity.start(context, label, gameId, gameName, type)
                 }
@@ -114,7 +114,7 @@ class GameDetailRow @JvmOverloads constructor(
     }
 
     fun colorize(@ColorInt color: Int) {
-        iconView.setOrClearColorFilter(color)
+        binding.iconView.setOrClearColorFilter(color)
     }
 
     private fun generateName(names: List<String>): CharSequence {
@@ -123,8 +123,8 @@ class GameDetailRow @JvmOverloads constructor(
             2 -> "${names[0]} & ${names[1]}"
             else -> {
                 val paint = TextPaint()
-                paint.textSize = dataView.textSize
-                val avail = (dataView.width * 2).toFloat()
+                paint.textSize = binding.dataView.textSize
+                val avail = (binding.dataView.width * 2).toFloat()
                 val summary = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     TextUtils.listEllipsize(context, names, ", ", paint, avail, R.plurals.more)
                 } else {

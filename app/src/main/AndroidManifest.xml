@@ -5,16 +5,16 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto">
 
-	<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-	<uses-permission android:name="android.permission.MANAGE_ACCOUNTS"/>
 	<uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS"/>
-	<uses-permission android:name="android.permission.USE_CREDENTIALS"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name="android.permission.READ_SYNC_STATS"/>
 	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
+	<permission
+		android:name="com.boardgamegeek.permission.READ_BGG_PROVIDER"
+		android:protectionLevel="signature" />
 
 	<application
 		android:name=".BggApplication"
@@ -22,16 +22,16 @@
 		android:fullBackupContent="@xml/backup_no_database"
 		android:icon="@mipmap/ic_launcher"
 		android:label="@string/app_name"
-		android:logo="@drawable/title_logo"
+		android:networkSecurityConfig="@xml/network_security_config"
 		android:roundIcon="@mipmap/ic_launcher_round"
 		android:supportsRtl="false"
 		android:theme="@style/Theme.bgglight.NavDrawer"
 		tools:ignore="GoogleAppIndexingWarning">
 		<activity
 			android:name=".ui.HomeActivity"
-			android:label="@string/app_name"
 			android:launchMode="singleTop"
-			android:theme="@style/SplashTheme">
+			android:theme="@style/SplashTheme"
+			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 
@@ -53,56 +53,64 @@
 		</activity>
 		<activity
 			android:name=".ui.CollectionDetailsActivity"
-			android:label="@string/title_collection_details">
+			android:label="@string/title_collection_details"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.DesignersActivity"
-			android:label="@string/title_designers">
+			android:label="@string/title_designers"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.ArtistsActivity"
-			android:label="@string/title_artists">
+			android:label="@string/title_artists"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.PublishersActivity"
-			android:label="@string/title_publishers">
+			android:label="@string/title_publishers"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.MechanicsActivity"
-			android:label="@string/title_mechanics">
+			android:label="@string/title_mechanics"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.MechanicActivity"
-			android:label="@string/title_mechanic">
+			android:label="@string/title_mechanic"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.CategoriesActivity"
-			android:label="@string/title_categories">
+			android:label="@string/title_categories"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.CategoryActivity"
-			android:label="@string/title_category">
+			android:label="@string/title_category"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
@@ -111,7 +119,8 @@
 		<activity-alias
 			android:name=".CreateShortcutActivity"
 			android:label="@string/title_game"
-			android:targetActivity=".ui.CollectionActivity">
+			android:targetActivity=".ui.CollectionActivity"
+			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.CREATE_SHORTCUT"/>
 
@@ -125,7 +134,8 @@
 
 		<activity
 			android:name=".ui.HotnessActivity"
-			android:label="@string/title_hotness">
+			android:label="@string/title_hotness"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
@@ -133,7 +143,8 @@
 
 		<activity
 			android:name=".ui.TopGamesActivity"
-			android:label="@string/title_top_games">
+			android:label="@string/title_top_games"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
@@ -146,10 +157,12 @@
 		<activity
 			android:name=".ui.ImageActivity"
 			android:label="@string/title_image"
-			android:theme="@style/Theme.MaterialComponents.NoActionBar"/>
+			android:theme="@style/Theme.MaterialComponents.NoActionBar"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.GameDetailActivity"
-			android:label="@string/title_game_detail"/>
+			android:label="@string/title_game_detail"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.PersonActivity"
 			android:exported="false"
@@ -181,7 +194,8 @@
 		<activity
 			android:name=".ui.PlayerColorsActivity"
 			android:label="@string/title_favorite_colors"
-			android:theme="@style/Theme.bgglight"/>
+			android:theme="@style/Theme.bgglight"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.PlaysSummaryActivity"
 			android:exported="false"
@@ -272,62 +286,77 @@
 			android:name=".ui.LogPlayActivity"
 			android:label="@string/title_log_play"
 			android:launchMode="singleTop"
-			android:theme="@style/Theme.bgglight"/>
+			android:theme="@style/Theme.bgglight"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.LogPlayerActivity"
 			android:label="@string/title_log_player"
-			android:theme="@style/Theme.bgglight"/>
+			android:theme="@style/Theme.bgglight"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.GameCollectionItemActivity"
-			android:label="@string/title_collection"/>
+			android:label="@string/title_collection"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.GamePlaysActivity"
-			android:label="@string/title_plays"/>
+			android:label="@string/title_plays"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.GamePlayStatsActivity"
-			android:label="@string/title_play_stats"/>
+			android:label="@string/title_play_stats"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.GameColorsActivity"
-			android:label="@string/title_colors"/>
+			android:label="@string/title_colors"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.CommentsActivity"
-			android:label="@string/title_comments"/>
+			android:label="@string/title_comments"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.ForumsActivity"
-			android:label="@string/title_forums">
+			android:label="@string/title_forums"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.ForumActivity"
-			android:label="@string/title_forum"/>
+			android:label="@string/title_forum"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.GeekListsActivity"
-			android:label="@string/title_geeklists">
+			android:label="@string/title_geeklists"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.GeekListActivity"
-			android:label="@string/title_geeklist">
+			android:label="@string/title_geeklist"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.GeekListsActivity"/>
 		</activity>
 		<activity
 			android:name=".ui.GeekListItemActivity"
-			android:label="@string/title_geeklist"/>
+			android:label="@string/title_geeklist"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.ThreadActivity"
-			android:label="@string/title_thread"/>
+			android:label="@string/title_thread"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.ArticleActivity"
-			android:label="Article"/>
+			android:label="Article"
+			android:exported="false"/>
 		<activity
 			android:name=".ui.DataActivity"
-			android:label="@string/title_backup">
+			android:label="@string/title_backup"
+			android:exported="false">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value=".ui.HomeActivity"/>
@@ -364,7 +393,8 @@
 			android:excludeFromRecents="true"
 			android:label="@string/title_login"
 			android:theme="@style/Theme.bgglight.Dialog.NoTitle"
-			android:windowSoftInputMode="adjustResize|stateVisible"/>
+			android:windowSoftInputMode="adjustResize|stateVisible"
+			android:exported="false"/>
 
 		<service
 			android:name=".service.SyncService"
@@ -391,7 +421,8 @@
 
 		<!-- Firebase Cloud Messaging (FCM) -->
 		<service
-			android:name=".firebase.BggFirebaseMessagingService">
+			android:name=".firebase.BggFirebaseMessagingService"
+			android:exported="true">
 			<intent-filter>
 				<action android:name="com.google.firebase.MESSAGING_EVENT"/>
 			</intent-filter>
@@ -399,8 +430,9 @@
 
 		<provider
 			android:name=".provider.BggProvider"
-			android:authorities="com.boardgamegeek"
+			android:authorities="${applicationId}"
 			android:exported="true"
+			android:readPermission="com.boardgamegeek.permission.READ_BGG_PROVIDER"
 			android:label="@string/provider_label"/>
 
 		<receiver
@@ -410,9 +442,6 @@
 		<meta-data
 			android:name="android.app.default_searchable"
 			android:value=".ui.SearchResultsActivity"/>
-		<meta-data
-			android:name="com.crashlytics.ApiKey"
-			android:value="ce3b2fdec1306105cd9f867446334e513aa09208"/>
 
 		<!-- Firebase Cloud Messaging (FCM) -->
 		<meta-data

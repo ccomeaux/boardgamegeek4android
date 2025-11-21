@@ -99,7 +99,7 @@
 						bgg:query_token="@integer/query_token_mechanics"/>
 				</LinearLayout>
 
-				<include layout="@layout/include_game_footer"/>
+				<include android:id="@+id/footer" layout="@layout/include_game_footer"/>
 			</LinearLayout>
 		</FrameLayout>
 	</androidx.core.widget.NestedScrollView>

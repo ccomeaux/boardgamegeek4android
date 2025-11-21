@@ -41,28 +41,31 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import retrofit2.Call;
+
+import com.boardgamegeek.databinding.FragmentHotnessBinding;
+import com.boardgamegeek.databinding.RowHotnessBinding;
 
 public class HotnessFragment extends Fragment implements LoaderManager.LoaderCallbacks<SafeResponse<HotnessResponse>>, ActionMode.Callback {
 	private static final int LOADER_ID = 1;
 
 	private HotGamesAdapter adapter;
 	private ActionMode actionMode;
-	private Unbinder unbinder;
-	@BindView(R.id.root_container) CoordinatorLayout containerView;
-	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(android.R.id.empty) TextView emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	private FragmentHotnessBinding binding;
+	private CoordinatorLayout containerView;
+	private ContentLoadingProgressBar progressView;
+	private TextView emptyView;
+	private RecyclerView recyclerView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_hotness, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentHotnessBinding.inflate(inflater, container, false);
+		containerView = binding.rootContainer;
+		progressView = binding.progress;
+		emptyView = binding.empty;
+		recyclerView = binding.list;
 		setUpRecyclerView();
-		return rootView;
+		return binding.getRoot();
 	}
 
 	@Override
@@ -74,7 +77,7 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	private void setUpRecyclerView() {
@@ -211,14 +214,18 @@ public class HotnessFragment extends Fragment implements LoaderManager.LoaderCal
 			private int gameId;
 			private String gameName;
 			private String thumbnailUrl;
-			@BindView(R.id.name) TextView name;
-			@BindView(R.id.year) TextView year;
-			@BindView(R.id.rank) TextView rank;
-			@BindView(R.id.thumbnail) ImageView thumbnail;
+			private final TextView name;
+			private final TextView year;
+			private final TextView rank;
+			private final ImageView thumbnail;
 
 			public ViewHolder(View itemView) {
 				super(itemView);
-				ButterKnife.bind(this, itemView);
+				RowHotnessBinding binding = RowHotnessBinding.bind(itemView);
+				name = binding.name;
+				year = binding.year;
+				rank = binding.rank;
+				thumbnail = binding.thumbnail;
 			}
 
 			public void bind(HotGame game, final int position) {

@@ -1,16 +1,14 @@
 package com.boardgamegeek.ui.adapter
 
-import android.view.View
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowTopGameBinding
 import com.boardgamegeek.entities.TopGameEntity
 import com.boardgamegeek.extensions.asYear
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity
-import kotlinx.android.synthetic.main.row_top_game.view.*
 import kotlin.properties.Delegates
 
 class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), AutoUpdatableAdapter {
@@ -25,7 +23,8 @@ class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), Auto
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(parent.inflate(R.layout.row_top_game))
+        val binding = RowTopGameBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -36,16 +35,16 @@ class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), Auto
 
     override fun getItemId(position: Int) = (results.getOrNull(position)?.id ?: BggContract.INVALID_ID).toLong()
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(private val binding: RowTopGameBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(game: TopGameEntity?) {
             if (game == null) return
-            itemView.nameView.text = game.name
-            itemView.yearView.text = game.yearPublished.asYear(itemView.context)
-            itemView.rankView.text = game.rank.toString()
-            itemView.thumbnailView.loadThumbnailInList(game.thumbnailUrl)
+            binding.nameView.text = game.name
+            binding.yearView.text = game.yearPublished.asYear(binding.root.context)
+            binding.rankView.text = game.rank.toString()
+            binding.thumbnailView.loadThumbnailInList(game.thumbnailUrl)
 
-            itemView.setOnClickListener {
-                GameActivity.start(itemView.context,
+            binding.root.setOnClickListener {
+                GameActivity.start(binding.root.context,
                         game.id,
                         game.name,
                         game.thumbnailUrl)

@@ -16,7 +16,7 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RemoteConfig;
 import com.facebook.stetho.Stetho;
-import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.jakewharton.picasso.OkHttp3Downloader;
 import com.squareup.picasso.Picasso;
 
@@ -67,8 +67,9 @@ public class BggApplication extends MultiDexApplication {
 		migrateCollectionStatusSettings();
 		SyncPrefs.migrate(this);
 
-		FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(instanceIdResult -> {
-			String deviceToken = instanceIdResult.getToken();
+		FirebaseMessaging.getInstance().getToken()
+			.addOnCompleteListener(task -> {
+			String deviceToken = task.getResult();
 			Timber.i("Firebase token is %s", deviceToken);
 		});
 	}

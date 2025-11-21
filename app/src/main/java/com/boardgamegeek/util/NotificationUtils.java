@@ -144,8 +144,16 @@ public class NotificationUtils {
 			.setColor(ContextCompat.getColor(context, R.color.primary))
 			.setContentTitle(title)
 			.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
-		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+		// Ensure PendingIntent has FLAG_IMMUTABLE on Android 12+ (S)
+		int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+			flags |= PendingIntent.FLAG_IMMUTABLE;
+		}
+
+		PendingIntent resultPendingIntent = PendingIntent.getActivity(context, 0, intent, flags);
 		builder.setContentIntent(resultPendingIntent);
+
 		return builder;
 	}
 
@@ -204,7 +212,12 @@ public class NotificationUtils {
 
 		Intent intent = PlayActivity.createIntent(context, internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 		intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+		int flags = PendingIntent.FLAG_CANCEL_CURRENT;
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+			flags |= PendingIntent.FLAG_MUTABLE;
+		}
+		PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, flags);
 
 		String info = "";
 		if (!TextUtils.isEmpty(play.location)) {

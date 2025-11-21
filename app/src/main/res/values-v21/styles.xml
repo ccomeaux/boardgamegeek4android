@@ -13,10 +13,10 @@
 	</style>
 
 	<style name="ColoredButton" parent="Widget.MaterialComponents.Button">
-		<item name="android:backgroundTint">@color/medium_blue</item>
+		<item name="backgroundTint">@color/medium_blue</item>
 	</style>
 
 	<style name="ColoredIconButton" parent="Widget.MaterialComponents.Button.Icon">
-		<item name="android:backgroundTint">@color/medium_blue</item>
+		<item name="backgroundTint">@color/medium_blue</item>
 	</style>
 </resources>

@@ -7,7 +7,7 @@ import android.view.Menu
 import android.widget.SearchView
 import androidx.core.content.getSystemService
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.provider.BggContract.Games
 import com.boardgamegeek.ui.viewmodel.SearchViewModel
@@ -24,7 +24,7 @@ class SearchResultsActivity : SimpleSinglePaneActivity() {
     private var searchView: SearchView? = null
 
     private val viewModel: SearchViewModel by lazy {
-        ViewModelProviders.of(this).get(SearchViewModel::class.java)
+        ViewModelProvider(this).get(SearchViewModel::class.java)
     }
 
     override val optionsMenuId: Int

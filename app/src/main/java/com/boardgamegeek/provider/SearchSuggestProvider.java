@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
-import androidx.collection.ArrayMap;
 import android.text.TextUtils;
 
 import com.boardgamegeek.provider.BggContract.Collection;
@@ -15,6 +14,8 @@ import com.boardgamegeek.provider.BggDatabase.Tables;
 
 import java.util.Locale;
 import java.util.Map;
+
+import androidx.collection.ArrayMap;
 
 public class SearchSuggestProvider extends BaseProvider {
 	public static final Map<String, String> sSuggestionProjectionMap = buildSuggestionProjectionMap();

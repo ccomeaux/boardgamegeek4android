@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.db.UserDao
 import com.boardgamegeek.entities.RefreshableResource
 import com.boardgamegeek.entities.UserEntity
@@ -30,7 +30,7 @@ class BuddiesViewModel(application: Application) : AndroidViewModel(application)
         sort(SortType.USERNAME)
     }
 
-    val buddies: LiveData<RefreshableResource<List<UserEntity>>> = Transformations.switchMap(sort) {
+    val buddies: LiveData<RefreshableResource<List<UserEntity>>> = sort.switchMap() {
         userRepository.loadBuddies(it.sortBy)
     }
 

@@ -24,30 +24,24 @@ import com.boardgamegeek.ui.adapter.GameCommentsRecyclerViewAdapter;
 import com.boardgamegeek.ui.loader.PaginatedLoader;
 import com.boardgamegeek.ui.model.GameComments;
 import com.boardgamegeek.ui.model.PaginatedData;
+import com.boardgamegeek.databinding.FragmentCommentsBinding;
 import com.boardgamegeek.util.AnimationUtils;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
-import icepick.Icepick;
-import icepick.State;
 import retrofit2.Call;
 
 public class CommentsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Comment>> {
 	private static final String KEY_GAME_ID = "GAME_ID";
 	private static final String KEY_SORT_BY_RATING = "SORT";
+	private static final String KEY_IS_SORTED_BY_RATING = "IS_SORTED_BY_RATING";
 	private static final int LOADER_ID = 0;
 	private static final int VISIBLE_THRESHOLD = 5;
 	private GameCommentsRecyclerViewAdapter adapter;
 	private int gameId;
-	@State boolean isSortedByRating = false;
+	private boolean isSortedByRating = false;
 
-	private Unbinder unbinder;
-	@BindView(android.R.id.progress) View progressView;
-	@BindView(android.R.id.empty) View emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	private FragmentCommentsBinding binding;
 
 	public static CommentsFragment newInstance(int gameId, boolean isSortedByRating) {
 		Bundle args = new Bundle();
@@ -61,11 +55,12 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		readBundle(getArguments());
-		Icepick.restoreInstanceState(this, savedInstanceState);
-		View rootView = inflater.inflate(R.layout.fragment_comments, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		if (savedInstanceState != null) {
+			isSortedByRating = savedInstanceState.getBoolean(KEY_IS_SORTED_BY_RATING, false);
+		}
+		binding = FragmentCommentsBinding.inflate(inflater, container, false);
 		setUpRecyclerView();
-		return rootView;
+		return binding.getRoot();
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -83,23 +78,23 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putBoolean(KEY_IS_SORTED_BY_RATING, isSortedByRating);
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
-		recyclerView.setLayoutManager(layoutManager);
+		binding.list.setLayoutManager(layoutManager);
 
-		recyclerView.setHasFixedSize(true);
-		recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+		binding.list.setHasFixedSize(true);
+		binding.list.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
 
-		recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+		binding.list.addOnScrollListener(new RecyclerView.OnScrollListener() {
 			@Override
 			public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
 				super.onScrollStateChanged(recyclerView, newState);
@@ -140,21 +135,21 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
 	@Override
 	public void onLoadFinished(Loader<PaginatedData<Comment>> loader, PaginatedData<Comment> data) {
-		if (getActivity() == null) return;
+		if (getActivity() == null || binding == null) return;
 
 		if (adapter == null) {
 			adapter = new GameCommentsRecyclerViewAdapter(getContext(), data);
-			recyclerView.setAdapter(adapter);
+			binding.list.setAdapter(adapter);
 		} else {
 			adapter.update(data);
 		}
 
 		if (adapter.getItemCount() == 0) {
-			AnimationUtils.fadeIn(emptyView, isResumed());
+			AnimationUtils.fadeIn(binding.empty, isResumed());
 		} else {
-			AnimationUtils.fadeIn(recyclerView, isResumed());
+			AnimationUtils.fadeIn(binding.list, isResumed());
 		}
-		AnimationUtils.fadeOut(progressView);
+		AnimationUtils.fadeOut(binding.progress);
 	}
 
 	@Override
@@ -163,7 +158,7 @@ public class CommentsFragment extends Fragment implements LoaderManager.LoaderCa
 
 	private void requery() {
 		if (adapter != null) adapter.clear();
-		AnimationUtils.fadeIn(progressView);
+		if (binding != null) AnimationUtils.fadeIn(binding.progress);
 		LoaderManager.getInstance(this).restartLoader(LOADER_ID, null, this);
 	}
 

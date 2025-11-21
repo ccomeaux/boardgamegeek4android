@@ -70,7 +70,7 @@ abstract class SyncTask(protected val application: BggApplication, protected val
 
         val intent = Intent(context, CancelReceiver::class.java)
         intent.action = SyncService.ACTION_CANCEL_SYNC
-        val pi = PendingIntent.getBroadcast(context, 0, intent, 0)
+        val pi = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val builder = NotificationUtils
                 .createNotificationBuilder(context, R.string.sync_notification_title, NotificationUtils.CHANNEL_ID_SYNC_PROGRESS)
                 .setContentText(message)

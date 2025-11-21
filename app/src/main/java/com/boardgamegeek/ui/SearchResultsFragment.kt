@@ -8,7 +8,7 @@ import androidx.annotation.PluralsRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
@@ -20,26 +20,28 @@ import com.boardgamegeek.ui.viewmodel.SearchViewModel
 import com.boardgamegeek.ui.widget.SafeViewTarget
 import com.boardgamegeek.util.HelpUtils
 import com.boardgamegeek.util.PreferencesUtils
+import com.boardgamegeek.databinding.FragmentSearchResultsBinding
 import com.github.amlcurran.showcaseview.ShowcaseView
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_search_results.*
-import kotlinx.android.synthetic.main.include_horizontal_progress.*
 import org.jetbrains.anko.toast
 import java.util.*
 
 class SearchResultsFragment : Fragment(), ActionMode.Callback {
+    private var _binding: FragmentSearchResultsBinding? = null
+    private val binding get() = _binding!!
+
     private var showcaseView: ShowcaseView? = null
     private var actionMode: ActionMode? = null
 
     private val snackbar: Snackbar by lazy {
-        Snackbar.make(containerView, "", Snackbar.LENGTH_INDEFINITE).apply {
+        Snackbar.make(binding.containerView, "", Snackbar.LENGTH_INDEFINITE).apply {
             view.setBackgroundResource(R.color.dark_blue)
             setActionTextColor(ContextCompat.getColor(context, R.color.accent))
         }
     }
 
     private val viewModel: SearchViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(SearchViewModel::class.java)
+        ViewModelProvider(this).get(SearchViewModel::class.java)
     }
 
     private val searchResultsAdapter: SearchResultsAdapter by lazy {
@@ -79,16 +81,16 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
             if (resource == null) return@Observer
 
             when (resource.status) {
-                Status.REFRESHING -> progressContainer.fadeIn()
+                Status.REFRESHING -> binding.progress.progressContainer.fadeIn()
                 Status.ERROR -> {
                     if (resource.message.isBlank()) {
-                        emptyView.setText(R.string.empty_http_error) // TODO better message?
+                        binding.emptyView.setText(R.string.empty_http_error) // TODO better message?
                     } else {
-                        emptyView.text = getString(R.string.empty_http_error, resource.message)
+                        binding.emptyView.text = getString(R.string.empty_http_error, resource.message)
                     }
-                    emptyView.fadeIn()
-                    recyclerView.fadeOut()
-                    progressContainer.fadeOut()
+                    binding.emptyView.fadeIn()
+                    binding.recyclerView.fadeOut()
+                    binding.progress.progressContainer.fadeOut()
                 }
                 Status.SUCCESS -> {
                     val data = resource.data
@@ -97,22 +99,22 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                         if (query != null && query.second)
                             viewModel.searchInexact(query.first)
                         if (query == null || query.first.isBlank()) {
-                            emptyView.setText(R.string.search_initial_help)
+                            binding.emptyView.setText(R.string.search_initial_help)
                         } else {
-                            emptyView.setText(R.string.empty_search)
+                            binding.emptyView.setText(R.string.empty_search)
                         }
                         searchResultsAdapter.clear()
-                        emptyView.fadeIn()
-                        recyclerView.fadeOut()
+                        binding.emptyView.fadeIn()
+                        binding.recyclerView.fadeOut()
                     } else {
                         searchResultsAdapter.results = data
-                        emptyView.fadeOut()
-                        recyclerView.fadeIn(isResumed)
+                        binding.emptyView.fadeOut()
+                        binding.recyclerView.fadeIn(isResumed)
                     }
                     if (query != null) {
                         showSnackbar(query.first, query.second, data?.size ?: 0)
                     }
-                    progressContainer.fadeOut()
+                    binding.progress.progressContainer.fadeOut()
                 }
             }
 
@@ -137,15 +139,21 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_search_results, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentSearchResultsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        progressView.isIndeterminate = true
-        recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
-        recyclerView.adapter = searchResultsAdapter
+        binding.progress.progressView.isIndeterminate = true
+        binding.recyclerView.addItemDecoration(DividerItemDecoration(context, DividerItemDecoration.VERTICAL))
+        binding.recyclerView.adapter = searchResultsAdapter
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -175,7 +183,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
                         showcaseView?.hide()
                         HelpUtils.updateHelp(context, HelpUtils.HELP_SEARCHRESULTS_KEY, HELP_VERSION)
                     }
-            val viewTarget = SafeViewTarget(HelpUtils.getRecyclerViewVisibleChild(recyclerView))
+            val viewTarget = SafeViewTarget(HelpUtils.getRecyclerViewVisibleChild(binding.recyclerView))
             builder.setTarget(viewTarget)
             showcaseView = builder.build()?.apply {
                 this.setButtonPosition(HelpUtils.getCenterLeftLayoutParams(context))

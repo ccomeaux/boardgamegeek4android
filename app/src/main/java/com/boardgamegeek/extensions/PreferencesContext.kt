@@ -46,6 +46,8 @@ fun Context?.getSyncStatuses(): Set<String>? {
 }
 
 fun Context?.getSyncStatuses(defValues: Array<String>? = null): Set<String>? {
+    if (this == null) return defValues?.toSet()
+
     val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
     val defSet = if (defValues == null) null else HashSet(listOf(*defValues))
     return sharedPreferences.getStringSet(PREFERENCES_KEY_SYNC_STATUSES, defSet)

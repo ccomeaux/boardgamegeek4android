@@ -67,7 +67,7 @@ fun String?.asColorRgb(): Int {
 }
 
 private fun formatKey(name: String): String {
-    return name.toLowerCase(Locale.US)
+    return name.lowercase(Locale.US)
 }
 
 val ratingColors = intArrayOf(

@@ -7,7 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.showAndSurvive
@@ -25,7 +25,7 @@ class BuddyActivity : SimpleSinglePaneActivity() {
     private var snackbar: Snackbar? = null
 
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProviders.of(this).get(BuddyViewModel::class.java)
+        ViewModelProvider(this).get(BuddyViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

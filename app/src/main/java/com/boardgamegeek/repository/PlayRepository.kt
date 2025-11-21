@@ -3,7 +3,7 @@ package com.boardgamegeek.repository
 import android.content.ContentProviderOperation
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -91,10 +91,10 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
         // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
 
-        return Transformations.map(gameDao.loadPlayInfoAsLiveData(
-                PreferencesUtils.logPlayStatsIncomplete(application),
-                PreferencesUtils.logPlayStatsExpansions(application),
-                PreferencesUtils.logPlayStatsAccessories(application)))
+        return gameDao.loadPlayInfoAsLiveData(
+            PreferencesUtils.logPlayStatsIncomplete(application),
+            PreferencesUtils.logPlayStatsExpansions(application),
+            PreferencesUtils.logPlayStatsAccessories(application)).map()
         {
             return@map filterGamesOwned(it)
         }

@@ -9,47 +9,53 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogEditNicknameBinding
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import kotlinx.android.synthetic.main.dialog_edit_nickname.*
 import org.jetbrains.anko.support.v4.act
 
 class UpdateBuddyNicknameDialogFragment : DialogFragment() {
-    lateinit var layout: View
+    private var _binding: DialogEditNicknameBinding? = null
+    private val binding get() = _binding!!
 
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProviders.of(act).get(BuddyViewModel::class.java)
+        ViewModelProvider(this).get(BuddyViewModel::class.java)
     }
 
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_edit_nickname, null)
+        _binding = DialogEditNicknameBinding.inflate(LayoutInflater.from(context))
 
         return AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
-                .setView(layout)
+                .setView(binding.root)
                 .setTitle(R.string.title_edit_nickname)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
-                    viewModel.updateNickName(nicknameView.text.trim().toString(), changePlaysCheckBox.isChecked)
+                    viewModel.updateNickName(binding.nicknameView.text.trim().toString(), binding.changePlaysCheckBox.isChecked)
                 }
                 .create().apply {
-                    requestFocus(nicknameView)
+                    requestFocus(binding.nicknameView)
                 }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         if (savedInstanceState == null) {
-            nicknameView.setAndSelectExistingText(arguments?.getString("NICKNAME"))
-            nicknameView.inputType = nicknameView.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
+            binding.nicknameView.setAndSelectExistingText(arguments?.getString("NICKNAME"))
+            binding.nicknameView.inputType = binding.nicknameView.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

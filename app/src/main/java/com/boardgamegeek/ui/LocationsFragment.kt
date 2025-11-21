@@ -6,54 +6,62 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentLocationsBinding
+import com.boardgamegeek.databinding.RowLocationBinding
 import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import kotlinx.android.synthetic.main.fragment_locations.*
-import kotlinx.android.synthetic.main.row_location.view.*
 import kotlin.properties.Delegates
 
 class LocationsFragment : Fragment() {
+    private var _binding: FragmentLocationsBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: LocationsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(LocationsViewModel::class.java)
+        ViewModelProvider(this).get(LocationsViewModel::class.java)
     }
 
     private val adapter: LocationsAdapter by lazy {
         LocationsAdapter(viewModel)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_locations, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentLocationsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
         val sectionItemDecoration = RecyclerSectionItemDecoration(
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter)
-        recyclerView.addItemDecoration(sectionItemDecoration)
+        binding.recyclerView.addItemDecoration(sectionItemDecoration)
 
         viewModel.locations.observe(this, Observer {
             adapter.locations = it
-            progressBar?.hide()
+            binding.progressBar?.hide()
             if (adapter.itemCount == 0) {
-                recyclerView.fadeOut()
-                emptyContainer.fadeIn()
+                binding.recyclerView.fadeOut()
+                binding.emptyContainer.fadeIn()
             } else {
-                emptyContainer.fadeOut()
-                recyclerView.fadeIn(recyclerView.windowToken != null)
+                binding.emptyContainer.fadeOut()
+                binding.recyclerView.fadeIn(binding.recyclerView.windowToken != null)
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private class LocationsAdapter(val viewModel: LocationsViewModel) : RecyclerView.Adapter<LocationsAdapter.LocationsViewHolder>(), AutoUpdatableAdapter, SectionCallback {
@@ -66,7 +74,8 @@ class LocationsFragment : Fragment() {
         override fun getItemCount() = locations.size
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LocationsViewHolder {
-            return LocationsViewHolder(parent.inflate(R.layout.row_location))
+            val binding = RowLocationBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return LocationsViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: LocationsViewHolder, position: Int) {
@@ -90,17 +99,17 @@ class LocationsFragment : Fragment() {
             }
         }
 
-        inner class LocationsViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class LocationsViewHolder(private val binding: RowLocationBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(location: LocationEntity?) {
                 location?.let { l ->
                     if (l.name.isBlank()) {
-                        itemView.nameView.setText(R.string.no_location)
+                        binding.nameView.setText(R.string.no_location)
                     } else {
-                        itemView.nameView.text = l.name
+                        binding.nameView.text = l.name
                     }
-                    itemView.quantityView.text = itemView.resources.getQuantityString(R.plurals.plays_suffix, l.playCount, l.playCount)
-                    itemView.setOnClickListener {
-                        LocationActivity.start(itemView.context, l.name)
+                    binding.quantityView.text = binding.root.resources.getQuantityString(R.plurals.plays_suffix, l.playCount, l.playCount)
+                    binding.root.setOnClickListener {
+                        LocationActivity.start(binding.root.context, l.name)
                     }
                 }
             }

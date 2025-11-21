@@ -1,30 +1,32 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentArtistsBinding
+import com.boardgamegeek.databinding.RowArtistBinding
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.ArtistsViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import kotlinx.android.synthetic.main.fragment_artists.*
-import kotlinx.android.synthetic.main.include_horizontal_progress.*
-import kotlinx.android.synthetic.main.row_artist.view.*
 import kotlin.properties.Delegates
 
 class ArtistsFragment : Fragment(R.layout.fragment_artists) {
+    private var _binding: FragmentArtistsBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: ArtistsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(ArtistsViewModel::class.java)
+        ViewModelProvider(this).get(ArtistsViewModel::class.java)
     }
 
     private val adapter: ArtistsAdapter by lazy {
@@ -32,38 +34,44 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        _binding = FragmentArtistsBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(RecyclerSectionItemDecoration(
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addItemDecoration(RecyclerSectionItemDecoration(
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter))
 
-        viewModel.artists.observe(this, Observer {
+        viewModel.artists.observe(viewLifecycleOwner, Observer {
             showData(it)
-            progressBar.hide()
+            binding.progressBar.hide()
         })
 
-        viewModel.progress.observe(this, Observer {
+        viewModel.progress.observe(viewLifecycleOwner, Observer {
             if (it == null) {
-                progressContainer.isVisible = false
+                binding.progress.progressContainer.isVisible = false
             } else {
-                progressContainer.isVisible = it.second > 0
-                progressView.max = it.second
-                progressView.progress = it.first
+                binding.progress.progressContainer.isVisible = it.second > 0
+                binding.progress.progressView.max = it.second
+                binding.progress.progressView.progress = it.first
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showData(artists: List<PersonEntity>) {
         adapter.artists = artists
         if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
-            emptyTextView.fadeIn()
+            binding.recyclerView.fadeOut()
+            binding.emptyTextView.fadeIn()
         } else {
-            recyclerView.fadeIn()
-            emptyTextView.fadeOut()
+            binding.recyclerView.fadeIn()
+            binding.emptyTextView.fadeOut()
         }
     }
 
@@ -89,7 +97,8 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
         override fun getItemId(position: Int) = artists.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistViewHolder {
-            return ArtistViewHolder(parent.inflate(R.layout.row_artist))
+            val binding = RowArtistBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return ArtistViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: ArtistViewHolder, position: Int) {
@@ -113,15 +122,15 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
             }
         }
 
-        inner class ArtistViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class ArtistViewHolder(private val binding: RowArtistBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(artist: PersonEntity?) {
                 artist?.let { a ->
-                    itemView.avatarView.loadThumbnailInList(a.thumbnailUrl, R.drawable.person_image_empty)
-                    itemView.nameView.text = a.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
-                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${a.whitmoreScore}")
-                    itemView.setOnClickListener {
-                        PersonActivity.startForArtist(itemView.context, a.id, a.name)
+                    binding.avatarView.loadThumbnailInList(a.thumbnailUrl, R.drawable.person_image_empty)
+                    binding.nameView.text = a.name
+                    binding.countView.text = binding.root.context.resources.getQuantityString(R.plurals.games_suffix, a.itemCount, a.itemCount)
+                    binding.whitmoreScoreView.text = binding.root.context.getString(R.string.whitmore_score).plus(" ${a.whitmoreScore}")
+                    binding.root.setOnClickListener {
+                        PersonActivity.startForArtist(binding.root.context, a.id, a.name)
                     }
                 }
             }

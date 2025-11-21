@@ -16,9 +16,6 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.provider.BggContract;
 import com.boardgamegeek.util.UIUtils;
 
-import icepick.Icepick;
-import icepick.State;
-
 public class CommentsActivity extends SimpleSinglePaneActivity {
 	private static final String KEY_GAME_NAME = "GAME_NAME";
 	private static final String KEY_SORT_TYPE = "SORT_TYPE";
@@ -27,7 +24,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 
 	private int gameId;
 	private String gameName;
-	@State int sortType;
+	private int sortType;
 
 	public static void startRating(Context context, Uri gameUri, String gameName) {
 		Intent starter = new Intent(context, CommentsActivity.class);
@@ -40,7 +37,9 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(KEY_SORT_TYPE, SORT_TYPE_USER);
+		}
 
 		updateActionBar();
 	}
@@ -48,7 +47,7 @@ public class CommentsActivity extends SimpleSinglePaneActivity {
 	@Override
 	public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
 		super.onSaveInstanceState(outState, outPersistentState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putInt(KEY_SORT_TYPE, sortType);
 	}
 
 	private void updateActionBar() {

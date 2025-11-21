@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.LocationEntity
 import com.boardgamegeek.extensions.firstChar
@@ -26,7 +26,7 @@ class LocationsViewModel(application: Application) : AndroidViewModel(applicatio
         sort(SortType.NAME)
     }
 
-    val locations: LiveData<List<LocationEntity>> = Transformations.switchMap(sort) {
+    val locations: LiveData<List<LocationEntity>> = sort.switchMap() {
         playRepository.loadLocations(it.sortBy)
     }
 

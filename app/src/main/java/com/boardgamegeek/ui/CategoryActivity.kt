@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.provider.BggContract
@@ -15,7 +15,7 @@ class CategoryActivity : SimpleSinglePaneActivity() {
     private var id = BggContract.INVALID_ID
 
     private val viewModel: CategoryViewModel by lazy {
-        ViewModelProviders.of(this).get(CategoryViewModel::class.java)
+        ViewModelProvider(this).get(CategoryViewModel::class.java)
     }
 
     override fun onCreatePane(intent: Intent) = CategoryCollectionFragment()

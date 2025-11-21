@@ -30,9 +30,8 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
+
+import com.boardgamegeek.databinding.FragmentForumBinding;
 
 public class ForumFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<Thread>> {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
@@ -50,10 +49,10 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	private String objectName;
 	private ForumType objectType;
 
-	Unbinder unbinder;
-	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(android.R.id.empty) View emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	private FragmentForumBinding binding;
+	private ContentLoadingProgressBar progressView;
+	private View emptyView;
+	private RecyclerView recyclerView;
 
 	public static ForumFragment newInstance(int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
 		Bundle args = new Bundle();
@@ -72,10 +71,12 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 	@Override
 	public View onCreateView(@NotNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		readBundle(getArguments());
-		View rootView = inflater.inflate(R.layout.fragment_forum, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentForumBinding.inflate(inflater, container, false);
+		progressView = binding.progress;
+		emptyView = binding.empty;
+		recyclerView = binding.list;
 		setUpRecyclerView();
-		return rootView;
+		return binding.getRoot();
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -95,7 +96,7 @@ public class ForumFragment extends Fragment implements LoaderManager.LoaderCallb
 
 	@Override
 	public void onDestroyView() {
-		unbinder.unbind();
+		binding = null;
 		super.onDestroyView();
 	}
 

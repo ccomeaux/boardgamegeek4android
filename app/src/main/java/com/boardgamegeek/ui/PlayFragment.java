@@ -61,12 +61,10 @@ import androidx.loader.content.Loader;
 import androidx.palette.graphics.Palette;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
-import icepick.Icepick;
-import icepick.State;
+
+import com.boardgamegeek.databinding.FragmentPlayBinding;
+import com.boardgamegeek.databinding.HeaderPlayBinding;
+import com.boardgamegeek.databinding.FooterPlayBinding;
 
 public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor>, OnRefreshListener {
 	private static final String KEY_ID = "ID";
@@ -75,6 +73,7 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private static final String KEY_IMAGE_URL = "IMAGE_URL";
 	private static final String KEY_THUMBNAIL_URL = "THUMBNAIL_URL";
 	private static final String KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL";
+	private static final String KEY_HAS_BEEN_NOTIFIED = "HAS_BEEN_NOTIFIED";
 	private static final int AGE_IN_DAYS_TO_REFRESH = 7;
 	private static final int PLAY_QUERY_TOKEN = 0x01;
 	private static final int PLAYER_QUERY_TOKEN = 0x02;
@@ -86,33 +85,37 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	private String heroImageUrl;
 	private boolean isRefreshing;
 
-	private Unbinder unbinder;
+	private FragmentPlayBinding binding;
+	private HeaderPlayBinding headerBinding;
+	private FooterPlayBinding footerBinding;
 	private ListView playersView;
-	@BindView(R.id.swipe_refresh) SwipeRefreshLayout swipeRefreshLayout;
-	@BindView(R.id.progress) View progressContainer;
-	@BindView(R.id.list_container) View listContainer;
-	@BindView(R.id.empty) TextView emptyView;
-	@BindView(R.id.thumbnail) ImageView thumbnailView;
-	@BindView(R.id.header) TextView gameNameView;
-	@BindView(R.id.play_date) TextView dateView;
-	@BindView(R.id.play_quantity) TextView quantityView;
-	@BindView(R.id.length_root) View lengthContainer;
-	@BindView(R.id.play_length) TextView lengthView;
-	@BindView(R.id.timer_root) View timerContainer;
-	@BindView(R.id.timer) Chronometer timerView;
-	@BindView(R.id.location_root) View locationContainer;
-	@BindView(R.id.play_location) TextView locationView;
-	@BindView(R.id.play_incomplete) View incompleteView;
-	@BindView(R.id.play_no_win_stats) View noWinStatsView;
-	@BindView(R.id.play_comments) TextView commentsView;
-	@BindView(R.id.play_comments_label) View commentsLabel;
-	@BindView(R.id.play_players_label) View playersLabel;
-	@BindView(R.id.play_id) TextView playIdView;
-	@BindView(R.id.pending_timestamp) TimestampView pendingTimestampView;
-	@BindView(R.id.dirty_timestamp) TimestampView dirtyTimestampView;
-	@BindView(R.id.sync_timestamp) TimestampView syncTimestampView;
+	private SwipeRefreshLayout swipeRefreshLayout;
+	private View progressContainer;
+	private View listContainer;
+	private TextView emptyView;
+	private ImageView thumbnailView;
+	private TextView gameNameView;
+	private TextView dateView;
+	private TextView quantityView;
+	private View lengthContainer;
+	private TextView lengthView;
+	private View timerContainer;
+	private Chronometer timerView;
+	private View locationContainer;
+	private TextView locationView;
+	private View incompleteView;
+	private View noWinStatsView;
+	private TextView commentsView;
+	private View commentsLabel;
+	private View playersLabel;
+	private TextView playIdView;
+	private TimestampView pendingTimestampView;
+	private TimestampView dirtyTimestampView;
+	private TimestampView syncTimestampView;
+	private View headerContainer;
+	private View timerEnd;
 	private PlayPlayerAdapter adapter;
-	@State boolean hasBeenNotified;
+	private boolean hasBeenNotified;
 
 	final private OnScrollListener onScrollListener = new OnScrollListener() {
 		@Override
@@ -145,7 +148,9 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		readBundle(getArguments());
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			hasBeenNotified = savedInstanceState.getBoolean(KEY_HAS_BEEN_NOTIFIED, false);
+		}
 		setHasOptionsMenu(true);
 	}
 
@@ -164,16 +169,52 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_play, container, false);
+		binding = FragmentPlayBinding.inflate(inflater, container, false);
+		ViewGroup rootView = (ViewGroup) binding.getRoot();
 
 		playersView = rootView.findViewById(android.R.id.list);
 		playersView.setHeaderDividersEnabled(false);
 		playersView.setFooterDividersEnabled(false);
 
-		playersView.addHeaderView(View.inflate(getActivity(), R.layout.header_play, null), null, false);
-		playersView.addFooterView(View.inflate(getActivity(), R.layout.footer_play, null), null, false);
+		headerBinding = HeaderPlayBinding.inflate(inflater, playersView, false);
+		footerBinding = FooterPlayBinding.inflate(inflater, playersView, false);
+		playersView.addHeaderView(headerBinding.getRoot(), null, false);
+		playersView.addFooterView(footerBinding.getRoot(), null, false);
 
-		unbinder = ButterKnife.bind(this, rootView);
+		// Bind views from main layout
+		swipeRefreshLayout = binding.swipeRefresh;
+		progressContainer = binding.progress;
+		listContainer = binding.listContainer;
+		emptyView = binding.empty;
+
+		// Bind views from header
+		thumbnailView = headerBinding.thumbnail;
+		gameNameView = headerBinding.header;
+		dateView = headerBinding.playDate;
+		quantityView = headerBinding.playQuantity;
+		lengthContainer = headerBinding.lengthRoot;
+		lengthView = headerBinding.playLength;
+		timerContainer = headerBinding.timerRoot;
+		timerView = headerBinding.timer;
+		timerEnd = headerBinding.timerEnd;
+		locationContainer = headerBinding.locationRoot;
+		locationView = headerBinding.playLocation;
+		incompleteView = headerBinding.playIncomplete;
+		noWinStatsView = headerBinding.playNoWinStats;
+		commentsView = headerBinding.playComments;
+		commentsLabel = headerBinding.playCommentsLabel;
+		playersLabel = headerBinding.playPlayersLabel;
+		headerContainer = headerBinding.headerContainer;
+
+		// Bind views from footer
+		playIdView = footerBinding.playId;
+		pendingTimestampView = footerBinding.pendingTimestamp;
+		dirtyTimestampView = footerBinding.dirtyTimestamp;
+		syncTimestampView = footerBinding.syncTimestamp;
+
+		// Setup listeners
+		headerContainer.setOnClickListener(v -> viewGame());
+		timerEnd.setOnClickListener(v -> onTimerClick());
 
 		if (swipeRefreshLayout != null) {
 			SwipeRefreshLayoutUtils.setBggColors(swipeRefreshLayout);
@@ -218,13 +259,15 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
+		headerBinding = null;
+		footerBinding = null;
 	}
 
 	@Override
 	public void onSaveInstanceState(@NonNull Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putBoolean(KEY_HAS_BEEN_NOTIFIED, hasBeenNotified);
 	}
 
 	@Override
@@ -323,12 +366,10 @@ public class PlayFragment extends ListFragment implements LoaderCallbacks<Cursor
 		}
 	}
 
-	@OnClick(R.id.header_container)
 	void viewGame() {
 		GameActivity.start(getContext(), play.gameId, play.gameName);
 	}
 
-	@OnClick(R.id.timer_end)
 	void onTimerClick() {
 		LogPlayActivity.endPlay(getContext(), internalId, play.gameId, play.gameName, thumbnailUrl, imageUrl, heroImageUrl);
 	}

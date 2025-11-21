@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.R
 import com.boardgamegeek.db.PlayDao
 import com.boardgamegeek.entities.PlayerEntity
@@ -28,7 +28,7 @@ class PlayersViewModel(application: Application) : AndroidViewModel(application)
         sort(SortType.NAME)
     }
 
-    val players: LiveData<List<PlayerEntity>> = Transformations.switchMap(sort) {
+    val players: LiveData<List<PlayerEntity>> = sort.switchMap() {
         playRepository.loadPlayers(it.sortBy)
     }
 

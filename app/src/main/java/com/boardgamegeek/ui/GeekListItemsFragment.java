@@ -22,18 +22,18 @@ import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 import timber.log.Timber;
+
+import com.boardgamegeek.databinding.FragmentThreadBinding;
+import com.boardgamegeek.databinding.RowGeeklistItemBinding;
 
 public class GeekListItemsFragment extends Fragment {
 	private GeekListRecyclerViewAdapter adapter;
 
-	Unbinder unbinder;
-	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(android.R.id.empty) TextView emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	private FragmentThreadBinding binding;
+	private ContentLoadingProgressBar progressView;
+	private TextView emptyView;
+	private RecyclerView recyclerView;
 
 	public static GeekListItemsFragment newInstance() {
 		return new GeekListItemsFragment();
@@ -41,16 +41,18 @@ public class GeekListItemsFragment extends Fragment {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentThreadBinding.inflate(inflater, container, false);
+		progressView = binding.progress;
+		emptyView = binding.empty;
+		recyclerView = binding.list;
 		setUpRecyclerView();
-		return rootView;
+		return binding.getRoot();
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	private void setUpRecyclerView() {
@@ -123,14 +125,18 @@ public class GeekListItemsFragment extends Fragment {
 		}
 
 		public class GeekListItemViewHolder extends GeekListViewHolder {
-			@BindView(R.id.order) TextView orderView;
-			@BindView(R.id.thumbnail) ImageView thumbnailView;
-			@BindView(R.id.game_name) TextView itemNameView;
-			@BindView(R.id.username) TextView usernameView;
+			private final TextView orderView;
+			private final ImageView thumbnailView;
+			private final TextView itemNameView;
+			private final TextView usernameView;
 
 			public GeekListItemViewHolder(View itemView) {
 				super(itemView);
-				ButterKnife.bind(this, itemView);
+				RowGeeklistItemBinding binding = RowGeeklistItemBinding.bind(itemView);
+				orderView = binding.order;
+				thumbnailView = binding.thumbnail;
+				itemNameView = binding.gameName;
+				usernameView = binding.username;
 			}
 
 			public void bind(final GeekListItem item, final int order) {

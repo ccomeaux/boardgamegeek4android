@@ -37,9 +37,8 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
+
+import com.boardgamegeek.databinding.FragmentThreadBinding;
 
 public class ThreadFragment extends Fragment implements LoaderManager.LoaderCallbacks<ThreadSafeResponse> {
 	private static final String KEY_FORUM_ID = "FORUM_ID";
@@ -62,10 +61,10 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	private int currentAdapterPosition = 0;
 	private int latestArticleId = PreferencesUtils.INVALID_ARTICLE_ID;
 
-	Unbinder unbinder;
-	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(android.R.id.empty) TextView emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	private FragmentThreadBinding binding;
+	private ContentLoadingProgressBar progressView;
+	private TextView emptyView;
+	private RecyclerView recyclerView;
 
 	public static ThreadFragment newInstance(int threadId, int forumId, String forumTitle, int objectId, String objectName, ForumType objectType) {
 		Bundle args = new Bundle();
@@ -90,10 +89,12 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		readBundle(getArguments());
-		View rootView = inflater.inflate(R.layout.fragment_thread, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentThreadBinding.inflate(inflater, container, false);
+		progressView = binding.progress;
+		emptyView = binding.empty;
+		recyclerView = binding.list;
 		setUpRecyclerView();
-		return rootView;
+		return binding.getRoot();
 	}
 
 	private void readBundle(@Nullable Bundle bundle) {
@@ -127,7 +128,7 @@ public class ThreadFragment extends Fragment implements LoaderManager.LoaderCall
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	@Override

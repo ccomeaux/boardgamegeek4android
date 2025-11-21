@@ -17,10 +17,8 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import butterknife.BindView;
-import butterknife.BindViews;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
+
+import com.boardgamegeek.databinding.FragmentGeeklistItemBinding;
 
 public class GeekListItemFragment extends Fragment {
 	private static final String KEY_ORDER = "GEEK_LIST_ORDER";
@@ -42,26 +40,18 @@ public class GeekListItemFragment extends Fragment {
 	private String body;
 	private XmlConverter xmlConverter;
 
-	private Unbinder unbinder;
-	@BindView(R.id.order) TextView orderView;
-	@BindView(R.id.list_title) TextView geekListTitleView;
-	@BindView(R.id.type) TextView typeView;
-	@BindView(R.id.byline_container) View bylineContainer;
-	@BindView(R.id.username) TextView usernameView;
-	@BindView(R.id.thumbs) TextView thumbsView;
-	@BindView(R.id.posted_date) TimestampView postedDateView;
-	@BindView(R.id.datetime_divider) View datetimeDividerView;
-	@BindView(R.id.edited_date) TimestampView editedDateView;
-	@BindView(R.id.body) WebView bodyView;
-	@BindViews({
-		R.id.order,
-		R.id.list_title,
-		R.id.username,
-		R.id.type,
-		R.id.thumbs,
-		R.id.posted_date,
-		R.id.edited_date
-	}) List<TextView> colorizedTextViews;
+	private FragmentGeeklistItemBinding binding;
+	private TextView orderView;
+	private TextView geekListTitleView;
+	private TextView typeView;
+	private View bylineContainer;
+	private TextView usernameView;
+	private TextView thumbsView;
+	private TimestampView postedDateView;
+	private View datetimeDividerView;
+	private TimestampView editedDateView;
+	private WebView bodyView;
+	private List<TextView> colorizedTextViews;
 
 	public static GeekListItemFragment newInstance(int order, String title, String type, String username, int numberOfThumbs, long postedDate, long editedDate, String body) {
 		Bundle args = new Bundle();
@@ -100,10 +90,31 @@ public class GeekListItemFragment extends Fragment {
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_item, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentGeeklistItemBinding.inflate(inflater, container, false);
+		orderView = binding.order;
+		geekListTitleView = binding.listTitle;
+		typeView = binding.type;
+		bylineContainer = binding.bylineContainer;
+		usernameView = binding.username;
+		thumbsView = binding.thumbs;
+		postedDateView = binding.postedDate;
+		datetimeDividerView = binding.datetimeDivider;
+		editedDateView = binding.editedDate;
+		bodyView = binding.body;
+		
+		// Manually create the collection of views that need to be colorized
+		colorizedTextViews = java.util.Arrays.asList(
+			orderView,
+			geekListTitleView,
+			usernameView,
+			typeView,
+			thumbsView,
+			(TextView) postedDateView,
+			(TextView) editedDateView
+		);
+		
 		populateUi();
-		return rootView;
+		return binding.getRoot();
 	}
 
 	private void populateUi() {
@@ -128,6 +139,6 @@ public class GeekListItemFragment extends Fragment {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 }

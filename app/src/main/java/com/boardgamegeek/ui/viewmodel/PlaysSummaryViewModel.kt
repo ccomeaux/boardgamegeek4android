@@ -25,33 +25,33 @@ class PlaysSummaryViewModel(application: Application) : AndroidViewModel(applica
 
     private val playRepository = PlayRepository(getApplication())
 
-    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = Transformations.switchMap(syncTimestamp) {
+    val plays: LiveData<RefreshableResource<List<PlayEntity>>> = syncTimestamp.switchMap() {
         playRepository.getPlays()
     }
 
-    val playCount: LiveData<Int> = Transformations.map(plays) { list ->
+    val playCount: LiveData<Int> = plays.map() { list ->
         list?.data?.sumBy { it.quantity } ?: 0
     }
 
-    val playsInProgress: LiveData<List<PlayEntity>> = Transformations.map(plays) { list ->
-        list?.data?.filter { it.dirtyTimestamp > 0L }
+    val playsInProgress: LiveData<List<PlayEntity>?> = plays.map() { list ->
+        list.data?.filter { it.dirtyTimestamp > 0L }
     }
 
-    val playsNotInProgress: LiveData<List<PlayEntity>> = Transformations.map(plays) { list ->
+    val playsNotInProgress: LiveData<List<PlayEntity>?> = plays.map() { list ->
         list?.data?.filter { it.dirtyTimestamp == 0L }?.take(ITEMS_TO_DISPLAY)
     }
 
     val players: LiveData<List<PlayerEntity>> =
-            Transformations.map(Transformations.switchMap(plays) {
-                playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT)
-            }) { p ->
+        plays.switchMap() {
+            playRepository.loadPlayers(PlayDao.PlayerSortBy.PLAY_COUNT)
+        }.map() { p ->
                 p.filter { it.username != AccountUtils.getUsername(getApplication()) }.take(ITEMS_TO_DISPLAY)
             }
 
     val locations: LiveData<List<LocationEntity>> =
-            Transformations.map(Transformations.switchMap(plays) {
-                playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT)
-            }) { p ->
+        plays.switchMap() {
+            playRepository.loadLocations(PlayDao.LocationSortBy.PLAY_COUNT)
+        }.map() { p ->
                 p.filter { it.name.isNotBlank() }.take(ITEMS_TO_DISPLAY)
             }
 

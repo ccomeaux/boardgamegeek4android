@@ -8,8 +8,8 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import com.appyvet.materialrangebar.RangeBar
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogSliderFilterBinding
 import com.boardgamegeek.filterer.CollectionFilterer
-import kotlinx.android.synthetic.main.dialog_slider_filter.view.*
 
 abstract class SliderFilterDialog : CollectionFilterDialog {
     private var low: Int = 0
@@ -37,14 +37,13 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
     protected abstract val absoluteMax: Int
 
     override fun createDialog(context: Context, listener: CollectionFilterDialog.OnFilterChangedListener?, filter: CollectionFilterer?) {
-        @SuppressLint("InflateParams")
-        val layout = LayoutInflater.from(context).inflate(R.layout.dialog_slider_filter, null)
+        val binding = DialogSliderFilterBinding.inflate(LayoutInflater.from(context))
 
         val initialValues = initValues(filter)
         low = initialValues.min.coerceIn(absoluteMin, absoluteMax)
         high = initialValues.max.coerceIn(absoluteMin, absoluteMax)
 
-        layout.rangeBar.apply {
+        binding.rangeBar.apply {
             tickStart = absoluteMin.toFloat()
             tickEnd = absoluteMax.toFloat()
             setRangePinsByValue(low.toFloat(), high.toFloat())
@@ -68,16 +67,16 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             })
         }
 
-        layout.minDownButton.setOnClickListener {
-            layout.rangeBar.apply {
+        binding.minDownButton.setOnClickListener {
+            binding.rangeBar.apply {
                 if (leftIndex > 0) {
                     updateRange(this, leftIndex - 1, rightIndex)
                 }
             }
         }
 
-        layout.minUpButton.setOnClickListener {
-            layout.rangeBar.apply {
+        binding.minUpButton.setOnClickListener {
+            binding.rangeBar.apply {
                 if (leftIndex < tickCount - 1) {
                     if (leftIndex == rightIndex) {
                         updateRange(this, leftIndex + 1, rightIndex + 1)
@@ -88,16 +87,16 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             }
         }
 
-        layout.maxUpButton.setOnClickListener {
-            layout.rangeBar.apply {
+        binding.maxUpButton.setOnClickListener {
+            binding.rangeBar.apply {
                 if (rightIndex < tickCount - 1) {
                     updateRange(this, leftIndex, rightIndex + 1)
                 }
             }
         }
 
-        layout.maxDownButton.setOnClickListener {
-            layout.rangeBar.apply {
+        binding.maxDownButton.setOnClickListener {
+            binding.rangeBar.apply {
                 if (rightIndex > 0) {
                     if (leftIndex == rightIndex) {
                         updateRange(this, leftIndex - 1, rightIndex - 1)
@@ -108,16 +107,16 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
             }
         }
 
-        layout.rangeCheckBox.apply {
+        binding.rangeCheckBox.apply {
             visibility = if (supportsSlider) View.VISIBLE else View.GONE
             isChecked = (low != high)
             setOnCheckedChangeListener { _, isChecked ->
-                layout.rangeBar.setRangeBarEnabled(isChecked)
-                layout.minDownButton.visibility = if (isChecked) View.VISIBLE else View.GONE
-                layout.minUpButton.visibility = if (isChecked) View.VISIBLE else View.GONE
-                layout.buttonSpace.visibility = if (isChecked) View.VISIBLE else View.GONE
+                binding.rangeBar.setRangeBarEnabled(isChecked)
+                binding.minDownButton.visibility = if (isChecked) View.VISIBLE else View.GONE
+                binding.minUpButton.visibility = if (isChecked) View.VISIBLE else View.GONE
+                binding.buttonSpace.visibility = if (isChecked) View.VISIBLE else View.GONE
                 if (isChecked) {
-                    layout.rangeBar.apply {
+                    binding.rangeBar.apply {
                         if (leftIndex == rightIndex) {
                             if (leftIndex > 0) {
                                 updateRange(this, leftIndex - rangeInterval, rightIndex)
@@ -129,18 +128,18 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
                         }
                     }
                 } else {
-                    layout.rangeBar.apply { updateRange(this, leftIndex, rightIndex) }
+                    binding.rangeBar.apply { updateRange(this, leftIndex, rightIndex) }
                 }
             }
         }
 
-        layout.checkBox.apply {
+        binding.checkBox.apply {
             visibility = checkboxVisibility
             setText(checkboxTextResId)
             isChecked = initialValues.isChecked
         }
 
-        layout.explanationView.apply {
+        binding.explanationView.apply {
             visibility = if (descriptionResId == INVALID_STRING_RES_ID) {
                 View.GONE
             } else {
@@ -152,8 +151,8 @@ abstract class SliderFilterDialog : CollectionFilterDialog {
         val builder = AlertDialog.Builder(context, R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(titleResId)
                 .setNegativeButton(R.string.clear) { _, _ -> listener?.removeFilter(getType(context)) }
-                .setPositiveButton(R.string.set) { _, _ -> listener?.addFilter(getPositiveData(context, low, high, layout.checkBox.isChecked)) }
-                .setView(layout)
+                .setPositiveButton(R.string.set) { _, _ -> listener?.addFilter(getPositiveData(context, low, high, binding.checkBox.isChecked)) }
+                .setView(binding.root)
 
         builder.create().show()
     }

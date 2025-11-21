@@ -16,14 +16,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.RowColorBinding;
 import com.boardgamegeek.provider.BggContract.GameColors;
 import com.boardgamegeek.util.ColorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class GameColorRecyclerViewAdapter extends RecyclerView.Adapter<GameColorRecyclerViewAdapter.ViewHolder> {
 	public static final String[] PROJECTION = new String[] { BaseColumns._ID, GameColors.COLOR };
@@ -49,8 +47,8 @@ public class GameColorRecyclerViewAdapter extends RecyclerView.Adapter<GameColor
 	@Override
 	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		Context context = parent.getContext();
-		View view = LayoutInflater.from(context).inflate(layoutId, parent, false);
-		return new ViewHolder(view);
+		RowColorBinding binding = RowColorBinding.inflate(LayoutInflater.from(context), parent, false);
+		return new ViewHolder(binding);
 	}
 
 	@Override
@@ -79,23 +77,22 @@ public class GameColorRecyclerViewAdapter extends RecyclerView.Adapter<GameColor
 	}
 
 	class ViewHolder extends RecyclerView.ViewHolder {
-		@BindView(R.id.color_name) TextView colorNameView;
-		@BindView(R.id.color_view) ImageView colorView;
+		private final RowColorBinding binding;
 
-		public ViewHolder(View view) {
-			super(view);
-			ButterKnife.bind(this, view);
+		public ViewHolder(RowColorBinding binding) {
+			super(binding.getRoot());
+			this.binding = binding;
 		}
 
 		public void bind(final int position) {
 			String colorName = getColorName(position);
 
-			colorNameView.setText(colorName);
+			binding.colorName.setText(colorName);
 			int color = ColorUtils.parseColor(colorName);
 			if (color != Color.TRANSPARENT) {
-				ColorUtils.setColorViewValue(colorView, color);
+				ColorUtils.setColorViewValue(binding.colorView, color);
 			} else {
-				colorView.setImageDrawable(null);
+				binding.colorView.setImageDrawable(null);
 			}
 			itemView.setActivated(selectedItems.get(position, false));
 

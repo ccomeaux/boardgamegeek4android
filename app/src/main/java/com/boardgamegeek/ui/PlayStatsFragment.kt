@@ -10,9 +10,10 @@ import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentPlayStatsBinding
 import com.boardgamegeek.entities.HIndexEntity
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
@@ -22,24 +23,26 @@ import com.boardgamegeek.ui.dialog.PlayStatsIncludeSettingsDialogFragment
 import com.boardgamegeek.ui.viewmodel.PlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
 import com.boardgamegeek.util.PreferencesUtils
-import kotlinx.android.synthetic.main.fragment_play_stats.*
 import java.util.*
 
 class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChangeListener {
+    private var _binding: FragmentPlayStatsBinding? = null
+    private val binding get() = _binding!!
     private var isOwnedSynced: Boolean = false
     private var isPlayedSynced: Boolean = false
     private val viewModel: PlayStatsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PlayStatsViewModel::class.java)
+        ViewModelProvider(this).get(PlayStatsViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_play_stats, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentPlayStatsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        collectionStatusSettingsButton.setOnClickListener {
+        binding.collectionStatusSettingsButton.setOnClickListener {
             requireActivity().createThemedBuilder()
                     .setTitle(R.string.title_modify_collection_status)
                     .setMessage(R.string.msg_modify_collection_status)
@@ -54,7 +57,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                     .show()
         }
 
-        includeSettingsButton.setOnClickListener {
+        binding.includeSettingsButton.setOnClickListener {
             activity?.showFragment(PlayStatsIncludeSettingsDialogFragment.newInstance(), "play_stats_settings_include")
         }
 
@@ -63,7 +66,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
                 showEmpty()
             } else {
                 bindUi(entity)
-                gameHIndexInfoView.setOnClickListener {
+                binding.gameHIndexInfoView.setOnClickListener {
                     context?.showClickableAlertDialog(
                             R.string.play_stat_game_h_index,
                             R.string.play_stat_game_h_index_info,
@@ -75,7 +78,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         viewModel.getPlayers().observe(this, Observer { entity ->
             if (entity == null) return@Observer
             bindPlayerUi(entity)
-            playerHIndexInfoView.setOnClickListener {
+            binding.playerHIndexInfoView.setOnClickListener {
                 context?.showClickableAlertDialog(
                         R.string.play_stat_player_h_index,
                         R.string.play_stat_player_h_index_info,
@@ -88,43 +91,48 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         bindAccuracyMessage()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
     override fun onResume() {
         super.onResume()
-        PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(this)
+        PreferenceManager.getDefaultSharedPreferences(requireContext()).registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onPause() {
         super.onPause()
-        PreferenceManager.getDefaultSharedPreferences(context).unregisterOnSharedPreferenceChangeListener(this)
+        PreferenceManager.getDefaultSharedPreferences(requireContext()).unregisterOnSharedPreferenceChangeListener(this)
     }
 
     private fun bindCollectionStatusMessage() {
         isOwnedSynced = context.isStatusSetToSync(COLLECTION_STATUS_OWN)
         isPlayedSynced = context.isStatusSetToSync(COLLECTION_STATUS_PLAYED)
-        collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
+        binding.collectionStatusContainer.isVisible = !isOwnedSynced || !isPlayedSynced
     }
 
     private fun bindAccuracyMessage() {
         val messages = ArrayList<String>(3)
         if (!PreferencesUtils.logPlayStatsIncomplete(context)) {
-            messages.add(getString(R.string.incomplete_games).toLowerCase())
+            messages.add(getString(R.string.incomplete_games).lowercase())
         }
         if (!PreferencesUtils.logPlayStatsExpansions(context)) {
-            messages.add(getString(R.string.expansions).toLowerCase())
+            messages.add(getString(R.string.expansions).lowercase())
         }
         if (!PreferencesUtils.logPlayStatsAccessories(context)) {
-            messages.add(getString(R.string.accessories).toLowerCase())
+            messages.add(getString(R.string.accessories).lowercase())
         }
         if (messages.isEmpty()) {
-            accuracyContainer.visibility = View.GONE
+            binding.accuracyContainer.visibility = View.GONE
         } else {
-            accuracyContainer.visibility = View.VISIBLE
-            accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).toLowerCase()))
+            binding.accuracyContainer.visibility = View.VISIBLE
+            binding.accuracyMessage.text = getString(R.string.play_stat_accuracy, messages.formatList(getString(R.string.or).lowercase()))
         }
     }
 
     private fun bindUi(stats: PlayStatsEntity) {
-        playCountTable.removeAllViews()
+        binding.playCountTable.removeAllViews()
         maybeAddPlayCountStat(R.string.play_stat_play_count, stats.numberOfPlays)
         maybeAddPlayCountStat(R.string.play_stat_distinct_games, stats.numberOfPlayedGames)
         maybeAddPlayCountStat(R.string.play_stat_dollars, stats.numberOfDollars)
@@ -135,44 +143,44 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
 
         if (isPlayedSynced) {
             PlayStatRow(requireContext()).apply {
-                playCountTable.addView(this)
+                binding.playCountTable.addView(this)
                 setLabel(R.string.play_stat_top_100)
                 setValue("${stats.top100Count}%")
             }
         }
 
-        gameHIndexView.text = stats.hIndex.description
-        bindHIndexTable(gameHIndexTable, stats.hIndex, stats.getHIndexGames())
+        binding.gameHIndexView.text = stats.hIndex.description
+        bindHIndexTable(binding.gameHIndexTable, stats.hIndex, stats.getHIndexGames())
 
-        advancedTable.removeAllViews()
+        binding.advancedTable.removeAllViews()
         if (stats.friendless != PlayStatsEntity.INVALID_FRIENDLESS) {
-            advancedHeader.visibility = View.VISIBLE
-            advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.visibility = View.VISIBLE
+            binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_friendless)
                 setValue(stats.friendless)
                 setInfoText(R.string.play_stat_friendless_info)
-                advancedTable.addView(this)
+                binding.advancedTable.addView(this)
             }
         }
         if (stats.utilization != PlayStatsEntity.INVALID_UTILIZATION) {
-            advancedHeader.visibility = View.VISIBLE
-            advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.visibility = View.VISIBLE
+            binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_utilization)
                 setInfoText(R.string.play_stat_utilization_info)
                 setValue(stats.utilization.asPercentage())
-                advancedTable.addView(this)
+                binding.advancedTable.addView(this)
             }
         }
         if (stats.cfm != PlayStatsEntity.INVALID_CFM) {
-            advancedHeader.visibility = View.VISIBLE
-            advancedCard.visibility = View.VISIBLE
+            binding.advancedHeader.visibility = View.VISIBLE
+            binding.advancedCard.visibility = View.VISIBLE
             PlayStatRow(requireContext()).apply {
                 setLabel(R.string.play_stat_cfm)
                 setInfoText(R.string.play_stat_cfm_info)
                 setValue(stats.cfm)
-                advancedTable.addView(this)
+                binding.advancedTable.addView(this)
             }
         }
         showData()
@@ -181,7 +189,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     private fun maybeAddPlayCountStat(@StringRes labelResId: Int, value: Int) {
         if (value > 0) {
             PlayStatRow(requireContext()).apply {
-                playCountTable.addView(this)
+                binding.playCountTable.addView(this)
                 setLabel(labelResId)
                 setValue(value)
             }
@@ -189,9 +197,9 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     }
 
     private fun bindPlayerUi(stats: PlayerStatsEntity) {
-        playerHIndexView.text = stats.hIndex.description
-        bindHIndexTable(playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
-        playerHIndexTable.setOnClickListener {
+        binding.playerHIndexView.text = stats.hIndex.description
+        bindHIndexTable(binding.playerHIndexTable, stats.hIndex, stats.getHIndexPlayers())
+        binding.playerHIndexTable.setOnClickListener {
             PlayersActivity.startByPlayCount(requireContext())
         }
     }
@@ -242,15 +250,15 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     }
 
     private fun showEmpty() {
-        progressView.fadeOut()
-        emptyView.fadeIn()
-        scrollContainer.fadeOut()
+        binding.progressView.fadeOut()
+        binding.emptyView.fadeIn()
+        binding.scrollContainer.fadeOut()
     }
 
     private fun showData() {
-        progressView.fadeOut()
-        emptyView.fadeOut()
-        scrollContainer.fadeIn()
+        binding.progressView.fadeOut()
+        binding.emptyView.fadeOut()
+        binding.scrollContainer.fadeIn()
     }
 
     private fun addDivider(container: ViewGroup) {
@@ -261,8 +269,8 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (key.startsWith(PreferencesUtils.LOG_PLAY_STATS_PREFIX)) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String?) {
+        if (key?.startsWith(PreferencesUtils.LOG_PLAY_STATS_PREFIX) ?: false) {
             bindAccuracyMessage()
             // TODO refresh view model
         }

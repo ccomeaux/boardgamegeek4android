@@ -8,9 +8,11 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentBuddiesBinding
+import com.boardgamegeek.databinding.RowBuddyBinding
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.entities.UserEntity
 import com.boardgamegeek.extensions.*
@@ -18,84 +20,91 @@ import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.BuddiesViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration.SectionCallback
-import kotlinx.android.synthetic.main.fragment_buddies.*
-import kotlinx.android.synthetic.main.row_buddy.view.*
 import org.jetbrains.anko.design.indefiniteSnackbar
 import kotlin.properties.Delegates
 
 class BuddiesFragment : Fragment() {
+    private var _binding: FragmentBuddiesBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: BuddiesViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(BuddiesViewModel::class.java)
+        ViewModelProvider(this).get(BuddiesViewModel::class.java)
     }
 
     private val adapter: BuddiesAdapter by lazy {
         BuddiesAdapter(viewModel)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_buddies, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentBuddiesBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        swipeRefresh.setOnRefreshListener { triggerRefresh() }
-        swipeRefresh.setBggColors()
+        binding.swipeRefresh.setOnRefreshListener { triggerRefresh() }
+        binding.swipeRefresh.setBggColors()
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
         val sectionItemDecoration = RecyclerSectionItemDecoration(
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter)
-        recyclerView.addItemDecoration(sectionItemDecoration)
+        binding.recyclerView.addItemDecoration(sectionItemDecoration)
 
         viewModel.buddies.observe(this, Observer {
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
+            binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
 
             when {
                 it.status == Status.ERROR -> showError(it.message)
                 else -> showData(it?.data ?: emptyList())
             }
-            progressBar.hide()
+            binding.progressBar.hide()
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showError(message: String? = null) {
         // TODO default error message
         if (message != null && !message.isNullOrBlank()) {
-            coordinatorLayout.indefiniteSnackbar(message)
+            binding.coordinatorLayout.indefiniteSnackbar(message)
         }
     }
 
     private fun showData(buddies: List<UserEntity>) {
         adapter.buddies = buddies
         if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
+            binding.recyclerView.fadeOut()
             showEmpty()
         } else {
-            recyclerView.fadeIn()
-            emptyContainer.fadeOut()
+            binding.recyclerView.fadeIn()
+            binding.emptyContainer.fadeOut()
         }
     }
 
     private fun showEmpty() {
         if (requireContext().getSyncBuddies()) {
-            emptyTextView.setText(R.string.empty_buddies)
-            emptyButton.isGone = true
+            binding.emptyTextView.setText(R.string.empty_buddies)
+            binding.emptyButton.isGone = true
         } else {
-            emptyTextView.setText(R.string.empty_buddies_sync_off)
-            emptyButton.setOnClickListener {
+            binding.emptyTextView.setText(R.string.empty_buddies_sync_off)
+            binding.emptyButton.setOnClickListener {
                 requireContext().setSyncBuddies()
                 triggerRefresh()
                 showEmpty()
             }
-            emptyButton.isVisible = true
+            binding.emptyButton.isVisible = true
         }
-        emptyContainer.fadeIn()
+        binding.emptyContainer.fadeIn()
     }
 
     private fun triggerRefresh() {
-        swipeRefresh.isRefreshing = viewModel.refresh()
+        binding.swipeRefresh.isRefreshing = viewModel.refresh()
     }
 
     class BuddiesAdapter(private val viewModel: BuddiesViewModel) : RecyclerView.Adapter<BuddiesAdapter.BuddyViewHolder>(), AutoUpdatableAdapter, SectionCallback {
@@ -114,7 +123,8 @@ class BuddiesFragment : Fragment() {
         override fun getItemId(position: Int) = buddies.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BuddyViewHolder {
-            return BuddyViewHolder(parent.inflate(R.layout.row_buddy))
+            val binding = RowBuddyBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return BuddyViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: BuddyViewHolder, position: Int) {
@@ -138,19 +148,19 @@ class BuddiesFragment : Fragment() {
             }
         }
 
-        inner class BuddyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class BuddyViewHolder(private val binding: RowBuddyBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(buddy: UserEntity?) {
                 buddy?.let { b ->
-                    itemView.avatarView.loadThumbnailInList(b.avatarUrl, R.drawable.person_image_empty)
+                    binding.avatarView.loadThumbnailInList(b.avatarUrl, R.drawable.person_image_empty)
                     if (b.fullName.isBlank()) {
-                        itemView.fullNameView.text = b.userName
-                        itemView.usernameView.visibility = View.GONE
+                        binding.fullNameView.text = b.userName
+                        binding.usernameView.visibility = View.GONE
                     } else {
-                        itemView.fullNameView.text = b.fullName
-                        itemView.usernameView.setTextOrHide(b.userName)
+                        binding.fullNameView.text = b.fullName
+                        binding.usernameView.setTextOrHide(b.userName)
                     }
-                    itemView.setOnClickListener {
-                        BuddyActivity.start(itemView.context, b.userName, b.fullName)
+                    binding.root.setOnClickListener {
+                        BuddyActivity.start(binding.root.context, b.userName, b.fullName)
                     }
                 }
             }

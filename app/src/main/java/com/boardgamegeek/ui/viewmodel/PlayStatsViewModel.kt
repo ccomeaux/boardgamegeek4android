@@ -3,7 +3,7 @@ package com.boardgamegeek.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.entities.PlayStatsEntity
 import com.boardgamegeek.entities.PlayerStatsEntity
@@ -16,7 +16,7 @@ class PlayStatsViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getPlays(): LiveData<PlayStatsEntity> {
         val ld = playRepository.loadForStatsAsLiveData()
-        return Transformations.map(ld) {
+        return ld.map() {
             val entity = PlayStatsEntity(it, getApplication<BggApplication>().isStatusSetToSync(COLLECTION_STATUS_OWN))
             playRepository.updateGameHIndex(entity.hIndex)
             return@map entity
@@ -24,7 +24,7 @@ class PlayStatsViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun getPlayers(): LiveData<PlayerStatsEntity> {
-        return Transformations.map(playRepository.loadPlayersForStatsAsLiveData()) {
+        return playRepository.loadPlayersForStatsAsLiveData().map() {
             val entity = PlayerStatsEntity(it)
             playRepository.updatePlayerHIndex(entity.hIndex)
             return@map entity

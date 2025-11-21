@@ -5,16 +5,18 @@ import android.view.*
 import androidx.annotation.StringRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentLinkedCollectionBinding
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.ui.adapter.LinkedCollectionAdapter
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
-import kotlinx.android.synthetic.main.fragment_game_details.*
 import java.util.*
 
 class PersonCollectionFragment : Fragment() {
+    private var _binding: FragmentLinkedCollectionBinding? = null
+    private val binding get() = _binding!!
     private var sortType = PersonViewModel.CollectionSort.RATING
 
     private val adapter: LinkedCollectionAdapter by lazy {
@@ -22,17 +24,18 @@ class PersonCollectionFragment : Fragment() {
     }
 
     private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
+        ViewModelProvider(this).get(PersonViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_linked_collection, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentLinkedCollectionBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView?.setHasFixedSize(true)
-        recyclerView?.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
 
         setHasOptionsMenu(true)
     }
@@ -51,19 +54,24 @@ class PersonCollectionFragment : Fragment() {
         viewModel.collection.observe(this, Observer {
             if (it?.isNotEmpty() == true) {
                 adapter.items = it
-                emptyMessage?.fadeOut()
-                recyclerView?.fadeIn()
+                binding.emptyMessage.fadeOut()
+                binding.recyclerView.fadeIn()
             } else {
                 adapter.items = emptyList()
-                emptyMessage?.fadeIn()
-                recyclerView?.fadeOut()
+                binding.emptyMessage.fadeIn()
+                binding.recyclerView.fadeOut()
             }
-            progressView?.hide()
+            binding.progressView.hide()
         })
         viewModel.sort.observe(this, Observer {
             sortType = it ?: PersonViewModel.CollectionSort.RATING
             activity?.invalidateOptionsMenu()
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -88,7 +96,7 @@ class PersonCollectionFragment : Fragment() {
     }
 
     private fun setEmptyMessage(@StringRes resId: Int) {
-        emptyMessage.text = getString(R.string.empty_linked_collection, getString(resId).toLowerCase(Locale.getDefault()))
+        binding.emptyMessage.text = getString(R.string.empty_linked_collection, getString(resId).lowercase(Locale.getDefault()))
     }
 
     companion object {

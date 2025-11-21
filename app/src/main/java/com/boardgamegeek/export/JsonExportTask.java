@@ -1,9 +1,7 @@
 package com.boardgamegeek.export;
 
-import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -29,7 +27,6 @@ import java.io.OutputStreamWriter;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import timber.log.Timber;
 
 public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, Integer, String> {
@@ -59,11 +56,7 @@ public abstract class JsonExportTask<T extends Model> extends AsyncTask<Void, In
 		if (context == null) return "Error.";
 
 		if (uri == null) {
-			int permissionCheck = ContextCompat.checkSelfPermission(context, permission.WRITE_EXTERNAL_STORAGE);
-			if (permissionCheck == PackageManager.PERMISSION_DENIED) {
-				return context.getString(R.string.msg_export_failed_external_permissions);
-			}
-
+			// Legacy path for old Android versions - should not be used on modern devices
 			if (!FileUtils.isExtStorageAvailable()) {
 				return context.getString(R.string.msg_export_failed_external_unavailable);
 			}

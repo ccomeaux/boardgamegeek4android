@@ -8,23 +8,27 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentGameLinksBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import kotlinx.android.synthetic.main.fragment_game_links.*
 
 class GameLinksFragment : Fragment() {
+    private var _binding: FragmentGameLinksBinding? = null
+    private val binding get() = _binding!!
+    
     @ColorInt
     private var iconColor = Color.TRANSPARENT
 
     private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
+        ViewModelProvider(this).get(GameViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_links, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentGameLinksBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -33,16 +37,16 @@ class GameLinksFragment : Fragment() {
         viewModel.game.observe(this, Observer {
             it.data?.let { game ->
                 if (game.id != BggContract.INVALID_ID) {
-                    geekbuddyAnalysisLink.setOnClickListener { context.linkToBgg("geekbuddy/analyze/thing", game.id) }
-                    bggLink.setOnClickListener { context.linkBgg(game.id) }
+                    binding.geekbuddyAnalysisLink.setOnClickListener { context.linkToBgg("geekbuddy/analyze/thing", game.id) }
+                    binding.bggLink.setOnClickListener { context.linkBgg(game.id) }
                 }
                 if ( game.name.isNotBlank()) {
-                    bgPricesLink.setOnClickListener { context.linkBgPrices(game.name) }
-                    bgPricesUkLink.setOnClickListener { context.linkBgPricesUk(game.name) }
-                    amazonLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_COM) }
-                    amazonUkLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_UK) }
-                    amazonDeLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_DE) }
-                    ebayLink.setOnClickListener { context.linkEbay(game.name) }
+                    binding.bgPricesLink.setOnClickListener { context.linkBgPrices(game.name) }
+                    binding.bgPricesUkLink.setOnClickListener { context.linkBgPricesUk(game.name) }
+                    binding.amazonLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_COM) }
+                    binding.amazonUkLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_UK) }
+                    binding.amazonDeLink.setOnClickListener { context.linkAmazon(game.name, LINK_AMAZON_DE) }
+                    binding.ebayLink.setOnClickListener { context.linkEbay(game.name) }
                 }
             }
         })
@@ -56,7 +60,7 @@ class GameLinksFragment : Fragment() {
         if (color != iconColor) {
             iconColor = color
             if (isAdded) {
-                val icons = listOf(geekbuddyAnalysisLinkIcon, bggLinkIcon, bgPricesLinkIcon, amazonLinkIcon, ebayLinkIcon)
+                val icons = listOf(binding.geekbuddyAnalysisLinkIcon, binding.bggLinkIcon, binding.bgPricesLinkIcon, binding.amazonLinkIcon, binding.ebayLinkIcon)
                 if (iconColor == Color.TRANSPARENT) {
                     icons.forEach { it.clearColorFilter() }
                 } else {
@@ -64,6 +68,11 @@ class GameLinksFragment : Fragment() {
                 }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

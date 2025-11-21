@@ -7,7 +7,7 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
@@ -15,7 +15,7 @@ import org.jetbrains.anko.startActivity
 
 class BuddyPlaysActivity : SimpleSinglePaneActivity() {
     private val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
+        ViewModelProvider(this).get(PlaysViewModel::class.java)
     }
 
     private var buddyName = ""
@@ -39,7 +39,7 @@ class BuddyPlaysActivity : SimpleSinglePaneActivity() {
     }
 
     override fun readIntent(intent: Intent) {
-        buddyName = intent.getStringExtra(KEY_BUDDY_NAME)
+        buddyName = intent.getStringExtra(KEY_BUDDY_NAME) ?: ""
     }
 
     override fun onCreatePane(intent: Intent): Fragment {

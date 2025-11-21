@@ -2,17 +2,16 @@ package com.boardgamegeek.ui.adapter
 
 import android.graphics.Typeface
 import android.util.SparseBooleanArray
-import android.view.View
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.NO_ID
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowSearchBinding
 import com.boardgamegeek.entities.SearchResultEntity
 import com.boardgamegeek.extensions.asYear
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.GameActivity
 import com.boardgamegeek.ui.adapter.SearchResultsAdapter.SearchResultViewHolder
-import kotlinx.android.synthetic.main.row_search.view.*
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -34,7 +33,8 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SearchResultViewHolder {
-        return SearchResultViewHolder(parent.inflate(R.layout.row_search))
+        val binding = RowSearchBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return SearchResultViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: SearchResultViewHolder, position: Int) {
@@ -51,28 +51,28 @@ class SearchResultsAdapter(private val callback: Callback?) : RecyclerView.Adapt
         results = emptyList()
     }
 
-    inner class SearchResultViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class SearchResultViewHolder(private val binding: RowSearchBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(game: SearchResultEntity?, position: Int) {
             game?.let { result ->
-                itemView.nameView.text = result.name
+                binding.nameView.text = result.name
                 val style = when (result.nameType) {
                     SearchResultEntity.NAME_TYPE_ALTERNATE -> Typeface.ITALIC
                     SearchResultEntity.NAME_TYPE_PRIMARY, SearchResultEntity.NAME_TYPE_UNKNOWN -> Typeface.NORMAL
                     else -> Typeface.NORMAL
                 }
-                itemView.nameView.setTypeface(itemView.nameView.typeface, style)
-                itemView.yearView.text = result.yearPublished.asYear(itemView.context)
-                itemView.gameIdView.text = itemView.context.getString(R.string.id_list_text, result.id.toString())
+                binding.nameView.setTypeface(binding.nameView.typeface, style)
+                binding.yearView.text = result.yearPublished.asYear(binding.root.context)
+                binding.gameIdView.text = binding.root.context.getString(R.string.id_list_text, result.id.toString())
 
-                itemView.isActivated = selectedItems.get(position, false)
+                binding.root.isActivated = selectedItems.get(position, false)
 
-                itemView.setOnClickListener {
+                binding.root.setOnClickListener {
                     if (callback?.onItemClick(position) != true) {
-                        GameActivity.start(itemView.context, result.id, result.name)
+                        GameActivity.start(binding.root.context, result.id, result.name)
                     }
                 }
 
-                itemView.setOnLongClickListener {
+                binding.root.setOnLongClickListener {
                     callback?.onItemLongClick(position) ?: false
                 }
             }
