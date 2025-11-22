@@ -3,6 +3,10 @@ Release Notes
 
 Version 6.8.2
 -------------
+Add bearer token to API requests to resolve 401 errors
+
+Version 6.8.2
+-------------
 Correct error 307 received when attempting to upload data to BGG
 
 Version 6.8.1
