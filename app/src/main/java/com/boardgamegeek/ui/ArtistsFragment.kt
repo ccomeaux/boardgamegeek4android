@@ -26,7 +26,7 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
     private val binding get() = _binding!!
 
     private val viewModel: ArtistsViewModel by lazy {
-        ViewModelProvider(this).get(ArtistsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(ArtistsViewModel::class.java)
     }
 
     private val adapter: ArtistsAdapter by lazy {

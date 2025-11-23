@@ -22,7 +22,7 @@ class UpdateBuddyNicknameDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProvider(this).get(BuddyViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(BuddyViewModel::class.java)
     }
 
     @SuppressLint("InflateParams")

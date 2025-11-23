@@ -31,7 +31,7 @@ class BuddyFragment : Fragment() {
     private var lightTextColor: Int = 0
 
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProvider(this).get(BuddyViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(BuddyViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

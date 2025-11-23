@@ -26,7 +26,7 @@ class DesignersFragment : Fragment(R.layout.fragment_designers) {
     private val binding get() = _binding!!
 
     private val viewModel: DesignsViewModel by lazy {
-        ViewModelProvider(this).get(DesignsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(DesignsViewModel::class.java)
     }
 
     private val adapter: DesignersAdapter by lazy {

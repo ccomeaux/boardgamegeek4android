@@ -23,7 +23,7 @@ class MechanicCollectionFragment : Fragment() {
     }
 
     private val viewModel: MechanicViewModel by lazy {
-        ViewModelProvider(this).get(MechanicViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(MechanicViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

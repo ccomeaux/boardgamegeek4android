@@ -11,7 +11,7 @@ import java.util.*
 
 class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     private val viewModel by lazy {
-        ViewModelProvider(this).get(PlayerColorsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PlayerColorsViewModel::class.java)
     }
 
     override fun onColorClicked(item: Pair<String, Int>?, requestCode: Int) {

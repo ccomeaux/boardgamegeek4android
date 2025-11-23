@@ -23,7 +23,7 @@ class MechanicsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: MechanicsViewModel by lazy {
-        ViewModelProvider(this).get(MechanicsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(MechanicsViewModel::class.java)
     }
 
     private val adapter: MechanicsAdapter by lazy {

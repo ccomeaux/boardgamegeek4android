@@ -23,7 +23,7 @@ class CategoriesFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: CategoriesViewModel by lazy {
-        ViewModelProvider(this).get(CategoriesViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(CategoriesViewModel::class.java)
     }
 
     private val adapter: CategoriesAdapter by lazy {
