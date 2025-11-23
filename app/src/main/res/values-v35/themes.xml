@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="Theme.bgglight.NavDrawer" parent="Theme.bgglight.Base">
+		<!-- Force classic behavior on Android 15+ -->
+		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
+		<item name="android:statusBarColor">@color/primary_dark</item>
+		<item name="android:navigationBarColor">@color/primary_dark</item>
+
+		<!-- Android 35+, the system is now drawing the status bar differently -->
+		<!-- Explicitly keep the same colors as before -->
+		<item name="colorPrimary">@color/primary</item>
+		<item name="colorPrimaryDark">@color/primary_dark</item>
+		<item name="colorAccent">@color/accent</item>
+		<item name="windowActionModeOverlay">true</item>
+		<item name="actionModeBackground">@color/primary</item>
+		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
+		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+	</style>
+</resources>
