@@ -307,7 +307,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }
 
         private fun updateTimestamps(plays: List<Play>?) {
-            val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
+            val newestDate = plays?.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
             if (newestDate > SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L) {
                 SyncPrefs.setPlaysNewestTimestamp(application, newestDate)
             }
