@@ -13,6 +13,6 @@
 		<item name="android:windowTranslucentNavigation">false</item>
 
 		<!-- Ensure content fits SYSTEM windows correctly -->
-		<item name="android:fitsSystemWindows">true</item>
+		<item name="android:fitsSystemWindows">false</item>
 	</style>
 </resources>
