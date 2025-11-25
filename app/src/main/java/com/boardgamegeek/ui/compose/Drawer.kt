@@ -1,29 +1,25 @@
 package com.boardgamegeek.ui.compose
 
+import android.content.Context
+import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.LibraryBooks
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.Login
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.*
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
@@ -39,19 +35,24 @@ import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.SelfUserViewModel
 import kotlinx.coroutines.launch
 
-enum class DrawerItem(@StringRes val labelResId: Int, val imageVector: ImageVector, val startOfGroup: Boolean = false) {
-    Collection(R.string.title_collection, Icons.AutoMirrored.Filled.LibraryBooks), // TODO shelves
-    CollectionLegacy(R.string.title_collection_legacy, Icons.AutoMirrored.Filled.LibraryBooks),
-    Plays(R.string.title_plays, Icons.Filled.Event),
-    Buddies(R.string.title_buddies, Icons.Filled.Person),
-    Search(R.string.title_search, Icons.Filled.Search, true),
-    Hotness(R.string.title_hotness, Icons.Filled.LocalFireDepartment),
-    TopGames(R.string.title_top_games, Icons.AutoMirrored.Filled.TrendingUp),
-    GeekLists(R.string.title_geeklists, Icons.AutoMirrored.Filled.List),
-    Forums(R.string.title_forums, Icons.Filled.Forum),
-    Sync(R.string.title_sync, Icons.Filled.Sync, true),
-    Backup(R.string.title_backup, Icons.Filled.FileCopy),
-    Settings(R.string.title_settings, Icons.Filled.Settings),
+enum class DrawerItem(
+    @param:StringRes val labelResId: Int,
+    @param:DrawableRes val painterResId: Int,
+    val startOfGroup: Boolean = false,
+    val onClick: (Context) -> Unit = {}
+) {
+    CollectionShelves(R.string.title_collection_shelves,R.drawable.shelves_24px, true, onClick = { context -> context.startActivity<CollectionDetailsActivity>() }),
+    Collection(R.string.title_collection_legacy, R.drawable.collection_24px, onClick = { context -> context.startActivity<CollectionActivity>() }),
+    Plays(R.string.title_plays, R.drawable.plays_24px, onClick = { context -> context.startActivity<PlaysSummaryActivity>() }),
+    Buddies(R.string.title_buddies, R.drawable.person_24px, onClick = { context -> context.startActivity<BuddiesActivity>() }),
+    Search(R.string.title_search, R.drawable.search_24px, true, onClick = { context -> context.startActivity<SearchResultsActivity>() }),
+    Hotness(R.string.title_hotness, R.drawable.hotness_24px, onClick = { context -> context.startActivity<HotnessActivity>() }),
+    TopGames(R.string.title_top_games, R.drawable.top_24px, onClick = { context -> context.startActivity<TopGamesActivity>() }),
+    GeekLists(R.string.title_geeklists, R.drawable.geeklist_24px, onClick = { context -> context.startActivity<GeekListsActivity>() }),
+    Forums(R.string.title_forums, R.drawable.forum_24px, onClick = { context -> context.startActivity<ForumsActivity>() }),
+    Sync(R.string.title_sync, R.drawable.sync_24px, true, onClick = { context -> context.startActivity<SyncActivity>() }),
+    Backup(R.string.title_backup, R.drawable.backup_24px, onClick = { context -> context.startActivity<DataActivity>() }),
+    Settings(R.string.title_settings, R.drawable.settings_24px, onClick = { context -> context.startActivity<SettingsActivity>() }),
 }
 
 @Composable
@@ -68,35 +69,24 @@ fun Drawer(
             val viewModel: SelfUserViewModel = viewModel()
             val user = viewModel.user.observeAsState()
             ModalDrawerSheet(
-                modifier = Modifier.width(360.dp),
+                modifier = Modifier
+                    .width(360.dp)
+                    .fillMaxHeight()
+                    .verticalScroll(rememberScrollState()),
             ) {
                 DrawerHeader(
                     user.value,
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
-                HorizontalDivider()
                 DrawerItem.entries.forEachIndexed { index, item ->
                     if (item.startOfGroup)
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
                     NavigationDrawerItem(
                         label = { Text(stringResource(item.labelResId)) },
-                        icon = { Icon(item.imageVector, contentDescription = null) },
+                        icon = { Icon(painterResource(item.painterResId), contentDescription = null) },
                         selected = (index == selectedItem?.ordinal),
                         onClick = {
-                            when (index) {
-                                DrawerItem.Collection.ordinal -> context.startActivity<CollectionDetailsActivity>()
-                                DrawerItem.CollectionLegacy.ordinal -> context.startActivity<CollectionActivity>()
-                                DrawerItem.Plays.ordinal -> context.startActivity<PlaysSummaryActivity>()
-                                DrawerItem.Buddies.ordinal -> context.startActivity<BuddiesActivity>()
-                                DrawerItem.Search.ordinal -> context.startActivity<SearchResultsActivity>()
-                                DrawerItem.Hotness.ordinal -> context.startActivity<HotnessActivity>()
-                                DrawerItem.TopGames.ordinal -> context.startActivity<TopGamesActivity>()
-                                DrawerItem.GeekLists.ordinal -> context.startActivity<GeekListsActivity>()
-                                DrawerItem.Forums.ordinal -> context.startActivity<ForumsActivity>()
-                                DrawerItem.Sync.ordinal -> context.startActivity<SyncActivity>()
-                                DrawerItem.Backup.ordinal -> context.startActivity<DataActivity>()
-                                DrawerItem.Settings.ordinal -> context.startActivity<SettingsActivity>()
-                            }
+                            item.onClick(context)
                             scope.launch { drawerState.close() }
                         },
                         modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
@@ -120,7 +110,7 @@ private fun DrawerHeader(user: User?, modifier: Modifier = Modifier) {
             onClick = { context.startActivity<LoginActivity>() },
             modifier = modifier.padding(horizontal = 16.dp, vertical = 12.dp)
         ) {
-            Icon(Icons.AutoMirrored.Default.Login, contentDescription = null)
+            Icon(painterResource(R.drawable.login_24px), contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.action_sign_in))
         }
@@ -178,15 +168,4 @@ class UserPreviewParameterProvider : PreviewParameterProvider<User?> {
         User("ccomeaux", "", lastName = "Comeaux", avatarUrl = "x"),
         null,
     )
-}
-
-@PreviewLightDark
-@Composable
-private fun DrawerPreview() {
-    BggAppTheme {
-        Drawer(
-            modifier = Modifier,
-            drawerState = rememberDrawerState(DrawerValue.Open),
-        ) {}
-    }
 }
