@@ -28,7 +28,7 @@ class BuddiesFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: BuddiesViewModel by lazy {
-        ViewModelProvider(this).get(BuddiesViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(BuddiesViewModel::class.java)
     }
 
     private val adapter: BuddiesAdapter by lazy {

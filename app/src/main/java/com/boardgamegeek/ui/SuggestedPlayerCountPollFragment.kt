@@ -24,7 +24,7 @@ class SuggestedPlayerCountPollFragment : DialogFragment() {
     private var _binding: FragmentPollSuggestedPlayerCountBinding? = null
     private val binding get() = _binding!!
     val viewModel: GameViewModel by lazy {
-        ViewModelProvider(this).get(GameViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

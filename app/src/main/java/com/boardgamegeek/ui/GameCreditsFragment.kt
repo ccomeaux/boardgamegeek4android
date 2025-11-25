@@ -25,7 +25,7 @@ class GameCreditsFragment : Fragment() {
     private val binding get() = _binding!!
     
     private val viewModel: GameViewModel by lazy {
-        ViewModelProvider(this).get(GameViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -41,7 +41,7 @@ class SearchResultsFragment : Fragment(), ActionMode.Callback {
     }
 
     private val viewModel: SearchViewModel by lazy {
-        ViewModelProvider(this).get(SearchViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(SearchViewModel::class.java)
     }
 
     private val searchResultsAdapter: SearchResultsAdapter by lazy {

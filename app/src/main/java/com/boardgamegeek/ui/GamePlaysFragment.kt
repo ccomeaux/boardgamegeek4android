@@ -36,7 +36,7 @@ class GamePlaysFragment : Fragment() {
     private var iconColor = Color.TRANSPARENT
 
     private val viewModel: GameViewModel by lazy {
-        ViewModelProvider(this).get(GameViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -147,7 +147,7 @@ class GamePlaysFragment : Fragment() {
             binding.playCountContainer.fadeIn()
 
             if (plays.isNotEmpty()) {
-                val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxBy { it.dateInMillis }
+                val lastPlay = plays.asSequence().filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
                 if (lastPlay != null) {
                     binding.lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
                     binding.lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))

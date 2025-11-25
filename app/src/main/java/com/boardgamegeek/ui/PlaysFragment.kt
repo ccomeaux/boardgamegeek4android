@@ -44,7 +44,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
     private var _binding: FragmentPlaysBinding? = null
     private val binding get() = _binding!!
     private val viewModel by lazy {
-        ViewModelProvider(this).get(PlaysViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PlaysViewModel::class.java)
     }
 
     private val adapter: PlayAdapter by lazy {

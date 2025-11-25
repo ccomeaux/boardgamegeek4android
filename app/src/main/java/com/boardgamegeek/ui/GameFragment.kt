@@ -37,7 +37,7 @@ class GameFragment : Fragment(R.layout.fragment_game) {
     private val rankSeparator = "  " + Html.fromHtml("&#9679;") + "  "
 
     private val viewModel: GameViewModel by lazy {
-        ViewModelProvider(this).get(GameViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

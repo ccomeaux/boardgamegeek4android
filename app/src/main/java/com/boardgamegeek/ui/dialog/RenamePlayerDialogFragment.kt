@@ -8,7 +8,7 @@ import org.jetbrains.anko.support.v4.act
 
 class RenamePlayerDialogFragment : AbstractEditTextDialogFragment() {
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProvider(this).get(BuddyViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(BuddyViewModel::class.java)
     }
 
     override val titleResId

@@ -25,7 +25,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     private lateinit var layout: View
 
     private val viewModel: CollectionViewViewModel by lazy {
-        ViewModelProvider(this).get(CollectionViewViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

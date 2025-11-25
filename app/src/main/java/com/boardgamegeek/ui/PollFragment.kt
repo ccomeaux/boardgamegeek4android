@@ -38,7 +38,7 @@ class PollFragment : DialogFragment() {
     private var snackBar: Snackbar? = null
 
     val viewModel: GameViewModel by lazy {
-        ViewModelProvider(this).get(GameViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

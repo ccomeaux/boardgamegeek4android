@@ -34,7 +34,7 @@ class SaveViewDialogFragment : DialogFragment() {
     @SuppressLint("InflateParams")
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         _binding = DialogSaveViewBinding.inflate(LayoutInflater.from(context))
-        val viewModel = ViewModelProvider(this).get(CollectionViewViewModel::class.java)
+        val viewModel = ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_saved, Toast.LENGTH_SHORT) // TODO improve message
 
         arguments?.let {

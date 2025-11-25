@@ -30,7 +30,7 @@ class ForumsFragment : Fragment() {
     }
 
     private val viewModel: ForumsViewModel by lazy {
-        ViewModelProvider(this).get(ForumsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(ForumsViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
