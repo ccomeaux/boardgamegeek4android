@@ -138,7 +138,7 @@ class SyncPlays(application: BggApplication, service: BggService, syncResult: Sy
     private fun updateTimestamps(plays: List<Play>?) {
         if (plays == null) return
         val newestDate = newestDate(plays)
-        if (newestDate > SyncPrefs.getPlaysNewestTimestamp(context) ?: 0L) {
+        if (newestDate > (SyncPrefs.getPlaysNewestTimestamp(context) ?: 0L)) {
             SyncPrefs.setPlaysNewestTimestamp(context, newestDate)
         }
         val oldestDate = oldestDate(plays)
