@@ -26,7 +26,7 @@ class PlayersFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: PlayersViewModel by lazy {
-        ViewModelProvider(this).get(PlayersViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PlayersViewModel::class.java)
     }
 
     private val adapter: PlayersAdapter by lazy {

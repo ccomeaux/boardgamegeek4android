@@ -25,7 +25,7 @@ class LocationsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val viewModel: LocationsViewModel by lazy {
-        ViewModelProvider(this).get(LocationsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(LocationsViewModel::class.java)
     }
 
     private val adapter: LocationsAdapter by lazy {

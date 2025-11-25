@@ -26,7 +26,7 @@ class PublishersFragment : Fragment(R.layout.fragment_publishers) {
     private val binding get() = _binding!!
 
     private val viewModel: PublishersViewModel by lazy {
-        ViewModelProvider(this).get(PublishersViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PublishersViewModel::class.java)
     }
 
     private val adapter: PublisherAdapter by lazy {

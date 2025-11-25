@@ -16,7 +16,7 @@ class DeleteViewDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val contentResolver = requireContext().contentResolver
         val cursor = contentResolver.load(CollectionViews.CONTENT_URI, arrayOf(CollectionViews._ID, CollectionViews.NAME))
-        val viewModel = ViewModelProvider(this).get(CollectionViewViewModel::class.java)
+        val viewModel = ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
         val toast = Toast.makeText(requireContext(), R.string.msg_collection_view_deleted, Toast.LENGTH_SHORT) // TODO improve message
         val msg = requireContext().getString(R.string.msg_collection_view_deleted_named)
 

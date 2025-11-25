@@ -27,7 +27,7 @@ class GameUsersDialogFragment : DialogFragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        val viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
+        val viewModel = ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
         viewModel.game.observe(this, Observer { gameEntityRefreshableResource ->
             gameEntityRefreshableResource?.data?.let {
                 val game = gameEntityRefreshableResource.data

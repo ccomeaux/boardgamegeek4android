@@ -23,7 +23,7 @@ class CategoryCollectionFragment : Fragment() {
     }
 
     private val viewModel: CategoryViewModel by lazy {
-        ViewModelProvider(this).get(CategoryViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(CategoryViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

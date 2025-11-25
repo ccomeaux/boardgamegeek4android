@@ -31,7 +31,7 @@ class PlayStatsFragment : Fragment(), SharedPreferences.OnSharedPreferenceChange
     private var isOwnedSynced: Boolean = false
     private var isPlayedSynced: Boolean = false
     private val viewModel: PlayStatsViewModel by lazy {
-        ViewModelProvider(this).get(PlayStatsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PlayStatsViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

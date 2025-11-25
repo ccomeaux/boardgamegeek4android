@@ -21,7 +21,7 @@ class PersonStatsFragment : Fragment() {
     private var objectDescription = ""
 
     private val viewModel: PersonViewModel by lazy {
-        ViewModelProvider(this).get(PersonViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PersonViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
