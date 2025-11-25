@@ -1,7 +1,7 @@
 Release Notes
 =============
 
-Version 6.8.2
+Version 6.8.3
 -------------
 Add bearer token to API requests to resolve 401 errors
 
