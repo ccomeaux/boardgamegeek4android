@@ -294,7 +294,7 @@ class CollectionViewViewModel @Inject constructor(
                 (prefs.isStatusSetToSync(CollectionStatus.PreviouslyOwned) && it.previouslyOwned) ||
                 (prefs.isStatusSetToSync(CollectionStatus.ForTrade) && it.forTrade) ||
                 (prefs.isStatusSetToSync(CollectionStatus.WantInTrade) && it.wantInTrade) ||
-                (prefs.isStatusSetToSync(CollectionStatus.WantToPlay) && it.wantToPlay) ||
+                (prefs.isStatusSetToSync(CollectionStatus.WantToBuy) && it.wantToBuy) ||
                 (prefs.isStatusSetToSync(CollectionStatus.Wishlist) && it.wishList) ||
                 (prefs.isStatusSetToSync(CollectionStatus.WantToPlay) && it.wantToPlay) ||
                 (prefs.isStatusSetToSync(CollectionStatus.Preordered) && it.preOrdered) ||
