@@ -1,8 +1,6 @@
 package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Password
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -99,21 +97,6 @@ private fun ErrorContentPreview() {
             "A long error message. I mean a really long one. I mean a really, really long one.",
             painterResource(R.drawable.ic_twotone_comment_48),
             Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-        )
-    }
-}
-
-@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 640, heightDp = 640)
-@Composable
-private fun ErrorContentImageVector() {
-    BggAppTheme {
-        ErrorContent(
-            "A long error message. I mean a really long one. I mean a really, really long one.",
-            Icons.Filled.Password,
-            Modifier
-                .heightIn(min = 160.dp, max = 320.dp)
-                .widthIn(min = 160.dp, max = 320.dp)
-                .padding(vertical = 8.dp, horizontal = 16.dp)
         )
     }
 }
