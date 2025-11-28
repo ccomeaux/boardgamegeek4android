@@ -18,7 +18,7 @@ import com.boardgamegeek.R
 fun ViewAppBarAction(onView: () -> Unit) {
     IconButton(onClick = { onView() }) {
         Icon(
-            painterResource(R.drawable.ic_baseline_open_in_browser_24),
+            painterResource(R.drawable.open_in_browser_24px),
             contentDescription = stringResource(R.string.menu_view),
         )
     }
@@ -28,7 +28,7 @@ fun ViewAppBarAction(onView: () -> Unit) {
 fun ShareAppBarAction(onShare: () -> Unit) {
     IconButton(onClick = { onShare() }) {
         Icon(
-            painterResource(R.drawable.ic_baseline_share_24),
+            painterResource(R.drawable.share_24px),
             contentDescription = stringResource(R.string.menu_share),
         )
     }
@@ -38,7 +38,7 @@ fun ShareAppBarAction(onShare: () -> Unit) {
 fun LogPlayQuickAppBarAction(onQuickLogPlay: () -> Unit) {
     IconButton(onClick = { onQuickLogPlay() }) {
         Icon(
-            painterResource(R.drawable.ic_baseline_event_available_24),
+            painterResource(R.drawable.log_play_24px),
             contentDescription = stringResource(R.string.menu_log_play),
         )
     }
@@ -53,7 +53,7 @@ fun LogPlayAppBarExpandableActions(
     var expandedMenu by remember { mutableStateOf(false) }
     IconButton(onClick = { expandedMenu = true }) {
         Icon(
-            painterResource(R.drawable.ic_baseline_event_available_24),
+            painterResource(R.drawable.log_play_24px),
             contentDescription = stringResource(R.string.menu_log_play),
         )
     }
