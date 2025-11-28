@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -160,6 +161,40 @@ fun ListItemSecondaryText(
 }
 
 @Composable
+fun ListItemSecondaryText2(
+    text: String,
+    modifier: Modifier = Modifier,
+    icon: Painter? = null,
+    contentDescription: String? = null,
+    textStyle: TextStyle = ListItemDefaults.secondaryTextStyle(),
+    isSelected: Boolean = false,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        icon?.let {
+            Icon(
+                painter = it,
+                contentDescription = contentDescription,
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .size(ListItemDefaults.secondaryImageSize),
+                tint = getOnVariantColor(isSelected),
+            )
+        }
+        Text(
+            text = text,
+            style = textStyle,
+            color = getOnVariantColor(isSelected),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
 fun ListItemTertiaryText(
     text: String,
     modifier: Modifier = Modifier,
@@ -203,6 +238,7 @@ private fun ListItemPreviews() {
             ListItemPrimaryText("Title")
             ListItemSecondaryText("Description")
             ListItemSecondaryText("Favorite", icon = Icons.Outlined.Star)
+            ListItemSecondaryText2("Favorite", icon = painterResource(R.drawable.favorite_filled_24px))
             Row(modifier = Modifier.heightIn(max = ListItemDefaults.oneLineHeight)) {
                 ListItemSecondaryText("Description")
                 VerticalDivider()

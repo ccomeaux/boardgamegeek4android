@@ -8,17 +8,13 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -135,7 +131,7 @@ class HotnessActivity : BaseActivity() {
                                     scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState()),
                                     navigationIcon = {
                                         IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                                            Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.navigation_drawer))
+                                            Icon(painterResource(R.drawable.menu_24px), contentDescription = stringResource(R.string.navigation_drawer))
                                         }
                                     }
                                 )
@@ -215,7 +211,7 @@ private fun MultiSelectionTopAppBar(
         },
         navigationIcon = {
             IconButton(onClick = { onClear() }) {
-                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.cancel))
+                Icon(painterResource(R.drawable.arrow_back_24px), contentDescription = stringResource(R.string.up))
             }
         },
         actions = {
@@ -255,7 +251,7 @@ private fun HotnessContent(
         Status.ERROR -> {
             ErrorContent(
                 message,
-                Icons.Default.LocalFireDepartment,
+                painterResource(R.drawable.hotness_24px),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
@@ -265,7 +261,7 @@ private fun HotnessContent(
             if (data.isNullOrEmpty()) {
                 EmptyFullSizeScrollableContent(
                     R.string.empty_hotness,
-                    Icons.Default.LocalFireDepartment,
+                    painterResource(R.drawable.hotness_24px),
                     padding = padding,
                 )
             } else {
@@ -320,10 +316,10 @@ private fun HotGameListItem(
         ListItemThumbnail(hotGame.thumbnailUrl)
         Column {
             ListItemPrimaryText(hotGame.name)
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 hotGame.yearPublished.asYear(LocalContext.current),
                 modifier = modifier.padding(bottom = ListItemDefaults.verticalTextPadding),
-                icon = Icons.Outlined.CalendarToday,
+                icon = painterResource(R.drawable.year_24px),
             )
         }
     }
