@@ -112,7 +112,9 @@ class GeekListActivity : BaseActivity() {
                                 ErrorContent(
                                     text = geekList.value.message.ifEmpty { stringResource(R.string.error_loading_geeklist) },
                                     imageVector = Icons.AutoMirrored.Filled.ListAlt,
-                                    modifier = Modifier.padding(contentPadding)
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(contentPadding)
                                 )
                             }
                             Status.REFRESHING -> {
