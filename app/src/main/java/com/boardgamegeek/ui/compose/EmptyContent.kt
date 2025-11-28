@@ -5,8 +5,6 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,9 +35,29 @@ fun EmptyFullSizeScrollableContent(
         vertical = dimensionResource(R.dimen.material_margin_vertical),
     ),
     extraContent: @Composable ColumnScope.() -> Unit = {},
+) = EmptyFullSizeScrollableContent(
+    textResource = textResource,
+    iconPainter = rememberVectorPainter(imageVector),
+    modifier = modifier,
+    scrollState = scrollState,
+    padding = padding,
+    extraContent = extraContent,
+)
+
+@Composable
+fun EmptyFullSizeScrollableContent(
+    @StringRes textResource: Int,
+    iconPainter: Painter,
+    modifier: Modifier = Modifier,
+    scrollState: ScrollState = rememberScrollState(),
+    padding: PaddingValues = PaddingValues(
+        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+        vertical = dimensionResource(R.dimen.material_margin_vertical),
+    ),
+    extraContent: @Composable ColumnScope.() -> Unit = {},
 ) = EmptyContent(
     text = stringResource(textResource),
-    iconPainter = rememberVectorPainter(imageVector),
+    iconPainter = iconPainter,
     modifier
         .fillMaxSize()
         .verticalScroll(scrollState)
@@ -143,17 +161,6 @@ private fun EmptyContentPreview() {
     }
 }
 
-@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 320, heightDp = 320)
-@Composable
-private fun EmptyContentPreviewImageVector() {
-    BggAppTheme {
-        EmptyFullSizeScrollableContent(
-            R.string.empty_geeklist,
-            Icons.AutoMirrored.Filled.ListAlt,
-        )
-    }
-}
-
 @PreviewLightDark
 @Composable
 private fun EmptyListContentPreviewLightDark() {
@@ -171,7 +178,7 @@ private fun EmptyContentExtraContentPreview() {
     BggAppTheme {
         EmptyFullSizeScrollableContent(
             R.string.empty_buddies,
-            Icons.AutoMirrored.Filled.ListAlt,
+            painterResource(R.drawable.thumb_up_24px),
         ) {
             Spacer(Modifier.height(16.dp))
             Text("Extra content")
