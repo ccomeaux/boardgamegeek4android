@@ -11,16 +11,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.LibraryBooks
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -106,8 +101,10 @@ class BuddyCollectionActivity : BaseActivity() {
                         Status.ERROR -> {
                             ErrorContent(
                                 collection.message,
-                                Icons.AutoMirrored.Filled.LibraryBooks,
-                                modifier = Modifier.padding(contentPadding),
+                                painterResource(R.drawable.collection_24px),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(contentPadding),
                             )
                         }
                         Status.SUCCESS -> {
@@ -153,7 +150,7 @@ private fun BuddyCollectionTopBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = { onUpClick() }) {
-                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.up))
+                Icon(painterResource(R.drawable.arrow_back_24px), contentDescription = stringResource(R.string.up))
             }
         },
         actions = {
@@ -210,7 +207,7 @@ private fun BuddyCollectionScreen(
         val statusDescription = status?.let { statuses[it.mapToPreference()] } ?: status.toString()
         EmptyFullSizeScrollableContent(
             stringResource(R.string.empty_buddy_collection, statusDescription),
-            rememberVectorPainter(Icons.Outlined.Person),
+            painterResource(R.drawable.person_24px),
             padding = contentPadding
         )
     } else {
