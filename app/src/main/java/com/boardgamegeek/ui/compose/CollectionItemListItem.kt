@@ -12,9 +12,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -26,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -85,7 +83,7 @@ fun CollectionItemListItem(
                 )
                 if (isFavorite) {
                     Icon(
-                        imageVector = Icons.Filled.Favorite,
+                        painter = painterResource(R.drawable.favorite_filled_24px),
                         contentDescription = stringResource(id = R.string.menu_favorite),
                         modifier = Modifier.size(12.dp),
                         tint = MaterialTheme.colorScheme.primary
@@ -98,9 +96,9 @@ fun CollectionItemListItem(
             ) {
                 val context = LocalContext.current
                 if (yearPublished != null && yearPublished != Game.YEAR_UNKNOWN) {
-                    ListItemSecondaryText(
+                    ListItemSecondaryText2(
                         text = yearPublished.asYear(context),
-                        icon = Icons.Outlined.CalendarToday,
+                        icon = painterResource(id = R.drawable.year_24px),
                         modifier = Modifier.alignByBaseline(),
                         isSelected = isSelected,
                     )
