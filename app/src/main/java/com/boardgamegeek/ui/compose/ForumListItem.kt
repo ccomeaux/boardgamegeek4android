@@ -3,18 +3,17 @@ package com.boardgamegeek.ui.compose
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccessTime
-import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
 import com.boardgamegeek.model.Forum
 import com.boardgamegeek.ui.theme.BggAppTheme
@@ -43,9 +42,9 @@ fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: () -> Un
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
-                ListItemSecondaryText(
+                ListItemSecondaryText2(
                     numberFormat.format(forum.numberOfThreads),
-                    icon = Icons.Outlined.Forum,
+                    icon = painterResource(R.drawable.forum_24px),
                 )
                 ListItemVerticalDivider()
                 val context = LocalContext.current
@@ -58,9 +57,9 @@ fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: () -> Un
                         ).toString()
                     )
                 }
-                ListItemSecondaryText(
+                ListItemSecondaryText2(
                     relativeTimestamp,
-                    icon = Icons.Outlined.AccessTime,
+                    icon = painterResource(R.drawable.time_24px),
                 )
                 LaunchedEffect(Unit) {
                     while (true) {

@@ -3,15 +3,12 @@ package com.boardgamegeek.ui.compose
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccessTime
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -42,16 +39,16 @@ fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Mod
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 text = thread.author,
-                icon = Icons.Outlined.AccountCircle,
+                icon = painterResource(R.drawable.account_circle_24px),
                 contentDescription = stringResource(R.string.author),
             )
             ListItemVerticalDivider()
             val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 text = numberFormat.format(thread.numberOfArticles - 1),
-                icon = Icons.Outlined.Forum,
+                icon = painterResource(R.drawable.forum_24px),
                 contentDescription = stringResource(R.string.replies),
             )
             ListItemVerticalDivider()
@@ -65,9 +62,9 @@ fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Mod
                     ).toString()
                 )
             }
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 text = relativeTimestamp,
-                icon = Icons.Outlined.AccessTime,
+                icon = painterResource(R.drawable.time_24px),
                 contentDescription = stringResource(R.string.posted),
             )
             LaunchedEffect(Unit) {

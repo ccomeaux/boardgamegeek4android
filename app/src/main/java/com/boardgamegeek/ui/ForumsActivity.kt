@@ -91,7 +91,9 @@ class ForumsActivity : BaseActivity() {
                                 ErrorContent(
                                     text = forums.value.message.ifEmpty { stringResource(R.string.error_loading_forums) },
                                     imageVector = Icons.AutoMirrored.Filled.ListAlt,
-                                    modifier = Modifier.padding(contentPadding)
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(contentPadding)
                                 )
                             }
                             Status.REFRESHING -> {
