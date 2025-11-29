@@ -4,13 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -69,9 +68,9 @@ fun SearchResultListItem(
             modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 searchResult.yearPublished.asYear(LocalContext.current),
-                icon = Icons.Outlined.CalendarToday,
+                icon = painterResource(R.drawable.year_24px),
                 textStyle = variantStyle,
                 isSelected = isSelected,
             )

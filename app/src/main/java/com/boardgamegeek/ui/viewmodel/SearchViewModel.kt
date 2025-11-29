@@ -28,7 +28,7 @@ class SearchViewModel @Inject constructor(
 
     data class SearchResults(
         val query: Query,
-        val results: List<SearchResult>
+        val results: List<SearchResult> = emptyList()
     ) {
         companion object {
             val EMPTY = SearchResults(Query(), emptyList())
@@ -76,10 +76,10 @@ class SearchViewModel @Inject constructor(
                             emit(RefreshableResource.success(SearchResults(query, results)))
                         }
                     } catch (e: Exception) {
-                        emit(RefreshableResource.error(e, application))
+                        emit(RefreshableResource.error(e, application, SearchResults(query)))
                     }
                 else -> {
-                    emit(RefreshableResource.success(SearchResults(query, emptyList())))
+                    emit(RefreshableResource.success(SearchResults(query)))
                 }
             }
         }

@@ -15,10 +15,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,7 +24,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -36,11 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.addOrRemove
-import com.boardgamegeek.extensions.getActivity
-import com.boardgamegeek.extensions.linkBgg
-import com.boardgamegeek.extensions.notifyLoggedPlay
-import com.boardgamegeek.extensions.shareGames
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.model.SearchResult
 import com.boardgamegeek.model.Status
@@ -180,7 +172,7 @@ class SearchResultsActivity : BaseActivity() {
                 val res = LocalResources.current
                 LaunchedEffect(results) {
                     results.data?.query?.let {
-                        if (it.text.isNotBlank()) {
+                        if (it.text.isNotBlank() && results.status == Status.SUCCESS) {
                             keyboardController?.hide()
                             coroutineScope.launch {
                                 val count = results.data?.results?.size ?: 0
@@ -231,7 +223,7 @@ private fun SearchTopBar(
         scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState()),
         navigationIcon = {
             IconButton(onClick = { onMenuClick() }) {
-                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.navigation_drawer))
+                Icon(painterResource(R.drawable.menu_24px), contentDescription = stringResource(R.string.navigation_drawer))
             }
         }
     )
@@ -255,7 +247,7 @@ private fun MultiSelectionTopAppBar(
         modifier = Modifier,
         navigationIcon = {
             IconButton(onClick = { onClear() }) {
-                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.cancel))
+                Icon(painterResource(R.drawable.arrow_back_24px), contentDescription = stringResource(R.string.cancel))
             }
         },
         actions = {
@@ -296,10 +288,10 @@ private fun SearchResultsContent(
         Status.ERROR -> {
             ErrorContent(
                 stringResource(R.string.search_error, queryText, message),
-                Icons.Default.Search,
+                painterResource(R.drawable.search_24px),
                 modifier = Modifier
+                    .fillMaxSize()
                     .padding(contentPadding)
-                    .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal)),
             )
         }
         Status.SUCCESS -> {
@@ -309,7 +301,7 @@ private fun SearchResultsContent(
                         R.string.search_initial_help
                     else
                         R.string.empty_search,
-                    Icons.Default.Search,
+                    painterResource(R.drawable.search_24px),
                     padding = contentPadding,
                 )
             } else {
