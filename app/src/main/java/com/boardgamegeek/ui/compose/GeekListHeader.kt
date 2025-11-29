@@ -1,17 +1,12 @@
 package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
@@ -43,7 +38,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
         Column(modifier = modifier) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Outlined.AccountCircle,
+                    painterResource(R.drawable.account_circle_24px),
                     contentDescription = stringResource(R.string.author),
                     modifier = iconModifier
                 )
@@ -54,7 +49,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.AutoMirrored.Outlined.List,
+                    painterResource(R.drawable.geeklist_24px),
                     contentDescription = stringResource(R.string.number_of_items),
                     modifier = iconModifier
                 )
@@ -64,7 +59,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
                 )
                 VerticalDivider(dividerModifier)
                 Icon(
-                    Icons.Outlined.ThumbUp,
+                    painterResource(R.drawable.thumb_up_24px),
                     contentDescription = stringResource(R.string.number_of_thumbs),
                     modifier = iconModifier,
                 )
@@ -75,7 +70,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Outlined.Schedule,
+                    painterResource(R.drawable.time_24px),
                     contentDescription = stringResource(R.string.posted),
                     modifier = iconModifier,
                 )
@@ -89,7 +84,7 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
                 if (geekList.postTicks != geekList.editTicks) {
                     VerticalDivider(dividerModifier)
                     Icon(
-                        Icons.Outlined.Edit,
+                        painterResource(R.drawable.time_edit_24px),
                         contentDescription = stringResource(R.string.edited),
                         modifier = iconModifier,
                     )

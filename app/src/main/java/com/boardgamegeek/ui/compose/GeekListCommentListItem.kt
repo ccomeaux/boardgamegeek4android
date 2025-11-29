@@ -5,11 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
@@ -57,30 +53,30 @@ fun GeekListCommentListItem(comment: GeekListComment, markupConverter: XmlApiMar
     ) {
         val context = LocalContext.current
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 text = comment.username,
-                icon = Icons.Outlined.AccountCircle,
+                icon = painterResource(R.drawable.account_circle_24px),
                 contentDescription = stringResource(R.string.author),
             )
             ListItemVerticalDivider()
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 text = numberFormat.format(comment.numberOfThumbs),
-                icon = Icons.Outlined.ThumbUp,
+                icon = painterResource(R.drawable.thumb_up_24px),
                 contentDescription = stringResource(R.string.number_of_thumbs),
             )
             ListItemVerticalDivider()
             var relativePostTimestamp by remember { mutableStateOf("") }
             var relativeEditTimestamp by remember { mutableStateOf("") }
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 text = relativePostTimestamp,
-                icon = Icons.Outlined.Schedule,
+                icon = painterResource(R.drawable.time_24px),
                 contentDescription = stringResource(R.string.posted),
             )
             if (comment.editDate != comment.postDate) {
                 ListItemVerticalDivider()
-                ListItemSecondaryText(
+                ListItemSecondaryText2(
                     text = relativeEditTimestamp,
-                    icon = Icons.Outlined.Edit,
+                    icon = painterResource(R.drawable.time_edit_24px),
                     contentDescription = stringResource(R.string.edited),
                 )
             }
@@ -168,7 +164,7 @@ private fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarku
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    Icons.Outlined.AccountCircle,
+                    painterResource(R.drawable.account_circle_24px),
                     contentDescription = null,
                     modifier = iconModifier,
                     tint = MaterialTheme.colorScheme.onSurface,
@@ -180,7 +176,7 @@ private fun CommentDialog(comment: GeekListComment, markupConverter: XmlApiMarku
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Icon(
-                    Icons.Outlined.ThumbUp,
+                    painterResource(R.drawable.thumb_up_24px),
                     contentDescription = null,
                     modifier = iconModifier,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,

@@ -2,10 +2,6 @@ package com.boardgamegeek.ui.adapter
 
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -96,7 +93,7 @@ private fun GeekListRow(geekList: GeekList, onClick: () -> Unit, modifier: Modif
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Outlined.AccountCircle,
+                    painterResource(R.drawable.account_circle_24px),
                     contentDescription = null,
                     modifier = iconModifier
                 )
@@ -107,7 +104,7 @@ private fun GeekListRow(geekList: GeekList, onClick: () -> Unit, modifier: Modif
                 )
                 VerticalDivider(dividerModifier)
                 Icon(
-                    Icons.AutoMirrored.Outlined.List,
+                    painterResource(R.drawable.geeklist_24px),
                     contentDescription = null,
                     modifier = iconModifier
                 )
@@ -118,7 +115,7 @@ private fun GeekListRow(geekList: GeekList, onClick: () -> Unit, modifier: Modif
                 )
                 VerticalDivider(dividerModifier)
                 Icon(
-                    Icons.Outlined.ThumbUp,
+                    painterResource(R.drawable.thumb_up_24px),
                     contentDescription = null,
                     modifier = iconModifier
                 )
