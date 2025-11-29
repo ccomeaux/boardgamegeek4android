@@ -207,7 +207,7 @@ private fun BuddyCollectionScreen(
         val statusDescription = status?.let { statuses[it.mapToPreference()] } ?: status.toString()
         EmptyFullSizeScrollableContent(
             stringResource(R.string.empty_buddy_collection, statusDescription),
-            painterResource(R.drawable.person_24px),
+            painterResource(R.drawable.collection_24px),
             padding = contentPadding
         )
     } else {

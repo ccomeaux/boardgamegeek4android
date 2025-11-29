@@ -18,9 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -262,7 +259,10 @@ private fun BuddyTopBar(
         modifier = modifier,
         navigationIcon = {
             IconButton(onClick = { onUpClick() }) {
-                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.up))
+                Icon(
+                    painterResource(R.drawable.arrow_back_24px),
+                    contentDescription = stringResource(R.string.up)
+                )
             }
         },
         actions = {
@@ -270,13 +270,19 @@ private fun BuddyTopBar(
                 IconButton(
                     onClick = { onAddUsernameClick() },
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = stringResource(R.string.menu_add_username))
+                    Icon(
+                        painterResource(R.drawable.add_24px),
+                        contentDescription = stringResource(R.string.menu_add_username)
+                    )
                 }
             } else {
                 IconButton(
                     onClick = { onViewUserClick() },
                 ) {
-                    Icon(Icons.Default.OpenInBrowser, contentDescription = stringResource(R.string.menu_view_in_browser))
+                    Icon(
+                        painterResource(R.drawable.open_in_browser_24px),
+                        contentDescription = stringResource(R.string.menu_view_in_browser)
+                    )
                 }
             }
         }
@@ -351,7 +357,7 @@ private fun BuddyScreen(
                         shape = IconButtonDefaults.smallRoundShape,
                     ) {
                         Icon(
-                            Icons.Filled.Edit,
+                            painterResource(R.drawable.edit_24px),
                             contentDescription = stringResource(R.string.title_edit_nickname),
                             modifier = Modifier.size(IconButtonDefaults.extraSmallIconSize),
                         )
@@ -697,8 +703,8 @@ private fun AddUsernameDialog(
                             )
                             Spacer(Modifier.width(4.dp))
                         }
-                        UsernameValidity.Valid -> Icon(Icons.Default.CheckCircle, contentDescription = null, modifier = Modifier.padding(end = 4.dp))
-                        UsernameValidity.Invalid -> Icon(Icons.Default.Cancel, contentDescription = null, modifier = Modifier.padding(end = 4.dp))
+                        UsernameValidity.Valid -> Icon(painterResource(R.drawable.valid_24px), contentDescription = null, modifier = Modifier.padding(end = 4.dp))
+                        UsernameValidity.Invalid -> Icon(painterResource(R.drawable.invalid_24px), contentDescription = null, modifier = Modifier.padding(end = 4.dp))
                     }
                     Text(
                         stringResource(

@@ -44,7 +44,7 @@ enum class DrawerItem(
     CollectionShelves(R.string.title_collection_shelves,R.drawable.shelves_24px, true, onClick = { context -> context.startActivity<CollectionDetailsActivity>() }),
     Collection(R.string.title_collection_legacy, R.drawable.collection_24px, onClick = { context -> context.startActivity<CollectionActivity>() }),
     Plays(R.string.title_plays, R.drawable.plays_24px, onClick = { context -> context.startActivity<PlaysSummaryActivity>() }),
-    Buddies(R.string.title_buddies, R.drawable.person_24px, onClick = { context -> context.startActivity<BuddiesActivity>() }),
+    Buddies(R.string.title_buddies, R.drawable.geekbuddy_24px, onClick = { context -> context.startActivity<BuddiesActivity>() }),
     Search(R.string.title_search, R.drawable.search_24px, true, onClick = { context -> context.startActivity<SearchResultsActivity>() }),
     Hotness(R.string.title_hotness, R.drawable.hotness_24px, onClick = { context -> context.startActivity<HotnessActivity>() }),
     TopGames(R.string.title_top_games, R.drawable.top_24px, onClick = { context -> context.startActivity<TopGamesActivity>() }),

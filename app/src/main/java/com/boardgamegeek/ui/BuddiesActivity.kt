@@ -10,10 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -21,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -140,13 +137,16 @@ private fun BuddiesTopBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = { onMenuClick() }) {
-                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.navigation_drawer))
+                Icon(
+                    painterResource(R.drawable.menu_24px),
+                    contentDescription = stringResource(R.string.navigation_drawer)
+                )
             }
         },
         actions = {
             IconButton(onClick = { expandedMenu = true }) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Sort,
+                    painterResource(R.drawable.sort_24px),
                     contentDescription = stringResource(R.string.menu_sort),
                     tint = MaterialTheme.colorScheme.primary,
                 )
@@ -239,13 +239,13 @@ private fun Empty(
     if (isSetToSyncBuddies) {
         EmptyFullSizeScrollableContent(
             R.string.empty_buddies,
-            Icons.Outlined.Person,
+            painterResource(R.drawable.geekbuddy_24px),
             padding = contentPadding,
         )
     } else {
         EmptyFullSizeScrollableContent(
             R.string.empty_buddies_sync_off,
-            Icons.Outlined.Person,
+            painterResource(R.drawable.geekbuddy_24px),
             padding = contentPadding,
         ) {
             Spacer(Modifier.height(24.dp))
