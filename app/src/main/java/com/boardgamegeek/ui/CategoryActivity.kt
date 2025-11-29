@@ -7,14 +7,11 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.OpenInBrowser
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
@@ -72,7 +69,7 @@ class CategoryActivity : BaseActivity() {
 
 private enum class CategoryCollectionSort(
     val type: CollectionItem.SortType,
-    @StringRes val labelResId: Int,
+    @param:StringRes val labelResId: Int,
 ) {
     Name(CollectionItem.SortType.NAME, R.string.menu_sort_name),
     Rating(CollectionItem.SortType.RATING, R.string.menu_sort_rating),
@@ -97,7 +94,7 @@ private fun CategoryTopBar(
         navigationIcon = {
             IconButton(onClick = onUpClick) {
                 Icon(
-                    Icons.AutoMirrored.Filled.ArrowBack,
+                    painterResource(R.drawable.arrow_back_24px),
                     contentDescription = stringResource(R.string.up),
                 )
             }
@@ -105,13 +102,13 @@ private fun CategoryTopBar(
         actions = {
             IconButton(onClick = onViewInBrowserClick) {
                 Icon(
-                    Icons.Default.OpenInBrowser,
+                    painterResource(R.drawable.open_in_browser_24px),
                     contentDescription = stringResource(R.string.menu_view_in_browser),
                 )
             }
             IconButton(onClick = { expandedMenu = true }) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Sort,
+                    painterResource(R.drawable.sort_24px),
                     contentDescription = stringResource(R.string.menu_sort),
                     tint = MaterialTheme.colorScheme.primary,
                 )

@@ -9,11 +9,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -21,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -93,7 +89,7 @@ class DesignersActivity : BaseActivity() {
 
 private enum class DesignersSort(
     val type: Person.SortType,
-    @StringRes val labelResId: Int,
+    @param:StringRes val labelResId: Int,
 ) {
     Name(Person.SortType.Name, R.string.menu_sort_name),
     ItemCount(Person.SortType.ItemCount, R.string.menu_sort_item_count),
@@ -130,7 +126,7 @@ private fun DesignersTopBar(
                 onClick = { onUpClick() }
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    painterResource(R.drawable.arrow_back_24px),
                     contentDescription = stringResource(R.string.up),
                 )
             }
@@ -138,14 +134,14 @@ private fun DesignersTopBar(
         actions = {
             IconButton(onClick = { onRefreshClick() }) {
                 Icon(
-                    imageVector = Icons.Filled.Refresh,
+                    painterResource(R.drawable.refresh_24px),
                     contentDescription = stringResource(R.string.menu_refresh),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
             IconButton(onClick = { expandedMenu = true }) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Sort,
+                    painterResource(R.drawable.sort_24px),
                     contentDescription = stringResource(R.string.menu_sort),
                     tint = MaterialTheme.colorScheme.primary,
                 )
@@ -206,7 +202,7 @@ private fun DesignersContent(
         designers.isEmpty() -> {
             EmptyFullSizeScrollableContent(
                 R.string.empty_designers,
-                Icons.Outlined.Edit,
+                painterResource(R.drawable.designer_24px),
                 padding = contentPadding,
             )
         }
