@@ -4,18 +4,18 @@ import android.view.ViewGroup
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.boardgamegeek.R
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.model.TopGame
 import com.boardgamegeek.provider.BggContract
@@ -47,7 +47,7 @@ class TopGamesAdapter : RecyclerView.Adapter<TopGamesAdapter.ViewHolder>(), Auto
 
     override fun getItemId(position: Int) = (results.getOrNull(position)?.id ?: BggContract.INVALID_ID).toLong()
 
-    inner class ViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+    class ViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
         fun bind(game: TopGame) {
             composeView.setContent {
                 BggAppTheme {
@@ -88,10 +88,10 @@ private fun TopGameListItem(
         ListItemThumbnail(topGame.thumbnailUrl)
         Column {
             ListItemPrimaryText(topGame.name)
-            ListItemSecondaryText(
+            ListItemSecondaryText2(
                 topGame.yearPublished.asYear(LocalContext.current),
                 modifier = modifier.padding(bottom = ListItemDefaults.verticalTextPadding),
-                icon = Icons.Outlined.CalendarToday,
+                icon = painterResource(R.drawable.year_24px),
             )
         }
     }
