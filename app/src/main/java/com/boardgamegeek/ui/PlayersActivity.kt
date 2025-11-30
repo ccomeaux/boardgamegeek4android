@@ -8,18 +8,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Sort
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -29,7 +24,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -67,7 +64,7 @@ class PlayersActivity : BaseActivity() {
             val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
             BggAppTheme {
-                var filterOpen by remember { mutableStateOf(false) }
+                val filterOpen = remember { MutableTransitionState(false) }
                 Scaffold(
                     modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                     topBar = {
@@ -77,7 +74,16 @@ class PlayersActivity : BaseActivity() {
                             scrollBehavior = scrollBehavior,
                             onUpClick = { finish() },
                             onSortClick = { viewModel.sort(it) },
-                            onFilterClick = { filterOpen = !filterOpen }
+                            onFilterClick = {
+                                if (filterOpen.currentState) {
+                                    viewModel.filter("")
+                                    filterOpen.targetState = false
+                                } else {
+                                    // TODO request focus?
+                                    filterOpen.targetState = true
+                                }
+                            },
+                            isFilterOpen = filterOpen.targetState,
                         )
                     },
                 ) { contentPadding ->
@@ -114,7 +120,7 @@ class PlayersActivity : BaseActivity() {
 
 private enum class PlayersSort(
     val type: Player.SortType,
-    @StringRes val labelResId: Int,
+    @param:StringRes val labelResId: Int,
 ) {
     Name(Player.SortType.Name, R.string.menu_sort_name),
     PlayCount(Player.SortType.PlayCount, R.string.menu_sort_quantity),
@@ -131,6 +137,7 @@ private fun PlayersTopBar(
     onUpClick: () -> Unit = {},
     onSortClick: (Player.SortType) -> Unit = {},
     onFilterClick: () -> Unit = {},
+    isFilterOpen: Boolean,
 ) {
     var expandedMenu by remember { mutableStateOf(false) }
     MediumFlexibleTopAppBar(
@@ -148,20 +155,26 @@ private fun PlayersTopBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = { onUpClick() }) {
-                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.up))
+                Icon(
+                    painterResource(R.drawable.arrow_back_24px),
+                    contentDescription = stringResource(R.string.up)
+                )
             }
         },
         actions = {
             IconButton(onClick = { onFilterClick() }) {
                 Icon(
-                    imageVector = Icons.Filled.FilterList,
+                    if (isFilterOpen)
+                        painterResource(R.drawable.filter_list_off_24px)
+                    else
+                        painterResource(R.drawable.filter_list_24px),
                     contentDescription = stringResource(R.string.menu_filter),
                     tint = MaterialTheme.colorScheme.primary,
                 )
             }
             IconButton(onClick = { expandedMenu = true }) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.Sort,
+                    painterResource(R.drawable.sort_24px),
                     contentDescription = stringResource(R.string.menu_sort),
                     tint = MaterialTheme.colorScheme.primary,
                 )
@@ -194,12 +207,13 @@ private fun PlayersTopBar(
 private fun PlayersScreen(
     players: Map<String, List<Player>>?,
     modifier: Modifier = Modifier,
-    showFilter: Boolean = false,
+    showFilter: MutableTransitionState<Boolean> = remember { MutableTransitionState(false) },
     contentPadding: PaddingValues = PaddingValues(0.dp),
     onItemClick: (Player) -> Unit = {},
     onFilter: (String) -> Unit = {},
-    focusRequester: FocusRequester = FocusRequester(),
+    focusRequester: FocusRequester = remember { FocusRequester() },
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     when {
         players == null -> {
             BggLoadingIndicatorBox(
@@ -211,7 +225,7 @@ private fun PlayersScreen(
         players.isEmpty() -> {
             EmptyFullSizeScrollableContent(
                 R.string.empty_players,
-                Icons.Default.Person,
+                painterResource(R.drawable.person_24px),
                 padding = contentPadding,
             )
         }
@@ -222,7 +236,9 @@ private fun PlayersScreen(
                     .padding(contentPadding)
             ) {
                 var textFieldValue by remember { mutableStateOf("") }
-                AnimatedVisibility(showFilter) {
+                AnimatedVisibility(
+                    showFilter,
+                ) {
                     TextField(
                         value = textFieldValue,
                         maxLines = 1,
@@ -236,30 +252,28 @@ private fun PlayersScreen(
                                 horizontal = dimensionResource(R.dimen.material_margin_horizontal),
                                 vertical = dimensionResource(R.dimen.material_margin_vertical)
                             )
-                            .focusRequester(focusRequester = focusRequester)
+                            .focusRequester(focusRequester)
                             .focusable(),
                         shape = MaterialTheme.shapes.small,
                         placeholder = { Text("Filter") },
-                        leadingIcon = { Icon(Icons.Filled.FilterList, contentDescription = null) },
+                        leadingIcon = { Icon(painterResource(R.drawable.filter_list_24px), contentDescription = null) },
                         trailingIcon = {
                             IconButton(onClick = {
                                 textFieldValue = ""
                                 onFilter("")
                             }) {
-                                Icon(Icons.Filled.Clear, contentDescription = null)
+                                Icon(painterResource(R.drawable.clear_24px), contentDescription = null)
                             }
                         }
                     )
-                    LaunchedEffect(showFilter) {
-                        if (showFilter) {
-                            focusRequester.requestFocus()
-                        }
+                }
+                LaunchedEffect(showFilter.isIdle && showFilter.currentState) {
+                    if (showFilter.isIdle && showFilter.currentState) {
+                        focusRequester.requestFocus()
+                        keyboardController?.show()
                     }
                 }
-                LazyColumn(
-                    modifier = modifier.fillMaxSize(),
-                    // contentPadding = contentPadding,
-                ) {
+                LazyColumn(modifier = modifier.fillMaxSize()) {
                     players.forEach { (headerText, players) ->
                         stickyHeader {
                             ListHeader(headerText)

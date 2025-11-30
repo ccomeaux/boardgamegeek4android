@@ -11,9 +11,6 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -21,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -136,14 +134,14 @@ private fun PlaysSummaryTopBar(
         modifier = modifier,
         navigationIcon = {
             IconButton(onClick = { onMenuClick() }) {
-                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.navigation_drawer))
+                Icon(painterResource(R.drawable.menu_24px), contentDescription = stringResource(R.string.navigation_drawer))
             }
         },
         actions = {
             IconButton(onClick = {
                 openAlertDialog = true
             }) {
-                Icon(imageVector = Icons.Default.Refresh, contentDescription = stringResource(R.string.re_sync))
+                Icon(painterResource(R.drawable.refresh_24px), contentDescription = stringResource(R.string.re_sync))
             }
         }
     )
@@ -198,11 +196,13 @@ private fun PlaysSummaryScreen(
                     ),
             ) {
                 AnimatedVisibility(syncPlays == false && syncPlaysTimestamp == 0L) {
-                    SyncCard(
-                        onSyncClick = onSyncClick,
-                        onCancelClick = onCancelClick,
-                    )
-                    SegmentSpacer()
+                    Column {
+                        SyncCard(
+                            onSyncClick = onSyncClick,
+                            onCancelClick = onCancelClick,
+                        )
+                        SegmentSpacer()
+                    }
                 }
                 PlaysSegment(
                     playCount,
@@ -447,7 +447,7 @@ private fun StatsSegment(hIndex: HIndex, modifier: Modifier = Modifier) {
             Row(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp), // TODO refactor
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(text = stringResource(R.string.play_stat_game_h_index))
