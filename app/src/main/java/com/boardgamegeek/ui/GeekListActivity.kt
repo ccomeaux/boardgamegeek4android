@@ -14,14 +14,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.automirrored.filled.ListAlt
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.OpenInBrowser
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -110,8 +102,8 @@ class GeekListActivity : BaseActivity() {
                         when (geekList.value.status) {
                             Status.ERROR -> {
                                 ErrorContent(
-                                    text = geekList.value.message.ifEmpty { stringResource(R.string.error_loading_geeklist) },
-                                    imageVector = Icons.AutoMirrored.Filled.ListAlt,
+                                    geekList.value.message.ifEmpty { stringResource(R.string.error_loading_geeklist) },
+                                    painterResource(R.drawable.geeklist_24px),
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(contentPadding)
@@ -136,7 +128,7 @@ class GeekListActivity : BaseActivity() {
     private fun EmptyGeekListContent(contentPadding: PaddingValues) {
         EmptyFullSizeScrollableContent(
             R.string.empty_geeklist,
-            Icons.AutoMirrored.Filled.ListAlt,
+            painterResource(R.drawable.geeklist_24px),
             padding = contentPadding,
         )
     }
@@ -258,15 +250,24 @@ private fun GeekListTopAppBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = { onBack() }) {
-                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.up))
+                Icon(
+                    painterResource(R.drawable.arrow_back_24px),
+                    contentDescription = stringResource(R.string.up)
+                )
             }
         },
         actions = {
             IconButton(onClick = { onOpenInBrowser() }) {
-                Icon(Icons.Default.OpenInBrowser, contentDescription = stringResource(R.string.menu_view_in_browser))
+                Icon(
+                    painterResource(R.drawable.open_in_browser_24px),
+                    contentDescription = stringResource(R.string.menu_view_in_browser)
+                )
             }
             IconButton(onClick = { onShare() }) {
-                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.menu_share))
+                Icon(
+                    painterResource(R.drawable.share_24px),
+                    contentDescription = stringResource(R.string.menu_share)
+                )
             }
         }
     )
@@ -290,7 +291,7 @@ private fun RefreshContent(contentPadding: PaddingValues) {
     )
 }
 
-private enum class GeekListTab(@StringRes val resId: Int) {
+private enum class GeekListTab(@param:StringRes val resId: Int) {
     Description(R.string.title_description),
     Items(R.string.title_items),
     Comments(R.string.title_comments),
@@ -358,7 +359,7 @@ private fun GeekListDescriptionContent(
     if (description.isEmpty()) {
         EmptyFullSizeScrollableContent(
             R.string.empty_geeklist_description,
-            Icons.Filled.Description,
+            painterResource(R.drawable.description_24px),
             scrollState = scrollState,
         )
     } else {
@@ -386,7 +387,7 @@ private fun GeekListItemListContent(
     if (geekListItems.isEmpty()) {
         EmptyFullSizeScrollableContent(
             R.string.empty_geeklist,
-            Icons.AutoMirrored.Filled.List,
+            painterResource(R.drawable.geeklist_24px),
             scrollState = scrollState,
         )
     } else {
@@ -465,7 +466,7 @@ private fun GeekListItemListItem(
             if (geekListItem.username != geekList?.username) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        Icons.Outlined.AccountCircle,
+                        painterResource(R.drawable.account_circle_24px),
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier

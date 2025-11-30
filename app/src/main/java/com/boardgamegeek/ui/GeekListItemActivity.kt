@@ -17,15 +17,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.outlined.Label
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.OpenInBrowser
-import androidx.compose.material.icons.outlined.AccountCircle
-import androidx.compose.material.icons.outlined.Schedule
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -234,12 +225,18 @@ private fun GeekListItemTopAppBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = { onUpClick() }) {
-                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = stringResource(R.string.up))
+                Icon(
+                    painterResource(R.drawable.arrow_back_24px),
+                    contentDescription = stringResource(R.string.up)
+                )
             }
         },
         actions = {
-            IconButton(onClick = { onViewClick() }) { // TODO find a better icon
-                Icon(Icons.Default.OpenInBrowser, contentDescription = stringResource(R.string.menu_view_in_browser))
+            IconButton(onClick = { onViewClick() }) {
+                Icon(
+                    painterResource(R.drawable.open_in_browser_24px),
+                    contentDescription = stringResource(R.string.menu_view_in_browser)
+                )
             }
         }
     )
@@ -356,7 +353,7 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Outlined.AccountCircle,
+                    painterResource(R.drawable.account_circle_24px),
                     contentDescription = stringResource(R.string.author),
                     modifier = iconModifier
                 )
@@ -368,7 +365,7 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
                 if (typeResId != ResourcesCompat.ID_NULL) {
                     VerticalDivider(dividerModifier)
                     Icon(
-                        Icons.AutoMirrored.Outlined.Label,
+                        painterResource(R.drawable.label_24px),
                         contentDescription = stringResource(R.string.type),
                         modifier = iconModifier
                     )
@@ -380,7 +377,7 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    Icons.Outlined.ThumbUp,
+                    painterResource(R.drawable.thumb_up_24px),
                     contentDescription = stringResource(R.string.number_of_thumbs),
                     modifier = iconModifier,
                 )
@@ -390,7 +387,7 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
                 )
                 VerticalDivider(dividerModifier)
                 Icon(
-                    Icons.Outlined.Schedule,
+                    painterResource(R.drawable.time_24px),
                     contentDescription = stringResource(R.string.posted),
                     modifier = iconModifier,
                 )
@@ -404,7 +401,7 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
                 if (geekListItem.postDateTime != geekListItem.editDateTime) {
                     VerticalDivider(dividerModifier)
                     Icon(
-                        Icons.Outlined.Update,
+                        painterResource(R.drawable.time_edit_24px),
                         contentDescription = stringResource(R.string.edited),
                         modifier = iconModifier,
                     )
@@ -435,7 +432,7 @@ private fun GeekListItemDescriptionContent(
     if (body.isEmpty()) {
         EmptyFullSizeScrollableContent(
             R.string.empty_geeklist_description,
-            Icons.Filled.Description,
+            painterResource(R.drawable.description_24px),
             scrollState = scrollState,
         )
     } else {
