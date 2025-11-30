@@ -8,11 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ListAlt
-import androidx.compose.material.icons.filled.Forum
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.Forum
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
@@ -20,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -90,7 +86,7 @@ class ForumsActivity : BaseActivity() {
                             Status.ERROR -> {
                                 ErrorContent(
                                     text = forums.value.message.ifEmpty { stringResource(R.string.error_loading_forums) },
-                                    imageVector = Icons.AutoMirrored.Filled.ListAlt,
+                                    painterResource(R.drawable.forum_24px),
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(contentPadding)
@@ -109,7 +105,7 @@ class ForumsActivity : BaseActivity() {
                                     }
                                 } ?: EmptyFullSizeScrollableContent(
                                     R.string.empty_forums,
-                                    Icons.Filled.Forum,
+                                    painterResource(R.drawable.forum_24px),
                                     padding = contentPadding,
                                 )
                             }
@@ -142,7 +138,10 @@ private fun ForumsTopAppBar(
         scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = { onMenuClick() }) {
-                Icon(Icons.Default.Menu, contentDescription = stringResource(R.string.navigation_drawer))
+                Icon(
+                    painterResource(R.drawable.menu_24px),
+                    contentDescription = stringResource(R.string.navigation_drawer)
+                )
             }
         }
     )
@@ -165,7 +164,7 @@ private fun ForumsContent(
         forums.isEmpty() -> {
             EmptyFullSizeScrollableContent(
                 R.string.empty_forums,
-                Icons.Outlined.Forum,
+                painterResource(R.drawable.forum_24px),
                 padding = contentPadding,
             )
         }
