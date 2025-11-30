@@ -10,10 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -22,6 +18,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.boardgamegeek.R
@@ -71,7 +68,7 @@ class PlayGameChangeActivity : BaseActivity() {
                             textFieldState = textFieldState,
                             onCloseClick = { finish() },
                         )
-0                    },
+                    },
                     snackbarHost = { SnackbarHost(snackbarHostState) },
                 ) { contentPadding ->
                     SimpleCollectionItemList(
@@ -132,7 +129,10 @@ private fun PlayGameChangeTopAppBar(
                                     isSearchExpanded = false
                                 }
                             ) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                                Icon(
+                                    painterResource(R.drawable.arrow_back_24px),
+                                    contentDescription = null
+                                )
                             }
                         },
                         placeholderText = stringResource(R.string.search_hint),
@@ -149,7 +149,10 @@ private fun PlayGameChangeTopAppBar(
         navigationIcon = {
             if (!isSearchExpanded) {
                 IconButton(onClick = onCloseClick) {
-                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close))
+                    Icon(
+                        painterResource(R.drawable.close_24px),
+                        contentDescription = stringResource(R.string.close)
+                    )
                 }
             }
         },
@@ -158,7 +161,10 @@ private fun PlayGameChangeTopAppBar(
                 IconButton(
                     onClick = { isSearchExpanded = true },
                 ) {
-                    Icon(Icons.Default.Search, contentDescription = stringResource(R.string.menu_search))
+                    Icon(
+                        painterResource(R.drawable.search_24px),
+                        contentDescription = stringResource(R.string.menu_search)
+                    )
                 }
             }
         }
