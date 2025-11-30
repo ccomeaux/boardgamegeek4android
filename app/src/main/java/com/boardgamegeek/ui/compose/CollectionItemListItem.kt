@@ -96,7 +96,7 @@ fun CollectionItemListItem(
             ) {
                 val context = LocalContext.current
                 if (yearPublished != null && yearPublished != Game.YEAR_UNKNOWN) {
-                    ListItemSecondaryText2(
+                    ListItemSecondaryText(
                         text = yearPublished.asYear(context),
                         icon = painterResource(id = R.drawable.year_24px),
                         modifier = Modifier.alignByBaseline(),

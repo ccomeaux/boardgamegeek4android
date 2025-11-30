@@ -42,7 +42,7 @@ fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: () -> Un
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
-                ListItemSecondaryText2(
+                ListItemSecondaryText(
                     numberFormat.format(forum.numberOfThreads),
                     icon = painterResource(R.drawable.forum_24px),
                 )
@@ -57,7 +57,7 @@ fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: () -> Un
                         ).toString()
                     )
                 }
-                ListItemSecondaryText2(
+                ListItemSecondaryText(
                     relativeTimestamp,
                     icon = painterResource(R.drawable.time_24px),
                 )

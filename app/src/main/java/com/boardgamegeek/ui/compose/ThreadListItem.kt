@@ -39,14 +39,14 @@ fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Mod
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 text = thread.author,
                 icon = painterResource(R.drawable.account_circle_24px),
                 contentDescription = stringResource(R.string.author),
             )
             ListItemVerticalDivider()
             val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 text = numberFormat.format(thread.numberOfArticles - 1),
                 icon = painterResource(R.drawable.forum_24px),
                 contentDescription = stringResource(R.string.replies),
@@ -62,7 +62,7 @@ fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Mod
                     ).toString()
                 )
             }
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 text = relativeTimestamp,
                 icon = painterResource(R.drawable.time_24px),
                 contentDescription = stringResource(R.string.posted),

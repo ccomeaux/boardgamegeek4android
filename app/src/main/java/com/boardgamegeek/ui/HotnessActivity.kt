@@ -316,7 +316,7 @@ private fun HotGameListItem(
         ListItemThumbnail(hotGame.thumbnailUrl)
         Column {
             ListItemPrimaryText(hotGame.name)
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 hotGame.yearPublished.asYear(LocalContext.current),
                 modifier = modifier.padding(bottom = ListItemDefaults.verticalTextPadding),
                 icon = painterResource(R.drawable.year_24px),

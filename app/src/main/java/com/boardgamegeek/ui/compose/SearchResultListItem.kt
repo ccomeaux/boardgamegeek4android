@@ -68,7 +68,7 @@ fun SearchResultListItem(
             modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 searchResult.yearPublished.asYear(LocalContext.current),
                 icon = painterResource(R.drawable.year_24px),
                 textStyle = variantStyle,

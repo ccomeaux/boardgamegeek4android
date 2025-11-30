@@ -12,8 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -23,26 +21,6 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.ui.theme.BggAppTheme
-
-@Composable
-fun EmptyFullSizeScrollableContent(
-    @StringRes textResource: Int,
-    imageVector: ImageVector,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-    padding: PaddingValues = PaddingValues(
-        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-        vertical = dimensionResource(R.dimen.material_margin_vertical),
-    ),
-    extraContent: @Composable ColumnScope.() -> Unit = {},
-) = EmptyFullSizeScrollableContent(
-    textResource = textResource,
-    iconPainter = rememberVectorPainter(imageVector),
-    modifier = modifier,
-    scrollState = scrollState,
-    padding = padding,
-    extraContent = extraContent,
-)
 
 @Composable
 fun EmptyFullSizeScrollableContent(
@@ -78,25 +56,6 @@ fun EmptyFullSizeScrollableContent(
 ) = EmptyContent(
     text = text,
     iconPainter = iconPainter,
-    modifier
-        .fillMaxSize()
-        .verticalScroll(scrollState)
-        .padding(padding)
-)
-
-@Composable
-fun EmptyFullSizeScrollableContent(
-    text: String,
-    imageVector: ImageVector,
-    modifier: Modifier = Modifier,
-    scrollState: ScrollState = rememberScrollState(),
-    padding: PaddingValues = PaddingValues(
-        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-        vertical = dimensionResource(R.dimen.material_margin_vertical),
-    ),
-) = EmptyContent(
-    text = text,
-    iconPainter = rememberVectorPainter(imageVector),
     modifier
         .fillMaxSize()
         .verticalScroll(scrollState)

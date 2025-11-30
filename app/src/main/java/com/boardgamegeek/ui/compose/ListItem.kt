@@ -2,8 +2,6 @@ package com.boardgamegeek.ui.compose
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -13,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -130,40 +127,6 @@ fun ListItemPrimaryText(
 fun ListItemSecondaryText(
     text: String,
     modifier: Modifier = Modifier,
-    icon: ImageVector? = null,
-    contentDescription: String? = null,
-    textStyle: TextStyle = ListItemDefaults.secondaryTextStyle(),
-    isSelected: Boolean = false,
-) {
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        icon?.let {
-            Icon(
-                imageVector = it,
-                contentDescription = contentDescription,
-                modifier = Modifier
-                    .padding(end = 4.dp)
-                    .size(ListItemDefaults.secondaryImageSize),
-                tint = getOnVariantColor(isSelected),
-            )
-        }
-        Text(
-            text = text,
-            style = textStyle,
-            color = getOnVariantColor(isSelected),
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
-        )
-    }
-}
-
-@Composable
-fun ListItemSecondaryText2(
-    text: String,
-    modifier: Modifier = Modifier,
     icon: Painter? = null,
     contentDescription: String? = null,
     textStyle: TextStyle = ListItemDefaults.secondaryTextStyle(),
@@ -237,12 +200,11 @@ private fun ListItemPreviews() {
             ListItemThumbnail("")
             ListItemPrimaryText("Title")
             ListItemSecondaryText("Description")
-            ListItemSecondaryText("Favorite", icon = Icons.Outlined.Star)
-            ListItemSecondaryText2("Favorite", icon = painterResource(R.drawable.favorite_filled_24px))
+            ListItemSecondaryText("Favorite", icon = painterResource(R.drawable.favorite_filled_24px))
             Row(modifier = Modifier.heightIn(max = ListItemDefaults.oneLineHeight)) {
                 ListItemSecondaryText("Description")
                 VerticalDivider()
-                ListItemSecondaryText("Favorite", icon = Icons.Outlined.Star)
+                ListItemSecondaryText("Favorite", icon = painterResource(R.drawable.favorite_filled_24px))
             }
         }
     }

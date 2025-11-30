@@ -53,13 +53,13 @@ fun GeekListCommentListItem(comment: GeekListComment, markupConverter: XmlApiMar
     ) {
         val context = LocalContext.current
         Row(verticalAlignment = Alignment.CenterVertically) {
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 text = comment.username,
                 icon = painterResource(R.drawable.account_circle_24px),
                 contentDescription = stringResource(R.string.author),
             )
             ListItemVerticalDivider()
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 text = numberFormat.format(comment.numberOfThumbs),
                 icon = painterResource(R.drawable.thumb_up_24px),
                 contentDescription = stringResource(R.string.number_of_thumbs),
@@ -67,14 +67,14 @@ fun GeekListCommentListItem(comment: GeekListComment, markupConverter: XmlApiMar
             ListItemVerticalDivider()
             var relativePostTimestamp by remember { mutableStateOf("") }
             var relativeEditTimestamp by remember { mutableStateOf("") }
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 text = relativePostTimestamp,
                 icon = painterResource(R.drawable.time_24px),
                 contentDescription = stringResource(R.string.posted),
             )
             if (comment.editDate != comment.postDate) {
                 ListItemVerticalDivider()
-                ListItemSecondaryText2(
+                ListItemSecondaryText(
                     text = relativeEditTimestamp,
                     icon = painterResource(R.drawable.time_edit_24px),
                     contentDescription = stringResource(R.string.edited),

@@ -88,7 +88,7 @@ private fun TopGameListItem(
         ListItemThumbnail(topGame.thumbnailUrl)
         Column {
             ListItemPrimaryText(topGame.name)
-            ListItemSecondaryText2(
+            ListItemSecondaryText(
                 topGame.yearPublished.asYear(LocalContext.current),
                 modifier = modifier.padding(bottom = ListItemDefaults.verticalTextPadding),
                 icon = painterResource(R.drawable.year_24px),
