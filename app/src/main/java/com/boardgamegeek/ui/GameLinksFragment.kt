@@ -5,17 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AttachMoney
-import androidx.compose.material.icons.filled.Gavel
-import androidx.compose.material.icons.filled.OpenInBrowser
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -28,10 +22,10 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentNestedComposeViewBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.compose.EmptyContent
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 
 @AndroidEntryPoint
 class GameLinksFragment : Fragment() {
@@ -48,17 +42,23 @@ class GameLinksFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val viewModel by activityViewModels<GameViewModel>()
-        viewModel.game.observe(viewLifecycleOwner) {
-            it?.let { game ->
-                binding.composeView.setContent {
+        viewModel.game.observe(viewLifecycleOwner) { game ->
+            binding.composeView.setContent {
+                val paddingValues = PaddingValues(dimensionResource(R.dimen.material_margin_horizontal), 8.dp)
+                if (game == null) {
+                    EmptyContent(
+                        stringResource(R.string.empty_game),
+                        painterResource(R.drawable.link_24px),
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
+                    )
+                } else {
                     GameLinks(
                         game.id,
                         game.name,
                         iconColor = game.iconColor,
-                        modifier = Modifier.padding(
-                            horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-                            vertical = 8.dp,
-                        )
+                        modifier = Modifier.padding(paddingValues),
                     )
                 }
             }
@@ -79,7 +79,6 @@ private fun GameLinks(
         LocalContentColor.current
     else
         Color(iconColor)
-    Timber.i("CPC iconColor = ${iconColor}; tint = ${tint.toArgb()}")
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -87,13 +86,13 @@ private fun GameLinks(
         if (gameId != BggContract.INVALID_ID) {
             LinkButton(
                 textResId = R.string.link_geekbuddy_analysis,
-                Icons.Filled.Person,
+                painterResource(R.drawable.geekbuddy_24px),
                 tint = tint,
                 onClick = { context.linkToBgg("geekbuddy/analyze/thing", gameId) }
             )
             LinkButton(
                 textResId = R.string.link_bgg,
-                Icons.Filled.OpenInBrowser,
+                painterResource(R.drawable.open_in_browser_24px),
                 tint = tint,
                 onClick = { context.linkBgg(gameId) }
             )
@@ -106,31 +105,31 @@ private fun GameLinks(
             )
             LinkButton(
                 textResId = R.string.link_bg_prices,
-                Icons.Filled.AttachMoney,
+                painterResource(R.drawable.shopping_cart_24px),
                 tint = tint,
                 onClick = { context.linkBgPrices(gameName) }
             )
             LinkButton(
                 textResId = R.string.link_amazon,
-                R.drawable.ic_action_amazon,
+                painterResource(R.drawable.amazon_24px),
                 tint = tint,
                 onClick = { context.linkAmazon(gameName, LINK_AMAZON_COM) }
             )
             LinkButton(
                 textResId = R.string.link_amazon_uk,
-                R.drawable.ic_action_amazon,
+                painterResource(R.drawable.amazon_24px),
                 tint = tint,
                 onClick = { context.linkAmazon(gameName, LINK_AMAZON_UK) }
             )
             LinkButton(
                 textResId = R.string.link_amazon_de,
-                R.drawable.ic_action_amazon,
+                painterResource(R.drawable.amazon_24px),
                 tint = tint,
                 onClick = { context.linkAmazon(gameName, LINK_AMAZON_DE) }
             )
             LinkButton(
                 textResId = R.string.link_ebay,
-                Icons.Filled.Gavel,
+                painterResource(R.drawable.ebay_24px),
                 tint = tint,
                 onClick = { context.linkEbay(gameName) }
             )
@@ -142,7 +141,7 @@ private fun GameLinks(
 @Composable
 fun LinkButton(
     textResId: Int,
-    icon: ImageVector,
+    icon: Painter,
     tint: Color,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
@@ -159,35 +158,6 @@ fun LinkButton(
             contentDescription = null,
             modifier = Modifier.size(ButtonDefaults.iconSizeFor(size)),
             tint = tint,
-        )
-        Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
-        Text(
-            stringResource(textResId),
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-fun LinkButton(
-    textResId: Int,
-    imageResId: Int,
-    tint: Color,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit = {},
-) {
-    val size = ButtonDefaults.MediumContainerHeight
-    OutlinedButton(
-        onClick = onClick,
-        modifier = modifier.heightIn(size),
-        shape = ButtonDefaults.shapesFor(size).shape,
-        contentPadding = ButtonDefaults.contentPaddingFor(size),
-    ) {
-        Icon(
-            painterResource(imageResId),
-            contentDescription = null,
-            tint = tint,
-            modifier = Modifier.size(ButtonDefaults.iconSizeFor(size))
         )
         Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
         Text(
