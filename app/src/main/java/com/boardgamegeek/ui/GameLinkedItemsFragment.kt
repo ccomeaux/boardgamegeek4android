@@ -5,16 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Link
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
@@ -70,17 +68,10 @@ private fun GameLinkedItemsScreen(
 ) {
     val count = (baseGames?.size ?: 0) + (expansions?.size ?: 0)
     when {
-        game == null -> {
-            BggLoadingIndicatorBox(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding)
-            )
-        }
-        count == 0 -> {
+        (game == null || count == 0) -> {
             EmptyContent(
                 stringResource(R.string.empty_game),
-                rememberVectorPainter(Icons.Filled.Link),
+                painterResource(R.drawable.link_24px),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(contentPadding),
