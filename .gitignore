@@ -60,3 +60,5 @@ freeline_project_description.json
 # Fabric
 fabric.properties
 ajcore.*.txt
+/.idea/assetWizardSettings.xml
+/.idea/markdown.xml
