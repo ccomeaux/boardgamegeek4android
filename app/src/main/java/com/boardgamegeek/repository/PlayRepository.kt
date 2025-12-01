@@ -311,7 +311,7 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
             if (newestDate > (SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L)) {
                 SyncPrefs.setPlaysNewestTimestamp(application, newestDate)
             }
-            val oldestDate = plays?.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
+            val oldestDate = plays?.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
             if (oldestDate < SyncPrefs.getPlaysOldestTimestamp(application)) {
                 SyncPrefs.setPlaysOldestTimestamp(application, oldestDate)
             }

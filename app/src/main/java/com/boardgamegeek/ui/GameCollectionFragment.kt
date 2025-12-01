@@ -78,7 +78,7 @@ class GameCollectionFragment : Fragment() {
         if (!isAdded) return
         if (items.isNotEmpty()) {
             adapter.items = items
-            binding.syncTimestamp.timestamp = items.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
+            binding.syncTimestamp.timestamp = items.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
             binding.emptyMessage.fadeOut()
             binding.recyclerView.fadeIn()
         } else {

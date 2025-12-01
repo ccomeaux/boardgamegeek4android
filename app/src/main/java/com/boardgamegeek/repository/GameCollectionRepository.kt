@@ -48,7 +48,7 @@ class GameCollectionRepository(val application: BggApplication) {
 
             override fun shouldRefresh(data: List<CollectionItemEntity>?): Boolean {
                 if (gameId == BggContract.INVALID_ID || username == null) return false
-                val syncTimestamp = data?.minBy { it.syncTimestamp }?.syncTimestamp ?: 0L
+                val syncTimestamp = data?.minByOrNull { it.syncTimestamp }?.syncTimestamp ?: 0L
                 return syncTimestamp.isOlderThan(refreshMinutes, TimeUnit.MINUTES)
             }
 
