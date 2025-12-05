@@ -103,8 +103,8 @@ abstract class SyncUploadTask(application: BggApplication, service: BggService, 
         return null
     }
 
-    protected fun notifyUploadError(errorMessage: CharSequence) {
-        if (errorMessage.isBlank()) return
+    protected fun notifyUploadError(errorMessage: CharSequence?) {
+        if (errorMessage.isNullOrBlank()) return
         Timber.e(errorMessage.toString())
         val builder = NotificationUtils
                 .createNotificationBuilder(context,

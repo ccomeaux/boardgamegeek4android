@@ -5,6 +5,7 @@ import android.net.Uri;
 
 import com.boardgamegeek.BuildConfig;
 import com.boardgamegeek.io.AuthInterceptor;
+import com.boardgamegeek.io.BearerTokenInterceptor;
 import com.boardgamegeek.io.RetryInterceptor;
 import com.boardgamegeek.io.UserAgentInterceptor;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
@@ -36,6 +37,7 @@ public class HttpUtils {
 	public static OkHttpClient getHttpClient(boolean retry202Response) {
 		Builder builder = getBuilder();
 		final List<Interceptor> interceptors = builder.interceptors();
+		interceptors.add(new BearerTokenInterceptor());
 		interceptors.add(new UserAgentInterceptor(null));
 		interceptors.add(new RetryInterceptor(retry202Response));
 		addLoggingInterceptor(builder);
@@ -44,6 +46,7 @@ public class HttpUtils {
 
 	public static OkHttpClient getHttpClientWithAuth(Context context) {
 		OkHttpClient.Builder builder = getBuilder();
+		builder.addInterceptor(new BearerTokenInterceptor());
 		builder.addInterceptor(new UserAgentInterceptor(context));
 		builder.addInterceptor(new AuthInterceptor(context));
 		builder.addInterceptor(new RetryInterceptor());
