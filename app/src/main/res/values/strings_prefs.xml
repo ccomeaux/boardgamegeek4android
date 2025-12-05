@@ -80,5 +80,6 @@
 	<string name="pref_about_privacy_policy">Privacy Policy</string>
 	<string name="pref_about_trello_board">Trello Board</string>
 	<string name="pref_about_bgg_guild">BGG for Android Guild</string>
+	<string name="pref_about_powered_by_bgg">Powered by BGG</string>
 
 </resources>
