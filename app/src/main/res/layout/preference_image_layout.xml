@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/custom_image_view"
+	android:layout_width="match_parent"
+	android:layout_height="?android:attr/listPreferredItemHeight"
+	android:adjustViewBounds="true"
+	android:background="?android:attr/selectableItemBackground"
+	android:contentDescription="@string/pref_about_powered_by_bgg"
+	android:gravity="center_vertical|start"
+	android:paddingStart="64dp"
+	android:paddingEnd="?android:attr/scrollbarSize"
+	android:scaleType="fitStart"
+	android:src="@drawable/powered_by_bgg_01_sm" />
