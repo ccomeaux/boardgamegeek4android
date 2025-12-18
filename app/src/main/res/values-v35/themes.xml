@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<style name="Theme.bgglight.NavDrawer" parent="Theme.bgglight.Base">
+	<style name="Theme.bgglight" parent="Theme.bgglight.Base">
 		<!-- Force classic behavior on Android 15+ -->
 		<item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
 		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
