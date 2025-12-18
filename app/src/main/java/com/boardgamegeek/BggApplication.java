@@ -69,9 +69,13 @@ public class BggApplication extends MultiDexApplication {
 
 		FirebaseMessaging.getInstance().getToken()
 			.addOnCompleteListener(task -> {
-			String deviceToken = task.getResult();
-			Timber.i("Firebase token is %s", deviceToken);
-		});
+				if (task.isSuccessful()) {
+					String deviceToken = task.getResult();
+					Timber.i("Firebase token is %s", deviceToken);
+				} else {
+					Timber.e(task.getException());
+				}
+			});
 	}
 
 	private void enableStrictMode() {
