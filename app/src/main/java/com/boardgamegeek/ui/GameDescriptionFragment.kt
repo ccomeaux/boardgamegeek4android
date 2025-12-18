@@ -30,8 +30,8 @@ class GameDescriptionFragment : Fragment() {
         return binding.root
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
         binding.swipeRefresh.setBggColors()
@@ -43,6 +43,7 @@ class GameDescriptionFragment : Fragment() {
         })
 
         viewModel.game.observe(viewLifecycleOwner, Observer {
+            if (_binding == null) return@Observer
             binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))

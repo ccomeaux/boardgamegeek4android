@@ -51,6 +51,7 @@ class GameCreditsFragment : Fragment() {
         })
 
         viewModel.game.observe(viewLifecycleOwner, Observer {
+            if (_binding == null) return@Observer
             binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))

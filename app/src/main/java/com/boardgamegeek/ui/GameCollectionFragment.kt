@@ -46,11 +46,12 @@ class GameCollectionFragment : Fragment() {
         binding.recyclerView.setHasFixedSize(false)
         binding.recyclerView.adapter = adapter
 
-        viewModel.game.observe(this, Observer {
+        viewModel.game.observe(viewLifecycleOwner, Observer {
             adapter.gameYearPublished = it?.data?.yearPublished ?: YEAR_UNKNOWN
         })
 
-        viewModel.collectionItems.observe(this, Observer {
+        viewModel.collectionItems.observe(viewLifecycleOwner, Observer {
+            if (_binding == null) return@Observer
             binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError()
