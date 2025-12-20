@@ -1,6 +1,5 @@
 package com.boardgamegeek.extensions
 
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -57,9 +56,11 @@ private fun Context?.link(link: Uri) {
     if (this == null) return
     val intent = Intent(Intent.ACTION_VIEW, link)
     if (this !is android.app.Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    try {
+    
+    // Check if there's an app that can handle this intent
+    if (intent.resolveActivity(packageManager) != null) {
         startActivity(intent)
-    } catch (e: ActivityNotFoundException) {
+    } else {
         val message = "Can't figure out how to launch $link"
         Timber.w(message)
         toast(message)
