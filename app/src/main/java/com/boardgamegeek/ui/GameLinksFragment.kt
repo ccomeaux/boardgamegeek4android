@@ -52,7 +52,7 @@ class GameLinksFragment : Fragment() {
     }
 
     private fun colorize(color: Int) {
-        if (color != iconColor) {
+        if (color != Color.TRANSPARENT && color != iconColor) {
             iconColor = color
             if (isAdded) {
                 listOf(

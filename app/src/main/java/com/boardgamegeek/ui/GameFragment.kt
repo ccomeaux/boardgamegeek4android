@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Html
 import android.view.LayoutInflater
@@ -11,8 +12,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameBinding
-import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
+import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.dialog.GameAgePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameLanguagePollDialogFragment
@@ -97,7 +98,7 @@ class GameFragment : Fragment() {
 
     private fun colorize(@ColorInt iconColor: Int) {
         if (!isAdded) return
-
+        if (iconColor == Color.TRANSPARENT) return
         listOf(
             binding.ranksInclude.ranksIcon,
             binding.ratingsInclude.ratingIcon,
@@ -213,7 +214,9 @@ class GameFragment : Fragment() {
 
     private fun onPlayerCountQueryComplete(entity: List<GamePlayerPollResults>) {
         val bestCounts = entity.filter { it.calculatedRecommendation == GamePlayerPollResults.BEST }.toSet()
-        val goodCounts = entity.filter { it.calculatedRecommendation == GamePlayerPollResults.BEST || it.calculatedRecommendation == GamePlayerPollResults.RECOMMENDED }.toSet()
+        val goodCounts =
+            entity.filter { it.calculatedRecommendation == GamePlayerPollResults.BEST || it.calculatedRecommendation == GamePlayerPollResults.RECOMMENDED }
+                .toSet()
 
         val best = requireContext().getText(R.string.best_prefix, bestCounts.toList().asRange())
         val good = requireContext().getText(R.string.recommended_prefix, goodCounts.toList().asRange())
@@ -227,7 +230,7 @@ class GameFragment : Fragment() {
     }
 
     private fun List<GamePlayerPollResults>.asRange(comma: String = ", ", dash: String = " - "): String {
-       return this.sortedBy { it.playerNumber }.fold(mutableListOf<MutableList<GamePlayerPollResults>>()) { accumulator, element ->
+        return this.sortedBy { it.playerNumber }.fold(mutableListOf<MutableList<GamePlayerPollResults>>()) { accumulator, element ->
             val current = element.playerNumber
             val last = accumulator.lastOrNull()?.lastOrNull()?.playerNumber ?: Int.MAX_VALUE
             if (accumulator.isEmpty() || last != current - 1) {

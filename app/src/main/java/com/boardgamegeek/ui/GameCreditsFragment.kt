@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -58,8 +59,15 @@ class GameCreditsFragment : Fragment() {
                 binding.footer.gameIdView.isVisible = true
                 binding.footer.lastModifiedView.isVisible = true
                 binding.emptyMessage.isVisible = false
-                listOf(binding.designerHeaderView, binding.artistsHeaderView, binding.publishersHeaderView, binding.categoriesHeaderView, binding.mechanicsHeaderView)
-                    .forEach { tv -> tv.setTextColor(game.iconColor) }
+                if (game.iconColor != Color.TRANSPARENT) {
+                    listOf(
+                        binding.designerHeaderView,
+                        binding.artistsHeaderView,
+                        binding.publishersHeaderView,
+                        binding.categoriesHeaderView,
+                        binding.mechanicsHeaderView
+                    ).forEach { tv -> tv.setTextColor(game.iconColor) }
+                }
             }
             binding.contentLoadingProgressBar.hide()
         }

@@ -1,5 +1,6 @@
 package com.boardgamegeek.ui
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,9 +14,9 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGameLinkedItemsBinding
-import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.extensions.loadIcon
 import com.boardgamegeek.extensions.setBggColors
+import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.android.material.chip.Chip
@@ -56,7 +57,12 @@ class GameLinkedItemsFragment : Fragment() {
                 binding.footer.gameIdView.isVisible = true
                 binding.footer.lastModifiedView.isVisible = true
                 binding.emptyMessage.isVisible = false
-                listOf(binding.expansionsHeaderView, binding.baseGamesHeaderView).forEach { tv -> tv.setTextColor(game.iconColor) }
+                if (game.iconColor != Color.TRANSPARENT) {
+                    listOf(
+                        binding.expansionsHeaderView,
+                        binding.baseGamesHeaderView
+                    ).forEach { tv -> tv.setTextColor(game.iconColor) }
+                }
             }
             binding.contentLoadingProgressBar.hide()
         }
