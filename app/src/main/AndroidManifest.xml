@@ -12,6 +12,18 @@
 	<uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS"/>
 	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
+	<!-- Declare intent filters to query for browser apps (required for Android 11+) -->
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="http" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="https" />
+		</intent>
+	</queries>
+
 	<permission
 		android:name="com.boardgamegeek.permission.READ_BGG_PROVIDER"
 		android:protectionLevel="signature" />

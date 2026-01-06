@@ -16,7 +16,7 @@ class PlayerNumberRow @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
-    private val binding = RowPollPlayersBinding.inflate(LayoutInflater.from(context))
+    private val binding = RowPollPlayersBinding.inflate(LayoutInflater.from(context), this, true)
     private var totalVoteCount: Int = 0
     private var bestVoteCount: Int = 0
     private var recommendedVoteCount: Int = 0
