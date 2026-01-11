@@ -21,7 +21,7 @@ plugins {
 def versionMajor = 6
 def versionMinor = 8
 def versionPatch = 3
-def versionBuild = 4
+def versionBuild = 5
 
 def gitSha = { ->
     def p = 'git rev-parse --short HEAD'.execute([], project.rootDir)
