@@ -4,7 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.map
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.BriefGameEntity
 import com.boardgamegeek.livedata.AbsentLiveData
@@ -29,11 +30,11 @@ class MechanicViewModel(application: Application) : AndroidViewModel(application
             _mechanic.value = (_mechanic.value?.first ?: BggContract.INVALID_ID) to sortType
     }
 
-    val sort: LiveData<CollectionSort> = Transformations.map(_mechanic) {
+    val sort: LiveData<CollectionSort> = _mechanic.map() {
         it.second
     }
 
-    val collection: LiveData<List<BriefGameEntity>> = Transformations.switchMap(_mechanic) { m ->
+    val collection: LiveData<List<BriefGameEntity>> = _mechanic.switchMap() { m ->
         when (m.first) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> when (m.second) {

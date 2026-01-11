@@ -53,12 +53,9 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import butterknife.BindDimen;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-import butterknife.Unbinder;
 import timber.log.Timber;
+
+import com.boardgamegeek.databinding.FragmentColorsBinding;
 
 public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> {
 	private static final String KEY_GAME_ID = "GAME_ID";
@@ -69,15 +66,15 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	private GameColorRecyclerViewAdapter adapter;
 	private ActionMode actionMode;
 
-	private Unbinder unbinder;
-	@BindView(R.id.root_container) CoordinatorLayout containerView;
-	@BindView(android.R.id.progress) View progressView;
-	@BindView(android.R.id.empty) View emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
-	@BindView(R.id.fab) FloatingActionButton fab;
+	private FragmentColorsBinding binding;
+	private CoordinatorLayout containerView;
+	private View progressView;
+	private View emptyView;
+	private RecyclerView recyclerView;
+	private FloatingActionButton fab;
 	private final Paint swipePaint = new Paint();
 	private Bitmap deleteIcon;
-	@BindDimen(R.dimen.material_margin_horizontal) float horizontalPadding;
+	private float horizontalPadding;
 
 	public static ColorsFragment newInstance(int gameId, @ColorInt int iconColor) {
 		Bundle args = new Bundle();
@@ -97,11 +94,17 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_colors, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentColorsBinding.inflate(inflater, container, false);
+		containerView = binding.rootContainer;
+		progressView = binding.progress;
+		emptyView = binding.empty;
+		recyclerView = binding.list;
+		fab = binding.fab;
+		horizontalPadding = getResources().getDimension(R.dimen.material_margin_horizontal);
 		FloatingActionButtonUtils.colorize(fab, iconColor);
 		setUpRecyclerView();
-		return rootView;
+		fab.setOnClickListener(v -> onFabClicked());
+		return binding.getRoot();
 	}
 
 	private void setUpRecyclerView() {
@@ -181,7 +184,7 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 
 	@Override
 	public void onDestroyView() {
-		unbinder.unbind();
+		binding = null;
 		super.onDestroyView();
 	}
 
@@ -322,7 +325,6 @@ public class ColorsFragment extends Fragment implements LoaderCallbacks<Cursor> 
 		if (adapter != null) adapter.changeCursor(null);
 	}
 
-	@OnClick(R.id.fab)
 	public void onFabClicked() {
 		EditTextDialogFragment editTextDialogFragment = EditTextDialogFragment.newInstance(R.string.title_add_color, "");
 		DialogUtils.showFragment(getActivity(), editTextDialogFragment, "edit_color");

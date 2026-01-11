@@ -7,8 +7,8 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.WidgetPlayerStatBinding
 import com.boardgamegeek.extensions.setSelectableBackground
-import kotlinx.android.synthetic.main.widget_player_stat.view.*
 import java.text.DecimalFormat
 
 class PlayerStatView @JvmOverloads constructor(
@@ -16,9 +16,9 @@ class PlayerStatView @JvmOverloads constructor(
         attrs: AttributeSet? = null,
         defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
-    init {
-        LayoutInflater.from(context).inflate(R.layout.widget_player_stat, this, true)
+    private val binding = WidgetPlayerStatBinding.inflate(LayoutInflater.from(context), this)
 
+    init {
         orientation = LinearLayout.VERTICAL
         val standardPadding = resources.getDimensionPixelSize(R.dimen.padding_standard)
         setPadding(0, standardPadding, 0, standardPadding)
@@ -26,11 +26,11 @@ class PlayerStatView @JvmOverloads constructor(
     }
 
     fun showScores(show: Boolean) {
-        scoresView.visibility = if (show) View.VISIBLE else View.GONE
+        binding.scoresView.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     fun setName(text: CharSequence) {
-        nameView.text = text
+        binding.nameView.text = text
     }
 
     fun setWinInfo(wins: Int, winnableGames: Int) {
@@ -39,47 +39,47 @@ class PlayerStatView @JvmOverloads constructor(
             winnableGames > 0 -> (wins.toDouble() / winnableGames * 100).toInt()
             else -> 0
         }
-        winCountView.text = context.getString(R.string.play_stat_win_percentage, wins, winnableGames, winPercentage)
+        binding.winCountView.text = context.getString(R.string.play_stat_win_percentage, wins, winnableGames, winPercentage)
     }
 
     fun setWinSkill(skill: Int) {
-        playCountView.text = skill.toString()
+        binding.playCountView.text = skill.toString()
     }
 
     fun setOverallLowScore(score: Double) {
-        graphView.lowScore = score
+        binding.graphView.lowScore = score
     }
 
     fun setOverallAverageScore(score: Double) {
-        graphView.averageScore = score
+        binding.graphView.averageScore = score
     }
 
     fun setOverallAverageWinScore(score: Double) {
-        graphView.averageWinScore = score
+        binding.graphView.averageWinScore = score
     }
 
     fun setOverallHighScore(score: Double) {
-        graphView.highScore = score
+        binding.graphView.highScore = score
     }
 
     fun setLowScore(score: Double) {
-        setScore(lowScoreView, score, Integer.MAX_VALUE)
-        graphView.personalLowScore = score
+        setScore(binding.lowScoreView, score, Integer.MAX_VALUE)
+        binding.graphView.personalLowScore = score
     }
 
     fun setAverageScore(score: Double) {
-        setScore(averageScoreView, score, Integer.MIN_VALUE)
-        graphView.personalAverageScore = score
+        setScore(binding.averageScoreView, score, Integer.MIN_VALUE)
+        binding.graphView.personalAverageScore = score
     }
 
     fun setAverageWinScore(score: Double) {
-        setScore(averageWinScoreView, score, Integer.MIN_VALUE)
-        graphView.personalAverageWinScore = score
+        setScore(binding.averageWinScoreView, score, Integer.MIN_VALUE)
+        binding.graphView.personalAverageWinScore = score
     }
 
     fun setHighScore(score: Double) {
-        setScore(highScoreView, score, Integer.MIN_VALUE)
-        graphView.personalHighScore = score
+        setScore(binding.highScoreView, score, Integer.MIN_VALUE)
+        binding.graphView.personalHighScore = score
     }
 
     private fun setScore(textView: TextView, score: Double, invalidScore: Int) {

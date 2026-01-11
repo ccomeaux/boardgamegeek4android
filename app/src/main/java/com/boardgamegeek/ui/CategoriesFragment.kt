@@ -6,52 +6,60 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentCategoriesBinding
+import com.boardgamegeek.databinding.RowCategoryBinding
 import com.boardgamegeek.entities.CategoryEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.CategoriesViewModel
-import kotlinx.android.synthetic.main.fragment_categories.*
-import kotlinx.android.synthetic.main.row_mechanic.view.*
 import kotlin.properties.Delegates
 
 class CategoriesFragment : Fragment() {
+    private var _binding: FragmentCategoriesBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: CategoriesViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(CategoriesViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(CategoriesViewModel::class.java)
     }
 
     private val adapter: CategoriesAdapter by lazy {
         CategoriesAdapter()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_categories, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentCategoriesBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
 
         viewModel.categories.observe(this, Observer {
             showData(it)
-            progressBar.hide()
+            binding.progressBar.hide()
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showData(categories: List<CategoryEntity>) {
         adapter.categories = categories
         if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
-            emptyTextView.fadeIn()
+            binding.recyclerView.fadeOut()
+            binding.emptyTextView.fadeIn()
         } else {
-            recyclerView.fadeIn()
-            emptyTextView.fadeOut()
+            binding.recyclerView.fadeIn()
+            binding.emptyTextView.fadeOut()
         }
     }
 
@@ -77,20 +85,21 @@ class CategoriesFragment : Fragment() {
         override fun getItemId(position: Int) = categories.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
-            return CategoryViewHolder(parent.inflate(R.layout.row_category))
+            val binding = RowCategoryBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return CategoryViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
             holder.bind(categories.getOrNull(position))
         }
 
-        inner class CategoryViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class CategoryViewHolder(private val binding: RowCategoryBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(category: CategoryEntity?) {
                 category?.let { c ->
-                    itemView.nameView.text = c.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, c.itemCount, c.itemCount)
-                    itemView.setOnClickListener {
-                        CategoryActivity.start(itemView.context, c.id, c.name)
+                    binding.nameView.text = c.name
+                    binding.countView.text = binding.root.context.resources.getQuantityString(R.plurals.games_suffix, c.itemCount, c.itemCount)
+                    binding.root.setOnClickListener {
+                        CategoryActivity.start(binding.root.context, c.id, c.name)
                     }
                 }
             }

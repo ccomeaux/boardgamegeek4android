@@ -5,7 +5,7 @@ import androidx.annotation.WorkerThread
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.db.CollectionDao
@@ -37,7 +37,7 @@ class DesignerRepository(val application: BggApplication) {
         return loader.asLiveData()
     }
 
-    val progress: LiveData<Pair<Int, Int>> = Transformations.switchMap(sort) {
+    val progress: LiveData<Pair<Int, Int>> = sort.switchMap() {
         loader.progress
     }
 

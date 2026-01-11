@@ -7,8 +7,9 @@ import android.view.ViewGroup
 import androidx.annotation.ColorInt
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentGameCreditsBinding
 import com.boardgamegeek.entities.GameDetailEntity
 import com.boardgamegeek.entities.GameEntity
 import com.boardgamegeek.entities.Status
@@ -18,12 +19,13 @@ import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.boardgamegeek.ui.widget.GameDetailRow
-import kotlinx.android.synthetic.main.fragment_game_credits.*
-import kotlinx.android.synthetic.main.include_game_footer.*
 
 class GameCreditsFragment : Fragment() {
+    private var _binding: FragmentGameCreditsBinding? = null
+    private val binding get() = _binding!!
+    
     private val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,67 +33,69 @@ class GameCreditsFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_game_credits, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentGameCreditsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh?.setBggColors()
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setBggColors()
 
-        lastModifiedView?.timestamp = 0
+        binding.footer.lastModifiedView.timestamp = 0
 
-        viewModel.gameId.observe(this, Observer { gameId ->
-            gameIdView?.text = gameId.toString()
+        viewModel.gameId.observe(viewLifecycleOwner, Observer { gameId ->
+            binding.footer.gameIdView.text = gameId.toString()
         })
 
-        viewModel.game.observe(this, Observer {
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
+        viewModel.game.observe(viewLifecycleOwner, Observer {
+            if (_binding == null) return@Observer
+            binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_game))
                 it.status == Status.ERROR && it.data == null -> showError(it.message)
                 it.data == null -> showError(getString(R.string.empty_game))
                 else -> onGameContentChanged(it.data)
             }
-            progress.hide()
+            binding.progress.hide()
 
-            viewModel.designers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_designers) })
+            viewModel.designers.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoDesigners) })
 
-            viewModel.artists.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_artists) })
+            viewModel.artists.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoArtists) })
 
-            viewModel.publishers.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_publishers) })
+            viewModel.publishers.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoPublishers) })
 
-            viewModel.categories.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_categories) })
+            viewModel.categories.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoCategories) })
 
-            viewModel.mechanics.observe(this, Observer { gameDetails -> onListQueryComplete(gameDetails, game_info_mechanics) })
+            viewModel.mechanics.observe(viewLifecycleOwner, Observer { gameDetails -> onListQueryComplete(gameDetails, binding.gameInfoMechanics) })
         })
     }
 
     private fun showError(message: String?) {
         if (message?.isNotBlank() == true) {
-            emptyMessage?.text = message
-            dataContainer?.fadeOut()
-            emptyMessage?.fadeIn()
+            binding.emptyMessage.text = message
+            binding.dataContainer.fadeOut()
+            binding.emptyMessage.fadeIn()
         }
     }
 
     private fun colorize(@ColorInt iconColor: Int) {
         if (!isAdded) return
 
-        listOf(game_info_designers, game_info_artists, game_info_publishers, game_info_categories, game_info_mechanics)
-                .forEach { it?.colorize(iconColor) }
+        listOf(binding.gameInfoDesigners, binding.gameInfoArtists, binding.gameInfoPublishers, binding.gameInfoCategories, binding.gameInfoMechanics)
+                .forEach { it.colorize(iconColor) }
     }
 
     private fun onGameContentChanged(game: GameEntity) {
         colorize(game.iconColor)
 
-        gameIdView.text = game.id.toString()
-        lastModifiedView.timestamp = game.updated
+        binding.footer.gameIdView.text = game.id.toString()
+        binding.footer.lastModifiedView.timestamp = game.updated
 
-        emptyMessage.fadeOut()
-        dataContainer.fadeIn()
+        binding.emptyMessage.fadeOut()
+        binding.dataContainer.fadeIn()
     }
 
     private fun onListQueryComplete(list: List<GameDetailEntity>?, view: GameDetailRow?) {
@@ -99,6 +103,11 @@ class GameCreditsFragment : Fragment() {
                 viewModel.gameId.value ?: BggContract.INVALID_ID,
                 viewModel.game.value?.data?.name ?: "",
                 list)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

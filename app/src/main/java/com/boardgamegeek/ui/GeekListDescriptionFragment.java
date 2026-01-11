@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.TextView;
 
-import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.FragmentGeeklistDescriptionBinding;
 import com.boardgamegeek.ui.model.GeekList;
 import com.boardgamegeek.ui.widget.TimestampView;
 import com.boardgamegeek.util.UIUtils;
@@ -16,20 +16,17 @@ import com.boardgamegeek.util.XmlConverter;
 import androidx.annotation.NonNull;
 import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
 
 public class GeekListDescriptionFragment extends Fragment {
-	private Unbinder unbinder;
-	@BindView(android.R.id.progress) ContentLoadingProgressBar progressBar;
-	@BindView(R.id.container) View container;
-	@BindView(R.id.username) TextView usernameView;
-	@BindView(R.id.items) TextView itemCountView;
-	@BindView(R.id.thumbs) TextView thumbCountView;
-	@BindView(R.id.posted_date) TimestampView postedDateView;
-	@BindView(R.id.edited_date) TimestampView editedDateView;
-	@BindView(R.id.body) WebView bodyView;
+	private FragmentGeeklistDescriptionBinding binding;
+	private ContentLoadingProgressBar progressBar;
+	private View container;
+	private TextView usernameView;
+	private TextView itemCountView;
+	private TextView thumbCountView;
+	private TimestampView postedDateView;
+	private TimestampView editedDateView;
+	private WebView bodyView;
 	private XmlConverter xmlConverter;
 
 	public static GeekListDescriptionFragment newInstance() {
@@ -44,8 +41,16 @@ public class GeekListDescriptionFragment extends Fragment {
 
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.fragment_geeklist_description, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentGeeklistDescriptionBinding.inflate(inflater, container, false);
+		progressBar = binding.progress;
+		this.container = binding.container;
+		usernameView = binding.header.username;
+		itemCountView = binding.header.items;
+		thumbCountView = binding.header.thumbs;
+		postedDateView = binding.header.postedDate;
+		editedDateView = binding.header.editedDate;
+		bodyView = binding.body;
+		ViewGroup rootView = (ViewGroup) binding.getRoot();
 		//noinspection deprecation
 		rootView.setBackgroundDrawable(null);
 		return rootView;
@@ -54,7 +59,7 @@ public class GeekListDescriptionFragment extends Fragment {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	public void setData(GeekList geekList) {

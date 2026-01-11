@@ -11,25 +11,27 @@ import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentBuddyBinding
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.ui.dialog.RenamePlayerDialogFragment
 import com.boardgamegeek.ui.dialog.UpdateBuddyNicknameDialogFragment
 import com.boardgamegeek.ui.viewmodel.BuddyViewModel
-import kotlinx.android.synthetic.main.fragment_buddy.*
 import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.ctx
 
 class BuddyFragment : Fragment() {
+    private var _binding: FragmentBuddyBinding? = null
+    private val binding get() = _binding!!
     private var buddyName: String? = null
     private var playerName: String? = null
     private var defaultTextColor: Int = 0
     private var lightTextColor: Int = 0
 
     private val viewModel: BuddyViewModel by lazy {
-        ViewModelProviders.of(act).get(BuddyViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(BuddyViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,61 +41,62 @@ class BuddyFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return inflater.inflate(R.layout.fragment_buddy, container, false)
+        _binding = FragmentBuddyBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, @Nullable savedInstanceState: Bundle?) {
-        swipeRefresh.isEnabled = false
-        swipeRefresh.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh.setBggColors()
+        binding.swipeRefresh.isEnabled = false
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setBggColors()
 
-        defaultTextColor = nicknameView.textColors.defaultColor
+        defaultTextColor = binding.nicknameView.textColors.defaultColor
         lightTextColor = ContextCompat.getColor(requireContext(), R.color.secondary_text)
 
         viewModel.buddy.observe(this, Observer {
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
+            binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
 
             if (it?.data == null) {
-                buddyInfoView.isGone = true
+                binding.buddyInfoView.isGone = true
 
-                nicknameView.setTextColor(defaultTextColor)
-                nicknameView.text = playerName
-                nicknameView.setOnClickListener {
-                    val nickname = nicknameView.text.toString()
+                binding.nicknameView.setTextColor(defaultTextColor)
+                binding.nicknameView.text = playerName
+                binding.nicknameView.setOnClickListener {
+                    val nickname = binding.nicknameView.text.toString()
                     act.showAndSurvive(RenamePlayerDialogFragment.newInstance(nickname))
                 }
 
-                collectionCard.isGone = true
-                updatedView.isGone = true
+                binding.collectionCard.isGone = true
+                binding.updatedView.isGone = true
 
-                swipeRefresh.isEnabled = false
+                binding.swipeRefresh.isEnabled = false
             } else {
-                buddyInfoView.isVisible = true
-                avatarView.loadThumbnail(it.data.avatarUrl, R.drawable.person_image_empty)
-                fullNameView.text = it.data.fullName
-                usernameView.text = buddyName
+                binding.buddyInfoView.isVisible = true
+                binding.avatarView.loadThumbnail(it.data.avatarUrl, R.drawable.person_image_empty)
+                binding.fullNameView.text = it.data.fullName
+                binding.usernameView.text = buddyName
 
                 if (it.data.playNickname.isBlank()) {
-                    nicknameView.setTextColor(lightTextColor)
-                    nicknameView.text = it.data.firstName
+                    binding.nicknameView.setTextColor(lightTextColor)
+                    binding.nicknameView.text = it.data.firstName
                 } else {
-                    nicknameView.setTextColor(defaultTextColor)
-                    nicknameView.text = it.data.playNickname
+                    binding.nicknameView.setTextColor(defaultTextColor)
+                    binding.nicknameView.text = it.data.playNickname
                 }
-                nicknameView.setOnClickListener {
-                    val nickname = nicknameView.text.toString()
+                binding.nicknameView.setOnClickListener {
+                    val nickname = binding.nicknameView.text.toString()
                     act.showAndSurvive(UpdateBuddyNicknameDialogFragment.newInstance(nickname))
                 }
 
-                collectionCard.isVisible = true
-                collectionRoot.setOnClickListener {
+                binding.collectionCard.isVisible = true
+                binding.collectionRoot.setOnClickListener {
                     BuddyCollectionActivity.start(ctx, buddyName)
                 }
 
-                updatedView.timestamp = it.data.updatedTimestamp
-                updatedView.isVisible = true
+                binding.updatedView.timestamp = it.data.updatedTimestamp
+                binding.updatedView.isVisible = true
 
-                swipeRefresh.isEnabled = true
+                binding.swipeRefresh.isEnabled = true
             }
         })
 
@@ -101,14 +104,14 @@ class BuddyFragment : Fragment() {
             val playCount = player?.playCount ?: 0
             val winCount = player?.winCount ?: 0
             if (playCount > 0 || winCount > 0) {
-                playsView.text = ctx.getQuantityText(R.plurals.winnable_plays_suffix, playCount, playCount)
-                winsView.text = ctx.getQuantityText(R.plurals.wins_suffix, winCount, winCount)
-                winPercentageView.text = getString(R.string.percentage, (winCount.toDouble() / playCount * 100).toInt())
-                playsCard.isVisible = true
+                binding.playsView.text = ctx.getQuantityText(R.plurals.winnable_plays_suffix, playCount, playCount)
+                binding.winsView.text = ctx.getQuantityText(R.plurals.wins_suffix, winCount, winCount)
+                binding.winPercentageView.text = getString(R.string.percentage, (winCount.toDouble() / playCount * 100).toInt())
+                binding.playsCard.isVisible = true
             } else {
-                playsCard.isGone = true
+                binding.playsCard.isGone = true
             }
-            playsRoot.setOnClickListener {
+            binding.playsRoot.setOnClickListener {
                 if (buddyName.isNullOrBlank()) {
                     PlayerPlaysActivity.start(ctx, playerName)
                 } else {
@@ -118,18 +121,23 @@ class BuddyFragment : Fragment() {
         })
 
         viewModel.colors.observe(this, Observer { colors ->
-            colorContainer.removeAllViews()
-            colorContainer.isVisible = (colors?.size ?: 0) > 0
+            binding.colorContainer.removeAllViews()
+            binding.colorContainer.isVisible = (colors?.size ?: 0) > 0
             colors?.take(3)?.forEach { color ->
                 requireContext().createSmallCircle().also { view ->
                     view.setColorViewValue(color.rgb)
-                    colorContainer.addView(view)
+                    binding.colorContainer.addView(view)
                 }
             }
-            colorsRoot.setOnClickListener {
+            binding.colorsRoot.setOnClickListener {
                 PlayerColorsActivity.start(ctx, buddyName, playerName)
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

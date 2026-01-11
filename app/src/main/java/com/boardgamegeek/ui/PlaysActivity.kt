@@ -10,7 +10,7 @@ import android.widget.DatePicker
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.executeAsyncTask
@@ -21,7 +21,7 @@ import java.util.*
 
 class PlaysActivity : SimpleSinglePaneActivity(), DatePickerDialog.OnDateSetListener {
     val viewModel by lazy {
-        ViewModelProviders.of(this).get(PlaysViewModel::class.java)
+        ViewModelProvider(this).get(PlaysViewModel::class.java)
     }
 
     override val optionsMenuId: Int

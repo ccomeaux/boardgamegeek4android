@@ -22,7 +22,7 @@ class SelfUserViewModel(application: Application) : AndroidViewModel(application
         if (newUsername != null && username.value != newUsername) username.value = newUsername
     }
 
-    val user: LiveData<RefreshableResource<UserEntity>> = Transformations.switchMap(username) { username ->
+    val user: LiveData<RefreshableResource<UserEntity>> = username.switchMap() { username ->
         when {
             username.isNotBlank() -> {
                 val mediatorLiveData = MediatorLiveData<RefreshableResource<UserEntity>>()

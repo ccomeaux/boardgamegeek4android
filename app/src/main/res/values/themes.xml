@@ -13,6 +13,17 @@
 		<item name="actionModeBackground">@color/primary</item>
 		<item name="actionBarTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
 		<item name="actionBarPopupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
+		<item name="android:windowFullscreen">false</item>
+
+		<!-- Explicitly disable edge-to-edge -->
+		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
+		<item name="android:statusBarColor">@color/primary_dark</item>
+		<item name="android:navigationBarColor">@color/primary_dark</item>
+		<item name="android:windowTranslucentStatus">false</item>
+		<item name="android:windowTranslucentNavigation">false</item>
+
+		<!-- Keep content below system bars -->
+		<item name="android:fitsSystemWindows">true</item>
 	</style>
 
 	<style name="Theme.bgglight.Base" parent="@style/Theme.MaterialComponents.Light.NoActionBar"/>

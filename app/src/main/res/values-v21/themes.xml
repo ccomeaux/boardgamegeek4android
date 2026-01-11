@@ -2,8 +2,17 @@
 <resources>
 
 	<style name="Theme.bgglight.NavDrawer">
+		<!-- Draw system bar backgrounds, BUT NOT translucent -->
 		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
-		<item name="android:statusBarColor">@android:color/transparent</item>
-		<item name="android:windowTranslucentStatus">true</item>
+
+		<!-- Set an opaque color so content does NOT go behind it -->
+		<item name="android:statusBarColor">@color/primary_dark</item>
+
+		<!-- Disable translucent mode -->
+		<item name="android:windowTranslucentStatus">false</item>
+		<item name="android:windowTranslucentNavigation">false</item>
+
+		<!-- Ensure content fits SYSTEM windows correctly -->
+		<item name="android:fitsSystemWindows">false</item>
 	</style>
 </resources>

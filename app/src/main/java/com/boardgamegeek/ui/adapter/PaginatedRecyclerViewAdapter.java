@@ -10,10 +10,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.RowStatusBinding;
 import com.boardgamegeek.ui.model.PaginatedData;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public abstract class PaginatedRecyclerViewAdapter<T> extends RecyclerView.Adapter<PaginatedRecyclerViewAdapter.PaginatedViewHolder> {
 	private static final int VIEW_TYPE_ITEM = 0;
@@ -43,8 +41,8 @@ public abstract class PaginatedRecyclerViewAdapter<T> extends RecyclerView.Adapt
 	public PaginatedViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 		switch (viewType) {
 			case VIEW_TYPE_LOADING:
-				View view = inflater.inflate(R.layout.row_status, parent, false);
-				return new LoadingViewHolder(view);
+				RowStatusBinding binding = RowStatusBinding.inflate(inflater, parent, false);
+				return new LoadingViewHolder(binding);
 			case VIEW_TYPE_ITEM:
 				final View itemView = inflater.inflate(layoutResourceId, parent, false);
 				return getViewHolder(itemView);
@@ -99,21 +97,20 @@ public abstract class PaginatedRecyclerViewAdapter<T> extends RecyclerView.Adapt
 	}
 
 	class LoadingViewHolder extends PaginatedViewHolder {
-		@BindView(android.R.id.text1) TextView textView;
-		@BindView(android.R.id.progress) View progressView;
+		private final RowStatusBinding binding;
 
-		LoadingViewHolder(View itemView) {
-			super(itemView);
-			ButterKnife.bind(this, itemView);
+		LoadingViewHolder(RowStatusBinding binding) {
+			super(binding.getRoot());
+			this.binding = binding;
 		}
 
 		public void bind(PaginatedData<T> data) {
 			if (data.hasError()) {
-				progressView.setVisibility(View.GONE);
-				textView.setText(data.getErrorMessage());
+				binding.progress.setVisibility(View.GONE);
+				binding.text1.setText(data.getErrorMessage());
 			} else {
-				progressView.setVisibility(View.VISIBLE);
-				textView.setText(R.string.loading);
+				binding.progress.setVisibility(View.VISIBLE);
+				binding.text1.setText(R.string.loading);
 			}
 		}
 	}

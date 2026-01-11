@@ -53,7 +53,7 @@
 					android:gravity="center"
 					android:text="@string/empty_buddies"/>
 
-				<Button
+				<com.google.android.material.button.MaterialButton
 					android:id="@+id/emptyButton"
 					style="@style/ColoredButton"
 					android:layout_width="wrap_content"

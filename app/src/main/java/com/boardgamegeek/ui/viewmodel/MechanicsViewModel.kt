@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
 import com.boardgamegeek.db.MechanicDao
 import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.repository.MechanicRepository
@@ -24,7 +24,7 @@ class MechanicsViewModel(application: Application) : AndroidViewModel(applicatio
         sort(SortType.ITEM_COUNT)
     }
 
-    val mechanics: LiveData<List<MechanicEntity>> = Transformations.switchMap(sort) {
+    val mechanics: LiveData<List<MechanicEntity>> = sort.switchMap() {
         repository.loadMechanics(it.sortBy)
     }
 

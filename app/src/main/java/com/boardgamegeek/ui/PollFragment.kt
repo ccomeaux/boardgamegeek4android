@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.GamePollEntity
 import com.boardgamegeek.extensions.fadeIn
@@ -23,20 +23,22 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.boardgamegeek.databinding.FragmentPollBinding
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.fragment_poll.*
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.util.*
 
 class PollFragment : DialogFragment() {
+    private var _binding: FragmentPollBinding? = null
+    private val binding get() = _binding!!
     private var pollType = UNKNOWN
     private var snackBar: Snackbar? = null
 
     val viewModel: GameViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(GameViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(GameViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,24 +50,25 @@ class PollFragment : DialogFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_poll, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentPollBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        chartView?.setDrawEntryLabels(false)
-        chartView?.isRotationEnabled = false
-        val legend = chartView?.legend
-        legend?.horizontalAlignment = LegendHorizontalAlignment.LEFT
-        legend?.verticalAlignment = LegendVerticalAlignment.BOTTOM
-        legend?.isWordWrapEnabled = true
-        chartView?.description = null
-        chartView?.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+        binding.chartView.setDrawEntryLabels(false)
+        binding.chartView.isRotationEnabled = false
+        val legend = binding.chartView.legend
+        legend.horizontalAlignment = LegendHorizontalAlignment.LEFT
+        legend.verticalAlignment = LegendVerticalAlignment.BOTTOM
+        legend.isWordWrapEnabled = true
+        binding.chartView.description = null
+        binding.chartView.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
             override fun onValueSelected(e: Entry, h: Highlight) {
                 val pe = e as PieEntry?
                 val v = getView()
-                if (pe == null || chartView == null || v == null) {
+                if (pe == null || v == null) {
                     snackBar?.dismiss()
                     return
                 }
@@ -83,9 +86,14 @@ class PollFragment : DialogFragment() {
 
         // size the graph to be 80% of the screen width
         val display = this.resources.displayMetrics
-        val lp = chartView?.layoutParams
-        lp?.width = (display.widthPixels * .8).toInt()
-        chartView?.layoutParams = lp
+        val lp = binding.chartView.layoutParams
+        lp.width = (display.widthPixels * .8).toInt()
+        binding.chartView.layoutParams = lp
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -114,13 +122,13 @@ class PollFragment : DialogFragment() {
             dataSet.setColors(*chartColors)
 
             val data = PieData(dataSet)
-            chartView?.data = data
-            chartView?.centerText = resources.getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount)
+            binding.chartView.data = data
+            binding.chartView.centerText = resources.getQuantityString(R.plurals.votes_suffix, totalVoteCount, totalVoteCount)
 
-            chartView?.animateY(1000, Easing.EaseOutCubic)
+            binding.chartView.animateY(1000, Easing.EaseOutCubic)
         }
-        progressView?.hide()
-        scrollView?.fadeIn()
+        binding.progressView.hide()
+        binding.scrollView.fadeIn()
     }
 
     companion object {

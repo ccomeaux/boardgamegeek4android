@@ -10,15 +10,17 @@ import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogNumberPadBinding
 import com.boardgamegeek.extensions.asColorRgb
 import com.boardgamegeek.extensions.isColorDark
 import com.boardgamegeek.extensions.setTextOrHide
 import com.boardgamegeek.util.PreferencesUtils
-import kotlinx.android.synthetic.main.dialog_number_pad.*
 import org.jetbrains.anko.childrenRecursiveSequence
 import kotlin.math.min
 
 abstract class NumberPadDialogFragment : DialogFragment() {
+    protected var _binding: DialogNumberPadBinding? = null
+    protected val binding get() = _binding!!
     private var minValue = DEFAULT_MIN_VALUE
     private var maxValue = DEFAULT_MAX_VALUE
     private var maxMantissa = DEFAULT_MAX_MANTISSA
@@ -41,8 +43,9 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.dialog_number_pad, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = DialogNumberPadBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,50 +53,50 @@ abstract class NumberPadDialogFragment : DialogFragment() {
         maxValue = arguments?.getDouble(KEY_MAX_VALUE) ?: DEFAULT_MAX_VALUE
         maxMantissa = arguments?.getInt(KEY_MAX_MANTISSA) ?: DEFAULT_MAX_MANTISSA
 
-        plusMinusView.visibility = if (minValue >= 0.0) View.GONE else View.VISIBLE
+        binding.plusMinusView.visibility = if (minValue >= 0.0) View.GONE else View.VISIBLE
 
         val titleResId = arguments?.getInt(KEY_TITLE) ?: 0
-        if (titleResId != 0) titleView.setText(titleResId)
-        subtitleView.setTextOrHide(arguments?.getString(KEY_SUBTITLE))
+        if (titleResId != 0) binding.titleView.setText(titleResId)
+        binding.subtitleView.setTextOrHide(arguments?.getString(KEY_SUBTITLE))
 
         if (arguments?.containsKey(KEY_INITIAL_VALUE) == true) {
-            outputView.text = arguments?.getString(KEY_INITIAL_VALUE)
+            binding.outputView.text = arguments?.getString(KEY_INITIAL_VALUE)
             enableDelete()
         }
 
         if (arguments?.containsKey(KEY_COLOR) == true) {
             val color = arguments?.getInt(KEY_COLOR) ?: Color.TRANSPARENT
-            headerView.setBackgroundColor(color)
+            binding.headerView.setBackgroundColor(color)
             if (color != Color.TRANSPARENT && color.isColorDark()) {
-                titleView.setTextColor(Color.WHITE)
-                subtitleView.setTextColor(Color.WHITE)
+                binding.titleView.setTextColor(Color.WHITE)
+                binding.subtitleView.setTextColor(Color.WHITE)
             } else {
-                titleView.setTextColor(Color.BLACK)
-                subtitleView.setTextColor(Color.BLACK)
+                binding.titleView.setTextColor(Color.BLACK)
+                binding.subtitleView.setTextColor(Color.BLACK)
             }
         }
 
-        deleteView.setOnClickListener {
-            val text = outputView.text
+        binding.deleteView.setOnClickListener {
+            val text = binding.outputView.text
             if (text.isNotEmpty()) {
                 val output = text.subSequence(0, text.length - 1).toString()
                 maybeUpdateOutput(output, view)
             }
         }
-        deleteView.setOnLongClickListener {
-            outputView.text = ""
+        binding.deleteView.setOnLongClickListener {
+            binding.outputView.text = ""
             enableDelete()
             true
         }
 
         val requestCode = arguments?.getInt(KEY_REQUEST_CODE) ?: DEFAULT_REQUEST_CODE
-        doneView.setOnClickListener {
-            done(parseDouble(outputView.text.toString()), requestCode)
+        binding.doneView.setOnClickListener {
+            done(parseDouble(binding.outputView.text.toString()), requestCode)
             dismiss()
         }
 
-        plusMinusView.setOnClickListener {
-            val output = outputView.text.toString()
+        binding.plusMinusView.setOnClickListener {
+            val output = binding.outputView.text.toString()
             val signedOutput = if (output.isNotEmpty() && output[0] == '-') {
                 output.substring(1)
             } else {
@@ -102,12 +105,17 @@ abstract class NumberPadDialogFragment : DialogFragment() {
             maybeUpdateOutput(signedOutput, it)
         }
 
-        numberPadView.childrenRecursiveSequence().filterIsInstance<TextView>().forEach {
+        binding.numberPadView.childrenRecursiveSequence().filterIsInstance<TextView>().forEach {
             it.setOnClickListener { textView ->
-                val output = outputView.text.toString() + (textView as TextView).text
+                val output = binding.outputView.text.toString() + (textView as TextView).text
                 maybeUpdateOutput(output, it)
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     abstract fun done(output: Double, requestCode: Int)
@@ -115,7 +123,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
     private fun maybeUpdateOutput(output: String, view: View) {
         if (isWithinLength(output) && isWithinRange(output)) {
             maybeBuzz(view)
-            outputView.text = output
+            binding.outputView.text = output
             enableDelete()
         }
     }
@@ -168,7 +176,7 @@ abstract class NumberPadDialogFragment : DialogFragment() {
     }
 
     private fun enableDelete() {
-        deleteView.isEnabled = outputView.length() > 0
+        binding.deleteView.isEnabled = binding.outputView.length() > 0
     }
 
     companion object {

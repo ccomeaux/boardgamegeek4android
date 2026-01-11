@@ -28,11 +28,8 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
-import icepick.Icepick;
-import icepick.State;
+
+import com.boardgamegeek.databinding.FragmentGeeklistsBinding;
 
 public class GeekListsFragment extends Fragment implements LoaderManager.LoaderCallbacks<PaginatedData<GeekListEntry>> {
 	private static final int LOADER_ID = 0;
@@ -41,27 +38,32 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	private static final int SORT_TYPE_HOT = 0;
 	private static final int SORT_TYPE_RECENT = 1;
 	private static final int SORT_TYPE_ACTIVE = 2;
-	@State int sortType = 0;
+	private static final String KEY_SORT_TYPE = "SORT_TYPE";
+	private int sortType = 0;
 	private GeekListsRecyclerViewAdapter adapter;
 
-	Unbinder unbinder;
-	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(android.R.id.empty) View emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	private FragmentGeeklistsBinding binding;
+	private ContentLoadingProgressBar progressView;
+	private View emptyView;
+	private RecyclerView recyclerView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Icepick.restoreInstanceState(this, savedInstanceState);
+		if (savedInstanceState != null) {
+			sortType = savedInstanceState.getInt(KEY_SORT_TYPE, 0);
+		}
 		setHasOptionsMenu(true);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.fragment_geeklists, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentGeeklistsBinding.inflate(inflater, container, false);
+		progressView = binding.progress;
+		emptyView = binding.empty;
+		recyclerView = binding.list;
 		setUpRecyclerView();
-		return rootView;
+		return binding.getRoot();
 	}
 
 	@Override
@@ -73,12 +75,12 @@ public class GeekListsFragment extends Fragment implements LoaderManager.LoaderC
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		Icepick.saveInstanceState(this, outState);
+		outState.putInt(KEY_SORT_TYPE, sortType);
 	}
 
 	@Override
 	public void onDestroyView() {
-		unbinder.unbind();
+		binding = null;
 		super.onDestroyView();
 	}
 

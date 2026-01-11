@@ -4,7 +4,8 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.switchMap
+import androidx.lifecycle.map
 import com.boardgamegeek.db.CollectionDao
 import com.boardgamegeek.entities.*
 import com.boardgamegeek.livedata.AbsentLiveData
@@ -59,7 +60,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    private val publisher: LiveData<RefreshableResource<CompanyEntity>> = Transformations.switchMap(_person) { publisher ->
+    private val publisher: LiveData<RefreshableResource<CompanyEntity>> = _person.switchMap() { publisher ->
         if (publisher.type == PersonType.PUBLISHER && publisher.id != BggContract.INVALID_ID) {
             publisherRepository.loadPublisher(publisher.id)
         } else {
@@ -67,7 +68,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    val details: LiveData<RefreshableResource<PersonEntity>> = Transformations.switchMap(_person) { person ->
+    val details: LiveData<RefreshableResource<PersonEntity>> = _person.switchMap() { person ->
         when (person.id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {
@@ -75,7 +76,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                     PersonType.ARTIST -> artistRepository.loadArtist(person.id)
                     PersonType.DESIGNER -> designerRepository.loadDesigner(person.id)
                     PersonType.PUBLISHER -> {
-                        Transformations.map(publisher) { company ->
+                        publisher.map() { company ->
                             RefreshableResource.map(company, company.data?.let {
                                 PersonEntity(
                                         it.id,
@@ -91,7 +92,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    val images: LiveData<RefreshableResource<PersonImagesEntity>> = Transformations.switchMap(_person) { person ->
+    val images: LiveData<RefreshableResource<PersonImagesEntity>> = _person.switchMap() { person ->
         when (person.id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {
@@ -99,7 +100,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
                     PersonType.ARTIST -> artistRepository.loadArtistImages(person.id)
                     PersonType.DESIGNER -> designerRepository.loadDesignerImages(person.id)
                     PersonType.PUBLISHER -> {
-                        Transformations.map(publisher) { company ->
+                        publisher.map() { company ->
                             RefreshableResource.map(company, company.data?.let {
                                 PersonImagesEntity(
                                         it.id,
@@ -116,11 +117,11 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    val sort: LiveData<CollectionSort> = Transformations.map(_person) {
+    val sort: LiveData<CollectionSort> = _person.map() {
         it.sort
     }
 
-    val collection: LiveData<List<BriefGameEntity>> = Transformations.switchMap(_person) { person ->
+    val collection: LiveData<List<BriefGameEntity>> = _person.switchMap() { person ->
         when (person.id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {
@@ -137,7 +138,7 @@ class PersonViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    val stats: LiveData<PersonStatsEntity> = Transformations.switchMap(_person) { person ->
+    val stats: LiveData<PersonStatsEntity> = _person.switchMap() { person ->
         when (person.id) {
             BggContract.INVALID_ID -> AbsentLiveData.create()
             else -> {

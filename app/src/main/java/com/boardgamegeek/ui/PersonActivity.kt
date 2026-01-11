@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.linkToBgg
@@ -32,7 +32,7 @@ class PersonActivity : HeroTabActivity() {
     private var emptyMessageDescription = ""
 
     private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(this).get(PersonViewModel::class.java)
+        ViewModelProvider(this).get(PersonViewModel::class.java)
     }
 
     private val adapter: PersonPagerAdapter by lazy {
@@ -43,9 +43,9 @@ class PersonActivity : HeroTabActivity() {
         super.onCreate(savedInstanceState)
 
         id = intent.getIntExtra(KEY_PERSON_ID, BggContract.INVALID_ID)
-        name = intent.getStringExtra(KEY_PERSON_NAME)
+        name = intent.getStringExtra(KEY_PERSON_NAME) ?: ""
         personType = (intent.getSerializableExtra(KEY_PERSON_TYPE) as PersonType?) ?: PersonType.DESIGNER
-        emptyMessageDescription = getString(R.string.title_person).toLowerCase(Locale.getDefault())
+        emptyMessageDescription = getString(R.string.title_person).lowercase(Locale.getDefault())
 
         initializeViewPager()
         safelySetTitle(name)
@@ -53,15 +53,15 @@ class PersonActivity : HeroTabActivity() {
         emptyMessageDescription = when (personType) {
             PersonType.ARTIST -> {
                 viewModel.setArtistId(id)
-                getString(R.string.title_artist).toLowerCase(Locale.getDefault())
+                getString(R.string.title_artist).lowercase(Locale.getDefault())
             }
             PersonType.DESIGNER -> {
                 viewModel.setDesignerId(id)
-                getString(R.string.title_designer).toLowerCase(Locale.getDefault())
+                getString(R.string.title_designer).lowercase(Locale.getDefault())
             }
             PersonType.PUBLISHER -> {
                 viewModel.setPublisherId(id)
-                getString(R.string.title_publisher).toLowerCase(Locale.getDefault())
+                getString(R.string.title_publisher).lowercase(Locale.getDefault())
             }
         }
 

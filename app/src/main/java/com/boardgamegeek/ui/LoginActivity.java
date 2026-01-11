@@ -21,6 +21,7 @@ import com.boardgamegeek.R;
 import com.boardgamegeek.auth.Authenticator;
 import com.boardgamegeek.auth.BggCookieJar;
 import com.boardgamegeek.auth.NetworkAuthenticator;
+import com.boardgamegeek.databinding.ActivityLoginBinding;
 import com.boardgamegeek.events.SignInEvent;
 import com.boardgamegeek.extensions.TaskUtils;
 import com.google.android.material.textfield.TextInputLayout;
@@ -30,9 +31,6 @@ import org.greenrobot.eventbus.EventBus;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
 import timber.log.Timber;
 
 /**
@@ -44,13 +42,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private String username;
 	private String password;
 
-	@BindView(R.id.username_container) TextInputLayout usernameContainer;
-	@BindView(R.id.username) EditText usernameView;
-	@BindView(R.id.password_container) TextInputLayout passwordContainer;
-	@BindView(R.id.password) EditText passwordView;
-	@BindView(R.id.login_form) View loginFormView;
-	@BindView(R.id.login_status) View loginStatusView;
-	@BindView(R.id.login_status_message) TextView loginStatusMessageView;
+	private ActivityLoginBinding binding;
 
 	private UserLoginTask userLoginTask = null;
 	private AccountManager accountManager;
@@ -72,22 +64,21 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		setContentView(R.layout.activity_login);
-
-		ButterKnife.bind(this);
+		binding = ActivityLoginBinding.inflate(getLayoutInflater());
+		setContentView(binding.getRoot());
 
 		accountManager = AccountManager.get(this);
 		username = getIntent().getStringExtra(KEY_USERNAME);
 
 		isRequestingNewAccount = username == null;
 
-		usernameView.setText(username);
-		usernameView.setEnabled(isRequestingNewAccount);
+		binding.username.setText(username);
+		binding.username.setEnabled(isRequestingNewAccount);
 		if (!isRequestingNewAccount) {
-			passwordView.requestFocus();
+			binding.password.requestFocus();
 		}
 
-		passwordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+		binding.password.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
 				if (actionId == R.integer.login_action_id || actionId == EditorInfo.IME_NULL) {
@@ -95,6 +86,13 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 					return true;
 				}
 				return false;
+			}
+		});
+
+		binding.signInButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				attemptLogin();
 			}
 		});
 	}
@@ -108,11 +106,6 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 	}
 
-	@OnClick(R.id.sign_in_button)
-	public void onSignInClick() {
-		attemptLogin();
-	}
-
 	/**
 	 * Attempts to sign in or register the account specified by the login form. If there are form errors (invalid email,
 	 * missing fields, etc.), the errors are presented and no actual login attempt is made.
@@ -123,25 +116,25 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 		}
 
 		// Reset errors.
-		usernameContainer.setError(null);
-		passwordContainer.setError(null);
+		binding.usernameContainer.setError(null);
+		binding.passwordContainer.setError(null);
 
 		// Store values at the time of the login attempt.
 		if (isRequestingNewAccount) {
-			username = usernameView.getText().toString().trim();
+			username = binding.username.getText().toString().trim();
 		}
-		password = passwordView.getText().toString();
+		password = binding.password.getText().toString();
 
 		View focusView = null;
 
 		if (TextUtils.isEmpty(password)) {
-			passwordContainer.setError(getString(R.string.error_field_required));
-			focusView = passwordView;
+			binding.passwordContainer.setError(getString(R.string.error_field_required));
+			focusView = binding.password;
 		}
 
 		if (TextUtils.isEmpty(username)) {
-			usernameContainer.setError(getString(R.string.error_field_required));
-			focusView = usernameView;
+			binding.usernameContainer.setError(getString(R.string.error_field_required));
+			focusView = binding.username;
 		}
 
 		if (focusView != null) {
@@ -149,7 +142,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 			focusView.requestFocus();
 		} else {
 			// Show a progress spinner, and kick off a background task to perform the user login attempt.
-			loginStatusMessageView.setText(R.string.login_progress_signing_in);
+			binding.loginStatusMessage.setText(R.string.login_progress_signing_in);
 			showProgress(true);
 			userLoginTask = new UserLoginTask();
 			TaskUtils.executeAsyncTask(userLoginTask);
@@ -162,21 +155,21 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 	private void showProgress(final boolean show) {
 		int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
 
-		loginStatusView.setVisibility(View.VISIBLE);
-		loginStatusView.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
+		binding.loginStatus.setVisibility(View.VISIBLE);
+		binding.loginStatus.animate().setDuration(shortAnimTime).alpha(show ? 1 : 0)
 			.setListener(new AnimatorListenerAdapter() {
 				@Override
 				public void onAnimationEnd(Animator animation) {
-					loginStatusView.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+					binding.loginStatus.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
 				}
 			});
 
-		loginFormView.setVisibility(View.VISIBLE);
-		loginFormView.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1)
+		binding.loginForm.setVisibility(View.VISIBLE);
+		binding.loginForm.animate().setDuration(shortAnimTime).alpha(show ? 0 : 1)
 			.setListener(new AnimatorListenerAdapter() {
 				@Override
 				public void onAnimationEnd(Animator animation) {
-					loginFormView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+					binding.loginForm.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
 				}
 			});
 	}
@@ -198,8 +191,8 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 			if (bggCookieJar != null) {
 				createAccount(bggCookieJar);
 			} else {
-				passwordContainer.setError(getString(R.string.error_incorrect_password));
-				passwordView.requestFocus();
+				binding.passwordContainer.setError(getString(R.string.error_incorrect_password));
+				binding.password.requestFocus();
 			}
 		}
 
@@ -234,19 +227,19 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 					Account[] accounts = accountManager.getAccountsByType(Authenticator.ACCOUNT_TYPE);
 					if (accounts.length == 0) {
 						Timber.v("no account!");
-						passwordContainer.setError(getString(R.string.error_account_list_zero));
+						binding.passwordContainer.setError(getString(R.string.error_account_list_zero));
 						return;
 					} else if (accounts.length != 1) {
 						Timber.w("multiple accounts!");
-						passwordContainer.setError(getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE));
+						binding.passwordContainer.setError(getString(R.string.error_account_list_multiple, Authenticator.ACCOUNT_TYPE));
 						return;
 					} else {
 						Account existingAccount = accounts[0];
 						if (existingAccount == null) {
-							passwordContainer.setError(getString(R.string.error_account_list_zero));
+							binding.passwordContainer.setError(getString(R.string.error_account_list_zero));
 							return;
 						} else if (!existingAccount.name.equals(account.name)) {
-							passwordContainer.setError(getString(R.string.error_account_name_mismatch, existingAccount.name, account.name));
+							binding.passwordContainer.setError(getString(R.string.error_account_name_mismatch, existingAccount.name, account.name));
 							return;
 						} else {
 							accountManager.setPassword(account, password);
@@ -254,7 +247,7 @@ public class LoginActivity extends AccountAuthenticatorActivity {
 					}
 				}
 			} catch (Exception e) {
-				passwordContainer.setError(e.getLocalizedMessage());
+				binding.passwordContainer.setError(e.getLocalizedMessage());
 				return;
 			}
 		} else {

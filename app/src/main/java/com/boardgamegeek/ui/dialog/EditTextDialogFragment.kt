@@ -3,7 +3,6 @@ package com.boardgamegeek.ui.dialog
 import android.content.Context
 import android.os.Bundle
 import androidx.annotation.StringRes
-import kotlinx.android.synthetic.main.dialog_edit_text.*
 
 class EditTextDialogFragment : AbstractEditTextDialogFragment() {
     private var listener: EditTextDialogListener? = null
@@ -25,7 +24,7 @@ class EditTextDialogFragment : AbstractEditTextDialogFragment() {
         get() = arguments?.getString(KEY_TEXT)
 
     override fun onPositiveButton() {
-        listener?.onFinishEditDialog(editText.text.trim().toString(), originalText)
+        listener?.onFinishEditDialog(binding.editText.text.trim().toString(), originalText)
     }
 
     companion object {

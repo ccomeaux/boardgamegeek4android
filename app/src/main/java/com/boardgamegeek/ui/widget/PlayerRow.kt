@@ -14,12 +14,13 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.RowPlayerBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Player
-import kotlinx.android.synthetic.main.row_player.view.*
 import java.text.DecimalFormat
 
 class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr) {
+    private val binding = RowPlayerBinding.inflate(LayoutInflater.from(context), this)
     private val ratingFormat = DecimalFormat("0.0######")
 
     private val nameTypeface: Typeface
@@ -28,8 +29,6 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     private val nameColor: Int
 
     init {
-        LayoutInflater.from(context).inflate(R.layout.row_player, this)
-
         isBaselineAligned = false
         gravity = Gravity.CENTER_VERTICAL
         minimumHeight = resources.getDimensionPixelSize(R.dimen.player_row_height)
@@ -41,104 +40,104 @@ class PlayerRow @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         descendantFocusability = ViewGroup.FOCUS_BLOCK_DESCENDANTS
         setSelectableBackground()
 
-        nameTypeface = nameView.typeface
-        usernameTypeface = usernameView.typeface
-        scoreTypeface = scoreView.typeface
-        nameColor = nameView.textColors.defaultColor
+        nameTypeface = binding.nameView.typeface
+        usernameTypeface = binding.usernameView.typeface
+        scoreTypeface = binding.scoreView.typeface
+        nameColor = binding.nameView.textColors.defaultColor
 
-        ratingButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN)
-        scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN)
+        binding.ratingButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN)
+        binding.scoreButton.setColorFilter(ContextCompat.getColor(getContext(), R.color.button_under_text), Mode.SRC_IN)
     }
 
     fun getMoreButton(): View {
-        return moreButton
+        return binding.moreButton
     }
 
     fun getDragHandle(): View {
-        return dragHandle
+        return binding.dragHandle
     }
 
     fun setOnScoreListener(l: OnClickListener) {
-        scoreButton.setSelectableBackgroundBorderless()
-        scoreButton.setOnClickListener(l)
+        binding.scoreButton.setSelectableBackgroundBorderless()
+        binding.scoreButton.setOnClickListener(l)
     }
 
     fun setOnRatingListener(l: OnClickListener) {
-        ratingButton.setSelectableBackgroundBorderless()
-        ratingButton.setOnClickListener(l)
+        binding.ratingButton.setSelectableBackgroundBorderless()
+        binding.ratingButton.setOnClickListener(l)
     }
 
     fun setOnColorListener(l: OnClickListener) {
-        colorView.setSelectableBackgroundBorderless()
-        colorView.setOnClickListener(l)
+        binding.colorView.setSelectableBackgroundBorderless()
+        binding.colorView.setOnClickListener(l)
     }
 
     fun setNameListener(l: OnClickListener) {
-        nameContainer.setSelectableBackgroundBorderless()
-        nameContainer.setOnClickListener(l)
+        binding.nameContainer.setSelectableBackgroundBorderless()
+        binding.nameContainer.setOnClickListener(l)
     }
 
     fun setOnMoreListener(l: OnClickListener) {
-        moreButton.visibility = View.VISIBLE
-        moreButton.setOnClickListener(l)
+        binding.moreButton.visibility = View.VISIBLE
+        binding.moreButton.setOnClickListener(l)
     }
 
     fun setAutoSort(value: Boolean) {
-        dragHandle.visibility = if (value) View.VISIBLE else View.INVISIBLE
+        binding.dragHandle.visibility = if (value) View.VISIBLE else View.INVISIBLE
     }
 
     fun setPlayer(player: Player?) {
         if (player == null) {
-            colorView.visibility = View.GONE
-            seatView.setTextOrHide("")
-            nameView.setTextOrHide(resources.getString(R.string.title_player))
-            usernameView.setTextOrHide("")
-            teamColorView.setTextOrHide("")
-            scoreView.setTextOrHide("")
-            ratingView.setTextOrHide("")
-            ratingButton.visibility = View.GONE
-            scoreButton.visibility = View.GONE
+            binding.colorView.visibility = View.GONE
+            binding.seatView.setTextOrHide("")
+            binding.nameView.setTextOrHide(resources.getString(R.string.title_player))
+            binding.usernameView.setTextOrHide("")
+            binding.teamColorView.setTextOrHide("")
+            binding.scoreView.setTextOrHide("")
+            binding.ratingView.setTextOrHide("")
+            binding.ratingButton.visibility = View.GONE
+            binding.scoreButton.visibility = View.GONE
         } else {
-            seatView.setTextOrHide(player.startingPosition)
+            binding.seatView.setTextOrHide(player.startingPosition)
             if (player.name.isNullOrEmpty() && player.username.isNullOrEmpty()) {
                 val name = if (player.seat == Player.SEAT_UNKNOWN)
                     resources.getString(R.string.title_player)
                 else
                     resources.getString(R.string.generic_player, player.seat)
-                setText(nameView, name, nameTypeface, player.isNew, player.isWin, true)
-                usernameView.visibility = View.GONE
+                setText(binding.nameView, name, nameTypeface, player.isNew, player.isWin, true)
+                binding.usernameView.visibility = View.GONE
             } else if (player.name.isEmpty()) {
-                setText(nameView, player.username, nameTypeface, player.isNew, player.isWin)
-                usernameView.visibility = View.GONE
+                setText(binding.nameView, player.username, nameTypeface, player.isNew, player.isWin)
+                binding.usernameView.visibility = View.GONE
             } else {
-                setText(nameView, player.name, nameTypeface, player.isNew, player.isWin)
-                setText(usernameView, player.username, usernameTypeface, player.isNew, player.isWin)
+                setText(binding.nameView, player.name, nameTypeface, player.isNew, player.isWin)
+                setText(binding.usernameView, player.username, usernameTypeface, player.isNew, player.isWin)
             }
 
-            setText(scoreView, player.scoreDescription, scoreTypeface, false, player.isWin)
-            scoreButton.visibility = if (player.score.isNullOrEmpty()) View.GONE else View.VISIBLE
+            setText(binding.scoreView, player.scoreDescription, scoreTypeface, false, player.isWin)
+            binding.scoreButton.visibility = if (player.score.isNullOrEmpty()) View.GONE else View.VISIBLE
 
             if (player.rating == 0.0) {
-                ratingView.isVisible = false
+                binding.ratingView.isVisible = false
             } else {
-                ratingView.setTextOrHide(player.rating.asScore(context, format = ratingFormat))
+                binding.ratingView.setTextOrHide(player.rating.asScore(context, format = ratingFormat))
             }
-            ratingButton.visibility = if (player.rating > 0) View.VISIBLE else View.GONE
+            binding.ratingButton.visibility = if (player.rating > 0) View.VISIBLE else View.GONE
 
-            startingPositionView.setTextOrHide(player.startingPosition)
+            binding.startingPositionView.setTextOrHide(player.startingPosition)
 
-            teamColorView.setTextOrHide(player.color)
+            binding.teamColorView.setTextOrHide(player.color)
             val color = player.color.asColorRgb()
-            colorView.visibility = View.VISIBLE
-            colorView.setColorViewValue(color)
+            binding.colorView.visibility = View.VISIBLE
+            binding.colorView.setColorViewValue(color)
             if (player.seat == Player.SEAT_UNKNOWN) {
-                seatView.visibility = View.GONE
+                binding.seatView.visibility = View.GONE
             } else {
-                seatView.setTextColor(color.getTextColor())
-                startingPositionView.visibility = View.GONE
+                binding.seatView.setTextColor(color.getTextColor())
+                binding.startingPositionView.visibility = View.GONE
             }
             if (color != Color.TRANSPARENT) {
-                teamColorView.visibility = View.GONE
+                binding.teamColorView.visibility = View.GONE
             }
         }
     }

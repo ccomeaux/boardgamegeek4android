@@ -2,7 +2,7 @@ package com.boardgamegeek.ui.dialog
 
 import android.util.Pair
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.showAndSurvive
 import com.boardgamegeek.ui.viewmodel.PlayerColorsViewModel
@@ -11,7 +11,7 @@ import java.util.*
 
 class PlayerColorPickerDialogFragment : ColorPickerDialogFragment() {
     private val viewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PlayerColorsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PlayerColorsViewModel::class.java)
     }
 
     override fun onColorClicked(item: Pair<String, Int>?, requestCode: Int) {

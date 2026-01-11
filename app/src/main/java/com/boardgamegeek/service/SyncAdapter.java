@@ -7,11 +7,13 @@ import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SyncResult;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -31,7 +33,6 @@ import com.boardgamegeek.util.NotificationUtils;
 import com.boardgamegeek.util.PreferencesUtils;
 import com.boardgamegeek.util.RemoteConfig;
 import com.boardgamegeek.util.StringUtils;
-import com.boardgamegeek.util.fabric.CrashKeys;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -54,7 +55,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	private final BggApplication application;
 	private SyncTask currentTask;
 	private boolean isCancelled;
-	private final CancelReceiver cancelReceiver = new CancelReceiver();
+	private ConnectivityManager.NetworkCallback networkCallback = null;
 
 	public SyncAdapter(BggApplication context) {
 		super(context.getApplicationContext(), false);
@@ -63,8 +64,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		if (!BuildConfig.DEBUG) {
 			Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> Timber.e(throwable, "Uncaught sync exception, suppressing UI in release build."));
 		}
-
-		context.registerReceiver(cancelReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
 	/**
@@ -136,11 +135,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 		NotificationUtils.cancel(getContext(), NotificationUtils.TAG_SYNC_PROGRESS);
 		toggleCancelReceiver(false);
 		EventBus.getDefault().post(new SyncCompleteEvent());
-		try {
-			getContext().unregisterReceiver(cancelReceiver);
-		} catch (Exception e) {
-			Timber.w(e);
-		}
 	}
 
 	/**
@@ -207,7 +201,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 			final String content = body == null ? "" : body.string().trim();
 			if (content.contains("Please update your privacy and marketing preferences")) {
 				Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-				PendingIntent pi = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+				PendingIntent pi = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 				final String message = getContext().getString(R.string.sync_notification_message_privacy_error);
 				NotificationCompat.Builder builder = NotificationUtils
 					.createNotificationBuilder(getContext(), R.string.sync_notification_title_error, NotificationUtils.CHANNEL_ID_ERROR)
@@ -267,7 +261,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 	}
 
 	/**
-	 * Enable or disable the cancel receiver. (There's no reason for the receiver to be enabled when the sync isn't running.
+	 * Enable or disable the cancel receiver and network callback.
+	 * (There's no reason for the receiver to be enabled when the sync isn't running.)
 	 */
 	private void toggleCancelReceiver(boolean enable) {
 		ComponentName receiver = new ComponentName(getContext(), CancelReceiver.class);
@@ -276,7 +271,82 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 				PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
 				PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
 			PackageManager.DONT_KILL_APP);
+
+		// Register/unregister network callback for connectivity monitoring
+		if (enable) {
+			registerNetworkCallback();
+		} else {
+			unregisterNetworkCallback();
+		}
 	}
+
+	/**
+	 * Register a network callback to monitor connectivity changes.
+	 * This replaces the deprecated CONNECTIVITY_ACTION broadcast for Android 7.0+.
+	 */
+	private void registerNetworkCallback() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			// Prevent re-registration if callback is already registered
+			if (networkCallback != null) {
+				Timber.w("Network callback already registered, skipping re-registration");
+				return;
+			}
+
+			try {
+				ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
+				if (connectivityManager != null) {
+					networkCallback = new ConnectivityManager.NetworkCallback() {
+						@Override
+						public void onLost(@NonNull Network network) {
+							super.onLost(network);
+							// Check if we should cancel sync when network is lost
+							if (PreferencesUtils.getSyncOnlyWifi(getContext())) {
+								// Check if WiFi is still available on another network
+								if (!NetworkUtils.isOnWiFi(getContext())) {
+									Timber.i("Cancelling sync because device lost WiFi and user asked for this behavior.");
+									SyncService.cancelSync(getContext());
+								}
+							}
+						}
+
+						@Override
+						public void onCapabilitiesChanged(@NonNull Network network, @NonNull NetworkCapabilities networkCapabilities) {
+							super.onCapabilitiesChanged(network, networkCapabilities);
+							// Check if WiFi requirement is no longer met
+							if (PreferencesUtils.getSyncOnlyWifi(getContext())) {
+								if (!NetworkUtils.isOnWiFi(getContext())) {
+									Timber.i("Cancelling sync because device lost WiFi and user asked for this behavior.");
+									SyncService.cancelSync(getContext());
+								}
+							}
+						}
+					};
+					connectivityManager.registerDefaultNetworkCallback(networkCallback);
+				}
+			} catch (Exception e) {
+				Timber.e(e, "Failed to register network callback");
+			}
+		}
+	}
+
+	/**
+	 * Unregister the network callback.
+	 */
+	private void unregisterNetworkCallback() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && networkCallback != null) {
+			try {
+				ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(android.content.Context.CONNECTIVITY_SERVICE);
+				if (connectivityManager != null) {
+					connectivityManager.unregisterNetworkCallback(networkCallback);
+				}
+			} catch (Exception e) {
+				Timber.e(e, "Failed to unregister network callback");
+			} finally {
+				networkCallback = null;
+			}
+		}
+	}
+
 
 	/**
 	 * Show a notification of any exception thrown by a sync task that isn't caught by the task.

@@ -6,8 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentPersonDescriptionBinding
 import com.boardgamegeek.entities.PersonEntity
 import com.boardgamegeek.entities.Status
 import com.boardgamegeek.extensions.fadeIn
@@ -15,54 +16,61 @@ import com.boardgamegeek.extensions.fadeOut
 import com.boardgamegeek.extensions.setBggColors
 import com.boardgamegeek.extensions.setTextMaybeHtml
 import com.boardgamegeek.ui.viewmodel.PersonViewModel
-import kotlinx.android.synthetic.main.fragment_person_description.*
 
 class PersonDescriptionFragment : Fragment() {
+    private var _binding: FragmentPersonDescriptionBinding? = null
+    private val binding get() = _binding!!
     private var emptyMessageDescription = ""
 
     private val viewModel: PersonViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PersonViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PersonViewModel::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_person_description, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentPersonDescriptionBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        swipeRefresh?.setOnRefreshListener { viewModel.refresh() }
-        swipeRefresh?.setBggColors()
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refresh() }
+        binding.swipeRefresh.setBggColors()
 
-        emptyMessageDescription = getString(R.string.title_person).toLowerCase()
-        lastUpdated.timestamp = 0L
+        emptyMessageDescription = getString(R.string.title_person).lowercase()
+        binding.lastUpdated.timestamp = 0L
 
         viewModel.person.observe(this, Observer {
-            idView.text = it.id.toString()
+            binding.idView.text = it.id.toString()
             emptyMessageDescription = when (it.type) {
-                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).toLowerCase()
-                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).toLowerCase()
-                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).toLowerCase()
+                PersonViewModel.PersonType.ARTIST -> getString(R.string.title_artist).lowercase()
+                PersonViewModel.PersonType.DESIGNER -> getString(R.string.title_designer).lowercase()
+                PersonViewModel.PersonType.PUBLISHER -> getString(R.string.title_publisher).lowercase()
             }
         })
 
         viewModel.details.observe(this, Observer {
-            swipeRefresh?.post { swipeRefresh?.isRefreshing = it?.status == Status.REFRESHING }
+            binding.swipeRefresh.post { binding.swipeRefresh.isRefreshing = it?.status == Status.REFRESHING }
             when {
                 it == null -> showError(getString(R.string.empty_person, emptyMessageDescription))
                 it.status == Status.ERROR && it.data == null -> showError(it.message)
                 it.data == null -> showError(getString(R.string.empty_person, emptyMessageDescription))
                 else -> showData(it.data)
             }
-            progress.hide()
+            binding.progress.hide()
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showError(message: String?) {
         if (message?.isNotBlank() == true) {
-            emptyMessageView?.text = message
-            descriptionView.fadeOut()
-            emptyMessageView.fadeIn()
+            binding.emptyMessageView.text = message
+            binding.descriptionView.fadeOut()
+            binding.emptyMessageView.fadeIn()
         }
     }
 
@@ -70,11 +78,11 @@ class PersonDescriptionFragment : Fragment() {
         if (person.description.isBlank()) {
             showError(getString(R.string.empty_person_description, emptyMessageDescription))
         } else {
-            descriptionView.setTextMaybeHtml(person.description)
-            descriptionView.fadeIn()
-            emptyMessageView.fadeOut()
+            binding.descriptionView.setTextMaybeHtml(person.description)
+            binding.descriptionView.fadeIn()
+            binding.emptyMessageView.fadeOut()
         }
-        lastUpdated.timestamp = person.updatedTimestamp
+        binding.lastUpdated.timestamp = person.updatedTimestamp
     }
 
     companion object {

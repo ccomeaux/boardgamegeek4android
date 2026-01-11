@@ -235,7 +235,7 @@ public class PreferencesUtils {
 
 	private static void notifyPlayStatChange(@NonNull Context context, CharSequence message, int id) {
 		Intent intent = new Intent(context, PlayStatsActivity.class);
-		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+		PendingIntent pi = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_MUTABLE);
 		NotificationCompat.Builder builder = NotificationUtils
 			.createNotificationBuilder(context, R.string.title_play_stats, NotificationUtils.CHANNEL_ID_STATS, PlayStatsActivity.class)
 			.setContentText(message)

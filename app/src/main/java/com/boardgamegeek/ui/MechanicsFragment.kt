@@ -6,52 +6,60 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentMechanicsBinding
+import com.boardgamegeek.databinding.RowMechanicBinding
 import com.boardgamegeek.entities.MechanicEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.MechanicsViewModel
-import kotlinx.android.synthetic.main.fragment_artists.*
-import kotlinx.android.synthetic.main.row_mechanic.view.*
 import kotlin.properties.Delegates
 
 class MechanicsFragment : Fragment() {
+    private var _binding: FragmentMechanicsBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: MechanicsViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(MechanicsViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(MechanicsViewModel::class.java)
     }
 
     private val adapter: MechanicsAdapter by lazy {
         MechanicsAdapter()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_mechanics, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        _binding = FragmentMechanicsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
 
         viewModel.mechanics.observe(this, Observer {
             showData(it)
-            progressBar.hide()
+            binding.progressBar.hide()
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showData(mechanics: List<MechanicEntity>) {
         adapter.mechanics = mechanics
         if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
-            emptyTextView.fadeIn()
+            binding.recyclerView.fadeOut()
+            binding.emptyTextView.fadeIn()
         } else {
-            recyclerView.fadeIn()
-            emptyTextView.fadeOut()
+            binding.recyclerView.fadeIn()
+            binding.emptyTextView.fadeOut()
         }
     }
 
@@ -77,20 +85,21 @@ class MechanicsFragment : Fragment() {
         override fun getItemId(position: Int) = mechanics.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MechanicViewHolder {
-            return MechanicViewHolder(parent.inflate(R.layout.row_mechanic))
+            val binding = RowMechanicBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return MechanicViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: MechanicViewHolder, position: Int) {
             holder.bind(mechanics.getOrNull(position))
         }
 
-        inner class MechanicViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class MechanicViewHolder(private val binding: RowMechanicBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(mechanic: MechanicEntity?) {
                 mechanic?.let {m ->
-                    itemView.nameView.text = m.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, m.itemCount, m.itemCount)
-                    itemView.setOnClickListener {
-                        MechanicActivity.start(itemView.context, m.id, m.name)
+                    binding.nameView.text = m.name
+                    binding.countView.text = binding.root.context.resources.getQuantityString(R.plurals.games_suffix, m.itemCount, m.itemCount)
+                    binding.root.setOnClickListener {
+                        MechanicActivity.start(binding.root.context, m.id, m.name)
                     }
                 }
             }

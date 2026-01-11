@@ -12,7 +12,7 @@ class CollectionViewAdapter(context: Context) :
                 mutableListOf<CollectionViewEntity>()) {
 
     init {
-        setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
+        setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
     }
 
     override fun getItemId(position: Int): Long {

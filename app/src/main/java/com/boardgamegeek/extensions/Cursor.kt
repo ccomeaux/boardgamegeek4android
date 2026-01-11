@@ -66,7 +66,7 @@ fun Cursor.getString(columnName: String, defaultValue: String = ""): String {
 }
 
 fun Cursor.getFirstChar(columnName: String): String {
-    return getString(columnName, "-").substring(0, 1).toUpperCase(Locale.getDefault())
+    return getString(columnName, "-").substring(0, 1).uppercase(Locale.getDefault())
 }
 
 /**

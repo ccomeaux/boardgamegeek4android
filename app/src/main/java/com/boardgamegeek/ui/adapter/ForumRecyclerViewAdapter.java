@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.RowForumThreadBinding;
 import com.boardgamegeek.entities.ForumEntity.ForumType;
 import com.boardgamegeek.model.Thread;
 import com.boardgamegeek.ui.ThreadActivity;
@@ -15,8 +16,6 @@ import com.boardgamegeek.ui.widget.TimestampView;
 import java.text.NumberFormat;
 
 import androidx.annotation.NonNull;
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Thread> {
 	private final int forumId;
@@ -43,24 +42,21 @@ public class ForumRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Threa
 	}
 
 	public class ThreadViewHolder extends PaginatedItemViewHolder {
-		@BindView(R.id.subject) TextView subjectView;
-		@BindView(R.id.author) TextView authorView;
-		@BindView(R.id.number_of_articles) TextView numberOfArticlesView;
-		@BindView(R.id.last_post_date) TimestampView lastPostDateView;
+		private final RowForumThreadBinding binding;
 
 		public ThreadViewHolder(View view) {
 			super(view);
-			ButterKnife.bind(this, view);
+			binding = RowForumThreadBinding.bind(view);
 		}
 
 		@Override
 		protected void bind(final Thread thread) {
 			final Context context = itemView.getContext();
-			subjectView.setText(thread.subject.trim());
-			authorView.setText(thread.author);
+			binding.subject.setText(thread.subject.trim());
+			binding.author.setText(thread.author);
 			int replies = thread.numberOfArticles - 1;
-			numberOfArticlesView.setText(numberFormat.format(replies));
-			lastPostDateView.setTimestamp(thread.lastPostDate());
+			binding.numberOfArticles.setText(numberFormat.format(replies));
+			binding.lastPostDate.setTimestamp(thread.lastPostDate());
 			itemView.setOnClickListener(v -> ThreadActivity.start(context, thread.id, thread.subject, forumId, forumTitle, objectId, objectName, objectType));
 		}
 	}

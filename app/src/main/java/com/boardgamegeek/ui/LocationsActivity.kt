@@ -6,14 +6,14 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.setActionBarCount
 import com.boardgamegeek.ui.viewmodel.LocationsViewModel
 
 class LocationsActivity : SimpleSinglePaneActivity() {
     private val viewModel: LocationsViewModel by lazy {
-        ViewModelProviders.of(this).get(LocationsViewModel::class.java)
+        ViewModelProvider(this).get(LocationsViewModel::class.java)
     }
 
     private var locationCount = -1

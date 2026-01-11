@@ -45,7 +45,7 @@ open class ForegroundLinearLayout @JvmOverloads constructor(
 
     init {
 
-        val a = context.obtainStyledAttributes(attrs, R.styleable.ForegroundLinearLayout, defStyleAttr, 0)
+        val a = context.obtainStyledAttributes(attrs, R.styleable.BggForegroundLinearLayout, defStyleAttr, 0)
         try {
             foregroundGravity = a.getInt(R.styleable.BggForegroundLinearLayout_android_foregroundGravity, foregroundGravity)
 

@@ -3,7 +3,7 @@ package com.boardgamegeek.repository
 import android.content.ContentProviderOperation
 import androidx.core.content.contentValuesOf
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.AccountUtils
@@ -91,10 +91,10 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         // val isOwnedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_OWN)
         // val isPlayedSynced = PreferencesUtils.isStatusSetToSync(application, BggService.COLLECTION_QUERY_STATUS_PLAYED)
 
-        return Transformations.map(gameDao.loadPlayInfoAsLiveData(
-                PreferencesUtils.logPlayStatsIncomplete(application),
-                PreferencesUtils.logPlayStatsExpansions(application),
-                PreferencesUtils.logPlayStatsAccessories(application)))
+        return gameDao.loadPlayInfoAsLiveData(
+            PreferencesUtils.logPlayStatsIncomplete(application),
+            PreferencesUtils.logPlayStatsExpansions(application),
+            PreferencesUtils.logPlayStatsAccessories(application)).map()
         {
             return@map filterGamesOwned(it)
         }
@@ -307,11 +307,11 @@ class PlayRepository(val application: BggApplication) : PlayRefresher() {
         }
 
         private fun updateTimestamps(plays: List<Play>?) {
-            val newestDate = plays?.maxBy { it.dateInMillis }?.dateInMillis ?: 0L
-            if (newestDate > SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L) {
+            val newestDate = plays?.maxByOrNull { it.dateInMillis }?.dateInMillis ?: 0L
+            if (newestDate > (SyncPrefs.getPlaysNewestTimestamp(application) ?: 0L)) {
                 SyncPrefs.setPlaysNewestTimestamp(application, newestDate)
             }
-            val oldestDate = plays?.minBy { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
+            val oldestDate = plays?.minByOrNull { it.dateInMillis }?.dateInMillis ?: Long.MAX_VALUE
             if (oldestDate < SyncPrefs.getPlaysOldestTimestamp(application)) {
                 SyncPrefs.setPlaysOldestTimestamp(application, oldestDate)
             }

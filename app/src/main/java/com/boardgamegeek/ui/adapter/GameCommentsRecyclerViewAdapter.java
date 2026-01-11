@@ -7,13 +7,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.RowCommentBinding;
 import com.boardgamegeek.extensions.TextViewUtils;
 import com.boardgamegeek.io.model.Game.Comment;
 import com.boardgamegeek.ui.model.PaginatedData;
 import com.boardgamegeek.util.ColorUtils;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class GameCommentsRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<Comment> {
 	public GameCommentsRecyclerViewAdapter(Context context, PaginatedData<Comment> data) {
@@ -27,21 +25,19 @@ public class GameCommentsRecyclerViewAdapter extends PaginatedRecyclerViewAdapte
 	}
 
 	public class CommentViewHolder extends PaginatedItemViewHolder {
-		@BindView(R.id.username) TextView usernameView;
-		@BindView(R.id.rating) TextView ratingView;
-		@BindView(R.id.comment) TextView commentView;
+		private final RowCommentBinding binding;
 
 		CommentViewHolder(View view) {
 			super(view);
-			ButterKnife.bind(this, view);
+			binding = RowCommentBinding.bind(view);
 		}
 
 		@Override
 		protected void bind(Comment item) {
-			usernameView.setText(item.username);
-			ratingView.setText(item.getRatingText());
-			ColorUtils.setTextViewBackground(ratingView, ColorUtils.getRatingColor(item.getRating()));
-			TextViewUtils.setTextOrHide(commentView, item.value);
+			binding.username.setText(item.username);
+			binding.rating.setText(item.getRatingText());
+			ColorUtils.setTextViewBackground(binding.rating, ColorUtils.getRatingColor(item.getRating()));
+			TextViewUtils.setTextOrHide(binding.comment, item.value);
 		}
 	}
 }

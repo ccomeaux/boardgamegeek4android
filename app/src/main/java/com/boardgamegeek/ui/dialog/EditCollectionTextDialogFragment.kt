@@ -11,12 +11,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogEditTextBinding
 import com.boardgamegeek.extensions.requestFocus
 import com.boardgamegeek.extensions.setAndSelectExistingText
-import kotlinx.android.synthetic.main.dialog_edit_text.*
 
 class EditCollectionTextDialogFragment : DialogFragment() {
-    private lateinit var layout: View
+    private var _binding: DialogEditTextBinding? = null
+    private val binding get() = _binding!!
     private var listener: EditCollectionTextDialogListener? = null
 
     interface EditCollectionTextDialogListener {
@@ -31,33 +32,38 @@ class EditCollectionTextDialogFragment : DialogFragment() {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_edit_text, null)
+        _binding = DialogEditTextBinding.inflate(LayoutInflater.from(context))
 
         val builder = AlertDialog.Builder(requireContext(), R.style.Theme_bgglight_Dialog_Alert)
                 .setTitle(arguments?.getString(KEY_TITLE))
-                .setView(layout)
+                .setView(binding.root)
                 .setNegativeButton(R.string.cancel, null)
                 .setPositiveButton(R.string.ok) { _, _ ->
                     listener?.onEditCollectionText(
-                            editText.text.trim().toString(),
+                            binding.editText.text.trim().toString(),
                             arguments?.getString(KEY_TEXT_COLUMN) ?: "",
                             arguments?.getString(KEY_TIMESTAMP_COLUMN) ?: "")
                 }
 
         return builder.create().apply {
-            requestFocus(editText)
+            requestFocus(binding.editText)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return layout
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        editText.inputType = editText.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+        binding.editText.inputType = binding.editText.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
         if (savedInstanceState == null) {
-            editText.setAndSelectExistingText(arguments?.getString(KEY_TEXT))
+            binding.editText.setAndSelectExistingText(arguments?.getString(KEY_TEXT))
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     companion object {

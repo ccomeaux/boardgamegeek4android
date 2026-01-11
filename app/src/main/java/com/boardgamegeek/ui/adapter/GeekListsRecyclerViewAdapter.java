@@ -7,12 +7,10 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.boardgamegeek.R;
+import com.boardgamegeek.databinding.RowGeeklistBinding;
 import com.boardgamegeek.model.GeekListEntry;
 import com.boardgamegeek.ui.GeekListActivity;
 import com.boardgamegeek.ui.model.PaginatedData;
-
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class GeekListsRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<GeekListEntry> {
 	public GeekListsRecyclerViewAdapter(Context context, PaginatedData<GeekListEntry> data) {
@@ -26,22 +24,19 @@ public class GeekListsRecyclerViewAdapter extends PaginatedRecyclerViewAdapter<G
 	}
 
 	public class GeekListEntryViewHolder extends PaginatedItemViewHolder {
-		@BindView(R.id.title) TextView title;
-		@BindView(R.id.creator) TextView creator;
-		@BindView(R.id.number_of_items) TextView numberOfItems;
-		@BindView(R.id.number_of_thumbs) TextView numberOfThumbs;
+		private final RowGeeklistBinding binding;
 
 		public GeekListEntryViewHolder(View itemView) {
 			super(itemView);
-			ButterKnife.bind(this, itemView);
+			binding = RowGeeklistBinding.bind(itemView);
 		}
 
 		@Override
 		public void bind(final GeekListEntry geekListEntry) {
-			title.setText(geekListEntry.getTitle());
-			creator.setText(geekListEntry.getAuthor());
-			numberOfItems.setText(String.valueOf(geekListEntry.getNumberOfItems()));
-			numberOfThumbs.setText(String.valueOf(geekListEntry.getNumberOfThumbs()));
+			binding.title.setText(geekListEntry.getTitle());
+			binding.creator.setText(geekListEntry.getAuthor());
+			binding.numberOfItems.setText(String.valueOf(geekListEntry.getNumberOfItems()));
+			binding.numberOfThumbs.setText(String.valueOf(geekListEntry.getNumberOfThumbs()));
 			itemView.setOnClickListener(new OnClickListener() {
 				@Override
 				public void onClick(View v) {

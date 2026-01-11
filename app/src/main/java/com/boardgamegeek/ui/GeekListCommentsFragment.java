@@ -19,18 +19,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.Unbinder;
+
+import com.boardgamegeek.databinding.FragmentGeeklistCommentsBinding;
 
 public class GeekListCommentsFragment extends Fragment {
 	private static final String KEY_COMMENTS = "GEEK_LIST_COMMENTS";
 
 	private List<GeekListComment> comments;
-	private Unbinder unbinder;
-	@BindView(android.R.id.progress) ContentLoadingProgressBar progressView;
-	@BindView(android.R.id.empty) View emptyView;
-	@BindView(android.R.id.list) RecyclerView recyclerView;
+	private FragmentGeeklistCommentsBinding binding;
 
 	public static GeekListCommentsFragment newInstance(ArrayList<GeekListComment> comments) {
 		Bundle args = new Bundle();
@@ -43,10 +39,9 @@ public class GeekListCommentsFragment extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 		comments = getArguments().getParcelableArrayList(KEY_COMMENTS);
-		View rootView = inflater.inflate(R.layout.fragment_geeklist_comments, container, false);
-		unbinder = ButterKnife.bind(this, rootView);
+		binding = FragmentGeeklistCommentsBinding.inflate(inflater, container, false);
 		setUpRecyclerView();
-		return rootView;
+		return binding.getRoot();
 	}
 
 	@Override
@@ -58,23 +53,23 @@ public class GeekListCommentsFragment extends Fragment {
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		if (unbinder != null) unbinder.unbind();
+		binding = null;
 	}
 
 	private void setUpRecyclerView() {
 		final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-		recyclerView.setLayoutManager(layoutManager);
-		recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
+		binding.list.setLayoutManager(layoutManager);
+		binding.list.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
 	}
 
 	private void bindData() {
 		GeekListCommentsRecyclerViewAdapter adapter = new GeekListCommentsRecyclerViewAdapter(getContext(), comments);
-		recyclerView.setAdapter(adapter);
+		binding.list.setAdapter(adapter);
 		if (comments == null || comments.size() == 0) {
-			AnimationUtils.fadeIn(emptyView);
+			AnimationUtils.fadeIn(binding.empty);
 		} else {
-			AnimationUtils.fadeIn(recyclerView);
+			AnimationUtils.fadeIn(binding.list);
 		}
-		progressView.hide();
+		binding.progress.hide();
 	}
 }

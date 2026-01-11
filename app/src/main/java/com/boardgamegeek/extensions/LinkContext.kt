@@ -22,7 +22,7 @@ fun Context?.linkBgg(gameId: Int) {
 
 fun Context?.linkBgPrices(gameName: String) {
     if (gameName.isBlank()) return
-    link("http://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName))
+    link("https://boardgameprices.com/compare-prices-for?q=" + HttpUtils.encode(gameName))
 }
 
 fun Context?.linkBgPricesUk(gameName: String) {
@@ -32,12 +32,12 @@ fun Context?.linkBgPricesUk(gameName: String) {
 
 fun Context?.linkAmazon(gameName: String, domain: String) {
     if (gameName.isBlank()) return
-    link(String.format("http://%s/gp/aw/s/?i=toys&keywords=%s", domain, HttpUtils.encode(gameName)))
+    link(String.format("https://%s/gp/aw/s/?i=toys&keywords=%s", domain, HttpUtils.encode(gameName)))
 }
 
 fun Context?.linkEbay(gameName: String) {
     if (gameName.isBlank()) return
-    link("http://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName))
+    link("https://m.ebay.com/sch/i.html?_sacat=233&cnm=Games&_nkw=" + HttpUtils.encode(gameName))
 }
 
 fun Context?.linkToBgg(path: String) {
@@ -55,7 +55,10 @@ fun Context?.link(url: String) {
 private fun Context?.link(link: Uri) {
     if (this == null) return
     val intent = Intent(Intent.ACTION_VIEW, link)
-    if (isIntentAvailable(intent)) {
+    if (this !is android.app.Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    
+    // Check if there's an app that can handle this intent
+    if (intent.resolveActivity(packageManager) != null) {
         startActivity(intent)
     } else {
         val message = "Can't figure out how to launch $link"

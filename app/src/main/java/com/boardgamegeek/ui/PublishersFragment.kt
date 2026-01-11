@@ -1,30 +1,32 @@
 package com.boardgamegeek.ui
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.FragmentPublishersBinding
+import com.boardgamegeek.databinding.RowPublisherBinding
 import com.boardgamegeek.entities.CompanyEntity
 import com.boardgamegeek.extensions.fadeIn
 import com.boardgamegeek.extensions.fadeOut
-import com.boardgamegeek.extensions.inflate
 import com.boardgamegeek.extensions.loadThumbnailInList
 import com.boardgamegeek.ui.adapter.AutoUpdatableAdapter
 import com.boardgamegeek.ui.viewmodel.PublishersViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
-import kotlinx.android.synthetic.main.fragment_publishers.*
-import kotlinx.android.synthetic.main.include_horizontal_progress.*
-import kotlinx.android.synthetic.main.row_publisher.view.*
 import kotlin.properties.Delegates
 
 class PublishersFragment : Fragment(R.layout.fragment_publishers) {
+    private var _binding: FragmentPublishersBinding? = null
+    private val binding get() = _binding!!
+
     private val viewModel: PublishersViewModel by lazy {
-        ViewModelProviders.of(requireActivity()).get(PublishersViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(PublishersViewModel::class.java)
     }
 
     private val adapter: PublisherAdapter by lazy {
@@ -32,38 +34,44 @@ class PublishersFragment : Fragment(R.layout.fragment_publishers) {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        _binding = FragmentPublishersBinding.bind(view)
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView.setHasFixedSize(true)
-        recyclerView.adapter = adapter
-        recyclerView.addItemDecoration(RecyclerSectionItemDecoration(
+        binding.recyclerView.setHasFixedSize(true)
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.addItemDecoration(RecyclerSectionItemDecoration(
                 resources.getDimensionPixelSize(R.dimen.recycler_section_header_height),
                 adapter))
 
-        viewModel.publishers.observe(this, Observer {
+        viewModel.publishers.observe(viewLifecycleOwner, Observer {
             showData(it)
-            progressBar.hide()
+            binding.progressBar.hide()
         })
 
-        viewModel.progress.observe(this, Observer {
+        viewModel.progress.observe(viewLifecycleOwner, Observer {
             if (it == null) {
-                progressContainer.isVisible = false
+                binding.progress.progressContainer.isVisible = false
             } else {
-                progressContainer.isVisible = it.second > 0
-                progressView.max = it.second
-                progressView.progress = it.first
+                binding.progress.progressContainer.isVisible = it.second > 0
+                binding.progress.progressView.max = it.second
+                binding.progress.progressView.progress = it.first
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun showData(publishers: List<CompanyEntity>) {
         adapter.publishers = publishers
         if (adapter.itemCount == 0) {
-            recyclerView.fadeOut()
-            emptyTextView.fadeIn()
+            binding.recyclerView.fadeOut()
+            binding.emptyTextView.fadeIn()
         } else {
-            recyclerView.fadeIn()
-            emptyTextView.fadeOut()
+            binding.recyclerView.fadeIn()
+            binding.emptyTextView.fadeOut()
         }
     }
 
@@ -89,7 +97,8 @@ class PublishersFragment : Fragment(R.layout.fragment_publishers) {
         override fun getItemId(position: Int) = publishers.getOrNull(position)?.id?.toLong() ?: RecyclerView.NO_ID
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PublisherViewHolder {
-            return PublisherViewHolder(parent.inflate(R.layout.row_publisher))
+            val binding = RowPublisherBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+            return PublisherViewHolder(binding)
         }
 
         override fun onBindViewHolder(holder: PublisherViewHolder, position: Int) {
@@ -113,15 +122,15 @@ class PublishersFragment : Fragment(R.layout.fragment_publishers) {
             }
         }
 
-        inner class PublisherViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        inner class PublisherViewHolder(private val binding: RowPublisherBinding) : RecyclerView.ViewHolder(binding.root) {
             fun bind(publisher: CompanyEntity?) {
                 publisher?.let { p ->
-                    itemView.thumbnailView.loadThumbnailInList(p.thumbnailUrl)
-                    itemView.nameView.text = p.name
-                    itemView.countView.text = itemView.context.resources.getQuantityString(R.plurals.games_suffix, p.itemCount, p.itemCount)
-                    itemView.whitmoreScoreView.text = itemView.context.getString(R.string.whitmore_score).plus(" ${p.whitmoreScore}")
-                    itemView.setOnClickListener {
-                        PersonActivity.startForPublisher(itemView.context, p.id, p.name)
+                    binding.thumbnailView.loadThumbnailInList(p.thumbnailUrl)
+                    binding.nameView.text = p.name
+                    binding.countView.text = binding.root.context.resources.getQuantityString(R.plurals.games_suffix, p.itemCount, p.itemCount)
+                    binding.whitmoreScoreView.text = binding.root.context.getString(R.string.whitmore_score).plus(" ${p.whitmoreScore}")
+                    binding.root.setOnClickListener {
+                        PersonActivity.startForPublisher(binding.root.context, p.id, p.name)
                     }
                 }
             }

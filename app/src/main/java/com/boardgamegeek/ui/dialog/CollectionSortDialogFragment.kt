@@ -10,29 +10,31 @@ import android.widget.RadioButton
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.children
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.boardgamegeek.R
+import com.boardgamegeek.databinding.DialogCollectionSortBinding
 import com.boardgamegeek.extensions.getSyncPlays
 import com.boardgamegeek.sorter.CollectionSorterFactory
 import com.boardgamegeek.ui.viewmodel.CollectionViewViewModel
-import kotlinx.android.synthetic.main.dialog_collection_sort.*
 import org.jetbrains.anko.support.v4.act
 import timber.log.Timber
 
 class CollectionSortDialogFragment : DialogFragment() {
+    private var _binding: DialogCollectionSortBinding? = null
+    private val binding get() = _binding!!
     private lateinit var layout: View
 
     private val viewModel: CollectionViewViewModel by lazy {
-        ViewModelProviders.of(act).get(CollectionViewViewModel::class.java)
+        ViewModelProvider(requireActivity()).get(CollectionViewViewModel::class.java)
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        @SuppressLint("InflateParams")
-        layout = LayoutInflater.from(context).inflate(R.layout.dialog_collection_sort, null)
+        _binding = DialogCollectionSortBinding.inflate(LayoutInflater.from(context))
+        layout = binding.root
         return AlertDialog.Builder(requireContext()).setView(layout).setTitle(R.string.title_sort).create()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return layout
     }
 
@@ -40,20 +42,25 @@ class CollectionSortDialogFragment : DialogFragment() {
         val selectedType = arguments?.getInt(KEY_SORT_TYPE) ?: CollectionSorterFactory.TYPE_DEFAULT
 
         if (!requireContext().getSyncPlays()) {
-            hideRadioButtonIfNotSelected(playDateMaxRadioButton, selectedType)
-            hideRadioButtonIfNotSelected(playDateMinRadioButton, selectedType)
+            hideRadioButtonIfNotSelected(binding.playDateMaxRadioButton, selectedType)
+            hideRadioButtonIfNotSelected(binding.playDateMinRadioButton, selectedType)
         }
 
         createNames()
         val radioButton = findRadioButtonByType(selectedType)
         radioButton?.isChecked = true
-        scrollContainer.requestChildFocus(radioButton, radioButton)
-        radioGroup.setOnCheckedChangeListener { group, checkedId ->
+        binding.scrollContainer.requestChildFocus(radioButton, radioButton)
+        binding.radioGroup.setOnCheckedChangeListener { group, checkedId ->
             val sortType = getTypeFromView(group.findViewById(checkedId))
             Timber.d("Sort by $sortType")
             viewModel.setSort(sortType)
             dismiss()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     private fun hideRadioButtonIfNotSelected(radioButton: RadioButton, selectedType: Int) {
@@ -65,7 +72,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     private fun createNames() {
         val factory = CollectionSorterFactory(requireContext())
 
-        radioGroup.children.filterIsInstance<RadioButton>().forEach {
+        binding.radioGroup.children.filterIsInstance<RadioButton>().forEach {
             val sortType = getTypeFromView(it)
             val sorter = factory.create(sortType)
             if (sorter != null) it.text = sorter.description
@@ -73,7 +80,7 @@ class CollectionSortDialogFragment : DialogFragment() {
     }
 
     private fun findRadioButtonByType(type: Int): RadioButton? {
-        return radioGroup.children.filterIsInstance<RadioButton>().find {
+        return binding.radioGroup.children.filterIsInstance<RadioButton>().find {
             getTypeFromView(it) == type
         }
     }
