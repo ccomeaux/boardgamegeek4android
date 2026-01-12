@@ -7,7 +7,7 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<Button
+	<com.google.android.material.button.MaterialButton
 		android:id="@+id/designersButton"
 		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
@@ -20,7 +20,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"/>
 
-	<Button
+	<com.google.android.material.button.MaterialButton
 		android:id="@+id/artistsButton"
 		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
@@ -33,7 +33,7 @@
 		app:layout_constraintStart_toEndOf="@id/designersButton"
 		app:layout_constraintTop_toTopOf="parent"/>
 
-	<Button
+	<com.google.android.material.button.MaterialButton
 		android:id="@+id/publishersButton"
 		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
@@ -46,7 +46,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/designersButton"/>
 
-	<Button
+	<com.google.android.material.button.MaterialButton
 		android:id="@+id/mechanicsButton"
 		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"
@@ -59,7 +59,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@id/publishersButton"/>
 
-	<Button
+	<com.google.android.material.button.MaterialButton
 		android:id="@+id/categoriesButton"
 		style="@style/Widget.MaterialComponents.Button.Icon"
 		android:layout_width="wrap_content"

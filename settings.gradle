@@ -6,4 +6,5 @@ pluginManagement {
     }
 }
 
+rootProject.name = "boardgamegeek4android"
 include ':app'

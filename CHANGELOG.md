@@ -3,13 +3,17 @@ Release Notes
 
 Coming Soon...
 --------------
- * Display GeekList comments
- * Add better support for forum markup, including spoilers
- * Filter on rating for just unrated games
- * Correct collection section header when sorting with mixed case
- * Added Huber Heat play stat
- * Click on your username in the nav drawer to link to your BGG profile
- * Refreshed UI
+* Display GeekList comments
+* Add better support for forum markup, including spoilers
+* Filter on rating for just unrated games
+* Correct collection section header when sorting with mixed case
+* Added Huber Heat play stat
+* Click on your username in the nav drawer to link to your BGG profile
+* Refreshed UI
+
+Version 6.8.3
+-------------
+* Add bearer token to API requests to resolve 401 errors
 
 Version 6.8.2
 -------------
@@ -28,7 +32,6 @@ Version 6.8
  * Sort and filter by Geek Rating again
  * Rework how collection views work under the hood
  * Correct refreshing collection when viewing an accessory
- * Support markdown in play comments
 
 Version 6.7.1
 -------------
