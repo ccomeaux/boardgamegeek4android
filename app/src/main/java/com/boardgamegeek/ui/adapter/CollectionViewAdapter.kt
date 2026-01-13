@@ -9,7 +9,7 @@ import com.boardgamegeek.extensions.CollectionViewPrefs
 class CollectionViewAdapter(context: Context) :
     ArrayAdapter<CollectionView>(context, R.layout.actionbar_spinner_item, mutableListOf<CollectionView>()) {
     init {
-        setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
+        setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
     }
 
     override fun getItemId(position: Int): Long {

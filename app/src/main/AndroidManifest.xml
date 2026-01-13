@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest
+	package="com.boardgamegeek"
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:installLocation="auto">
 
@@ -19,6 +21,22 @@
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING"/>
+
+	<!-- Declare intent filters to query for browser apps (required for Android 11+) -->
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="http" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="https" />
+		</intent>
+	</queries>
+
+	<permission
+		android:name="com.boardgamegeek.permission.READ_BGG_PROVIDER"
+		android:protectionLevel="signature" />
 
 	<application
 		android:name=".BggApplication"

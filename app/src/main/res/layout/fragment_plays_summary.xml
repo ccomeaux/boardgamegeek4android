@@ -42,7 +42,7 @@
 						android:gravity="center_horizontal"
 						android:paddingTop="@dimen/padding_standard">
 
-						<Button
+						<com.google.android.material.button.MaterialButton
 							android:id="@+id/syncCancelButton"
 							style="?attr/materialButtonOutlinedStyle"
 							android:layout_width="wrap_content"
@@ -54,7 +54,7 @@
 							android:layout_width="@dimen/padding_extra"
 							android:layout_height="match_parent" />
 
-						<Button
+						<com.google.android.material.button.MaterialButton
 							android:id="@+id/syncButton"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
@@ -79,7 +79,7 @@
 					android:text="@string/title_plays"
 					android:textAppearance="@style/TextAppearance.Title" />
 
-				<Button
+				<com.google.android.material.button.MaterialButton
 					android:id="@+id/morePlaysButton"
 					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
@@ -156,7 +156,7 @@
 					android:text="@string/title_players"
 					android:textAppearance="@style/TextAppearance.Title" />
 
-				<Button
+				<com.google.android.material.button.MaterialButton
 					android:id="@+id/morePlayersButton"
 					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
@@ -198,7 +198,7 @@
 					android:text="@string/title_locations"
 					android:textAppearance="@style/TextAppearance.Title" />
 
-				<Button
+				<com.google.android.material.button.MaterialButton
 					android:id="@+id/moreLocationsButton"
 					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
@@ -240,7 +240,7 @@
 					android:text="@string/title_favorite_colors"
 					android:textAppearance="@style/TextAppearance.Title" />
 
-				<Button
+				<com.google.android.material.button.MaterialButton
 					android:id="@+id/editColorsButton"
 					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
@@ -288,7 +288,7 @@
 					android:text="@string/title_play_stats"
 					android:textAppearance="@style/TextAppearance.Title" />
 
-				<Button
+				<com.google.android.material.button.MaterialButton
 					android:id="@+id/morePlayStatsButton"
 					style="@style/ColoredButton.Small"
 					android:layout_width="wrap_content"
