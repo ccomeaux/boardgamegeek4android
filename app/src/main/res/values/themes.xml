@@ -25,7 +25,6 @@
 
 		<!-- Keep content below system bars -->
 		<item name="android:fitsSystemWindows">true</item>
-		<item name="android:windowTranslucentStatus">true</item>
 	</style>
 
 	<style name="Theme.bgglight.Base" parent="@style/Theme.MaterialComponents.Light.NoActionBar"/>
