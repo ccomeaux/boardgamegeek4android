@@ -523,7 +523,9 @@
 	</style>
 
 	<style name="TextWithImage.Secondary">
-		<item name="android:textAppearance">@style/TextAppearance.Caption.Secondary</item>
+		<item name="android:drawableTint">@color/secondary_text</item>
+		<item name="android:textAppearance">@style/TextAppearance.MaterialComponents.Caption</item>
+		<item name="android:textColor">@color/secondary_text</item>
 	</style>
 
 	<style name="InfoText">

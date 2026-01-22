@@ -42,7 +42,7 @@ android {
     defaultConfig {
         applicationId "com.boardgamegeek"
 
-        minSdkVersion 21
+        minSdkVersion 23
         targetSdk 35
         multiDexEnabled true
 
