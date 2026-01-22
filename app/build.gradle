@@ -92,9 +92,9 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
-    implementation 'androidx.core:core-ktx:1.16.0'
+    implementation 'androidx.core:core-ktx:1.17.0'
 
-    implementation 'androidx.activity:activity-ktx:1.10.1'
+    implementation 'androidx.activity:activity-ktx:1.12.2'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -146,13 +146,14 @@ dependencies {
 
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
 
-    //noinspection GradleDependency
-    implementation 'com.squareup.picasso:picasso:2.5.2' // 2.8?
+    //noinspection NewerVersionAvailable,GradleDependency
+    implementation 'com.squareup.picasso:picasso:2.5.2'
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
+    //noinspection NewerVersionAvailable
     implementation('com.mikepenz:aboutlibraries:7.1.0@aar') {
         transitive = true
     }
