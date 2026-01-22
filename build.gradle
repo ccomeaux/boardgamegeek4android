@@ -2,6 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '2.0.21'
+    ext.hilt_version = '2.57.1'
 
     repositories {
         google()
@@ -21,7 +22,7 @@ buildscript {
 }
 
 plugins {
-    id 'com.google.dagger.hilt.android' version '2.47' apply false
+    id 'com.google.dagger.hilt.android' version "$hilt_version" apply false
     id 'com.google.devtools.ksp' version '2.0.21-1.0.27' apply false
     id 'androidx.room' version '2.7.1'
 }
