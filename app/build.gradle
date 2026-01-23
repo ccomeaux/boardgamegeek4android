@@ -25,18 +25,18 @@ apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'kotlin-parcelize'
 
 repositories {
-    maven { url "https://jitpack.io" }
-    maven { url "https://clojars.org/repo/" }
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://clojars.org/repo/" }
 }
 
 android {
-    namespace 'com.boardgamegeek'
+    namespace = 'com.boardgamegeek'
 
     compileSdk = 36
 
     buildFeatures {
-        viewBinding true
-        buildConfig true
+        viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -44,7 +44,7 @@ android {
 
         minSdkVersion 23
         targetSdk 36
-        multiDexEnabled true
+        multiDexEnabled = true
 
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
@@ -75,11 +75,11 @@ android {
         ]
     }
     lint {
-        abortOnError true
-        baseline file('lint-baseline.xml')
-        checkAllWarnings true
-        checkReleaseBuilds false
-        warningsAsErrors true
+        abortOnError = true
+        baseline = file('lint-baseline.xml')
+        checkAllWarnings = true
+        checkReleaseBuilds = false
+        warningsAsErrors = true
     }
 }
 
