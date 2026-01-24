@@ -174,9 +174,9 @@ class LogPlayViewModel @Inject constructor(
                     if (isRequestingRematch) {
                         _dateInMillis.postValue(today())
                         val players = if (gameSupportsCustomSort) play.players.map { player ->
-                            player.copy(score = "", rating = 0.0, isWin = false, isNew = false, startingPosition = "")
+                            player.copy(internalId = INVALID_ID.toLong(), playInternalId = INVALID_ID.toLong(), score = "", rating = 0.0, isWin = false, isNew = false, startingPosition = "")
                         } else play.sortedPlayers.map { player ->
-                            player.copy(score = "", rating = 0.0, isWin = false, isNew = false)
+                            player.copy(internalId = INVALID_ID.toLong(), playInternalId = INVALID_ID.toLong(), score = "", rating = 0.0, isWin = false, isNew = false)
                         }
                         _players.postValue(players)
                     } else {
@@ -380,7 +380,7 @@ class LogPlayViewModel @Inject constructor(
                     0 -> {} // nothing to do
                     1 -> _players.postValue(assignSeats(it))
                     else -> {
-                        for (i in 0..6) {
+                        (0..6).forEach { _ ->
                             _players.postValue(assignSeats(it.shuffled()))
                             delay(randomDelayMs)
                         }
@@ -415,7 +415,7 @@ class LogPlayViewModel @Inject constructor(
     fun assignColors(clearExisting: Boolean = false) {
         players.value?.let {
             viewModelScope.launch(Dispatchers.Default) {
-                val existingPlayers = if (clearExisting) it.map { it.copy(color = "") } else it
+                val existingPlayers = if (clearExisting) it.map { player -> player.copy(color = "") } else it
                 val results = PlayerColorAssigner(
                     _game.value?.first ?: INVALID_ID,
                     existingPlayers,
@@ -425,9 +425,9 @@ class LogPlayViewModel @Inject constructor(
                 val newPlayers = mutableListOf<PlayPlayer>()
                 existingPlayers.forEach { ppe ->
                     val result = if (ppe.username.isEmpty()) {
-                        results.find { it.type == PlayerColorAssigner.PlayerType.NON_USER && it.name == ppe.name }
+                        results.find { result -> result.type == PlayerColorAssigner.PlayerType.NON_USER && result.name == ppe.name }
                     } else {
-                        results.find { it.type == PlayerColorAssigner.PlayerType.USER && it.name == ppe.username }
+                        results.find { result -> result.type == PlayerColorAssigner.PlayerType.USER && result.name == ppe.username }
                     }
                     newPlayers += if (result == null) ppe.copy() else ppe.copy(color = result.color)
                 }

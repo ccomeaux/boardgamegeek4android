@@ -74,9 +74,10 @@ fun Int.asWishListPriority(context: Context?): String {
 fun Int.asPlayCount(context: Context): Triple<Int, String, Int> {
     val playCounts = mutableListOf<Triple<Int, Int, String>>()
     playCounts.add(Triple(100, R.string.play_stat_dollar, "#85bb65"))
-    playCounts.add(Triple(25, R.string.play_stat_quarter, "#D3D3D3"))
-    playCounts.add(Triple(10, R.string.play_stat_dime, "#C0C0C0"))
-    playCounts.add(Triple(5, R.string.play_stat_nickel, "#B8B8B6"))
+    playCounts.add(Triple(50, R.string.play_stat_half_dollar, "#C3C8CA"))
+    playCounts.add(Triple(25, R.string.play_stat_quarter, "#C0C0C0"))
+    playCounts.add(Triple(10, R.string.play_stat_dime, "#E1E2E4"))
+    playCounts.add(Triple(5, R.string.play_stat_nickel, "#8D8E8C"))
     playCounts.add(Triple(1, R.string.play_stat_penny, "#b87333"))
     val pc = playCounts.find {
         this >= it.first
