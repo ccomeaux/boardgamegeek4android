@@ -37,7 +37,7 @@ class CollectionDetailPrivateInfoDialogFragment : DialogFragment() {
         val viewModel = ViewModelProvider(requireActivity())[CollectionDetailsViewModel::class.java]
         _binding = DialogPrivateInfoCollectionDetailsBinding.inflate(layoutInflater)
         return requireContext().createThemedBuilder()
-            .setTitle(R.string.title_buy)
+            .setTitle(R.string.title_buy) //
             .setView(binding.root)
             .setNegativeButton(R.string.cancel, null)
             .setPositiveButton(R.string.ok) { _, _ ->
@@ -71,7 +71,11 @@ class CollectionDetailPrivateInfoDialogFragment : DialogFragment() {
         binding.gameNameView.text = savedInstanceState?.getString(KEY_GAME_NAME) ?: arguments?.getString(KEY_GAME_NAME)
         setUpCurrencyView(binding.priceCurrencyView, savedInstanceState?.getString(KEY_PRICE_CURRENCY) ?: arguments?.getString(KEY_PRICE_CURRENCY))
         setUpValue(binding.priceView, savedInstanceState?.getDouble(KEY_PRICE) ?: arguments?.getDouble(KEY_PRICE))
-        binding.quantityView.setAndSelectExistingText((savedInstanceState?.getInt(KEY_QUANTITY) ?: arguments?.getInt(KEY_QUANTITY)).toString())
+
+        val missingQuantity = Int.MIN_VALUE
+        val quantity = savedInstanceState?.getInt(KEY_QUANTITY, missingQuantity) ?: arguments?.getInt(KEY_QUANTITY, missingQuantity)
+        binding.quantityView.setAndSelectExistingText(if (quantity == missingQuantity) null else quantity.toString())
+
         setAndDisplayAcquisitionDate(savedInstanceState?.getLong(KEY_ACQUISITION_DATE) ?: arguments?.getLong(KEY_ACQUISITION_DATE) ?: 0L)
         binding.acquiredFromView.setAndSelectExistingText(savedInstanceState?.getString(KEY_ACQUIRED_FROM) ?: arguments?.getString(KEY_ACQUIRED_FROM))
 

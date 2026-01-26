@@ -73,12 +73,17 @@ class PrivateInfoDialogFragment : DialogFragment() {
 
         setUpCurrencyView(binding.priceCurrencyView, savedInstanceState?.getString(KEY_PRICE_CURRENCY) ?: arguments?.getString(KEY_PRICE_CURRENCY))
         setUpValue(binding.priceView, savedInstanceState?.getDouble(KEY_PRICE) ?: arguments?.getDouble(KEY_PRICE))
+
         setUpCurrencyView(
             binding.currentValueCurrencyView,
             savedInstanceState?.getString(KEY_CURRENT_VALUE_CURRENCY) ?: arguments?.getString(KEY_CURRENT_VALUE_CURRENCY)
         )
         setUpValue(binding.currentValueView, savedInstanceState?.getDouble(KEY_CURRENT_VALUE) ?: arguments?.getDouble(KEY_CURRENT_VALUE))
-        binding.quantityView.setAndSelectExistingText((savedInstanceState?.getInt(KEY_QUANTITY) ?: arguments?.getInt(KEY_QUANTITY)).toString())
+
+        val missingQuantity = Int.MIN_VALUE
+        val quantity = savedInstanceState?.getInt(KEY_QUANTITY, missingQuantity) ?: arguments?.getInt(KEY_QUANTITY, missingQuantity)
+        binding.quantityView.setAndSelectExistingText(if (quantity == missingQuantity) null else quantity.toString())
+
         setAndDisplayAcquisitionDate(savedInstanceState?.getLong(KEY_ACQUISITION_DATE) ?: arguments?.getLong(KEY_ACQUISITION_DATE) ?: 0L)
         binding.acquiredFromView.setAndSelectExistingText(savedInstanceState?.getString(KEY_ACQUIRED_FROM) ?: arguments?.getString(KEY_ACQUIRED_FROM))
         binding.inventoryLocationView.setAndSelectExistingText(
