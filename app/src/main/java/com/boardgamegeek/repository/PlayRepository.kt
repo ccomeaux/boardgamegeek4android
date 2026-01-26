@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.os.Build
 import android.text.format.DateUtils
 import androidx.annotation.StringRes
 import androidx.work.*
@@ -270,7 +269,7 @@ class PlayRepository(
                 } else {
                     return@withContext result.exceptionOrNull()?.localizedMessage ?: "Error"
                 }
-            } while (result?.getOrNull()?.hasMorePages() == true)
+            } while (result.getOrNull()?.hasMorePages() == true)
         }
         null
     }
@@ -749,7 +748,7 @@ class PlayRepository(
                                         (it.subtype == Game.Subtype.BoardGameExpansion && includeExpansions)
                                 )
                     }
-                    .sumOf { it.quantity }
+                    .sumOf { it.quantity ?: 1 }
             }
         } else OWNED_QUANTITY_UNKNOWN
 
@@ -829,7 +828,7 @@ class PlayRepository(
                             context,
                             0,
                             Intent(context, PlayStatsActivity::class.java),
-                            PendingIntent.FLAG_UPDATE_CURRENT or if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0,
+                            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
                         )
                     ), NotificationTags.PLAY_STATS, notificationId
                 )

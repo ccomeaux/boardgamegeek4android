@@ -37,7 +37,7 @@ fun CollectionItemRemote.mapForInsert(updatedTimestamp: Long) = CollectionItemFo
     privateInfoPricePaid = pricepaid?.toDoubleOrNull() ?: 0.0,
     privateInfoCurrentValueCurrency = cv_currency.orEmpty(),
     privateInfoCurrentValue = currvalue?.toDoubleOrNull() ?: 0.0,
-    privateInfoQuantity = quantity?.toIntOrNull() ?: 1,
+    privateInfoQuantity = quantity?.toIntOrNull(),
     privateInfoAcquisitionDate = acquisitiondate,
     privateInfoAcquiredFrom = acquiredfrom.orEmpty(),
     privateInfoComment = privatecomment.orEmpty(),
@@ -143,7 +143,7 @@ fun CollectionItemRemote.mapToCollectionItem() = CollectionItem(
     pricePaid = pricepaid?.toDoubleOrNull() ?: 0.0,
     currentValueCurrency = cv_currency.orEmpty(),
     currentValue = currvalue?.toDoubleOrNull() ?: 0.0,
-    quantity = quantity?.toIntOrNull() ?: 1,
+    quantity = quantity?.toIntOrNull(),
     acquisitionDate = acquisitiondate.toMillis(SimpleDateFormat("yyyy-MM-dd", Locale.US)),
     acquiredFrom = acquiredfrom.orEmpty(),
     privateComment = privatecomment.orEmpty(),
@@ -242,7 +242,7 @@ fun CollectionItem.mapToFormBodyForPrivateInfoUpdate(): FormBody {
         .add("pricepaid", pricePaid.formatCurrency())
         .add("cv_currency", currentValueCurrency)
         .add("currvalue", currentValue.formatCurrency())
-        .add("quantity", quantity.toString())
+        .add("quantity", quantity?.toString() ?: "")
         .add("acquisitiondate", acquisitionDate.asDateForApi())
         .add("acquiredfrom", acquiredFrom)
         .add("privatecomment", privateComment)
@@ -321,7 +321,7 @@ fun CollectionItemEntity.mapToModel(): CollectionItem {
         pricePaid = privateInfoPricePaid ?: 0.0,
         currentValueCurrency = privateInfoCurrentValueCurrency.orEmpty(),
         currentValue = privateInfoCurrentValue ?: 0.0,
-        quantity = privateInfoQuantity ?: 1,
+        quantity = privateInfoQuantity,
         acquisitionDate = privateInfoAcquisitionDate.toMillis(acquisitionDateFormat),
         acquiredFrom = privateInfoAcquiredFrom.orEmpty(),
         privateComment = privateInfoComment.orEmpty(),

@@ -44,7 +44,7 @@ data class CollectionItem(
     val pricePaid: Double = 0.0,
     val currentValueCurrency: String = "",
     val currentValue: Double = 0.0,
-    val quantity: Int = 1,
+    val quantity: Int? = null,
     val acquisitionDate: Long = 0L,
     val acquiredFrom: String = "",
     val privateComment: String = "",
@@ -117,7 +117,7 @@ data class CollectionItem(
     }
 
     fun hasPrivateInfo(): Boolean {
-        return quantity > 1 ||
+        return quantity != null ||
                 acquisitionDate > 0L ||
                 acquiredFrom.isNotBlank() ||
                 pricePaid > 0.0 ||
@@ -194,7 +194,7 @@ data class CollectionItem(
         val initialText = context.getString(R.string.acquired)
         val sb = SpannableStringBuilder()
         sb.append(initialText)
-        if (quantity > 1) {
+        if (quantity != null) {
             sb.append(" ").appendBold(quantity.toString())
         }
         if (acquisitionDate > 0L) {

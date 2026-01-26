@@ -377,7 +377,7 @@ class GameCollectionItemFragment : Fragment() {
         }
 
         fun hasPrivateInfo(item: CollectionItem): Boolean {
-            return item.quantity > 1 ||
+            return item.quantity != null ||
                     item.acquisitionDate > 0L ||
                     item.acquiredFrom.isNotEmpty() ||
                     item.pricePaid > 0.0 ||
@@ -387,7 +387,7 @@ class GameCollectionItemFragment : Fragment() {
 
         private fun setVisibilityByChild(view: ViewGroup, child: View): Boolean {
             if (child is ViewGroup) {
-                val tag = child.getTag() as? String?
+                val tag = child.tag as? String?
                 if (tag != null && tag == "container") {
                     child.children.forEach { grandchild ->
                         if (setVisibilityByChild(view, grandchild)) return true
