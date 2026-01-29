@@ -42,7 +42,7 @@
 		android:paddingTop="@dimen/padding_standard"
 		android:paddingBottom="@dimen/padding_standard">
 
-		<Button
+		<com.google.android.material.button.MaterialButton
 			android:id="@+id/exportButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
 			android:layout_width="24dp"
 			android:layout_height="match_parent" />
 
-		<Button
+		<com.google.android.material.button.MaterialButton
 			android:id="@+id/importButton"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"

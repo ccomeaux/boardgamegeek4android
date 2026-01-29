@@ -23,5 +23,8 @@
 	<com.boardgamegeek.pref.LinkPreference
 		android:summary="https://boardgamegeek.com/guild/3543"
 		android:title="@string/pref_about_bgg_guild"/>
+	<com.boardgamegeek.pref.ImagePreference
+		android:key="full_width_image_key"
+		android:selectable="false" />
 
 </androidx.preference.PreferenceScreen>

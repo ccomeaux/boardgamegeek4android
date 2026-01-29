@@ -26,19 +26,19 @@ apply plugin: 'com.github.ben-manes.versions'
 apply plugin: 'kotlin-parcelize'
 
 repositories {
-    maven { url "https://jitpack.io" }
-    maven { url "https://clojars.org/repo/" }
+    maven { url = "https://jitpack.io" }
+    maven { url = "https://clojars.org/repo/" }
 }
 
 android {
-    namespace 'com.boardgamegeek'
+    namespace = 'com.boardgamegeek'
+
     compileSdk = 36
 
-
     buildFeatures {
-        viewBinding true
-        buildConfig true
-        compose true
+        viewBinding = true
+        buildConfig = true
+        compose = true
     }
 
     defaultConfig {
@@ -46,7 +46,7 @@ android {
 
         minSdkVersion 23
         targetSdk 36
-        multiDexEnabled true
+        multiDexEnabled = true
 
         versionCode versionMajor * 1000000 + versionMinor * 10000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}.${versionPatch}"
@@ -61,7 +61,7 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -77,11 +77,11 @@ android {
         ]
     }
     lint {
-        abortOnError true
-        baseline file('lint-baseline.xml')
-        checkAllWarnings true
-        checkReleaseBuilds false
-        warningsAsErrors true
+        abortOnError = true
+        baseline = file('lint-baseline.xml')
+        checkAllWarnings = true
+        checkReleaseBuilds = false
+        warningsAsErrors = true
     }
 }
 
@@ -96,7 +96,7 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.17.0'
 
-    implementation 'androidx.activity:activity-ktx:1.11.0'
+    implementation 'androidx.activity:activity-ktx:1.12.2'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -105,7 +105,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
     implementation 'androidx.paging:paging-runtime-ktx:3.3.6'
 
     implementation 'androidx.compose.material3:material3:1.5.0-alpha04'
@@ -125,19 +125,19 @@ dependencies {
     ksp "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-    implementation 'androidx.work:work-runtime:2.10.5'
-    def hilt_work_version = '1.3.0'
-    implementation "androidx.hilt:hilt-work:$hilt_work_version"
-    ksp "androidx.hilt:hilt-compiler:$hilt_work_version"
+    implementation 'androidx.work:work-runtime:2.11.0'
+    def work_hilt_version = '1.3.0'
+    implementation "androidx.hilt:hilt-work:$work_hilt_version"
+    ksp "androidx.hilt:hilt-compiler:$work_hilt_version"
 
     implementation 'androidx.multidex:multidex:2.0.1'
 
-    def arch_lifecycle_version = '2.9.4'
+    def arch_lifecycle_version = '2.10.0'
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$arch_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$arch_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$arch_lifecycle_version"
 
-    implementation platform('com.google.firebase:firebase-bom:34.3.0')
+    implementation platform('com.google.firebase:firebase-bom:34.8.0')
     implementation 'com.google.firebase:firebase-config'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-crashlytics'
@@ -154,7 +154,7 @@ dependencies {
         exclude group: 'xpp3', module: 'xpp3'
     }
 
-    def okhttp_version = '5.1.0'
+    def okhttp_version = '5.3.2'
     //noinspection GradleDependency
     implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
     //noinspection GradleDependency
@@ -162,7 +162,7 @@ dependencies {
 
     implementation 'com.jakewharton.picasso:picasso2-okhttp3-downloader:1.1.0'
 
-    //noinspection GradleDependency
+    //noinspection NewerVersionAvailable,GradleDependency
     implementation 'com.squareup.picasso:picasso:2.5.2' // 2.8?
     implementation 'io.coil-kt.coil3:coil-compose:3.3.0'
     implementation 'io.coil-kt.coil3:coil-network-okhttp:3.3.0'
@@ -171,6 +171,7 @@ dependencies {
 
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
+    //noinspection NewerVersionAvailable
     implementation('com.mikepenz:aboutlibraries:7.1.0@aar') {
         transitive = true
     }
@@ -181,7 +182,7 @@ dependencies {
     implementation "com.facebook.stetho:stetho:$stetho_version"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
-    implementation 'org.jsoup:jsoup:1.21.2'
+    implementation 'org.jsoup:jsoup:1.22.1'
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.14"
 }

@@ -68,6 +68,8 @@ freeline.py
 freeline/
 freeline_project_description.json
 
+# Fabric
+fabric.properties
 ajcore.*.txt
 assetWizardSettings.xml
 deploymentTargetDropDown.xml

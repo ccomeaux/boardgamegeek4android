@@ -203,7 +203,7 @@
 					android:text="@string/play_stat_collection_status"
 					tools:ignore="RtlSymmetry" />
 
-				<Button
+				<com.google.android.material.button.MaterialButton
 					android:id="@+id/collectionStatusSettingsButton"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -234,7 +234,7 @@
 					android:text="@string/play_stat_accuracy"
 					tools:ignore="RtlSymmetry" />
 
-				<Button
+				<com.google.android.material.button.MaterialButton
 					android:id="@+id/includeSettingsButton"
 					style="?attr/materialButtonOutlinedStyle"
 					android:layout_width="wrap_content"
