@@ -26,6 +26,7 @@ plugins {
     id 'com.google.dagger.hilt.android' version "$hilt_version" apply false
     id 'com.google.devtools.ksp' version '2.3.2' apply false
     id 'androidx.room' version "$room_version" apply false
+    id 'org.jetbrains.kotlin.plugin.compose' version "$kotlin_version" apply false
 }
 
 apply plugin: 'com.github.ben-manes.versions'
