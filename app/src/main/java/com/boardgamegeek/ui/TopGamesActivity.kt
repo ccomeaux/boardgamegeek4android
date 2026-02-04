@@ -189,7 +189,7 @@ class TopGamesActivity : BaseActivity() {
                                     coroutineScope.launch {
                                         snackbarHostState.showSnackbar(message)
                                     }
-                                    for (gameId in selectedIds) {0
+                                    for (gameId in selectedIds) {
                                         nameFromId(gameId)?.let { gameName ->
                                             viewModel.logQuickPlay(gameId, gameName)
                                         }
