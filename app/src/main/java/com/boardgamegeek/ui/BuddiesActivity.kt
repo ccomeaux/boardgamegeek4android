@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -106,7 +107,7 @@ class BuddiesActivity : BaseActivity() {
 
 private enum class BuddiesSort(
     val type: User.SortType,
-    @StringRes val labelResId: Int,
+    @param:StringRes val labelResId: Int,
 ) {
     Username(User.SortType.USERNAME, R.string.menu_sort_username),
     FirstName(User.SortType.FIRST_NAME, R.string.menu_sort_first_name),
@@ -246,7 +247,10 @@ private fun Empty(
         EmptyFullSizeScrollableContent(
             R.string.empty_buddies_sync_off,
             painterResource(R.drawable.geekbuddy_24px),
-            padding = contentPadding,
+            padding = contentPadding + PaddingValues(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = dimensionResource(R.dimen.material_margin_vertical),
+            ),
         ) {
             Spacer(Modifier.height(24.dp))
             Button(

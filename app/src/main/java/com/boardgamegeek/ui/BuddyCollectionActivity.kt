@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -208,7 +209,10 @@ private fun BuddyCollectionScreen(
         EmptyFullSizeScrollableContent(
             stringResource(R.string.empty_buddy_collection, statusDescription),
             painterResource(R.drawable.collection_24px),
-            padding = contentPadding
+            padding = contentPadding + PaddingValues(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = dimensionResource(R.dimen.material_margin_vertical),
+            )
         )
     } else {
         val context = LocalContext.current

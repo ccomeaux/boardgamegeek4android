@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -28,10 +27,7 @@ fun EmptyFullSizeScrollableContent(
     iconPainter: Painter,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
-    padding: PaddingValues = PaddingValues(
-        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-        vertical = dimensionResource(R.dimen.material_margin_vertical),
-    ),
+    padding: PaddingValues = PaddingValues(0.dp),
     extraContent: @Composable ColumnScope.() -> Unit = {},
 ) = EmptyContent(
     text = stringResource(textResource),
@@ -49,10 +45,7 @@ fun EmptyFullSizeScrollableContent(
     iconPainter: Painter,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
-    padding: PaddingValues = PaddingValues(
-        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-        vertical = dimensionResource(R.dimen.material_margin_vertical),
-    ),
+    padding: PaddingValues = PaddingValues(0.dp),
 ) = EmptyContent(
     text = text,
     iconPainter = iconPainter,
@@ -68,10 +61,7 @@ fun EmptyFullSizeScrollableContent(
     iconPainter: Painter,
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(),
-    padding: PaddingValues = PaddingValues(
-        horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-        vertical = dimensionResource(R.dimen.material_margin_vertical),
-    ),
+    padding: PaddingValues = PaddingValues(0.dp),
 ) = EmptyContent(
     text = stringResource(textResource),
     iconPainter = iconPainter,
