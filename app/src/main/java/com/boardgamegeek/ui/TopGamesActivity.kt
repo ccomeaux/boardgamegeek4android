@@ -103,7 +103,7 @@ class TopGamesActivity : BaseActivity() {
             BggAppTheme {
                 Drawer(
                     drawerState = drawerState,
-                    selectedItem = DrawerItem.Hotness,
+                    selectedItem = DrawerItem.TopGames,
                 ) {
                     Scaffold(
                         topBar = {
