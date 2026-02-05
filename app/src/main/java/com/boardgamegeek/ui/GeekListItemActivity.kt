@@ -6,20 +6,18 @@ import android.content.Context
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,6 +55,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.NumberFormat
 import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
@@ -101,12 +100,6 @@ class GeekListItemActivity : BaseActivity() {
                         }
                     ) { contentPadding ->
                         Column(modifier = Modifier.padding(contentPadding)) {
-                            var selectedDestination by rememberSaveable { mutableIntStateOf(0) }
-
-                            val descriptionScrollState: ScrollState = rememberScrollState()
-                            val commentListState: LazyListState = rememberLazyListState()
-                            val emptyCommentListScrollState: ScrollState = rememberScrollState()
-
                             val paddingValues = PaddingValues(
                                 horizontal = dimensionResource(R.dimen.material_margin_horizontal),
                                 vertical = dimensionResource(R.dimen.material_margin_vertical)
@@ -137,32 +130,30 @@ class GeekListItemActivity : BaseActivity() {
                                     geekListTitle,
                                 )
                             }
-                            GeekListItemTabRow(
-                                selectedDestination = selectedDestination,
-                                onClick = { newDestination -> selectedDestination = newDestination },
+                            val coroutineScope = rememberCoroutineScope()
+                            val pagerState = rememberPagerState(
+                                initialPage = GeekListItemTab.Description.ordinal,
+                                pageCount = { GeekListItemTab.entries.size },
                             )
-                            AnimatedContent(
-                                targetState = selectedDestination,
-                                transitionSpec = {
-                                    val slideDirection =
-                                        if (targetState > initialState) AnimatedContentTransitionScope.SlideDirection.Start
-                                        else AnimatedContentTransitionScope.SlideDirection.End
-                                    slideIntoContainer(towards = slideDirection) togetherWith slideOutOfContainer(towards = slideDirection)
-                                }
-                            ) { targetState ->
+                            GeekListItemTabRow(
+                                selectedDestination = pagerState.currentPage,
+                                onClick = { newDestination ->
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(newDestination)
+                                    }
+                                },
+                            )
+                            HorizontalPager(pagerState) { targetState ->
                                 when (targetState) {
                                     GeekListItemTab.Description.ordinal -> {
                                         GeekListItemDescriptionContent(
                                             geekListItem.body,
-                                            scrollState = descriptionScrollState,
-                                            markupConverter,
+                                            markupConverter = markupConverter,
                                         )
                                     }
                                     GeekListItemTab.Comments.ordinal -> GeekListItemCommentContent(
                                         geekListItem.comments,
                                         contentPadding = paddingValues,
-                                        lazyListState = commentListState,
-                                        scrollState = emptyCommentListScrollState,
                                     )
                                 }
                             }
@@ -251,7 +242,7 @@ private fun GeekListItemTopAppBarPreview() {
     }
 }
 
-private enum class GeekListItemTab(@StringRes val resId: Int) {
+private enum class GeekListItemTab(@param:StringRes val resId: Int) {
     Description(R.string.title_description),
     Comments(R.string.title_comments),
 }
@@ -283,7 +274,7 @@ private fun GeekListItemCommentContent(
     comments: List<GeekListComment>,
     contentPadding: PaddingValues,
     lazyListState: LazyListState = rememberLazyListState(),
-    scrollState: ScrollState
+    scrollState: ScrollState = rememberScrollState(),
 ) {
     if (comments.isEmpty()) {
         EmptyFullSizeScrollableContent(
