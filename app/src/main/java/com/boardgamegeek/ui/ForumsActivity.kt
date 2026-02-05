@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -94,7 +95,9 @@ class ForumsActivity : BaseActivity() {
                             }
                             Status.REFRESHING -> {
                                 BggLoadingIndicatorBox(
-                                    modifier = Modifier.padding(contentPadding)
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(contentPadding)
                                 )
                             }
                             Status.SUCCESS -> {
@@ -179,8 +182,8 @@ private fun ForumsContent(
                         modifier = Modifier,
                         onClick = { onItemClick(forum) },
                     )
-                    if (index < forums.lastIndex)
-                        HorizontalDivider() // TODO skip this on either side of a header
+                    if (index < forums.lastIndex && !forum.isHeader && !forums[index + 1].isHeader)
+                        HorizontalDivider(color = Color(255, 0, 0))
                 }
             }
         }
