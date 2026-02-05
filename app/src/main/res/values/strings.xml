@@ -218,6 +218,8 @@
 	<string name="title_export">Export</string>
 	<string name="title_import">Import</string>
 	<string name="title_buy">Acquiring</string>
+	<string name="games_pending_download_zero">All games have been synced</string>
+	<string name="collection_unsynced">Your collection hasn\'t been synced.</string>
 	<string name="currently_syncing">Currently syncing</string>
 	<string name="title_statuses">Statuses</string>
 	<string name="complete">Complete</string>
@@ -799,8 +801,9 @@
 	<string name="sync_plays_action_saving">Saving</string>
 	<string name="sync_plays_action_deleting">Deleting</string>
 	<string name="sync_users">Sync Users</string>
-	<string name="sync_buddies_date_zero">List of GeekBuddies hasn\'t been synced</string>
-	<string name="sync_buddies_date">List of GeekBuddies synced as of %s</string>
+	<string name="sync_buddies_date_zero">GeekBuddy list is not synced</string>
+	<string name="sync_buddies_date">GeekBuddy list synced as of %s</string>
+	<string name="users_synced_none">No users synced</string>
 	<string name="sync_user_step_list">Syncing GeekBuddy list</string>
 	<string name="sync_user_step_stale_buddies">Syncing stale buddies</string>
 	<string name="sync_user_step_unupdated_buddies">Syncing unupdated buddies</string>

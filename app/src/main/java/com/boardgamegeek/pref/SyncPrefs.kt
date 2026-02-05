@@ -71,6 +71,13 @@ private fun Game.Subtype.mapToPreference() = when (this) {
     Game.Subtype.Unknown -> ""
 }
 
+fun String.mapSubtypeToEnum(): Game.Subtype = when (this) {
+    TYPE_BOARD_GAME -> Game.Subtype.BoardGame
+    TYPE_BOARD_GAME_EXPANSION -> Game.Subtype.BoardGameExpansion
+    TYPE_BOARD_GAME_ACCESSORY -> Game.Subtype.BoardGameAccessory
+    else -> Game.Subtype.Unknown
+}
+
 fun SharedPreferences.clearCollection() {
     this[TIMESTAMP_COLLECTION_COMPLETE] = 0L
     this[TIMESTAMP_COLLECTION_COMPLETE_CURRENT] = 0L

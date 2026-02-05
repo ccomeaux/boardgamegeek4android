@@ -1,19 +1,18 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import android.content.SharedPreferences
 import androidx.lifecycle.*
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.LiveSharedPreference
+import com.boardgamegeek.livedata.LiveSharedPreferencePrefix
 import com.boardgamegeek.mappers.mapToEnum
 import com.boardgamegeek.model.CollectionStatus
-import com.boardgamegeek.model.Game
 import com.boardgamegeek.model.Play
 import com.boardgamegeek.model.User
 import com.boardgamegeek.pref.SyncPrefs
-import com.boardgamegeek.pref.getCompleteCollectionTimestampKey
+import com.boardgamegeek.pref.mapSubtypeToEnum
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.repository.GameRepository
 import com.boardgamegeek.repository.PlayRepository
@@ -31,7 +30,7 @@ class SyncViewModel @Inject constructor(
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
 ) : AndroidViewModel(application) {
-    private val prefs: SharedPreferences by lazy { application.preferences() }
+    val username: LiveData<String?> = LiveSharedPreference<String?>(getApplication(), AccountPreferences.KEY_USERNAME, defaultValue = null).distinctUntilChanged()
 
     val syncCollectionStatuses: LiveData<Set<CollectionStatus>?> = collectionStatusLiveData(getApplication())
 
@@ -43,8 +42,8 @@ class SyncViewModel @Inject constructor(
     private val oldestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_OLDEST_DATE, SyncPrefs.NAME, defaultValue = null)
     private val newestSyncDate: LiveData<Long?> = LiveSharedPreference(getApplication(), SyncPrefs.TIMESTAMP_PLAYS_NEWEST_DATE, SyncPrefs.NAME, defaultValue = null)
 
-    private val _playSyncState = MediatorLiveData<Triple<Long, Long, Int>>()
-    val playSyncState: LiveData<Triple<Long, Long, Int>>
+    private val _playSyncState = MediatorLiveData<PlaySyncState>()
+    val playSyncState: LiveData<PlaySyncState>
         get() = _playSyncState
 
     val syncBuddies: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_BUDDIES, defaultValue = null)
@@ -81,7 +80,7 @@ class SyncViewModel @Inject constructor(
                 newestSyncDate.value?.let { new ->
                     oldestSyncDate.value?.let { old ->
                         numberOfSyncPlays.value?.let {
-                            _playSyncState.postValue(Triple(old, new, size))
+                            _playSyncState.postValue(PlaySyncState(old, new, size))
                         }
                     }
                 }
@@ -91,7 +90,7 @@ class SyncViewModel @Inject constructor(
             it?.let { old ->
                 newestSyncDate.value?.let { new ->
                     numberOfSyncPlays.value?.let { size ->
-                        _playSyncState.postValue(Triple(old, new, size))
+                        _playSyncState.postValue(PlaySyncState(old, new, size))
                     }
                 }
             }
@@ -100,21 +99,24 @@ class SyncViewModel @Inject constructor(
             it?.let { new ->
                 oldestSyncDate.value?.let { old ->
                     numberOfSyncPlays.value?.let { size ->
-                        _playSyncState.postValue(Triple(old, new, size))
+                        _playSyncState.postValue(PlaySyncState(old, new, size))
                     }
                 }
             }
         }
     }
 
-    fun collectionStatusCompleteTimestamp(status: CollectionStatus): LiveData<Long?> {
-        return if (status == CollectionStatus.Unknown) MutableLiveData(null)
-        else LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(null, status), SyncPrefs.NAME, defaultValue = null)
-    }
-
-    fun collectionStatusAccessoryCompleteTimestamp(status: CollectionStatus): LiveData<Long?> {
-        return LiveSharedPreference(getApplication(), getCompleteCollectionTimestampKey(Game.Subtype.BoardGameAccessory, status), SyncPrefs.NAME, defaultValue = null)
-    }
+    val collectionStatusCompleteTimestamps =
+        LiveSharedPreferencePrefix<Long>(getApplication(), SyncPrefs.TIMESTAMP_COLLECTION_COMPLETE, SyncPrefs.NAME).map { map ->
+            CollectionStatus.Own
+            map.filter { entry ->
+                entry.key.count { it == '.' } == 2
+            }.mapKeys {
+                it.key.split('.').run {
+                    last().mapToEnum() to this[lastIndex - 1].mapSubtypeToEnum()
+                }
+            }
+        }
 
     fun syncCollection(status: CollectionStatus = CollectionStatus.Unknown) {
         SyncCollectionWorker.requestSync(getApplication(), status)
@@ -129,8 +131,10 @@ class SyncViewModel @Inject constructor(
     }
 
     fun modifyCollectionStatus(status: CollectionStatus, add: Boolean) {
-        if (add) prefs.addSyncStatus(status)
-        else prefs.removeSyncStatus(status)
+        application.preferences().run {
+            if (add) addSyncStatus(status)
+            else removeSyncStatus(status)
+        }
     }
 
     val collectionSyncProgress: LiveData<CollectionSyncProgress> = collectionWorkInfos.map {
@@ -157,6 +161,10 @@ class SyncViewModel @Inject constructor(
             CollectionSyncProgress()
         }
     }.distinctUntilChanged()
+
+    fun enablePlaysSync(enable: Boolean) {
+        application.preferences()[PREFERENCES_KEY_SYNC_PLAYS] = enable
+    }
 
     val playSyncProgress: LiveData<PlaySyncProgress> = playWorkInfos.map {
         val workInfo = it.firstOrNull()
@@ -207,6 +215,10 @@ class SyncViewModel @Inject constructor(
         emitSource(userRepository.loadUsersFlow().distinctUntilChanged().asLiveData())
     }
 
+    fun enableUserSync(enable: Boolean) {
+        application.preferences()[PREFERENCES_KEY_SYNC_BUDDIES] = enable
+    }
+
     fun syncBuddies() {
         SyncUsersWorker.requestSync(getApplication())
     }
@@ -241,8 +253,7 @@ class SyncViewModel @Inject constructor(
             UserSyncProgress(
                 stepEnum,
                 progress.getString(SyncUsersWorker.PROGRESS_USERNAME),
-                progress.getInt(SyncUsersWorker.PROGRESS_INDEX, 0),
-                progress.getInt(SyncUsersWorker.PROGRESS_TOTAL, 0),
+                progress.getInt(SyncUsersWorker.PROGRESS_INDEX, 0).toFloat() / progress.getInt(SyncUsersWorker.PROGRESS_TOTAL, 0),
             )
         } else {
             UserSyncProgress(UserSyncProgressStep.NotSyncing)
@@ -272,6 +283,8 @@ class SyncViewModel @Inject constructor(
         Accessory,
     }
 
+    data class PlaySyncState(val oldestSyncDate: Long, val newestSyncDate: Long, val size: Int)
+
     data class PlaySyncProgress(
         val step: PlaySyncProgressStep,
         val minDate: Long = 0L,
@@ -297,7 +310,7 @@ class SyncViewModel @Inject constructor(
 
     data class UserSyncState(val count: Int, val numberOfUnupdatedUsers: Int, val oldestUpdatedUserTimestamp: Long?)
 
-    data class UserSyncProgress(val step: UserSyncProgressStep, val username: String? = null, val progress: Int = 0, val max: Int = 0)
+    data class UserSyncProgress(val step: UserSyncProgressStep, val username: String? = null, val progress: Float = 0.0f)
 
     enum class UserSyncProgressStep {
         NotSyncing,
