@@ -84,16 +84,6 @@
 	<string-array name="pref_sync_status_default">
 		<item>own</item>
 	</string-array>
-	<string-array name="collection_status_filter_values">
-		<item>own</item>
-		<item>previously_owned</item>
-		<item>for_trade</item>
-		<item>want</item>
-		<item>want_to_buy</item>
-		<item>wishlist</item>
-		<item>want_to_play</item>
-		<item>preordered</item>
-	</string-array>
 	<string-array name="expansion_status_filter_values"> <!-- These should match Game.Subtype.databaseValue -->
 		<item />
 		<item>boardgame</item>
