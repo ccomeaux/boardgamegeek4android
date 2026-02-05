@@ -283,7 +283,7 @@ class SyncCollectionWorker @AssistedInject constructor(
                 val stat = if (status != CollectionStatus.Unknown) " of status $status" else ""
                 val modified = if (sinceTimestamp != null) " modified since ${sinceTimestamp.toDateTime()}" else ""
                 val games = if (gameIds != null) " of game IDs of ${gameIds.formatList()}" else ""
-                Timber.i("Saved ${result.getOrNull() ?: 0} collection $subtypeDescription" + stat + modified + games)
+                Timber.i("Saved ${result.getOrNull() ?: 0} collection $subtypeDescription$stat$modified$games")
                 null
             } else handleException(errorMessage, result.exceptionOrNull())
         } catch (e: Exception) {
