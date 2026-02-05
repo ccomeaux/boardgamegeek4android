@@ -492,38 +492,18 @@ class SyncCollectionWorker @AssistedInject constructor(
             .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
             .build()
 
-        private fun CollectionStatus.mapToString() = when (this) {
-            CollectionStatus.Own -> "own"
-            CollectionStatus.PreviouslyOwned -> "previously_owned"
-            CollectionStatus.Preordered -> "preorderd"
-            CollectionStatus.Played -> "played"
-            CollectionStatus.ForTrade -> "for_trade"
-            CollectionStatus.WantInTrade -> "want_in_trade"
-            CollectionStatus.WantToBuy -> "want_to_buy"
-            CollectionStatus.WantToPlay -> "want_to_play"
-            CollectionStatus.Wishlist -> "wishlist"
-            CollectionStatus.Rated -> "rated"
-            CollectionStatus.Commented -> "commented"
-            CollectionStatus.HasParts -> "has_parts"
-            CollectionStatus.WantParts -> "want_parts"
-            CollectionStatus.Unknown -> ""
-        }
+        private fun CollectionStatus.mapToString(): String = if (this == CollectionStatus.Unknown)
+            ""
+        else this.toString()
 
-        private fun String?.mapToEnum() = when (this) {
-            "own" -> CollectionStatus.Own
-            "previously_owned" -> CollectionStatus.PreviouslyOwned
-            "preorderd" -> CollectionStatus.Preordered
-            "played" -> CollectionStatus.Played
-            "for_trade" -> CollectionStatus.ForTrade
-            "want_in_trade" -> CollectionStatus.WantInTrade
-            "want_to_buy" -> CollectionStatus.WantToBuy
-            "want_to_play" -> CollectionStatus.WantToPlay
-            "wishlist" -> CollectionStatus.Wishlist
-            "rated" -> CollectionStatus.Rated
-            "commented" -> CollectionStatus.Commented
-            "has_parts" -> CollectionStatus.HasParts
-            "want_parts" -> CollectionStatus.WantParts
-            else -> CollectionStatus.Unknown
+        private fun String?.mapToEnum(): CollectionStatus {
+            return this?.let {
+                try {
+                    CollectionStatus.valueOf(it)
+                } catch (_: IllegalArgumentException) {
+                    CollectionStatus.Unknown
+                }
+            } ?: CollectionStatus.Unknown
         }
     }
 }
