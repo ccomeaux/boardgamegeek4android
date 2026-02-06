@@ -11,4 +11,8 @@ data class GeekList(
     val editTicks: Long = 0L,
     val items: List<GeekListItem> = emptyList(),
     val comments: List<GeekListComment> = emptyList()
-)
+) {
+    enum class SortType {
+        Hot, Active, Recent
+    }
+}
