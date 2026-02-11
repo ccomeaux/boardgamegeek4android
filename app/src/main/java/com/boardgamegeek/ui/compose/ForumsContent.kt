@@ -3,12 +3,18 @@ package com.boardgamegeek.ui.compose
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -22,7 +28,65 @@ import java.text.NumberFormat
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+fun ForumsContent(
+    forums: Map<String, List<Forum>>?,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    nestedScrollConnection: NestedScrollConnection? = null,
+    onItemClick: (forum: Forum) -> Unit = {},
+) {
+    when {
+        forums == null -> {
+            BggLoadingIndicatorBox(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (nestedScrollConnection == null) Modifier else Modifier.nestedScroll(nestedScrollConnection))
+                    .padding(contentPadding)
+            )
+        }
+        forums.isEmpty() -> {
+            EmptyContent(
+                stringResource(R.string.empty_forums),
+                painterResource(R.drawable.forum_24px),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .then(if (nestedScrollConnection == null) Modifier else Modifier.nestedScroll(nestedScrollConnection))
+                    .padding(contentPadding),
+            )
+        }
+        else -> {
+            LazyColumn(
+                // HACK the nestedScrollConnection isn't working, so this height is fixed to prent crashes
+                modifier = Modifier
+                    .height(600.dp)
+                    .then(if (nestedScrollConnection == null) Modifier else Modifier.nestedScroll(nestedScrollConnection))
+                    .padding(contentPadding)
+            ) {
+                forums.forEach { (headerText, forums) ->
+                    if (headerText.isNotEmpty()) {
+                        stickyHeader {
+                            ListHeader(headerText)
+                        }
+                    }
+                    itemsIndexed(
+                        items = forums,
+                        key = { _, forum -> forum.id }
+                    ) { index, forum ->
+                        ForumListItem(
+                            forum = forum,
+                            modifier = Modifier,
+                            onClick = { onItemClick(forum) },
+                        )
+                        if (index < forums.lastIndex)
+                            HorizontalDivider()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     if (forum.isHeader) {
         ListHeader(forum.title, modifier)
     } else {

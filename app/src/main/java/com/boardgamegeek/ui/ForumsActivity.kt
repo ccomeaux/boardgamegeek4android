@@ -3,22 +3,16 @@ package com.boardgamegeek.ui
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.clearTop
@@ -82,7 +76,6 @@ class ForumsActivity : BaseActivity() {
                             )
                         }
                     ) { contentPadding ->
-                        LazyColumn(contentPadding = contentPadding) { }
                         when (forums.value.status) {
                             Status.ERROR -> {
                                 ErrorContent(
@@ -101,16 +94,9 @@ class ForumsActivity : BaseActivity() {
                                 )
                             }
                             Status.SUCCESS -> {
-                                forums.value.data?.let {
-                                    val context = LocalContext.current
-                                    ForumsContent(it, contentPadding) { forum ->
-                                        ForumActivity.start(context, forum.id, forum.title, objectId, objectName, Forum.Type.REGION)
-                                    }
-                                } ?: EmptyFullSizeScrollableContent(
-                                    R.string.empty_forums,
-                                    painterResource(R.drawable.forum_24px),
-                                    padding = contentPadding,
-                                )
+                                ForumsContent(forums.value.data, contentPadding, null) { forum ->
+                                    ForumActivity.start(this@ForumsActivity, forum.id, forum.title, objectId, objectName, Forum.Type.REGION)
+                                }
                             }
                         }
                     }
@@ -150,42 +136,3 @@ private fun ForumsTopAppBar(
     )
 }
 
-@Composable
-private fun ForumsContent(
-    forums: List<Forum>?,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    onItemClick: (forum: Forum) -> Unit,
-) {
-    when {
-        forums == null -> {
-            BggLoadingIndicatorBox(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(contentPadding)
-            )
-        }
-        forums.isEmpty() -> {
-            EmptyFullSizeScrollableContent(
-                R.string.empty_forums,
-                painterResource(R.drawable.forum_24px),
-                padding = contentPadding,
-            )
-        }
-        else -> {
-            LazyColumn(modifier = Modifier.padding(contentPadding)) {
-                itemsIndexed(
-                    items = forums,
-                    key = { _, forum -> forum.id }
-                ) { index, forum ->
-                    ForumListItem(
-                        forum = forum,
-                        modifier = Modifier,
-                        onClick = { onItemClick(forum) },
-                    )
-                    if (index < forums.lastIndex && !forum.isHeader && !forums[index + 1].isHeader)
-                        HorizontalDivider(color = Color(255, 0, 0))
-                }
-            }
-        }
-    }
-}

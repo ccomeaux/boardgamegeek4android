@@ -2,9 +2,9 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.io.BggService
 import com.boardgamegeek.model.Forum
 import com.boardgamegeek.model.RefreshableResource
-import com.boardgamegeek.io.BggService
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.ForumRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,7 +40,7 @@ class ForumsViewModel @Inject constructor(
         if (_id.value != ForumType.COMPANY to companyId) _id.value = (ForumType.COMPANY to companyId)
     }
 
-    val forums: LiveData<RefreshableResource<List<Forum>>> = _id.switchMap { pair ->
+    val forums: LiveData<RefreshableResource<Map<String, List<Forum>>>> = _id.switchMap { pair ->
         liveData {
             emit(RefreshableResource.refreshing(latestValue?.data))
             emit(
@@ -48,14 +48,22 @@ class ForumsViewModel @Inject constructor(
                     if (pair.second == BggContract.INVALID_ID) {
                         RefreshableResource.error("Invalid ID!")
                     } else {
-                        RefreshableResource.success(
-                            when (pair.first) {
-                                ForumType.REGION -> repository.loadForRegion()
-                                ForumType.COMPANY -> repository.loadForCompany(pair.second)
-                                ForumType.GAME -> repository.loadForGame(pair.second)
-                                ForumType.PERSON -> repository.loadForPerson(pair.second)
+                        val list = when (pair.first) {
+                            ForumType.REGION -> repository.loadForRegion()
+                            ForumType.COMPANY -> repository.loadForCompany(pair.second)
+                            ForumType.GAME -> repository.loadForGame(pair.second)
+                            ForumType.PERSON -> repository.loadForPerson(pair.second)
+                        }
+                        val map = mutableMapOf<String, List<Forum>>()
+                        var currentHeader = ""
+                        list.forEach { forum ->
+                            if (forum.isHeader) {
+                                currentHeader = forum.title
+                            } else {
+                                map[currentHeader] = map[currentHeader].orEmpty() + forum
                             }
-                        )
+                        }
+                        RefreshableResource.success(map)
                     }
                 } catch (e: Exception) {
                     RefreshableResource.error(e, application)
@@ -63,4 +71,17 @@ class ForumsViewModel @Inject constructor(
             )
         }
     }
+//
+//    val forumsGroupedByHeader: LiveData<Map<String, List<Forum>>> = forums.map {
+//        val map = mutableMapOf<String, List<Forum>>()
+//        var currentHeader: String? = null
+//        it.data?.forEach { f ->
+//            if (f.isHeader) {
+//                currentHeader = f.title
+//            } else {
+//                map[currentHeader.orEmpty()] = map[currentHeader.orEmpty()].orEmpty() + f
+//            }
+//        }
+//        map
+//    }
 }
