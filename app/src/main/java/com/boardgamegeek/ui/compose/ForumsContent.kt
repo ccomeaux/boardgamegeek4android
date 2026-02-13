@@ -57,8 +57,13 @@ fun ForumsContent(
             LazyColumn(
                 // HACK the nestedScrollConnection isn't working, so this height is fixed to prent crashes
                 modifier = Modifier
-                    .height(600.dp)
-                    .then(if (nestedScrollConnection == null) Modifier else Modifier.nestedScroll(nestedScrollConnection))
+                    .then(
+                        if (nestedScrollConnection == null)
+                            Modifier.fillMaxSize()
+                        else Modifier
+                            .height(600.dp)
+                            .nestedScroll(nestedScrollConnection)
+                    )
                     .padding(contentPadding)
             ) {
                 forums.forEach { (headerText, forums) ->
@@ -163,4 +168,47 @@ private class ForumPreviewParameterProvider : PreviewParameterProvider<Forum> {
             isHeader = false,
         )
     )
+}
+
+@PreviewLightDark
+@Composable
+private fun ForumsContentPreview() {
+    BggAppTheme {
+        ForumsContent(
+            forums = mapOf(
+                "Main Category" to listOf(
+                    Forum(
+                        id = 1,
+                        title = "General",
+                        numberOfThreads = 17,
+                        lastPostDateTime = System.currentTimeMillis() - 1_000_000L,
+                        isHeader = false,
+                    ),
+                    Forum(
+                        id = 2,
+                        title = "Rules",
+                        numberOfThreads = 3,
+                        lastPostDateTime = System.currentTimeMillis() - 100_000_000L,
+                        isHeader = false,
+                    )
+                ),
+                "Secondary Category" to listOf(
+                    Forum(
+                        id = 3,
+                        title = "Strategy",
+                        numberOfThreads = 120,
+                        lastPostDateTime = System.currentTimeMillis() - 10_000_000L,
+                        isHeader = false,
+                    ),
+                    Forum(
+                        id = 4,
+                        title = "Variants",
+                        numberOfThreads = 42,
+                        lastPostDateTime = System.currentTimeMillis() - 2_000_000L,
+                        isHeader = false,
+                    )
+                )
+            )
+        )
+    }
 }

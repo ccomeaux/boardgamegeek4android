@@ -71,17 +71,4 @@ class ForumsViewModel @Inject constructor(
             )
         }
     }
-//
-//    val forumsGroupedByHeader: LiveData<Map<String, List<Forum>>> = forums.map {
-//        val map = mutableMapOf<String, List<Forum>>()
-//        var currentHeader: String? = null
-//        it.data?.forEach { f ->
-//            if (f.isHeader) {
-//                currentHeader = f.title
-//            } else {
-//                map[currentHeader.orEmpty()] = map[currentHeader.orEmpty()].orEmpty() + f
-//            }
-//        }
-//        map
-//    }
 }
