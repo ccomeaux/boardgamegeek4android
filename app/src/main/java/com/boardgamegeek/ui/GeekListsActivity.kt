@@ -199,7 +199,7 @@ private fun GeekListsTopAppBar(
 }
 
 @Composable
-fun GeekListListItem(geekList: GeekList, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+private fun GeekListListItem(geekList: GeekList, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
     Column(
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.Center,
@@ -239,7 +239,7 @@ private fun GeekListListItemPreview(
     GeekListListItem(geekList)
 }
 
-class GeekListListItemPreviewParameterProvider : PreviewParameterProvider<GeekList> {
+private class GeekListListItemPreviewParameterProvider : PreviewParameterProvider<GeekList> {
     override val values = sequenceOf(
         GeekList(
             id = 1,

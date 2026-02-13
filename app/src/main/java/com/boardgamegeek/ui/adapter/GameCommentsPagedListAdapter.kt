@@ -40,7 +40,7 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameComment, GameComments
         getItem(position)?.let { holder.bind(it) }
     }
 
-    inner class CommentViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
+    class CommentViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
         private val markupConverter = XmlApiMarkupConverter(itemView.context)
 
         fun bind(gameComment: GameComment) {
@@ -57,7 +57,7 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameComment, GameComments
 }
 
 @Composable
-fun CommentListItem(
+private fun CommentListItem(
     gameComment: GameComment,
     markupConverter: XmlApiMarkupConverter,
     modifier: Modifier = Modifier,
