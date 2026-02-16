@@ -10,6 +10,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.TypefaceSpan
 import org.xml.sax.XMLReader
 
+// TODO determine why this is necessary for thread articles
 class XmlApi2TagHandler : TagHandler {
     override fun handleTag(opening: Boolean, tag: String, output: Editable, xmlReader: XMLReader) {
         when {

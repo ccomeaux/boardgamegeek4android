@@ -85,7 +85,7 @@ class ForumActivity : BaseActivity() {
                                 forumTitle,
                                 objectName,
                                 scrollBehavior = scrollBehavior,
-                                onUp = {
+                                onUpClick = {
                                     when (objectType) {
                                         Forum.Type.REGION -> startUp(this)
                                         Forum.Type.GAME -> startUp(this, objectId, objectName)
@@ -203,7 +203,7 @@ private fun ForumTopAppBar(
     subtitle: String?,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
-    onUp: () -> Unit = {},
+    onUpClick: () -> Unit = {},
     onOpenInBrowser: () -> Unit = {},
 ) {
     MediumFlexibleTopAppBar(
@@ -212,7 +212,7 @@ private fun ForumTopAppBar(
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            IconButton(onClick = { onUp() }) {
+            IconButton(onClick = { onUpClick() }) {
                 Icon(
                     painterResource(R.drawable.arrow_back_24px),
                     contentDescription = stringResource(R.string.up)

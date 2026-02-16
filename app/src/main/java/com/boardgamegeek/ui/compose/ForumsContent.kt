@@ -117,25 +117,17 @@ private fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: 
                 )
                 ListItemVerticalDivider()
                 val context = LocalContext.current
-                var relativeTimestamp by remember {
-                    mutableStateOf(
-                        forum.lastPostDateTime.formatTimestamp(
-                            context,
-                            includeTime = false,
-                            isForumTimestamp = true
-                        ).toString()
-                    )
+                var relativeTimestamp by remember { mutableStateOf("") }
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        relativeTimestamp = forum.lastPostDateTime.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
+                        delay(30.seconds)
+                    }
                 }
                 ListItemSecondaryText(
                     relativeTimestamp,
                     icon = painterResource(R.drawable.time_24px),
                 )
-                LaunchedEffect(Unit) {
-                    while (true) {
-                        delay(30.seconds)
-                        relativeTimestamp = forum.lastPostDateTime.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
-                    }
-                }
             }
         }
     }
