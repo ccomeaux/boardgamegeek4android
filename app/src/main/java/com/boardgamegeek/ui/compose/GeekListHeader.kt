@@ -1,7 +1,12 @@
 package com.boardgamegeek.ui.compose
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,23 +17,15 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatTimestamp
+import com.boardgamegeek.extensions.toFormattedString
 import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.ui.theme.BggAppTheme
 import kotlinx.coroutines.delay
-import java.text.NumberFormat
-import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
 fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val numberFormat = NumberFormat.getInstance(Locale.getDefault())
-    val dividerModifier = Modifier
-        .size(18.dp)
-        .padding(horizontal = 8.dp)
-    val iconModifier = Modifier
-        .size(18.dp)
-        .padding(end = 8.dp)
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -36,70 +33,47 @@ fun GeekListHeader(geekList: GeekList, modifier: Modifier = Modifier) {
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = modifier) {
+            ListItemSecondaryText(
+                geekList.username,
+                icon = painterResource(R.drawable.account_circle_24px),
+                contentDescription = stringResource(R.string.author),
+                textStyle = MaterialTheme.typography.bodyLarge,
+            )
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painterResource(R.drawable.account_circle_24px),
-                    contentDescription = stringResource(R.string.author),
-                    modifier = iconModifier
-                )
-                Text(
-                    text = geekList.username,
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painterResource(R.drawable.geeklist_24px),
+                ListItemSecondaryText(
+                    geekList.numberOfItems.toFormattedString(),
+                    icon = painterResource(R.drawable.geeklist_24px),
                     contentDescription = stringResource(R.string.number_of_items),
-                    modifier = iconModifier
                 )
-                Text(
-                    text = geekList.numberOfItems.toString(),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                VerticalDivider(dividerModifier)
-                Icon(
-                    painterResource(R.drawable.thumb_up_24px),
+                ListItemVerticalDivider()
+                ListItemSecondaryText(
+                    geekList.numberOfThumbs.toFormattedString(),
+                    icon = painterResource(R.drawable.thumb_up_24px),
                     contentDescription = stringResource(R.string.number_of_thumbs),
-                    modifier = iconModifier,
-                )
-                Text(
-                    text = numberFormat.format(geekList.numberOfThumbs),
-                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painterResource(R.drawable.time_24px),
-                    contentDescription = stringResource(R.string.posted),
-                    modifier = iconModifier,
-                )
-                var relativePostTimestamp by remember { mutableStateOf(geekList.postTicks.formatTimestamp(context).toString()) }
-                var relativeEditTimestamp by remember { mutableStateOf(geekList.editTicks.formatTimestamp(context).toString()) }
-                Text(
-                    text = relativePostTimestamp,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                )
-                if (geekList.postTicks != geekList.editTicks) {
-                    VerticalDivider(dividerModifier)
-                    Icon(
-                        painterResource(R.drawable.time_edit_24px),
-                        contentDescription = stringResource(R.string.edited),
-                        modifier = iconModifier,
-                    )
-                    Text(
-                        text = relativeEditTimestamp,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                    )
-                }
+                var relativePostTimestamp by remember { mutableStateOf("") }
+                var relativeEditTimestamp by remember { mutableStateOf("") }
                 LaunchedEffect(Unit) {
                     while (true) {
-                        delay(30.seconds)
                         relativePostTimestamp = geekList.postTicks.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
                         relativeEditTimestamp = geekList.editTicks.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
+                        delay(30.seconds)
                     }
+                }
+                ListItemSecondaryText(
+                    relativePostTimestamp,
+                    icon = painterResource(R.drawable.time_24px),
+                    contentDescription = stringResource(R.string.posted),
+                )
+                if (geekList.postTicks != geekList.editTicks) {
+                    ListItemVerticalDivider()
+                    ListItemSecondaryText(
+                        relativeEditTimestamp,
+                        icon = painterResource(R.drawable.time_edit_24px),
+                        contentDescription = stringResource(R.string.edited),
+                    )
                 }
             }
         }
@@ -118,8 +92,8 @@ private fun GeekListHeaderPreview() {
                 description = "This is a description",
                 numberOfItems = 42,
                 numberOfThumbs = 11,
-                postTicks = 1234567890L,
-                editTicks = 12345678901L,
+                postTicks = System.currentTimeMillis() - 100_000_000L,
+                editTicks = System.currentTimeMillis() - 10_000_000L,
                 items = emptyList(),
                 comments = emptyList(),
             ),

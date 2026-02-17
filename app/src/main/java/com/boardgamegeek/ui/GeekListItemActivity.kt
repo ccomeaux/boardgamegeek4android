@@ -37,18 +37,13 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import coil3.compose.AsyncImage
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.formatTimestamp
-import com.boardgamegeek.extensions.getParcelableCompat
-import com.boardgamegeek.extensions.link
-import com.boardgamegeek.extensions.startActivity
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.GeekList
 import com.boardgamegeek.model.GeekListComment
 import com.boardgamegeek.model.GeekListItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.GameActivity.Companion.start
-import com.boardgamegeek.ui.compose.Drawer
-import com.boardgamegeek.ui.compose.EmptyFullSizeScrollableContent
-import com.boardgamegeek.ui.compose.GeekListCommentList
+import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.util.XmlApiMarkupConverter
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -56,8 +51,6 @@ import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
-import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
@@ -313,13 +306,6 @@ private fun GeekListItem.titleResId(): Int {
 @Composable
 private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTitle: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
-    val numberFormat = NumberFormat.getInstance(Locale.getDefault())
-    val dividerModifier = Modifier
-        .size(18.dp)
-        .padding(horizontal = 8.dp)
-    val iconModifier = Modifier
-        .size(18.dp)
-        .padding(end = 8.dp)
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -329,7 +315,7 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
         Column(modifier = Modifier.padding(dimensionResource(R.dimen.card_padding_openSource))) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = numberFormat.format(rank),
+                    text = rank.toFormattedString(),
                     style = MaterialTheme.typography.headlineMedium,
                     maxLines = 1,
                     modifier = Modifier.padding(end = 16.dp)
@@ -343,71 +329,51 @@ private fun GeekListItemHeader(geekListItem: GeekListItem, rank: Int, geekListTi
             }
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painterResource(R.drawable.account_circle_24px),
+                ListItemSecondaryText(
+                    geekListItem.username,
+                    icon = painterResource(R.drawable.account_circle_24px),
                     contentDescription = stringResource(R.string.author),
-                    modifier = iconModifier
-                )
-                Text(
-                    text = geekListItem.username,
-                    style = MaterialTheme.typography.bodyLarge,
+                    textStyle = MaterialTheme.typography.bodyLarge,
                 )
                 val typeResId = geekListItem.titleResId()
                 if (typeResId != ResourcesCompat.ID_NULL) {
-                    VerticalDivider(dividerModifier)
-                    Icon(
-                        painterResource(R.drawable.label_24px),
+                    ListItemVerticalDivider()
+                    ListItemSecondaryText(
+                        stringResource(typeResId),
+                        icon = painterResource(R.drawable.label_24px),
                         contentDescription = stringResource(R.string.type),
-                        modifier = iconModifier
-                    )
-                    Text(
-                        text = stringResource(typeResId),
-                        style = MaterialTheme.typography.bodyLarge,
+                        textStyle = MaterialTheme.typography.bodyLarge,
                     )
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    painterResource(R.drawable.thumb_up_24px),
-                    contentDescription = stringResource(R.string.number_of_thumbs),
-                    modifier = iconModifier,
+                ListItemSecondaryText(
+                    geekListItem.numberOfThumbs.toFormattedString(),
+                    icon = painterResource(R.drawable.thumb_up_24px),
+                    contentDescription = stringResource(R.string.number_of_thumbs)
                 )
-                Text(
-                    text = numberFormat.format(geekListItem.numberOfThumbs),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                VerticalDivider(dividerModifier)
-                Icon(
-                    painterResource(R.drawable.time_24px),
-                    contentDescription = stringResource(R.string.posted),
-                    modifier = iconModifier,
-                )
-                var relativePostTimestamp by remember { mutableStateOf(geekListItem.postDateTime.formatTimestamp(context).toString()) }
-                var relativeEditTimestamp by remember { mutableStateOf(geekListItem.editDateTime.formatTimestamp(context).toString()) }
-                Text(
-                    text = relativePostTimestamp,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                )
-                if (geekListItem.postDateTime != geekListItem.editDateTime) {
-                    VerticalDivider(dividerModifier)
-                    Icon(
-                        painterResource(R.drawable.time_edit_24px),
-                        contentDescription = stringResource(R.string.edited),
-                        modifier = iconModifier,
-                    )
-                    Text(
-                        text = relativeEditTimestamp,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 1,
-                    )
-                }
+                ListItemVerticalDivider()
+                var relativePostTimestamp by remember { mutableStateOf("") }
+                var relativeEditTimestamp by remember { mutableStateOf("") }
                 LaunchedEffect(Unit) {
                     while (true) {
-                        delay(30.seconds)
                         relativePostTimestamp = geekListItem.postDateTime.formatTimestamp(context).toString()
                         relativeEditTimestamp = geekListItem.editDateTime.formatTimestamp(context).toString()
+                        delay(30.seconds)
                     }
+                }
+                ListItemSecondaryText(
+                    relativePostTimestamp,
+                    icon = painterResource(R.drawable.time_24px),
+                    contentDescription = stringResource(R.string.posted)
+                )
+                if (geekListItem.postDateTime != geekListItem.editDateTime) {
+                    ListItemVerticalDivider()
+                    ListItemSecondaryText(
+                        relativeEditTimestamp,
+                        icon = painterResource(R.drawable.time_edit_24px),
+                        contentDescription = stringResource(R.string.edited)
+                    )
                 }
             }
         }

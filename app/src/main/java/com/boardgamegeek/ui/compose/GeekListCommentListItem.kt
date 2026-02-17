@@ -67,6 +67,13 @@ fun GeekListCommentListItem(comment: GeekListComment, markupConverter: XmlApiMar
             ListItemVerticalDivider()
             var relativePostTimestamp by remember { mutableStateOf("") }
             var relativeEditTimestamp by remember { mutableStateOf("") }
+            LaunchedEffect(Unit) {
+                while (true) {
+                    relativePostTimestamp = comment.postDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString()
+                    relativeEditTimestamp = comment.editDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString()
+                    delay(30.seconds)
+                }
+            }
             ListItemSecondaryText(
                 text = relativePostTimestamp,
                 icon = painterResource(R.drawable.time_24px),
@@ -79,13 +86,6 @@ fun GeekListCommentListItem(comment: GeekListComment, markupConverter: XmlApiMar
                     icon = painterResource(R.drawable.time_edit_24px),
                     contentDescription = stringResource(R.string.edited),
                 )
-            }
-            LaunchedEffect(Unit) {
-                while (true) {
-                    relativePostTimestamp = comment.postDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString()
-                    relativeEditTimestamp = comment.editDate.formatTimestamp(context, includeTime = false, isForumTimestamp = false).toString()
-                    delay(30.seconds)
-                }
             }
         }
         Text(
