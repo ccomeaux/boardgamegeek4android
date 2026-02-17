@@ -13,7 +13,7 @@ fun String?.replaceHtmlLineFeeds(): String {
 
 fun String?.sortName(sortIndex: Int): String {
     if (this == null) return ""
-    if (sortIndex <= 1 || sortIndex > length) return this
+    if (sortIndex !in 2..length) return this
     val i = sortIndex - 1
     return "${substring(i)}, ${substring(0, i).trim()}"
 }
@@ -52,7 +52,8 @@ fun String?.asYear(unknownYear: Int = Game.YEAR_UNKNOWN): Int {
     return if (l > Integer.MAX_VALUE) {
         try {
             (l - Long.MAX_VALUE).toInt() - 1
-        } catch (e: Exception) {
+        } catch (_: Exception) {
+            Timber.w("Unable to parse \"%s\" as year", this)
             unknownYear
         }
     } else {
