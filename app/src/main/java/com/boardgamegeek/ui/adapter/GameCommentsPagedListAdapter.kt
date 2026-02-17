@@ -8,7 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -21,7 +22,6 @@ import com.boardgamegeek.ui.compose.ListItemPrimaryText
 import com.boardgamegeek.ui.compose.ListItemSecondaryText
 import com.boardgamegeek.ui.compose.Rating
 import com.boardgamegeek.ui.theme.BggAppTheme
-import com.boardgamegeek.util.XmlApiMarkupConverter
 
 class GameCommentsPagedListAdapter : PagingDataAdapter<GameComment, GameCommentsPagedListAdapter.CommentViewHolder>(diffCallback) {
     companion object {
@@ -41,15 +41,10 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameComment, GameComments
     }
 
     class CommentViewHolder(private val composeView: ComposeView) : RecyclerView.ViewHolder(composeView) {
-        private val markupConverter = XmlApiMarkupConverter(itemView.context)
-
         fun bind(gameComment: GameComment) {
             composeView.setContent {
                 BggAppTheme {
-                    CommentListItem(
-                        gameComment = gameComment,
-                        markupConverter = markupConverter,
-                    )
+                    CommentListItem(gameComment)
                 }
             }
         }
@@ -59,7 +54,6 @@ class GameCommentsPagedListAdapter : PagingDataAdapter<GameComment, GameComments
 @Composable
 private fun CommentListItem(
     gameComment: GameComment,
-    markupConverter: XmlApiMarkupConverter,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -79,9 +73,8 @@ private fun CommentListItem(
             ListItemPrimaryText(gameComment.username)
             Rating(gameComment.rating)
         }
-        val comment = markupConverter.toHtml(gameComment.comment, prewrap = false)
-        if (comment.isNotBlank()) {
-            ListItemSecondaryText(comment)
+        if (gameComment.comment.isNotBlank()) {
+            ListItemSecondaryText(AnnotatedString.fromHtml(gameComment.comment))
         }
     }
 }
@@ -92,10 +85,7 @@ private fun CommentListItemPreview(
     @PreviewParameter(CommentPreviewParameterProvider::class) gameComment: GameComment
 ) {
     BggAppTheme {
-        CommentListItem(
-            gameComment = gameComment,
-            markupConverter = XmlApiMarkupConverter(LocalContext.current),
-        )
+        CommentListItem(gameComment)
     }
 }
 

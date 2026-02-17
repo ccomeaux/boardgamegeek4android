@@ -2,12 +2,8 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import androidx.paging.Pager
-import androidx.paging.PagingConfig
 import androidx.paging.cachedIn
 import androidx.paging.liveData
-import com.boardgamegeek.io.model.GameRemote
-import com.boardgamegeek.livedata.CommentsPagingSource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,10 +33,9 @@ class GameCommentsViewModel @Inject constructor(
     }
 
     val comments = _id.switchMap {
-        val sortByRating = it.second == SortType.RATING
-
-        Pager(PagingConfig(GameRemote.PAGE_SIZE)) {
-            CommentsPagingSource(it.first, sortByRating, gameRepository)
-        }.liveData.cachedIn(this)
+        gameRepository.loadCommentsPager(
+            it.first,
+            it.second == SortType.RATING
+        ).liveData.cachedIn(this)
     }
 }

@@ -160,6 +160,41 @@ fun ListItemSecondaryText(
 }
 
 @Composable
+fun ListItemSecondaryText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    icon: Painter? = null,
+    contentDescription: String? = null,
+    textStyle: TextStyle = ListItemDefaults.secondaryTextStyle(),
+    isSelected: Boolean = false,
+    color: Color? = null,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        icon?.let {
+            Icon(
+                painter = it,
+                contentDescription = contentDescription,
+                modifier = Modifier
+                    .padding(end = 4.dp)
+                    .size(ListItemDefaults.secondaryImageSize),
+                tint = color ?: getOnVariantColor(isSelected),
+            )
+        }
+        Text(
+            text = text,
+            style = textStyle,
+            color = color ?: getOnVariantColor(isSelected),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+        )
+    }
+}
+
+@Composable
 fun ListItemTertiaryText(
     text: String,
     modifier: Modifier = Modifier,

@@ -8,6 +8,7 @@ import com.boardgamegeek.extensions.toMillis
 import com.boardgamegeek.io.BggService
 import com.boardgamegeek.io.model.GameRemote
 import com.boardgamegeek.model.*
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -50,12 +51,12 @@ fun GameRankEntity.mapToFamily(): GameFamily? {
     else null
 }
 
-fun GameRemote.mapToRatingModel(): GameComments {
+fun GameRemote.mapToRatingModel(markupConverter: XmlApiMarkupConverter): GameComments {
     val list = comments.comments.map {
         GameComment(
             username = it.username,
             rating = it.rating.toDoubleOrNull() ?: Game.UNRATED,
-            comment = it.value,
+            comment = markupConverter.toHtml(it.value, prewrap = false),
         )
     }
     return GameComments(this.comments.totalitems, list)

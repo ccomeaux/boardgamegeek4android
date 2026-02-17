@@ -1,21 +1,27 @@
 package com.boardgamegeek.repository
 
 import android.content.Context
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import com.boardgamegeek.db.*
-import com.boardgamegeek.db.model.*
+import com.boardgamegeek.db.model.GameColorsEntity
 import com.boardgamegeek.extensions.getImageId
 import com.boardgamegeek.io.BggService
+import com.boardgamegeek.io.model.GameRemote
 import com.boardgamegeek.io.safeApiCall
 import com.boardgamegeek.mappers.*
 import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
+import com.boardgamegeek.util.XmlApiMarkupConverter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import retrofit2.HttpException
 import timber.log.Timber
-import java.lang.Exception
 import javax.inject.Inject
 
 class GameRepository @Inject constructor(
@@ -94,7 +100,7 @@ class GameRepository @Inject constructor(
                 }
             }
             Result.success(result.getOrNull()?.games?.size ?: 0)
-        }  else {
+        } else {
             Result.failure(result.exceptionOrNull() ?: Exception("Unknown error"))
         }
     }
@@ -117,15 +123,10 @@ class GameRepository @Inject constructor(
         } ?: game
     }
 
-    suspend fun loadComments(gameId: Int, page: Int): GameComments? = withContext(Dispatchers.IO) {
-        val response = api.thingWithComments(gameId, page)
-        response.games?.firstOrNull()?.mapToRatingModel()
-    }
-
-    suspend fun loadRatings(gameId: Int, page: Int): GameComments? = withContext(Dispatchers.IO) {
-        val response = api.thingWithRatings(gameId, page)
-        response.games?.firstOrNull()?.mapToRatingModel()
-    }
+    fun loadCommentsPager(gameId: Int, sortByRating: Boolean = false): Pager<Int, GameComment> =
+        Pager(PagingConfig(GameRemote.PAGE_SIZE)) {
+            CommentsPagingSource(gameId, sortByRating, api, XmlApiMarkupConverter(context))
+        }
 
     fun getSubtypesFlow(gameId: Int): Flow<List<GameSubtype>> {
         return gameDao.loadRanksForGameFlow(gameId)
@@ -263,4 +264,38 @@ class GameRepository @Inject constructor(
     }
 
     suspend fun deleteAll() = gameDao.deleteAll()
+}
+
+private class CommentsPagingSource(
+    val gameId: Int,
+    private val sortByRating: Boolean = false,
+    val api: BggService,
+    private val markupConverter: XmlApiMarkupConverter,
+) :
+    PagingSource<Int, GameComment>() {
+    override fun getRefreshKey(state: PagingState<Int, GameComment>): Int? {
+        return null
+    }
+
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, GameComment> {
+        return try {
+            if (gameId == INVALID_ID) return LoadResult.Error(Exception("Invalid ID"))
+
+            val page = params.key ?: 1
+            val response = withContext(Dispatchers.IO) {
+                if (sortByRating) api.thingWithRatings(gameId, page)
+                else api.thingWithComments(gameId, page)
+            }
+            val list = response.games?.firstOrNull()?.mapToRatingModel(markupConverter)
+            val nextPage = if (page * GameRemote.PAGE_SIZE < (list?.numberOfRatings ?: 0)) page + 1 else null
+            LoadResult.Page(list?.ratings.orEmpty(), null, nextPage)
+        } catch (e: Exception) {
+            if (e is HttpException) {
+                Timber.w("Error code: ${e.code()}\n${e.response()?.body()}")
+            } else {
+                Timber.w(e)
+            }
+            LoadResult.Error(e)
+        }
+    }
 }
