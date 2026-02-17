@@ -532,8 +532,15 @@ private fun ArticleScreen(
                         icon = painterResource(id = R.drawable.account_circle_24px),
                         color = MaterialTheme.colorScheme.onSurface,
                     )
+                    var postTimestamp by remember { mutableStateOf("") }
+                    LaunchedEffect(Unit) {
+                        while (true) {
+                            postTimestamp = article.postTicks.formatTimestamp(context, isForumTimestamp = true).toString()
+                            delay(30.seconds)
+                        }
+                    }
                     ListItemSecondaryText(
-                        text = article.postTicks.formatTimestamp(context, isForumTimestamp = true).toString(),
+                        text = postTimestamp,
                         icon = painterResource(id = R.drawable.time_24px),
                         modifier = Modifier.padding(top = 4.dp),
                     )
