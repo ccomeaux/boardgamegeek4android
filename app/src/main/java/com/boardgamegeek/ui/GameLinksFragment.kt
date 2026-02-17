@@ -139,7 +139,7 @@ private fun GameLinks(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun LinkButton(
+private fun LinkButton(
     textResId: Int,
     icon: Painter,
     tint: Color,
