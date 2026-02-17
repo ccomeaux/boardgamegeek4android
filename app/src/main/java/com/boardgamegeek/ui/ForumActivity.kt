@@ -46,6 +46,7 @@ import dagger.hilt.android.AndroidEntryPoint
 class ForumActivity : BaseActivity() {
     private var forumId = BggContract.INVALID_ID
     private var forumTitle = ""
+    private var forumHeader = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
     private var objectType = Forum.Type.REGION
@@ -56,6 +57,7 @@ class ForumActivity : BaseActivity() {
         intent?.let {
             forumId = it.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
             forumTitle = it.getStringExtra(KEY_FORUM_TITLE).orEmpty()
+            forumHeader = it.getStringExtra(KEY_FORUM_HEADER).orEmpty()
             objectId = it.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
             objectType = it.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
             objectName = it.getStringExtra(KEY_OBJECT_NAME).orEmpty()
@@ -84,6 +86,7 @@ class ForumActivity : BaseActivity() {
                             ForumTopAppBar(
                                 forumTitle,
                                 objectName,
+                                forumHeader,
                                 scrollBehavior = scrollBehavior,
                                 onUpClick = {
                                     when (objectType) {
@@ -135,6 +138,7 @@ class ForumActivity : BaseActivity() {
                                                         thread.subject,
                                                         forumId,
                                                         forumTitle,
+                                                        forumHeader,
                                                         objectId,
                                                         objectName,
                                                         objectType
@@ -166,13 +170,30 @@ class ForumActivity : BaseActivity() {
         private const val KEY_OBJECT_ID = "OBJECT_ID"
         private const val KEY_OBJECT_NAME = "OBJECT_NAME"
         private const val KEY_OBJECT_TYPE = "OBJECT_TYPE"
+        private const val KEY_FORUM_HEADER = "FORUM_HEADER"
 
-        fun start(context: Context, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: Forum.Type) {
-            context.startActivity(createIntent(context, forumId, forumTitle, objectId, objectName, objectType))
+        fun start(
+            context: Context,
+            forumId: Int,
+            forumTitle: String,
+            objectId: Int,
+            objectName: String,
+            objectType: Forum.Type,
+            forumHeader: String
+        ) {
+            context.startActivity(createIntent(context, forumId, forumTitle, objectId, objectName, objectType, forumHeader))
         }
 
-        fun startUp(context: Context, forumId: Int, forumTitle: String, objectId: Int, objectName: String, objectType: Forum.Type) {
-            context.startActivity(createIntent(context, forumId, forumTitle, objectId, objectName, objectType).clearTop())
+        fun startUp(
+            context: Context,
+            forumId: Int,
+            forumTitle: String,
+            objectId: Int,
+            objectName: String,
+            objectType: Forum.Type,
+            forumHeader: String
+        ) {
+            context.startActivity(createIntent(context, forumId, forumTitle, objectId, objectName, objectType, forumHeader).clearTop())
         }
 
         private fun createIntent(
@@ -181,7 +202,8 @@ class ForumActivity : BaseActivity() {
             forumTitle: String,
             objectId: Int,
             objectName: String,
-            objectType: Forum.Type
+            objectType: Forum.Type,
+            forumHeader: String = "",
         ): Intent {
             return context.intentFor<ForumActivity>(
                 KEY_FORUM_ID to forumId,
@@ -189,6 +211,7 @@ class ForumActivity : BaseActivity() {
                 KEY_OBJECT_ID to objectId,
                 KEY_OBJECT_NAME to objectName,
                 KEY_OBJECT_TYPE to objectType,
+                KEY_FORUM_HEADER to forumHeader,
             )
         }
     }
@@ -200,7 +223,8 @@ class ForumActivity : BaseActivity() {
 @Composable
 private fun ForumTopAppBar(
     forumTitle: String,
-    subtitle: String?,
+    objectName: String,
+    forumHeader: String,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     onUpClick: () -> Unit = {},
@@ -208,7 +232,10 @@ private fun ForumTopAppBar(
 ) {
     MediumFlexibleTopAppBar(
         title = { Text(forumTitle.ifEmpty { stringResource(R.string.title_forum) }) },
-        subtitle = { if (subtitle?.isNotEmpty() == true) Text(subtitle) },
+        subtitle = {
+            if (objectName.isNotEmpty()) Text(objectName + "  >  " + stringResource(R.string.title_forums))
+            else if (forumHeader.isNotEmpty()) Text(stringResource(R.string.title_forums) + "  >  " + forumHeader)
+        },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {

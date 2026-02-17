@@ -55,8 +55,8 @@ class ForumsFragment : Fragment() {
                 Forum.Type.PUBLISHER -> viewModel.setCompanyId(objectId)
             }
 
-            ForumsContent(forums.value.data, PaddingValues(0.dp), nestedScrollInterop) {
-                ForumActivity.start(requireContext(), it.id, it.title, objectId, objectName, forumType)
+            ForumsContent(forums.value.data, PaddingValues(0.dp), nestedScrollInterop) { forum, header ->
+                ForumActivity.start(requireContext(), forum.id, forum.title, objectId, objectName, forumType, header)
             }
         }
 

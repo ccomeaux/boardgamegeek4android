@@ -94,8 +94,8 @@ class ForumsActivity : BaseActivity() {
                                 )
                             }
                             Status.SUCCESS -> {
-                                ForumsContent(forums.value.data, contentPadding, null) { forum ->
-                                    ForumActivity.start(this@ForumsActivity, forum.id, forum.title, objectId, objectName, Forum.Type.REGION)
+                                ForumsContent(forums.value.data, contentPadding, null) { forum, header, ->
+                                    ForumActivity.start(this@ForumsActivity, forum.id, forum.title, objectId, objectName, Forum.Type.REGION, header)
                                 }
                             }
                         }

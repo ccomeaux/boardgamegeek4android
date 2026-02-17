@@ -3,15 +3,18 @@
 package com.boardgamegeek.ui
 
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
+import android.webkit.WebView
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -19,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -27,6 +31,7 @@ import androidx.compose.ui.text.fromHtml
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.edit
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.boardgamegeek.R
@@ -48,7 +53,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
-import kotlin.text.ifEmpty
 import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
@@ -56,7 +60,8 @@ class ThreadActivity : BaseActivity() {
     private var threadId = BggContract.INVALID_ID
     private var threadSubject = ""
     private var forumId = BggContract.INVALID_ID
-    private var forumTitle: String = ""
+    private var forumTitle = ""
+    private var forumHeader = ""
     private var objectId = BggContract.INVALID_ID
     private var objectName = ""
     private var objectType = Forum.Type.REGION
@@ -73,6 +78,7 @@ class ThreadActivity : BaseActivity() {
             threadSubject = it.getStringExtra(KEY_THREAD_SUBJECT).orEmpty()
             forumId = it.getIntExtra(KEY_FORUM_ID, BggContract.INVALID_ID)
             forumTitle = it.getStringExtra(KEY_FORUM_TITLE).orEmpty()
+            forumHeader = it.getStringExtra(KEY_FORUM_HEADER).orEmpty()
             objectId = it.getIntExtra(KEY_OBJECT_ID, BggContract.INVALID_ID)
             objectName = it.getStringExtra(KEY_OBJECT_NAME).orEmpty()
             objectType = it.getSerializableCompat(KEY_OBJECT_TYPE) ?: Forum.Type.REGION
@@ -106,8 +112,10 @@ class ThreadActivity : BaseActivity() {
                         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                         topBar = {
                             ThreadTopAppBar(
-                                title = if (objectName.isBlank()) forumTitle else "$threadSubject - $forumTitle",
-                                subtitle = objectName.ifBlank { threadSubject },
+                                threadSubject = threadSubject,
+                                forumTitle = forumTitle,
+                                forumHeader = forumHeader,
+                                objectName = objectName,
                                 scrollBehavior = scrollBehavior,
                                 scrollToLastEnabled = scrollToLastEnabled,
                                 scrollToBottomEnabled = scrollToBottomEnabled,
@@ -118,7 +126,8 @@ class ThreadActivity : BaseActivity() {
                                         forumTitle,
                                         objectId,
                                         objectName,
-                                        objectType
+                                        objectType,
+                                        forumHeader,
                                     )
                                 },
                                 onScrollToLastClick = {
@@ -136,7 +145,7 @@ class ThreadActivity : BaseActivity() {
                                     }
                                 },
                                 onOpenInBrowserClick = { linkToBgg("thread", threadId) },
-                                onShareClick = { share() },
+                                onShareClick = { shareThread() },
                             )
                         }
                     ) { contentPadding ->
@@ -158,46 +167,62 @@ class ThreadActivity : BaseActivity() {
                                 )
                             }
                             Status.SUCCESS -> {
-                                LaunchedEffect(listState) {
-                                    snapshotFlow { listState.firstVisibleItemIndex }
-                                        .debounce(500L)
-                                        .collectLatest { index ->
-                                            thread.value.data?.articles?.getOrNull(index)?.let {
-                                                prefs.edit { putInt(getThreadKey(threadId), it.id) }
-                                            }
-                                        }
-                                }
-                                LazyColumn(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentPadding = contentPadding,
-                                    state = listState,
-                                ) {
-                                    items(
-                                        items = thread.value.data?.articles.orEmpty(),
-                                        key = { it.id }
-                                    ) {
-                                        val context = LocalContext.current
-                                        ThreadListItem(
-                                            it,
-                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                        ) {
-                                            ArticleActivity.start(
-                                                context,
-                                                threadId,
-                                                threadSubject,
-                                                forumId,
-                                                forumTitle,
-                                                objectId,
-                                                objectName,
-                                                objectType,
-                                                it
-                                            )
-                                        }
-                                    }
-                                }
+                                ThreadScreen(listState, thread.value.data?.articles.orEmpty(), contentPadding)
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun ThreadScreen(
+        listState: LazyListState,
+        thread: List<Article>,
+        contentPadding: PaddingValues
+    ) {
+        var bottomSheetArticleId: Int? by remember { mutableStateOf(null) }
+
+        LaunchedEffect(listState) {
+            snapshotFlow { listState.firstVisibleItemIndex }
+                .debounce(500L)
+                .collectLatest { index ->
+                    thread.getOrNull(index)?.let {
+                        prefs.edit { putInt(getThreadKey(threadId), it.id) }
+                    }
+                }
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = contentPadding,
+            state = listState,
+        ) {
+            items(
+                items = thread,
+                key = { it.id }
+            ) {
+                ArticleListItem(
+                    it,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                ) {
+                    bottomSheetArticleId = it.id
+                }
+            }
+        }
+        if (bottomSheetArticleId != null) {
+            val article = thread.find { it.id == bottomSheetArticleId }
+            if (article == null) {
+                bottomSheetArticleId = null
+            } else {
+                ModalBottomSheet(
+                    onDismissRequest = { bottomSheetArticleId = null },
+                ) {
+                    ArticleScreen(
+                        article,
+                        onOpenInBrowserClick = { link(article.link) },
+                        onShareClick = { shareArticle(article) }
+                    )
                 }
             }
         }
@@ -207,7 +232,7 @@ class ThreadActivity : BaseActivity() {
         return "THREAD-$threadId"
     }
 
-    private fun share() {
+    private fun shareThread() {
         val description = if (objectName.isBlank())
             String.format(getString(R.string.share_thread_text), threadSubject, forumTitle)
         else
@@ -230,10 +255,30 @@ class ThreadActivity : BaseActivity() {
         }
     }
 
+    private fun shareArticle(article: Article) {
+        val description = if (objectName.isEmpty())
+            String.format(getString(R.string.share_thread_article_text), threadSubject, forumTitle)
+        else
+            String.format(getString(R.string.share_thread_article_object_text), threadSubject, forumTitle, objectName)
+        val message = """
+            $description
+    
+            ${article.link}""".trimIndent()
+        share(getString(R.string.share_thread_subject), message, R.string.title_share)
+        firebaseAnalytics.logEvent(FirebaseAnalytics.Event.SHARE) {
+            param(FirebaseAnalytics.Param.ITEM_ID, article.id.toString())
+            param(
+                FirebaseAnalytics.Param.ITEM_NAME,
+                if (objectName.isEmpty()) "$forumTitle | $threadSubject" else "$objectName | $forumTitle | $threadSubject"
+            )
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "Article")
+        }
+    }
 
     companion object {
         private const val KEY_FORUM_ID = "FORUM_ID"
         private const val KEY_FORUM_TITLE = "FORUM_TITLE"
+        private const val KEY_FORUM_HEADER = "KEY_FORUM_HEADER"
         private const val KEY_OBJECT_ID = "OBJECT_ID"
         private const val KEY_OBJECT_NAME = "OBJECT_NAME"
         private const val KEY_OBJECT_TYPE = "OBJECT_TYPE"
@@ -247,37 +292,12 @@ class ThreadActivity : BaseActivity() {
             threadSubject: String,
             forumId: Int,
             forumTitle: String,
+            forumHeader: String,
             objectId: Int,
             objectName: String,
             objectType: Forum.Type
         ) {
-            context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType))
-        }
-
-        fun startUp(
-            context: Context,
-            threadId: Int,
-            threadSubject: String,
-            forumId: Int,
-            forumTitle: String,
-            objectId: Int,
-            objectName: String,
-            objectType: Forum.Type
-        ) {
-            context.startActivity(createIntent(context, threadId, threadSubject, forumId, forumTitle, objectId, objectName, objectType).clearTop())
-        }
-
-        private fun createIntent(
-            context: Context,
-            threadId: Int,
-            threadSubject: String,
-            forumId: Int,
-            forumTitle: String,
-            objectId: Int,
-            objectName: String,
-            objectType: Forum.Type,
-        ): Intent {
-            return context.intentFor<ThreadActivity>(
+            context.startActivity<ThreadActivity>(
                 KEY_THREAD_ID to threadId,
                 KEY_THREAD_SUBJECT to threadSubject,
                 KEY_FORUM_ID to forumId,
@@ -285,6 +305,7 @@ class ThreadActivity : BaseActivity() {
                 KEY_OBJECT_ID to objectId,
                 KEY_OBJECT_NAME to objectName,
                 KEY_OBJECT_TYPE to objectType,
+                KEY_FORUM_HEADER to forumHeader,
             )
         }
     }
@@ -295,8 +316,10 @@ class ThreadActivity : BaseActivity() {
 @ExperimentalMaterial3ExpressiveApi
 @Composable
 private fun ThreadTopAppBar(
-    title: String,
-    subtitle: String,
+    threadSubject: String,
+    forumTitle: String,
+    forumHeader: String,
+    objectName: String,
     modifier: Modifier = Modifier,
     scrollBehavior: TopAppBarScrollBehavior? = null,
     scrollToBottomEnabled: Boolean = false,
@@ -308,8 +331,19 @@ private fun ThreadTopAppBar(
     onShareClick: () -> Unit = {},
 ) {
     MediumFlexibleTopAppBar(
-        title = { Text(title) },
-        subtitle = { Text(subtitle) },
+        title = { Text(threadSubject.truncate(100)) },
+        subtitle = {
+            Text(
+                if (objectName.isBlank()) {
+                    if (forumHeader.isNotBlank())
+                        "${stringResource(R.string.title_forums)}  >  $forumHeader  >  $forumTitle"
+                    else
+                        "${stringResource(R.string.title_forums)}  >  $forumTitle"
+                } else {
+                    "$objectName  >  ${stringResource(R.string.title_forums)}  >  $forumTitle"
+                }
+            )
+        },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {
@@ -321,28 +355,60 @@ private fun ThreadTopAppBar(
             }
         },
         actions = {
-            IconButton(onClick = { onScrollToLastClick() }, enabled = scrollToLastEnabled) {
+            var showMenu by remember { mutableStateOf(false) }
+            IconButton(onClick = { showMenu = !showMenu }) {
                 Icon(
-                    painterResource(R.drawable.scroll_to_last_24px),
-                    contentDescription = stringResource(R.string.menu_scroll_to_last_read)
+                    painterResource(R.drawable.overflow_menu_24px),
+                    contentDescription = stringResource(R.string.more),
                 )
             }
-            IconButton(onClick = { onScrollToBottomClick() }, enabled = scrollToBottomEnabled) {
-                Icon(
-                    painterResource(R.drawable.scroll_to_bottom_24px),
-                    contentDescription = stringResource(R.string.menu_scroll_to_bottom)
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.menu_scroll_to_last_read)) },
+                    enabled = scrollToLastEnabled,
+                    leadingIcon = {
+                        Icon(
+                            painterResource(R.drawable.scroll_to_last_24px),
+                            contentDescription = stringResource(R.string.menu_scroll_to_last_read)
+                        )
+                    },
+                    onClick = {
+                        onScrollToLastClick()
+                        showMenu = false
+                    },
                 )
-            }
-            IconButton(onClick = { onOpenInBrowserClick() }) {
-                Icon(
-                    painterResource(R.drawable.open_in_browser_24px),
-                    contentDescription = stringResource(R.string.menu_view_in_browser)
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.menu_scroll_to_bottom)) },
+                    onClick = { onScrollToBottomClick() },
+                    enabled = scrollToBottomEnabled,
+                    leadingIcon = {
+                        Icon(
+                            painterResource(R.drawable.scroll_to_bottom_24px),
+                            contentDescription = stringResource(R.string.menu_scroll_to_bottom)
+                        )
+                    }
                 )
-            }
-            IconButton(onClick = { onShareClick() }) {
-                Icon(
-                    painterResource(R.drawable.share_24px),
-                    contentDescription = stringResource(R.string.menu_share)
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.menu_view_in_browser)) },
+                    onClick = { onOpenInBrowserClick() }, leadingIcon = {
+                        Icon(
+                            painterResource(R.drawable.open_in_browser_24px),
+                            contentDescription = stringResource(R.string.menu_view_in_browser)
+                        )
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.menu_share)) },
+                    leadingIcon = {
+                        Icon(
+                            painterResource(R.drawable.share_24px),
+                            contentDescription = stringResource(R.string.menu_share)
+                        )
+                    },
+                    onClick = { onShareClick() },
                 )
             }
         }
@@ -355,14 +421,16 @@ private fun ThreadTopAppBar(
 private fun ThreadTopAppBarPreview() {
     BggAppTheme {
         ThreadTopAppBar(
-            title = "This is a long title for the thread",
-            subtitle = "This is a longer subtitle for the thread to see how it wraps"
+            threadSubject = "This is a thread subject. ".repeat(10),
+            forumTitle = "Strategy",
+            objectName = "Gloomhaven",
+            forumHeader = "General Gaming"
         )
     }
 }
 
 @Composable
-private fun ThreadListItem(
+private fun ArticleListItem(
     article: Article,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
@@ -379,38 +447,22 @@ private fun ThreadListItem(
                 .padding(ListItemDefaults.tallPaddingValues)
         ) {
             val context = LocalContext.current
-            if (article.username.isNotBlank()) {
-                ListItemSecondaryText(
-                    text = article.username,
-                    icon = painterResource(id = R.drawable.account_circle_24px),
-                )
-            }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                ListItemSecondaryText(
-                    text = article.postTicks.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString(),
-                    icon = painterResource(id = R.drawable.time_24px),
-                    modifier = Modifier.padding(top = 4.dp),
-                )
-                if (article.numberOfEdits > 0) {
-                    ListItemVerticalDivider()
-                    var relativeEditTimestamp by remember { mutableStateOf("") }
-                    LaunchedEffect(Unit) {
-                        while (true) {
-                            relativeEditTimestamp =
-                                article.editTicks.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
-                            delay(30.seconds)
-                        }
-                    }
+                if (article.username.isNotBlank() || article.postTicks > 0L) {
                     ListItemSecondaryText(
-                        text = pluralStringResource(
-                            id = R.plurals.edit_timestamp,
-                            count = article.numberOfEdits,
-                            relativeEditTimestamp,
-                            article.numberOfEdits.toFormattedString(),
-                        ),
-                        icon = painterResource(id = R.drawable.ic_outline_edit_18),
-                        modifier = Modifier.padding(top = 4.dp)
+                        text = article.username,
+                        icon = painterResource(id = R.drawable.account_circle_24px),
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
+                    ListItemVerticalDivider()
+                    ListItemSecondaryText(
+                        text = article.postTicks.formatTimestamp(context, includeTime = true, isForumTimestamp = true).toString(),
+                        icon = painterResource(id = R.drawable.time_24px),
+                    )
+                    if (article.numberOfEdits > 0) {
+                        ListItemVerticalDivider()
+                        ListItemSecondaryText(stringResource(R.string.edited))
+                    }
                 }
             }
         }
@@ -429,9 +481,9 @@ private fun ThreadListItem(
 
 @Preview(showBackground = true)
 @Composable
-private fun ArticleScreenPreview() {
+private fun ArticleListItemPreview() {
     BggAppTheme {
-        ThreadListItem(
+        ArticleListItem(
             article = Article(
                 username = "ccomeaux",
                 postTicks = System.currentTimeMillis() - 1_000_000_000L,
@@ -440,6 +492,111 @@ private fun ArticleScreenPreview() {
                 body = "This is a preview of an article body. ".repeat(10)
             ),
             Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Composable
+private fun ArticleScreen(
+    article: Article,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    onOpenInBrowserClick: () -> Unit = {},
+    onShareClick: () -> Unit = {},
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(contentPadding)
+            .padding(
+                horizontal = dimensionResource(R.dimen.material_margin_horizontal),
+                vertical = dimensionResource(R.dimen.material_margin_vertical),
+            )
+    ) {
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column {
+                    val context = LocalContext.current
+                    ListItemSecondaryText(
+                        text = article.username,
+                        icon = painterResource(id = R.drawable.account_circle_24px),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    ListItemSecondaryText(
+                        text = article.postTicks.formatTimestamp(context, isForumTimestamp = true).toString(),
+                        icon = painterResource(id = R.drawable.time_24px),
+                        modifier = Modifier.padding(top = 4.dp),
+                    )
+                    if (article.numberOfEdits > 0) {
+                        var relativeEditTimestamp by remember { mutableStateOf("") }
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                relativeEditTimestamp = article.editTicks.formatTimestamp(context, isForumTimestamp = true).toString()
+                                delay(30.seconds)
+                            }
+                        }
+                        ListItemSecondaryText(
+                            text = pluralStringResource(
+                                id = R.plurals.edit_timestamp,
+                                count = article.numberOfEdits,
+                                relativeEditTimestamp,
+                                article.numberOfEdits.toFormattedString(),
+                            ),
+                            icon = painterResource(id = R.drawable.ic_outline_edit_18),
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                IconButton(onClick = onOpenInBrowserClick) {
+                    Icon(
+                        painterResource(R.drawable.open_in_browser_24px),
+                        contentDescription = stringResource(R.string.menu_view_in_browser)
+                    )
+                }
+                IconButton(onClick = onShareClick) {
+                    Icon(
+                        painterResource(R.drawable.share_24px),
+                        contentDescription = stringResource(R.string.menu_share)
+                    )
+                }
+            }
+        }
+        AndroidView(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            factory = { context ->
+                WebView(context).apply {
+                    setWebViewText(article.body)
+                }
+            }
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ArticleScreenPreview() {
+    BggAppTheme {
+        ArticleScreen(
+            article = Article(
+                username = "ccomeaux",
+                postTicks = System.currentTimeMillis() - 10_000_000L,
+                editTicks = System.currentTimeMillis() - 1_000_000L,
+                numberOfEdits = 3,
+                body = "This is a preview of an article body."
+            )
         )
     }
 }

@@ -32,7 +32,7 @@ fun ForumsContent(
     forums: Map<String, List<Forum>>?,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     nestedScrollConnection: NestedScrollConnection? = null,
-    onItemClick: (forum: Forum) -> Unit = {},
+    onItemClick: (forum: Forum, header: String) -> Unit = { _, _ -> },
 ) {
     when {
         forums == null -> {
@@ -79,7 +79,7 @@ fun ForumsContent(
                         ForumListItem(
                             forum = forum,
                             modifier = Modifier,
-                            onClick = { onItemClick(forum) },
+                            onClick = { onItemClick(forum, headerText) },
                         )
                         if (index < forums.lastIndex)
                             HorizontalDivider()

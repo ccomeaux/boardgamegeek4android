@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -131,6 +132,7 @@ fun ListItemSecondaryText(
     contentDescription: String? = null,
     textStyle: TextStyle = ListItemDefaults.secondaryTextStyle(),
     isSelected: Boolean = false,
+    color: Color? = null,
 ) {
     Row(
         modifier = modifier,
@@ -144,13 +146,13 @@ fun ListItemSecondaryText(
                 modifier = Modifier
                     .padding(end = 4.dp)
                     .size(ListItemDefaults.secondaryImageSize),
-                tint = getOnVariantColor(isSelected),
+                tint = color ?: getOnVariantColor(isSelected),
             )
         }
         Text(
             text = text,
             style = textStyle,
-            color = getOnVariantColor(isSelected),
+            color = color ?: getOnVariantColor(isSelected),
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
         )
