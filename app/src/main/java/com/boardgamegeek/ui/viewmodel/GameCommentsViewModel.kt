@@ -1,12 +1,20 @@
+@file:OptIn(ExperimentalCoroutinesApi::class)
+
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.*
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import androidx.paging.liveData
+import com.boardgamegeek.model.GameComment
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import javax.inject.Inject
 
 @HiltViewModel
@@ -14,28 +22,24 @@ class GameCommentsViewModel @Inject constructor(
     application: Application,
     private val gameRepository: GameRepository,
 ) : AndroidViewModel(application) {
-    enum class SortType {
-        RATING, USER
-    }
-
-    private val _id = MutableLiveData<Pair<Int, SortType>>()
-
-    val sort: LiveData<SortType> = _id.map {
-        _id.value?.second ?: SortType.USER
-    }
+    private val gameId = MutableStateFlow(BggContract.INVALID_ID)
+    private val _sort = MutableStateFlow(GameComment.SortType.Comment)
+    val sort = _sort.asStateFlow()
 
     fun setGameId(id: Int) {
-        if (_id.value?.first != id) _id.value = id to (_id.value?.second ?: SortType.RATING)
+        if (id != gameId.value) gameId.value = id
     }
 
-    fun setSort(sort: SortType) {
-        if (_id.value?.second != sort) _id.value = (_id.value?.first ?: BggContract.INVALID_ID) to sort
+    fun setSort(sort: GameComment.SortType) {
+        if (sort != _sort.value) _sort.value = sort
     }
 
-    val comments = _id.switchMap {
+    val comments = combine(gameId, sort) { gameId, sortType ->
+        gameId to sortType
+    }.flatMapLatest {
         gameRepository.loadCommentsPager(
             it.first,
-            it.second == SortType.RATING
-        ).liveData.cachedIn(this)
+            it.second == GameComment.SortType.Rating
+        ).flow.cachedIn(viewModelScope)
     }
 }

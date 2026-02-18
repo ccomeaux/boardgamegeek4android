@@ -168,6 +168,7 @@ fun ListItemSecondaryText(
     textStyle: TextStyle = ListItemDefaults.secondaryTextStyle(),
     isSelected: Boolean = false,
     color: Color? = null,
+    maxLines: Int = 1,
 ) {
     Row(
         modifier = modifier,
@@ -189,7 +190,7 @@ fun ListItemSecondaryText(
             style = textStyle,
             color = color ?: getOnVariantColor(isSelected),
             overflow = TextOverflow.Ellipsis,
-            maxLines = 1,
+            maxLines = maxLines,
         )
     }
 }
