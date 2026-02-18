@@ -176,7 +176,6 @@ private fun BuddiesTopBar(
     )
 }
 
-
 @Composable
 private fun BuddiesContent(
     buddies: Map<String, List<User>>?,

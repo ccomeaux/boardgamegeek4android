@@ -217,7 +217,6 @@ class ForumActivity : BaseActivity() {
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3ExpressiveApi
 @Composable
