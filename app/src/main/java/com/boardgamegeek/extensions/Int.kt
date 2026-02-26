@@ -164,7 +164,15 @@ fun Int.orderOfMagnitude(): String {
 }
 
 fun Int.toFormattedString(): String {
-    return this.toString().format(NumberFormat.getInstance())
+    val format = NumberFormat.getInstance()
+    return format.format(this)
+}
+
+fun Int.addAlphaToColor(alpha: Int = 255): Int {
+    val red = android.graphics.Color.red(this)
+    val green = android.graphics.Color.green(this)
+    val blue = android.graphics.Color.blue(this)
+    return android.graphics.Color.argb(alpha, red, green, blue)
 }
 
 class IntervalDelegate(var value: Int, private val minValue: Int, private val maxValue: Int) {
