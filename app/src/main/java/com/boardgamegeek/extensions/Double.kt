@@ -20,7 +20,7 @@ fun Double.asPersonalRating(context: Context?, @StringRes defaultResId: Int = R.
 
 fun Double.asBoundedRating(context: Context?, format: DecimalFormat, @StringRes defaultResId: Int = ResourcesCompat.ID_NULL): String {
     return when {
-        this in 1.0..10.0 -> return asScore(context, defaultResId, format)
+        this in 1.0..10.0 -> asScore(context, defaultResId, format)
         defaultResId != ResourcesCompat.ID_NULL && context != null -> context.getString(defaultResId)
         else -> ""
     }
