@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
@@ -41,23 +43,24 @@ class GameLinksFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val viewModel by activityViewModels<GameViewModel>()
-        viewModel.game.observe(viewLifecycleOwner) { game ->
-            binding.composeView.setContent {
-                val paddingValues = PaddingValues(dimensionResource(R.dimen.material_margin_horizontal), 8.dp)
-                if (game == null) {
-                    EmptyContent(
-                        stringResource(R.string.empty_game),
-                        painterResource(R.drawable.link_24px),
-                        Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
-                    )
-                } else {
+        binding.composeView.setContent {
+            val viewModel by activityViewModels<GameViewModel>()
+            val game by viewModel.game.observeAsState()
+            val paddingValues = PaddingValues(dimensionResource(R.dimen.material_margin_horizontal), 8.dp)
+            if (game == null) {
+                EmptyContent(
+                    stringResource(R.string.empty_game),
+                    painterResource(R.drawable.link_24px),
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                )
+            } else {
+                game?.let {
                     GameLinks(
-                        game.id,
-                        game.name,
-                        iconColor = game.iconColor,
+                        it.id,
+                        it.name,
+                        iconColor = it.iconColor,
                         modifier = Modifier.padding(paddingValues),
                     )
                 }
