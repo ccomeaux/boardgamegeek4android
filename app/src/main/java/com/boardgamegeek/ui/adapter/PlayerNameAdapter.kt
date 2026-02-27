@@ -77,6 +77,7 @@ class PlayerNameAdapter(context: Context) : ArrayAdapter<PlayerNameAdapter.Resul
                     it.username.contains(filter, ignoreCase = true) ||
                             it.firstName.contains(filter, ignoreCase = true) ||
                             it.lastName.contains(filter, ignoreCase = true) ||
+                            it.fullName.contains(filter, ignoreCase = true) ||
                             it.playNickname.contains(filter, ignoreCase = true)
                 }
             }
