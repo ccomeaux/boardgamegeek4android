@@ -33,10 +33,12 @@ fun GameFooter(syncTimestamp: Long, gameId: Int, modifier: Modifier = Modifier) 
         var relativeTimestamp by remember {
             mutableStateOf(never)
         }
-        LaunchedEffect(Unit) {
-            while (true) {
-                relativeTimestamp = "$prefix ${syncTimestamp.formatTimestamp(context, includeTime = true, isForumTimestamp = false)}"
-                delay(30.seconds)
+        if (syncTimestamp > 0L) {
+            LaunchedEffect(Unit) {
+                while (true) {
+                    relativeTimestamp = "$prefix ${syncTimestamp.formatTimestamp(context, includeTime = true, isForumTimestamp = false)}"
+                    delay(30.seconds)
+                }
             }
         }
         Text(relativeTimestamp, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

@@ -928,6 +928,18 @@
 		<item quantity="one"><b>%s</b> player</item>
 		<item quantity="other"><b>%s</b> players</item>
 	</plurals>
+	<plurals name="comments">
+		<item quantity="one">comment</item>
+		<item quantity="other">comments</item>
+	</plurals>
+	<plurals name="ratings">
+		<item quantity="one">rating</item>
+		<item quantity="other">ratings</item>
+	</plurals>
+	<plurals name="votes">
+		<item quantity="one">vote</item>
+		<item quantity="other">votes</item>
+	</plurals>
 	<plurals name="votes_suffix">
 		<item quantity="one"><b>%,d</b> vote</item>
 		<item quantity="other"><b>%,d</b> votes</item>
