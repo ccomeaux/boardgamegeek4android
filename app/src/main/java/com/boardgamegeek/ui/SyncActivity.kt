@@ -41,7 +41,6 @@ import com.boardgamegeek.model.Game
 import com.boardgamegeek.ui.compose.Drawer
 import com.boardgamegeek.ui.compose.DrawerItem
 import com.boardgamegeek.ui.compose.EmptyFullSizeScrollableContent
-import com.boardgamegeek.ui.compose.plus
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.boardgamegeek.ui.viewmodel.SyncViewModel.*
