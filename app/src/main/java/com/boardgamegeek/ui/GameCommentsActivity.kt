@@ -216,7 +216,7 @@ private fun CommentsTopBarPreview() {
 }
 
 @Composable
-fun CommentListItem(
+private fun CommentListItem(
     gameComment: GameComment,
     modifier: Modifier = Modifier,
 ) {
