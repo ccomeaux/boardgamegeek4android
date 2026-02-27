@@ -33,7 +33,9 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -181,6 +183,7 @@ class BuddyActivity : BaseActivity() {
                             }
                             if (openUpdateNicknameAlertDialog) {
                                 UpdateNicknameDialog(
+                                    initialNickname = playerName,
                                     onConfirmation = { nickname, updatePlays ->
                                         openUpdateNicknameAlertDialog = false
                                         viewModel.updateNickname(nickname, updatePlays)
@@ -737,6 +740,7 @@ private fun AddUsernameDialogPreview() {
 
 @Composable
 private fun UpdateNicknameDialog(
+    initialNickname: String,
     onConfirmation: (String, Boolean) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
@@ -745,7 +749,7 @@ private fun UpdateNicknameDialog(
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
-    var textFieldValue by rememberSaveable { mutableStateOf("") }
+    var textFieldValue by rememberSaveable { mutableStateOf(initialNickname) }
     var changePlaysCheckBox by rememberSaveable { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = { onDismissRequest() },
@@ -760,15 +764,18 @@ private fun UpdateNicknameDialog(
         dismissButton = {
             TextButton(onClick = { onDismissRequest() }) { Text(stringResource(R.string.cancel)) }
         },
-        title = { Text(text = stringResource(R.string.title_add_username)) },
+        title = { Text(text = stringResource(R.string.title_edit_nickname)) },
         text = {
             Column {
                 TextField(
-                    value = textFieldValue,
+                    value =  TextFieldValue(
+                        text = textFieldValue,
+                        selection = TextRange(textFieldValue.length)
+                    ),
                     maxLines = 1,
                     label = { Text(stringResource(R.string.nickname)) },
                     onValueChange = {
-                        textFieldValue = it
+                        textFieldValue = it.text
                     },
                     modifier = Modifier
                         .padding(bottom = 8.dp)
@@ -795,6 +802,7 @@ private fun UpdateNicknameDialog(
 private fun UpdateNicknameDialogPreview() {
     BggAppTheme {
         UpdateNicknameDialog(
+            "Dude",
             { _, _ -> },
             {},
             modifier = Modifier.padding(16.dp)
