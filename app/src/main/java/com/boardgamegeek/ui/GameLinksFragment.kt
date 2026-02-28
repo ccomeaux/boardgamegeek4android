@@ -154,7 +154,7 @@ private fun LinkButton(
         onClick = onClick,
         modifier = modifier.heightIn(size),
         shape = ButtonDefaults.shapesFor(size).shape,
-        contentPadding = ButtonDefaults.contentPaddingFor(size),
+        contentPadding = ButtonDefaults.contentPaddingFor(size, true),
     ) {
         Icon(
             icon,

@@ -47,14 +47,14 @@ fun GameDetailsFlowRow(
         Text(
             headerText,
             style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .heightIn(48.dp)
                 .fillMaxWidth()
                 .padding(bottom = 8.dp)
-                .wrapContentHeight(Alignment.Companion.Bottom),
+                .wrapContentHeight(Alignment.Bottom),
         )
         FlowRow(
-            modifier = Modifier.Companion.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
@@ -62,9 +62,9 @@ fun GameDetailsFlowRow(
             list.take(limit).forEach {
                 OutlinedButton(
                     onClick = { onItemClick(it) },
-                    modifier = Modifier.Companion.heightIn(min = size),
+                    modifier = Modifier.heightIn(min = size),
                     shape = ButtonDefaults.shapesFor(size).shape,
-                    contentPadding = ButtonDefaults.contentPaddingFor(size),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size, true),
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -74,8 +74,8 @@ fun GameDetailsFlowRow(
                         contentDescription = null,
                         placeholder = painterResource(id = R.drawable.thumbnail_image_empty),
                         error = painterResource(id = R.drawable.thumbnail_image_empty),
-                        contentScale = ContentScale.Companion.Crop,
-                        modifier = Modifier.Companion
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
                             .padding(end = ButtonDefaults.iconSpacingFor(size))
                             .size(ButtonDefaults.iconSizeFor(size))
                             .clip(MaterialTheme.shapes.extraSmall)
@@ -89,17 +89,17 @@ fun GameDetailsFlowRow(
             if (list.size > limit) {
                 OutlinedButton(
                     onClick = onMoreClick,
-                    modifier = Modifier.Companion.heightIn(min = size),
+                    modifier = Modifier.heightIn(min = size),
                     shape = ButtonDefaults.shapesFor(size).shape,
-                    contentPadding = ButtonDefaults.contentPaddingFor(size),
+                    contentPadding = ButtonDefaults.contentPaddingFor(size, true),
                 ) {
                     Icon(
                         painter = painterResource(id = moreButtonIconId),
                         contentDescription = null,
-                        modifier = Modifier.Companion
+                        modifier = Modifier
                             .size(ButtonDefaults.iconSizeFor(size))
                     )
-                    Spacer(Modifier.Companion.size(ButtonDefaults.iconSpacingFor(size)))
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(size)))
                     Text(
                         text = stringResource(R.string.more_suffix, list.size - limit),
                         style = MaterialTheme.typography.bodyMedium,

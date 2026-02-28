@@ -20,7 +20,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentComposeViewBinding
-import com.boardgamegeek.databinding.FragmentNestedComposeViewBinding
 import com.boardgamegeek.extensions.setWebViewText
 import com.boardgamegeek.ui.compose.BggLoadingIndicatorBox
 import com.boardgamegeek.ui.compose.EmptyContent
