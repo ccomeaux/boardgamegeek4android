@@ -4,177 +4,287 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.annotation.DrawableRes
-import androidx.annotation.StringRes
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.boardgamegeek.R
-import com.boardgamegeek.databinding.FragmentGameCreditsBinding
-import com.boardgamegeek.extensions.loadIcon
-import com.boardgamegeek.extensions.setBggColors
-import com.boardgamegeek.extensions.setOrClearOnClickListener
+import com.boardgamegeek.databinding.FragmentNestedComposeViewBinding
 import com.boardgamegeek.model.GameDetail
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.compose.BggLoadingIndicatorBox
+import com.boardgamegeek.ui.compose.EmptyContent
+import com.boardgamegeek.ui.compose.GameFooter
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.google.android.material.chip.Chip
-import com.google.android.material.chip.ChipGroup
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class GameCreditsFragment : Fragment() {
-    private var _binding: FragmentGameCreditsBinding? = null
+    private var _binding: FragmentNestedComposeViewBinding? = null
     private val binding get() = _binding!!
-    private val viewModel by activityViewModels<GameViewModel>()
-    private val limit = 4
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentGameCreditsBinding.inflate(inflater, container, false)
+        _binding = FragmentNestedComposeViewBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshGame() }
-        binding.swipeRefresh.setBggColors()
+        val limit = 4
+        binding.composeView.setContent {
+            val viewModel by activityViewModels<GameViewModel>()
+            val isRefreshing by viewModel.gameIsRefreshing.observeAsState(true)
+            val game by viewModel.game.observeAsState()
+            val designers by viewModel.designers.observeAsState(emptyList())
+            val artists by viewModel.artists.observeAsState(emptyList())
+            val publishers by viewModel.publishers.observeAsState(emptyList())
+            val mechanics by viewModel.mechanics.observeAsState(emptyList())
+            val categories by viewModel.categories.observeAsState(emptyList())
 
-        binding.footer.lastModifiedView.timestamp = 0
+            viewModel.refreshDesignerImages(limit)
+            viewModel.refreshArtistImages(limit)
+            viewModel.refreshPublisherImages(limit)
 
-        viewModel.gameIsRefreshing.observe(viewLifecycleOwner) {
-            it?.let { binding.swipeRefresh.isRefreshing }
-        }
-        viewModel.game.observe(viewLifecycleOwner) { game ->
-            if (game == null) {
-                binding.emptyMessage.isVisible = true
-                binding.footer.gameIdView.isVisible = false
-                binding.footer.lastModifiedView.isVisible = false
-            } else {
-                binding.footer.gameIdView.text = game.id.toString()
-                binding.footer.lastModifiedView.timestamp = game.updated
-                binding.footer.gameIdView.isVisible = true
-                binding.footer.lastModifiedView.isVisible = true
-                binding.emptyMessage.isVisible = false
-                listOf(binding.designerHeaderView, binding.artistsHeaderView, binding.publishersHeaderView, binding.categoriesHeaderView, binding.mechanicsHeaderView)
-                    .forEach { tv -> tv.setTextColor(game.iconColor) }
-            }
-            binding.contentLoadingProgressBar.hide()
-        }
-        viewModel.designers.observe(viewLifecycleOwner) {
-            it?.let { list ->
-                binding.designerHeaderView.isGone = list.isEmpty()
-                binding.designersChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_edit_24,
-                    R.string.designers,
-                    GameViewModel.ProducerType.DESIGNER,
-                )
-                binding.designersDividerView.isGone = list.isEmpty()
-            }
-        }
-        viewModel.artists.observe(viewLifecycleOwner) {
-            it?.let { list ->
-                binding.artistsHeaderView.isGone = list.isEmpty()
-                binding.artistsChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_brush_24,
-                    R.string.artists,
-                    GameViewModel.ProducerType.ARTIST,
-                )
-                binding.artistsDividerView.isGone = list.isEmpty()
-            }
-        }
-        viewModel.publishers.observe(viewLifecycleOwner) {
-            it?.let { list ->
-                binding.publishersHeaderView.isGone = list.isEmpty()
-                binding.publishersChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_import_contacts_24,
-                    R.string.publishers,
-                    GameViewModel.ProducerType.PUBLISHER,
-                )
-                binding.publishersHeaderView.isGone = list.isEmpty()
-            }
-        }
-        viewModel.categories.observe(viewLifecycleOwner) {
-            it?.let { list ->
-                binding.categoriesHeaderView.isGone = list.isEmpty()
-                binding.categoriesChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_category_24,
-                    R.string.categories,
-                    GameViewModel.ProducerType.CATEGORY,
-                )
-                binding.categoriesDividerView.isGone = list.isEmpty()
-            }
-        }
-        viewModel.mechanics.observe(viewLifecycleOwner) {
-            it?.let { list ->
-                binding.mechanicsHeaderView.isGone = list.isEmpty()
-                binding.mechanicsChipGroup.bindData(
-                    list,
-                    R.drawable.ic_baseline_settings_24,
-                    R.string.mechanics,
-                    GameViewModel.ProducerType.MECHANIC,
-                )
-                binding.mechanicsDividerView.isGone = list.isEmpty()
-            }
-        }
+            if (isRefreshing)
+                BggLoadingIndicatorBox()
 
-        viewModel.refreshDesignerImages(limit)
-        viewModel.refreshArtistImages(limit)
-        viewModel.refreshPublisherImages(limit)
+            game?.let { game ->
+                val color = Color(game.iconColor)
+                Column(Modifier.padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal), vertical = 8.dp)) {
+                    GameCreditsFlowRow(
+                        designers,
+                        stringResource(R.string.designers),
+                        R.drawable.designer_24px,
+                        headerColor = color,
+                        onItemClick = { designer ->
+                            PersonActivity.startForDesigner(requireContext(), designer.id, designer.name)
+                        },
+                        onMoreClick = {
+                            GameDetailActivity.start(
+                                requireContext(),
+                                getString(R.string.designers),
+                                game.id,
+                                game.name,
+                                GameViewModel.ProducerType.DESIGNER,
+                            )
+                        }
+                    )
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                    GameCreditsFlowRow(
+                        artists,
+                        stringResource(R.string.artists),
+                        R.drawable.artist_24px,
+                        headerColor = color,
+                        onItemClick = { artist ->
+                            PersonActivity.startForArtist(requireContext(), artist.id, artist.name)
+                        },
+                        onMoreClick = {
+                            GameDetailActivity.start(
+                                requireContext(),
+                                getString(R.string.artists),
+                                game.id,
+                                game.name,
+                                GameViewModel.ProducerType.ARTIST,
+                            )
+                        }
+                    )
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                    GameCreditsFlowRow(
+                        publishers,
+                        stringResource(R.string.publishers),
+                        R.drawable.publisher_24px,
+                        headerColor = color,
+                        onItemClick = { publisher ->
+                            PersonActivity.startForPublisher(requireContext(), publisher.id, publisher.name)
+                        },
+                        onMoreClick = {
+                            GameDetailActivity.start(
+                                requireContext(),
+                                getString(R.string.publishers),
+                                game.id,
+                                game.name,
+                                GameViewModel.ProducerType.PUBLISHER,
+                            )
+                        }
+                    )
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                    GameCreditsFlowRow(
+                        mechanics,
+                        stringResource(R.string.mechanics),
+                        R.drawable.mechanic_24px,
+                        headerColor = color,
+                        onItemClick = { mechanics ->
+                            MechanicActivity.start(requireContext(), mechanics.id, mechanics.name)
+                        },
+                        onMoreClick = {
+                            GameDetailActivity.start(
+                                requireContext(),
+                                getString(R.string.mechanics),
+                                game.id,
+                                game.name,
+                                GameViewModel.ProducerType.MECHANIC,
+                            )
+                        }
+                    )
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                    GameCreditsFlowRow(
+                        categories,
+                        stringResource(R.string.categories),
+                        R.drawable.category_24px,
+                        headerColor = color,
+                        onItemClick = { category ->
+                            CategoryActivity.start(requireContext(), category.id, category.name)
+                        },
+                        onMoreClick = {
+                            GameDetailActivity.start(
+                                requireContext(),
+                                getString(R.string.categories),
+                                game.id,
+                                game.name,
+                                GameViewModel.ProducerType.CATEGORY,
+                            )
+                        }
+                    )
+                    HorizontalDivider(Modifier.padding(vertical = 8.dp))
+                    GameFooter(
+                        game.updated,
+                        game.id,
+                        Modifier.fillMaxSize()
+                    )
+                }
+            } ?: EmptyContent(
+                stringResource(R.string.empty_game),
+                painterResource(R.drawable.game_24px),
+                Modifier.fillMaxSize()
+            )
+        }
     }
+}
 
-    private fun ChipGroup.bindData(
-        list: List<GameDetail>,
-        @DrawableRes iconResId: Int,
-        @StringRes labelResId: Int,
-        type: GameViewModel.ProducerType,
-    ) {
-        if (list.isEmpty()) {
-            visibility = View.GONE
-        } else {
-            removeAllViews()
-            if (list.size <= limit) {
-                list.forEach { producer ->
-                    addView(createChip(producer, type))
-                }
-            } else {
-                list.take(limit - 1).forEach { producer ->
-                    addView(createChip(producer, type))
-                }
-                val moreChip = Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
-                    layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                    if (iconResId != 0) setChipIconResource(iconResId)
-                    text = context.getString(R.string.more_suffix, list.size - limit + 1)
-                    setOnClickListener {
-                        val gameId = viewModel.gameId.value ?: BggContract.INVALID_ID
-                        val gameName = viewModel.game.value?.name.orEmpty()
-                        GameDetailActivity.start(context, getString(labelResId), gameId, gameName, type)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun GameCreditsFlowRow(
+    list: List<GameDetail>,
+    headerText: String,
+    moreButtonIconId: Int,
+    modifier: Modifier = Modifier,
+    limit: Int = 4,
+    headerColor: Color = MaterialTheme.colorScheme.onSurface,
+    @DrawableRes emptyIconResId: Int = R.drawable.person_image_empty,
+    onItemClick: (GameDetail) -> Unit = { },
+    onMoreClick: () -> Unit = { },
+) {
+    Column(modifier = modifier) {
+        Text(
+            headerText,
+            style = MaterialTheme.typography.titleLarge,
+            color = headerColor,
+            modifier = Modifier
+                .heightIn(48.dp)
+                .fillMaxWidth()
+                .padding(bottom = 8.dp)
+                .wrapContentHeight(Alignment.Bottom),
+        )
+        FlowRow(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            val buttonHeight = ButtonDefaults.MinHeight
+            val hasStartIcon = (emptyIconResId != ResourcesCompat.ID_NULL)
+            list.take(limit).forEach {
+                OutlinedButton(
+                    onClick = { onItemClick(it) },
+                    modifier = Modifier.heightIn(min = buttonHeight),
+                    shape = ButtonDefaults.shapesFor(buttonHeight).shape,
+                    contentPadding = ButtonDefaults.contentPaddingFor(
+                        buttonHeight,
+                        hasStartIcon,
+                    ), // TODO use PaddingValues(bottom = 6.dp, top = 6.dp, start = 12.dp, end = 12.dp) instead?
+                ) {
+                    if (hasStartIcon) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(it.thumbnailUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = null,
+                            placeholder = painterResource(id = emptyIconResId),
+                            error = painterResource(id = emptyIconResId),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .padding(end = ButtonDefaults.iconSpacingFor(buttonHeight))
+                                .size(ButtonDefaults.iconSizeFor(buttonHeight))
+                                .clip(CircleShape)
+                        )
                     }
+                    Text(
+                        text = it.name,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
                 }
-                addView(moreChip)
             }
-            visibility = View.VISIBLE
+            if (list.size > limit) {
+                OutlinedButton(
+                    onClick = onMoreClick,
+                    modifier = Modifier.heightIn(min = buttonHeight),
+                    shape = ButtonDefaults.shapesFor(buttonHeight).shape,
+                    contentPadding = ButtonDefaults.contentPaddingFor(buttonHeight, true),
+                ) {
+                    Icon(
+                        painter = painterResource(id = moreButtonIconId),
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.iconSizeFor(buttonHeight))
+                    )
+                    Spacer(Modifier.size(ButtonDefaults.iconSpacingFor(buttonHeight)))
+                    Text(
+                        text = stringResource(R.string.more_suffix, list.size - limit),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
         }
     }
+}
 
-    private fun createChip(producer: GameDetail, type: GameViewModel.ProducerType): Chip {
-        return Chip(context, null, R.style.Widget_MaterialComponents_Chip_Entry).apply {
-            layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            text = producer.name
-            if (producer.thumbnailUrl.isNotBlank())
-                loadIcon(producer.thumbnailUrl)
-            when (type) {
-                GameViewModel.ProducerType.ARTIST -> setOnClickListener { PersonActivity.startForArtist(context, producer.id, producer.name) }
-                GameViewModel.ProducerType.DESIGNER -> setOnClickListener { PersonActivity.startForDesigner(context, producer.id, producer.name) }
-                GameViewModel.ProducerType.PUBLISHER -> setOnClickListener { PersonActivity.startForPublisher(context, producer.id, producer.name) }
-                else -> setOrClearOnClickListener()
-            }
-        }
+@Preview(showBackground = true, widthDp = 480)
+@Composable
+private fun GameLinkedItemsPreview() {
+    BggAppTheme {
+        GameCreditsFlowRow(
+            listOf(
+                GameDetail(13, "Reiner Knizia"),
+                GameDetail(14, "Stephan Feld"),
+                GameDetail(123, "Alexander Pfister"),
+                GameDetail(9, "Uwe Rosenberg"),
+                GameDetail(999, "You won't see this one")
+            ),
+            "Designers",
+            moreButtonIconId = R.drawable.designer_24px,
+            Modifier.fillMaxWidth(),
+            // emptyIconResId = ResourcesCompat.ID_NULL,
+        )
     }
 }
