@@ -48,9 +48,7 @@
 				app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 				app:layout_constraintLeft_toLeftOf="parent"
 				app:layout_constraintRight_toRightOf="parent"
-				app:layout_constraintTop_toTopOf="parent"
-				tools:itemCount="2"
-				tools:listitem="@layout/widget_collection_row" />
+				app:layout_constraintTop_toTopOf="parent" />
 
 			<com.boardgamegeek.ui.widget.TimestampView
 				android:id="@+id/syncTimestamp"
