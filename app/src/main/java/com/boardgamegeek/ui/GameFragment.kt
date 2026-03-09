@@ -175,31 +175,34 @@ class GameFragment : Fragment() {
 }
 
 @Composable
-private fun PrimaryRowText(text: String) {
+fun PrimaryRowText(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         maxLines = 1,
         style = MaterialTheme.typography.titleMedium,
+        modifier = modifier,
     )
 }
 
 @Composable
-private fun SecondaryRowText(annotatedString: AnnotatedString) {
+fun SecondaryRowText(annotatedString: AnnotatedString, modifier: Modifier = Modifier) {
     Text(
         text = annotatedString,
         maxLines = 2,
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier,
     )
 }
 
 @Composable
-private fun SecondaryRowText(text: String) {
+fun SecondaryRowText(text: String, modifier: Modifier = Modifier) {
     Text(
         text = text,
         maxLines = 2,
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier,
     )
 }
 
@@ -217,7 +220,7 @@ private fun VotesRowText(voteCount: Int) {
 }
 
 @Composable
-private fun GameRow(
+fun GameRow(
     @DrawableRes iconResId: Int,
     @StringRes contentDescriptionResId: Int,
     modifier: Modifier = Modifier,
@@ -240,7 +243,7 @@ private fun GameRow(
             tint = Color(iconColor.addAlphaToColor()),
         )
         Column(
-            modifier = modifier
+            modifier = Modifier
                 .padding(vertical = 4.dp)
                 .heightIn(dimensionResource(R.dimen.game_row_height)),
             verticalArrangement = Arrangement.Center,
@@ -531,7 +534,7 @@ private fun LanguageRow(
 
 @Preview(backgroundColor = 0xFFF, showBackground = true)
 @Composable
-private fun Preview() {
+private fun GameInfoPreview() {
     BggAppTheme {
         Column {
             RankRow(

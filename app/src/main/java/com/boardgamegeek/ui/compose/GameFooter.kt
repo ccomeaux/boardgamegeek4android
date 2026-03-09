@@ -29,7 +29,7 @@ fun GameFooter(syncTimestamp: Long, gameId: Int, modifier: Modifier = Modifier) 
     ) {
         val context = LocalContext.current
         val never = stringResource(R.string.needs_updating)
-        val prefix = stringResource(R.string.sync)
+        val prefix = stringResource(R.string.synced)
         var relativeTimestamp by remember {
             mutableStateOf(never)
         }

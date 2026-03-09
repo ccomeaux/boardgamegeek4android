@@ -32,9 +32,23 @@ fun ColorBox(
     colorName: String,
     modifier: Modifier = Modifier,
     size: Dp = ColorBoxDefaults.sizeMedium,
-    content: @Composable BoxScope.(Color) -> Unit,
+    content: @Composable BoxScope.(Color) -> Unit = {},
 ) {
-    val colorRgb = colorName.asColorRgb()
+    ColorBox(
+        colorName.asColorRgb(),
+        modifier,
+        size,
+        content,
+    )
+}
+
+@Composable
+fun ColorBox(
+    colorRgb: Int,
+    modifier: Modifier = Modifier,
+    size: Dp = ColorBoxDefaults.sizeMedium,
+    content: @Composable BoxScope.(Color) -> Unit = {},
+) {
     Box(
         modifier = modifier
             .padding(4.dp)

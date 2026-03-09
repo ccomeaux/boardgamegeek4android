@@ -9,11 +9,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.Dp
 import androidx.core.content.res.ResourcesCompat
 import com.boardgamegeek.R
 import com.boardgamegeek.model.Play
@@ -25,8 +29,10 @@ import com.boardgamegeek.util.XmlApiMarkupConverter
 fun PlayListItem(
     play: Play,
     showGameName: Boolean,
-    markupConverter: XmlApiMarkupConverter,
     modifier: Modifier = Modifier,
+    padding: PaddingValues = ListItemDefaults.tallPaddingValues,
+    minimumHeight: Dp = ListItemDefaults.threeLineHeight,
+    markupConverter: XmlApiMarkupConverter? = null,
     isSelected: Boolean = false,
     onLongClick: () -> Unit = {},
     onClick: () -> Unit = {},
@@ -35,38 +41,43 @@ fun PlayListItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = modifier
+            .semantics(mergeDescendants = true) {
+                selected = isSelected
+            }
             .fillMaxWidth()
-            .heightIn(min = ListItemDefaults.threeLineHeight)
+            .heightIn(min = minimumHeight)
             .background(
                 if (isSelected)
                     MaterialTheme.colorScheme.primaryContainer
                 else
-                    MaterialTheme.colorScheme.surface
+                    Color.Transparent
             )
             .then(
                 if (isSelected)
-                    Modifier.Companion.clickable(onClick = onClick)
+                    Modifier.clickable(onClick = onClick)
                 else
-                    Modifier.Companion.combinedClickable(
+                    Modifier.combinedClickable(
                         onClick = onClick,
                         onLongClick = onLongClick,
                     )
             )
-            .padding(ListItemDefaults.tallPaddingValues)
+            .padding(padding)
     ) {
-        ListItemThumbnail(
-            play.thumbnailUrl,
-        )
+        if (showGameName) {
+            ListItemThumbnail(
+                play.thumbnailUrl,
+            )
+        }
         Column(
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.Companion.Start,
+            horizontalAlignment = Alignment.Start,
             modifier = modifier
                 .fillMaxWidth()
         ) {
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Companion.CenterVertically
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 ListItemPrimaryText(
                     if (showGameName) play.gameName else play.dateForDisplay(LocalContext.current).toString(), isSelected = isSelected
@@ -82,7 +93,7 @@ fun PlayListItem(
                 }
             }
             ListItemSecondaryText(play.describe(LocalContext.current, showGameName), isSelected = isSelected)
-            val comments = markupConverter.strip(play.comments.replace("\n", " "))
+            val comments = markupConverter?.strip(play.comments.replace("\n", " ")) ?: play.comments
             if (comments.isNotBlank()) {
                 ListItemSecondaryText(comments, isSelected = isSelected)
             }
@@ -112,7 +123,7 @@ private class PlayPreviewParameterProvider : PreviewParameterProvider<Play> {
             playId = INVALID_ID,
             dateInMillis = System.currentTimeMillis(),
             gameId = 13,
-            gameName = "CATAN",
+            gameName = "Catan",
             quantity = 1,
             length = 92,
             location = "House",

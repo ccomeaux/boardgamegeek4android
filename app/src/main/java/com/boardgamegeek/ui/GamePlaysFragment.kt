@@ -1,41 +1,49 @@
 package com.boardgamegeek.ui
 
-import android.content.Context
-import android.graphics.Color
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.format.DateUtils
-import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.annotation.ColorInt
-import androidx.core.view.isVisible
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlaysBinding
+import com.boardgamegeek.extensions.asPlayCount
+import com.boardgamegeek.extensions.isKnownColor
+import com.boardgamegeek.extensions.isToday
+import com.boardgamegeek.extensions.toFormattedString
 import com.boardgamegeek.model.Play
-import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.viewmodel.GameViewModel
-import com.boardgamegeek.ui.widget.SelfUpdatingView
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.seconds
 
 @AndroidEntryPoint
 class GamePlaysFragment : Fragment() {
     private var _binding: FragmentGamePlaysBinding? = null
     private val binding get() = _binding!!
-    private var gameId = BggContract.INVALID_ID
-    private var gameName = ""
-    private var heroImageUrl = ""
-    private var thumbnailUrl = ""
-    private var arePlayersCustomSorted = false
-
-    @ColorInt
-    private var iconColor = Color.TRANSPARENT
-
-    private val viewModel by activityViewModels<GameViewModel>()
 
     @Suppress("RedundantNullableReturnType")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -46,41 +54,72 @@ class GamePlaysFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.constraintLayout.layoutTransition.setAnimateParentHierarchy(false)
-        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshPlays() }
-        binding.swipeRefresh.setBggColors()
+//        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshPlays() }
 
-        binding.syncTimestampView.timestamp = 0L
+        binding.composeView.setContent {
+            val viewModel by activityViewModels<GameViewModel>()
+            val game by viewModel.game.observeAsState()
+            val plays by viewModel.plays.observeAsState(emptyList())
+            val colors by viewModel.playColors.observeAsState(emptyList())
+            val isRefreshing by viewModel.playsAreRefreshing.observeAsState(false)
 
-        viewModel.game.observe(viewLifecycleOwner) {
-            it?.let { game ->
-                gameId = game.id
-                gameName = game.name
-                heroImageUrl = game.heroImageUrl
-                thumbnailUrl = game.thumbnailUrl
-                arePlayersCustomSorted = game.customPlayerSort
-                binding.syncTimestampView.timestamp = game.updatedPlays
-                iconColor = game.iconColor
-                listOf(binding.inProgressPlaysIcon, binding.playsIcon, binding.playStatsIcon, binding.colorsIcon).forEach { v ->
-                    v.setOrClearColorFilter(iconColor)
+            binding.swipeRefresh.isRefreshing = isRefreshing
+            if (isRefreshing) {
+                BggLoadingIndicatorBox()
+            }
+
+            game?.let { game ->
+                if (game.id == BggContract.INVALID_ID) {
+                    ErrorContent(
+                        stringResource(R.string.invalid_id),
+                        painterResource(R.drawable.game_24px)
+                    )
+                } else {
+                    Column {
+                        Spacer(Modifier.height(8.dp))
+                        TotalPlaysRow(plays) {
+                            GamePlaysActivity.start(
+                                requireContext(),
+                                game.id,
+                                game.name,
+                                game.heroImageUrl,
+                                game.thumbnailUrl,
+                                game.customPlayerSort,
+                                game.iconColor,
+                            )
+                        }
+                        val inProgressPlays = plays.filter { play -> play.dirtyTimestamp > 0L }
+                        if (inProgressPlays.isNotEmpty()) {
+                            InProgressPlaysRow(inProgressPlays) { play ->
+                                PlayActivity.start(requireContext(), play.internalId)
+                            }
+                        }
+                        plays.filter { play -> play.dirtyTimestamp == 0L }.maxByOrNull { play -> play.dateInMillis }?.let { lastPlay ->
+                            LastPlayRow(lastPlay) {
+                                PlayActivity.start(requireContext(), lastPlay.internalId)
+                            }
+                        }
+                        if (plays.isNotEmpty()) {
+                            StatsRow {
+                                GamePlayStatsActivity.start(requireContext(), game.id, game.name, game.iconColor)
+                            }
+                        }
+                        ColorsRow(colors, game.iconColor) {
+                            GameColorsActivity.start(requireContext(), game.id, game.name, game.iconColor)
+                        }
+                        GameFooter(
+                            game.updatedPlays,
+                            game.id,
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal))
+                        )
+                    }
                 }
-            }
-        }
-
-        viewModel.playsAreRefreshing.observe(viewLifecycleOwner) {
-            it?.let { binding.swipeRefresh.isRefreshing = it }
-        }
-        viewModel.plays.observe(viewLifecycleOwner) {
-            it?.let {
-                bindTotalPlays(it)
-                bindPlaysInProgress(it)
-                bindLastPlay(it)
-                bindStats(it)
-            }
-        }
-
-        viewModel.playColors.observe(viewLifecycleOwner) {
-            it?.let { bindColors(it) }
+            } ?: EmptyContent(
+                stringResource(R.string.empty_plays_game),
+                painterResource(R.drawable.game_24px),
+            )
         }
     }
 
@@ -88,114 +127,227 @@ class GamePlaysFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+}
 
-    private fun bindTotalPlays(plays: List<Play>) {
-        val playCount = plays.sumOf { it.quantity }
-        val (count, description, color) = playCount.asPlayCount(requireContext())
-        binding.playCountIcon.text = count.toString()
-        binding.playCountView.text = requireContext().getQuantityText(R.plurals.play_title_suffix, playCount, playCount)
-        binding.playCountDescriptionView.setTextOrHide(description)
-        binding.playCountBackground.setColorViewValue(color)
-        binding.playCountContainer.setOnClickListener {
-            if (gameId != BggContract.INVALID_ID)
-                GamePlaysActivity.start(
-                    requireContext(),
-                    gameId,
-                    gameName,
-                    heroImageUrl,
-                    thumbnailUrl,
-                    arePlayersCustomSorted,
-                    iconColor,
-                )
+@Composable
+fun TotalPlaysRow(
+    plays: List<Play>,
+    onClick: () -> Unit = { },
+) {
+    val playCount = plays.sumOf { it.quantity }
+    val (count, description, color) = playCount.asPlayCount(LocalContext.current)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(dimensionResource(R.dimen.game_row_height))
+            .clickable(onClick = onClick)
+            .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal))
+    ) {
+        ColorBox(
+            color,
+            size = ColorBoxDefaults.sizeSmall,
+            modifier = Modifier.padding(start = 0.dp, end = 24.dp),
+        ) {
+            Text(count.toFormattedString(), color = it, modifier = Modifier.align(Alignment.Center))
+        }
+        Column(
+            modifier = Modifier
+                .padding(vertical = 4.dp)
+                .heightIn(dimensionResource(R.dimen.game_row_height)),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            PrimaryRowText(pluralStringResource(R.plurals.play_title_suffix, playCount, playCount))
+            if (description.isNotBlank()) SecondaryRowText(description)
         }
     }
+}
 
-    private fun bindPlaysInProgress(plays: List<Play>) {
-        val inProgressPlays = plays.filter { it.dirtyTimestamp > 0 }
-        if (inProgressPlays.isNotEmpty()) {
-            binding.inProgressPlaysList.removeAllViews()
-            inProgressPlays.take(3).forEach { play ->
-                // we assume the plays are sorted by most recent
-                val row = binding.inProgressPlaysList.inflate(R.layout.row_play_summary_updating)
-                row.findViewById<InProgressPlay>(R.id.line1)?.let {
-                    it.play = play
-                    it.timeHintUpdateInterval = 1_000L
-                }
-                row.findViewById<TextView>(R.id.line2)?.setTextOrHide(play.describe(requireContext()))
-                row.setOnClickListener {
-                    PlayActivity.start(requireContext(), play.internalId)
-                }
-                binding.inProgressPlaysList.addView(row)
-            }
-            binding.inProgressPlaysViews.isVisible = true
-        } else {
-            binding.inProgressPlaysViews.isVisible = false
-        }
-    }
-
-    private fun bindLastPlay(plays: List<Play>) {
-        val lastPlay = plays.filter { it.dirtyTimestamp == 0L }.maxByOrNull { it.dateInMillis }
-        if (lastPlay != null) {
-            binding.lastPlayViews.isVisible = true
-            binding.lastPlayDateView.text = requireContext().getText(R.string.last_played_prefix, lastPlay.dateForDisplay(requireContext()))
-            binding.lastPlayInfoView.setTextOrHide(lastPlay.describe(requireContext()))
-            binding.lastPlayContainer.setOnClickListener {
-                PlayActivity.start(requireContext(), lastPlay.internalId)
-            }
-        } else {
-            binding.lastPlayViews.isVisible = false
-        }
-    }
-
-    private fun bindStats(plays: List<Play>) {
-        binding.playStatsViews.isVisible = plays.isNotEmpty()
-        binding.playStatsContainer.setOnClickListener {
-            if (gameId != BggContract.INVALID_ID)
-                GamePlayStatsActivity.start(requireContext(), gameId, gameName, iconColor)
-        }
-    }
-
-    private fun bindColors(colors: List<String>) {
-        binding.colorsLabel.text = requireContext().getQuantityText(R.plurals.colors_suffix, colors.size, colors.size)
-        binding.colorsList.removeAllViews()
-        if (colors.isNotEmpty() && colors.all { it.isKnownColor() }) {
-            colors.forEach {
-                requireContext().createSmallCircle().apply {
-                    setColorViewValue(it.asColorRgb())
-                    binding.colorsList.addView(this)
-                }
-            }
-            binding.colorsList.isVisible = true
-        } else {
-            binding.colorsList.isVisible = false
-        }
-        binding.colorsContainer.setOnClickListener {
-            if (gameId != BggContract.INVALID_ID)
-                GameColorsActivity.start(requireContext(), gameId, gameName, iconColor)
-        }
-    }
-
-    class InProgressPlay @JvmOverloads constructor(
-        context: Context,
-        attrs: AttributeSet? = null,
-        defStyleAttr: Int = android.R.attr.textViewStyle,
-    ) : SelfUpdatingView(context, attrs, defStyleAttr) {
-        var play: Play? = null
-
-        override fun updateText() {
-            play?.let {
-                text = when {
-                    it.startTime > 0 -> context.getText(
-                        R.string.playing_for_prefix,
-                        DateUtils.formatElapsedTime((System.currentTimeMillis() - it.startTime) / 1000)
-                    )
-                    it.dateInMillis.isToday() -> context.getText(
-                        R.string.playing_prefix,
-                        it.dateForDisplay(context)
-                    )
-                    else -> context.getText(R.string.playing_since_prefix, it.dateForDisplay(context))
+@SuppressLint("LocalContextGetResourceValueCall")
+@Composable
+private fun InProgressPlaysRow(
+    plays: List<Play>,
+    @ColorInt iconColor: Int = 0x000000, // TODO pass the Color object, not the RBG value
+    onClick: (Play) -> Unit = { },
+) {
+    GameRow(
+        R.drawable.ic_outline_timer_24,
+        R.string.title_in_progress,
+        iconColor = iconColor,
+    ) {
+        Column {
+            plays.take(5).forEach { play ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 60.dp)
+                        .clickable(onClick = { onClick(play) })
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        val context = LocalContext.current
+                        var headline by remember { mutableStateOf("") }
+                        LaunchedEffect(Unit) {
+                            while (true) {
+                                headline = if (play.startTime > 0) {
+                                    context.getString(
+                                        R.string.playing_for_prefix,
+                                        DateUtils.formatElapsedTime((System.currentTimeMillis() - play.startTime) / 1000)
+                                    )
+                                } else if (play.dateInMillis.isToday()) {
+                                    context.getString(R.string.playing_prefix, play.dateForDisplay(context))
+                                } else {
+                                    context.getString(R.string.playing_since_prefix, play.dateForDisplay(context))
+                                }
+                                delay(30.seconds)
+                            }
+                        }
+                        ListItemPrimaryText(headline)
+                        ListItemSecondaryText(play.describe(LocalContext.current, false))
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LastPlayRow(
+    play: Play,
+    @ColorInt iconColor: Int = 0x000000,
+    onClick: () -> Unit = { },
+) {
+    GameRow(
+        R.drawable.plays_24px,
+        R.string.last_played,
+        Modifier.clickable(onClick = onClick),
+        iconColor = iconColor,
+    ) {
+        SecondaryRowText(stringResource(R.string.last_played))
+        PlayListItem(
+            play,
+            showGameName = false,
+            padding = PaddingValues(0.dp),
+            minimumHeight = ListItemDefaults.oneLineHeight,
+        )
+    }
+}
+
+@Composable
+private fun StatsRow(
+    @ColorInt iconColor: Int = 0x000000,
+    onClick: () -> Unit = { },
+) {
+    GameRow(
+        R.drawable.play_stats_24px,
+        R.string.title_play_stats,
+        Modifier
+            .semantics(mergeDescendants = true) {
+                role = Role.Button
+            }
+            .clickable(onClick = onClick),
+        iconColor = iconColor,
+    ) {
+        PrimaryRowText(stringResource(R.string.title_play_stats))
+    }
+}
+
+@Composable
+private fun ColorsRow(
+    colors: List<String>,
+    @ColorInt iconColor: Int = 0x000000,
+    onClick: () -> Unit = { },
+) {
+    GameRow(
+        R.drawable.color_24px,
+        R.string.colors,
+        Modifier.clickable(onClick = onClick),
+        iconColor = iconColor,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            PrimaryRowText(
+                pluralStringResource(R.plurals.colors_suffix, colors.size, colors.size),
+                modifier = Modifier.weight(1f),
+            )
+            if (colors.isNotEmpty() && colors.all { it.isKnownColor() }) {
+                colors.forEach {
+                    ColorBox(it, size = ColorBoxDefaults.sizeSmall)
+                }
+            }
+        }
+    }
+}
+
+@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true)
+@Composable
+private fun GamePlaysPreview() {
+    Column {
+        val iconColor = 0x00FF00
+        TotalPlaysRow(emptyList())
+        TotalPlaysRow(
+            listOf(
+                Play(
+                    dateInMillis = System.currentTimeMillis(),
+                    gameId = 13,
+                    gameName = "Terra Mystica",
+                ),
+            ),
+        )
+        InProgressPlaysRow(
+            listOf(
+                Play(
+                    internalId = BggContract.INVALID_ID.toLong(),
+                    playId = BggContract.INVALID_ID,
+                    dateInMillis = System.currentTimeMillis(),
+                    gameId = 13,
+                    gameName = "Terra Mystica",
+                    quantity = 1,
+                    location = "Library",
+                    startTime = System.currentTimeMillis() - 12345L
+                ),
+                Play(
+                    internalId = BggContract.INVALID_ID.toLong(),
+                    playId = BggContract.INVALID_ID,
+                    dateInMillis = System.currentTimeMillis(),
+                    gameId = 13,
+                    gameName = "7th Continent",
+                    quantity = 1,
+                    length = 127,
+                ),
+                Play(
+                    internalId = BggContract.INVALID_ID.toLong(),
+                    playId = BggContract.INVALID_ID,
+                    dateInMillis = System.currentTimeMillis() - 99999999L,
+                    gameId = 13,
+                    gameName = "HUANG",
+                    quantity = 1,
+                    location = "House",
+                    length = 98,
+                ),
+            ),
+            iconColor
+        )
+        LastPlayRow(
+            Play(
+                internalId = BggContract.INVALID_ID.toLong(),
+                playId = BggContract.INVALID_ID,
+                dateInMillis = System.currentTimeMillis(),
+                gameId = 13,
+                gameName = "Catan",
+                quantity = 1,
+                length = 46,
+                location = "House",
+            ),
+            iconColor,
+        )
+        StatsRow(iconColor)
+        ColorsRow(listOf("Blue", "Yellow"), iconColor)
     }
 }
