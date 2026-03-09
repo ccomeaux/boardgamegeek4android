@@ -69,8 +69,10 @@ class PlaysSummaryActivity : BaseActivity() {
 
             LaunchedEffect(errorMessage) {
                 errorMessage?.getContentIfNotHandled()?.let {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(it.ifBlank { getString(R.string.msg_error_buddies) }) // TODO
+                    if (it.isNotBlank()) {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(it)
+                        }
                     }
                 }
             }
