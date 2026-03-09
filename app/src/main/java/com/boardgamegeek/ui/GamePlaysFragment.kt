@@ -6,7 +6,6 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ColorInt
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
@@ -14,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -28,6 +28,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlaysBinding
+import com.boardgamegeek.extensions.addAlphaToColor
 import com.boardgamegeek.extensions.asPlayCount
 import com.boardgamegeek.extensions.isKnownColor
 import com.boardgamegeek.extensions.isToday
@@ -76,6 +77,7 @@ class GamePlaysFragment : Fragment() {
                     )
                 } else {
                     Column {
+                        val iconColor = Color(game.iconColor.addAlphaToColor())
                         Spacer(Modifier.height(8.dp))
                         TotalPlaysRow(plays) {
                             GamePlaysActivity.start(
@@ -90,21 +92,21 @@ class GamePlaysFragment : Fragment() {
                         }
                         val inProgressPlays = plays.filter { play -> play.dirtyTimestamp > 0L }
                         if (inProgressPlays.isNotEmpty()) {
-                            InProgressPlaysRow(inProgressPlays) { play ->
+                            InProgressPlaysRow(inProgressPlays, iconColor) { play ->
                                 PlayActivity.start(requireContext(), play.internalId)
                             }
                         }
                         plays.filter { play -> play.dirtyTimestamp == 0L }.maxByOrNull { play -> play.dateInMillis }?.let { lastPlay ->
-                            LastPlayRow(lastPlay) {
+                            LastPlayRow(lastPlay, iconColor) {
                                 PlayActivity.start(requireContext(), lastPlay.internalId)
                             }
                         }
                         if (plays.isNotEmpty()) {
-                            StatsRow {
+                            StatsRow(iconColor) {
                                 GamePlayStatsActivity.start(requireContext(), game.id, game.name, game.iconColor)
                             }
                         }
-                        ColorsRow(colors, game.iconColor) {
+                        ColorsRow(colors, iconColor) {
                             GameColorsActivity.start(requireContext(), game.id, game.name, game.iconColor)
                         }
                         GameFooter(
@@ -167,7 +169,7 @@ fun TotalPlaysRow(
 @Composable
 private fun InProgressPlaysRow(
     plays: List<Play>,
-    @ColorInt iconColor: Int = 0x000000, // TODO pass the Color object, not the RBG value
+    iconColor: Color = Color.Transparent,
     onClick: (Play) -> Unit = { },
 ) {
     GameRow(
@@ -219,7 +221,7 @@ private fun InProgressPlaysRow(
 @Composable
 private fun LastPlayRow(
     play: Play,
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     onClick: () -> Unit = { },
 ) {
     GameRow(
@@ -240,7 +242,7 @@ private fun LastPlayRow(
 
 @Composable
 private fun StatsRow(
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     onClick: () -> Unit = { },
 ) {
     GameRow(
@@ -260,7 +262,7 @@ private fun StatsRow(
 @Composable
 private fun ColorsRow(
     colors: List<String>,
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     onClick: () -> Unit = { },
 ) {
     GameRow(
@@ -289,7 +291,7 @@ private fun ColorsRow(
 @Composable
 private fun GamePlaysPreview() {
     Column {
-        val iconColor = 0x00FF00
+        val iconColor = Color.Blue
         TotalPlaysRow(emptyList())
         TotalPlaysRow(
             listOf(

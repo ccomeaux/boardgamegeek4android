@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -87,30 +86,31 @@ class GameFragment : Fragment() {
             }
 
             game?.let {
+                val iconColor = Color(it.iconColor.addAlphaToColor())
                 val windowSizeClass = currentWindowAdaptiveInfo(supportLargeAndXLargeWidth = true).windowSizeClass
                 if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         Row(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.weight(1f)) {
-                                RankRow(subtypes, families, it.iconColor) {
+                                RankRow(subtypes, families, iconColor) {
                                     GameRanksDialogFragment.launch(this@GameFragment)
                                 }
-                                YearRow(it.yearPublished, it.iconColor)
-                                PlayerCountRow(it.minPlayers, it.maxPlayers, playerPoll, it.iconColor) {
+                                YearRow(it.yearPublished, iconColor)
+                                PlayerCountRow(it.minPlayers, it.maxPlayers, playerPoll, iconColor) {
                                     GameSuggestedPlayerCountPollDialogFragment.launch(this@GameFragment)
                                 }
-                                WeightRow(it.averageWeight, it.numberOfUsersWeighting, it.iconColor)
+                                WeightRow(it.averageWeight, it.numberOfUsersWeighting, iconColor)
                             }
                             Column(modifier = Modifier.weight(1f)) {
-                                RatingsRow(it.rating, it.numberOfRatings, it.numberOfComments, it.iconColor) {
+                                RatingsRow(it.rating, it.numberOfRatings, it.numberOfComments, iconColor) {
                                     CommentsActivity.startRating(requireContext(), it.id, it.name)
                                 }
-                                PlayingTimeRow(it.minPlayingTime, it.maxPlayingTime, it.iconColor)
-                                PlayerAgesRow(it.minimumAge, agePoll, it.iconColor) {
+                                PlayingTimeRow(it.minPlayingTime, it.maxPlayingTime, iconColor)
+                                PlayerAgesRow(it.minimumAge, agePoll, iconColor) {
                                     GameAgePollDialogFragment.launch(this@GameFragment)
                                 }
                                 languagePoll?.let { poll ->
-                                    LanguageRow(poll, it.iconColor) {
+                                    LanguageRow(poll, iconColor) {
                                         GameLanguagePollDialogFragment.launch(this@GameFragment)
                                     }
                                 }
@@ -127,23 +127,23 @@ class GameFragment : Fragment() {
                     }
                 } else {
                     Column(modifier = Modifier.fillMaxSize()) {
-                        RankRow(subtypes, families, it.iconColor) {
+                        RankRow(subtypes, families, iconColor) {
                             GameRanksDialogFragment.launch(this@GameFragment)
                         }
-                        RatingsRow(it.rating, it.numberOfRatings, it.numberOfComments, it.iconColor) {
+                        RatingsRow(it.rating, it.numberOfRatings, it.numberOfComments, iconColor) {
                             CommentsActivity.startRating(requireContext(), it.id, it.name)
                         }
-                        YearRow(it.yearPublished, it.iconColor)
-                        PlayingTimeRow(it.minPlayingTime, it.maxPlayingTime, it.iconColor)
-                        PlayerCountRow(it.minPlayers, it.maxPlayers, playerPoll, it.iconColor) {
+                        YearRow(it.yearPublished, iconColor)
+                        PlayingTimeRow(it.minPlayingTime, it.maxPlayingTime, iconColor)
+                        PlayerCountRow(it.minPlayers, it.maxPlayers, playerPoll, iconColor) {
                             GameSuggestedPlayerCountPollDialogFragment.launch(this@GameFragment)
                         }
-                        PlayerAgesRow(it.minimumAge, agePoll, it.iconColor) {
+                        PlayerAgesRow(it.minimumAge, agePoll, iconColor) {
                             GameAgePollDialogFragment.launch(this@GameFragment)
                         }
-                        WeightRow(it.averageWeight, it.numberOfUsersWeighting, it.iconColor)
+                        WeightRow(it.averageWeight, it.numberOfUsersWeighting, iconColor)
                         languagePoll?.let { poll ->
-                            LanguageRow(poll, it.iconColor) {
+                            LanguageRow(poll, iconColor) {
                                 GameLanguagePollDialogFragment.launch(this@GameFragment)
                             }
                         }
@@ -224,7 +224,7 @@ fun GameRow(
     @DrawableRes iconResId: Int,
     @StringRes contentDescriptionResId: Int,
     modifier: Modifier = Modifier,
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     content: @Composable () -> Unit,
 ) {
     Row(
@@ -240,7 +240,7 @@ fun GameRow(
             modifier = Modifier
                 .padding(start = 4.dp, end = 28.dp, top = 12.dp) //, bottom = verticalRowPadding)
                 .size(24.dp),
-            tint = Color(iconColor.addAlphaToColor()),
+            tint = iconColor,
         )
         Column(
             modifier = Modifier
@@ -257,7 +257,7 @@ fun GameRow(
 private fun RankRow(
     gameSubtypes: List<GameSubtype>,
     gameFamilies: List<GameFamily>,
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     onClick: () -> Unit = { },
 ) {
     val rankSeparator = "  ${HtmlCompat.fromHtml("&#9679;", HtmlCompat.FROM_HTML_MODE_LEGACY)}  "
@@ -283,7 +283,7 @@ private fun RatingsRow(
     rating: Double,
     numberOfRatings: Int,
     numberOfComments: Int,
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     onClick: () -> Unit = { },
 ) {
     GameRow(
@@ -330,7 +330,7 @@ private fun RatingsRow(
 @Composable
 private fun YearRow(
     yearPublished: Int,
-    @ColorInt iconColor: Int = 0x000000
+    iconColor: Color = Color.Transparent,
 ) {
     GameRow(
         R.drawable.year_24px,
@@ -347,7 +347,7 @@ private fun YearRow(
 private fun PlayingTimeRow(
     minPlayingTime: Int,
     maxPlayingTime: Int,
-    @ColorInt iconColor: Int = 0x000000
+    iconColor: Color = Color.Transparent,
 ) {
     GameRow(
         R.drawable.play_time_24px,
@@ -365,7 +365,7 @@ private fun PlayerCountRow(
     minPLayers: Int,
     maxPlayers: Int,
     pollResults: List<GamePlayerPollResults>?,
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     onClick: () -> Unit = {},
 ) {
     GameRow(
@@ -420,7 +420,7 @@ private fun List<GamePlayerPollResults>.asRange(comma: String = ", ", dash: Stri
 private fun PlayerAgesRow(
     minimumAge: Int,
     poll: GameAgePoll?,
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     onClick: () -> Unit = {},
 ) {
     GameRow(
@@ -450,7 +450,7 @@ private fun PlayerAgesRow(
 private fun WeightRow(
     averageWeight: Double,
     voteCount: Int,
-    @ColorInt iconColor: Int = 0x000000
+    iconColor: Color = Color.Transparent,
 ) {
     GameRow(
         R.drawable.weight_24px,
@@ -491,7 +491,7 @@ private fun WeightRow(
 @Composable
 private fun LanguageRow(
     poll: GameLanguagePoll,
-    @ColorInt iconColor: Int = 0x000000,
+    iconColor: Color = Color.Transparent,
     onClick: () -> Unit = { },
 ) {
     val score by remember { derivedStateOf { poll.calculateScore() } }
@@ -540,18 +540,18 @@ private fun GameInfoPreview() {
             RankRow(
                 listOf(GameSubtype(Game.Subtype.BoardGameExpansion, 42, 8.24)),
                 listOf(GameFamily(GameFamily.Family.Strategy, 7, 8.45)),
-                0xFF00FF
+                Color.Yellow,
             )
-            RatingsRow(7.4, 456, 654, 0x00FF00)
-            YearRow(1991, 0x0000FF)
-            PlayingTimeRow(30, 45, 0x00F0F0)
+            RatingsRow(7.4, 456, 654, Color.Cyan)
+            YearRow(1991, Color.Blue)
+            PlayingTimeRow(30, 45, Color.DarkGray)
             PlayerCountRow(
                 3, 5,
                 listOf(
                     GamePlayerPollResults(7, "2", 1, 3, 2),
                     GamePlayerPollResults(7, "3", 6, 1, 0),
                 ),
-                0x0F00F0
+                Color.Red,
             )
             PlayerAgesRow(
                 13,
@@ -560,9 +560,9 @@ private fun GameInfoPreview() {
                         GameAgePoll.Result("10", 15)
                     )
                 ),
-                0xFF0000,
+                Color.Green,
             )
-            WeightRow(3.2, 42_987, 0xFF0000)
+            WeightRow(3.2, 42_987, Color.Magenta)
             LanguageRow(
                 GameLanguagePoll(
                     listOf(
