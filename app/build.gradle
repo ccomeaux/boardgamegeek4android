@@ -169,8 +169,10 @@ dependencies {
 
     //noinspection NewerVersionAvailable,GradleDependency
     implementation 'com.squareup.picasso:picasso:2.5.2' // 2.8?
-    implementation 'io.coil-kt.coil3:coil-compose:3.3.0'
-    implementation 'io.coil-kt.coil3:coil-network-okhttp:3.3.0'
+    def coil_version = '3.4.0'
+    implementation "io.coil-kt.coil3:coil-compose:$coil_version"
+    implementation "io.coil-kt.coil3:coil-network-okhttp:$coil_version"
+    implementation "io.coil-kt.coil3:coil-gif:$coil_version"
 
     implementation 'com.jakewharton.timber:timber:5.0.1'
 
