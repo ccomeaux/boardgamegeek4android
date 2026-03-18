@@ -1,24 +1,22 @@
 package com.boardgamegeek.ui.compose
 
 import android.webkit.WebView
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
-import com.boardgamegeek.extensions.setWebViewText
-
 
 @Composable
 fun ComposeWebView(
     body: String,
+    modifier: Modifier = Modifier,
     textColor: Color = MaterialTheme.colorScheme.onSurface,
     backgroundColor: Color = MaterialTheme.colorScheme.surface,
 ) {
     AndroidView(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         factory = { context ->
             WebView(context).apply {
                 val textColorHex = textColor.toHexString()
@@ -29,6 +27,18 @@ fun ComposeWebView(
             }
         }
     )
+}
+
+private fun WebView.setWebViewText(html: String) {
+    this.loadDataWithBaseURL(null, fixInternalLinks(html), "text/html", "UTF-8", null)
+}
+
+private fun fixInternalLinks(text: String): String {
+    // ensure internal, path-only links are complete with the hostname
+    if (text.isEmpty()) return ""
+    var fixedText = text.replace("<a\\s+href=\"/".toRegex(), "<a href=\"https://www.boardgamegeek.com/")
+    fixedText = fixedText.replace("<img\\s+src=\"//".toRegex(), "<img src=\"https://")
+    return fixedText
 }
 
 private fun Color.toHexString(includeAlpha: Boolean = false): String {

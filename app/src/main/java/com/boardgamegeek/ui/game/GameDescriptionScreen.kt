@@ -16,7 +16,7 @@ import com.boardgamegeek.ui.theme.BggAppTheme
 @Composable
 fun DescriptionScreen(game: Game, modifier: Modifier = Modifier) {
     Column(modifier.verticalScroll(rememberScrollState())) {
-        ComposeWebView(game.description)
+        ComposeWebView(game.description, modifier = Modifier.fillMaxWidth())
         GameFooter(
             game.updated,
             game.id,
