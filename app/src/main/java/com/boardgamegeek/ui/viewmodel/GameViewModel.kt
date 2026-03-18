@@ -117,7 +117,8 @@ class GameViewModel @Inject constructor(
     val game: LiveData<Game?> = _gameId.switchMap { gameId ->
         liveData {
             try {
-                emitSource(gameRepository.loadGameFlow(gameId)
+                emitSource(
+                    gameRepository.loadGameFlow(gameId)
                     .onEach {
                         if (it == null || it.updated.isOlderThan(gameRefreshMinutes.minutes)) {
                             refreshGame()
@@ -305,10 +306,11 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    val collectionItems: LiveData<List<CollectionItem>> = gameId.switchMap {
+    val collectionItems: LiveData<List<CollectionItem>> = gameId.switchMap { id ->
         liveData {
             try {
-                emitSource(gameCollectionRepository.loadCollectionItemsForGameFlow(it)
+                emitSource(
+                    gameCollectionRepository.loadCollectionItemsForGameFlow(id)
                     .onEach { attemptRefreshItems(it) }
                     .asLiveData()
                 )
@@ -340,15 +342,15 @@ class GameViewModel @Inject constructor(
     }
 
     fun refreshGame() {
-        gameId.value?.let {
+        gameId.value?.let { id ->
             if (isGameRefreshing.compareAndSet(false, true)) {
                 _gameIsRefreshing.value = true
                 viewModelScope.launch {
-                    val result = gameRepository.refreshGame(it)
+                    val result = gameRepository.refreshGame(id)
                     if (result.isFailure) {
                         result.exceptionOrNull()?.let { _errorMessage.setMessage(it) }
                     } else {
-                        gameRepository.loadGame(it)?.let { newGame ->
+                        gameRepository.loadGame(id)?.let { newGame ->
                             if (newGame.doesHeroImageNeedUpdating()) {
                                 gameRepository.refreshHeroImage(newGame)
                             }
@@ -367,20 +369,20 @@ class GameViewModel @Inject constructor(
     }
 
     private fun attemptRefreshItems(list: List<CollectionItem>? = collectionItems.value) {
-        game.value?.let {
+        game.value?.let { game ->
             if (areItemsRefreshing.compareAndSet(false, true)) {
                 _itemsAreRefreshing.value = true
                 viewModelScope.launch {
-                    if (list?.any { it.isDirty} == true) {
-                        gameCollectionRepository.enqueueUploadRequest(it.id)
+                    if (list?.any { it.isDirty } == true) {
+                        gameCollectionRepository.enqueueUploadRequest(game.id)
                     } else if (list?.isEmpty() == true ||
                         (list != null && list.minOf { item -> item.syncTimestamp }.isOlderThan(itemsRefreshMinutes.minutes)) ||
                         forceItemsRefresh.compareAndSet(true, false)
                     ) {
-                        Timber.d("Refreshing items for game $it")
-                        gameCollectionRepository.refreshCollectionItems(it.id, it.subtype)?.let { _errorMessage.setMessage(it) }
+                        Timber.d("Refreshing items for game $game")
+                        gameCollectionRepository.refreshCollectionItems(game.id, game.subtype)?.let { _errorMessage.setMessage(it) }
                     } else {
-                        Timber.d("NOT refreshing items for game $it")
+                        Timber.d("NOT refreshing items for game $game")
                     }
                     _itemsAreRefreshing.value = false
                     areItemsRefreshing.set(false)
@@ -420,34 +422,29 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    fun reload() {
-        _gameId.value?.let { _gameId.value = it }
-    }
+    fun updateGameColors(palette: Palette) {
+        game.value?.let { game ->
+            viewModelScope.launch {
+                @ColorInt
+                val iconColor = palette.getIconColor()
 
-    fun updateGameColors(palette: Palette?) {
-        palette?.let { p ->
-            game.value?.let { game ->
-                viewModelScope.launch {
-                    @ColorInt
-                    val iconColor = p.getIconColor()
-                    @ColorInt
-                    val darkColor = p.getDarkColor()
-                    val (winsColor, winnablePlaysColor, allPlaysColor) = p.getPlayCountColors(getApplication())
-                    val modified = game.iconColor != iconColor ||
-                            game.darkColor != darkColor ||
-                            game.winsColor != winsColor ||
-                            game.winnablePlaysColor != winnablePlaysColor ||
-                            game.allPlaysColor != allPlaysColor
-                    if (modified) {
-                        gameRepository.updateGameColors(
-                            gameId.value ?: BggContract.INVALID_ID,
-                            iconColor,
-                            darkColor,
-                            winsColor,
-                            winnablePlaysColor,
-                            allPlaysColor,
-                        )
-                    }
+                @ColorInt
+                val darkColor = palette.getDarkColor()
+                val (winsColor, winnablePlaysColor, allPlaysColor) = palette.getPlayCountColors(getApplication())
+                val modified = game.iconColor != iconColor ||
+                        game.darkColor != darkColor ||
+                        game.winsColor != winsColor ||
+                        game.winnablePlaysColor != winnablePlaysColor ||
+                        game.allPlaysColor != allPlaysColor
+                if (modified) {
+                    gameRepository.updateGameColors(
+                        gameId.value ?: BggContract.INVALID_ID,
+                        iconColor,
+                        darkColor,
+                        winsColor,
+                        winnablePlaysColor,
+                        allPlaysColor,
+                    )
                 }
             }
         }

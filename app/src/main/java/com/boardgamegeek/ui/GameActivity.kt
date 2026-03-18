@@ -39,11 +39,14 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.palette.graphics.Palette
 import coil3.annotation.ExperimentalCoilApi
 import coil3.compose.AsyncImage
 import coil3.compose.useExistingImageAsPlaceholder
 import coil3.request.ImageRequest
+import coil3.request.allowHardware
 import coil3.request.crossfade
+import coil3.toBitmap
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.*
@@ -60,6 +63,7 @@ import com.boardgamegeek.ui.viewmodel.GameViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -250,6 +254,7 @@ class GameActivity : BaseActivity() {
                                         .data(url)
                                         .useExistingImageAsPlaceholder(true)
                                         .crossfade(true)
+                                        .allowHardware(false)
                                         .build(),
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
@@ -260,6 +265,13 @@ class GameActivity : BaseActivity() {
                                         .heightIn(max = 128.dp)
                                         .clip(MaterialTheme.shapes.medium)
                                         .clickable(onClick = { ImageActivity.start(context, url) }),
+                                    onSuccess = { state ->
+                                        coroutineScope.launch(Dispatchers.IO) {
+                                            Palette.Builder(state.result.image.toBitmap()).generate { palette ->
+                                                palette?.let { viewModel.updateGameColors(it) }
+                                            }
+                                        }
+                                    }
                                 )
                             }
                             game?.let {
@@ -385,7 +397,6 @@ class GameActivity : BaseActivity() {
                                             PullToRefreshBox(
                                                 isRefreshing = itemsAreRefreshing,
                                                 onRefresh = { viewModel.refreshItems() },
-//                                                modifier = Modifier.fillMaxSize(),
                                             ) {
                                                 GameCollectionScreen(
                                                     it,
@@ -399,7 +410,6 @@ class GameActivity : BaseActivity() {
                                             PullToRefreshBox(
                                                 isRefreshing = playsAreRefreshing,
                                                 onRefresh = { viewModel.refreshPlays() },
-                               //                 modifier = Modifier.fillMaxSize(),
                                             ) {
                                                 GamePlaysScreen(
                                                     it,
