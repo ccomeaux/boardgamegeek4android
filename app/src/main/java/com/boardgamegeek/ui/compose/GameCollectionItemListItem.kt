@@ -64,7 +64,7 @@ fun GameCollectionItemListItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+                .padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -97,7 +97,7 @@ fun GameCollectionItemListItem(
         if (commentHtml.isNotBlank()) {
             Text(
                 text = commentHtml,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                modifier = Modifier.padding(vertical = 4.dp),
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 5
             )
@@ -110,7 +110,7 @@ fun GameCollectionItemListItem(
             // For now, let's just use the plain string to keep it simple, or find a way to convert Spanned to AnnotatedString.
             Text(
                 text = item.getPrivateInfo(context).toString(),
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                modifier = Modifier.padding(vertical = 4.dp),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2
@@ -120,7 +120,7 @@ fun GameCollectionItemListItem(
         if (privateCommentHtml.isNotBlank()) {
             Text(
                 text = privateCommentHtml,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                modifier = Modifier.padding(vertical = 4.dp),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 5

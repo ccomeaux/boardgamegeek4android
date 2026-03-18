@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
@@ -49,12 +50,13 @@ class GameViewModel @Inject constructor(
     private val forcePlaysRefresh = AtomicBoolean(false)
     private val gameRefreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_MINUTES)
     private val itemsRefreshMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_COLLECTION_MINUTES)
-    private val playsFullMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
+    private val playsFullHours = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_FULL_HOURS)
     private val playsPartialMinutes = RemoteConfig.getInt(RemoteConfig.KEY_REFRESH_GAME_PLAYS_PARTIAL_MINUTES)
 
     val username: LiveData<String?> = LiveSharedPreference(getApplication(), AccountPreferences.KEY_USERNAME, defaultValue = null)
     val syncPlaysPreference: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS, defaultValue = null)
     val syncCollectionPreference: LiveData<Set<String>?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_STATUSES, defaultValue = null)
+    val logPlayPreference: LiveData<String?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_LOG_PLAY_TYPE, defaultValue = null)
 
     private val _gameId = MutableLiveData<Int>()
     val gameId: LiveData<Int>
@@ -67,6 +69,10 @@ class GameViewModel @Inject constructor(
     private val _itemsAreRefreshing = MutableLiveData<Boolean>()
     val itemsAreRefreshing: LiveData<Boolean>
         get() = _itemsAreRefreshing
+
+    private val _partialPlaySyncTimeStamp = MutableLiveData<Long>()
+    val partialPlaySyncTimeStamp: LiveData<Long>
+        get() = _partialPlaySyncTimeStamp
 
     private val _playsAreRefreshing = MutableLiveData<Boolean>()
     val playsAreRefreshing: LiveData<Boolean>
@@ -389,20 +395,22 @@ class GameViewModel @Inject constructor(
     }
 
     private fun attemptRefreshPlays() {
-        game.value?.let {
+        game.value?.let { game ->
             if (arePlaysRefreshing.compareAndSet(false, true)) {
                 _playsAreRefreshing.value = true
                 viewModelScope.launch {
-                    val lastUpdated = it.updatedPlays
+                    val lastUpdated = game.updatedPlays
                     when {
-                        lastUpdated.isOlderThan(playsFullMinutes.minutes) -> {
-                            playRepository.refreshPlaysForGame(it.id)?.let { _errorMessage.setMessage(it) }
+                        lastUpdated.isOlderThan(playsFullHours.hours) -> {
+                            playRepository.refreshPlaysForGame(game.id)?.let { _errorMessage.setMessage(it) }
                         }
                         lastUpdated.isOlderThan(playsPartialMinutes.minutes) -> {
-                            playRepository.refreshPlaysForGame(it.id, 1)?.let { _errorMessage.setMessage(it) }
+                            playRepository.refreshPlaysForGame(game.id, 1)?.let { _errorMessage.setMessage(it) }
+                            _partialPlaySyncTimeStamp.value = System.currentTimeMillis()
                         }
                         forcePlaysRefresh.compareAndSet(true, false) -> {
-                            playRepository.refreshPlaysForGame(it.id, 1)?.let { _errorMessage.setMessage(it) }
+                            playRepository.refreshPlaysForGame(game.id, 1)?.let { _errorMessage.setMessage(it) }
+                            _partialPlaySyncTimeStamp.value = System.currentTimeMillis()
                         }
                     }
                     _playsAreRefreshing.value = false
@@ -445,7 +453,7 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    fun updateFavorite(isFavorite: Boolean) {
+    fun updateFavorite(isFavorite: Boolean) { // TODO change to toggle
         viewModelScope.launch {
             gameRepository.updateFavorite(gameId.value ?: BggContract.INVALID_ID, isFavorite)
         }

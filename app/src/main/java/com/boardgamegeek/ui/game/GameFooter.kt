@@ -1,4 +1,4 @@
-package com.boardgamegeek.ui.compose
+package com.boardgamegeek.ui.game
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -24,7 +24,7 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 fun GameFooter(syncTimestamp: Long, gameId: Int, modifier: Modifier = Modifier) {
     Row(
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         val context = LocalContext.current
@@ -34,7 +34,7 @@ fun GameFooter(syncTimestamp: Long, gameId: Int, modifier: Modifier = Modifier) 
             mutableStateOf(never)
         }
         if (syncTimestamp > 0L) {
-            LaunchedEffect(Unit) {
+            LaunchedEffect(syncTimestamp) {
                 while (true) {
                     relativeTimestamp = "$prefix ${syncTimestamp.formatTimestamp(context, includeTime = true, isForumTimestamp = false)}"
                     delay(30.seconds)
@@ -50,6 +50,6 @@ fun GameFooter(syncTimestamp: Long, gameId: Int, modifier: Modifier = Modifier) 
 @Composable
 private fun GameFooterPreview() {
     BggAppTheme {
-        GameFooter(System.currentTimeMillis(), 12345, Modifier.fillMaxWidth())
+        GameFooter(System.currentTimeMillis(), 12345)
     }
 }

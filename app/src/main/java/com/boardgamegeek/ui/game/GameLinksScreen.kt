@@ -1,77 +1,43 @@
-package com.boardgamegeek.ui
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+package com.boardgamegeek.ui.game
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import com.boardgamegeek.R
-import com.boardgamegeek.databinding.FragmentNestedComposeViewBinding
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.LINK_AMAZON_COM
+import com.boardgamegeek.extensions.LINK_AMAZON_DE
+import com.boardgamegeek.extensions.LINK_AMAZON_UK
+import com.boardgamegeek.extensions.linkAmazon
+import com.boardgamegeek.extensions.linkBgPrices
+import com.boardgamegeek.extensions.linkBgg
+import com.boardgamegeek.extensions.linkEbay
+import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.provider.BggContract
-import com.boardgamegeek.ui.compose.EmptyContent
 import com.boardgamegeek.ui.theme.BggAppTheme
-import com.boardgamegeek.ui.viewmodel.GameViewModel
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
-class GameLinksFragment : Fragment() {
-    private var _binding: FragmentNestedComposeViewBinding? = null
-    private val binding get() = _binding!!
-
-    @Suppress("RedundantNullableReturnType")
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        _binding = FragmentNestedComposeViewBinding.inflate(inflater, container, false)
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        binding.composeView.setContent {
-            val viewModel by activityViewModels<GameViewModel>()
-            val game by viewModel.game.observeAsState()
-            val paddingValues = PaddingValues(dimensionResource(R.dimen.material_margin_horizontal), 8.dp)
-            if (game == null) {
-                EmptyContent(
-                    stringResource(R.string.empty_game),
-                    painterResource(R.drawable.link_24px),
-                    Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                )
-            } else {
-                game?.let {
-                    GameLinks(
-                        it.id,
-                        it.name,
-                        iconColor = it.iconColor,
-                        modifier = Modifier.padding(paddingValues),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun GameLinks(
+fun GameLinksScreen(
     gameId: Int,
     gameName: String,
     modifier: Modifier = Modifier,
@@ -103,8 +69,9 @@ private fun GameLinks(
         if (gameName.isNotBlank()) {
             Text(
                 stringResource(R.string.title_acquire),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(top = 24.dp, bottom = 4.dp)
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(top = 24.dp, bottom = 4.dp),
+                color = tint,
             )
             LinkButton(
                 textResId = R.string.link_bg_prices,
@@ -140,7 +107,6 @@ private fun GameLinks(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun LinkButton(
     textResId: Int,
@@ -171,8 +137,8 @@ private fun LinkButton(
 
 @Preview(showBackground = true)
 @Composable
-private fun GameLinksPreview() {
+private fun GameLinksScreenPreview() {
     BggAppTheme {
-        GameLinks(13, "Terra Mystica", iconColor = -14667640)
+        GameLinksScreen(13, "Terra Mystica", iconColor = -14667640)
     }
 }

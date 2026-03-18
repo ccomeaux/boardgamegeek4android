@@ -17,7 +17,7 @@ import com.boardgamegeek.model.Player
 import java.util.*
 
 /**
- * puts a key value pair in shared prefs if doesn't exists, otherwise updates value on given [key]
+ * Puts a key/value pair in shared preferences if [key] doesn't exist, otherwise updates value on given [key]
  */
 operator fun SharedPreferences.set(key: String, value: Any?) {
     when (value) {
@@ -147,6 +147,7 @@ fun SharedPreferences.getOldSyncStatuses(context: Context): Array<String> {
 
 // region PLAY LOGGING
 
+const val PREFERENCES_KEY_LOG_PLAY_TYPE = "logPlayType"
 const val LOG_EDIT_PLAYER_PROMPTED = "logEditPlayerPrompted"
 const val LOG_EDIT_PLAYER = "logEditPlayer"
 const val LOG_PLAY_TYPE_FORM = "form"
@@ -154,7 +155,7 @@ const val LOG_PLAY_TYPE_QUICK = "quick"
 const val LOG_PLAY_TYPE_WIZARD = "wizard"
 
 fun SharedPreferences.logPlayPreference(): String {
-    return this.getString("logPlayType", null)
+    return this.getString(PREFERENCES_KEY_LOG_PLAY_TYPE, null)
         ?: return when {
             showLogPlayField("logPlay", "logHideLog", true) -> LOG_PLAY_TYPE_FORM
             showLogPlayField("quickLogPlay", "logHideQuickLog", true) -> LOG_PLAY_TYPE_QUICK

@@ -2,8 +2,12 @@ package com.boardgamegeek.ui.adapter
 
 import android.content.Context
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.dimensionResource
 import androidx.recyclerview.widget.RecyclerView
+import com.boardgamegeek.R
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.ui.GameCollectionItemActivity
 import com.boardgamegeek.ui.compose.GameCollectionItemListItem
@@ -33,8 +37,11 @@ class GameCollectionItemAdapter(private val context: Context) : RecyclerView.Ada
         RecyclerView.ViewHolder(composeView) {
         fun bind(item: CollectionItem) {
             composeView.setContent {
-                GameCollectionItemListItem(item, markupConverter = markupConverter)
-                {
+                GameCollectionItemListItem(
+                    item,
+                    markupConverter = markupConverter,
+                    modifier = Modifier.padding(dimensionResource(R.dimen.material_margin_horizontal))
+                ) {
                     GameCollectionItemActivity.start(itemView.context, item)
                 }
             }
