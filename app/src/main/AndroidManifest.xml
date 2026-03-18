@@ -348,9 +348,6 @@
 			android:name=".ui.ThreadActivity"
 			android:label="@string/title_thread" />
 		<activity
-			android:name=".ui.ArticleActivity"
-			android:label="Article" />
-		<activity
 			android:name=".ui.SyncActivity"
 			android:label="@string/title_sync">
 			<meta-data
