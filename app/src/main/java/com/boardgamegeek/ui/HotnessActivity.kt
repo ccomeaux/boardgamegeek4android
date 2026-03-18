@@ -149,7 +149,7 @@ class HotnessActivity : BaseActivity() {
                                 if (inSelectionMode)
                                     selectedIds.addOrRemove(game.id)
                                 else
-                                    GameActivity.start(this, game.id, game.name)
+                                    GameActivity.start(this, game.id, game.name, game.thumbnailUrl)
                             },
                             onLongClick = {
                                 selectedIds.add(it)

@@ -229,7 +229,7 @@ private fun BuddyCollectionScreen(
                     key = { it.collectionId }
                 ) { item ->
                     CollectionListItem(item) {
-                        GameActivity.start(context, item.gameId, item.gameName)
+                        GameActivity.start(context, item.gameId, item.gameName, item.thumbnailUrl, item.imageUrl)
                     }
                 }
             }
