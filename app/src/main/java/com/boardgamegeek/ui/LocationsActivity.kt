@@ -80,7 +80,7 @@ class LocationsActivity : BaseActivity() {
 
 private enum class LocationsSort(
     val type: Location.SortType,
-    @StringRes val labelResId: Int,
+    @param:StringRes val labelResId: Int,
 ) {
     Name(Location.SortType.Name, R.string.menu_sort_name),
     PlayCount(Location.SortType.PlayCount, R.string.menu_sort_quantity),

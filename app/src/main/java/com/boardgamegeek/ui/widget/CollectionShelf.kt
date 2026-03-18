@@ -87,7 +87,7 @@ class CollectionShelf @JvmOverloads constructor(
     }
 
     class CollectionItemAdapter(
-        @MenuRes private val menuResourceId: Int = ResourcesCompat.ID_NULL,
+        @param:MenuRes private val menuResourceId: Int = ResourcesCompat.ID_NULL,
         private val onMenuClick: ((item: CollectionItem, menuItem: MenuItem) -> Boolean)? = null,
         private val bindBadge: ((item: CollectionItem) -> Pair<CharSequence, Int>)? = null,
     ) : Adapter<CollectionItemAdapter.CollectionItemViewHolder>(), AutoUpdatableAdapter {
