@@ -94,9 +94,9 @@ dependencies {
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2"
 
-    implementation 'androidx.core:core-ktx:1.17.0'
+    implementation 'androidx.core:core-ktx:1.18.0'
 
-    implementation 'androidx.activity:activity-ktx:1.12.4'
+    implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.cardview:cardview:1.0.0'
@@ -107,7 +107,7 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
 
-    def paging_version = '3.4.1'
+    def paging_version = '3.4.2'
     implementation "androidx.paging:paging-compose:$paging_version"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
 
@@ -142,7 +142,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$arch_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:$arch_lifecycle_version"
 
-    implementation platform('com.google.firebase:firebase-bom:34.9.0')
+    implementation platform('com.google.firebase:firebase-bom:34.10.0')
     implementation 'com.google.firebase:firebase-config'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-crashlytics'
