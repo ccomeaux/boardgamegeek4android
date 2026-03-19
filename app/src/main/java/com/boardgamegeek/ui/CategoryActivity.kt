@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 
 package com.boardgamegeek.ui
 
@@ -7,18 +7,27 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.compose.SimpleCollectionItemList
+import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.CategoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -30,16 +39,20 @@ class CategoryActivity : BaseActivity() {
         val title = intent.getStringExtra(KEY_CATEGORY_NAME)
 
         setContent {
+            val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
             val viewModel by viewModels<CategoryViewModel>()
             val collectionItems by viewModel.collection.observeAsState()
             val sortBy by viewModel.sort.observeAsState(CollectionItem.SortType.RATING)
             viewModel.setId(id)
 
             Scaffold(
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                 topBar = {
                     CategoryTopBar(
                         title = title.orEmpty(),
                         sortBy = sortBy,
+                        scrollBehavior = scrollBehavior,
                         onUpClick = { finish() },
                         onViewInBrowserClick = { linkToBgg("boardgamecategory", id) },
                         onSortClick = { viewModel.setSort(it) },
@@ -81,16 +94,30 @@ private fun CategoryTopBar(
     title: String,
     sortBy: CollectionItem.SortType,
     modifier: Modifier = Modifier,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
     onUpClick: () -> Unit = {},
     onViewInBrowserClick: () -> Unit = {},
     onSortClick: (CollectionItem.SortType) -> Unit = {},
 ) {
     var expandedMenu by remember { mutableStateOf(false) }
-    TopAppBar(
+    MediumFlexibleTopAppBar(
         title = {
             Text(title.ifBlank { stringResource(R.string.title_category) })
         },
+        subtitle = {
+            val sortDescription = when (sortBy) {
+                CollectionItem.SortType.NAME -> stringResource(R.string.menu_sort_name)
+                CollectionItem.SortType.RATING -> stringResource(R.string.menu_sort_rating)
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(painterResource(R.drawable.category_24px), contentDescription = null, modifier = Modifier
+                    .padding(end = 4.dp)
+                    .size(16.dp))
+                Text(stringResource(R.string.title_sorted_by, stringResource(R.string.title_category), sortDescription))
+            }
+        },
         modifier = modifier,
+        scrollBehavior = scrollBehavior,
         navigationIcon = {
             IconButton(onClick = onUpClick) {
                 Icon(
@@ -137,3 +164,13 @@ private fun CategoryTopBar(
     )
 }
 
+@Preview
+@Composable
+private fun CategoryTopBarPreview() {
+    BggAppTheme {
+        CategoryTopBar(
+            "Science Fiction",
+            CollectionItem.SortType.NAME,
+        )
+    }
+}

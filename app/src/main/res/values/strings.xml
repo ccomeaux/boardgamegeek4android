@@ -451,6 +451,7 @@
 	<string name="menu_scroll_to_last_read">Scroll to last read</string>
 	<string name="menu_scroll_to_bottom">Scroll to bottom</string>
 	<string name="sort_description">Sorted by %s</string>
+	<string name="title_sorted_by">%1$s sorted by %2$s</string>
 	<string name="filtered_by">Filtered by</string>
 	<string name="msg_player_deleted">%s deleted.</string>
 	<string name="msg_logging_play">Logging play…</string>
