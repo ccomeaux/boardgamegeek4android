@@ -42,20 +42,18 @@ class ForumsFragment : Fragment() {
         _binding = FragmentNestedComposeViewBinding.inflate(inflater, container, false)
 
         binding.composeView.setContent {
-            val nestedScrollInterop = rememberNestedScrollInteropConnection()
-
             val viewModel: ForumsViewModel = viewModel()
             val forums = viewModel.forums.observeAsState(RefreshableResource.refreshing(null))
 
             when (forumType) {
-                Forum.Type.GAME -> viewModel.setGameId(objectId)
+                Forum.Type.GAME -> {}
                 Forum.Type.REGION -> viewModel.setRegion()
                 Forum.Type.ARTIST,
                 Forum.Type.DESIGNER -> viewModel.setPersonId(objectId)
                 Forum.Type.PUBLISHER -> viewModel.setCompanyId(objectId)
             }
 
-            ForumsContent(forums.value.data, PaddingValues(0.dp), nestedScrollInterop) { forum, header ->
+            ForumsContent(forums.value.data, PaddingValues(0.dp)) { forum, header ->
                 ForumActivity.start(requireContext(), forum.id, forum.title, objectId, objectName, forumType, header)
             }
         }
@@ -67,16 +65,6 @@ class ForumsFragment : Fragment() {
         private const val KEY_TYPE = "TYPE"
         private const val KEY_OBJECT_ID = "ID"
         private const val KEY_OBJECT_NAME = "NAME"
-
-        fun newInstanceForGame(id: Int, name: String): ForumsFragment {
-            return ForumsFragment().apply {
-                arguments = bundleOf(
-                    KEY_TYPE to Forum.Type.GAME,
-                    KEY_OBJECT_ID to id,
-                    KEY_OBJECT_NAME to name,
-                )
-            }
-        }
 
         fun newInstanceForArtist(id: Int, name: String): ForumsFragment {
             return ForumsFragment().apply {

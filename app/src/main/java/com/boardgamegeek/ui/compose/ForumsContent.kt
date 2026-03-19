@@ -10,8 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -31,7 +29,6 @@ import kotlin.time.Duration.Companion.seconds
 fun ForumsContent(
     forums: Map<String, List<Forum>>?,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    nestedScrollConnection: NestedScrollConnection? = null,
     onItemClick: (forum: Forum, header: String) -> Unit = { _, _ -> },
 ) {
     when {
@@ -39,7 +36,6 @@ fun ForumsContent(
             BggLoadingIndicatorBox(
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (nestedScrollConnection == null) Modifier else Modifier.nestedScroll(nestedScrollConnection))
                     .padding(contentPadding)
             )
         }
@@ -49,22 +45,13 @@ fun ForumsContent(
                 painterResource(R.drawable.forum_24px),
                 modifier = Modifier
                     .fillMaxSize()
-                    .then(if (nestedScrollConnection == null) Modifier else Modifier.nestedScroll(nestedScrollConnection))
                     .padding(contentPadding),
             )
         }
         else -> {
             LazyColumn(
-                // HACK the nestedScrollConnection isn't working, so this height is fixed to prent crashes
-                modifier = Modifier
-                    .then(
-                        if (nestedScrollConnection == null)
-                            Modifier.fillMaxSize()
-                        else Modifier
-                            .height(600.dp)
-                            .nestedScroll(nestedScrollConnection)
-                    )
-                    .padding(contentPadding)
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = contentPadding,
             ) {
                 forums.forEach { (headerText, forums) ->
                     if (headerText.isNotEmpty()) {
@@ -110,24 +97,28 @@ private fun ForumListItem(forum: Forum, modifier: Modifier = Modifier, onClick: 
                 horizontalArrangement = Arrangement.Start,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
-                ListItemSecondaryText(
-                    numberFormat.format(forum.numberOfThreads),
-                    icon = painterResource(R.drawable.forum_24px),
-                )
-                ListItemVerticalDivider()
-                val context = LocalContext.current
-                var relativeTimestamp by remember { mutableStateOf("") }
-                LaunchedEffect(Unit) {
-                    while (true) {
-                        relativeTimestamp = forum.lastPostDateTime.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
-                        delay(30.seconds)
+                if (forum.numberOfThreads == 0) {
+                    ListItemSecondaryText(stringResource(R.string.empty_forum))
+                } else {
+                    val numberFormat: NumberFormat = NumberFormat.getNumberInstance()
+                    ListItemSecondaryText(
+                        numberFormat.format(forum.numberOfThreads),
+                        icon = painterResource(R.drawable.forum_24px),
+                    )
+                    ListItemVerticalDivider()
+                    val context = LocalContext.current
+                    var relativeTimestamp by remember { mutableStateOf("") }
+                    LaunchedEffect(forum.lastPostDateTime) {
+                        while (true) {
+                            relativeTimestamp = forum.lastPostDateTime.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
+                            delay(60.seconds)
+                        }
                     }
+                    ListItemSecondaryText(
+                        relativeTimestamp,
+                        icon = painterResource(R.drawable.time_24px),
+                    )
                 }
-                ListItemSecondaryText(
-                    relativeTimestamp,
-                    icon = painterResource(R.drawable.time_24px),
-                )
             }
         }
     }
@@ -157,6 +148,13 @@ private class ForumPreviewParameterProvider : PreviewParameterProvider<Forum> {
             title = "Test Forum",
             numberOfThreads = 17,
             lastPostDateTime = System.currentTimeMillis(),
+            isHeader = false,
+        ),
+        Forum(
+            id = 1,
+            title = "Ghost Forum",
+            numberOfThreads = 0,
+            lastPostDateTime = 0L,
             isHeader = false,
         )
     )

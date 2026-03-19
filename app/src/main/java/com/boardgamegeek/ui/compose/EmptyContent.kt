@@ -2,6 +2,7 @@ package com.boardgamegeek.ui.compose
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -79,9 +81,8 @@ fun EmptyContent(
     extraContent: @Composable ColumnScope.() -> Unit = {},
 ) {
     Column(
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier,
+        modifier = modifier.wrapContentSize(),
     ) {
         Icon(
             painter = iconPainter,
@@ -98,9 +99,23 @@ fun EmptyContent(
     }
 }
 
-@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 320, heightDp = 320)
+@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 600, heightDp = 600)
 @Composable
 private fun EmptyContentPreview() {
+    BggAppTheme {
+        EmptyContent(
+            stringResource(R.string.empty_forum),
+            painterResource(R.drawable.forum_24px),
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+        )
+    }
+}
+
+@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+private fun EmptyContentFullSizeScrollablePreview() {
     BggAppTheme {
         EmptyFullSizeScrollableContent(
             R.string.search_initial_help,

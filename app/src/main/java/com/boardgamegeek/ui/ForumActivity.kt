@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -32,10 +33,7 @@ import com.boardgamegeek.ui.GameActivity.Companion.startUp
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForArtist
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForDesigner
 import com.boardgamegeek.ui.PersonActivity.Companion.startUpForPublisher
-import com.boardgamegeek.ui.compose.BggLoadingIndicatorBox
-import com.boardgamegeek.ui.compose.Drawer
-import com.boardgamegeek.ui.compose.ErrorContent
-import com.boardgamegeek.ui.compose.ThreadListItem
+import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.ForumViewModel
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -117,43 +115,53 @@ class ForumActivity : BaseActivity() {
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(contentPadding)
+                                        .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal))
                                 )
                             }
                             else -> {
-                                LazyColumn(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(contentPadding)
-                                ) {
-                                    items(threads.itemCount) { position ->
-                                        val thread = threads[position]
-                                        if (thread != null) {
-                                            val context = LocalContext.current
-                                            ThreadListItem(
-                                                thread = thread,
-                                                onClick = {
-                                                    ThreadActivity.start(
-                                                        context,
-                                                        thread.threadId,
-                                                        thread.subject,
-                                                        forumId,
-                                                        forumTitle,
-                                                        forumHeader,
-                                                        objectId,
-                                                        objectName,
-                                                        objectType
-                                                    )
-                                                }
-                                            )
-                                        } else {
-                                            Box(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .height(72.dp)
-                                                    .background(MaterialTheme.colorScheme.primary)
-                                            )
+                                if (threads.itemCount == 0) {
+                                    EmptyContent(
+                                        stringResource(R.string.empty_forum),
+                                        painterResource(R.drawable.forum_24px),
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(contentPadding),
+                                    )
+                                } else {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentPadding = contentPadding,
+                                    ) {
+                                        items(threads.itemCount) { position ->
+                                            val thread = threads[position]
+                                            if (thread != null) {
+                                                val context = LocalContext.current
+                                                ThreadListItem(
+                                                    thread = thread,
+                                                    onClick = {
+                                                        ThreadActivity.start(
+                                                            context,
+                                                            thread.threadId,
+                                                            thread.subject,
+                                                            forumId,
+                                                            forumTitle,
+                                                            forumHeader,
+                                                            objectId,
+                                                            objectName,
+                                                            objectType
+                                                        )
+                                                    }
+                                                )
+                                            } else {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(72.dp)
+                                                        .background(MaterialTheme.colorScheme.primary)
+                                                )
+                                            }
+                                            HorizontalDivider()
                                         }
-                                        HorizontalDivider()
                                     }
                                 }
                             }

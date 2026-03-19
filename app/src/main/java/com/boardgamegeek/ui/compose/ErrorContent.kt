@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -16,15 +15,11 @@ import com.boardgamegeek.ui.theme.BggAppTheme
 @Composable
 fun ErrorContent(text: String, iconPainter: Painter, modifier: Modifier = Modifier) {
     Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.padding(
-            horizontal = dimensionResource(R.dimen.material_margin_horizontal),
-            vertical = dimensionResource(R.dimen.material_margin_vertical)
-        )
+        modifier = modifier.wrapContentSize(),
     ) {
         OutlinedCard(
             modifier = Modifier
-                .heightIn(min = 160.dp, max = 320.dp)
+                .heightIn(min = 196.dp, max = 320.dp)
                 .widthIn(min = 160.dp, max = 320.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -52,7 +47,7 @@ fun ErrorContent(text: String, iconPainter: Painter, modifier: Modifier = Modifi
     }
 }
 
-@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 640, heightDp = 640)
+@Preview(backgroundColor = 0xFFFFFFFF, showBackground = true, widthDp = 600, heightDp = 600)
 @Composable
 private fun ErrorContentPreview() {
     BggAppTheme {

@@ -11,6 +11,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -84,6 +85,7 @@ class ForumsActivity : BaseActivity() {
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(contentPadding)
+                                        .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal))
                                 )
                             }
                             Status.REFRESHING -> {
@@ -94,7 +96,7 @@ class ForumsActivity : BaseActivity() {
                                 )
                             }
                             Status.SUCCESS -> {
-                                ForumsContent(forums.value.data, contentPadding, null) { forum, header, ->
+                                ForumsContent(forums.value.data, contentPadding) { forum, header, ->
                                     ForumActivity.start(this@ForumsActivity, forum.id, forum.title, objectId, objectName, Forum.Type.REGION, header)
                                 }
                             }

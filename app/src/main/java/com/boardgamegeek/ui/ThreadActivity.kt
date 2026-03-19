@@ -162,6 +162,7 @@ class ThreadActivity : BaseActivity() {
                                     modifier = Modifier
                                         .fillMaxSize()
                                         .padding(contentPadding)
+                                        .padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal),)
                                 )
                             }
                             Status.SUCCESS -> {

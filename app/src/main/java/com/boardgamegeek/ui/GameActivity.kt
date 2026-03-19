@@ -468,7 +468,6 @@ class GameActivity : BaseActivity() {
                                             ForumsContent(
                                                 forums.value.data,
                                                 PaddingValues(0.dp),
-                                                scrollBehavior.nestedScrollConnection
                                             ) { forum, header ->
                                                 ForumActivity.start(
                                                     this@GameActivity,
