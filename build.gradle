@@ -2,7 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '2.2.10'
-    ext.hilt_version = '2.59.1'
+    ext.hilt_version = '2.59.2'
     ext.room_version = '2.8.4'
 
     repositories {
@@ -12,7 +12,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:9.0.0'
+        classpath 'com.android.tools.build:gradle:9.0.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.github.ben-manes:gradle-versions-plugin:0.53.0'
         classpath 'com.google.gms:google-services:4.4.4'
