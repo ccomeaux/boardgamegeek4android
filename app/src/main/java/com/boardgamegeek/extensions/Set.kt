@@ -1,10 +1,11 @@
 package com.boardgamegeek.extensions
 
-import androidx.compose.runtime.snapshots.SnapshotStateSet
-
-fun <T> SnapshotStateSet<T>.addOrRemove(key: T) {
-    if (contains(key))
-        remove(key)
-    else
-        add(key)
+fun <T> MutableSet<T>.toggle(element: T, add: Boolean = !this.contains(element)): Boolean {
+    return if (add) {
+        add(element)
+        true
+    } else {
+        remove(element)
+        false
+    }
 }

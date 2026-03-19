@@ -37,11 +37,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
-import com.boardgamegeek.extensions.addOrRemove
 import com.boardgamegeek.extensions.asYear
 import com.boardgamegeek.extensions.linkBgg
 import com.boardgamegeek.extensions.notifyLoggedPlay
 import com.boardgamegeek.extensions.shareGames
+import com.boardgamegeek.extensions.toggle
 import com.boardgamegeek.model.Status
 import com.boardgamegeek.model.TopGame
 import com.boardgamegeek.ui.compose.*
@@ -167,7 +167,7 @@ class TopGamesActivity : BaseActivity() {
                             selectedIds = selectedIds,
                             onClick = { game ->
                                 if (inSelectionMode)
-                                    selectedIds.addOrRemove(game.id)
+                                    selectedIds.toggle(game.id)
                                 else
                                     GameActivity.start(this, game.id, game.name)
                             },

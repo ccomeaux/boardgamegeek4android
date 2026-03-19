@@ -142,7 +142,7 @@ class SearchResultsActivity : BaseActivity() {
                             selectedIds = selectedIds,
                             onClick = {
                                 if (inSelectionMode) {
-                                    selectedIds.addOrRemove(it)
+                                    selectedIds.toggle(it)
                                 } else {
                                     GameActivity.start(context, it, nameFromId(it).orEmpty())
                                 }
@@ -180,7 +180,7 @@ class SearchResultsActivity : BaseActivity() {
                                     val message = res.getQuantityString(R.plurals.search_results_exact, count, count, it.text)
                                     val result = snackbarHostState.showSnackbar(
                                         message,
-                                        actionLabel = context.getString(R.string.more),
+                                        actionLabel = resources.getString(R.string.more),
                                         duration = SnackbarDuration.Indefinite
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {

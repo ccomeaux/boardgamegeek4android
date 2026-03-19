@@ -147,7 +147,7 @@ class HotnessActivity : BaseActivity() {
                             selectedIds = selectedIds,
                             onClick = { game ->
                                 if (inSelectionMode)
-                                    selectedIds.addOrRemove(game.id)
+                                    selectedIds.toggle(game.id)
                                 else
                                     GameActivity.start(this, game.id, game.name, game.thumbnailUrl)
                             },
