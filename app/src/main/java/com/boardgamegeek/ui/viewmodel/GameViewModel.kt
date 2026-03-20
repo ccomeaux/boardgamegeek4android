@@ -7,11 +7,11 @@ import androidx.lifecycle.*
 import androidx.palette.graphics.Palette
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.model.*
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
+import com.boardgamegeek.model.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.*
 import com.boardgamegeek.ui.GameActivity
@@ -119,12 +119,12 @@ class GameViewModel @Inject constructor(
             try {
                 emitSource(
                     gameRepository.loadGameFlow(gameId)
-                    .onEach {
-                        if (it == null || it.updated.isOlderThan(gameRefreshMinutes.minutes)) {
-                            refreshGame()
+                        .onEach {
+                            if (it == null || it.updated.isOlderThan(gameRefreshMinutes.minutes)) {
+                                refreshGame()
+                            }
                         }
-                    }
-                    .asLiveData()
+                        .asLiveData()
                 )
             } catch (e: Exception) {
                 Timber.w(e)
@@ -311,8 +311,8 @@ class GameViewModel @Inject constructor(
             try {
                 emitSource(
                     gameCollectionRepository.loadCollectionItemsForGameFlow(id)
-                    .onEach { attemptRefreshItems(it) }
-                    .asLiveData()
+                        .onEach { attemptRefreshItems(it) }
+                        .asLiveData()
                 )
             } catch (e: Exception) {
                 Timber.w(e)
@@ -364,8 +364,8 @@ class GameViewModel @Inject constructor(
     }
 
     fun refreshItems() {
-        forceItemsRefresh.set(true)
-        attemptRefreshItems()
+        if (forceItemsRefresh.compareAndSet(false, true))
+            attemptRefreshItems()
     }
 
     private fun attemptRefreshItems(list: List<CollectionItem>? = collectionItems.value) {
@@ -373,22 +373,33 @@ class GameViewModel @Inject constructor(
             if (areItemsRefreshing.compareAndSet(false, true)) {
                 _itemsAreRefreshing.value = true
                 viewModelScope.launch {
+                    Timber.d("Attempting to refresh items for game $game")
+                    val lastRefresh = list?.minOf { item -> item.syncTimestamp }
                     if (list?.any { it.isDirty } == true) {
+                        Timber.d("...first need to enqueue an upload request (at least one of the items is dirty).")
                         gameCollectionRepository.enqueueUploadRequest(game.id)
-                    } else if (list?.isEmpty() == true ||
-                        (list != null && list.minOf { item -> item.syncTimestamp }.isOlderThan(itemsRefreshMinutes.minutes)) ||
-                        forceItemsRefresh.compareAndSet(true, false)
-                    ) {
-                        Timber.d("Refreshing items for game $game")
-                        gameCollectionRepository.refreshCollectionItems(game.id, game.subtype)?.let { _errorMessage.setMessage(it) }
+                    } else if (forceItemsRefresh.get()) {
+                        Timber.d("...refreshing items because the user manually requested")
+                        performRefreshCollectionItems(game)
+                    } else if (list?.isEmpty() == true) {
+                        Timber.d("...refreshing items because there are no items available")
+                        performRefreshCollectionItems(game)
+                    } else if (lastRefresh != null && lastRefresh.isOlderThan(itemsRefreshMinutes.minutes)) {
+                        Timber.d("...refreshing items because the last refresh was ${lastRefresh.formatTimestamp(getApplication())}")
+                        performRefreshCollectionItems(game)
                     } else {
-                        Timber.d("NOT refreshing items for game $game")
+                        Timber.d("...no refresh need for items for game $game")
                     }
                     _itemsAreRefreshing.value = false
                     areItemsRefreshing.set(false)
                 }
             }
+            forceItemsRefresh.set(false)
         }
+    }
+
+    private suspend fun performRefreshCollectionItems(game: Game) {
+        gameCollectionRepository.refreshCollectionItems(game.id, game.subtype)?.let { _errorMessage.setMessage(it) }
     }
 
     fun refreshPlays() {

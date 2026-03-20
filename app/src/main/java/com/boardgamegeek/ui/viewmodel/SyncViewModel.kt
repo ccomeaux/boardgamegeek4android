@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SyncViewModel @Inject constructor(
     application: Application,
-    private val collectionRepository: GameCollectionRepository,
+    private val gameCollectionRepository: GameCollectionRepository,
     private val gameRepository: GameRepository,
     private val playRepository: PlayRepository,
     private val userRepository: UserRepository,
@@ -54,7 +54,7 @@ class SyncViewModel @Inject constructor(
     private val userWorkInfos = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(SyncUsersWorker.UNIQUE_WORK_NAME_AD_HOC)
 
     private val collectionItemsToUpload = liveData {
-        emitSource(collectionRepository.loadItemsPendingUploadAsFlow().distinctUntilChanged().asLiveData())
+        emitSource(gameCollectionRepository.loadItemsPendingUploadAsFlow().distinctUntilChanged().asLiveData())
     }
     val numberOfCollectionItemsToUpload = collectionItemsToUpload.map { it.size }
 
@@ -127,7 +127,7 @@ class SyncViewModel @Inject constructor(
     }
 
     fun uploadCollection() {
-        CollectionUploadWorker.buildRequest(getApplication())
+        gameCollectionRepository.enqueueUploadRequest()
     }
 
     fun modifyCollectionStatus(status: CollectionStatus, add: Boolean) {

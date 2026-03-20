@@ -2,7 +2,6 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
-import androidx.work.WorkManager
 import com.boardgamegeek.extensions.collectionStatusLiveData
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
@@ -81,7 +80,7 @@ class CollectionDetailsViewModel @Inject constructor(
     val loggedPlayResult: LiveData<Event<PlayUploadResult>>
         get() = _loggedPlayResult
 
-    val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(WORK_NAME).map { list ->
+    val isRefreshing = gameCollectionRepository.getWorkInfosLiveData(getApplication()).map { list ->
         list.any { workInfo -> !workInfo.state.isFinished }
     }
 
@@ -197,7 +196,6 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    @Suppress("SpellCheckingInspection")
     val hawtItems = allItems.switchMap { list ->
         liveData {
             emit(
@@ -290,7 +288,6 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    @Suppress("SpellCheckingInspection")
     val hawtUnownedItems: LiveData<List<CollectionItem>> = allGames.switchMap { list ->
         liveData {
             emit(list.filter { !it.own && !it.isIncoming }
@@ -511,7 +508,7 @@ class CollectionDetailsViewModel @Inject constructor(
 
     fun refresh() {
         if (isRefreshing.value == false) {
-            gameCollectionRepository.enqueueRefreshRequest(WORK_NAME)
+            gameCollectionRepository.enqueueRefreshRequest()
         }
     }
 
@@ -657,6 +654,5 @@ class CollectionDetailsViewModel @Inject constructor(
 
     companion object {
         const val ITEM_LIMIT = 5
-        const val WORK_NAME = "CollectionViewModel"
     }
 }

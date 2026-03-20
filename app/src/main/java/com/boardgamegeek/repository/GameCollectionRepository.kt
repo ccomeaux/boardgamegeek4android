@@ -339,13 +339,9 @@ class GameCollectionRepository(
 
     private suspend fun delete(gameId: Int, protectedCollectionIds: List<Int>) = withContext(Dispatchers.IO) {
         var deleteCount = 0
-        val items = collectionDao.loadForGame(gameId)
-        Timber.i(
-            "Found %,d collection item(s) for game '%s' to delete${if (protectedCollectionIds.isNotEmpty()) "; protecting %s" else ""}",
-            items.size,
-            gameId,
-            protectedCollectionIds
-        )
+        val allItems = collectionDao.loadForGame(gameId)
+        val items = allItems.filter { it.item.collectionId !in protectedCollectionIds }
+        Timber.i("Found %,d collection item(s) for game '%s' to delete", items.size, gameId)
         items.forEach { gameWithItem ->
             if (!protectedCollectionIds.contains(gameWithItem.item.collectionId)) {
                 deleteCount += collectionDao.delete(gameWithItem.item.internalId)
@@ -359,6 +355,8 @@ class GameCollectionRepository(
 
     suspend fun loadInventoryLocation() =
         withContext(Dispatchers.IO) { collectionDao.loadInventoryLocation().filterNot { it.isBlank() } }
+
+    suspend fun loadItemsPendingUpload(gameId: Int) = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingUpload(gameId).map { it.mapToModel() } }
 
     suspend fun loadItemsPendingDeletion() = withContext(Dispatchers.IO) { collectionDao.loadItemsPendingDeletion().map { it.mapToModel() } }
 
@@ -642,14 +640,43 @@ class GameCollectionRepository(
         collectionDao.deleteUnupdatedItems(timestamp)
     }
 
-    fun enqueueUploadRequest(gameId: Int) {
-        WorkManager.getInstance(context).enqueue(CollectionUploadWorker.buildRequest(context, gameId))
+    // Request that any pending changes to the [gameId]'s
+
+    /**
+     * Request that any pending changes to the [gameId] be uploaded. If an upload is already in progress, the request will be run after the current one completes, regardless of its success.
+     * An invalid [gameId] requests all pending changes be uploaded. If an upload is already in progress, it will be replaced.
+     */
+    fun enqueueUploadRequest(gameId: Int = INVALID_ID) {
+        Timber.i("Requesting collection upload for game ID=$gameId")
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            CollectionUploadWorker.UNIQUE_WORK_NAME,
+            if (gameId == INVALID_ID) ExistingWorkPolicy.REPLACE else ExistingWorkPolicy.APPEND_OR_REPLACE,
+            CollectionUploadWorker.buildRequest(context, gameId, buildTag(gameId))
+        )
     }
 
-    fun enqueueRefreshRequest(workName: String) {
+    /**
+     * Request that any pending changes to the collection be uploaded, followed by a "quick" download.
+     */
+    fun enqueueRefreshRequest() {
+        Timber.i("Requesting collection refresh")
+        val tag = buildTag()
         WorkManager.getInstance(context)
-            .beginUniqueWork(workName, ExistingWorkPolicy.KEEP, CollectionUploadWorker.buildRequest(context))
-            .then(SyncCollectionWorker.buildQuickRequest(context))
+            .beginUniqueWork(
+                CollectionUploadWorker.UNIQUE_WORK_NAME,
+                ExistingWorkPolicy.REPLACE,
+                CollectionUploadWorker.buildRequest(context, tag = tag)
+            )
+            .then(SyncCollectionWorker.buildQuickRequest(context, tag))
             .enqueue()
     }
+
+    /***
+     * Returns a LiveData of the work infos for the specified [gameId], or all games if [gameId] is invalid.
+     */
+    fun getWorkInfosLiveData(context: Context, gameId: Int = INVALID_ID) =
+        WorkManager.getInstance(context).getWorkInfosByTagLiveData(buildTag(gameId))
+
+    private fun buildTag(gameId: Int = INVALID_ID): String = if (gameId == INVALID_ID) "ALL" else "GAME:$gameId"
+
 }

@@ -486,11 +486,14 @@ class SyncCollectionWorker @AssistedInject constructor(
             WorkManager.getInstance(context).enqueueUniqueWork(UNIQUE_WORK_NAME_AD_HOC, ExistingWorkPolicy.KEEP, builder.build())
         }
 
-        fun buildQuickRequest(context: Context) = OneTimeWorkRequestBuilder<SyncCollectionWorker>()
-            .setInputData(workDataOf(QUICK_SYNC to true)) // limited to modified collection and smaller numbers of games
-            .setConstraints(context.createWorkConstraints(true))
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
-            .build()
+        fun buildQuickRequest(context: Context, tag: String? = null): OneTimeWorkRequest {
+            val builder = OneTimeWorkRequestBuilder<SyncCollectionWorker>()
+                .setInputData(workDataOf(QUICK_SYNC to true)) // limited to modified collection and smaller numbers of games
+                .setConstraints(context.createWorkConstraints(true))
+                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.MINUTES)
+            tag?.let { builder.addTag(it) }
+            return builder.build()
+        }
 
         private fun CollectionStatus.mapToString(): String = if (this == CollectionStatus.Unknown)
             ""

@@ -7,9 +7,9 @@ import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.*
 import com.boardgamegeek.R
+import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.model.CollectionItemUploadResult
-import com.boardgamegeek.extensions.*
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.GameCollectionRepository
 import com.boardgamegeek.ui.CollectionActivity
@@ -32,6 +32,15 @@ class CollectionUploadWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         requestedGameId = inputData.getInt(GAME_ID, BggContract.INVALID_ID)
 
+        if (requestedGameId == BggContract.INVALID_ID) {
+            Timber.i("Collection upload request for all pending changes")
+        } else {
+            Timber.i("Collection upload request for game ID = $requestedGameId")
+            val items = gameCollectionRepository.loadItemsPendingUpload(requestedGameId)
+            Timber.i("Found %,d collection item(s) for game ID = $requestedGameId", items.size)
+            if (items.isEmpty()) return Result.success()
+        }
+
         processList(gameCollectionRepository.loadItemsPendingDeletion(), R.plurals.sync_notification_collection_deleting) {
             gameCollectionRepository.uploadDeletedItem(it)
         }
@@ -45,7 +54,11 @@ class CollectionUploadWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun processList(items: List<CollectionItem>, resId: Int, process: suspend (item: CollectionItem) -> kotlin.Result<CollectionItemUploadResult>) {
+    private suspend fun processList(
+        items: List<CollectionItem>,
+        resId: Int,
+        process: suspend (item: CollectionItem) -> kotlin.Result<CollectionItemUploadResult>
+    ) {
         val list = if (requestedGameId == BggContract.INVALID_ID) items else items.filter { it.gameId == requestedGameId }
         val count = list.size
         val detail = applicationContext.resources.getQuantityString(resId, count, count)
@@ -66,7 +79,12 @@ class CollectionUploadWorker @AssistedInject constructor(
     }
 
     private fun createForegroundInfo(contentText: String): ForegroundInfo {
-        return applicationContext.createForegroundInfo(R.string.sync_notification_title_collection_upload, NOTIFICATION_ID_COLLECTION_UPLOAD, id, contentText)
+        return applicationContext.createForegroundInfo(
+            R.string.sync_notification_title_collection_upload,
+            NOTIFICATION_ID_COLLECTION_UPLOAD,
+            id,
+            contentText
+        )
     }
 
     fun Context.notifyUploadCollectionItem(result: CollectionItemUploadResult) {
@@ -137,12 +155,15 @@ class CollectionUploadWorker @AssistedInject constructor(
 
     companion object {
         const val GAME_ID = "GAME_ID"
+        const val UNIQUE_WORK_NAME = "UPLOAD_COLLECTION_WORK"
 
-        fun buildRequest(context: Context, gameId: Int = BggContract.INVALID_ID) =
-            OneTimeWorkRequestBuilder<CollectionUploadWorker>()
+        fun buildRequest(context: Context, gameId: Int = BggContract.INVALID_ID, tag: String? = null): OneTimeWorkRequest {
+            val builder = OneTimeWorkRequestBuilder<CollectionUploadWorker>()
                 .setInputData(workDataOf(GAME_ID to gameId))
                 .setConstraints(context.createWorkConstraints())
                 .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 3, TimeUnit.MINUTES)
-                .build()
+            tag?.let { builder.addTag(it) }
+            return builder.build()
+        }
     }
 }

@@ -2,12 +2,13 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import android.content.SharedPreferences
-import androidx.core.os.bundleOf
+import android.os.Bundle
 import androidx.lifecycle.*
-import androidx.work.WorkManager
 import com.boardgamegeek.BggApplication
 import com.boardgamegeek.R
-import com.boardgamegeek.extensions.*
+import com.boardgamegeek.extensions.CollectionViewPrefs
+import com.boardgamegeek.extensions.isStatusSetToSync
+import com.boardgamegeek.extensions.preferences
 import com.boardgamegeek.filterer.CollectionFilterer
 import com.boardgamegeek.filterer.CollectionFiltererFactory
 import com.boardgamegeek.livedata.Event
@@ -78,7 +79,7 @@ class CollectionViewViewModel @Inject constructor(
     val isFiltering: LiveData<Boolean>
         get() = _isFiltering
 
-    val isRefreshing = WorkManager.getInstance(getApplication()).getWorkInfosForUniqueWorkLiveData(WORK_NAME).map { list ->
+    val isRefreshing = gameCollectionRepository.getWorkInfosLiveData(getApplication()).map { list ->
         list.any { workInfo -> !workInfo.state.isFinished }
     }
 
@@ -208,10 +209,10 @@ class CollectionViewViewModel @Inject constructor(
                 }
                 firebaseAnalytics.logEvent(
                     "Filter",
-                    bundleOf(
-                        FirebaseAnalytics.Param.CONTENT_TYPE to "Collection",
-                        "FilterBy" to filter.type.toString()
-                    )
+                    Bundle().apply {
+                        putString(FirebaseAnalytics.Param.CONTENT_TYPE, "Collection")
+                        putString("FilterBy", filter.type.toString())
+                    }
                 )
                 _addedFilters.postValue(filters)
             }
@@ -306,7 +307,7 @@ class CollectionViewViewModel @Inject constructor(
 
     fun refresh() {
         if (isRefreshing.value == false) {
-            gameCollectionRepository.enqueueRefreshRequest(WORK_NAME)
+            gameCollectionRepository.enqueueRefreshRequest()
         }
     }
 
@@ -392,9 +393,5 @@ class CollectionViewViewModel @Inject constructor(
                 viewRepository.createViewShortcut(getApplication<BggApplication>().applicationContext, viewId, selectedViewName.value.orEmpty())
             }
         }
-    }
-
-    companion object {
-        private const val WORK_NAME = "CollectionViewViewModel"
     }
 }
