@@ -22,6 +22,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
@@ -54,7 +55,6 @@ import com.boardgamegeek.model.Forum
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.compose.*
-import com.boardgamegeek.ui.dialog.CollectionStatusDialogFragment
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.game.*
 import com.boardgamegeek.ui.theme.BggAppTheme
@@ -139,6 +139,8 @@ class GameActivity : BaseActivity() {
             viewModel.refreshDesignerImages(limit)
             viewModel.refreshArtistImages(limit)
             viewModel.refreshPublisherImages(limit)
+
+            var openAddCollectionItemDialog by rememberSaveable { mutableStateOf(false) }
 
             BggAppTheme {
                 LaunchedEffect(errorMessage) {
@@ -226,7 +228,7 @@ class GameActivity : BaseActivity() {
                                     }
                                 },
                                 onToggleFavorite = { viewModel.updateFavorite(!(game?.isFavorite ?: false)) },
-                                onAddCollection = { this.showAndSurvive(CollectionStatusDialogFragment()) },
+                                onAddCollection = { openAddCollectionItemDialog = true },
                             )
                         },
                         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -488,6 +490,15 @@ class GameActivity : BaseActivity() {
                                                 modifier = screenModifier,
                                             )
                                         }
+                                    }
+                                    if (openAddCollectionItemDialog) {
+                                        AddCollectionItemDialog(
+                                            onConfirmation = { selectedStatuses, wishlistPriority ->
+                                                openAddCollectionItemDialog = false
+                                                viewModel.addCollectionItem(selectedStatuses, wishlistPriority)
+                                            },
+                                            onDismissRequest = { openAddCollectionItemDialog = false },
+                                        )
                                     }
                                 }
                             } ?: EmptyFullSizeScrollableContent(

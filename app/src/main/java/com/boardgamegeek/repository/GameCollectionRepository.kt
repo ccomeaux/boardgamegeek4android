@@ -498,18 +498,19 @@ class GameCollectionRepository(
 
     suspend fun addCollectionItem(
         gameId: Int,
-        statuses: List<String>,
+        statuses: Set<CollectionStatus>,
         wishListPriority: Int,
         timestamp: Long = System.currentTimeMillis()
     ) = withContext(Dispatchers.IO) {
         gameDao.loadGame(gameId)?.let { entity ->
-            entity.game?.let {
-                val collectionItemForInsert = withContext(Dispatchers.Default) { it.mapForInsert(statuses, wishListPriority, timestamp) }
+            entity.game?.let { game ->
+                val statusList = statuses.mapNotNull { it.mapToDatabase() }.toList()
+                val collectionItemForInsert = withContext(Dispatchers.Default) { game.mapForInsert(statusList, wishListPriority, timestamp) }
                 val internalId = collectionDao.insert(collectionItemForInsert)
                 if (internalId == INVALID_ID.toLong()) {
-                    Timber.d("Collection item for game '${it.gameName}` ($gameId) not added")
+                    Timber.d("Collection item for game '${game.gameName}` ($gameId) not added")
                 } else {
-                    Timber.d("Collection item added for game '${it.gameName}` ($gameId) [$internalId]")
+                    Timber.d("Collection item added for game '${game.gameName}` ($gameId) [$internalId]")
                     enqueueUploadRequest(gameId)
                 }
             }

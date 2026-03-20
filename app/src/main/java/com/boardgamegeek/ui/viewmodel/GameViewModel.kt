@@ -470,7 +470,7 @@ class GameViewModel @Inject constructor(
         }
     }
 
-    fun addCollectionItem(statuses: List<String>, wishListPriority: Int) {
+    fun addCollectionItem(statuses: Set<CollectionStatus>, wishListPriority: Int) {
         viewModelScope.launch {
             gameCollectionRepository.addCollectionItem(
                 gameId.value ?: BggContract.INVALID_ID,

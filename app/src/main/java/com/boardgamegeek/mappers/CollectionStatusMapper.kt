@@ -2,6 +2,7 @@ package com.boardgamegeek.mappers
 
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionStatus
+import com.boardgamegeek.provider.BggContract
 
 fun CollectionStatus.mapToPreference() = when (this) {
     CollectionStatus.Own -> COLLECTION_STATUS_OWN
@@ -35,4 +36,16 @@ fun String?.mapToEnum() = when (this) {
     COLLECTION_STATUS_HAS_PARTS -> CollectionStatus.HasParts
     COLLECTION_STATUS_WANT_PARTS -> CollectionStatus.WantParts
     else -> CollectionStatus.Unknown
+}
+
+fun CollectionStatus.mapToDatabase() = when (this) {
+    CollectionStatus.Own -> BggContract.Collection.Columns.STATUS_OWN
+    CollectionStatus.PreviouslyOwned -> BggContract.Collection.Columns.STATUS_PREVIOUSLY_OWNED
+    CollectionStatus.ForTrade -> BggContract.Collection.Columns.STATUS_FOR_TRADE
+    CollectionStatus.WantToPlay -> BggContract.Collection.Columns.STATUS_WANT_TO_PLAY
+    CollectionStatus.WantInTrade -> BggContract.Collection.Columns.STATUS_WANT
+    CollectionStatus.WantToBuy -> BggContract.Collection.Columns.STATUS_WANT_TO_BUY
+    CollectionStatus.Preordered -> BggContract.Collection.Columns.STATUS_PREORDERED
+    CollectionStatus.Wishlist -> BggContract.Collection.Columns.STATUS_WISHLIST
+    else -> null
 }
