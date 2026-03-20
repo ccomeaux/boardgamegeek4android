@@ -229,9 +229,11 @@ class GameCollectionRepository(
         var candidate: CollectionItemWithGameEntity? = null
         if (itemForInsert.collectionId != INVALID_ID) {
             candidate = collectionDao.load(itemForInsert.collectionId)
+            Timber.i("Found an UPDATE candidate for collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) by collection ID")
         }
         if (candidate == null) {
             candidate = collectionDao.loadForGame(itemForInsert.gameId).find { it.item.collectionId == INVALID_ID }
+            Timber.i("Found an UPDATE candidate for collection item '${itemForInsert.collectionName}' (${itemForInsert.collectionId}) by game ID")
         }
 
         // upsert the collection item
@@ -338,10 +340,16 @@ class GameCollectionRepository(
     private suspend fun delete(gameId: Int, protectedCollectionIds: List<Int>) = withContext(Dispatchers.IO) {
         var deleteCount = 0
         val items = collectionDao.loadForGame(gameId)
-        items.forEach { item ->
-            if (!protectedCollectionIds.contains(item.item.collectionId)) {
-                deleteCount += collectionDao.delete(item.item.internalId)
-                Timber.i("Deleted collection item ${item.item.collectionName} [${item.item.collectionId}]")
+        Timber.i(
+            "Found %,d collection item(s) for game '%s' to delete${if (protectedCollectionIds.isNotEmpty()) "; protecting %s" else ""}",
+            items.size,
+            gameId,
+            protectedCollectionIds
+        )
+        items.forEach { gameWithItem ->
+            if (!protectedCollectionIds.contains(gameWithItem.item.collectionId)) {
+                deleteCount += collectionDao.delete(gameWithItem.item.internalId)
+                Timber.i("Deleted collection item ${gameWithItem.item.collectionName} (${gameWithItem.item.collectionId}) [${gameWithItem.item.internalId}] by game ID $gameId")
             }
         }
         Timber.i("Removed %,d collection item(s) for game '%s'", deleteCount, gameId)
