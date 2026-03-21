@@ -109,7 +109,7 @@ fun CollectionItemListItem(
                     Spacer(modifier = Modifier.weight(1f))
                     Rating(
                         rating,
-                        style = MaterialTheme.typography.labelMedium,
+                        style = RatingDefaults.textStyleSmall(),
                         width = RatingDefaults.widthSmall,
                     )
                 } else if (infoText != null) {

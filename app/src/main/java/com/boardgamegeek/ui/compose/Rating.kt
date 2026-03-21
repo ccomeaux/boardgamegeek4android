@@ -27,9 +27,9 @@ object RatingDefaults {
     val widthLarge = 56.dp
     val widthSmall = 48.dp
     @Composable
-    fun textStyleLarge() = MaterialTheme.typography.labelLarge
+    fun textStyleLarge() = MaterialTheme.typography.titleMedium
     @Composable
-    fun textStyleSmall() = MaterialTheme.typography.titleMedium
+    fun textStyleSmall() = MaterialTheme.typography.labelLarge
 
 }
 

@@ -90,7 +90,7 @@ fun GameCollectionItemListItem(
             }
 
             if (item.rating in 1.0..10.0) {
-                Rating(item.rating) // TODO make larger?
+                Rating(item.rating)
             }
         }
 

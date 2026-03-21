@@ -235,7 +235,7 @@ private fun CommentListItem(
             modifier = Modifier.fillMaxWidth()
         ) {
             ListItemPrimaryText(gameComment.username)
-            Rating(gameComment.rating)
+            Rating(gameComment.rating, style = RatingDefaults.textStyleSmall())
         }
         if (gameComment.comment.isNotBlank()) {
             ListItemSecondaryText(

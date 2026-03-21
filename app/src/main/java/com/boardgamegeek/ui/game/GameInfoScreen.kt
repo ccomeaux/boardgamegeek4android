@@ -4,14 +4,10 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,7 +31,6 @@ import com.boardgamegeek.model.*
 import com.boardgamegeek.ui.CommentsActivity
 import com.boardgamegeek.ui.dialog.GameAgePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameLanguagePollDialogFragment
-import com.boardgamegeek.ui.dialog.GameRanksDialogFragment
 import com.boardgamegeek.ui.dialog.GameSuggestedPlayerCountPollDialogFragment
 import com.boardgamegeek.ui.theme.BggAppTheme
 import java.text.DecimalFormat
@@ -56,12 +51,14 @@ fun GameInfoScreen(
     Column(
         modifier = modifier.verticalScroll(rememberScrollState())
     ) {
+        var openDialog by rememberSaveable { mutableStateOf(false) }
+
         val windowSizeClass = currentWindowAdaptiveInfo(supportLargeAndXLargeWidth = true).windowSizeClass
         if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)) {
             Row(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.weight(1f)) {
                     RankRow(subtypes, families, iconColor) {
-                        host?.let { GameRanksDialogFragment.launch(it) }
+                        openDialog = true
                     }
                     YearRow(game.yearPublished, iconColor)
                     PlayerCountRow(game.minPlayers, game.maxPlayers, playerPoll, iconColor) {
@@ -86,7 +83,7 @@ fun GameInfoScreen(
             }
         } else {
             RankRow(subtypes, families, iconColor) {
-                host?.let { GameRanksDialogFragment.launch(it) }
+                openDialog = true
             }
             RatingsRow(game.rating, game.numberOfRatings, game.numberOfComments, iconColor) {
                 CommentsActivity.startRating(context, game.id, game.name)
@@ -111,6 +108,18 @@ fun GameInfoScreen(
             game.id,
             Modifier.padding(top = 8.dp)
         )
+        if (openDialog) {
+            AlertDialog(
+                onDismissRequest = { openDialog = false },
+                title = { Text(stringResource(R.string.title_ranks_ratings)) },
+                text = { GameRanksDialog(game, subtypes, families) },
+                confirmButton = {
+                    TextButton(onClick = { openDialog = false }) {
+                        Text(stringResource(R.string.ok))
+                    }
+                },
+            )
+        }
     }
 }
 
