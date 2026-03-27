@@ -167,7 +167,10 @@ private fun MechanicsScreen(
                 modifier = modifier.fillMaxSize(),
                 contentPadding = contentPadding,
             ) {
-                items(mechanics) { mechanic ->
+                items(
+                    mechanics,
+                    key = { mechanic -> mechanic.id }
+                ) { mechanic ->
                     MechanicListItem(
                         mechanic,
                         onClick = { onItemClick(mechanic) }

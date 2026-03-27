@@ -168,7 +168,10 @@ private fun CategoriesScreen(
                 modifier = modifier.fillMaxSize(),
                 contentPadding = contentPadding,
             ) {
-                items(categories) { category ->
+                items(
+                    categories,
+                    key = { category -> category.id }
+                ) { category ->
                     CategoryListItem(
                         category,
                         onClick = { onItemClick(category) }
