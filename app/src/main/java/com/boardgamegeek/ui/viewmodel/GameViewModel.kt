@@ -374,14 +374,14 @@ class GameViewModel @Inject constructor(
                 _itemsAreRefreshing.value = true
                 viewModelScope.launch {
                     Timber.d("Attempting to refresh items for game $game")
-                    val lastRefresh = list?.minOf { item -> item.syncTimestamp }
+                    val lastRefresh = if (list.isNullOrEmpty()) null else list.minOf { item -> item.syncTimestamp }
                     if (list?.any { it.isDirty } == true) {
                         Timber.d("...first need to enqueue an upload request (at least one of the items is dirty).")
                         gameCollectionRepository.enqueueUploadRequest(game.id)
                     } else if (forceItemsRefresh.get()) {
                         Timber.d("...refreshing items because the user manually requested")
                         performRefreshCollectionItems(game)
-                    } else if (list?.isEmpty() == true) {
+                    } else if (list.isNullOrEmpty()) {
                         Timber.d("...refreshing items because there are no items available")
                         performRefreshCollectionItems(game)
                     } else if (lastRefresh != null && lastRefresh.isOlderThan(itemsRefreshMinutes.minutes)) {
