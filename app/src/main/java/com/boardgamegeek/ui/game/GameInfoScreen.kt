@@ -28,7 +28,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOW
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.*
-import com.boardgamegeek.ui.CommentsActivity
+import com.boardgamegeek.ui.GameCommentsActivity
 import com.boardgamegeek.ui.dialog.GameAgePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameLanguagePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameSuggestedPlayerCountPollDialogFragment
@@ -68,7 +68,7 @@ fun GameInfoScreen(
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     RatingsRow(game.rating, game.numberOfRatings, game.numberOfComments, iconColor) {
-                        CommentsActivity.startRating(context, game.id, game.name)
+                        GameCommentsActivity.startRating(context, game.id, game.name)
                     }
                     PlayingTimeRow(game.minPlayingTime, game.maxPlayingTime, iconColor)
                     PlayerAgesRow(game.minimumAge, agePoll, iconColor) {
@@ -86,7 +86,7 @@ fun GameInfoScreen(
                 openDialog = true
             }
             RatingsRow(game.rating, game.numberOfRatings, game.numberOfComments, iconColor) {
-                CommentsActivity.startRating(context, game.id, game.name)
+                GameCommentsActivity.startRating(context, game.id, game.name)
             }
             YearRow(game.yearPublished, iconColor)
             PlayingTimeRow(game.minPlayingTime, game.maxPlayingTime, iconColor)

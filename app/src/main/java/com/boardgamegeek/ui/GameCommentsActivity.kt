@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.fromHtml
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -37,7 +38,7 @@ import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class CommentsActivity : BaseActivity() {
+class GameCommentsActivity : BaseActivity() {
     private var gameId = BggContract.INVALID_ID
     private var gameName = ""
     private var sortType = SORT_TYPE_USER
@@ -132,7 +133,7 @@ class CommentsActivity : BaseActivity() {
         const val SORT_TYPE_RATING = 1
 
         fun startRating(context: Context, gameId: Int, gameName: String) {
-            context.startActivity<CommentsActivity>(
+            context.startActivity<GameCommentsActivity>(
                 KEY_GAME_ID to gameId,
                 KEY_GAME_NAME to gameName,
                 KEY_SORT_TYPE to SORT_TYPE_RATING,
@@ -204,7 +205,7 @@ private fun CommentsTopBar(
     )
 }
 
-@androidx.compose.ui.tooling.preview.Preview
+@Preview
 @Composable
 private fun CommentsTopBarPreview() {
     BggAppTheme {

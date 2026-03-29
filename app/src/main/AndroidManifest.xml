@@ -315,7 +315,7 @@
 			android:name=".ui.GameColorsActivity"
 			android:label="@string/title_colors" />
 		<activity
-			android:name=".ui.CommentsActivity"
+			android:name=".ui.GameCommentsActivity"
 			android:label="@string/title_comments" />
 		<activity
 			android:name=".ui.ForumsActivity"
