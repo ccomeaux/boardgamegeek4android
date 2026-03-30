@@ -176,9 +176,6 @@
 			android:label="@string/title_image"
 			android:theme="@style/Theme.MaterialComponents.NoActionBar" />
 		<activity
-			android:name=".ui.GameDetailActivity"
-			android:label="@string/title_game_detail" />
-		<activity
 			android:name=".ui.PersonActivity"
 			android:exported="false"
 			android:label="@string/title_artist" />

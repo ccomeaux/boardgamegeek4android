@@ -51,6 +51,7 @@ fun PublisherWithItemCount.mapToModel() = publisher.mapToModel().copy(itemCount 
 fun PublisherEntity.mapToGameDetail() = GameDetail(
     id = publisherId,
     name = publisherName,
+    description = publisherDescription.orEmpty(),
     thumbnailUrl = publisherThumbnailUrl.orEmpty(),
 )
 

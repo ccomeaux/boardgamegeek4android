@@ -78,10 +78,6 @@ class GameViewModel @Inject constructor(
     val playsAreRefreshing: LiveData<Boolean>
         get() = _playsAreRefreshing
 
-    private val _producerType = MutableLiveData<ProducerType>()
-    val producerType: LiveData<ProducerType>
-        get() = _producerType
-
     private val _errorMessage = EventLiveData()
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
@@ -108,10 +104,6 @@ class GameViewModel @Inject constructor(
             }
             _gameId.value = gameId
         }
-    }
-
-    fun setProducerType(type: ProducerType) {
-        if (_producerType.value != type) _producerType.value = type
     }
 
     val game: LiveData<Game?> = _gameId.switchMap { gameId ->
@@ -291,19 +283,6 @@ class GameViewModel @Inject constructor(
         if (expansion.rating > 0.0) statuses.add(ctx.getString(R.string.rated))
         if (expansion.comment.isNotBlank()) statuses.add(ctx.getString(R.string.commented))
         return statuses.formatList()
-    }
-
-    val producers = _producerType.switchMap { type ->
-        when (type) {
-            ProducerType.DESIGNER -> designers
-            ProducerType.ARTIST -> artists
-            ProducerType.PUBLISHER -> publishers
-            ProducerType.CATEGORY -> categories
-            ProducerType.MECHANIC -> mechanics
-            ProducerType.EXPANSION -> expansions
-            ProducerType.BASE_GAME -> baseGames
-            else -> liveData { emit(emptyList()) }
-        }
     }
 
     val collectionItems: LiveData<List<CollectionItem>> = gameId.switchMap { id ->

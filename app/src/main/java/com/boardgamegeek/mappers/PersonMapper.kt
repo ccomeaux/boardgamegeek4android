@@ -50,12 +50,14 @@ fun ArtistWithItemCount.mapToModel() = artist.mapToModel().copy(itemCount = item
 fun DesignerEntity.mapToGameDetail() = GameDetail(
     id = designerId,
     name = designerName,
+    description = designerDescription.orEmpty(),
     thumbnailUrl = designerThumbnailUrl.orEmpty(),
 )
 
 fun ArtistEntity.mapToGameDetail() = GameDetail(
     id = artistId,
     name = artistName,
+    description = artistDescription.orEmpty(),
     thumbnailUrl = artistThumbnailUrl.orEmpty(),
 )
 

@@ -16,6 +16,8 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -52,8 +54,12 @@ import com.boardgamegeek.R
 import com.boardgamegeek.auth.Authenticator
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Forum
+import com.boardgamegeek.model.GameDetail
 import com.boardgamegeek.model.RefreshableResource
 import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.ui.game.GameDetailListItem
+import com.boardgamegeek.ui.game.GameDetailPersonListItem
+import com.boardgamegeek.ui.game.GameDetailThingListItem
 import com.boardgamegeek.ui.compose.*
 import com.boardgamegeek.ui.dialog.GameUsersDialogFragment
 import com.boardgamegeek.ui.game.*
@@ -141,6 +147,7 @@ class GameActivity : BaseActivity() {
             viewModel.refreshPublisherImages(limit)
 
             var openAddCollectionItemDialog by rememberSaveable { mutableStateOf(false) }
+            var producerType by rememberSaveable { mutableStateOf(GameViewModel.ProducerType.UNKNOWN) }
 
             BggAppTheme {
                 LaunchedEffect(errorMessage) {
@@ -325,61 +332,31 @@ class GameActivity : BaseActivity() {
                                                         PersonActivity.startForDesigner(this@GameActivity, designer.id, designer.name)
                                                     },
                                                     onDesignersClick = {
-                                                        GameDetailActivity.start(
-                                                            this@GameActivity,
-                                                            getString(R.string.designers),
-                                                            gameId,
-                                                            gameName,
-                                                            GameViewModel.ProducerType.DESIGNER,
-                                                        )
+                                                        producerType = GameViewModel.ProducerType.DESIGNER
                                                     },
                                                     onArtistClick = { artist ->
                                                         PersonActivity.startForArtist(this@GameActivity, artist.id, artist.name)
                                                     },
                                                     onArtistsClick = {
-                                                        GameDetailActivity.start(
-                                                            this@GameActivity,
-                                                            getString(R.string.artists),
-                                                            gameId,
-                                                            gameName,
-                                                            GameViewModel.ProducerType.ARTIST,
-                                                        )
+                                                        producerType = GameViewModel.ProducerType.ARTIST
                                                     },
                                                     onPublisherClick = { publisher ->
                                                         PersonActivity.startForPublisher(this@GameActivity, publisher.id, publisher.name)
                                                     },
                                                     onPublishersClick = {
-                                                        GameDetailActivity.start(
-                                                            this@GameActivity,
-                                                            getString(R.string.publishers),
-                                                            gameId,
-                                                            gameName,
-                                                            GameViewModel.ProducerType.PUBLISHER,
-                                                        )
+                                                        producerType = GameViewModel.ProducerType.PUBLISHER
                                                     },
                                                     onMechanicClick = { mechanic ->
                                                         MechanicActivity.start(this@GameActivity, mechanic.id, mechanic.name)
                                                     },
                                                     onMechanicsClick = {
-                                                        GameDetailActivity.start(
-                                                            this@GameActivity,
-                                                            getString(R.string.mechanics),
-                                                            gameId,
-                                                            gameName,
-                                                            GameViewModel.ProducerType.MECHANIC,
-                                                        )
+                                                        producerType = GameViewModel.ProducerType.MECHANIC
                                                     },
                                                     onCategoryClick = { category ->
                                                         CategoryActivity.start(this@GameActivity, category.id, category.name)
                                                     },
                                                     onCategoriesClick = {
-                                                        GameDetailActivity.start(
-                                                            this@GameActivity,
-                                                            getString(R.string.categories),
-                                                            gameId,
-                                                            gameName,
-                                                            GameViewModel.ProducerType.CATEGORY,
-                                                        )
+                                                        producerType = GameViewModel.ProducerType.CATEGORY
                                                     },
                                                 )
                                             }
@@ -454,14 +431,8 @@ class GameActivity : BaseActivity() {
                                                     expansions,
                                                     modifier = screenModifier,
                                                     onItemClick = { item -> start(context, item.id, item.name, item.thumbnailUrl) },
-                                                    onMoreClick = { headerText, type ->
-                                                        GameDetailActivity.start(
-                                                            context,
-                                                            headerText,
-                                                            gameId,
-                                                            gameName,
-                                                            type
-                                                        )
+                                                    onMoreClick = { _, type ->
+                                                        producerType = type
                                                     }
                                                 )
                                             }
@@ -491,14 +462,28 @@ class GameActivity : BaseActivity() {
                                             )
                                         }
                                     }
-                                    if (openAddCollectionItemDialog) {
-                                        AddCollectionItemDialog(
-                                            onConfirmation = { selectedStatuses, wishlistPriority ->
-                                                openAddCollectionItemDialog = false
-                                                viewModel.addCollectionItem(selectedStatuses, wishlistPriority)
-                                            },
-                                            onDismissRequest = { openAddCollectionItemDialog = false },
-                                        )
+                                }
+                                if (openAddCollectionItemDialog) {
+                                    AddCollectionItemDialog(
+                                        onConfirmation = { selectedStatuses, wishlistPriority ->
+                                            openAddCollectionItemDialog = false
+                                            viewModel.addCollectionItem(selectedStatuses, wishlistPriority)
+                                        },
+                                        onDismissRequest = { openAddCollectionItemDialog = false },
+                                    )
+                                }
+                                if (producerType != GameViewModel.ProducerType.UNKNOWN) {
+                                    GameDetailListBottomSheet(
+                                        producerType,
+                                        designers,
+                                        artists,
+                                        publishers,
+                                        mechanics,
+                                        categories,
+                                        expansions,
+                                        baseGames,
+                                    ) {
+                                        producerType = GameViewModel.ProducerType.UNKNOWN
                                     }
                                 }
                             } ?: EmptyFullSizeScrollableContent(
@@ -567,7 +552,86 @@ class GameActivity : BaseActivity() {
 }
 
 @Composable
-fun GameTopBar(
+private fun GameDetailListBottomSheet(
+    producerType: GameViewModel.ProducerType,
+    designers: List<GameDetail>,
+    artists: List<GameDetail>,
+    publishers: List<GameDetail>,
+    mechanics: List<GameDetail>,
+    categories: List<GameDetail>,
+    expansions: List<GameDetail>,
+    baseGames: List<GameDetail>,
+    onDismissRequest: () -> Unit = {},
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+    ) {
+        val title = when (producerType) {
+            GameViewModel.ProducerType.DESIGNER -> stringResource(R.string.title_designers)
+            GameViewModel.ProducerType.ARTIST -> stringResource(R.string.title_artists)
+            GameViewModel.ProducerType.PUBLISHER -> stringResource(R.string.title_publishers)
+            GameViewModel.ProducerType.MECHANIC -> stringResource(R.string.title_mechanics)
+            GameViewModel.ProducerType.CATEGORY -> stringResource(R.string.title_categories)
+            GameViewModel.ProducerType.EXPANSION -> stringResource(R.string.expansions)
+            GameViewModel.ProducerType.BASE_GAME -> stringResource(R.string.base_games)
+            else -> ""
+        }
+        val items = when (producerType) {
+            GameViewModel.ProducerType.DESIGNER -> designers
+            GameViewModel.ProducerType.ARTIST -> artists
+            GameViewModel.ProducerType.PUBLISHER -> publishers
+            GameViewModel.ProducerType.MECHANIC -> mechanics
+            GameViewModel.ProducerType.CATEGORY -> categories
+            GameViewModel.ProducerType.EXPANSION -> expansions
+            GameViewModel.ProducerType.BASE_GAME -> baseGames
+            else -> emptyList()
+        }
+        val context = LocalContext.current
+        Text(
+            title,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(horizontal = dimensionResource(R.dimen.material_margin_horizontal))
+        )
+        LazyColumn {
+            items(
+                items = items,
+                key = { item -> item.id }
+            ) { gameDetail ->
+                when (producerType) {
+                    GameViewModel.ProducerType.DESIGNER ->
+                        GameDetailPersonListItem(gameDetail) {
+                            PersonActivity.startForDesigner(context, gameDetail.id, gameDetail.name)
+                        }
+                    GameViewModel.ProducerType.ARTIST ->
+                        GameDetailPersonListItem(gameDetail) {
+                            PersonActivity.startForArtist(context, gameDetail.id, gameDetail.name)
+                        }
+                    GameViewModel.ProducerType.PUBLISHER ->
+                        GameDetailThingListItem(gameDetail) {
+                            PersonActivity.startForPublisher(context, gameDetail.id, gameDetail.name)
+                        }
+                    GameViewModel.ProducerType.MECHANIC ->
+                        GameDetailListItem(gameDetail) {
+                            MechanicActivity.start(context, gameDetail.id, gameDetail.name)
+                        }
+                    GameViewModel.ProducerType.CATEGORY ->
+                        GameDetailListItem(gameDetail) {
+                            CategoryActivity.start(context, gameDetail.id, gameDetail.name)
+                        }
+                    GameViewModel.ProducerType.EXPANSION,
+                    GameViewModel.ProducerType.BASE_GAME ->
+                        GameDetailThingListItem(gameDetail) {
+                            GameActivity.start(context, gameDetail.id, gameDetail.name)
+                        }
+                    else -> {}
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GameTopBar(
     gameName: String,
     isFavorite: Boolean,
     maxUsers: Int,
@@ -821,7 +885,7 @@ private fun GameFab(
 }
 
 @Composable
-fun Fab(
+private fun Fab(
     text: String,
     iconPainter: Painter,
     modifier: Modifier = Modifier,
