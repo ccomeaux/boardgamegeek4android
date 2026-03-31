@@ -202,7 +202,7 @@ fun GameCreditsScreen(
             onMoreClick = onCategoriesClick,
         )
         HorizontalDivider(Modifier.padding(vertical = 8.dp))
-        GameFooter(
+        ThingFooter(
             game.updated,
             game.id,
         )

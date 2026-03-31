@@ -40,7 +40,7 @@ fun GameCollectionScreen(
                 }
             }
         }
-        GameFooter(game.updated, game.id)
+        ThingFooter(game.updated, game.id)
     }
 }
 

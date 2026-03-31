@@ -109,7 +109,7 @@ fun GamePlaysScreen(
         ColorsRow(colors, iconColor) {
             onColorsClick()
         }
-        GameFooter(
+        ThingFooter(
             updatedTimestamp,
             game.id,
         )

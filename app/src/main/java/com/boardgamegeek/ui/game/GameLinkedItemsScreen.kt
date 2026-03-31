@@ -60,7 +60,7 @@ fun GameLinkedItemsScreen(
             }
             Spacer(Modifier.heightIn(8.dp))
             HorizontalDivider()
-            GameFooter(game.updated, game.id)
+            ThingFooter(game.updated, game.id)
         }
     }
 }

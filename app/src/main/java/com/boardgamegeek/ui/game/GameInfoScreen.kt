@@ -103,7 +103,7 @@ fun GameInfoScreen(
                 }
             }
         }
-        GameFooter(
+        ThingFooter(
             game.updated,
             game.id,
             Modifier.padding(top = 8.dp)

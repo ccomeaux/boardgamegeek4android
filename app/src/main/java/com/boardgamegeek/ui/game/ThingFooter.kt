@@ -22,7 +22,7 @@ import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
-fun GameFooter(syncTimestamp: Long, gameId: Int, modifier: Modifier = Modifier) {
+fun ThingFooter(syncTimestamp: Long, gameId: Int, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -48,8 +48,8 @@ fun GameFooter(syncTimestamp: Long, gameId: Int, modifier: Modifier = Modifier) 
 
 @Preview(showBackground = true, widthDp = 480)
 @Composable
-private fun GameFooterPreview() {
+private fun ThingFooterPreview() {
     BggAppTheme {
-        GameFooter(System.currentTimeMillis(), 12345)
+        ThingFooter(System.currentTimeMillis(), 12345)
     }
 }
