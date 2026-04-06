@@ -7,26 +7,21 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.linkToBgg
 import com.boardgamegeek.extensions.startActivity
 import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.compose.SimpleCollectionItemList
+import com.boardgamegeek.ui.compose.SubtitleWithIcon
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.CategoryViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -99,22 +94,23 @@ private fun CategoryTopBar(
     onViewInBrowserClick: () -> Unit = {},
     onSortClick: (CollectionItem.SortType) -> Unit = {},
 ) {
-    var expandedMenu by remember { mutableStateOf(false) }
+    var showSortMenu by remember { mutableStateOf(false) }
     MediumFlexibleTopAppBar(
         title = {
             Text(title.ifBlank { stringResource(R.string.title_category) })
         },
         subtitle = {
-            val sortDescription = when (sortBy) {
-                CollectionItem.SortType.NAME -> stringResource(R.string.menu_sort_name)
-                CollectionItem.SortType.RATING -> stringResource(R.string.menu_sort_rating)
-            }
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(painterResource(R.drawable.category_24px), contentDescription = null, modifier = Modifier
-                    .padding(end = 4.dp)
-                    .size(16.dp))
-                Text(stringResource(R.string.title_sorted_by, stringResource(R.string.title_category), sortDescription))
-            }
+            SubtitleWithIcon(
+                stringResource(
+                    R.string.title_sorted_by,
+                    stringResource(R.string.title_category),
+                    when (sortBy) {
+                        CollectionItem.SortType.NAME -> stringResource(R.string.menu_sort_name)
+                        CollectionItem.SortType.RATING -> stringResource(R.string.menu_sort_rating)
+                    }
+                ),
+                painterResource(R.drawable.category_24px)
+            )
         },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
@@ -133,7 +129,7 @@ private fun CategoryTopBar(
                     contentDescription = stringResource(R.string.menu_view_in_browser),
                 )
             }
-            IconButton(onClick = { expandedMenu = true }) {
+            IconButton(onClick = { showSortMenu = true }) {
                 Icon(
                     painterResource(R.drawable.sort_24px),
                     contentDescription = stringResource(R.string.menu_sort),
@@ -141,8 +137,8 @@ private fun CategoryTopBar(
                 )
             }
             DropdownMenu(
-                expanded = expandedMenu,
-                onDismissRequest = { expandedMenu = false }
+                expanded = showSortMenu,
+                onDismissRequest = { showSortMenu = false }
             ) {
                 CategoryCollectionSort.entries.forEach {
                     DropdownMenuItem(
@@ -154,7 +150,7 @@ private fun CategoryTopBar(
                             )
                         },
                         onClick = {
-                            expandedMenu = false
+                            showSortMenu = false
                             onSortClick(it.type)
                         }
                     )
