@@ -133,7 +133,6 @@ private fun CategoryTopBar(
                 Icon(
                     painterResource(R.drawable.sort_24px),
                     contentDescription = stringResource(R.string.menu_sort),
-                    tint = MaterialTheme.colorScheme.primary,
                 )
             }
             DropdownMenu(
