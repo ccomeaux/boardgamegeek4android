@@ -263,6 +263,7 @@
 	<string name="empty_publishers">No publishers.</string>
 	<string name="empty_mechanics">No mechanics.</string>
 	<string name="empty_categories">No categories.</string>
+	<string name="msg_error">Something went wrong.</string>
 	<string name="msg_error_buddies">Unknown error trying to load your Geek Buddies.</string>
 	<string name="empty_buddies_sync_off">You are not currently syncing your GeekBuddies. Would you like to enable that feature now?</string>
 	<string name="empty_collection">No synced games in your collection. Maybe you should go to Settings > Sync and select some different statuses under Collection.</string>
@@ -307,7 +308,7 @@
 	<string name="empty_http_error">Whoa! It looks like BoardGameGeek.com is having some issues. If the website is up and you still see this message, please let us know about the error below. Otherwise, please check back later.\n\n%s</string>
 	<string name="empty_person">No %s by that ID.</string>
 	<string name="empty_person_description">This %s is indescribable.</string>
-	<string name="empty_person_stats">No stats have been calculated yet.</string>
+	<string name="empty_person_stats">No stats have been calculated yet for this %s.</string>
 	<string name="empty_linked_collection">No games for this %s.</string>
 	<string name="title_play_count">Play Count</string>
 	<string name="title_date">Date</string>

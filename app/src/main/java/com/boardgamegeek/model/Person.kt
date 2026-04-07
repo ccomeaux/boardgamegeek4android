@@ -16,7 +16,14 @@ data class Person(
     val statsUpdatedTimestamp: Date? = null,
     val imagesUpdatedTimestamp: Date? = null,
 ) {
-    val heroImageUrls = listOf(heroImageUrl, thumbnailUrl, imageUrl)
+    enum class Type {
+        Artist,
+        Designer,
+        Publisher,
+    }
+
+    // TODO Coil to iterate through these or remove this property
+    //val heroImageUrls = listOf(heroImageUrl, thumbnailUrl, imageUrl)
 
     override fun toString(): String {
         return "$name [$id]"
