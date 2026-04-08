@@ -27,8 +27,8 @@ class LocationPlaysViewModel @Inject constructor(
     val updateMessage: LiveData<Event<String>>
         get() = _updateMessage
 
-    fun setLocation(username: String) {
-        this.location.value = username
+    fun setLocation(name: String) {
+        this.location.value = name
     }
 
     val plays = location.switchMap {

@@ -80,12 +80,11 @@ class LocationActivity : BaseActivity() {
                                     finish()
                                 },
                                 onEditClick = {
-                                    // showAndSurvive(EditLocationNameDialogFragment.newInstance(locationName))
                                     openDialog = true
                                 }
                             )
                         },
-                        snackbarHost = { snackbarHostState }
+                        snackbarHost = { SnackbarHost(snackbarHostState) },
                     ) { contentPadding ->
                         LocationPlaysScreen(
                             plays,
@@ -137,12 +136,7 @@ private fun LocationPlaysTopBar(
         modifier = modifier,
         scrollBehavior = scrollBehavior,
         navigationIcon = {
-            IconButton(onClick = { onUpClick() }) {
-                Icon(
-                    painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.up)
-                )
-            }
+            UpAppBarAction(onUpClick)
         },
         actions = {
             IconButton(onClick = { onEditClick() }) {
@@ -155,7 +149,6 @@ private fun LocationPlaysTopBar(
         }
     )
 }
-
 
 @Composable
 private fun LocationPlaysScreen(
