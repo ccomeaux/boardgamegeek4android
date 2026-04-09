@@ -53,26 +53,18 @@ fun ThreadListItem(thread: Thread, onClick: () -> Unit, modifier: Modifier = Mod
             )
             ListItemVerticalDivider()
             val context = LocalContext.current
-            var relativeTimestamp by remember {
-                mutableStateOf(
-                    thread.lastPostDate.formatTimestamp(
-                        context,
-                        includeTime = false,
-                        isForumTimestamp = true
-                    ).toString()
-                )
+            var relativeTimestamp by remember { mutableStateOf("") }
+            LaunchedEffect(thread.lastPostDate) {
+                while (true) {
+                    relativeTimestamp = thread.lastPostDate.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
+                    delay(30.seconds)
+                }
             }
             ListItemSecondaryText(
                 text = relativeTimestamp,
                 icon = painterResource(R.drawable.time_24px),
                 contentDescription = stringResource(R.string.posted),
             )
-            LaunchedEffect(Unit) {
-                while (true) {
-                    delay(30.seconds)
-                    relativeTimestamp = thread.lastPostDate.formatTimestamp(context, includeTime = false, isForumTimestamp = true).toString()
-                }
-            }
         }
     }
 }
