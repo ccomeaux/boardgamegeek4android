@@ -1,13 +1,10 @@
 package com.boardgamegeek.ui
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
 import android.util.SparseBooleanArray
 import android.view.*
-import androidx.annotation.ColorInt
 import androidx.compose.ui.platform.ComposeView
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -16,7 +13,6 @@ import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentPlaysBinding
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.Play
-import com.boardgamegeek.provider.BggContract.Companion.INVALID_ID
 import com.boardgamegeek.ui.compose.PlayListItem
 import com.boardgamegeek.ui.viewmodel.PlaysViewModel
 import com.boardgamegeek.ui.widget.RecyclerSectionItemDecoration
@@ -34,12 +30,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
     private val adapter: PlayAdapter by lazy { PlayAdapter() }
 
-    private var gameId: Int = INVALID_ID
-    private var gameName: String? = null
-    private var heroImageUrl: String? = null
-    private var arePlayersCustomSorted: Boolean = false
-    private var emptyStringResId: Int = 0
-    private var showGameName = true
     private var actionMode: ActionMode? = null
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -49,26 +39,6 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        emptyStringResId = arguments.getIntOrElse(KEY_EMPTY_STRING_RES_ID, R.string.empty_plays)
-        showGameName = arguments.getBooleanOrElse(KEY_SHOW_GAME_NAME, true)
-        gameId = arguments.getIntOrElse(KEY_GAME_ID, INVALID_ID)
-        gameName = arguments?.getString(KEY_GAME_NAME)
-        heroImageUrl = arguments?.getString(KEY_HERO_IMAGE_URL)
-        arePlayersCustomSorted = arguments.getBooleanOrElse(KEY_CUSTOM_PLAYER_SORT, false)
-        @ColorInt val iconColor = arguments.getIntOrElse(KEY_ICON_COLOR, Color.TRANSPARENT)
-
-        binding.fabView.apply {
-            if (gameId != INVALID_ID) {
-                colorize(iconColor)
-                setOnClickListener { // launch the "correct" play logging activity
-                    logPlay()
-                }
-                show()
-            } else {
-                hide()
-            }
-        }
 
         updateEmptyText()
 
@@ -103,26 +73,12 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 PlaysViewModel.FilterType.DIRTY -> R.string.empty_plays_draft
                 PlaysViewModel.FilterType.PENDING -> R.string.empty_plays_pending
                 else -> if (requireContext().preferences()[PREFERENCES_KEY_SYNC_PLAYS, false] == true) {
-                    emptyStringResId
+                    R.string.empty_plays
                 } else {
                     R.string.empty_plays_sync_off
                 }
             }
         )
-    }
-
-    private fun logPlay() {
-        when (requireActivity().preferences().logPlayPreference()) {
-            LOG_PLAY_TYPE_FORM -> LogPlayActivity.logPlay(
-                requireContext(),
-                gameId,
-                gameName.orEmpty(),
-                heroImageUrl.orEmpty(),
-                arePlayersCustomSorted
-            )
-            LOG_PLAY_TYPE_QUICK -> viewModel.logQuickPlay(gameId, gameName.orEmpty())
-            LOG_PLAY_TYPE_WIZARD -> NewPlayActivity.start(requireContext(), gameId, gameName.orEmpty())
-        }
     }
 
     internal inner class PlayAdapter : RecyclerView.Adapter<PlayAdapter.ViewHolder>(), RecyclerSectionItemDecoration.SectionCallback {
@@ -192,7 +148,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 composeView.setContent {
                     PlayListItem(
                         play = play,
-                        showGameName = showGameName,
+                        showGameName = true,
                         markupConverter = markupConverter,
                         isSelected = selectedItems.get(position, false),
                         onClick = {
@@ -243,7 +199,7 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
                 }
                 PlaysViewModel.SortType.LENGTH -> {
                     val minutes = play.length
-                    return when {
+                    when {
                         minutes == 0 -> getString(R.string.no_length)
                         minutes >= 120 -> "${(minutes / 60)}+ ${getString(R.string.hours_abbr)}"
                         minutes >= 60 -> "${(minutes / 10 * 10)}+ ${getString(R.string.minutes_abbr)}"
@@ -316,38 +272,8 @@ open class PlaysFragment : Fragment(), ActionMode.Callback {
     }
 
     companion object {
-        private const val KEY_GAME_ID = "GAME_ID"
-        private const val KEY_GAME_NAME = "GAME_NAME"
-        private const val KEY_HERO_IMAGE_URL = "HERO_IMAGE_URL"
-        private const val KEY_CUSTOM_PLAYER_SORT = "CUSTOM_PLAYER_SORT"
-        private const val KEY_ICON_COLOR = "ICON_COLOR"
-        private const val KEY_EMPTY_STRING_RES_ID = "EMPTY_STRING_RES_ID"
-        private const val KEY_SHOW_GAME_NAME = "SHOW_GAME_NAME"
-
         fun newInstance(): PlaysFragment {
-            return PlaysFragment().apply {
-                arguments = bundleOf(KEY_EMPTY_STRING_RES_ID to R.string.empty_plays)
-            }
-        }
-
-        fun newInstanceForGame(
-            gameId: Int,
-            gameName: String,
-            heroImageUrl: String,
-            arePlayersCustomSorted: Boolean,
-            @ColorInt iconColor: Int
-        ): PlaysFragment {
-            return PlaysFragment().apply {
-                arguments = bundleOf(
-                    KEY_EMPTY_STRING_RES_ID to R.string.empty_plays_game,
-                    KEY_SHOW_GAME_NAME to false,
-                    KEY_GAME_ID to gameId,
-                    KEY_GAME_NAME to gameName,
-                    KEY_HERO_IMAGE_URL to heroImageUrl,
-                    KEY_CUSTOM_PLAYER_SORT to arePlayersCustomSorted,
-                    KEY_ICON_COLOR to iconColor,
-                )
-            }
+            return PlaysFragment()
         }
     }
 }

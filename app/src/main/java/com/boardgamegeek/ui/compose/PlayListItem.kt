@@ -101,7 +101,7 @@ fun PlayListItem(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun PlayListItemPreview(
     @PreviewParameter(PlayPreviewParameterProvider::class) play: Play,
@@ -116,6 +116,20 @@ private fun PlayListItemPreview(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+private fun PlayListItemWithoutGameNamePreview(
+    @PreviewParameter(PlayPreviewParameterProvider::class) play: Play,
+) {
+    BggAppTheme {
+        PlayListItem(
+            play = play,
+            showGameName = false,
+            markupConverter = XmlApiMarkupConverter(LocalContext.current),
+            isSelected = false,
+        )
+    }
+}
 private class PlayPreviewParameterProvider : PreviewParameterProvider<Play> {
     override val values = sequenceOf(
         Play(

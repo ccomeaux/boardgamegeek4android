@@ -7,11 +7,9 @@ import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
-import com.boardgamegeek.model.PlayUploadResult
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.repository.PlayRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.lang.Exception
@@ -25,14 +23,9 @@ class PlaysViewModel @Inject constructor(
     private val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS, defaultValue = null)
 
     private data class PlayInfo(
-        val mode: Mode,
         val name: String = "",
         val id: Int = BggContract.INVALID_ID,
     )
-
-    enum class Mode {
-        ALL, GAME
-    }
 
     enum class FilterType {
         ALL, DIRTY, PENDING
@@ -47,10 +40,6 @@ class PlaysViewModel @Inject constructor(
     private val _errorMessage = EventLiveData()
     val errorMessage: LiveData<Event<String>>
         get() = _errorMessage
-
-    private val _loggedPlayResult = MutableLiveData<Event<PlayUploadResult>>()
-    val loggedPlayResult: LiveData<Event<PlayUploadResult>>
-        get() = _loggedPlayResult
 
     private val _isRefreshing = MutableLiveData<Boolean>()
     val isRefreshing: LiveData<Boolean>
@@ -70,11 +59,7 @@ class PlaysViewModel @Inject constructor(
 
     private val allPlays: LiveData<List<Play>> = playInfo.switchMap {
         liveData {
-            val list: Flow<List<Play>> = when (it.mode) {
-                Mode.ALL -> playRepository.loadPlaysFlow()
-                Mode.GAME -> playRepository.loadPlaysByGameFlow(it.id)
-            }
-            emitSource(list.distinctUntilChanged().asLiveData())
+            emitSource(playRepository.loadPlaysFlow().distinctUntilChanged().asLiveData())
         }
     }
 
@@ -115,11 +100,6 @@ class PlaysViewModel @Inject constructor(
     fun setAll() {
         setFilter(FilterType.ALL)
         setSort(SortType.DATE)
-        playInfo.value = PlayInfo(Mode.ALL)
-    }
-
-    fun setGame(gameId: Int) {
-        playInfo.value = PlayInfo(Mode.GAME, id = gameId)
     }
 
     fun setFilter(type: FilterType) {
@@ -135,11 +115,7 @@ class PlaysViewModel @Inject constructor(
             try {
                 if (syncPlays.value == true && _isRefreshing.value != true) {
                     _isRefreshing.postValue(true)
-                    val id = playInfo.value?.id ?: 0
-                    when (playInfo.value?.mode) {
-                        Mode.GAME -> playRepository.refreshPlaysForGame(id)
-                        else -> playRepository.refreshRecentPlays()
-                    }
+                    playRepository.refreshRecentPlays()
                 }
             } catch (e: Exception) {
                 _errorMessage.postMessage(e)
@@ -162,20 +138,6 @@ class PlaysViewModel @Inject constructor(
                 _errorMessage.postMessage(e)
             } finally {
                 _isRefreshing.postValue(false)
-            }
-        }
-    }
-
-    fun logQuickPlay(gameId: Int, gameName: String) {
-        viewModelScope.launch {
-            val result = playRepository.logQuickPlay(gameId, gameName)
-            if (result.isFailure)
-                result.exceptionOrNull()?.let { _errorMessage.setMessage(it) }
-            else {
-                result.getOrNull()?.let {
-                    if (it.play.playId != BggContract.INVALID_ID)
-                        _loggedPlayResult.value = Event(it)
-                }
             }
         }
     }

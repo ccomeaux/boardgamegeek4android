@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/swipeRefreshLayout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
@@ -28,8 +27,7 @@
 				style="@style/RecyclerViewVerticalList.StickyHeader.FastScroll"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
-				app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-				tools:listitem="@layout/row_play" />
+				app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
 			<LinearLayout
 				android:id="@+id/emptyContainer"
@@ -51,20 +49,6 @@
 					android:text="@string/empty_plays"
 					android:textAppearance="@style/TextAppearance.Empty" />
 			</LinearLayout>
-
-			<com.google.android.material.floatingactionbutton.FloatingActionButton
-				android:id="@+id/fabView"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="bottom|right"
-				android:layout_margin="@dimen/padding_fab"
-				android:contentDescription="@string/title_log_play"
-				android:src="@drawable/ic_baseline_add_24"
-				android:visibility="gone"
-				app:elevation="@dimen/fab_elevation"
-				app:pressedTranslationZ="@dimen/fab_translation"
-				app:rippleColor="@color/medium_blue"
-				tools:visibility="visible" />
 		</androidx.coordinatorlayout.widget.CoordinatorLayout>
 	</FrameLayout>
 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -911,6 +911,10 @@
 		<item quantity="one"><b>%,d</b> play</item>
 		<item quantity="other"><b>%,d</b> plays</item>
 	</plurals>
+	<plurals name="plays_updated_suffix">
+		<item quantity="one"><b>%,d</b> play updated %s</item>
+		<item quantity="other"><b>%,d</b> plays updated %s</item>
+	</plurals>
 	<plurals name="games_suffix">
 		<item quantity="one"><b>%,d</b> game</item>
 		<item quantity="other"><b>%,d</b> games</item>
