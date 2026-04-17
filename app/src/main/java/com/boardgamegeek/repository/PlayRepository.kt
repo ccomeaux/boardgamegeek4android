@@ -378,7 +378,7 @@ class PlayRepository(
                 if (result.isSuccess) {
                     val playsPage = result.getOrNull()?.plays.mapToModel(timestamp)
                     saveFromSync(playsPage, timestamp)
-                    Timber.i("Synced plays for %s (page %,d)", timeInMillis.asDateForApi(), page - 1)
+                    Timber.i("Synced plays for %s (page %,d)", timeInMillis.formatDateTime(context), page - 1)
                 } else return@withContext result.exceptionOrNull()?.localizedMessage ?: "Error"
             } while (result.getOrNull()?.hasMorePages() == true)
 

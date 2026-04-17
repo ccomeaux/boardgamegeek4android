@@ -621,11 +621,6 @@
 		<item quantity="few">%s rozgrywki</item>
 		<item quantity="other">%s rozgrywek</item>
 	</plurals>
-	<plurals name="msg_plays_selected" tools:ignore="MissingQuantity">
-		<item quantity="one">%s rozgrywka</item>
-		<item quantity="few">%s rozgrywki</item>
-		<item quantity="other">%s rozgrywek</item>
-	</plurals>
 	<plurals name="msg_games_selected" tools:ignore="MissingQuantity">
 		<item quantity="one">%s gra</item>
 		<item quantity="few">%s gry</item>

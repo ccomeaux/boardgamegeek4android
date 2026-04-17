@@ -837,7 +837,9 @@
 	<string name="posted">Posted</string>
 	<string name="edited">Edited</string>
 	<string name="count_by_sort"><b>%,d</b> sorted by %s</string>
+	<string name="play_count_by_sort">%1$,d %3$s sorted by %2$s</string>
 	<string name="whitmore_score_prefix">Whitmore score of %s</string>
+	<string name="selected_suffix">%,d selected</string>
 
 	<plurals name="msg_colors_selected">
 		<item quantity="one">%s color</item>
@@ -848,10 +850,6 @@
 		<item quantity="other">Deleted %s colors</item>
 	</plurals>
 	<plurals name="plays">
-		<item quantity="one">%s play</item>
-		<item quantity="other">%s plays</item>
-	</plurals>
-	<plurals name="msg_plays_selected">
 		<item quantity="one">%s play</item>
 		<item quantity="other">%s plays</item>
 	</plurals>

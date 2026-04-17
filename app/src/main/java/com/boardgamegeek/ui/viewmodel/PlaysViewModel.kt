@@ -1,18 +1,25 @@
 package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
+import android.text.format.DateUtils
 import androidx.lifecycle.*
-import com.boardgamegeek.model.Play
+import com.boardgamegeek.BggApplication
+import com.boardgamegeek.R
 import com.boardgamegeek.extensions.PREFERENCES_KEY_SYNC_PLAYS
+import com.boardgamegeek.extensions.formatDateTime
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
 import com.boardgamegeek.livedata.LiveSharedPreference
-import com.boardgamegeek.provider.BggContract
+import com.boardgamegeek.model.Play
 import com.boardgamegeek.repository.PlayRepository
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.logEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import java.lang.Exception
+import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -20,12 +27,9 @@ class PlaysViewModel @Inject constructor(
     application: Application,
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
-    private val syncPlays: LiveData<Boolean?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS, defaultValue = null)
+    private val firebaseAnalytics = FirebaseAnalytics.getInstance(getApplication())
 
-    private data class PlayInfo(
-        val name: String = "",
-        val id: Int = BggContract.INVALID_ID,
-    )
+    val syncPlays: LiveData<Boolean> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_SYNC_PLAYS, defaultValue = false)
 
     enum class FilterType {
         ALL, DIRTY, PENDING
@@ -34,8 +38,6 @@ class PlaysViewModel @Inject constructor(
     enum class SortType {
         DATE, LOCATION, GAME, LENGTH
     }
-
-    private val playInfo = MutableLiveData<PlayInfo>()
 
     private val _errorMessage = EventLiveData()
     val errorMessage: LiveData<Event<String>>
@@ -46,8 +48,6 @@ class PlaysViewModel @Inject constructor(
         get() = _isRefreshing
 
     private val _plays = MediatorLiveData<List<Play>>()
-    val plays: LiveData<List<Play>>
-        get() = _plays
 
     private val _filterType = MutableLiveData<FilterType>()
     val filterType: LiveData<FilterType>
@@ -57,11 +57,7 @@ class PlaysViewModel @Inject constructor(
     val sortType: LiveData<SortType>
         get() = _sortType
 
-    private val allPlays: LiveData<List<Play>> = playInfo.switchMap {
-        liveData {
-            emitSource(playRepository.loadPlaysFlow().distinctUntilChanged().asLiveData())
-        }
-    }
+    private val allPlays: LiveData<List<Play>> = playRepository.loadPlaysFlow().distinctUntilChanged().asLiveData()
 
     init {
         _plays.addSource(allPlays) { list ->
@@ -72,6 +68,44 @@ class PlaysViewModel @Inject constructor(
         }
         _plays.addSource(filterType) {
             filterAndSortPlays(allPlays.value, sortType.value, it)
+        }
+        setFilter(FilterType.ALL)
+        setSort(SortType.DATE)
+    }
+
+    companion object {
+        private const val DEFAULT_HEADER = "-"
+    }
+
+    val dateFormat = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
+    val plays = _plays.map { list ->
+        list.groupBy { play ->
+            when (sortType.value) {
+                SortType.DATE -> {
+                    if (play.dateInMillis == Play.UNKNOWN_DATE)
+                        DEFAULT_HEADER
+                    else
+                        dateFormat.format(play.dateInMillis)!!
+                }
+                SortType.LOCATION -> {
+                    play.location.ifBlank { DEFAULT_HEADER }
+                }
+                SortType.GAME -> {
+                    play.gameName.ifBlank { DEFAULT_HEADER }
+                }
+                SortType.LENGTH -> {
+                    val minutes = play.length
+                    when {
+                        minutes == 0 -> getApplication<BggApplication>().getString(R.string.no_length)
+                        minutes >= 120 -> "${(minutes / 60)}+ ${getApplication<BggApplication>().getString(R.string.hours_abbr)}"
+                        minutes >= 60 -> "${(minutes / 10 * 10)}+ ${getApplication<BggApplication>().getString(R.string.minutes_abbr)}"
+                        minutes >= 30 -> "${(minutes / 5 * 5)}+ ${getApplication<BggApplication>().getString(R.string.minutes_abbr)}"
+                        else -> "$minutes ${getApplication<BggApplication>().getString(R.string.minutes_abbr)}"
+                    }
+                }
+                null -> DEFAULT_HEADER
+            }
+
         }
     }
 
@@ -97,16 +131,19 @@ class PlaysViewModel @Inject constructor(
         _plays.postValue(sortedList)
     }
 
-    fun setAll() {
-        setFilter(FilterType.ALL)
-        setSort(SortType.DATE)
-    }
-
     fun setFilter(type: FilterType) {
+        firebaseAnalytics.logEvent("Filter") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "Plays")
+            bundle.putString("FilterBy", type.toString())
+        }
         if (_filterType.value != type) _filterType.value = type
     }
 
     fun setSort(type: SortType) {
+        firebaseAnalytics.logEvent("Sort") {
+            param(FirebaseAnalytics.Param.CONTENT_TYPE, "Plays")
+            param("SortBy", type.toString())
+        }
         if (sortType.value != type) _sortType.value = type
     }
 
@@ -130,6 +167,14 @@ class PlaysViewModel @Inject constructor(
             try {
                 if (syncPlays.value == true && _isRefreshing.value != true) {
                     _isRefreshing.postValue(true)
+                    Timber.w(
+                        "CPC refreshing ${
+                            timeInMillis.formatDateTime(
+                                getApplication(),
+                                flags = DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME
+                            )
+                        }"
+                    )
                     playRepository.refreshPlaysForDate(timeInMillis)?.let {
                         _errorMessage.postMessage(it)
                     }
@@ -142,23 +187,23 @@ class PlaysViewModel @Inject constructor(
         }
     }
 
-    fun send(plays: List<Play>) {
+    fun send(playIds: List<Long>) {
         viewModelScope.launch {
             val idsToSend = mutableListOf<Long>()
-            plays.forEach {
-                if (playRepository.markAsUpdated(it.internalId))
-                    idsToSend += it.internalId
+            playIds.forEach {
+                if (playRepository.markAsUpdated(it))
+                    idsToSend += it
             }
             playRepository.enqueueUploadRequest(idsToSend)
         }
     }
 
-    fun delete(plays: List<Play>) {
+    fun delete(playIds: List<Long>) {
         viewModelScope.launch {
             val idsDeleted = mutableListOf<Long>()
-            plays.forEach {
-                if (playRepository.markAsDeleted(it.internalId))
-                    idsDeleted += it.internalId
+            playIds.forEach {
+                if (playRepository.markAsDeleted(it))
+                    idsDeleted += it
             }
             playRepository.enqueueUploadRequest(idsDeleted)
         }

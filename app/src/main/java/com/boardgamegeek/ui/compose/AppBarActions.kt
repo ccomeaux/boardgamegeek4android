@@ -29,11 +29,61 @@ fun SubtitleWithIcon(text: String, painter: Painter) {
 }
 
 @Composable
+fun MenuAppBarAction(onMenuClick: () -> Unit) {
+    IconButton(onClick = { onMenuClick() }) {
+        Icon(
+            painterResource(R.drawable.menu_24px),
+            contentDescription = stringResource(R.string.navigation_drawer)
+        )
+    }
+}
+
+@Composable
 fun UpAppBarAction(onUpClick: () -> Unit) {
     IconButton(onClick = { onUpClick() }) {
         Icon(
             painterResource(R.drawable.arrow_back_24px),
             contentDescription = stringResource(R.string.up)
+        )
+    }
+}
+
+@Composable
+fun CloseAppBarAction(onClose: () -> Unit) {
+    IconButton(onClick = { onClose() }) {
+        Icon(
+            painterResource(R.drawable.close_24px),
+            contentDescription = stringResource(R.string.close)
+        )
+    }
+}
+
+@Composable
+fun FilterAppBarAction(onClick: () -> Unit) {
+    IconButton(onClick) {
+        Icon(
+            painterResource(R.drawable.filter_list_24px),
+            contentDescription = stringResource(R.string.menu_filter),
+        )
+    }
+}
+
+@Composable
+fun SortAppBarAction(onClick: () -> Unit) {
+    IconButton(onClick) {
+        Icon(
+            painterResource(R.drawable.sort_24px),
+            contentDescription = stringResource(R.string.menu_sort),
+        )
+    }
+}
+
+@Composable
+fun OverflowAppBarAction(onClick: () -> Unit) {
+    IconButton(onClick) {
+        Icon(
+            painterResource(R.drawable.overflow_menu_24px),
+            contentDescription = stringResource(R.string.more),
         )
     }
 }
