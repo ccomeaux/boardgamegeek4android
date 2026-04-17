@@ -149,11 +149,7 @@ private fun BuddyCollectionTopBar(
         subtitle = { Text(stringResource(R.string.title_collection) + " - $statusDescription") },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = { onUpClick() }) {
-                Icon(painterResource(R.drawable.arrow_back_24px), contentDescription = stringResource(R.string.up))
-            }
-        },
+        navigationIcon = { UpAppBarAction { onUpClick() } },
         actions = {
             var expandedMenu by remember { mutableStateOf(false) }
             IconButton(onClick = { expandedMenu = true }) {

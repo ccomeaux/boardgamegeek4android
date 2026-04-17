@@ -92,7 +92,7 @@ class GeekListActivity : BaseActivity() {
                         topBar = {
                             GeekListTopAppBar(
                                 geekList.value.data?.title.orEmpty().ifEmpty { geekListTitle },
-                                onBack = { onBackPressedDispatcher.onBackPressed() },
+                                onUpClick = { onBackPressedDispatcher.onBackPressed() },
                                 onOpenInBrowser = { linkToBgg("geeklist", geekListId) },
                                 onShare = { shareGeekList() },
                                 scrollBehavior = scrollBehavior,
@@ -238,7 +238,7 @@ class GeekListActivity : BaseActivity() {
 @Composable
 private fun GeekListTopAppBar(
     geekListTitle: String,
-    onBack: () -> Unit,
+    onUpClick: () -> Unit,
     onOpenInBrowser: () -> Unit,
     onShare: () -> Unit,
     modifier: Modifier = Modifier,
@@ -248,14 +248,7 @@ private fun GeekListTopAppBar(
         title = { Text(geekListTitle.ifEmpty { stringResource(R.string.title_geeklist) }) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = { onBack() }) {
-                Icon(
-                    painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.up)
-                )
-            }
-        },
+        navigationIcon = { UpAppBarAction { onUpClick() } },
         actions = {
             IconButton(onClick = { onOpenInBrowser() }) {
                 Icon(

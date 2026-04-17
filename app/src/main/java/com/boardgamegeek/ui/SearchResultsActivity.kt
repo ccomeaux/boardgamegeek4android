@@ -221,12 +221,8 @@ private fun SearchTopBar(
         },
         modifier = modifier,
         scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState()),
-        navigationIcon = {
-            IconButton(onClick = { onMenuClick() }) {
-                Icon(painterResource(R.drawable.menu_24px), contentDescription = stringResource(R.string.navigation_drawer))
-            }
-        }
-    )
+        navigationIcon = { MenuAppBarAction { onMenuClick() } },
+   )
 }
 
 @Composable

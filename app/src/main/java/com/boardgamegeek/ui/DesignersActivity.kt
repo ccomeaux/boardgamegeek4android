@@ -121,16 +121,7 @@ private fun DesignersTopBar(
             }
         },
         modifier = modifier,
-        navigationIcon = {
-            IconButton(
-                onClick = { onUpClick() }
-            ) {
-                Icon(
-                    painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.up),
-                )
-            }
-        },
+        navigationIcon = { UpAppBarAction { onUpClick() } },
         actions = {
             IconButton(onClick = { onRefreshClick() }) {
                 Icon(

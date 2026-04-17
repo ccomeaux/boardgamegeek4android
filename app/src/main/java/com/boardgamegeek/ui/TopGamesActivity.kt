@@ -146,14 +146,7 @@ class TopGamesActivity : BaseActivity() {
                                 TopAppBar(
                                     title = { Text(stringResource(R.string.title_top_games)) },
                                     scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState()),
-                                    navigationIcon = {
-                                        IconButton(onClick = { coroutineScope.launch { drawerState.open() } }) {
-                                            Icon(
-                                                painterResource(R.drawable.menu_24px),
-                                                contentDescription = stringResource(R.string.navigation_drawer)
-                                            )
-                                        }
-                                    }
+                                    navigationIcon = { MenuAppBarAction { coroutineScope.launch { drawerState.open() } } },
                                 )
                             }
                         },

@@ -127,14 +127,7 @@ private fun ForumsTopAppBar(
         title = { Text(stringResource(R.string.title_forums)) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = { onMenuClick() }) {
-                Icon(
-                    painterResource(R.drawable.menu_24px),
-                    contentDescription = stringResource(R.string.navigation_drawer)
-                )
-            }
-        }
+        navigationIcon = { MenuAppBarAction { onMenuClick() } },
     )
 }
 

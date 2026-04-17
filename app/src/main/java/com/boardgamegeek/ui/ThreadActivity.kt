@@ -345,22 +345,10 @@ private fun ThreadTopAppBar(
         },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = { onUpClick() }) {
-                Icon(
-                    painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.up)
-                )
-            }
-        },
+        navigationIcon = { UpAppBarAction { onUpClick() } },
         actions = {
             var showMenu by remember { mutableStateOf(false) }
-            IconButton(onClick = { showMenu = !showMenu }) {
-                Icon(
-                    painterResource(R.drawable.overflow_menu_24px),
-                    contentDescription = stringResource(R.string.more),
-                )
-            }
+            OverflowAppBarAction { showMenu = !showMenu }
             DropdownMenu(
                 expanded = showMenu,
                 onDismissRequest = { showMenu = false }

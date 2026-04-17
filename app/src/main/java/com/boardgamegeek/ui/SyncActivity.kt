@@ -41,6 +41,7 @@ import com.boardgamegeek.model.Game
 import com.boardgamegeek.ui.compose.Drawer
 import com.boardgamegeek.ui.compose.DrawerItem
 import com.boardgamegeek.ui.compose.EmptyFullSizeScrollableContent
+import com.boardgamegeek.ui.compose.MenuAppBarAction
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.SyncViewModel
 import com.boardgamegeek.ui.viewmodel.SyncViewModel.*
@@ -193,11 +194,7 @@ private fun SyncTopAppBar(
         title = { Text(stringResource(R.string.title_sync)) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = { onMenuClick() }) {
-                Icon(painterResource(R.drawable.menu_24px), stringResource(R.string.navigation_drawer))
-            }
-        },
+        navigationIcon = { MenuAppBarAction { onMenuClick() } },
     )
 }
 

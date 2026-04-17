@@ -136,22 +136,9 @@ private fun BuddiesTopBar(
         },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = { onMenuClick() }) {
-                Icon(
-                    painterResource(R.drawable.menu_24px),
-                    contentDescription = stringResource(R.string.navigation_drawer)
-                )
-            }
-        },
+        navigationIcon = { MenuAppBarAction { onMenuClick() } },
         actions = {
-            IconButton(onClick = { expandedMenu = true }) {
-                Icon(
-                    painterResource(R.drawable.sort_24px),
-                    contentDescription = stringResource(R.string.menu_sort),
-                    tint = MaterialTheme.colorScheme.primary,
-                )
-            }
+            SortAppBarAction { expandedMenu = true }
             DropdownMenu(
                 expanded = expandedMenu,
                 onDismissRequest = { expandedMenu = false }

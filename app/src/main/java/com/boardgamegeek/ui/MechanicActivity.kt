@@ -22,6 +22,7 @@ import com.boardgamegeek.model.CollectionItem
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.compose.SimpleCollectionItemList
 import com.boardgamegeek.ui.compose.SubtitleWithIcon
+import com.boardgamegeek.ui.compose.UpAppBarAction
 import com.boardgamegeek.ui.theme.BggAppTheme
 import com.boardgamegeek.ui.viewmodel.MechanicViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -114,14 +115,7 @@ private fun MechanicTopBar(
         },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = onUpClick) {
-                Icon(
-                    painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.up),
-                )
-            }
-        },
+        navigationIcon = { UpAppBarAction { onUpClick() } },
         actions = {
             IconButton(onClick = onViewInBrowserClick) {
                 Icon(

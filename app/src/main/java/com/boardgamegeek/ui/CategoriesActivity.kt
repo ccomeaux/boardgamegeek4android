@@ -101,14 +101,7 @@ private fun CategoriesTopBar(
         },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = { onUpClick() }) {
-                Icon(
-                    painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.up)
-                )
-            }
-        },
+        navigationIcon = { UpAppBarAction { onUpClick() } },
         actions = {
             IconButton(onClick = { expandedMenu = true }) {
                 Icon(

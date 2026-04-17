@@ -134,11 +134,7 @@ private fun PlaysSummaryTopBar(
     TopAppBar(
         title = { Text(text = stringResource(id = R.string.title_plays)) },
         modifier = modifier,
-        navigationIcon = {
-            IconButton(onClick = { onMenuClick() }) {
-                Icon(painterResource(R.drawable.menu_24px), contentDescription = stringResource(R.string.navigation_drawer))
-            }
-        },
+        navigationIcon = { MenuAppBarAction { onMenuClick() } },
         actions = {
             IconButton(onClick = {
                 openAlertDialog = true
@@ -290,7 +286,7 @@ private fun PlaysSegment(
     onMoreClick: () -> Unit = {},
     onItemClick: (Play) -> Unit = {},
 ) {
-    AnimatedVisibility(plays != null && plays.isNotEmpty()) {
+    AnimatedVisibility(!plays.isNullOrEmpty()) {
         Column {
             SegmentHeader(
                 titleResId = R.string.title_plays,
@@ -338,7 +334,7 @@ private fun PlayersSegment(
     onMoreClick: () -> Unit = {},
     onItemClick: (Player) -> Unit = {},
 ) {
-    AnimatedVisibility(players != null && players.isNotEmpty()) {
+    AnimatedVisibility(!players.isNullOrEmpty()) {
         Column {
             SegmentHeader(
                 titleResId = R.string.title_players,
@@ -371,7 +367,7 @@ private fun LocationsSegment(
     onMoreClick: () -> Unit = {},
     onItemClick: (Location) -> Unit = {},
 ) {
-    AnimatedVisibility(locations != null && locations.isNotEmpty()) {
+    AnimatedVisibility(!locations.isNullOrEmpty()) {
         Column {
             SegmentHeader(
                 titleResId = R.string.title_locations,
@@ -410,7 +406,7 @@ private fun ColorsSegment(colors: List<PlayerColor>?, username: String, modifier
                 }
             }
         )
-        AnimatedVisibility(colors != null && !colors.isEmpty()) {
+        AnimatedVisibility(!colors.isNullOrEmpty()) {
             ElevatedCard {
                 Row(
                     modifier = modifier
@@ -486,7 +482,7 @@ private fun SegmentHeader(
                 .widthIn(72.dp),
             contentPadding = ButtonDefaults.contentPaddingFor(size),
         ) {
-            val text = if (count > 0) "$count ${stringResource(moreResId)}" else stringResource(moreResId)
+            val text = if (count > 0) "${count.toFormattedString()} ${stringResource(moreResId)}" else stringResource(moreResId)
             Text(text, style = ButtonDefaults.textStyleFor(size))
         }
     }

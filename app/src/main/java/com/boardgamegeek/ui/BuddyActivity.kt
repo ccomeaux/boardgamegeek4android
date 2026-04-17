@@ -260,14 +260,7 @@ private fun BuddyTopBar(
             Text(text = username.ifBlank { playerName }.ifBlank { stringResource(id = R.string.title_buddy) })
         },
         modifier = modifier,
-        navigationIcon = {
-            IconButton(onClick = { onUpClick() }) {
-                Icon(
-                    painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.up)
-                )
-            }
-        },
+        navigationIcon = { UpAppBarAction { onUpClick() } },
         actions = {
             if (username.isBlank()) {
                 IconButton(

@@ -165,14 +165,7 @@ private fun CommentsTopBar(
         subtitle = { (CommentsSort.entries.find { it.type == sortBy }?.labelResId)?.let { Text(stringResource(it)) } },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            IconButton(onClick = { onUpClick() }) {
-                Icon(
-                    painterResource(R.drawable.arrow_back_24px),
-                    contentDescription = stringResource(R.string.up)
-                )
-            }
-        },
+        navigationIcon = { UpAppBarAction { onUpClick() } },
         actions = {
             IconButton(onClick = { expandedMenu = true }) {
                 Icon(

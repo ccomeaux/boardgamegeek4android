@@ -651,18 +651,11 @@ private fun GameTopBar(
         title = { Text(text = gameName.ifBlank { stringResource(R.string.title_game) }) },
         modifier = modifier,
         scrollBehavior = scrollBehavior,
-        navigationIcon = {
-            UpAppBarAction(onUpClick)
-        },
+        navigationIcon = { UpAppBarAction(onUpClick) },
         actions = {
             ViewAppBarAction(onOpenInBrowserClick)
             var isOverflowMenuExpanded by remember { mutableStateOf(false) }
-            IconButton(onClick = { isOverflowMenuExpanded = !isOverflowMenuExpanded }) {
-                Icon(
-                    painterResource(R.drawable.overflow_menu_24px),
-                    contentDescription = stringResource(R.string.more),
-                )
-            }
+            OverflowAppBarAction { isOverflowMenuExpanded = !isOverflowMenuExpanded }
             DropdownMenu(
                 expanded = isOverflowMenuExpanded,
                 onDismissRequest = { isOverflowMenuExpanded = false }
