@@ -41,9 +41,9 @@ data class CollectionItem(
     val lastViewedDate: Long = 0L,
     val numberOfPlays: Int = 0,
     val pricePaidCurrency: String = "",
-    val pricePaid: Double = 0.0,
+    val pricePaid: Double? = null,
     val currentValueCurrency: String = "",
-    val currentValue: Double = 0.0,
+    val currentValue: Double? = null,
     val quantity: Int = 1,
     val acquisitionDate: Long = 0L,
     val acquiredFrom: String = "",
@@ -120,8 +120,8 @@ data class CollectionItem(
         return quantity > 1 ||
                 acquisitionDate > 0L ||
                 acquiredFrom.isNotBlank() ||
-                pricePaid > 0.0 ||
-                currentValue > 0.0 ||
+                pricePaid != null ||
+                currentValue != null ||
                 inventoryLocation.isNotBlank()
     }
 
@@ -206,11 +206,11 @@ data class CollectionItem(
         if (acquiredFrom.isNotBlank()) {
             sb.append(" ").append(context.getString(R.string.from)).append(" ").appendBold(acquiredFrom)
         }
-        if (pricePaid > 0.0) {
+        if (pricePaid != null) {
             sb.append(" ").append(context.getString(R.string.for_)).append(" ")
                 .appendBold(pricePaid.asMoney(pricePaidCurrency))
         }
-        if (currentValue > 0.0) {
+        if (currentValue != null) {
             sb.append(" (").append(context.getString(R.string.currently_worth)).append(" ")
                 .appendBold(currentValue.asMoney(currentValueCurrency)).append(")")
         }

@@ -18,6 +18,7 @@ class PricePaidSorter(context: Context) : MoneySorter(context) {
         @StringRes
         get() = R.string.collection_sort_price_paid
 
-    override fun amount(item: CollectionItem) = item.pricePaid
+    override fun amount(item: CollectionItem) = item.pricePaid ?: 0.0
+
     override fun currency(item: CollectionItem) = item.pricePaidCurrency
 }

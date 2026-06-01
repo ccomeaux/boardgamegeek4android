@@ -18,7 +18,7 @@ class CurrentValueSorter(context: Context) : MoneySorter(context) {
         @StringRes
         get() = R.string.collection_sort_current_value
 
-    override fun amount(item: CollectionItem) = item.currentValue
+    override fun amount(item: CollectionItem) = item.currentValue ?: 0.0
 
     override fun currency(item: CollectionItem) = item.currentValueCurrency
 }

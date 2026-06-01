@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import androidx.core.os.bundleOf
 import androidx.core.view.MenuProvider
 import androidx.core.view.children
 import androidx.core.view.isVisible
@@ -361,10 +360,10 @@ class GameCollectionItemFragment : Fragment() {
 
         fun newInstance(gameId: Int, collectionId: Int): GameCollectionItemFragment {
             return GameCollectionItemFragment().apply {
-                arguments = bundleOf(
-                    KEY_GAME_ID to gameId,
-                    KEY_COLLECTION_ID to collectionId,
-                )
+                arguments = Bundle().apply {
+                    putInt(KEY_GAME_ID, gameId)
+                    putInt(KEY_COLLECTION_ID, collectionId)
+                }
             }
         }
 
@@ -380,14 +379,14 @@ class GameCollectionItemFragment : Fragment() {
             return item.quantity > 1 ||
                     item.acquisitionDate > 0L ||
                     item.acquiredFrom.isNotEmpty() ||
-                    item.pricePaid > 0.0 ||
-                    item.currentValue > 0.0 ||
+                    item.pricePaid != null ||
+                    item.currentValue != null ||
                     item.inventoryLocation.isNotEmpty()
         }
 
         private fun setVisibilityByChild(view: ViewGroup, child: View): Boolean {
             if (child is ViewGroup) {
-                val tag = child.getTag() as? String?
+                val tag = child.tag as? String?
                 if (tag != null && tag == "container") {
                     child.children.forEach { grandchild ->
                         if (setVisibilityByChild(view, grandchild)) return true

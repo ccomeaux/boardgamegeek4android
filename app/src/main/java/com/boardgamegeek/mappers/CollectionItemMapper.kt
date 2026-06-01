@@ -231,8 +231,8 @@ fun CollectionItem.mapToFormBodyForRatingUpdate(): FormBody {
 
 @Suppress("SpellCheckingInspection")
 fun CollectionItem.mapToFormBodyForPrivateInfoUpdate(): FormBody {
-    fun Double.formatCurrency(currencyFormat: DecimalFormat = DecimalFormat("0.00")): String {
-        return if (this == 0.0) "" else currencyFormat.format(this)
+    fun Double?.formatCurrency(currencyFormat: DecimalFormat = DecimalFormat("0.00")): String {
+        return if (this == null || this == 0.0) "" else currencyFormat.format(this)
     }
 
     return mapToFormBodyBuilder()
