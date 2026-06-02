@@ -779,8 +779,7 @@ class PlayRepository(
                     .map { it.mapToModel() }
                     .filter {
                         it.own && (
-                                it.subtype == Game.Subtype.Unknown ||
-                                        it.subtype == Game.Subtype.BoardGame ||
+                                it.subtype == Game.Subtype.BoardGame ||
                                         (it.subtype == Game.Subtype.BoardGameAccessory && includeAccessories) ||
                                         (it.subtype == Game.Subtype.BoardGameExpansion && includeExpansions)
                                 )
