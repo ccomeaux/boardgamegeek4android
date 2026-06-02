@@ -36,6 +36,7 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.boardgamegeek.R
 import com.boardgamegeek.extensions.formatDateTime
+import com.boardgamegeek.mappers.mapToResId
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.model.Game
 import com.boardgamegeek.ui.compose.Drawer
@@ -303,7 +304,7 @@ private fun SyncCollectionScreen(
                         CollectionSyncProgressSubtype.Accessory -> R.string.accessories
                     }
                 )
-                val statusDescription = stringResource(getStatusDescriptionResId(it.status))
+                val statusDescription = stringResource(it.status.mapToResId())
                 ProgressText(
                     when (it.step) {
                         CollectionSyncProgressStep.CompleteCollection -> {
@@ -407,7 +408,7 @@ private fun CollectionStatusRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = stringResource(id = getStatusDescriptionResId(status)),
+                text = stringResource(status.mapToResId()),
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyLarge,
@@ -451,24 +452,6 @@ private fun CollectionStatusRow(
             }
         }
     }
-}
-
-@Composable
-private fun getStatusDescriptionResId(status: CollectionStatus): Int = when (status) {
-    CollectionStatus.Own -> R.string.collection_status_own
-    CollectionStatus.PreviouslyOwned -> R.string.collection_status_prev_owned
-    CollectionStatus.Preordered -> R.string.collection_status_preordered
-    CollectionStatus.ForTrade -> R.string.collection_status_for_trade
-    CollectionStatus.WantInTrade -> R.string.collection_status_want_in_trade
-    CollectionStatus.WantToBuy -> R.string.collection_status_want_to_buy
-    CollectionStatus.WantToPlay -> R.string.collection_status_want_to_play
-    CollectionStatus.Wishlist -> R.string.collection_status_wishlist
-    CollectionStatus.Played -> R.string.collection_status_played
-    CollectionStatus.Rated -> R.string.collection_status_rated
-    CollectionStatus.Commented -> R.string.collection_status_commented
-    CollectionStatus.HasParts -> R.string.collection_status_has_parts
-    CollectionStatus.WantParts -> R.string.collection_status_want_parts
-    CollectionStatus.Unknown -> R.string.unknown
 }
 
 @Preview(showBackground = true)

@@ -1,5 +1,7 @@
 package com.boardgamegeek.mappers
 
+import androidx.annotation.StringRes
+import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.CollectionStatus
 import com.boardgamegeek.provider.BggContract
@@ -48,4 +50,22 @@ fun CollectionStatus.mapToDatabase() = when (this) {
     CollectionStatus.Preordered -> BggContract.Collection.Columns.STATUS_PREORDERED
     CollectionStatus.Wishlist -> BggContract.Collection.Columns.STATUS_WISHLIST
     else -> null
+}
+
+@StringRes
+fun CollectionStatus.mapToResId(): Int = when (this) {
+    CollectionStatus.Own -> R.string.collection_status_own
+    CollectionStatus.PreviouslyOwned -> R.string.collection_status_prev_owned
+    CollectionStatus.ForTrade -> R.string.collection_status_for_trade
+    CollectionStatus.WantToPlay -> R.string.collection_status_want_to_play
+    CollectionStatus.WantInTrade -> R.string.collection_status_want_in_trade
+    CollectionStatus.WantToBuy -> R.string.collection_status_want_to_buy
+    CollectionStatus.Preordered -> R.string.collection_status_preordered
+    CollectionStatus.Wishlist -> R.string.collection_status_wishlist
+    CollectionStatus.Played -> R.string.collection_status_played
+    CollectionStatus.Rated -> R.string.collection_status_rated
+    CollectionStatus.Commented -> R.string.collection_status_commented
+    CollectionStatus.HasParts -> R.string.collection_status_has_parts
+    CollectionStatus.WantParts -> R.string.collection_status_want_parts
+    CollectionStatus.Unknown -> R.string.unknown
 }
