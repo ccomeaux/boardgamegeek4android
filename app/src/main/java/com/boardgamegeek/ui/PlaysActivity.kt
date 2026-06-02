@@ -194,12 +194,12 @@ class PlaysActivity : BaseActivity() {
                                             }
                                             showDialog = null
                                         }) {
-                                            Text("Refresh")
+                                            Text(stringResource(R.string.menu_refresh))
                                         }
                                     },
                                     dismissButton = {
                                         TextButton(onClick = { showDialog = null }) {
-                                            Text("Cancel")
+                                            Text(stringResource(R.string.cancel))
                                         }
                                     }
                                 ) {
