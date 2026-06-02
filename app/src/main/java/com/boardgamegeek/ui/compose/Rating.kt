@@ -30,7 +30,19 @@ object RatingDefaults {
     fun textStyleLarge() = MaterialTheme.typography.titleMedium
     @Composable
     fun textStyleSmall() = MaterialTheme.typography.labelLarge
+}
 
+@Composable
+fun SmallRating(
+    rating: Double,
+    modifier: Modifier = Modifier,
+) {
+    Rating(
+        rating = rating,
+        modifier = modifier,
+        style = RatingDefaults.textStyleSmall(),
+        width = RatingDefaults.widthSmall,
+    )
 }
 
 @Composable
