@@ -16,14 +16,16 @@ import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.boardgamegeek.R
 import com.boardgamegeek.databinding.FragmentGamePlayStatsBinding
 import com.boardgamegeek.extensions.*
-import com.boardgamegeek.model.*
+import com.boardgamegeek.model.CollectionItem
+import com.boardgamegeek.model.Game
+import com.boardgamegeek.model.Play
+import com.boardgamegeek.model.PlayPlayer
 import com.boardgamegeek.provider.BggContract
 import com.boardgamegeek.ui.viewmodel.GamePlayStatsViewModel
 import com.boardgamegeek.ui.widget.PlayStatRow
@@ -38,6 +40,7 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlin.math.absoluteValue
 import kotlin.math.ln
 import kotlin.math.sqrt
 import kotlin.time.Duration.Companion.milliseconds
@@ -128,7 +131,7 @@ class GamePlayStatsFragment : Fragment() {
         }
 
         viewModel.collectionItems.observe(viewLifecycleOwner) {
-            it?.first()?.let { item: CollectionItem ->
+            it?.firstOrNull()?.let { item: CollectionItem ->
                 playCountColors = intArrayOf(
                     item.winsColor.colorOrElse(R.color.orange),
                     item.winnablePlaysColor.colorOrElse(R.color.dark_blue),
@@ -136,7 +139,7 @@ class GamePlayStatsFragment : Fragment() {
                 )
             }
 
-            publishedPlayingTime = it?.first()?.playingTime ?: 0
+            publishedPlayingTime = it?.firstOrNull()?.playingTime ?: 0
             personalRating = it?.filter { item -> item.rating > 0.0 }?.map { item -> item.rating }?.average() ?: Game.UNRATED
             isGameOwned = it?.any { item -> item.own } ?: false
             modifiedWhitmoreScore = it?.filter { item -> item.rating > 0.0 }?.map { item -> item.modifiedWhitmoreScore }?.average() ?: 0.0
@@ -204,8 +207,9 @@ class GamePlayStatsFragment : Fragment() {
             addPlayStat(binding.counts.playCountTable, playCountIncomplete.toString(), R.string.play_stat_play_count_incomplete)
         }
         addPlayStat(binding.counts.playCountTable, stats.getMonthsPlayed().toString(), R.string.play_stat_months_played)
-        if (stats.playsPerMonth > 0.0) {
-            addPlayStat(binding.counts.playCountTable, DOUBLE_FORMAT.format(stats.playsPerMonth), R.string.play_stat_play_rate)
+        val playsPerMonth = stats.playsPerMonth()
+        if (playsPerMonth > 0.0) {
+            addPlayStat(binding.counts.playCountTable, DOUBLE_FORMAT.format(playsPerMonth), R.string.play_stat_play_rate)
         }
 
         val username = prefs[AccountPreferences.KEY_USERNAME, ""] ?: ""
@@ -227,7 +231,7 @@ class GamePlayStatsFragment : Fragment() {
                     )
                 )
             }
-            if (playCountValues.size > 0) {
+            if (playCountValues.isNotEmpty()) {
                 val playCountDataSet = BarDataSet(playCountValues, getString(R.string.title_plays)).apply {
                     setDrawValues(false)
                     isHighlightEnabled = false
@@ -496,14 +500,20 @@ class GamePlayStatsFragment : Fragment() {
          * Calculate the number of days from the first play to the last play.
          */
         private fun calculateFlash(): Long {
-            return daysBetweenDates(sortedPlays.first().dateInMillis, sortedPlays.last().dateInMillis)
+            return if (sortedPlays.size < 2)
+                0L
+            else
+                daysBetweenDates(sortedPlays.first().dateInMillis, sortedPlays.last().dateInMillis)
         }
 
         /**
          * Calculate the number of days since the last play.
          */
         private fun calculateLag(): Long {
-            return daysBetweenDates(sortedPlays.last().dateInMillis)
+            return if (sortedPlays.isEmpty())
+                0L
+            else
+                daysBetweenDates(sortedPlays.last().dateInMillis)
         }
 
         //private fun calculateSpan(): Long {
@@ -511,7 +521,7 @@ class GamePlayStatsFragment : Fragment() {
         //}
 
         private fun daysBetweenDates(from: Long, to: Long = System.currentTimeMillis()): Long {
-            return (to - from).milliseconds.inWholeDays.coerceAtLeast(1)
+            return (to - from).absoluteValue.milliseconds.inWholeDays
         }
 
         // endregion DATE
@@ -526,21 +536,27 @@ class GamePlayStatsFragment : Fragment() {
         // region PLAYING TIME
 
         fun hoursPlayedSince(dateInMillis: Long? = null): Double {
-            val (estimatePlays, actualPlays) = getPlaysSince(dateInMillis).partition { it.length == 0 }
-            return (estimatePlays.sumOf { publishedPlayingTime * it.quantity } + actualPlays.sumOf { it.length }) / 60.0
+            val (estimatedPlays, timedPlays) = getPlaysSince(dateInMillis).partition { it.length == 0 }
+            return (estimatedPlays.sumOf { publishedPlayingTime * it.quantity } + timedPlays.sumOf { it.length }) / 60.0
         }
 
         val averagePlayTime: Int
-            get() = if (plays.any { it.length > 0 }) {
-                val playsWithLength = plays.filter { it.length > 0 }
-                playsWithLength.sumOf { it.length } / playsWithLength.sumOf { it.quantity }
-            } else 0
+            get() {
+                val timedPlays = plays.filter { it.length > 0 }
+                return if (timedPlays.isEmpty())
+                    0
+                else
+                    timedPlays.sumOf { it.length } / timedPlays.sumOf { it.quantity }
+            }
 
         val averagePlayTimePerPlayer: Int
-            get() = if (plays.any { it.length > 0 && it.playerCount > 0 }) {
-                val filteredPlays = plays.filter { it.length > 0 && it.playerCount > 0 }
-                filteredPlays.sumOf { it.length / it.playerCount } / filteredPlays.sumOf { it.quantity }
-            } else 0
+            get() {
+                val timedPlaysWithPlayers = plays.filter { it.length > 0 && it.playerCount > 0 }
+                return if (timedPlaysWithPlayers.isEmpty())
+                    0
+                else
+                    timedPlaysWithPlayers.sumOf { it.length / it.playerCount } / timedPlaysWithPlayers.sumOf { it.quantity }
+            }
 
         // endregion PLAYING TIME
 
@@ -600,18 +616,27 @@ class GamePlayStatsFragment : Fragment() {
         // region METRICS
 
         /**
-         * The number of plays per month, from the first and last plays.
+         * The average number of plays per month, from the first and last plays.
          */
-        val playsPerMonth: Double
-            get() = (((playCountSince() * 365.25) / calculateFlash()) / 12).coerceAtMost(playCountSince().toDouble())
+        fun playsPerMonth(): Double {
+            val flash = calculateFlash()
+            val playCount = playCountSince().toDouble()
+            return if (flash == 0L)
+                playCount
+            else
+                (((playCount * 365.25) / flash) / 12).coerceAtMost(playCount)
+        }
 
         fun calculateUtilization(): Double {
+            // A metric estimating what percentage of a game's value you have experienced. It assumes a game is 10 plays results in 90%, scaling logarithmically.
             return playCountSince().toDouble().cdf(lambda)
         }
 
         fun calculateFriendlessHappinessMetric(): Int {
-            if (personalRating == Game.UNRATED) return 0
-            return ((personalRating * 5) + playCountSince() + (4 * getMonthsPlayed()) + hoursPlayedSince()).toInt()
+            return if (personalRating == Game.UNRATED)
+                0
+            else
+                ((personalRating * 5) + playCountSince() + (4 * getMonthsPlayed()) + hoursPlayedSince()).toInt()
         }
 
         fun calculateHuberHappinessMetricSince(dateInMillis: Long? = null): Int {
@@ -621,20 +646,14 @@ class GamePlayStatsFragment : Fragment() {
 
         fun calculateRandyCoxNotUnhappinessMetric(): Double {
             if (personalRating == Game.UNRATED) return 0.0
-            val raw = ((calculateFlash().toDouble()) / calculateLag()) * getMonthsPlayed() * personalRating
+            val lag = calculateLag().coerceAtLeast(1)
+            val raw = ((calculateFlash().toDouble()) / lag) * getMonthsPlayed() * personalRating
             return if (raw < 1.0) 0.0 else ln(raw)
         }
 
         val playCountShortOfHIndex: Int by lazy {
             (hIndex - playCountSince()).coerceAtLeast(0)
         }
-
-        // TODO - why would we ever need this?
-//        fun getMonthsPerPlay(): Int {
-//            val days = calculateSpan()
-//            val months = (days / 365.25 * 12).toInt()
-//            return months / playCount
-//        }
 
         fun calculateHuberHeat(): Double {
             val lastYear = Calendar.getInstance().apply {
@@ -740,10 +759,10 @@ class GamePlayStatsFragment : Fragment() {
 
         fun newInstance(gameId: Int, @ColorInt headerColor: Int): GamePlayStatsFragment {
             return GamePlayStatsFragment().apply {
-                arguments = bundleOf(
-                    KEY_GAME_ID to gameId,
-                    KEY_HEADER_COLOR to headerColor,
-                )
+                arguments = Bundle().apply {
+                    putInt(KEY_GAME_ID, gameId)
+                    putInt(KEY_HEADER_COLOR, headerColor)
+                }
             }
         }
     }
