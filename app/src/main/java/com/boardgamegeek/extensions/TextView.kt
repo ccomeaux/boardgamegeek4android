@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Typeface
 import android.text.Html
 import android.text.method.LinkMovementMethod
-import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
@@ -75,12 +74,6 @@ fun TextView.setTextMaybeHtml(
 fun TextView.setTextViewBackground(@ColorInt color: Int) {
     this.setViewBackground(color)
     this.setTextColor(color.getTextColor())
-}
-
-@ColorInt
-fun View.setTextViewBackground(color: Int): Int {
-    this.setViewBackground(color)
-    return color.getTextColor()
 }
 
 fun TextView.setTextWithStyle(text: String, italic: Boolean, bold: Boolean, @ColorInt textColor: Int? = null) {

@@ -29,6 +29,7 @@ import com.boardgamegeek.R
 import com.boardgamegeek.extensions.*
 import com.boardgamegeek.model.*
 import com.boardgamegeek.ui.GameCommentsActivity
+import com.boardgamegeek.ui.compose.Rating
 import com.boardgamegeek.ui.dialog.GameAgePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameLanguagePollDialogFragment
 import com.boardgamegeek.ui.dialog.GameSuggestedPlayerCountPollDialogFragment
@@ -197,21 +198,7 @@ private fun RatingsRow(
         Modifier.clickable(onClick = onClick),
         iconColor,
     ) {
-        val color = rating.toColor(BggColors.ratingColors)
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            modifier = Modifier
-                .background(Color(color), MaterialTheme.shapes.extraSmall)
-                .border(width = 1.dp, color = Color(color.darkenColor()), shape = MaterialTheme.shapes.extraSmall)
-                .padding(horizontal = 16.dp),
-        ) {
-            Text(
-                text = rating.asBoundedRating(LocalContext.current, DecimalFormat("#0.0"), R.string.unrated),
-                maxLines = 1,
-                style = MaterialTheme.typography.titleMedium,
-                color = Color(color.getTextColor()),
-            )
-        }
+        Rating(rating)
         SecondaryRowText(
             buildAnnotatedString {
                 withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -363,6 +350,7 @@ private fun WeightRow(
         iconColor = iconColor,
     ) {
         val weightColor = averageWeight.toColor(BggColors.fiveStageColors)
+        val textColor = weightColor.getTextColor()
         Row(
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
@@ -374,7 +362,7 @@ private fun WeightRow(
                 text = averageWeight.toDescription(LocalContext.current, R.array.game_weight, R.string.unknown_weight).toString(),
                 maxLines = 1,
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(weightColor.getTextColor()),
+                color = Color(textColor),
                 modifier = Modifier.alignByBaseline(),
             )
             if (averageWeight != Game.UNWEIGHTED) {
@@ -382,7 +370,7 @@ private fun WeightRow(
                     text = averageWeight.asScore(LocalContext.current, format = DecimalFormat("0.00")),
                     maxLines = 1,
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color(weightColor.getTextColor()),
+                    color = Color(textColor),
                     modifier = Modifier
                         .padding(start = 16.dp)
                         .alignByBaseline()
@@ -407,6 +395,7 @@ private fun LanguageRow(
         iconColor,
     ) {
         val levelColor = score.toColor(BggColors.fiveStageColors)
+        val textColor = levelColor.getTextColor()
         Row(
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier
@@ -418,7 +407,7 @@ private fun LanguageRow(
                 text = score.toDescription(LocalContext.current, R.array.language_poll, R.string.unknown_language).toString(),
                 maxLines = 1,
                 style = MaterialTheme.typography.titleMedium,
-                color = Color(levelColor.getTextColor()),
+                color = Color(textColor),
                 modifier = Modifier.alignByBaseline(),
             )
             if (score != 0.0) {
@@ -426,7 +415,7 @@ private fun LanguageRow(
                     text = score.asScore(LocalContext.current, format = DecimalFormat("0.00")),
                     maxLines = 1,
                     style = MaterialTheme.typography.labelSmall,
-                    color = Color(levelColor.getTextColor()),
+                    color = Color(textColor),
                     modifier = Modifier
                         .padding(start = 16.dp)
                         .alignByBaseline()

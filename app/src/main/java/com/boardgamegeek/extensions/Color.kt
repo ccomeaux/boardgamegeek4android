@@ -16,6 +16,7 @@ fun @receiver:ColorInt Int.getTextColor(transparentColor: Int = Color.BLACK): In
     return if (this == Color.TRANSPARENT)
         transparentColor
     else if (this.isColorDark())
+        // TODO use Material colors instead. See: https://m3.material.io/styles/color/advanced/define-new-colorsz
         Color.WHITE
     else
         Color.BLACK
