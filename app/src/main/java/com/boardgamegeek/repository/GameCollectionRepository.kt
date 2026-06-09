@@ -560,7 +560,7 @@ class GameCollectionRepository(
         val entity = CollectionStatusEntity(
             internalId = internalId,
             statusOwn = status.contains(CollectionStatus.Own),
-            statusPreviouslyOwned = status.contains(CollectionStatus.Own),
+            statusPreviouslyOwned = status.contains(CollectionStatus.PreviouslyOwned),
             statusForTrade = status.contains(CollectionStatus.ForTrade),
             statusWant = status.contains(CollectionStatus.WantInTrade),
             statusWantToPlay = status.contains(CollectionStatus.WantToPlay),
