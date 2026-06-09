@@ -98,13 +98,13 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.palette:palette-ktx:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
-    implementation 'androidx.paging:paging-runtime-ktx:3.4.2'
+    implementation 'androidx.paging:paging-runtime-ktx:3.5.0'
 
     implementation "androidx.room:room-runtime:$room_version"
     ksp "androidx.room:room-compiler:$room_version"
@@ -121,13 +121,13 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$arch_lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:$arch_lifecycle_version"
 
-    implementation platform('com.google.firebase:firebase-bom:34.12.0')
+    implementation platform('com.google.firebase:firebase-bom:34.14.1')
     implementation 'com.google.firebase:firebase-config'
     implementation 'com.google.firebase:firebase-messaging'
     implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'com.google.firebase:firebase-analytics'
 
-    implementation 'com.google.code.gson:gson:2.13.2'
+    implementation 'com.google.code.gson:gson:2.14.0'
 
     def retrofit_version = '3.0.0'
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
@@ -164,7 +164,7 @@ dependencies {
     implementation "com.facebook.stetho:stetho:$stetho_version"
     implementation "com.facebook.stetho:stetho-okhttp3:$stetho_version"
 
-    implementation 'org.jsoup:jsoup:1.22.1'
+    implementation 'org.jsoup:jsoup:1.22.2'
 
     debugImplementation "com.squareup.leakcanary:leakcanary-android:2.14"
 }
