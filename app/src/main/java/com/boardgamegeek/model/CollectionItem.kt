@@ -206,11 +206,11 @@ data class CollectionItem(
         if (acquiredFrom.isNotBlank()) {
             sb.append(" ").append(context.getString(R.string.from)).append(" ").appendBold(acquiredFrom)
         }
-        if (pricePaid != null) {
+         if (pricePaid != null && pricePaid > 0.0) {
             sb.append(" ").append(context.getString(R.string.for_)).append(" ")
                 .appendBold(pricePaid.asMoney(pricePaidCurrency))
         }
-        if (currentValue != null) {
+        if (currentValue != null && currentValue > 0.0) {
             sb.append(" (").append(context.getString(R.string.currently_worth)).append(" ")
                 .appendBold(currentValue.asMoney(currentValueCurrency)).append(")")
         }
