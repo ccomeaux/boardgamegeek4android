@@ -69,7 +69,7 @@ class ForumActivity : SimpleSinglePaneActivity() {
                 }
                 finish()
             }
-            R.id.menu_view -> linkToBgg("forum/$forumId")
+            R.id.menu_view -> linkToBgg("forum", forumId)
             else -> super.onOptionsItemSelected(item)
         }
         return true
