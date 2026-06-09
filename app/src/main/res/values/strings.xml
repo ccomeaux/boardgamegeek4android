@@ -225,6 +225,8 @@
 	<string name="complete">Complete</string>
 	<string name="partial">Partial</string>
 	<string name="comment">Comment</string>
+	<string name="add_comment">Add comment</string>
+	<string name="rate_game">Rate game</string>
 	<string name="title_sort">Sort</string>
 	<string name="title_sort_by">Sort by</string>
 	<string name="title_filter">Filter by</string>
@@ -251,6 +253,7 @@
 	<string name="msg_updated_nickname">Your GeekBuddy\'s nickname has been updated to \"%s\".</string>
 	<string name="msg_collection_view_name_in_use">There\'s already a collection view with this name. Do you want to update the existing view, or create a new one?</string>
 	<string name="msg_confirm_trade">Are you sure you want to trade this item?</string>
+	<string name="menu_remove_status">Remove status</string>
 	<string name="msg_remove_status">Do you want to remove %s status?</string>
 	<string name="no_information">No information</string>
 	<string name="empty_game">No information</string>
@@ -331,6 +334,7 @@
 	<string name="menu_view_item">View item</string>
 	<string name="menu_rate_item">Rate item</string>
 	<string name="menu_comment_item">Add comment</string>
+	<string name="rate_item_suggestion">Rate this game between 1 and 10</string>
 	<string name="menu_view_in_browser">View in browser</string>
 	<string name="menu_remove_for_trade">Remove For Trade status</string>
 	<string name="menu_remove_preordered">Remove Preordered status</string>
@@ -583,6 +587,7 @@
 	<string name="invalid_id">Invalid ID</string>
 	<string name="invalid_collection_status">This game isn’t in your collection.</string>
 	<string name="private_info">Private Info</string>
+	<string name="currency">Currency</string>
 	<string name="price">Price Paid</string>
 	<string name="current_value">Current Price</string>
 	<string name="acquisition_date">Acquisition Date</string>
@@ -817,7 +822,7 @@
 	<string name="sync_user_step_stale_players">Syncing stale players</string>
 	<string name="sync_user_step_unupdated_players">Syncing unupdated players</string>
 	<string name="favorite_color">Favorite Color</string>
-	<string name="message_acquiring">Own, <strike>Preordered</strike>, <strike>Wishlist</strike>, <strike>Want to Buy</strike>, <strike>Want in Trade</strike></string>
+	<string name="message_acquiring">Own, &lt;strike&gt;Preordered&lt;/strike&gt;, &lt;strike&gt;Wishlist&lt;/strike&gt;, &lt;strike&gt;Want to Buy&lt;/strike&gt;, &lt;strike&gt;Want in Trade&lt;/strike&gt;</string>
 	<string name="one_player">1P</string>
 	<string name="two_players">2P</string>
 	<string name="three_players">3P</string>

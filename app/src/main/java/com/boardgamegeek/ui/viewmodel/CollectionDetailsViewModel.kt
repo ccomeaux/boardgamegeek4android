@@ -2,10 +2,12 @@ package com.boardgamegeek.ui.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.boardgamegeek.extensions.PREFERENCES_KEY_LOG_PLAY_TYPE
 import com.boardgamegeek.extensions.collectionStatusLiveData
 import com.boardgamegeek.extensions.isOlderThan
 import com.boardgamegeek.livedata.Event
 import com.boardgamegeek.livedata.EventLiveData
+import com.boardgamegeek.livedata.LiveSharedPreference
 import com.boardgamegeek.model.*
 import com.boardgamegeek.model.CollectionItem.Companion.filterBaseGames
 import com.boardgamegeek.model.CollectionItem.Companion.filterOwned
@@ -32,6 +34,7 @@ class CollectionDetailsViewModel @Inject constructor(
     private val playRepository: PlayRepository,
 ) : AndroidViewModel(application) {
     val syncCollectionStatuses = collectionStatusLiveData(getApplication())
+    val logPlayPreference: LiveData<String?> = LiveSharedPreference(getApplication(), PREFERENCES_KEY_LOG_PLAY_TYPE, defaultValue = null)
 
     private val allItems: LiveData<List<CollectionItem>> =
         liveData {
@@ -84,7 +87,7 @@ class CollectionDetailsViewModel @Inject constructor(
         list.any { workInfo -> !workInfo.state.isFinished }
     }
 
-    private val _playerCount: MutableLiveData<Int?> = MutableLiveData()
+    val playerCount: MutableLiveData<Int?> = MutableLiveData()
     private val _playerCountType: MutableLiveData<PlayerCountType> = MutableLiveData()
     val playerCountType: LiveData<PlayerCountType>
         get() = _playerCountType
@@ -95,7 +98,7 @@ class CollectionDetailsViewModel @Inject constructor(
         _itemsFilteredByPlayerCount.addSource(allItems) {
             createFilteredByPlayerCountList(items = it)
         }
-        _itemsFilteredByPlayerCount.addSource(_playerCount) {
+        _itemsFilteredByPlayerCount.addSource(playerCount) {
             createFilteredByPlayerCountList(playerCount = it)
         }
         _itemsFilteredByPlayerCount.addSource(_playerCountType) {
@@ -109,27 +112,27 @@ class CollectionDetailsViewModel @Inject constructor(
 
     val friendless = playStats.map { it.friendless }
 
-    val recentlyViewedItems = allItems.switchMap {
+    val recentlyViewedItems = allItems.switchMap { items ->
         liveData {
-            emit(it.filter { it.lastViewedDate > 0L }
+            emit(items.filter { it.lastViewedDate > 0L }
                 .sortedByDescending { it.lastViewedDate }
                 .take(ITEM_LIMIT))
         }
     }
 
-    val friendlessFavoriteItems = allItems.switchMap { list ->
+    val friendlessFavoriteItems = allItems.switchMap { items ->
         liveData {
             emit(
-                list.sortedByDescending { it.friendlessFave }
+                items.sortedByDescending { it.friendlessFave }
                     .take(ITEM_LIMIT)
             )
         }
     }
 
-    val underratedItems = allItems.switchMap {
+    val underratedItems = allItems.switchMap { items ->
         liveData {
             emit(
-                it.filter { it.rating > 0.0 }
+                items.filter { it.rating > 0.0 }
                     .sortedByDescending { it.zScore }
                     .take(ITEM_LIMIT)
             )
@@ -140,54 +143,61 @@ class CollectionDetailsViewModel @Inject constructor(
 
     val utilization = playStats.map { it.utilization }
 
-    val own = allItems.switchMap {
+    val ownedGames = allItems.switchMap {
         liveData {
-            val filter = it.filter { it.own && (it.subtype in listOf(Game.Subtype.BoardGame, Game.Subtype.Unknown, null)) }
+            val filter = it.filter { item -> item.own && (item.subtype == Game.Subtype.BoardGame) }
             emit(
                 filter
-                    .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenBy { it.geekRating })
-                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
+                    .sortedWith(compareByDescending<CollectionItem> { item -> item.rating }
+                        .thenBy { item -> item.geekRating })
+                    .take(ITEM_LIMIT) to filter.sumOf { item -> item.quantity }
             )
         }
     }
 
-    val growthRate = allItems.switchMap {
+    val growthRate = allItems.switchMap { items ->
         liveData {
-            val itemsWithAcquisitionDate = it.filter { it.acquisitionDate > 0L }
+            val itemsWithAcquisitionDate = items.filter { item -> item.acquisitionDate > 0L }
 
-            val calendar = Calendar.getInstance()
-            calendar.timeInMillis = itemsWithAcquisitionDate.minOf { it.acquisitionDate }
-            val yearsAcquiring = 2025 - calendar.get(Calendar.YEAR) + 1
+            if (itemsWithAcquisitionDate.isEmpty()) {
+                emit(0)
+            } else {
+                val calendar = Calendar.getInstance()
+                calendar.timeInMillis = itemsWithAcquisitionDate.minOf { it.acquisitionDate }
+                val yearsAcquiring = 2025 - calendar.get(Calendar.YEAR) + 1
 
-            emit(itemsWithAcquisitionDate.sumOf { it.quantity } / yearsAcquiring)
+                emit(itemsWithAcquisitionDate.sumOf { it.quantity } / yearsAcquiring)
+            }
         }
     }
 
-    val expansions = allItems.switchMap {
+    val ownedExpansions = allItems.switchMap { items ->
         liveData {
-            val filter = it.filter { it.own && it.subtype == Game.Subtype.BoardGameExpansion }
+            val filter = items.filter { item -> item.own && item.subtype == Game.Subtype.BoardGameExpansion }
             emit(
                 filter
-                    .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.geekRating })
-                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
+                    .sortedWith(compareByDescending<CollectionItem> { item -> item.rating }
+                        .thenByDescending { it.geekRating })
+                    .take(ITEM_LIMIT) to filter.sumOf { item -> item.quantity }
             )
         }
     }
 
-    val accessories = allItems.switchMap {
+    val ownedAccessories = allItems.switchMap {
         liveData {
-            val filter = it.filter { it.own && it.subtype == Game.Subtype.BoardGameAccessory }
+            val filter = it.filter { item -> item.own && item.subtype == Game.Subtype.BoardGameAccessory }
             emit(
                 filter
-                    .sortedWith(compareByDescending<CollectionItem> { it.rating }.thenByDescending { it.geekRating })
-                    .take(ITEM_LIMIT) to filter.sumOf { it.quantity }
+                    .sortedWith(compareByDescending<CollectionItem> { item -> item.rating }
+                        .thenByDescending { item -> item.geekRating })
+                    .take(ITEM_LIMIT) to filter.sumOf { item -> item.quantity }
             )
         }
     }
 
-    val recentlyAcquired = allItems.switchMap { list ->
+    val recentlyAcquired = allItems.switchMap { items ->
         liveData {
-            val filter = list.filter { it.own && !it.acquisitionDate.isOlderThan(365.days) }
+            val filter = items.filter { it.own && !it.acquisitionDate.isOlderThan(365.days) }
             emit(
                 filter
                     .sortedByDescending { it.acquisitionDate }
@@ -196,10 +206,10 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val hawtItems = allItems.switchMap { list ->
+    val hawtItems = allItems.switchMap { items ->
         liveData {
             emit(
-                list
+                items
                     .filter { it.own }
                     .sortedByDescending { it.hawt }
                     .take(ITEM_LIMIT)
@@ -214,6 +224,14 @@ class CollectionDetailsViewModel @Inject constructor(
         val futureGrowthRate: Double,
     )
 
+    data class AcquisitionInfo(
+        val priceCurrency: String? = null,
+        val pricePaid: Double? = null,
+        val quantity: Int? = null,
+        val acquisitionDate: Long? = null,
+        val acquiredFrom: String? = null,
+    )
+
     val collectionAcquireStats: LiveData<CollectionAcquireStats> = allItems.map { items ->
         val incomingCount = items.filter { it.isIncoming }.sumOf { it.quantity }
         val ownCount = items.filter { it.own }.sumOf { it.quantity }
@@ -223,9 +241,9 @@ class CollectionDetailsViewModel @Inject constructor(
         )
     }
 
-    val preordered = allItems.switchMap {
+    val preordered = allItems.switchMap { items ->
         liveData {
-            val (withDate, withoutDate) = it.filter { it.preOrdered }.partition { it.acquisitionDate > 0L }
+            val (withDate, withoutDate) = items.filter { it.preOrdered }.partition { it.acquisitionDate > 0L }
             emit(
                 (withoutDate.sortedByDescending { it.geekRating } + withDate.sortedBy { it.acquisitionDate })
                     .take(ITEM_LIMIT) to (withoutDate.sumOf { it.quantity } + withDate.sumOf { it.quantity })
@@ -233,8 +251,8 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val wishlist = allItems.switchMap { list ->
-        val filter = list.filter { (it.wishList && it.wishListPriority in 1..4) }
+    val wishlist = allItems.switchMap { items ->
+        val filter = items.filter { (it.wishList && it.wishListPriority in 1..4) }
         liveData {
             emit(
                 filter
@@ -244,9 +262,9 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val wantToBuy = allItems.switchMap {
+    val wantToBuy = allItems.switchMap { items ->
         liveData {
-            val filter = it.filter { it.wantToBuy }
+            val filter = items.filter { it.wantToBuy }
             emit(
                 filter
                     .sortedByDescending { it.geekRating }
@@ -255,9 +273,9 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val wantInTrade = allItems.switchMap {
+    val wantInTrade = allItems.switchMap { items ->
         liveData {
-            val filter = it.filter { it.wantInTrade }
+            val filter = items.filter { it.wantInTrade }
             emit(
                 filter
                     .sortedByDescending { it.geekRating }
@@ -266,11 +284,11 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val favoriteUnownedItems: LiveData<List<CollectionItem>> = allGames.switchMap {
+    val favoriteUnownedItems: LiveData<List<CollectionItem>> = allGames.switchMap { list ->
         liveData {
             emit(
                 // TODO figure out how to hide un-buy-able games like Celebrities
-                it.filter { !it.own && it.rating > 0.0 && !it.isIncoming }
+                list.filter { !it.own && it.rating > 0.0 && !it.isIncoming }
                     .sortedByDescending { it.rating }
                     .take(ITEM_LIMIT)
             )
@@ -301,20 +319,20 @@ class CollectionDetailsViewModel @Inject constructor(
 
     private val forTradeItems = allItems.map { list -> list.filter { item -> item.forTrade } }
 
-    val forTrade = forTradeItems.switchMap {
+    val forTrade = forTradeItems.switchMap { list ->
         liveData {
             emit(
-                it
+                list
                     .sortedByDescending { it.numberOfUsersWanting }
-                    .take(ITEM_LIMIT) to it.sumOf { it.quantity }
+                    .take(ITEM_LIMIT) to list.sumOf { it.quantity }
             )
         }
     }
 
-    val forTradeWithoutCondition = forTradeItems.switchMap {
+    val forTradeWithoutCondition = forTradeItems.switchMap { list ->
         liveData {
-            val filter = it.sortedByDescending { it.numberOfUsersWanting }.drop(ITEM_LIMIT).filter { it.conditionText.isBlank() }
-            val quantity = it.filter { it.conditionText.isBlank() }.sumOf { it.quantity }
+            val filter = list.sortedByDescending { it.numberOfUsersWanting }.drop(ITEM_LIMIT).filter { it.conditionText.isBlank() }
+            val quantity = list.filter { it.conditionText.isBlank() }.sumOf { it.quantity }
             emit(
                 filter
                     .sortedByDescending { it.numberOfUsersWanting }
@@ -323,15 +341,15 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val regretFactor = allItems.switchMap {
+    val regretFactor = allItems.switchMap { items ->
         liveData {
-            emit(it.filter { it.previouslyOwned && it.isIncoming }.sumOf { it.quantity })
+            emit(items.filter { it.previouslyOwned && it.isIncoming }.sumOf { it.quantity })
         }
     }
 
-    val previouslyOwned = allItems.switchMap {
+    val previouslyOwned = allItems.switchMap { items ->
         liveData {
-            val filter = it.filter { it.previouslyOwned }
+            val filter = items.filter { it.previouslyOwned }
             emit(
                 filter
                     .sortedByDescending { it.geekRating }
@@ -356,7 +374,7 @@ class CollectionDetailsViewModel @Inject constructor(
     // PLAY
 
     fun filterPlayerCount(playerCount: Int?) {
-        _playerCount.postValue(playerCount)
+        this.playerCount.postValue(playerCount)
     }
 
     fun filterPlayerCountType(playerCountType: PlayerCountType) {
@@ -370,18 +388,18 @@ class CollectionDetailsViewModel @Inject constructor(
         BestWith,
     }
 
-    val wantToPlayItems = _itemsFilteredByPlayerCount.switchMap {
+    val wantToPlayItems = _itemsFilteredByPlayerCount.switchMap { items ->
         liveData {
-            val list = it.filter { it.wantToPlay }
+            val list = items.filter { it.wantToPlay }
             emit(
                 list.sortedByDescending { it.geekRating }.take(ITEM_LIMIT) to list.sumOf { it.quantity }
             )
         }
     }
 
-    val recentlyPlayedGames = _itemsFilteredByPlayerCount.switchMap {
+    val recentlyPlayedGames = _itemsFilteredByPlayerCount.switchMap { items ->
         liveData {
-            val list = it.asSequence()
+            val list = items.asSequence()
                 .filterBaseGames()
                 .filter { it.lastPlayDate != null && it.lastPlayDate > 0L }
                 .sortedByDescending { it.lastPlayDate }
@@ -392,9 +410,9 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val friendlessShouldPlayGames = _itemsFilteredByPlayerCount.switchMap {
+    val friendlessShouldPlayGames = _itemsFilteredByPlayerCount.switchMap { items ->
         liveData {
-            val list = it.asSequence()
+            val list = items.asSequence()
                 .filterOwned()
                 .filterBaseGames()
                 .filter { it.friendlessShouldPlay > 10_000.0 }
@@ -405,9 +423,9 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val shelfOfOpportunityItems = _itemsFilteredByPlayerCount.switchMap {
+    val shelfOfOpportunityItems = _itemsFilteredByPlayerCount.switchMap { items ->
         liveData {
-            val list = it.asSequence()
+            val list = items.asSequence()
                 .filterOwned()
                 .filterBaseGames()
                 .filterUnplayed()
@@ -418,9 +436,9 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    val shelfOfNewOpportunityItems = _itemsFilteredByPlayerCount.switchMap {
+    val shelfOfNewOpportunityItems = _itemsFilteredByPlayerCount.switchMap { items ->
         liveData {
-            val list = it.asSequence()
+            val list = items.asSequence()
                 .filterOwned()
                 .filterBaseGames()
                 .filterUnplayed()
@@ -434,7 +452,7 @@ class CollectionDetailsViewModel @Inject constructor(
 
     private fun createFilteredByPlayerCountList(
         items: List<CollectionItem>? = allItems.value,
-        playerCount: Int? = _playerCount.value,
+        playerCount: Int? = this.playerCount.value,
         playerCountType: PlayerCountType = _playerCountType.value ?: PlayerCountType.All,
     ) {
         items?.let {
@@ -605,13 +623,9 @@ class CollectionDetailsViewModel @Inject constructor(
         }
     }
 
-    fun markedAsAcquired(
+    fun markAsAcquired(
         internalId: Long,
-        priceCurrency: String?,
-        pricePaid: Double?,
-        quantity: Int?,
-        acquisitionDate: Long?,
-        acquiredFrom: String?,
+        info: AcquisitionInfo = AcquisitionInfo(),
     ) {
         allItems.value?.find { it.internalId == internalId }?.let { originalItem ->
             viewModelScope.launch {
@@ -628,22 +642,22 @@ class CollectionDetailsViewModel @Inject constructor(
                     statuses.second,
                 )
 
-                val itemModified = priceCurrency != originalItem.pricePaidCurrency ||
-                        pricePaid != originalItem.pricePaid ||
-                        quantity != originalItem.quantity ||
-                        acquisitionDate != originalItem.acquisitionDate ||
-                        acquiredFrom != originalItem.acquiredFrom
+                val itemModified = info.priceCurrency != originalItem.pricePaidCurrency ||
+                        info.pricePaid != originalItem.pricePaid ||
+                        info.quantity != originalItem.quantity ||
+                        info.acquisitionDate != originalItem.acquisitionDate ||
+                        info.acquiredFrom != originalItem.acquiredFrom
 
                 if (itemModified) {
                     gameCollectionRepository.updatePrivateInfo(
                         internalId,
-                        priceCurrency,
-                        pricePaid,
+                        info.priceCurrency,
+                        info.pricePaid,
                         originalItem.currentValueCurrency,
                         originalItem.currentValue,
-                        quantity,
-                        acquisitionDate,
-                        acquiredFrom,
+                        info.quantity,
+                        info.acquisitionDate,
+                        info.acquiredFrom,
                         originalItem.inventoryLocation,
                     )
                 }
