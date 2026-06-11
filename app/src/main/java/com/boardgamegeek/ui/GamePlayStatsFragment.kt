@@ -128,7 +128,7 @@ class GamePlayStatsFragment : Fragment() {
         }
 
         viewModel.collectionItems.observe(viewLifecycleOwner) {
-            it?.first()?.let { item: CollectionItem ->
+            it?.firstOrNull()?.let { item: CollectionItem ->
                 playCountColors = intArrayOf(
                     item.winsColor.colorOrElse(R.color.orange),
                     item.winnablePlaysColor.colorOrElse(R.color.dark_blue),
@@ -136,7 +136,7 @@ class GamePlayStatsFragment : Fragment() {
                 )
             }
 
-            publishedPlayingTime = it?.first()?.playingTime ?: 0
+            publishedPlayingTime = it?.firstOrNull()?.playingTime ?: 0
             personalRating = it?.filter { item -> item.rating > 0.0 }?.map { item -> item.rating }?.average() ?: Game.UNRATED
             isGameOwned = it?.any { item -> item.own } ?: false
             modifiedWhitmoreScore = it?.filter { item -> item.rating > 0.0 }?.map { item -> item.modifiedWhitmoreScore }?.average() ?: 0.0
